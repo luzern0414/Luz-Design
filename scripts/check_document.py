@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Check a delivered HTML, XLSX, DOCX, PPTX, or Markdown file against rules/file-design.html.
+"""Check a delivered HTML, XLSX, DOCX, PPTX, or Markdown file against references/file-design.html.
 
-The checks follow the problem families in references/design-standards.html (删除测试 and 问题的同类判断), not a fixed
+The checks follow the problem families in references/visual-design.html (删除测试 and 问题的同类判断), not a fixed
 word list. The patterns still catch only common wordings, so a clean run is necessary, not sufficient:
 the deletion test must be applied to every visible element by hand as well.
 """
@@ -60,7 +60,7 @@ def FLOOR_PX() -> float:
     return 12.0 if "interface" in ALLOWED else 14.0
 
 
-# One shared scale for the function list, mini-program and admin of a product deliverable (design-standards.html, 字阶).
+# One shared scale for the function list, mini-program and admin of a product deliverable (visual-design.html, 字阶).
 INTERFACE_SCALE = {12, 14, 16, 18, 22, 28, 32}
 # Websites add the first-screen title steps (website-design.html, 六、视觉基础): 40 on desktop, 48 for a brand home page.
 WEBSITE_SCALE = INTERFACE_SCALE | {40, 48}
@@ -244,10 +244,10 @@ def check_html(path: Path, errors: list[str], warnings: list[str]) -> None:
                 elif "interface" in ALLOWED and unit.lower() == "px" and "calc" not in value and float(number) not in (WEBSITE_SCALE if "website" in ALLOWED else INTERFACE_SCALE):
                     errors.append(f"font size off the product type scale 12/14/16/18/22/28/32 in {selector[:40]!r}: {decl.group(1).strip()}")
         if "interface" in ALLOWED and re.search(r"drawer|side-?panel|slide-?over", selector, re.I) and not re.search(r"menu|nav", selector, re.I):
-            # Details and forms float in the centre; only navigation may slide in from the side (design-standards.html, 浮层与反馈).
+            # Details and forms float in the centre; only navigation may slide in from the side (Luz-System ui-standards.html, 浮层与反馈).
             errors.append(f"side drawer for content in {selector[:40]!r}: use a centred floating panel")
         if "interface" in ALLOWED:
-            # Product deliverables use two weights only and no tracking (design-standards.html, 字体).
+            # Product deliverables use two weights only and no tracking (visual-design.html, 字体与字号).
             for decl in re.finditer(r"(?:^|;)\s*font-weight\s*:\s*([^;]+)", body, re.I):
                 if decl.group(1).strip().lower() not in {"400", "600", "normal", "inherit"}:
                     errors.append(f"font weight outside 400/600 in {selector[:40]!r}: {decl.group(1).strip()}")
@@ -273,7 +273,7 @@ def check_html(path: Path, errors: list[str], warnings: list[str]) -> None:
         for decl in re.finditer(r"(?:^|;)\s*background(?:-color|-image)?\s*:\s*([^;]+)", body, re.I):
             value = resolve(decl.group(1))
             small = DARK_SMALL_SELECTOR.search(selector)
-            # Flat style everywhere (design-standards.html, 扁平线性风格): no decorative gradients. Interfaces may keep a
+            # Flat style everywhere (visual-design.html, 扁平线性风格): no decorative gradients. Interfaces may keep a
             # black-alpha scrim over a photo, a hard-stop fill (sliders, progress) and skeleton shimmer.
             if re.search(r"gradient", value, re.I):
                 if "interface" not in ALLOWED:
@@ -289,7 +289,7 @@ def check_html(path: Path, errors: list[str], warnings: list[str]) -> None:
                       and not re.search(r"::?(?:before|after)|-thumb|:disabled|:hover", selector)
                       and (1.05 / (lum + 0.05)) < 3.0):
                     # A coloured control fill that is neither a pale container nor a solid step fails WCAG 1.4.11 (3:1)
-                    # and reads as washed-out (design-standards.html, 配色: 官方色板取阶).
+                    # and reads as washed-out (visual-design.html, 取色依据).
                     errors.append(f"washed-out control fill in {selector[:40]!r}: {decl.group(1).strip()[:30]} ({1.05 / (lum + 0.05):.1f}:1 against white, needs 3:1 or a pale container)")
             if ("interface" in ALLOWED and re.search(r"gradient", value, re.I) and re.search(r"primary|danger", selector, re.I)
                     and not re.search(r"::?(?:before|after)|-thumb|prob", selector)):
@@ -312,7 +312,7 @@ def check_html(path: Path, errors: list[str], warnings: list[str]) -> None:
             if len(blur) >= 3 and int(blur[2]) > 24:
                 warnings.append(f"heavy shadow in {selector[:40]!r}: {decl.group(1).strip()[:30]}")
         if "interface" in ALLOWED:
-            # Flat interface (design-standards.html, 扁平线性风格; Ant Design shadow levels, Material 3 elevation):
+            # Flat interface (visual-design.html, 扁平线性风格; Ant Design shadow levels, Material 3 elevation):
             # cards take the lowest neutral shadow, overlays one level higher; no bevels, glows, glass or blobs.
             overlay = re.search(r"modal|dialog|pop|toast|tip|drop|sheet|layer|confirm|drawer|menu|float|picker|lightbox|panel", selector, re.I)
             for decl in re.finditer(r"(?:^|;)\s*box-shadow\s*:\s*([^;]+)", body, re.I):
@@ -335,7 +335,7 @@ def check_html(path: Path, errors: list[str], warnings: list[str]) -> None:
                     icon_strokes.add(decl.group(1))
     if len(families) > 1:
         errors.append(f"more than one font family: {sorted(families)}")
-    # One typeface everywhere (design-standards.html 字体与字号): the canonical stack is
+    # One typeface everywhere (visual-design.html 字体与字号): the canonical stack is
     # "PingFang SC", "Microsoft YaHei", "Noto Sans SC", system-ui, sans-serif; a page may lead with any of those three.
     allowed_first = {"pingfang sc", "microsoft yahei", "noto sans sc", "苹方", "微软雅黑", "思源黑体", "system-ui", "sans-serif", "inherit"}
     for family in sorted(families - allowed_first):
@@ -348,7 +348,7 @@ def check_html(path: Path, errors: list[str], warnings: list[str]) -> None:
             break
     for family in sorted({f.strip().strip("'\"").lower() for f in re.findall(r"font-family\s*=\s*[\"']([^\"',]+)", source, re.I)} - allowed_first):
         errors.append(f"SVG font-family {family!r} differs from the shared stack")
-    # One object, one icon (design-standards.html 图形：一套线性图标): the same pictogram must not label two
+    # One object, one icon (visual-design.html 图形：一套线性图标): the same pictogram must not label two
     # different things. Short glyphs (arrows, close, plus, check) are controls, not pictograms, and are skipped.
     if "interface" in ALLOWED or "website" in ALLOWED:
         meaning: dict[str, set[str]] = {}
@@ -379,15 +379,405 @@ def check_html(path: Path, errors: list[str], warnings: list[str]) -> None:
             errors.append(f"<{m.group(1)}> in an interface graphic: icons, charts and illustrations are flat")
         for m in re.finditer(r"<img\b[^>]*class=[\"'][^\"']*\b(?:i3|icon|ico)\b", source, re.I):
             errors.append(f"raster icon {m.group(0)[:50]!r}: draw icons as one set of line vectors")
-        # Default avatars are cartoon animals or a line icon, never initials, a surname or any other text (design-standards.html, 头像).
+        # Default avatars are cartoon animals or a line icon, never initials, a surname or any other text (Luz-System ui-standards.html, 头像).
         for m in re.finditer(r"class=[\"'][^\"']*\bavatar\b[^\"']*[\"'][^>]*>\s*([^<\s'][^<]{0,5}?)\s*<", source, re.I):
             errors.append(f"text inside avatar: {m.group(1)!r}; use a cartoon avatar or a line icon")
         for m in re.finditer(r"avatar[^\n]{0,80}?(?:\[0\]|charAt\(0\)|slice\(0,\s*[12]\)|substr(?:ing)?\(0,\s*[12]\)|\.(?:name|nick\w*|user\w*)\b[^\n]{0,6}?(?:\[0\]|\.slice))", source, re.I):
             errors.append(f"initials or text used as avatar: {m.group(0)[:60]!r}")
+        check_interface_layout(source, resolve, errors, warnings)
     if not re.search(r"<html[^>]+lang=", source, re.I):
         warnings.append("missing lang attribute")
     if not re.search(r"name=[\"']viewport", source, re.I):
         warnings.append("missing viewport meta")
+
+
+# ---------------------------------------------------------------- Interface layout (--allow interface)
+# Density, titles, navigation and table columns (visual-design.html 界面密度与表格对齐; Luz-System admin-design.html).
+# Only the static DOM is seen: content a script renders at run time is checked in the browser by the prototype tests.
+
+BODY_TAGS = {"td", "th", "p", "li", "label", "input", "button", "select", "textarea"}
+# Auxiliary text may use the 12–13px step: timestamps, units, badges, hints, captions.
+AUX_CLASS = re.compile(r"meta|hint|time|unit|badge|caption|aux", re.I)
+EMPTY_CELL = {"", "—", "-", "–", "--", "——", "/"}
+CONTROL_TAGS = {"button", "a", "input", "select", "textarea", "img", "svg", "progress", "meter"}
+NAV_CLASS = re.compile(r"nav|menu|side-?bar|\bside\b", re.I)
+ACTIVE_CLASS = re.compile(r"active|current|selected", re.I)
+STATE_PSEUDO = re.compile(r":(?:hover|focus|active|disabled|checked|visited|focus-within|focus-visible|placeholder|invalid|valid|"
+                          r"empty|target|indeterminate|read-only|placeholder-shown|-webkit-[\w-]+|-moz-[\w-]+)\b|::|:before|:after|:marker", re.I)
+
+
+class Node:
+    __slots__ = ("tag", "attrs", "children", "parent", "hidden", "classes")
+
+    def __init__(self, tag: str, attrs: dict, parent: "Node | None") -> None:
+        self.tag, self.attrs, self.parent, self.children = tag, attrs, parent, []
+        self.classes = set((attrs.get("class") or "").split())
+        self.hidden = bool(parent and parent.hidden) or tag in {"script", "style", "template", "head", "noscript"} \
+            or "hidden" in attrs or (attrs.get("aria-hidden") or "").lower() == "true" \
+            or bool(re.search(r"display\s*:\s*none", attrs.get("style") or "", re.I))
+
+    def elements(self):
+        for child in self.children:
+            if isinstance(child, Node):
+                yield child
+                yield from child.elements()
+
+    def text(self) -> str:
+        parts = []
+        for child in self.children:
+            if isinstance(child, str):
+                parts.append(child)
+            elif child.tag not in {"script", "style", "template"}:
+                parts.append(child.text())
+        return " ".join(" ".join(parts).split())
+
+    def own_text(self) -> str:
+        return " ".join(" ".join(c for c in self.children if isinstance(c, str)).split())
+
+    def ancestors(self):
+        node = self.parent
+        while node is not None:
+            yield node
+            node = node.parent
+
+    def cls(self) -> str:
+        return self.attrs.get("class") or ""
+
+
+class TreeBuilder(HTMLParser):
+    """A small DOM: enough structure for selector matching, tables and navigation groups."""
+
+    VOID = Outline.VOID | {"area", "base", "embed", "param", "track", "stop"}
+    # Opening one of these closes an open element of the listed kinds first (HTML optional end tags).
+    AUTO_CLOSE = {"li": ({"li"}, {"ul", "ol", "menu"}), "td": ({"td", "th"}, {"tr", "table"}), "th": ({"td", "th"}, {"tr", "table"}),
+                  "tr": ({"tr", "td", "th"}, {"table", "tbody", "thead", "tfoot"}), "p": ({"p"}, set()),
+                  "option": ({"option"}, {"select"}), "dt": ({"dt", "dd"}, {"dl"}), "dd": ({"dt", "dd"}, {"dl"})}
+
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.root = Node("#root", {}, None)
+        self.current = self.root
+
+    def handle_starttag(self, tag, attrs):
+        if tag in self.AUTO_CLOSE:
+            closes, stops = self.AUTO_CLOSE[tag]
+            node = self.current
+            while node is not self.root and node.tag not in stops:
+                if node.tag in closes:
+                    self.current = node.parent
+                    break
+                node = node.parent
+        node = Node(tag, {k: (v if v is not None else "") for k, v in attrs}, self.current)
+        self.current.children.append(node)
+        if tag not in self.VOID:
+            self.current = node
+
+    def handle_startendtag(self, tag, attrs):
+        node = Node(tag, {k: (v if v is not None else "") for k, v in attrs}, self.current)
+        self.current.children.append(node)
+
+    def handle_endtag(self, tag):
+        node = self.current
+        while node is not self.root and node.tag != tag:
+            node = node.parent
+        if node is not self.root:
+            self.current = node.parent
+
+    def handle_data(self, data):
+        if data.strip():
+            self.current.children.append(data)
+
+
+def css_rules(css: str) -> list[tuple[str, str]]:
+    """Top-level (selector, declarations) pairs; rules inside @media and other at-rules are skipped, so a mobile
+    override does not decide the desktop cascade."""
+    css = re.sub(r"/\*.*?\*/", "", css, flags=re.S)
+    rules, depth, start, selector = [], 0, 0, ""
+    for i, ch in enumerate(css):
+        if ch == "{":
+            if depth == 0:
+                selector = css[start:i].strip()
+            depth += 1
+            start = i + 1
+        elif ch == "}":
+            depth = max(depth - 1, 0)
+            if depth == 0 and not selector.startswith("@"):
+                rules.append((selector, css[start:i]))
+            start = i + 1
+        elif ch == ";" and depth == 0:
+            start = i + 1
+    return rules
+
+
+def parse_compound(text: str):
+    m = re.match(r"([a-zA-Z][\w-]*|\*)?", text)
+    tag = (m.group(1) or "*").lower()
+    rest = text[m.end():]
+    ids = re.findall(r"#([\w-]+)", rest)
+    classes = re.findall(r"\.([\w-]+)", rest)
+    attrs = re.findall(r"\[\s*([\w-]+)\s*(?:([~*^$|]?=)\s*[\"']?([^\"'\]]*)[\"']?)?\s*\]", rest)
+    pseudo = len(re.findall(r":[\w-]+", re.sub(r"\[[^\]]*\]", "", rest)))
+    return tag, ids, classes, attrs, (len(ids), len(classes) + len(attrs) + pseudo, 0 if tag == "*" else 1)
+
+
+def parse_selector(selector: str):
+    """[(combinator, compound)] read right to left; None for selectors that depend on state, pseudo-elements or siblings."""
+    selector = selector.strip()
+    if not selector or STATE_PSEUDO.search(selector) or re.search(r"[+~](?![^\[]*\])", selector):
+        return None
+    selector = re.sub(r":(?:not|is|where|has|nth-[\w-]+)\([^)]*\)", "", selector)
+    selector = re.sub(r":root\b", "html", selector)
+    selector = re.sub(r"\s*>\s*", " > ", selector)
+    parts, combinator = [], " "
+    for token in selector.split():
+        if token == ">":
+            combinator = ">"
+            continue
+        parts.append((combinator, parse_compound(token)))
+        combinator = " "
+    return parts[::-1] if parts else None
+
+
+def match_compound(node: Node, compound) -> bool:
+    tag, ids, classes, attrs, _ = compound
+    if tag != "*" and node.tag != tag:
+        return False
+    if any(node.attrs.get("id") != i for i in ids) or not set(classes) <= node.classes:
+        return False
+    for name, op, value in attrs:
+        if name not in node.attrs:
+            return False
+        actual = node.attrs[name]
+        if op == "=" and actual != value or op == "~=" and value not in actual.split() or op == "*=" and value not in actual \
+                or op == "^=" and not actual.startswith(value) or op == "$=" and not actual.endswith(value):
+            return False
+    return True
+
+
+def match_selector(node: Node, parts, index: int = 0) -> bool:
+    if not match_compound(node, parts[index][1]):
+        return False
+    if index + 1 == len(parts):
+        return True
+    combinator = parts[index][0]
+    for ancestor in node.ancestors():
+        if ancestor.tag == "#root":
+            return False
+        if match_selector(ancestor, parts, index + 1):
+            return True
+        if combinator == ">":
+            return False
+    return False
+
+
+def length_px(value: str, parent: float) -> float | None:
+    m = re.search(r"(-?(?:\d+(?:\.\d+)?|\.\d+))\s*(px|rem|em|pt|%)?", value)
+    if not m or "calc" in value or "clamp" in value or "var(" in value:
+        return None
+    number, unit = float(m.group(1)), (m.group(2) or "px").lower()
+    return {"px": number, "rem": number * 16, "em": number * parent, "pt": number * 4 / 3, "%": number * parent / 100}[unit]
+
+
+def declarations(body: str, resolve) -> dict[str, str]:
+    found = {}
+    for name, value in re.findall(r"(?:^|;)\s*([\w-]+)\s*:\s*([^;]+)", body):
+        found[name.lower()] = resolve(value.replace("!important", "").strip())
+    return found
+
+
+def font_size_value(decls: dict[str, str]) -> str | None:
+    if "font-size" in decls:
+        return decls["font-size"]
+    if "font" in decls:
+        m = re.search(r"((?:\d+(?:\.\d+)?|\.\d+)(?:px|rem|em|pt|%))", decls["font"])
+        return m.group(1) if m else None
+    return None
+
+
+def padding_sides(decls: dict[str, str]) -> tuple[str | None, str | None]:
+    left = right = None
+    for name in ("padding", "padding-inline"):
+        if name in decls:
+            values = decls[name].split()
+            if name == "padding":
+                left = right = values[1] if len(values) >= 2 else values[0]
+                if len(values) == 4:
+                    left = values[3]
+            else:
+                left, right = values[0], values[-1]
+    left = decls.get("padding-left", decls.get("padding-inline-start", left))
+    right = decls.get("padding-right", decls.get("padding-inline-end", right))
+    return left, right
+
+
+def check_interface_layout(source: str, resolve, errors: list[str], warnings: list[str]) -> None:
+    builder = TreeBuilder()
+    builder.feed(source)
+    nodes = [n for n in builder.root.elements() if not n.hidden and not any(a.tag == "svg" for a in n.ancestors())]
+    by_key: dict[str, list[Node]] = {}
+    for n in nodes:
+        for key in [n.tag] + ["." + c for c in n.classes] + (["#" + n.attrs["id"]] if n.attrs.get("id") else []):
+            by_key.setdefault(key, []).append(n)
+
+    # Cascade: for each element, the winning font-size and padding by specificity, then source order; inline style wins.
+    css = "\n".join(re.findall(r"<style[^>]*>(.*?)</style>", source, re.S | re.I))
+    won: dict[int, dict[str, tuple]] = {}
+    for order, (group, body) in enumerate(css_rules(css)):
+        decls = declarations(body, resolve)
+        wanted = {}
+        size = font_size_value(decls)
+        if size:
+            wanted["size"] = size
+        left, right = padding_sides(decls)
+        if left is not None:
+            wanted["pad-left"] = left
+        if right is not None:
+            wanted["pad-right"] = right
+        if not wanted:
+            continue
+        for selector in group.split(","):
+            parts = parse_selector(selector)
+            if not parts:
+                continue
+            tag, ids, classes, _, spec = parts[0][1]
+            key = "#" + ids[0] if ids else "." + classes[0] if classes else tag
+            candidates = nodes if key == "*" else by_key.get(key, [])
+            for n in candidates:
+                if match_selector(n, parts):
+                    slot = won.setdefault(id(n), {})
+                    for prop, value in wanted.items():
+                        if prop not in slot or (spec, order) >= slot[prop][0]:
+                            slot[prop] = ((spec, order), value)
+
+    sizes: dict[int, float] = {}
+
+    def size_of(n: Node) -> float:
+        if id(n) in sizes:
+            return sizes[id(n)]
+        parent = size_of(n.parent) if n.parent is not None and n.parent.tag != "#root" else 16.0
+        inline = declarations(n.attrs.get("style") or "", resolve)
+        value = font_size_value(inline) or won.get(id(n), {}).get("size", (None, None))[1]
+        px = length_px(value, parent) if value else None
+        if value and value.strip() in {"inherit", "unset"}:
+            px = None
+        sizes[id(n)] = parent if px is None else px
+        return sizes[id(n)]
+
+    # 1. Body text 14px: cells, paragraphs, list items, labels and controls. Below 12px is already an error above.
+    small: dict[tuple, list[str]] = {}
+    for n in nodes:
+        if n.tag not in BODY_TAGS:
+            continue
+        if n.tag == "input" and (n.attrs.get("type") or "text").lower() in {"hidden", "checkbox", "radio", "range", "color", "file", "image"}:
+            continue
+        text = n.own_text() if n.tag not in {"input", "select", "textarea"} else (n.attrs.get("value") or n.attrs.get("placeholder") or n.tag)
+        if not text:
+            continue
+        px = size_of(n)
+        if 12 <= px < 14:
+            chain = [n] + list(n.ancestors())[:2]
+            if any(AUX_CLASS.search(a.cls()) for a in chain) or n.tag in {"small", "time"}:
+                continue
+            small.setdefault((n.tag, n.cls(), round(px, 1)), []).append(text)
+    for (tag, cls, px), texts in small.items():
+        label = f"<{tag}{' class=' + repr(cls) if cls else ''}>"
+        errors.append(f"interface body text {px:g}px in {label} ({len(texts)}x, e.g. {texts[0][:16]!r}): body, tables and forms use 14px; "
+                      "12–13px only for elements marked meta, hint, time, unit, badge, caption or aux")
+
+    def in_nav(n: Node) -> bool:
+        return any(a.tag in {"nav", "aside"} or (a.attrs.get("role") or "") in {"navigation", "menu", "menubar", "tree"}
+                   or NAV_CLASS.search(a.cls()) for a in [n] + list(n.ancestors()))
+
+    def norm(text: str) -> str:
+        return re.sub(r"\s+", "", text)
+
+    # 2. The page title repeats the highlighted navigation item.
+    active = [n for n in nodes if in_nav(n) and (ACTIVE_CLASS.search(n.cls()) or (n.attrs.get("aria-current") or "false").lower() != "false"
+                                                 and "aria-current" in n.attrs)]
+    active_text = {norm(n.text()): n for n in active if norm(n.text())}
+    titles = [n for n in nodes if not in_nav(n) and (
+        n.tag == "h1" or re.search(r"page[-_]?(?:title|head|header|name)", n.cls(), re.I)
+        or (n.tag in {"h2", "h3", "h4"} and any(re.search(r"page[-_]?(?:title|head)|(?:^|[-_\s])title\b", a.cls(), re.I) for a in [n] + list(n.ancestors())[:2])))]
+    reported: set[str] = set()
+    for t in titles:
+        text = norm(t.text())
+        if text in active_text and text not in reported:
+            reported.add(text)
+            errors.append(f"page title {t.text()!r} repeats the highlighted navigation item: drop the title and use the header row for actions and filters")
+
+    # 3. A navigation group whose label equals its only item.
+    def clickables(scope: list[Node]) -> list[Node]:
+        found = [n for n in scope if n.tag in {"a", "button"} or (n.attrs.get("role") or "") in {"menuitem", "link", "tab", "treeitem"}]
+        return found or [n for n in scope if n.tag == "li"]
+
+    for label in nodes:
+        if not in_nav(label) or not label.text() or label.tag in {"a", "button", "li"} or \
+                any(a.tag in {"a", "button"} for a in label.ancestors()):
+            continue
+        if not (label.tag in {"h2", "h3", "h4", "h5", "h6", "dt"} or re.search(r"label|title|head|caption|group-?name|\bmg\b", label.cls(), re.I)):
+            continue
+        siblings = [c for c in label.parent.children if isinstance(c, Node)] if label.parent else []
+        after = siblings[siblings.index(label) + 1:] if label in siblings else []
+        items = clickables([x for s in after[:1] for x in [s] + list(s.elements())]) if after else []
+        if not items and label.parent is not None:
+            items = clickables([x for x in label.parent.elements() if x is not label and label not in x.ancestors()])
+        if len(items) == 1 and norm(items[0].text()) == norm(label.text()):
+            errors.append(f"navigation group {label.text()!r} holds only an item of the same name: remove the group label")
+
+    # 4–6. Table columns: all empty, all identical; long text without 16px side padding.
+    padding_reported: set[tuple] = set()
+    for table in (n for n in nodes if n.tag == "table"):
+        rows = [r for r in table.elements() if r.tag == "tr" and not r.hidden and next((a for a in r.ancestors() if a.tag == "table"), None) is table]
+        header = next((r for r in rows if any(c.tag == "th" for c in r.children if isinstance(c, Node))), None)
+        names = [c.text() for c in header.children if isinstance(c, Node) and c.tag in {"th", "td"}] if header else []
+        # Lay the body rows onto a grid so a cell merged down several rows (rowspan) counts once, in its own column.
+        data, carry = [], {}
+        for r in rows:
+            cells = [c for c in r.children if isinstance(c, Node) and c.tag in {"td", "th"}]
+            if r is header or not cells or any(a.tag == "thead" for a in r.ancestors()) or all(c.tag == "th" for c in cells) \
+                    or any(c.attrs.get("colspan", "1") not in {"", "1"} for c in cells):
+                carry = {}
+                continue
+            slots, k, queue = [], 0, list(cells)
+            while queue or any(key >= k for key in carry):
+                if k in carry:
+                    slots.append(None)
+                    carry[k] -= 1
+                    if carry[k] == 0:
+                        del carry[k]
+                else:
+                    cell = queue.pop(0)
+                    span = int(cell.attrs.get("rowspan") or 1) if (cell.attrs.get("rowspan") or "1").isdigit() else 1
+                    if span > 1:
+                        carry[k] = span - 1
+                    slots.append(cell)
+                k += 1
+            data.append(slots)
+        width = len(data[0]) if data else 0
+        if len(data) < 3 or any(len(r) != width for r in data):
+            continue
+        for k in range(width):
+            column = [r[k] for r in data if r[k] is not None]
+            if len(column) < 3:
+                continue
+            name = names[k] if k < len(names) and len(names) == width else f"第 {k + 1} 列"
+            has_control = any(x.tag in CONTROL_TAGS for c in column for x in c.elements())
+            texts = [c.text() for c in column]
+            if not has_control and all(t in EMPTY_CELL for t in texts):
+                errors.append(f"table column {name!r} is empty in every row: hide it by default (column settings)")
+            elif len(column) >= 5 and not has_control and len(set(texts)) == 1 and texts[0] not in EMPTY_CELL and not re.search(r"操作", name):
+                warnings.append(f"table column {name!r} holds {texts[0][:16]!r} in all {len(column)} rows: state it once in the filter summary or header")
+            for c in column:
+                if len(c.text()) < 12 or any(x.tag in CONTROL_TAGS for x in c.elements()):
+                    continue
+                slot = won.get(id(c), {})
+                values = [length_px(slot[p][1], size_of(c)) for p in ("pad-left", "pad-right") if p in slot]
+                values = [v for v in values if v is not None]
+                key = (table.cls(), c.cls(), tuple(values))
+                if values and min(values) < 16 and key not in padding_reported:
+                    padding_reported.add(key)
+                    warnings.append(f"long-text cell in column {name!r} has {min(values):g}px side padding: data cells keep at least 16px")
+                break
 
 
 # ---------------------------------------------------------------- XLSX
@@ -430,6 +820,10 @@ def check_xlsx(path: Path, errors: list[str], warnings: list[str]) -> None:
                 errors.append(f"{where} row {i + 1} sits between the title and the header: {str(rows[i][0].value)[:30]!r}")
         header = rows[header_index]
         header_values = [str(c.value).strip() for c in header]
+        # Exported data speaks business Chinese, not database fields (file-design.html, 导出文件).
+        fields = [v for v in header_values if re.fullmatch(r"[a-z][a-z0-9]*(?:_[a-z0-9]+)+|[a-z][a-z0-9]*(?:[A-Z][a-z0-9]*)+|[a-z][a-z0-9]{1,}", v)]
+        if fields:
+            warnings.append(f"{where} header holds field names {fields[:4]}: translate them into Chinese business terms")
         last_col = max(c.column for c in header)
         first_col = min(c.column for c in header)
         # Everything must sit inside the data rectangle: title, header, data, section titles, totals.

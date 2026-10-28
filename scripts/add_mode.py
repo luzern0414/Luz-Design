@@ -9,9 +9,7 @@ import re
 import sys
 import time
 from pathlib import Path
-from typing import Callable
-
-from new_session import MODE_NAMES, OUTPUT_ROOT, SESSION_RE, SKILL_ROOT, init_mode
+from new_session import MODE_NAMES, OTHER_SKILL_MODES, OUTPUT_ROOT, SESSION_RE, SKILL_ROOT, init_mode
 
 LOCK_TIMEOUT_SECONDS = 5.0
 
@@ -51,9 +49,11 @@ def checked_session(root: Path, session: Path) -> Path:
     return candidate
 
 
-def add_mode(root: Path, session: Path, mode: str, *, standalone_poster: bool = False, skill_root: Path = SKILL_ROOT, source_checker: Callable[[str], int] | None = None, allow_live_crawl_offline: bool = False) -> dict:
-    if mode not in {"visual", "prototype", "document"}:
-        raise ValueError("add_mode supports visual, prototype, or document; system scope is created only by the intake workflow")
+def add_mode(root: Path, session: Path, mode: str, *, standalone_poster: bool = False, skill_root: Path = SKILL_ROOT) -> dict:
+    if mode in OTHER_SKILL_MODES:
+        raise ValueError(f"{mode} belongs to {OTHER_SKILL_MODES[mode]}, not Luz-Design; use that skill")
+    if mode not in MODE_NAMES:
+        raise ValueError(f"add_mode supports {' or '.join(MODE_NAMES)}")
     session = checked_session(root, session)
     work = session / "raw"
     manifest_path = work / "99-delivery" / "MANIFEST.json"
@@ -64,49 +64,16 @@ def add_mode(root: Path, session: Path, mode: str, *, standalone_poster: bool = 
     kind = manifest.get("session_kind")
     if mode == "visual":
         from validate_session import validate
-        system_approved = approvals.get("system_design", {}).get("status") == "approved"
-        architecture_approved = approvals.get("architecture", {}).get("status") == "approved"
         poster_requested = (
             standalone_poster
             and kind == "standalone_poster"
             and approvals.get("standalone_poster", {}).get("status") in {"requested", "approved"}
         )
-        architecture = work / "01-system" / "03-system-architecture.html"
-        design = work / "01-system" / "04-system-design.html"
-        legacy_design = work / "01-system" / "03-system-design.html"
-        if system_approved and architecture_approved:
-            if not architecture.is_file():
-                raise PermissionError("visual mode requires an existing 01-system/03-system-architecture.html")
-            if not design.is_file() and not legacy_design.is_file():
-                raise PermissionError("visual mode requires an existing approved system design HTML")
-            errors = validate(
-                session,
-                live_sources=True,
-                source_checker=source_checker,
-                allow_live_crawl_offline=allow_live_crawl_offline,
-            )
-            if errors:
-                raise PermissionError("visual gate failed: " + "; ".join(errors))
-        elif poster_requested:
-            errors = validate(session)
-            if errors:
-                raise PermissionError("standalone poster gate failed: " + "; ".join(errors))
-        else:
-            raise PermissionError("visual mode requires approved architecture and system design; standalone posters must be declared when the session is created")
-    elif mode == "prototype":
-        from validate_session import validate
-        visual_approved = approvals.get("visual", {}).get("status") == "approved"
-        visual = work / "02-visual" / "visual-board.html"
-        if not visual_approved or not visual.is_file():
-            raise PermissionError("prototype mode requires an approved 02-visual/visual-board.html")
-        errors = validate(
-            session,
-            live_sources=True,
-            source_checker=source_checker,
-            allow_live_crawl_offline=allow_live_crawl_offline,
-        )
+        if not poster_requested:
+            raise PermissionError("visual mode is standalone visual work and must be declared with --standalone-poster when the session is created; product visuals belong to Luz-System")
+        errors = validate(session)
         if errors:
-            raise PermissionError("prototype gate failed: " + "; ".join(errors))
+            raise PermissionError("standalone poster gate failed: " + "; ".join(errors))
 
     if mode in modes:
         return manifest
@@ -133,9 +100,9 @@ def add_mode(root: Path, session: Path, mode: str, *, standalone_poster: bool = 
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Activate a Luz Design mode after its approval gate.")
+    parser = argparse.ArgumentParser(description="Activate visual (standalone poster sessions only) or document mode in an existing session.")
     parser.add_argument("session", help="Numbered session folder")
-    parser.add_argument("mode", choices=["visual", "prototype", "document"])
+    parser.add_argument("mode", choices=list(MODE_NAMES))
     parser.add_argument("--standalone-poster", action="store_true")
     parser.add_argument("--root", help="Session root override, primarily for tests")
     args = parser.parse_args(argv)

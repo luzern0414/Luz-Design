@@ -15,14 +15,14 @@
 
 ## Requirement ledger
 
-| Requirement ID | User request (verbatim) | Module | Acceptance signal |
+| Requirement ID | User request (verbatim) | Deliverable | Acceptance signal |
 |---|---|---|---|
 | REQ-001 |  |  |  |
 
-## Users and roles
+## Audience
 
-| Role | Job | Data scope | Success |
-|---|---|---|---|
+| Audience | Where they see it | What they must take away |
+|---|---|---|
 
 ## Current situation
 
@@ -35,13 +35,13 @@
 - Included:
 - Excluded:
 - Channels:
-- Platforms:
+- Formats and sizes:
 
 ## Constraints
 
 - Brand:
 - Legal or policy:
-- Technical:
+- Exact copy:
 - Time and production:
 
 ## Sources
@@ -80,15 +80,15 @@ main{width:min(1120px,calc(100% - 40px));margin:0 auto;padding:48px 0 72px}h1{ma
 <body>
 <main data-artifact="visual-board">
 <h1>视觉方案总览</h1>
-<section class="wide" id="approved-scope">
-<h2>批准范围</h2>
-<div class="slot" data-page-id="{{PAGE_ID}}">填写已批准的页面与功能编号。</div>
+<section class="wide" id="task">
+<h2>任务与规格</h2>
+<div class="slot">用途、受众、渠道、精确文案、尺寸与格式。</div>
 </section>
 <div class="grid">
 <section><h2>设计方向</h2><h3>方向甲</h3><div class="slot">定位、层级、字体、色彩、图像与版式。</div></section>
 <section><h2>方案板</h2><div class="slot">放置本地方案预览、精确文案和状态。</div></section>
-<section><h2>交互状态</h2><div class="slot">加载、空、错误、成功与禁用。</div></section>
-<section><h2>验证</h2><div class="slot">对比度、可读性、安全区、响应式与网页验收。</div></section>
+<section><h2>文字层级</h2><div class="slot">主标题、关键信息与行动，至多四级。</div></section>
+<section><h2>验证</h2><div class="slot">对比度、可读性、安全区、缩略图辨识与输出尺寸。</div></section>
 <section class="wide"><h2>交付清单</h2><table><thead><tr><th>编号</th><th>文件</th><th>格式</th><th>状态</th></tr></thead><tbody><tr><td>VIS-001</td><td>02-visual/visual-board.html</td><td>网页</td><td>草稿</td></tr></tbody></table></section>
 </div>
 </main>
@@ -128,33 +128,7 @@ main{width:min(1120px,calc(100% - 40px));margin:0 auto;padding:48px 0 72px}h1{ma
 # 99-delivery/APPROVALS.json：人工批准账本
 === template: approvals.json ===
 {
-  "schema_version": "2.0",
-  "module_scope": {
-    "status": "pending",
-    "requested_modules": [],
-    "selected_modules": [],
-    "artifact_path": "01-system/01-module-intake.html",
-    "artifact_sha256": null,
-    "approved_at": null,
-    "approved_by": null,
-    "note": null
-  },
-  "architecture": {
-    "status": "pending",
-    "artifact_path": "01-system/03-system-architecture.html",
-    "artifact_sha256": null,
-    "approved_at": null,
-    "approved_by": null,
-    "note": null
-  },
-  "system_design": {
-    "status": "pending",
-    "artifact_path": "01-system/04-system-design.html",
-    "artifact_sha256": null,
-    "approved_at": null,
-    "approved_by": null,
-    "note": null
-  },
+  "schema_version": "3.0",
   "visual": {
     "status": "pending",
     "artifact_path": "02-visual/visual-board.html",
@@ -163,12 +137,10 @@ main{width:min(1120px,calc(100% - 40px));margin:0 auto;padding:48px 0 72px}h1{ma
     "approved_by": null,
     "note": null
   },
-  "prototype": {
+  "document": {
     "status": "pending",
-    "artifact_path": "03-prototype/interactive-prototype.html",
+    "artifact_path": "03-documents/document.html",
     "artifact_sha256": null,
-    "browser_acceptance_path": null,
-    "browser_acceptance_sha256": null,
     "approved_at": null,
     "approved_by": null,
     "note": null
@@ -185,7 +157,7 @@ main{width:min(1120px,calc(100% - 40px));margin:0 auto;padding:48px 0 72px}h1{ma
 # 99-delivery/MANIFEST.json：交付清单
 === template: manifest.json ===
 {
-  "schema_version": "2.0",
+  "schema_version": "3.0",
   "session_id": "SES-001",
   "sequence": 1,
   "folder": "001-session-title",
@@ -196,33 +168,13 @@ main{width:min(1120px,calc(100% - 40px));margin:0 auto;padding:48px 0 72px}h1{ma
   "modes": [],
   "approvals_file": "99-delivery/APPROVALS.json",
   "stages": {
-    "module_scope": {
-      "path": "01-system/01-module-intake.html",
-      "sha256": null,
-      "approval": "pending"
-    },
-    "research": {
-      "path": "01-system/02-research.md",
-      "sha256": null,
-      "approval": "research_pending"
-    },
-    "architecture": {
-      "path": "01-system/03-system-architecture.html",
-      "sha256": null,
-      "approval": "pending"
-    },
-    "system_design": {
-      "path": "01-system/04-system-design.html",
-      "sha256": null,
-      "approval": "pending"
-    },
     "visual": {
       "path": "02-visual/visual-board.html",
       "sha256": null,
       "approval": "pending"
     },
-    "prototype": {
-      "path": "03-prototype/interactive-prototype.html",
+    "document": {
+      "path": "03-documents/document.html",
       "sha256": null,
       "approval": "pending"
     }

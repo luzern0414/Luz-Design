@@ -1,4 +1,4 @@
-The image service makes photographs and posters only. Icons, illustrations and interface screens are drawn as flat line vectors in HTML, never generated (design-standards.html, 扁平线性风格). Write one prompt file per image under raw/02-visual/prompts/, dry-run first, then generate one at a time.
+The image service makes photographs and posters only. Icons, illustrations and interface screens are drawn as flat line vectors in HTML, never generated (visual-design.html, 扁平线性风格). Write one prompt file per image under raw/02-visual/prompts/, dry-run first, then generate one at a time.
 
 === Store, product and environment photo ===
 A realistic photograph of [subject: store interior, product, training area, dish] for [brand] in [industry].

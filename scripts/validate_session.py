@@ -1,27 +1,30 @@
 #!/usr/bin/env python3
-"""Validate a Luz Design session workspace without third-party dependencies."""
+"""Validate a Luz Design session workspace without third-party dependencies.
+
+Luz Design sessions are either standalone visual work (mode `visual`, session kind `standalone_poster`) or document
+layout (mode `document`). System design, architecture, module scope, product UI, prototypes and hardware belong to
+Luz-System, which keeps its own session engine.
+"""
 from __future__ import annotations
 
 import argparse
 import hashlib
-import ipaddress
 import json
 import re
 import sys
-import urllib.error
-import urllib.request
 from dataclasses import dataclass, field
-from datetime import date, datetime
+from datetime import datetime
 from html.parser import HTMLParser
 from pathlib import Path
-from typing import Callable, Iterable
+from typing import Iterable
 from urllib.parse import unquote, urlparse
 
 SESSION_RE = re.compile(r"^(\d{3,})-(.+)$")
-# A session folder holds exactly one final HTML named after the folder, plus raw/ with every working file:
-# brief, research, crawl snapshots, architecture, stage artifacts, approvals and manifest.
+# A session folder holds exactly one final deliverable named after the folder (.html, .xlsx or .docx), plus raw/
+# with every working file: brief, prompts, references, generated images, document sources, approvals and manifest.
 RAW_DIR = "raw"
-PUBLISHABLE_STAGES = ("system_design", "visual", "prototype", "document")
+FINAL_SUFFIXES = (".html", ".xlsx", ".docx")
+PUBLISHABLE_STAGES = ("visual", "document")
 
 
 def work_dir(folder: Path) -> Path:
@@ -33,100 +36,40 @@ def final_html(folder: Path) -> Path:
 SESSION_ID_RE = re.compile(r"^SES-(\d{3,})$")
 LINK_RE = re.compile(r"\[[^\]]*\]\(([^)]+)\)")
 HTML_LINK_RE = re.compile(r'(?:href|src)="([^"]+)"')
-DELIVERABLE_ID_RE = re.compile(r"^(?:PAGE|ACT|FLOW|VIS|REF|DOC|SYS|PROTO|ARCH)-[A-Z0-9-]+$")
+DELIVERABLE_ID_RE = re.compile(r"^(?:VIS|REF|DOC)-[A-Z0-9-]+$")
 ASSUMPTION_ID_RE = re.compile(r"^ASSUME-\d{3,}$")
 VALID_STATUS = {"draft", "review", "approved", "superseded"}
-VALID_MODES = {"system", "visual", "prototype", "document"}
+VALID_MODES = {"visual", "document"}
+SESSION_KINDS = {"general", "standalone_poster"}
+# Modes and session kinds that older sessions may name but that belong to another skill.
+OTHER_SKILL = "Luz-System"
+OTHER_SKILL_MODES = {"system", "prototype", "hardware"}
 VALID_APPROVAL_STATUS = {"pending", "approved", "rejected", "not_requested"}
 VALID_POSTER_STATUS = {"requested", "approved", "rejected", "not_requested"}
 ADVICE_RE = re.compile(r"(下一步建议|建议增加|推荐模块|建议你|建议使用|可以考虑|可考虑|不妨|或许|也许)")
-BAD_NEIGHBOR_CLASS_RE = re.compile(r"(?:^|[-_])(description|desc|note|tip|help|explain|advice|recommend|guidance)(?:$|[-_])", re.I)
-POSTER_TASK_RE = re.compile(r"海报|poster", re.I)
-DESCRIPTIVE_COPY_RE = re.compile(r"说明|解释|建议|提示|备注|详情|方法|流程|步骤|原因|帮助|推荐|指南", re.I)
-LABEL_CLASS_RE = re.compile(r"(?:^|[-_])(label|value|legend|axis|pill|unit|number|category)(?:$|[-_])", re.I)
-COMMON_MULTI_LABEL_SUFFIXES = frozenset({
-    "com.cn", "org.cn", "net.cn", "gov.cn", "edu.cn",
-    "co.uk", "org.uk", "ac.uk", "gov.uk",
-    "com.au", "net.au", "org.au",
-    "co.jp", "co.nz", "com.hk", "com.tw",
-})
-NUMERIC_LABEL_RE = re.compile(r"^(?:[—–-]|[¥￥$€£]?\s*[-+]?\d+(?:\.\d+)?\s*(?:%|px|k|万|千|人|次|天|元)?|\d{4}[-/]\d{1,2}(?:[-/]\d{1,2})?)$", re.I)
-PROSE_TAGS = {"p", "small", "em"}
-ALLOWED_CONTENT_CLASSES = {"module-grid", "metrics", "chart", "design-grid", "module-content", "module-board", "table-wrap", "content"}
+# Same task words new_session.py accepts for a standalone poster title.
+POSTER_TASK_RE = re.compile(r"海报|poster|主视觉|品牌视觉|宣传图|视觉方向|活动视觉|封面|KV", re.I)
 VOID_TAGS = {"area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr"}
-MODE_REQUIRED = {
-    "system": ["01-system/01-module-intake.html", "01-system/02-research.md"],
-    "visual": ["02-visual/visual-board.html"],
-    "prototype": ["03-prototype/interactive-prototype.html"],
-    "document": ["03-documents/document.html"],
-}
-ARCHITECTURE_PATH = "01-system/03-system-architecture.html"
-SYSTEM_DESIGN_PATH = "01-system/04-system-design.html"
-LEGACY_SYSTEM_DESIGN_PATH = "01-system/03-system-design.html"
 VISUAL_PATH = "02-visual/visual-board.html"
-PROTOTYPE_PATH = "03-prototype/interactive-prototype.html"
-APPROVAL_ARTIFACTS = {
-    "module_scope": "01-system/01-module-intake.html",
-    "architecture": ARCHITECTURE_PATH,
-    "system_design": SYSTEM_DESIGN_PATH,
-    "visual": VISUAL_PATH,
-    "prototype": PROTOTYPE_PATH,
+DOCUMENT_PATH = "03-documents/document.html"
+MODE_DIRS = {"visual": "02-visual", "document": "03-documents"}
+MODE_REQUIRED = {
+    "visual": [VISUAL_PATH],
+    "document": [DOCUMENT_PATH],
 }
+# APPROVALS.json and MANIFEST.json: schema 3.0 knows only the stages Luz Design owns.
+SCHEMA_VERSION = "3.0"
+# Schema 2.0 files (written before the split) also carry system stages; they are read and those stages ignored.
+LEGACY_SCHEMA_VERSION = "2.0"
+STAGE_PATHS = {"visual": VISUAL_PATH, "document": DOCUMENT_PATH}
+LEGACY_SYSTEM_STAGES = ("module_scope", "research", "architecture", "system_design", "prototype")
+# Folders of the old system engine; a Luz Design session never contains them.
+SYSTEM_DIRS = ("01-system", "03-prototype", "04-hardware")
 SHA256_RE = re.compile(r"^[a-f0-9]{64}$")
-DATA_ID_PATTERNS = {
-    "data-function-id": re.compile(r"^F-\d{3,}$"),
-    "data-page-id": re.compile(r"^P-\d{3,}$"),
-    "data-navigation-id": re.compile(r"^N-\d{3,}$"),
-    "data-component-id": re.compile(r"^C-\d{3,}$"),
-    "data-action-id": re.compile(r"^A-\d{3,}$"),
-    "data-entity-id": re.compile(r"^D-\d{3,}$"),
-    "data-flow-id": re.compile(r"^FL-\d{3,}$"),
-    "data-state-id": re.compile(r"^S-\d{3,}$"),
-    "data-integration-id": re.compile(r"^I-\d{3,}$"),
-    "data-role-id": re.compile(r"^R-\d{3,}$"),
-}
-RESEARCH_FIELDS = {
-    "source name": "Source name",
-    "url": "URL",
-    "registrable domain": "Registrable domain",
-    "access date": "Access date",
-    "http status": "HTTP status",
-    "page title": "Page title",
-    "luzcrawl task id": "LuzCrawl task ID",
-    "luzcrawl status": "LuzCrawl status",
-    "evidence category": "Evidence category",
-    "visible evidence": "Visible evidence",
-    "supported functions": "Supported functions",
-    "business flow or module": "Business flow or module",
-    "borrowable": "Borrowable",
-    "not copyable": "Not copyable",
-    "snapshot path": "Snapshot path",
-    "snapshot sha256": "Snapshot sha256",
-}
-# Luz Design researches only the frontend: what pages look like, how users move through them, and how
-# components show their states. Business rules, regulations and backend behavior belong to Luz Dev.
-EVIDENCE_CATEGORIES = {
-    "页面结构": "page_structure",
-    "page structure": "page_structure",
-    "交互流程": "interaction_flow",
-    "interaction flow": "interaction_flow",
-    "组件状态": "component_state",
-    "component state": "component_state",
-}
-BACKEND_CATEGORIES = {"业务规则", "法规", "接口", "后端", "business rules", "business rule", "regulation", "backend"}
-# Evidence reused from the skill's experience library (experience/sources.json) stays valid for this many days.
-REUSE_MAX_DAYS = 180
 SMALL_ELEMENT_TOKENS = (".mark", ".icon", ".avatar", ".badge", ".pill", ".status", ".chip", ".tag", ".logo", ".corner",
                         ".coin", ".dot", ".kk", ".steps", ".copy i", ".check", ".box", "::before", "::after", "button", "input", "svg",
                         # data marks: checkbox fills, check marks, progress and ranking bar fills, heat-map cells
                         ".cbox", "-mark", "bar i", ".bar-fill", ".rb i", ".heat i", ".progress i")
-LUZ_CRAWL_PARTIAL = {"部分", "部分获取", "partial"}
-LUZ_CRAWL_OK = {"成功", "完成", "已完成", "success", "succeeded", "complete", "completed", "ok"}
-# Frontend architecture only: backend boundaries, interfaces and events belong to Luz Dev.
-ARCHITECTURE_SECTIONS = (
-    "范围与角色权限", "模块与功能", "页面与路由", "导航树", "组件与动作",
-    "交互流程与异常", "界面状态", "页面数据", "追溯矩阵", "验收标准",
-)
 
 
 @dataclass
@@ -214,6 +157,13 @@ def first(root: Node, tag: str, classes: set[str] | None = None) -> Node | None:
     return None
 
 
+def meaningful_nodes(children: list[Node | str]) -> list[Node | str]:
+    return [
+        child for child in children
+        if isinstance(child, Node) or child.strip()
+    ]
+
+
 def load_json(path: Path, errors: list[str]):
     try:
         return json.loads(path.read_text(encoding="utf-8"))
@@ -278,29 +228,16 @@ def session_artifact(session: Path, value: str | None, errors: list[str], label:
     return resolved
 
 
-def validate_approval_record(
-    session: Path,
-    name: str,
-    item: object,
-    errors: list[str],
-    *,
-    allow_not_requested: bool = True,
-    browser_acceptance: bool = False,
-) -> None:
+def validate_approval_record(session: Path, name: str, item: object, errors: list[str]) -> None:
     if not isinstance(item, dict):
         errors.append(f"APPROVALS.json {name} must be an object")
         return
-    statuses = VALID_APPROVAL_STATUS if allow_not_requested else VALID_POSTER_STATUS
     status = item.get("status")
-    if status not in statuses:
+    if status not in VALID_APPROVAL_STATUS:
         errors.append(f"APPROVALS.json {name}.status is invalid")
     for key in ("artifact_path", "artifact_sha256", "approved_at", "approved_by", "note"):
         if key not in item:
             errors.append(f"APPROVALS.json {name} missing {key}")
-    if browser_acceptance:
-        for key in ("browser_acceptance_path", "browser_acceptance_sha256"):
-            if key not in item:
-                errors.append(f"APPROVALS.json {name} missing {key}")
     if status != "approved":
         return
     approved_by = str(item.get("approved_by") or "").strip()
@@ -315,13 +252,6 @@ def validate_approval_record(
         errors.append(f"APPROVALS.json {name}.artifact_sha256 must be a lowercase SHA-256 digest")
     elif artifact and artifact.is_file() and sha256_file(artifact) != approved_hash:
         errors.append(f"APPROVALS.json {name} artifact hash differs from the approved file; downstream work is blocked")
-    if browser_acceptance:
-        acceptance = session_artifact(session, item.get("browser_acceptance_path"), errors, f"{name} browser acceptance")
-        acceptance_hash = str(item.get("browser_acceptance_sha256") or "")
-        if not SHA256_RE.fullmatch(acceptance_hash):
-            errors.append(f"APPROVALS.json {name}.browser_acceptance_sha256 must be a lowercase SHA-256 digest")
-        elif acceptance and acceptance.is_file() and sha256_file(acceptance) != acceptance_hash:
-            errors.append(f"APPROVALS.json {name} browser acceptance hash differs from the screenshot")
 
 
 def validate_approvals(session: Path, errors: list[str]) -> dict | None:
@@ -329,17 +259,33 @@ def validate_approvals(session: Path, errors: list[str]) -> dict | None:
     approvals = load_json(path, errors)
     if approvals is None:
         return None
-    required = {"schema_version", "module_scope", "architecture", "system_design", "visual", "prototype", "standalone_poster"}
+    if not isinstance(approvals, dict):
+        errors.append("APPROVALS.json must contain an object")
+        return None
+    version = approvals.get("schema_version")
+    if version == SCHEMA_VERSION:
+        required = {"schema_version", *STAGE_PATHS, "standalone_poster"}
+        stray = [name for name in LEGACY_SYSTEM_STAGES if name in approvals]
+        if stray:
+            errors.append(f"APPROVALS.json {SCHEMA_VERSION} must not contain system stages ({', '.join(stray)}); they belong to {OTHER_SKILL}")
+    elif version == LEGACY_SCHEMA_VERSION:
+        # Pre-split ledgers carry module_scope, architecture, system_design and prototype records. They are ignored
+        # while unused; an approved one means the session is system work and belongs to Luz-System.
+        required = {"schema_version", "visual", "standalone_poster"}
+        for name in LEGACY_SYSTEM_STAGES:
+            item = approvals.get(name)
+            if isinstance(item, dict) and item.get("status") == "approved":
+                errors.append(f"APPROVALS.json {name} is approved; system stages belong to {OTHER_SKILL}, not Luz-Design")
+    else:
+        required = {"schema_version", *STAGE_PATHS, "standalone_poster"}
+        errors.append(f"APPROVALS.json schema_version must be {SCHEMA_VERSION} (legacy {LEGACY_SCHEMA_VERSION} is still accepted)")
     missing = sorted(required - set(approvals))
     if missing:
         errors.append("APPROVALS.json missing: " + ", ".join(missing))
-    if approvals.get("schema_version") != "2.0":
-        errors.append("APPROVALS.json schema_version must be 2.0")
 
-    module_scope = approvals.get("module_scope", {})
-    for name in ("module_scope", "architecture", "system_design", "visual"):
-        validate_approval_record(session, name, approvals.get(name), errors)
-    validate_approval_record(session, "prototype", approvals.get("prototype"), errors, browser_acceptance=True)
+    for name in STAGE_PATHS:
+        if name in approvals:
+            validate_approval_record(session, name, approvals.get(name), errors)
     standalone = approvals.get("standalone_poster", {})
     if not isinstance(standalone, dict):
         errors.append("APPROVALS.json standalone_poster must be an object")
@@ -350,22 +296,8 @@ def validate_approvals(session: Path, errors: list[str]) -> dict | None:
             if not str(standalone.get("approved_by") or "").strip():
                 errors.append("APPROVALS.json standalone_poster approval needs approved_by")
             parse_iso_datetime(standalone.get("approved_at"), "APPROVALS.json standalone_poster.approved_at", errors)
+    return approvals
 
-    if isinstance(module_scope, dict):
-        requested = module_scope.get("requested_modules", [])
-        selected = module_scope.get("selected_modules", [])
-        if not isinstance(requested, list) or len(requested) != len(set(requested)) or not all(isinstance(x, str) and x.strip() for x in requested):
-            errors.append("APPROVALS.json module_scope.requested_modules must be a unique string list")
-            requested = []
-        if not isinstance(selected, list) or len(selected) != len(set(selected)) or not all(isinstance(x, str) and x.strip() for x in selected):
-            errors.append("APPROVALS.json module_scope.selected_modules must be a unique string list")
-            selected = []
-        if module_scope.get("status") == "approved" and not selected:
-            errors.append("APPROVALS.json approved module scope needs selected_modules")
-        extras = [item for item in selected if requested and item not in requested]
-        if extras:
-            errors.append("APPROVALS.json selected_modules contains modules absent from the requested form: " + ", ".join(extras))
-    return approvals if isinstance(approvals, dict) else None
 
 def css_text(root: Node) -> str:
     chunks = []
@@ -531,7 +463,7 @@ def validate_light_html(path: Path, errors: list[str], min_px: float = 14.0) -> 
             opening = style.rfind("{", 0, match.start())
             selector = style[style.rfind("}", 0, opening) + 1:opening].split("@media")[-1] if opening >= 0 else ""
             selector = selector.strip().casefold()
-            # Solid colour is allowed on elements smaller than a line of text (design-standards.html, 配色): marks, icons,
+            # Solid colour is allowed on elements smaller than a line of text (visual-design.html, 配色): marks, icons,
             # avatars, badges, chips, tags, logos, corner labels, step pills, coins, pseudo-element bars and controls.
             small_control = any(token in selector for token in SMALL_ELEMENT_TOKENS)
             if not small_control:
@@ -553,292 +485,6 @@ def validate_light_html(path: Path, errors: list[str], min_px: float = 14.0) -> 
     return root
 
 
-def parse_module_form(session: Path, approvals: dict | None, errors: list[str]) -> tuple[str | None, list[str]]:
-    path = session / "01-system" / "01-module-intake.html"
-    if not path.is_file():
-        return None, []
-    root = validate_light_html(path, errors)
-    if root is None or root is None:
-        return None, []
-    main = first(root, "main")
-    if main is None or main.get("data-artifact") != "module-intake":
-        errors.append('module intake must declare data-artifact="module-intake"')
-        return None, []
-    system_name = main.get("data-system-name").strip()
-    headings = [node for node in iter_nodes(root) if node.tag == "h1"]
-    if len(headings) != 1:
-        errors.append("module intake must have exactly one system-name h1")
-    elif normalized_visible_text(headings[0]) != system_name:
-        errors.append("module intake h1 must exactly match data-system-name")
-    checkbox_values = []
-    for node in iter_nodes(root):
-        if node.tag == "input":
-            if node.get("type").lower() != "checkbox":
-                errors.append("module intake may contain only checkbox inputs")
-            value = node.get("data-module").strip() or node.get("value").strip()
-            if not value:
-                errors.append("module intake checkbox is missing a module name")
-            else:
-                checkbox_values.append(value)
-        if node.tag in {"button", "select", "textarea"}:
-            errors.append(f"module intake must not contain <{node.tag}> controls")
-    if len(checkbox_values) != len(set(checkbox_values)):
-        errors.append("module intake has duplicate module checkboxes")
-    if not checkbox_values:
-        errors.append("module intake must list at least one requested module")
-    expected_text = " ".join([system_name, "模块选择", *checkbox_values]).strip()
-    actual_text = normalized_visible_text(main)
-    remainder = actual_text
-    for item in [system_name, "模块选择", *checkbox_values]:
-        if item:
-            remainder = remainder.replace(item, "", 1)
-    if remainder.strip():
-        errors.append("module intake contains visible text beyond the system name and requested module names")
-    svg_nodes = [node for node in iter_nodes(root) if node.tag == "svg"]
-    linear_svgs = [node for node in svg_nodes if node.get("fill").lower() == "none" or any(desc.get("fill").lower() == "none" for desc in iter_nodes(node))]
-    if len(linear_svgs) < len(checkbox_values):
-        errors.append("module intake needs one linear SVG icon per module")
-    if approvals:
-        requested = approvals.get("module_scope", {}).get("requested_modules", [])
-        if requested != checkbox_values:
-            errors.append("module intake checkbox order/list must exactly match APPROVALS requested_modules")
-        selected = approvals.get("module_scope", {}).get("selected_modules", [])
-        extra = [item for item in selected if item not in checkbox_values]
-        if extra:
-            errors.append("approved module list contains a module absent from the intake: " + ", ".join(extra))
-    return system_name, checkbox_values
-
-
-def sibling_items(node: Node) -> list[Node | str]:
-    if node.parent is None:
-        return []
-    return node.parent.children
-
-
-def direct_visible_text(node: Node) -> str:
-    return re.sub(r"\s+", " ", text_content_direct(node)).strip()
-
-
-def meaningful_nodes(children: list[Node | str]) -> list[Node | str]:
-    return [
-        child for child in children
-        if isinstance(child, Node) or child.strip()
-    ]
-
-
-def visual_only(node: Node | str) -> bool:
-    if not isinstance(node, Node) or normalized_visible_text(node):
-        return False
-    return any(desc.tag in {"svg", "img", "canvas"} for desc in iter_nodes(node))
-
-
-def chart_label_is_allowed(text: str, classes: str) -> bool:
-    if not text:
-        return True
-    if ADVICE_RE.search(text) or DESCRIPTIVE_COPY_RE.search(text):
-        return False
-    if len(text) > 32 or re.search(r"[。！？!?；;]", text):
-        return False
-    if NUMERIC_LABEL_RE.fullmatch(text):
-        return True
-    return bool(LABEL_CLASS_RE.search(classes))
-
-
-def title_copy_failure(node: Node) -> str | None:
-    for desc in [node, *iter_nodes(node)]:
-        if desc.tag in {"script", "style", "svg"}:
-            continue
-        if any(parent.tag == "svg" for parent in ancestors(desc)):
-            continue
-        text = direct_visible_text(desc)
-        if not text:
-            continue
-        classes = desc.get("class")
-        if desc.tag in PROSE_TAGS:
-            return f"<{desc.tag}> explanatory text"
-        if BAD_NEIGHBOR_CLASS_RE.search(classes):
-            return "description-like element"
-        if desc.tag in {"span", "div", "strong", "th", "td", "li"}:
-            if not chart_label_is_allowed(text, classes):
-                return f"text-bearing <{desc.tag}>"
-            continue
-        return "free text"
-    return None
-
-
-def ancestors(node: Node) -> Iterable[Node]:
-    current = node.parent
-    while current is not None:
-        yield current
-        current = current.parent
-
-
-def check_title_neighbors(heading: Node, errors: list[str]) -> None:
-    parent = heading.parent
-    if parent is None:
-        return
-    if "module-head" not in parent.get("class").split():
-        errors.append("module title must be inside a module-head container")
-        return
-    siblings = parent.children
-    index = siblings.index(heading)
-    before = meaningful_nodes(siblings[:index])
-    after = meaningful_nodes(siblings[index + 1:])
-    if after:
-        errors.append("module title has disallowed adjacent content inside module-head")
-    for candidate in before:
-        if not visual_only(candidate):
-            errors.append("module title has disallowed adjacent text before the heading")
-    if parent.parent is None:
-        return
-    parent_siblings = parent.parent.children
-    parent_index = parent_siblings.index(parent)
-    previous = meaningful_nodes(parent_siblings[:parent_index])
-    following = meaningful_nodes(parent_siblings[parent_index + 1:])
-    if previous:
-        nearest = previous[-1]
-        if isinstance(nearest, str) or normalized_visible_text(nearest):
-            errors.append("module title has disallowed adjacent copy before its content region")
-    if not following or not isinstance(following[0], Node):
-        errors.append("module title must be followed directly by an explicit content region")
-        return
-    content = following[0]
-    classes = set(content.get("class").split())
-    if not classes & ALLOWED_CONTENT_CLASSES:
-        errors.append("module title is followed by an unapproved content region")
-        return
-    reason = title_copy_failure(content)
-    if reason:
-        errors.append(f"module title content region contains disallowed adjacent {reason}")
-
-
-def check_system_h1_neighbors(heading: Node, errors: list[str]) -> None:
-    if heading.parent is None:
-        return
-    siblings = meaningful_nodes(heading.parent.children)
-    seen_heading = False
-    seen_section = False
-    for candidate in siblings:
-        if candidate is heading:
-            seen_heading = True
-            continue
-        if not seen_heading:
-            errors.append("system h1 must be the first visible content")
-            continue
-        if isinstance(candidate, Node) and candidate.tag == "section":
-            seen_section = True
-            continue
-        reason = "free text" if isinstance(candidate, str) else title_copy_failure(candidate)
-        if reason:
-            errors.append(f"system h1 has disallowed accompanying {reason}")
-    if not seen_section:
-        errors.append("system h1 must be followed by a section")
-
-def system_design_file(session: Path) -> Path | None:
-    current = session / SYSTEM_DESIGN_PATH
-    if current.is_file():
-        return current
-    legacy = session / LEGACY_SYSTEM_DESIGN_PATH
-    return legacy if legacy.is_file() else None
-
-
-def validate_system_design(
-    session: Path,
-    system_name: str | None,
-    modules: list[str],
-    errors: list[str],
-    *,
-    approved_ids: dict[str, set[str]] | None = None,
-) -> None:
-    path = system_design_file(session)
-    if path is None:
-        return
-    root = validate_light_html(path, errors)
-    if root is None:
-        return
-    main = first(root, "main")
-    if main is None or main.get("data-artifact") not in {"system-design", ""}:
-        errors.append('system-design must declare data-artifact="system-design"')
-    h1s = [node for node in iter_nodes(root) if node.tag == "h1"]
-    h2s = [node for node in iter_nodes(root) if node.tag == "h2"]
-    h3s = [node for node in iter_nodes(root) if node.tag == "h3"]
-    if system_name and (len(h1s) != 1 or normalized_visible_text(h1s[0]) != system_name):
-        errors.append("system-design h1 must exactly match the requested system name")
-    for heading in h1s:
-        check_system_h1_neighbors(heading, errors)
-    if h3s:
-        errors.append("system-design h3 headings are not allowed")
-    headings = []
-    for heading in h2s:
-        if "module-title" not in heading.get("class").split():
-            errors.append("every system-design h2 must be an approved module-title")
-            continue
-        headings.append(heading)
-    title_map = {}
-    for heading in headings:
-        module = heading.get("data-module").strip()
-        actual = re.sub(r"\s+", " ", normalized_visible_text(heading))
-        expected = f"{module}介绍，{module}设计"
-        if actual != expected:
-            errors.append(f"system-design module title must be exactly '{expected}', got '{actual}'")
-        title_map[module] = title_map.get(module, 0) + 1
-        check_title_neighbors(heading, errors)
-    extras = sorted(set(title_map) - set(modules))
-    missing = sorted(set(modules) - set(title_map))
-    duplicates = sorted(module for module, count in title_map.items() if count != 1)
-    if extras:
-        errors.append("system-design includes unapproved module titles: " + ", ".join(extras))
-    if missing:
-        errors.append("system-design is missing module titles: " + ", ".join(missing))
-    if duplicates:
-        errors.append("system-design repeats module titles: " + ", ".join(duplicates))
-    for node in iter_nodes(root):
-        module = node.get("data-module").strip()
-        if module and module not in modules:
-            errors.append(f"system-design references unapproved module: {module}")
-            break
-    if approved_ids is not None:
-        for attr, pattern in DATA_ID_PATTERNS.items():
-            for node in iter_nodes(root):
-                value = node.get(attr).strip()
-                if not value:
-                    continue
-                if not pattern.fullmatch(value):
-                    errors.append(f"system-design has invalid {attr}: {value}")
-                elif value not in approved_ids.get(attr, set()):
-                    errors.append(f"system-design references unapproved {attr}: {value}")
-    body = first(root, "body")
-    if body and ADVICE_RE.search(normalized_visible_text(body)):
-        errors.append("system-design contains unrequested advisory copy")
-    svg_nodes = [node for node in iter_nodes(root) if node.tag == "svg"]
-    linear_svgs = [node for node in svg_nodes if node.get("fill").lower() == "none" or any(desc.get("fill").lower() == "none" for desc in iter_nodes(node))]
-    if len(linear_svgs) < len(modules):
-        errors.append("system-design needs multiple linear SVG icons")
-
-def strip_html_comments(text: str) -> str:
-    return re.sub(r"<!--.*?-->", "", text, flags=re.S)
-
-
-def parse_research(path: Path) -> list[dict[str, str]]:
-    text = strip_html_comments(path.read_text(encoding="utf-8"))
-    parts = re.split(r"^### (REF-\d{3,})\s*$", text, flags=re.M)
-    records = []
-    for index in range(1, len(parts), 2):
-        record = {"id": parts[index]}
-        for line in parts[index + 1].splitlines():
-            match = re.match(r"^\s*-\s*([^:]+):\s*(.*)$", line)
-            if match:
-                record[match.group(1).strip().casefold()] = match.group(2).strip()
-        records.append(record)
-    return records
-
-
-def fetch_source_status(url: str) -> int:
-    request = urllib.request.Request(url, headers={"User-Agent": "LuzDesignValidator/1.0"})
-    with urllib.request.urlopen(request, timeout=12) as response:
-        return int(response.status)
-
-
 def poster_brief_has_evidence(session: Path) -> bool:
     path = session / "BRIEF.md"
     if not path.is_file():
@@ -854,429 +500,39 @@ def poster_brief_has_evidence(session: Path) -> bool:
     return False
 
 
-def _registrable_domain(hostname: str | None) -> str | None:
-    host = (hostname or "").strip().strip(".").casefold()
-    if not host or host == "localhost" or host == "invalid" or host.endswith(".invalid"):
-        return None
-    try:
-        ipaddress.ip_address(host)
-        return None
-    except ValueError:
-        pass
-    labels = host.split(".")
-    if len(labels) < 2 or any(not re.fullmatch(r"[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?", label) for label in labels):
-        return None
-    suffix = ".".join(labels[-2:])
-    if suffix in COMMON_MULTI_LABEL_SUFFIXES:
-        return ".".join(labels[-3:]) if len(labels) >= 3 else None
-    return ".".join(labels[-2:])
-
-
-def parse_brief_requirements(session: Path, errors: list[str]) -> list[dict[str, str]]:
-    path = session / "BRIEF.md"
-    if not path.is_file():
-        return []
-    lines = path.read_text(encoding="utf-8").splitlines()
-    header = None
-    for index, line in enumerate(lines):
-        if line.strip().startswith("|") and re.search(r"(Requirement ID|需求编号)", line, re.I):
-            header = index
-            break
-    if header is None:
-        errors.append("BRIEF.md needs a Requirement ID table before architecture work")
-        return []
-    columns = [cell.strip().casefold() for cell in lines[header].strip().strip("|").split("|")]
-    aliases = {
-        "id": ("requirement id", "需求编号"),
-        "request": ("user request (verbatim)", "用户原文"),
-        "module": ("module", "模块"),
-        "signal": ("acceptance signal", "验收信号"),
-    }
-    positions: dict[str, int] = {}
-    for key, names in aliases.items():
-        for name in names:
-            if name.casefold() in columns:
-                positions[key] = columns.index(name.casefold())
-                break
-    missing_columns = [key for key in aliases if key not in positions]
-    if missing_columns:
-        errors.append("BRIEF.md requirement table is missing: " + ", ".join(missing_columns))
-        return []
-    requirements: list[dict[str, str]] = []
-    seen = set()
-    for line in lines[header + 2:]:
-        if not line.strip().startswith("|"):
-            break
-        cells = [cell.strip() for cell in line.strip().strip("|").split("|")]
-        if len(cells) <= max(positions.values()):
-            errors.append("BRIEF.md requirement row has too few cells")
-            continue
-        item = {key: cells[index] for key, index in positions.items()}
-        req_id = item["id"]
-        if not re.fullmatch(r"REQ-\d{3,}", req_id):
-            if req_id or any(item.values()):
-                errors.append(f"BRIEF.md has invalid requirement ID: {req_id or 'empty'}")
-            continue
-        if req_id in seen:
-            errors.append(f"BRIEF.md repeats requirement ID: {req_id}")
-        seen.add(req_id)
-        for key in ("request", "module", "signal"):
-            if not item[key]:
-                errors.append(f"BRIEF.md {req_id} missing {key}")
-        requirements.append(item)
-    if not requirements:
-        errors.append("BRIEF.md requirement ledger must contain at least one completed REQ row")
-    return requirements
-
-
-def split_ids(value: str) -> list[str]:
-    return [item.strip() for item in re.split(r"[,，;；\s]+", value or "") if item.strip()]
-
-
-def validate_research(
-    session: Path,
-    selected_modules: list[str],
-    errors: list[str],
-    live_check: bool = False,
-    source_checker: Callable[[str], int] | None = None,
-    checked_on: date | None = None,
-    allow_live_crawl_offline: bool = False,
-) -> list[dict[str, str]]:
-    path = session / "01-system" / "02-research.md"
-    if not path.is_file():
-        return []
-    records = parse_research(path)
-    domains: set[str] = set()
-    urls: set[str] = set()
-    task_ids: set[str] = set()
-    categories: dict[str, int] = {"page_structure": 0, "interaction_flow": 0, "component_state": 0}
-    for record in records:
-        ref = record.get("id", "REF")
-        for key, label in RESEARCH_FIELDS.items():
-            if not record.get(key, "").strip():
-                errors.append(f"research {ref} missing {label}")
-        url = record.get("url", "").strip()
-        parsed = urlparse(url)
-        if parsed.scheme not in {"http", "https"} or not parsed.netloc:
-            errors.append(f"research {ref} URL must be an absolute HTTP(S) URL")
-            registrable = None
-        else:
-            # Hash-routed documentation sites (#/route) serve different pages per fragment; plain anchors do not.
-            route_fragment = parsed.fragment if parsed.fragment.startswith(("/", "!/")) else ""
-            normalized = parsed._replace(fragment=route_fragment).geturl().rstrip("/")
-            if normalized in urls:
-                errors.append(f"research {ref} repeats an earlier URL")
-            urls.add(normalized)
-            registrable = _registrable_domain(parsed.hostname)
-            if registrable is None:
-                errors.append(f"research {ref} URL must use an identifiable public registrable domain")
-            else:
-                domains.add(registrable)
-                recorded_domain = record.get("registrable domain", "").strip().casefold()
-                if recorded_domain != registrable:
-                    errors.append(f"research {ref} registrable domain must be {registrable}")
-        access = record.get("access date", "").strip()
-        try:
-            access_day = date.fromisoformat(access)
-            if access_day > date.today():
-                errors.append(f"research {ref} Access date cannot be in the future")
-            if record.get("reused from", "").strip() and (date.today() - access_day).days > REUSE_MAX_DAYS:
-                errors.append(f"research {ref} reuses evidence older than {REUSE_MAX_DAYS} days; crawl it again")
-        except ValueError:
-            errors.append(f"research {ref} Access date must be YYYY-MM-DD")
-        status = record.get("http status", "").strip()
-        if not re.fullmatch(r"[23]\d{2}", status):
-            errors.append(f"research {ref} HTTP status must record a 2xx or 3xx response")
-        task_id = record.get("luzcrawl task id", "").strip()
-        if not re.fullmatch(r"[A-Za-z][A-Za-z0-9_-]{5,}", task_id):
-            errors.append(f"research {ref} needs a real LuzCrawl task ID")
-        elif task_id.casefold() in task_ids:
-            errors.append(f"research {ref} repeats LuzCrawl task ID {task_id}")
-        else:
-            task_ids.add(task_id.casefold())
-        crawl_status = record.get("luzcrawl status", "").strip().casefold()
-        partial_ok = False
-        if crawl_status in LUZ_CRAWL_PARTIAL:
-            # A partial crawl counts only when its own LuzCrawl record confirms the target content was read.
-            snapshot_file = session / record.get("snapshot path", "").strip()
-            try:
-                captured = json.loads(snapshot_file.read_text(encoding="utf-8"))
-                partial_ok = bool(captured.get("url_check", {}).get("valid_content"))
-            except (OSError, ValueError, AttributeError):
-                partial_ok = False
-            if not partial_ok:
-                errors.append(f"research {ref} partial crawl needs its LuzCrawl content.json snapshot with valid_content true")
-        elif crawl_status not in LUZ_CRAWL_OK:
-            errors.append(f"research {ref} LuzCrawl status must record a successful crawl")
-        raw_category = record.get("evidence category", "").strip().casefold()
-        category = EVIDENCE_CATEGORIES.get(raw_category)
-        if raw_category in BACKEND_CATEGORIES:
-            errors.append(f"research {ref} is backend or regulatory evidence; it belongs to Luz Dev, not Luz Design")
-        elif category is None:
-            errors.append(f"research {ref} evidence category must be 页面结构, 交互流程, or 组件状态")
-        else:
-            categories[category] += 1
-        applicable = record.get("business flow or module", "").strip()
-        if applicable and applicable not in {"全部模块", "all"}:
-            if selected_modules and not any(module in applicable for module in selected_modules):
-                errors.append(f"research {ref} does not identify an approved module or business flow")
-        snapshot_value = record.get("snapshot path", "").strip()
-        snapshot = session_artifact(session, snapshot_value, errors, f"research {ref} snapshot")
-        snapshot_hash = record.get("snapshot sha256", "").strip().casefold()
-        if not SHA256_RE.fullmatch(snapshot_hash):
-            errors.append(f"research {ref} snapshot sha256 must be a lowercase SHA-256 digest")
-        elif snapshot and snapshot.is_file() and sha256_file(snapshot) != snapshot_hash:
-            errors.append(f"research {ref} snapshot hash differs from the captured evidence")
-    if len(urls) < 12:
-        errors.append(f"research needs at least 12 unique sources; found {len(urls)}")
-    if len(domains) < 5:
-        errors.append(f"research needs at least 5 different registrable domains; found {len(domains)}")
-    if categories["page_structure"] < 3:
-        errors.append("research needs at least 3 page-structure sources")
-    if categories["interaction_flow"] < 3:
-        errors.append("research needs at least 3 interaction-flow sources")
-    if categories["component_state"] < 2:
-        errors.append("research needs at least 2 component-state sources")
-    if live_check and not allow_live_crawl_offline:
-        checker = source_checker or fetch_source_status
-        verification_day = (checked_on or date.today()).isoformat()
-        for record in records:
-            ref = record.get("id", "REF")
-            url = record.get("url", "").strip()
-            if not url:
-                continue
-            hostname = (urlparse(url).hostname or "").casefold()
-            if hostname == "invalid" or hostname.endswith(".invalid"):
-                errors.append(f"research {ref} URL uses the non-resolvable .invalid domain")
-                continue
-            try:
-                actual_status = int(checker(url))
-            except Exception as exc:
-                errors.append(f"research {ref} URL is not accessible: {exc}")
-                continue
-            if not 200 <= actual_status < 400:
-                errors.append(f"research {ref} URL is not accessible: HTTP {actual_status}")
-                continue
-            recorded_status = record.get("http status", "").strip()
-            if recorded_status != str(actual_status):
-                errors.append(f"research {ref} HTTP status record {recorded_status or 'missing'} differs from live HTTP {actual_status}")
-            recorded_day = record.get("access date", "").strip()
-            if recorded_day != verification_day and not record.get("reused from", "").strip():
-                errors.append(f"research {ref} access date {recorded_day or 'missing'} differs from live check date {verification_day}")
-    return records
-
-
-def collect_stable_ids(root: Node, errors: list[str], label: str) -> dict[str, set[str]]:
-    ids = {attr: set() for attr in DATA_ID_PATTERNS}
-    for node in iter_nodes(root):
-        for attr, pattern in DATA_ID_PATTERNS.items():
-            value = node.get(attr).strip()
-            if not value:
-                continue
-            if not pattern.fullmatch(value):
-                errors.append(f"{label} has invalid {attr}: {value}")
-                continue
-            if value in ids[attr] and attr not in {"data-page-id", "data-component-id"}:
-                errors.append(f"{label} repeats {attr}: {value}")
-            ids[attr].add(value)
-    return ids
-
-
-def validate_architecture(
-    session: Path,
-    system_name: str | None,
-    modules: list[str],
-    requirements: list[dict[str, str]],
-    research: list[dict[str, str]],
-    errors: list[str],
-    *,
-    approved: bool = False,
-) -> dict[str, set[str]]:
-    empty = {attr: set() for attr in DATA_ID_PATTERNS}
-    path = session / ARCHITECTURE_PATH
-    if not path.is_file():
-        return empty
-    root = validate_light_html(path, errors)
-    if root is None:
-        return empty
-    main = first(root, "main")
-    if main is None or main.get("data-artifact") != "system-architecture":
-        errors.append('system-architecture must declare data-artifact="system-architecture"')
-    h1s = [node for node in iter_nodes(root) if node.tag == "h1"]
-    if system_name and (len(h1s) != 1 or normalized_visible_text(h1s[0]) != system_name):
-        errors.append("system-architecture h1 must exactly match the requested system name")
-    headings = [normalized_visible_text(node) for node in iter_nodes(root) if node.tag == "h2"]
-    for section in ARCHITECTURE_SECTIONS:
-        if not any(section in heading for heading in headings):
-            errors.append(f"system-architecture missing section: {section}")
-    ids = collect_stable_ids(root, errors, "system-architecture")
-    for required in ("data-function-id", "data-page-id", "data-navigation-id", "data-component-id", "data-action-id", "data-entity-id", "data-flow-id", "data-state-id"):
-        if not ids[required]:
-            errors.append(f"system-architecture needs at least one {required}")
-    if len(ids["data-function-id"]) < max(1, len(modules)):
-        errors.append("system-architecture needs at least one function per approved module")
-    requirement_ids = {item["id"] for item in requirements}
-    research_ids = {record.get("id", "") for record in research}
-    covered_requirements: set[str] = set()
-    covered_modules: set[str] = set()
-    for node in iter_nodes(root):
-        function_id = node.get("data-function-id").strip()
-        if not function_id:
-            continue
-        module = node.get("data-module").strip()
-        if module not in modules:
-            errors.append(f"architecture function {function_id} references unapproved module: {module or 'missing'}")
-        else:
-            covered_modules.add(module)
-        source = node.get("data-source").strip()
-        if source == "用户要求":
-            reqs = set(split_ids(node.get("data-req-ids")))
-            if not reqs:
-                errors.append(f"architecture function {function_id} needs REQ-IDs")
-            missing_req = sorted(reqs - requirement_ids)
-            if missing_req:
-                errors.append(f"architecture function {function_id} references unknown requirements: {', '.join(missing_req)}")
-            covered_requirements.update(reqs)
-        elif source == "调研推断待确认":
-            refs = set(split_ids(node.get("data-ref-ids")))
-            if len(refs) < 2:
-                errors.append(f"research-inferred function {function_id} needs at least two REF-IDs")
-            missing_refs = sorted(refs - research_ids)
-            if missing_refs:
-                errors.append(f"research-inferred function {function_id} references unknown research: {', '.join(missing_refs)}")
-            if approved:
-                errors.append(f"approved architecture still contains unconfirmed function {function_id}")
-        else:
-            errors.append(f"architecture function {function_id} needs data-source 用户要求 or 调研推断待确认")
-    missing_modules = sorted(set(modules) - covered_modules)
-    if missing_modules:
-        errors.append("architecture has no function for approved modules: " + ", ".join(missing_modules))
-    missing_requirements = sorted(requirement_ids - covered_requirements)
-    if missing_requirements:
-        errors.append("architecture does not trace user requirements: " + ", ".join(missing_requirements))
-    for node in iter_nodes(root):
-        module = node.get("data-module").strip()
-        if module and module not in modules:
-            errors.append(f"system-architecture references unapproved module: {module}")
-            break
-    for node in iter_nodes(root):
-        page_id = node.get("data-page-id").strip()
-        if node.get("data-navigation-id") and page_id not in ids["data-page-id"]:
-            errors.append(f"architecture navigation references unknown page: {page_id or 'missing'}")
-        if node.get("data-component-id") and page_id not in ids["data-page-id"]:
-            errors.append(f"architecture component references unknown page: {page_id or 'missing'}")
-        action_id = node.get("data-action-id").strip()
-        if action_id:
-            component_id = node.get("data-component-id").strip()
-            if component_id not in ids["data-component-id"]:
-                errors.append(f"architecture action {action_id} references unknown component")
-            functions = set(split_ids(node.get("data-function-ids")))
-            if not functions or functions - ids["data-function-id"]:
-                errors.append(f"architecture action {action_id} references unknown function")
-        flow_id = node.get("data-flow-id").strip()
-        if flow_id and not node.get("data-exception").strip():
-            errors.append(f"architecture flow {flow_id} needs an exception and recovery rule")
-    # Every approved module shows at least one interface state; the subjects come from the project, not a fixed list.
-    state_nodes = [node for node in iter_nodes(root) if node.get("data-state-id")]
-    for node in state_nodes:
-        if not node.get("data-state-subject").strip():
-            errors.append(f"architecture state {node.get('data-state-id')} needs data-state-subject")
-    for module in modules:
-        if not any(module in (node.get("data-module"), node.get("data-state-subject")) or module in node.get("data-state-subject") for node in state_nodes):
-            errors.append(f"system-architecture needs an interface state for module {module}")
-    return ids
-
-
-def validate_visual(
-    path: Path,
-    modules: list[str],
-    approved_ids: dict[str, set[str]],
-    errors: list[str],
-) -> None:
+def validate_stage_artifact(path: Path, artifact: str, errors: list[str]) -> None:
     root = validate_light_html(path, errors)
     if root is None:
         return
     main = first(root, "main")
-    if main is None or main.get("data-artifact") != "visual-board":
-        errors.append('visual-board must declare data-artifact="visual-board"')
-    for node in iter_nodes(root):
-        module = node.get("data-module").strip()
-        if module and module not in modules:
-            errors.append(f"visual board adds unapproved module: {module}")
-        for attr in DATA_ID_PATTERNS:
-            value = node.get(attr).strip()
-            if value and value not in approved_ids.get(attr, set()):
-                errors.append(f"visual board references unapproved {attr}: {value}")
+    if main is None or main.get("data-artifact") != artifact:
+        errors.append(f'{path.name} must declare data-artifact="{artifact}"')
 
 
-def validate_prototype(
-    session: Path,
-    modules: list[str],
-    approved_ids: dict[str, set[str]],
-    architecture_hash: str | None,
-    errors: list[str],
-) -> None:
-    path = session / PROTOTYPE_PATH
-    if not path.is_file():
-        return
-    # Prototypes render real interfaces; nothing below 12px (design-standards.html 字体与字号).
-    root = validate_light_html(path, errors, min_px=12.0)
-    if root is None:
-        return
-    main = first(root, "main")
-    if main is None or main.get("data-artifact") != "interactive-prototype":
-        errors.append('interactive-prototype must declare data-artifact="interactive-prototype"')
-    if architecture_hash and main and main.get("data-architecture-sha256") != architecture_hash:
-        errors.append("interactive-prototype is not bound to the approved architecture hash")
-    buttons = [node for node in iter_nodes(root) if node.tag == "button"]
-    if not buttons:
-        errors.append("interactive-prototype needs at least one button")
-    for index, node in enumerate(buttons, 1):
-        action_id = node.get("data-action-id").strip()
-        if not action_id:
-            errors.append(f"interactive-prototype button {index} is missing data-action-id")
-        elif action_id not in approved_ids.get("data-action-id", set()):
-            errors.append(f"interactive-prototype button {index} references unapproved action: {action_id}")
-        page_id = node.get("data-page-id").strip()
-        if not page_id or page_id not in approved_ids.get("data-page-id", set()):
-            errors.append(f"interactive-prototype button {index} references an unapproved page")
-    states = {node.get("data-state-kind").strip().casefold() for node in iter_nodes(root) if node.get("data-state-kind").strip()}
-    for state in ("加载", "空", "错误", "成功", "禁用"):
-        if state.casefold() not in states and state == "空":
-            if "empty" not in states:
-                errors.append(f"interactive-prototype missing {state} state")
-        elif state.casefold() not in states:
-            errors.append(f"interactive-prototype missing {state} state")
-    if not any(node.get("data-fixture-id") or node.get("data-demo-data") for node in iter_nodes(root)):
-        errors.append("interactive-prototype needs explicit simulated data")
-    for node in iter_nodes(root):
-        module = node.get("data-module").strip()
-        if module and module not in modules:
-            errors.append(f"interactive-prototype adds unapproved module: {module}")
-        for attr in DATA_ID_PATTERNS:
-            value = node.get(attr).strip()
-            if value and value not in approved_ids.get(attr, set()):
-                errors.append(f"interactive-prototype references unapproved {attr}: {value}")
-    svg_nodes = [node for node in iter_nodes(root) if node.tag == "svg"]
-    if not any(node.get("fill").lower() == "none" or any(desc.get("fill").lower() == "none" for desc in iter_nodes(node)) for node in svg_nodes):
-        errors.append("interactive-prototype needs a linear SVG icon")
+def validate_session_root(folder: Path, errors: list[str]) -> None:
+    finals = {f"{folder.name}{suffix}" for suffix in FINAL_SUFFIXES}
+    present = []
+    for item in folder.iterdir():
+        if item.name == RAW_DIR:
+            continue
+        if item.name in finals and item.is_file():
+            present.append(item.name)
+            continue
+        errors.append(
+            f"session folder may only contain one final deliverable ({folder.name}.html, .xlsx or .docx) "
+            f"and {RAW_DIR}/; found {item.name}"
+        )
+    if len(present) > 1:
+        errors.append("session folder holds more than one final deliverable: " + ", ".join(sorted(present)))
 
-def validate(
-    session: Path,
-    strict: bool = False,
-    live_sources: bool = False,
-    source_checker: Callable[[str], int] | None = None,
-    checked_on: date | None = None,
-    allow_live_crawl_offline: bool = False,
-) -> list[str]:
+
+def validate(session: Path, strict: bool = False) -> list[str]:
     errors: list[str] = []
     if not session.is_dir():
         return [f"session folder does not exist: {session}"]
     folder = session
     session = work_dir(folder)
-    for item in folder.iterdir():
-        if item.name not in {RAW_DIR, final_html(folder).name}:
-            errors.append(f"session folder may only contain {final_html(folder).name} and {RAW_DIR}/; found {item.name}")
+    validate_session_root(folder, errors)
     if not session.is_dir():
         return errors + [f"missing {RAW_DIR}/ working folder"]
     match = SESSION_RE.match(folder.name)
@@ -1286,8 +542,9 @@ def validate(
         errors.append("missing BRIEF.md")
     if not (session / "99-delivery").is_dir():
         errors.append("missing 99-delivery/")
-    if not (session / "01-system" / "01-module-intake.html").is_file() and (session / "01-system").exists():
-        errors.append("system mode requires 01-system/01-module-intake.html")
+    for name in SYSTEM_DIRS:
+        if (session / name).exists():
+            errors.append(f"{name}/ is system work and belongs to {OTHER_SKILL}, not a Luz Design session")
 
     manifest = load_json(session / "99-delivery" / "MANIFEST.json", errors)
     approvals = validate_approvals(session, errors)
@@ -1299,12 +556,18 @@ def validate(
         missing = sorted(required - set(manifest))
         if missing:
             errors.append("MANIFEST.json missing: " + ", ".join(missing))
-        if manifest.get("schema_version") != "2.0":
-            errors.append("MANIFEST.json schema_version must be 2.0")
+        version = manifest.get("schema_version")
+        legacy = version == LEGACY_SCHEMA_VERSION
+        if version not in {SCHEMA_VERSION, LEGACY_SCHEMA_VERSION}:
+            errors.append(f"MANIFEST.json schema_version must be {SCHEMA_VERSION} (legacy {LEGACY_SCHEMA_VERSION} is still accepted)")
         if manifest.get("status") not in VALID_STATUS:
             errors.append("MANIFEST.json has an invalid status")
-        if manifest.get("session_kind") not in {"general", "system", "standalone_poster"}:
+        session_kind = manifest.get("session_kind")
+        if session_kind == "system":
+            errors.append(f"system sessions belong to {OTHER_SKILL}, not Luz-Design")
+        elif session_kind not in SESSION_KINDS:
             errors.append("MANIFEST.json has an invalid session_kind")
+        poster_session = session_kind == "standalone_poster"
         if manifest.get("folder") != folder.name:
             errors.append("MANIFEST.json folder does not match directory name")
         final = final_html(folder)
@@ -1336,45 +599,36 @@ def validate(
             datetime.fromisoformat(str(manifest.get("created_at", "")))
         except ValueError:
             errors.append("MANIFEST.json created_at must be ISO-8601")
-        requested_modules = manifest.get("requested_modules", [])
-        if not isinstance(requested_modules, list) or len(requested_modules) != len(set(requested_modules)) or not all(isinstance(item, str) and item.strip() for item in requested_modules):
-            errors.append("MANIFEST.json requested_modules must be a unique string list")
-            requested_modules = []
-        system_name = manifest.get("system_name") if isinstance(manifest.get("system_name"), str) else None
-        if manifest.get("session_kind") == "system" and (not isinstance(system_name, str) or not system_name.strip()):
-            errors.append("system session MANIFEST.json needs system_name")
         if manifest.get("approvals_file") != "99-delivery/APPROVALS.json":
             errors.append("MANIFEST.json approvals_file must be 99-delivery/APPROVALS.json")
         modes = manifest.get("modes", [])
         if not isinstance(modes, list) or len(modes) != len(set(modes)):
             errors.append("MANIFEST.json modes must be a unique list")
             modes = []
-        unknown = set(modes) - VALID_MODES
+        elsewhere = sorted(set(modes) & OTHER_SKILL_MODES)
+        if elsewhere:
+            errors.append(f"{', '.join(elsewhere)} mode belongs to {OTHER_SKILL}, not Luz-Design")
+        unknown = set(modes) - VALID_MODES - OTHER_SKILL_MODES
         if unknown:
             errors.append("unknown modes: " + ", ".join(sorted(unknown)))
-        if manifest.get("session_kind") == "system" and "system" not in modes:
-            errors.append("a system session must declare system mode")
-        if manifest.get("session_kind") == "standalone_poster" and "system" in modes:
-            errors.append("a standalone poster session cannot declare system mode")
+        if "visual" in modes and not poster_session:
+            errors.append(f"visual mode is standalone visual work and needs session kind standalone_poster; product visuals belong to {OTHER_SKILL}")
 
         stages = manifest.get("stages", {})
-        expected_stages = {"module_scope", "research", "architecture", "system_design", "visual", "prototype"}
         if not isinstance(stages, dict):
             errors.append("MANIFEST.json stages must be an object")
             stages = {}
         else:
+            # Legacy 2.0 manifests list the system stages too; only the visual stage existed then and is checked.
+            expected_stages = {"visual"} if legacy else set(STAGE_PATHS)
             missing_stages = sorted(expected_stages - set(stages))
             if missing_stages:
                 errors.append("MANIFEST.json stages missing: " + ", ".join(missing_stages))
-            expected_paths = {
-                "module_scope": "01-system/01-module-intake.html",
-                "research": "01-system/02-research.md",
-                "architecture": ARCHITECTURE_PATH,
-                "system_design": SYSTEM_DESIGN_PATH,
-                "visual": VISUAL_PATH,
-                "prototype": PROTOTYPE_PATH,
-            }
-            for name, expected_path in expected_paths.items():
+            if not legacy:
+                stray = [name for name in stages if name not in STAGE_PATHS]
+                if stray:
+                    errors.append(f"MANIFEST.json {SCHEMA_VERSION} stages may only be {', '.join(STAGE_PATHS)}; found " + ", ".join(stray))
+            for name, expected_path in STAGE_PATHS.items():
                 item = stages.get(name)
                 if not isinstance(item, dict):
                     if name in stages:
@@ -1393,11 +647,10 @@ def validate(
                         if artifact.is_file() and sha256_file(artifact) != staged_hash:
                             errors.append(f"MANIFEST.json stages.{name} hash differs from the artifact")
 
-        mode_dirs = {"system": "01-system", "visual": "02-visual", "prototype": "03-prototype", "document": "03-documents"}
         for mode in modes:
-            folder = mode_dirs.get(mode)
-            if folder and not (session / folder).is_dir():
-                errors.append(f"{mode} mode is declared but {folder}/ is missing")
+            mode_dir = MODE_DIRS.get(mode)
+            if mode_dir and not (session / mode_dir).is_dir():
+                errors.append(f"{mode} mode is declared but {mode_dir}/ is missing")
             for rel in MODE_REQUIRED.get(mode, []):
                 if not (session / rel).is_file():
                     errors.append(f"{mode} mode missing required file: {rel}")
@@ -1472,77 +725,23 @@ def validate(
             if not str(item.get("check", "")).strip():
                 errors.append(f"verification {index} has empty check")
 
-        form_system, form_modules = parse_module_form(session, approvals, errors)
-        if system_name and form_system and system_name != form_system:
-            errors.append("MANIFEST.json system_name differs from the module intake")
-        selected = approvals.get("module_scope", {}).get("selected_modules", []) if approvals else []
-        if not isinstance(selected, list):
-            selected = []
-        module_approved = bool(approvals and approvals.get("module_scope", {}).get("status") == "approved")
-        architecture_approved = bool(approvals and approvals.get("architecture", {}).get("status") == "approved")
-        system_approved = bool(approvals and approvals.get("system_design", {}).get("status") == "approved")
-        visual_approved = bool(approvals and approvals.get("visual", {}).get("status") == "approved")
-        prototype_approved = bool(approvals and approvals.get("prototype", {}).get("status") == "approved")
-        poster_session = manifest.get("session_kind") == "standalone_poster"
-        architecture_path = session / ARCHITECTURE_PATH
-        design_path = system_design_file(session)
+        def approved(name: str) -> bool:
+            item = approvals.get(name) if approvals else None
+            return isinstance(item, dict) and item.get("status") == "approved"
 
-        if architecture_approved and not module_approved:
-            errors.append("architecture cannot be approved before module_scope approval")
-        if system_approved and not architecture_approved:
-            errors.append("system_design cannot be approved before architecture approval")
-        if visual_approved and not system_approved:
-            errors.append("visual cannot be approved before system_design approval")
-        if prototype_approved and not visual_approved:
-            errors.append("prototype cannot be approved before visual approval")
-        if architecture_approved and not architecture_path.is_file():
-            errors.append(f"approved architecture requires {ARCHITECTURE_PATH}")
-        if system_approved and design_path is None:
-            errors.append("approved system_design requires a system design HTML")
-        if visual_approved and not (session / VISUAL_PATH).is_file():
+        if approved("visual") and not (session / VISUAL_PATH).is_file():
             errors.append(f"approved visual requires {VISUAL_PATH}")
-        if prototype_approved and not (session / PROTOTYPE_PATH).is_file():
-            errors.append(f"approved prototype requires {PROTOTYPE_PATH}")
-
-        requirements: list[dict[str, str]] = []
-        research: list[dict[str, str]] = []
-        approved_ids = {attr: set() for attr in DATA_ID_PATTERNS}
-        if module_approved:
-            requirements = parse_brief_requirements(session, errors)
-            extras = [item["id"] for item in requirements if item.get("module") not in selected]
-            if extras:
-                errors.append("BRIEF requirements name modules outside the approved scope: " + ", ".join(extras))
-            missing_module_reqs = sorted(set(selected) - {item.get("module") for item in requirements})
-            if missing_module_reqs:
-                errors.append("BRIEF has no REQ row for approved modules: " + ", ".join(missing_module_reqs))
-            research = validate_research(session, selected, errors, live_sources, source_checker, checked_on, allow_live_crawl_offline)
-        if architecture_path.is_file():
-            if not module_approved:
-                errors.append("system-architecture HTML exists before module_scope approval")
-            if not requirements:
-                requirements = parse_brief_requirements(session, errors)
-            if not research:
-                research = parse_research(session / "01-system" / "02-research.md")
-            approved_ids = validate_architecture(session, system_name, selected, requirements, research, errors, approved=architecture_approved)
-        if design_path is not None:
-            if not architecture_approved:
-                errors.append("system-design HTML exists before architecture approval")
-            validate_system_design(session, system_name, selected, errors, approved_ids=approved_ids)
-        if (session / VISUAL_PATH).is_file() and not poster_session:
-            validate_visual(session / VISUAL_PATH, selected, approved_ids, errors)
-        if (session / PROTOTYPE_PATH).is_file():
-            architecture_hash = approvals.get("architecture", {}).get("artifact_sha256") if approvals else None
-            validate_prototype(session, selected, approved_ids, architecture_hash, errors)
-
+        if (session / VISUAL_PATH).is_file():
+            validate_stage_artifact(session / VISUAL_PATH, "visual-board", errors)
+        if (session / DOCUMENT_PATH).is_file():
+            validate_stage_artifact(session / DOCUMENT_PATH, "document", errors)
         if (session / "02-visual").exists() and not poster_session:
-            if not architecture_approved or not system_approved:
-                errors.append("visual artifacts require approved architecture and system design")
+            errors.append(f"visual artifacts belong to a standalone poster session; product visuals belong to {OTHER_SKILL}")
         if poster_session and not poster_brief_has_evidence(session):
             errors.append("standalone poster BRIEF must record an explicit user poster task")
-        if (session / "02-visual").exists() and "visual" not in modes and not poster_session:
-            errors.append("visual artifacts exist but visual mode is not declared")
-        if (session / "03-prototype").exists() and "prototype" not in modes:
-            errors.append("prototype artifacts exist but prototype mode is not declared")
+        for mode, mode_dir in MODE_DIRS.items():
+            if (session / mode_dir).exists() and mode not in modes:
+                errors.append(f"{mode} artifacts exist but {mode} mode is not declared")
 
         if strict:
             if manifest.get("status") == "draft":
@@ -1554,9 +753,9 @@ def validate(
                     errors.append(f"strict: no deliverable is recorded for {mode} mode")
             if any(item.get("result") != "pass" for item in verification if isinstance(item, dict)):
                 errors.append("strict: every verification result must be pass")
-            for name in ("module_scope", "architecture", "system_design", "visual", "prototype"):
+            for name in modes:
                 item = stages.get(name) if isinstance(stages, dict) else None
-                if isinstance(item, dict) and not item.get("sha256"):
+                if name in STAGE_PATHS and not (isinstance(item, dict) and item.get("sha256")):
                     errors.append(f"strict: MANIFEST.json stages.{name}.sha256 is required")
             if manifest.get("status") == "approved":
                 open_items = [item for item in assumptions if isinstance(item, dict) and item.get("status") == "open"]
@@ -1564,14 +763,14 @@ def validate(
                     errors.append("strict: approved session still has open assumptions")
                 if any(item.get("status") != "approved" for item in deliverables if isinstance(item, dict)):
                     errors.append("strict: approved session contains non-approved deliverables")
-                if modes and not poster_session and not system_approved:
-                    errors.append("strict: approved system session lacks system_design approval")
+                for name in modes:
+                    if name in STAGE_PATHS and not approved(name):
+                        errors.append(f"strict: approved session lacks {name} approval")
 
     for path in session.rglob("*.html"):
         if any(part in {".git", "__pycache__", ".pytest_cache"} for part in path.parts):
             continue
-        # Prototypes render interfaces (12px annotations allowed); every other page keeps the 14px floor.
-        validate_light_html(path, errors, min_px=12.0 if "03-prototype" in path.parts else 14.0)
+        validate_light_html(path, errors)
     for path in session.rglob("*"):
         if not path.is_file() or path.suffix.lower() not in {".md", ".html"}:
             continue
@@ -1593,26 +792,24 @@ def validate(
                 errors.append(f"strict: unresolved marker in {path.relative_to(session)}")
     return list(dict.fromkeys(errors))
 
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Validate a Luz Design session.")
     parser.add_argument("session", help="Path to the numbered session folder")
-    parser.add_argument("--strict", action="store_true")
-    parser.add_argument("--check-sources", action="store_true", help="Fetch every recorded research URL")
-    parser.add_argument("--strict-production", action="store_true", help="Enforce strict structure and live source verification")
+    parser.add_argument("--strict", "--strict-production", dest="strict", action="store_true",
+                        help="Require a handed-off session: verification records, deliverables, approvals and hashes")
     args = parser.parse_args(argv)
-    strict = args.strict or args.strict_production
-    live_sources = args.check_sources or args.strict_production
     session = Path(args.session).resolve()
-    errors = validate(session, strict=strict, live_sources=live_sources)
+    errors = validate(session, strict=args.strict)
     if errors:
         print(f"FAIL: {len(errors)} issue(s)")
         for error in errors:
             print("ERROR", error)
         return 1
-    mode = "production" if args.strict_production else "session"
-    print(f"PASS ({mode}): session is valid: {session}")
+    print(f"PASS ({'strict' if args.strict else 'session'}): session is valid: {session}")
     return 0
 
 
 if __name__ == "__main__":
+    sys.stdout.reconfigure(encoding="utf-8")
     raise SystemExit(main())

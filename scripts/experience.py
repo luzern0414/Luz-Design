@@ -1,9 +1,16 @@
 #!/usr/bin/env python3
-"""Luz Design experience library: search before research, reuse fresh evidence, harvest after delivery.
+"""Luz Design experience library: search at the start of every call, note what was learned before it ends.
 
-experience/sources.json   verified frontend references (LuzCrawl captures and official specification pages)
-experience/patterns.json  reusable knowledge: 功能, 交互流程, 组件, 色彩, 字阶, 前端规则, 设计理念, 调研经验
-experience/catalog.md     readable catalog generated from both files; read it before starting a new project
+experience/preferences.json  what this user wants (general, no personal data), at most 60 entries
+experience/lessons.json      reusable fixes and judgements learned from failures or corrections, at most 120
+experience/patterns.json     effective knowledge: 功能, 交互流程, 组件, 色彩, 字阶, 前端规则, 设计理念, 调研经验 (at most 200)
+experience/sources.json      verified references (LuzCrawl captures and official specification pages)
+experience/catalog.md        readable catalog generated from all files after every write
+
+Every entry has a stable key. `note` upserts by key: the same key replaces the old statement in place and
+keeps one `previous` for audit, so a topic never has two entries. Stores are capped; `prune` drops the least
+valuable entries (fewest uses, then oldest confirmation) and `check` fails on duplicate keys, near-duplicate
+statements, cap overflow and personal data.
 """
 from __future__ import annotations
 
@@ -11,22 +18,30 @@ import argparse
 import hashlib
 import json
 import re
-import shutil
 import sys
 from datetime import date
 from pathlib import Path
-
-from new_session import OUTPUT_ROOT
-from validate_session import ARCHITECTURE_PATH, final_html, parse_research, strip_html_comments, work_dir
 
 SKILL_ROOT = Path(__file__).resolve().parents[1]
 EXP = SKILL_ROOT / "experience"
 SOURCES = EXP / "sources.json"
 PATTERNS = EXP / "patterns.json"
+PREFERENCES = EXP / "preferences.json"
+LESSONS = EXP / "lessons.json"
 CATALOG = EXP / "catalog.md"
 KINDS = ["功能", "交互流程", "组件", "色彩", "字阶", "前端规则", "设计理念", "调研经验"]
 CATEGORIES = ["页面结构", "交互流程", "组件状态", "前端规则"]
 STALE_DAYS = 180
+CAPS = {"preference": 60, "lesson": 120, "fact": 200}
+NOTE_KINDS = {"preference": "偏好", "lesson": "教训", "fact": "有效信息"}
+KEY_RE = re.compile(r"^[0-9a-z一-鿿][0-9a-z一-鿿-]{1,63}$")
+PRIVATE_RES = [
+    (re.compile(r"(?<!\d)1[3-9]\d{9}(?!\d)"), "phone number"),
+    (re.compile(r"[\w.+-]+@[\w-]+\.[\w.]+"), "email address"),
+    (re.compile(r"[A-Za-z]:\\Users\\|/Users/|/home/", re.I), "private path"),
+    (re.compile(r"微信号|wxid_", re.I), "WeChat ID"),
+    (re.compile(r"(?:api[_-]?key|secret|password|token)\s*[:=]", re.I), "credential"),
+]
 
 
 def load(path: Path, key: str) -> dict:
@@ -36,7 +51,7 @@ def load(path: Path, key: str) -> dict:
 
 
 def save(path: Path, data: dict) -> None:
-    EXP.mkdir(exist_ok=True)
+    path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
@@ -56,6 +71,27 @@ def sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def today() -> str:
+    return date.today().isoformat()
+
+
+def normalize(text: str) -> str:
+    """Comparison form of a statement: lower case, without whitespace or punctuation."""
+    return re.sub(r"[\W_]+", "", (text or "").lower())
+
+
+def store(kind: str) -> tuple[Path, str]:
+    return {"preference": (PREFERENCES, "preferences"), "lesson": (LESSONS, "lessons"), "fact": (PATTERNS, "patterns")}[kind]
+
+
+def statement(entry: dict) -> str:
+    return entry.get("text") or entry.get("summary") or ""
+
+
+def confirmed(entry: dict) -> str:
+    return entry.get("last_confirmed") or entry.get("last_used") or entry.get("first_seen") or "0000-00-00"
+
+
 # ---------------------------------------------------------------- search
 
 def matches(entry: dict, args) -> bool:
@@ -70,6 +106,13 @@ def matches(entry: dict, args) -> bool:
 
 
 def cmd_search(args) -> int:
+    notes = []
+    if not args.kind and not args.industry and not args.surface:
+        for kind in ("preference", "lesson"):
+            path, field = store(kind)
+            notes += [(kind, e) for e in load(path, field)[field] if matches(e, args)]
+    for kind, e in notes:
+        print(f"{e['id']} [{NOTE_KINDS[kind]}] {e['key']}: {e['text']}")
     patterns = [p for p in load(PATTERNS, "patterns")["patterns"] if matches(p, args)]
     sources = [s for s in load(SOURCES, "sources")["sources"] if matches(s, args)]
     for p in patterns:
@@ -79,151 +122,156 @@ def cmd_search(args) -> int:
         age = age_days(s.get("captured_at"))
         flag = "可复用" if s.get("snapshot") and age is not None and age <= STALE_DAYS else ("仅作知识" if not s.get("snapshot") else "已过期，需重新采集")
         print(f"{s['id']} [{s['category']}] {s['title']}  {s['url']}  {s.get('captured_at')} {flag}")
-    print(f"共 {len(patterns)} 条模式，{len(sources)} 条来源")
+    print(f"共 {len(notes)} 条偏好与教训，{len(patterns)} 条模式，{len(sources)} 条来源")
     return 0
 
 
-# ---------------------------------------------------------------- reuse
+# ---------------------------------------------------------------- note: upsert by key, bounded stores
 
-def cmd_reuse(args) -> int:
-    session = Path(args.session).resolve()
-    research = work_dir(session) / "01-system" / "02-research.md"
-    snaps = work_dir(session) / "01-system" / "crawl-snapshots"
-    snaps.mkdir(parents=True, exist_ok=True)
-    text = research.read_text(encoding="utf-8") if research.is_file() else "# Research\n"
-    existing = {r.get("url") for r in parse_research(research)} if research.is_file() else set()
-    numbers = [int(x) for x in re.findall(r"^### REF-(\d+)", strip_html_comments(text), re.M)]
-    sources = {s["id"]: s for s in load(SOURCES, "sources")["sources"]}
-    blocks = []
-    for sid in args.ids:
-        s = sources.get(sid)
-        if not s:
-            raise SystemExit(f"FAIL: unknown source {sid}")
-        if s["url"] in existing:
-            print(f"skip {sid}: already in this session")
-            continue
-        snap = s.get("snapshot")
-        if not snap:
-            raise SystemExit(f"FAIL: {sid} has no snapshot; it is knowledge only and cannot count as session research")
-        age = age_days(s.get("captured_at"))
-        if age is None or age > STALE_DAYS:
-            raise SystemExit(f"FAIL: {sid} was captured {s.get('captured_at')}; older than {STALE_DAYS} days, crawl it again")
-        origin = OUTPUT_ROOT / snap["session"] / "raw" / snap["path"]
-        if not origin.is_file() or sha256(origin) != snap["sha256"]:
-            raise SystemExit(f"FAIL: {sid} snapshot is missing or changed: {origin}")
-        number = max(numbers, default=0) + 1
-        numbers.append(number)
-        ref = f"REF-{number:03d}"
-        target = snaps / f"{ref}.json"
-        shutil.copyfile(origin, target)
-        blocks.append("\n".join([
-            f"### {ref}", f"- Source name: {s['title']}", f"- URL: {s['url']}", f"- Registrable domain: {s['domain']}",
-            f"- Access date: {s['captured_at']}", f"- HTTP status: {s.get('http_status', 200)}", f"- Page title: {s.get('page_title', s['title'])}",
-            f"- LuzCrawl task ID: {s['luzcrawl_task']}", f"- LuzCrawl status: {s.get('luzcrawl_status', '成功')}",
-            f"- Evidence category: {s['category']}", f"- Visible evidence: {s['evidence']}",
-            f"- Supported functions: {args.functions or s.get('supports', '待在架构中关联')}",
-            f"- Business flow or module: {args.module or '全部模块'}", f"- Borrowable: {s['borrowable']}", f"- Not copyable: {s['not_copyable']}",
-            f"- Snapshot path: 01-system/crawl-snapshots/{ref}.json", f"- Snapshot sha256: {sha256(target)}",
-            f"- Reused from: {sid}（{snap['session']} {snap['ref']}）", ""]))
-        print(f"reused {sid} as {ref}")
-    if blocks:
-        research.write_text(text.rstrip("\n") + "\n\n" + "\n".join(blocks), encoding="utf-8")
-    return 0
-
-
-# ---------------------------------------------------------------- harvest
-
-def upsert_pattern(patterns: list[dict], entry: dict, session: str) -> None:
+def upsert_pattern(patterns: list[dict], entry: dict, session: str) -> bool:
+    """Replace the pattern with the same key (or the same kind and title), or add it. Returns True when replaced."""
     for p in patterns:
-        if p["kind"] == entry["kind"] and p["title"] == entry["title"]:
+        same_key = bool(entry.get("key")) and p.get("key") == entry["key"]
+        if same_key or (p["kind"] == entry["kind"] and p["title"] == entry["title"]):
+            if p.get("summary") and normalize(p["summary"]) != normalize(entry.get("summary", "")):
+                p["previous"] = {"summary": p["summary"], "until": today()}
             p.update({k: v for k, v in entry.items() if k not in {"id", "sessions", "first_seen", "uses"}})
             if session not in p.setdefault("sessions", []):
                 p["sessions"].append(session)
-                p["uses"] = p.get("uses", 0) + 1
-            p["last_used"] = date.today().isoformat()
-            return
-    entry.update({"id": next_id(patterns, "PAT"), "sessions": [session], "first_seen": date.today().isoformat(),
-                  "last_used": date.today().isoformat(), "uses": 1})
+            p["uses"] = p.get("uses", 0) + 1
+            p["last_used"] = today()
+            return True
+    entry.update({"id": next_id(patterns, "PAT"), "sessions": [session], "first_seen": today(),
+                  "last_used": today(), "uses": 1})
     patterns.append(entry)
+    return False
 
 
-def contrast(a: str, b: str) -> float:
-    def lum(h: str) -> float:
-        h = h.lstrip("#")
-        h = "".join(c * 2 for c in h) if len(h) == 3 else h
-        out = []
-        for i in (0, 2, 4):
-            v = int(h[i:i + 2], 16) / 255
-            out.append(v / 12.92 if v <= 0.04045 else ((v + 0.055) / 1.055) ** 2.4)
-        return 0.2126 * out[0] + 0.7152 * out[1] + 0.0722 * out[2]
-    x, y = sorted((lum(a), lum(b)), reverse=True)
-    return round((x + 0.05) / (y + 0.05), 1)
+def upsert_note(items: list[dict], key: str, text: str, why: str | None, prefix: str) -> tuple[dict, bool]:
+    """Replace the entry with this key in place, or add one. Returns (entry, replaced)."""
+    for e in items:
+        if e.get("key") == key:
+            if normalize(e["text"]) != normalize(text):
+                e["previous"] = {"text": e["text"], "until": today()}
+            e["text"] = text
+            if why:
+                e["why"] = why
+            e["uses"] = e.get("uses", 0) + 1
+            e["last_confirmed"] = today()
+            return e, True
+    e = {"id": next_id(items, prefix), "key": key, "text": text, "first_seen": today(), "last_confirmed": today(), "uses": 1}
+    if why:
+        e["why"] = why
+    items.append(e)
+    return e, False
 
 
-def cmd_harvest(args) -> int:
-    session = Path(args.session).resolve()
-    name = session.name
-    work = work_dir(session)
-    industries = [x for x in args.industry.split(",") if x]
-    sources_doc = load(SOURCES, "sources")
-    sources = sources_doc["sources"]
-    by_url = {s["url"]: s for s in sources}
-    research = parse_research(work / "01-system" / "02-research.md")
-    for r in research:
-        if r.get("reused from"):
-            continue
-        url = r["url"]
-        entry = by_url.get(url) or {"id": next_id(sources, "SRC")}
-        entry.update({
-            "url": url, "title": r.get("source name"), "page_title": r.get("page title"), "domain": r.get("registrable domain"),
-            "category": r.get("evidence category"), "evidence": r.get("visible evidence"), "borrowable": r.get("borrowable"),
-            "not_copyable": r.get("not copyable"), "supports": r.get("supported functions"),
-            "surfaces": entry.get("surfaces") or (["后台"] if any(k in (r.get("source name") or "") for k in ("后台", "桌面")) else ["小程序"] if "小程序" in (r.get("source name") or "") else ["通用"]),
-            "industries": sorted(set(entry.get("industries", ["通用"])) | {i for i in industries if i[:2] in (r.get("source name", "") + r.get("visible evidence", ""))}),
-            "captured_at": r.get("access date"), "http_status": r.get("http status"), "luzcrawl_task": r.get("luzcrawl task id"),
-            "luzcrawl_status": r.get("luzcrawl status"), "method": "LuzCrawl",
-            "snapshot": {"session": name, "ref": r["id"], "path": r.get("snapshot path"), "sha256": r.get("snapshot sha256")},
-        })
-        if url not in by_url:
-            sources.append(entry)
-            by_url[url] = entry
-    save(SOURCES, sources_doc)
+def prune_items(items: list[dict], cap: int, keep: dict | None = None) -> list[dict]:
+    """Drop the least valuable entries above the cap: fewest uses first, then oldest confirmation."""
+    if len(items) <= cap:
+        return []
+    ranked = sorted((e for e in items if e is not keep), key=lambda e: (e.get("uses", 0), confirmed(e)))
+    dropped = ranked[: len(items) - cap]
+    gone = {id(e) for e in dropped}
+    items[:] = [e for e in items if id(e) not in gone]
+    return dropped
 
-    patterns_doc = load(PATTERNS, "patterns")
-    patterns = patterns_doc["patterns"]
-    arch = work / ARCHITECTURE_PATH
-    if arch.is_file():
-        html = arch.read_text(encoding="utf-8")
-        rows = re.findall(r'<tr data-function-id="(F-\d+)" data-module="([^"]+)"[^>]*><td>[^<]*</td><td>[^<]*</td><td>([^<]*)</td><td>([^<]*)</td>', html)
-        modules: dict[str, list[str]] = {}
-        for _fid, module, end, fname in rows:
-            modules.setdefault(module, []).append(f"{end}：{fname}")
-        states = dict(re.findall(r'<tr data-state-id="S-\d+" data-module="([^"]+)"[^>]*><td>[^<]*</td><td>[^<]*</td><td>([^<]*)</td>', html))
-        for module, items in modules.items():
-            upsert_pattern(patterns, {"kind": "功能", "title": f"{'、'.join(industries)}·{module}", "industries": industries,
-                                      "surfaces": sorted({i.split('：')[0] for i in items}), "summary": "；".join(items),
-                                      "details": {"界面状态": states.get(module, "")}, "sources": []}, name)
-        for main, exc in re.findall(r'<tr data-flow-id="FL-\d+" data-exception="[^"]*"><td>[^<]*</td><td>([^<]*)</td><td>([^<]*)</td>', html):
-            title = main.split("：")[0]
-            upsert_pattern(patterns, {"kind": "交互流程", "title": f"{'、'.join(industries)}·{title}", "industries": industries,
-                                      "surfaces": ["小程序", "后台"], "summary": main, "details": {"主流程": main, "异常与恢复": exc}, "sources": []}, name)
-    final = final_html(session)
-    if final.is_file():
-        root = re.search(r":root\{(.*?)\}", final.read_text(encoding="utf-8"), re.S)
-        if root:
-            tokens = dict(re.findall(r"--([\w-]+):(#[0-9a-fA-F]{3,6})", root.group(1)))
-            pairs = {}
-            for fg, bg in (("primary", "surface"), ("surface", "primary"), ("ink", "canvas"), ("ink2", "surface"), ("accent", "accent-tint"),
-                           ("success", "success-tint"), ("danger", "danger-tint")):
-                if fg in tokens and bg in tokens:
-                    pairs[f"{fg} 于 {bg}"] = contrast(tokens[fg], tokens[bg])
-            upsert_pattern(patterns, {"kind": "色彩", "title": f"{'、'.join(industries)}·{name.split('-', 1)[1]}配色", "industries": industries,
-                                      "surfaces": ["小程序", "后台"], "summary": "、".join(f"{k} {v}" for k, v in tokens.items() if k in ("primary", "accent", "canvas")),
-                                      "details": {"令牌": tokens, "对比度": pairs}, "sources": []}, name)
-    save(PATTERNS, patterns_doc)
+
+def private_hits(text: str) -> list[str]:
+    return [label for regex, label in PRIVATE_RES if regex.search(text)]
+
+
+def cmd_note(args) -> int:
+    key = args.key.strip().lower()
+    if not KEY_RE.match(key):
+        raise SystemExit("FAIL: --key must be a short kebab or Chinese slug, e.g. table-header-centred or 表头居中")
+    text = " ".join(args.text.split())
+    hits = private_hits(text + " " + (args.why or ""))
+    if hits:
+        raise SystemExit(f"FAIL: the note contains a {hits[0]}; committed stores hold general principles only")
+    path, field = store(args.kind)
+    doc = load(path, field)
+    items = doc[field]
+    if args.kind == "fact":
+        category = args.category or "调研经验"
+        if category not in KINDS:
+            raise SystemExit(f"FAIL: --category must be one of {KINDS}")
+        entry = {"key": key, "kind": category, "title": args.title or key, "summary": text,
+                 "industries": args.industry.split(",") if args.industry else ["通用"], "surfaces": ["通用"], "sources": []}
+        if args.why:
+            entry["details"] = {"依据": args.why}
+        replaced = upsert_pattern(items, entry, "note")
+        target = next(p for p in items if p.get("key") == key)
+    else:
+        target, replaced = upsert_note(items, key, text, args.why, "PREF" if args.kind == "preference" else "LES")
+    clash = [e for e in items if e is not target and normalize(statement(e)) == normalize(text)]
+    if clash:
+        print(f"WARN the same statement is stored under {clash[0].get('key') or clash[0].get('id')}; keep one of them")
+    dropped = prune_items(items, CAPS[args.kind], keep=target)
+    save(path, doc)
     render()
-    print(f"harvested {name}: {len(sources)} sources, {len(patterns)} patterns")
+    print(f"{'replaced' if replaced else 'added'} {NOTE_KINDS[args.kind]} {target['id']} {key}")
+    for e in dropped:
+        print(f"pruned {e.get('id')} {e.get('key') or e.get('title')}")
     return 0
+
+
+def cmd_prune(_args) -> int:
+    total = 0
+    for kind in ("preference", "lesson", "fact"):
+        path, field = store(kind)
+        doc = load(path, field)
+        dropped = prune_items(doc[field], CAPS[kind])
+        if dropped:
+            save(path, doc)
+        for e in dropped:
+            print(f"pruned {NOTE_KINDS[kind]} {e.get('id')} {e.get('key') or e.get('title')}")
+        total += len(dropped)
+        stale = [e for e in doc[field] if (age_days(confirmed(e)) or 0) > STALE_DAYS]
+        if stale:
+            print(f"candidates, not confirmed for {STALE_DAYS} days:", ", ".join(e.get("id", "?") for e in stale))
+    render()
+    print(f"pruned {total} entries")
+    return 0
+
+
+def cmd_list(args) -> int:
+    for kind in [args.kind] if args.kind else ["preference", "lesson"]:
+        path, field = store(kind)
+        for e in load(path, field)[field]:
+            if kind == "fact" and not e.get("key"):
+                continue
+            print(f"{e['id']} [{NOTE_KINDS[kind]}] {e.get('key')}: {statement(e)}  (使用 {e.get('uses', 1)} 次，最近 {confirmed(e)})")
+    return 0
+
+
+def check_store(items: list[dict], kind: str) -> list[str]:
+    errors = []
+    if len(items) > CAPS[kind]:
+        errors.append(f"{NOTE_KINDS[kind]} store has {len(items)} entries, cap is {CAPS[kind]}; run prune")
+    keys: dict[str, str] = {}
+    texts: dict[str, str] = {}
+    for e in items:
+        eid = e.get("id", "?")
+        if kind != "fact":
+            for field in ("id", "key", "text", "first_seen", "last_confirmed"):
+                if not e.get(field):
+                    errors.append(f"{eid} missing {field}")
+            if e.get("key") and not KEY_RE.match(e["key"]):
+                errors.append(f"{eid} key {e['key']!r} is not a short kebab or Chinese slug")
+            for what in private_hits(statement(e) + " " + e.get("why", "")):
+                errors.append(f"{eid} contains a {what}")
+        key = e.get("key")
+        if key:
+            if key in keys:
+                errors.append(f"{eid} duplicates key {key} of {keys[key]}")
+            keys.setdefault(key, eid)
+        norm = normalize(statement(e))
+        if norm:
+            if norm in texts:
+                errors.append(f"{eid} repeats the statement of {texts[norm]}")
+            texts.setdefault(norm, eid)
+    return errors
 
 
 # ---------------------------------------------------------------- add, check, render
@@ -241,6 +289,8 @@ def cmd_add(args) -> int:
         if p.get("kind") not in KINDS:
             raise SystemExit(f"FAIL: kind must be one of {KINDS}: {p.get('title')}")
         upsert_pattern(patterns_doc["patterns"], p, data.get("session", "manual"))
+    for e in prune_items(patterns_doc["patterns"], CAPS["fact"]):
+        print(f"pruned {e.get('id')} {e.get('title')}")
     save(PATTERNS, patterns_doc)
     render()
     print(f"added {len(data.get('patterns', []))} patterns, {len(data.get('sources', []))} sources")
@@ -260,15 +310,21 @@ def check() -> list[str]:
             errors.append(f"{s['id']} category must be one of {CATEGORIES}")
         if [x["url"] for x in sources].count(s["url"]) > 1:
             errors.append(f"{s['id']} duplicates {s['url']}")
+    titles = [(p.get("kind"), p.get("title")) for p in patterns]
     for p in patterns:
         for key in ("id", "kind", "title", "summary"):
             if not p.get(key):
                 errors.append(f"{p.get('id')} missing {key}")
         if p.get("kind") not in KINDS:
             errors.append(f"{p['id']} kind must be one of {KINDS}")
+        if titles.count((p.get("kind"), p.get("title"))) > 1:
+            errors.append(f"{p['id']} duplicates the title {p.get('title')}")
         for ref in p.get("sources", []):
             if ref not in ids:
                 errors.append(f"{p['id']} cites unknown source {ref}")
+    errors += check_store(patterns, "fact")
+    errors += check_store(load(PREFERENCES, "preferences")["preferences"], "preference")
+    errors += check_store(load(LESSONS, "lessons")["lessons"], "lesson")
     return errors
 
 
@@ -279,8 +335,10 @@ def cmd_check(_args) -> int:
     for e in errors:
         print("ERROR", e)
     if stale:
-        print("STALE (crawl again before reuse):", ", ".join(stale))
-    print("FAIL" if errors else "PASS", f"experience: {len(sources)} sources, {len(load(PATTERNS, 'patterns')['patterns'])} patterns")
+        print("STALE (crawl again before relying on it):", ", ".join(stale))
+    counts = (f"{len(load(PREFERENCES, 'preferences')['preferences'])} preferences, {len(load(LESSONS, 'lessons')['lessons'])} lessons, "
+              f"{len(load(PATTERNS, 'patterns')['patterns'])} patterns, {len(sources)} sources")
+    print("FAIL" if errors else "PASS", f"experience: {counts}")
     return 1 if errors else 0
 
 
@@ -289,7 +347,17 @@ def render() -> None:
     patterns = load(PATTERNS, "patterns")["patterns"]
     src = {s["id"]: s for s in sources}
     lines = ["# Luz Design 经验库", "",
-             "新项目开始前先读本页并运行 `py -X utf8 scripts/experience.py search`；能复用的来源用 `reuse` 复制进会话，只为缺口做新的调研。交付后运行 `harvest` 与 `add` 沉淀新经验。本页由 `scripts/experience.py` 生成，修改请改 JSON。", ""]
+             "每次调用开始先读本页并运行 `py -X utf8 scripts/experience.py search`：用户偏好与教训直接照做，能复用的配色、字阶与视觉、文件规则直接沿用，只为缺口做新的调研。结束前用 `note` 按主题键写入新的偏好、教训与有效信息，同一个键覆盖旧条目。本页由 `scripts/experience.py` 生成，修改请用命令或改 JSON。", ""]
+    for kind, title in (("preference", "用户偏好"), ("lesson", "教训")):
+        path, field = store(kind)
+        items = load(path, field)[field]
+        if not items:
+            continue
+        lines += [f"## {title}", ""]
+        for e in sorted(items, key=lambda x: x["key"]):
+            why = f"（{e['why']}）" if e.get("why") else ""
+            lines.append(f"- **{e['key']}**：{e['text']}{why}　使用 {e.get('uses', 1)} 次，最近 {confirmed(e)}")
+        lines.append("")
     for kind in KINDS:
         group = [p for p in patterns if p["kind"] == kind]
         if not group:
@@ -314,34 +382,39 @@ def render() -> None:
         age = age_days(s.get("captured_at"))
         reuse = "可复用快照" if s.get("snapshot") and age is not None and age <= STALE_DAYS else ("知识，无快照" if not s.get("snapshot") else "已过期")
         lines.append(f"| {s['id']} | {s['category']} | [{s['title']}]({s['url']}) | {s['borrowable']} | {s['captured_at']} | {reuse} |")
+    CATALOG.parent.mkdir(parents=True, exist_ok=True)
     CATALOG.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = parser.add_subparsers(dest="cmd", required=True)
-    s = sub.add_parser("search", help="find reusable patterns and sources")
+    s = sub.add_parser("search", help="find preferences, lessons, reusable patterns and sources")
     s.add_argument("--kind", choices=KINDS + CATEGORIES)
     s.add_argument("--industry")
     s.add_argument("--surface", choices=["小程序", "后台", "移动应用", "网页", "通用"])
     s.add_argument("--text", help="space-separated keywords, all must match")
-    r = sub.add_parser("reuse", help="copy fresh sources into a session's research")
-    r.add_argument("session")
-    r.add_argument("ids", nargs="+")
-    r.add_argument("--module", help="approved module the evidence supports")
-    r.add_argument("--functions", help="functions the evidence supports")
-    h = sub.add_parser("harvest", help="sediment a delivered session into the library")
-    h.add_argument("session")
-    h.add_argument("--industry", required=True, help="comma-separated industry tags, e.g. 健身房")
+    n = sub.add_parser("note", help="upsert a preference, lesson or fact by key; the same key replaces the old statement")
+    n.add_argument("--kind", required=True, choices=list(NOTE_KINDS))
+    n.add_argument("--key", required=True, help="stable topic slug, e.g. table-header-centred or 表头居中")
+    n.add_argument("--text", required=True, help="the general principle, not task trivia")
+    n.add_argument("--why", help="reason or evidence")
+    n.add_argument("--category", help="facts only: pattern kind (default 调研经验)")
+    n.add_argument("--title", help="facts only: catalog title (default the key)")
+    n.add_argument("--industry", help="facts only: comma-separated industries (default 通用)")
+    lst = sub.add_parser("list", help="list preferences and lessons, or keyed facts with --kind fact")
+    lst.add_argument("--kind", choices=list(NOTE_KINDS))
     a = sub.add_parser("add", help="add curated patterns and knowledge sources from a JSON file")
     a.add_argument("file")
-    sub.add_parser("check", help="validate the library and list stale sources")
+    sub.add_parser("prune", help="enforce the caps and list entries not confirmed for 180 days")
+    sub.add_parser("check", help="validate fields, duplicate keys and statements, caps, personal data and stale sources")
     sub.add_parser("render", help="regenerate catalog.md")
     args = parser.parse_args(argv)
     if args.cmd == "render":
         render()
         return 0
-    return {"search": cmd_search, "reuse": cmd_reuse, "harvest": cmd_harvest, "add": cmd_add, "check": cmd_check}[args.cmd](args)
+    return {"search": cmd_search, "note": cmd_note, "list": cmd_list, "add": cmd_add, "prune": cmd_prune,
+            "check": cmd_check}[args.cmd](args)
 
 
 if __name__ == "__main__":

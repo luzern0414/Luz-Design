@@ -41,8 +41,12 @@ REQUIRED = [
     "scripts/publish.py",
     "scripts/experience.py",
     "scripts/test_session_flow.py",
+    "scripts/test_experience.py",
+    "scripts/test_rule_pages.py",
     "experience/sources.json",
     "experience/patterns.json",
+    "experience/preferences.json",
+    "experience/lessons.json",
     "experience/catalog.md",
     "references/visual-design.html",
     "references/file-design.html",
@@ -135,6 +139,27 @@ def local_targets(text: str) -> list[str]:
     return targets
 
 
+# Rule pages are Chinese prose; Latin letters are allowed only inside <code> and <kbd>
+# (file names, commands, colour tokens, CSS properties), never in headings or sentences.
+LATIN_ALLOWED_TAGS = {"code", "kbd"}
+
+
+def prose_text(node) -> str:
+    """Visible text of a node, leaving out script, style, code and kbd elements."""
+    if node.tag in {"script", "style"} | LATIN_ALLOWED_TAGS:
+        return " "
+    parts = [child if isinstance(child, str) else prose_text(child) for child in node.children]
+    return re.sub(r"\s+", " ", "".join(parts)).strip() if node.tag == "body" else "".join(parts)
+
+
+def inside_code(node) -> bool:
+    while node is not None:
+        if getattr(node, "tag", None) in LATIN_ALLOWED_TAGS:
+            return True
+        node = node.parent
+    return False
+
+
 def validate_rule_page(
     path: Path,
     prefix: str,
@@ -159,14 +184,16 @@ def validate_rule_page(
     if body is None:
         errors.append(f"{rel} is missing body")
         return
-    visible = normalized_visible_text(body)
+    visible = prose_text(body)
     latin = re.search(r"[A-Za-z]", visible)
     if latin:
         start = max(0, latin.start() - 18)
         end = min(len(visible), latin.end() + 34)
-        errors.append(f"visible Latin letters are not allowed in {rel}: {visible[start:end]!r}")
+        errors.append(f"visible Latin letters outside <code>/<kbd> are not allowed in {rel}: {visible[start:end]!r}")
 
     for node in iter_nodes(body):
+        if inside_code(node):
+            continue
         for attr in HUMAN_TEXT_ATTRIBUTES:
             attr_text = (node.get(attr) or "").strip()
             if attr_text and re.search(r"[A-Za-z]", attr_text):
@@ -262,7 +289,7 @@ def validate_rule_page(
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Validate the flattened Luz Design skill and root-level sessions.")
-    parser.add_argument("--strict-production", action="store_true", help="Require strict session structure and live source verification")
+    parser.add_argument("--strict-production", action="store_true", help="Validate every session as handed off (strict session structure)")
     args = parser.parse_args(argv)
     errors: list[str] = []
     for rel in REQUIRED:
@@ -357,7 +384,7 @@ def main(argv: list[str] | None = None) -> int:
     for session in sorted(sessions):
         errors.extend(
             f"{session.name}: {error}"
-            for error in validate_session(session, strict=args.strict_production, live_sources=args.strict_production)
+            for error in validate_session(session, strict=args.strict_production)
         )
 
     from new_session import read_template
@@ -373,14 +400,25 @@ def main(argv: list[str] | None = None) -> int:
                 json.loads(templates[name])
             except json.JSONDecodeError as exc:
                 errors.append(f"invalid JSON in template {name}: {exc}")
-    for name in [n for n in ("module-intake.html", "system-design.html") if n in TEMPLATE_NAMES]:
+    for name in ("visual-board.html", "document.html"):
         for value in re.findall(r"font-size:\s*([0-9.]+)px", templates.get(name, "")):
             if float(value) < 14:
                 errors.append(f"{name} contains a font size below 14px")
-    if "module-intake.html" in templates and "{{MODULE_ITEMS}}" not in templates["module-intake.html"]:
-        errors.append("module-intake.html must contain a copyable module placeholder")
-    if "visual-board.html" in templates and 'data-artifact="visual-board"' not in templates["visual-board.html"]:
-        errors.append("visual-board.html must declare its artifact type")
+    for name, artifact in (("visual-board.html", "visual-board"), ("document.html", "document")):
+        if name in templates and f'data-artifact="{artifact}"' not in templates[name]:
+            errors.append(f"{name} must declare its artifact type")
+    # Schema 3.0 ledgers carry only Luz Design stages; system stages belong to Luz-System.
+    from validate_session import LEGACY_SYSTEM_STAGES, SCHEMA_VERSION, STAGE_PATHS
+    for name in ("approvals.json", "manifest.json"):
+        try:
+            data = json.loads(templates.get(name, "{}"))
+        except json.JSONDecodeError:
+            continue
+        if data.get("schema_version") != SCHEMA_VERSION:
+            errors.append(f"template {name} schema_version must be {SCHEMA_VERSION}")
+        keys = set(data.get("stages", {})) if name == "manifest.json" else set(data) - {"schema_version", "standalone_poster"}
+        if keys != set(STAGE_PATHS) or keys & set(LEGACY_SYSTEM_STAGES):
+            errors.append(f"template {name} stages must be exactly: {', '.join(STAGE_PATHS)}")
 
     from experience import check as check_experience
     errors.extend(f"experience: {e}" for e in check_experience())
@@ -393,10 +431,10 @@ def main(argv: list[str] | None = None) -> int:
     if not Path("D:/Codes/Imagegen/src/imagegen.py").is_file():
         print("WARN: Imagegen was not found at D:\\Codes\\Imagegen")
     session_label = f"{len(sessions)} production session(s)" if args.strict_production else f"{len(sessions)} session(s)"
-    validation_label = "sessions production-validated" if args.strict_production else "sessions not production-validated"
+    validation_label = "sessions strictly validated" if args.strict_production else "sessions structurally validated"
     print(
         f"PASS: Luz Design skill validated with {len(REQUIRED)} required files, "
-        f"{session_label}, 3 rule entrances, and {validation_label}"
+        f"{session_label}, {len(RULE_PAGES)} rule pages, and {validation_label}"
     )
     return 0
 

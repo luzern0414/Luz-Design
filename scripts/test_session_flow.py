@@ -1,12 +1,13 @@
 from __future__ import annotations
 
+import contextlib
 import hashlib
+import io
 import json
-import re
 import sys
 import tempfile
 import unittest
-from datetime import date, datetime, timezone
+from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -14,25 +15,15 @@ SCRIPTS = ROOT / "scripts"
 sys.path.insert(0, str(SCRIPTS))
 
 from add_mode import add_mode
-from new_session import read_template, create_session
-from validate_session import parse_html, validate, validate_html_top_contract
+from new_session import OUTPUT_ROOT, create_session, main as new_session_main
+from publish import publish
+from validate_session import SCHEMA_VERSION, validate
 from validate_skill import validate_rule_page
-
-MODULES = ["订单", "支付", "预约", "履约", "库存", "优惠券"]
-SYSTEM_NAME = "订餐系统"
-REQUIREMENTS = [f"REQ-{index:03d}" for index in range(1, len(MODULES) + 1)]
-DOMAINS = ["alpha.example", "beta.example", "gamma.example", "delta.example", "omega.example"]
 
 def tool_root(temp: str) -> Path:
     root = Path(temp) / "sessions"
     root.mkdir()
     return root
-
-def make_system(root: Path) -> Path:
-    return create_session(
-        root, "订餐系统", ["system"], skill_root=ROOT, session_kind="system",
-        system_name=SYSTEM_NAME, modules=MODULES,
-    )
 
 def read_json(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
@@ -46,113 +37,45 @@ def digest(path: Path) -> str:
 def now() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
 
-def write_requirements(session: Path) -> None:
-    rows = [
-        "| Requirement ID | User request (verbatim) | Module | Acceptance signal |",
-        "|---|---|---|---|",
-    ]
-    for req, module in zip(REQUIREMENTS, MODULES):
-        rows.append(f"| {req} | 用户要求设计{module}功能 | {module} | 端到端验收通过 |")
-    path = session / "raw" / "BRIEF.md"
-    text = path.read_text(encoding="utf-8")
-    text = re.sub(r"\| Requirement ID \|[\s\S]*?(?=\n\n## Users)", "\n".join(rows), text, count=1)
-    path.write_text(text, encoding="utf-8")
-
-def approve_module(session: Path) -> None:
-    path = session / "raw" / "01-system" / "01-module-intake.html"
-    approvals_path = session / "raw" / "99-delivery" / "APPROVALS.json"
-    data = read_json(approvals_path)
-    data["module_scope"].update({
-        "status": "approved", "selected_modules": MODULES,
-        "artifact_sha256": digest(path), "approved_by": "测试用户",
-        "approved_at": now(), "note": "模块范围确认",
-    })
-    write_json(approvals_path, data)
-
-def approve_artifact(session: Path, name: str, relative: str, acceptance: str | None = None) -> None:
+def approve_artifact(session: Path, name: str, relative: str) -> None:
     path = session / "raw" / "99-delivery" / "APPROVALS.json"
     data = read_json(path)
-    item = data[name]
-    item.update({
+    data[name].update({
         "status": "approved", "artifact_path": relative,
         "artifact_sha256": digest(session / "raw" / relative),
         "approved_by": "测试用户", "approved_at": now(), "note": "人工确认",
     })
-    if acceptance:
-        item.update({
-            "browser_acceptance_path": acceptance,
-            "browser_acceptance_sha256": digest(session / "raw" / acceptance),
-        })
     write_json(path, data)
 
-def write_research(session: Path, *, omit_tasks: bool = False) -> None:
-    snaps = session / "raw" / "01-system" / "crawl-snapshots"
-    snaps.mkdir(parents=True, exist_ok=True)
-    categories = ["页面结构", "页面结构", "页面结构", "交互流程", "交互流程", "交互流程", "组件状态", "组件状态"]
-    blocks = ["# Research", ""]
-    for index in range(12):
-        ref = f"REF-{index + 1:03d}"
-        task = f"LC-TEST-{index + 1:03d}"
-        snapshot = snaps / f"{task}.md"
-        snapshot.write_text(f"# {ref}\n\n已实际读取的页面证据。\n", encoding="utf-8")
-        domain = DOMAINS[index % len(DOMAINS)]
-        module = MODULES[index % len(MODULES)]
-        blocks.extend([
-            f"### {ref}",
-            f"- Source name: 来源{index + 1}",
-            f"- URL: https://{domain}/source/{index + 1}",
-            f"- Registrable domain: {domain}",
-            f"- Access date: {date.today().isoformat()}",
-            "- HTTP status: 200",
-            f"- Page title: 页面标题{index + 1}",
-            f"- LuzCrawl task ID: {'LC-TEST-MISSING' if omit_tasks else task}",
-            "- LuzCrawl status: 成功",
-            f"- Evidence category: {categories[index % len(categories)]}",
-            "- Visible evidence: 可见的流程、状态和异常恢复证据",
-            f"- Supported functions: F-{index + 1:03d}",
-            f"- Business flow or module: {module}",
-            "- Borrowable: 信息结构和状态组织",
-            "- Not copyable: 品牌、文案、图像和独占布局",
-            f"- Snapshot path: {snapshot.relative_to(session / "raw").as_posix()}",
-            f"- Snapshot sha256: {digest(snapshot)}",
-            "",
-        ])
-    (session / "raw" / "01-system" / "02-research.md").write_text("\n".join(blocks), encoding="utf-8")
+def legacy_approvals(**statuses: str) -> dict:
+    """APPROVALS.json as written before the Luz-System split (schema 2.0, system stages included)."""
+    def record(path: str, status: str = "pending") -> dict:
+        return {"status": status, "artifact_path": path, "artifact_sha256": None,
+                "approved_at": None, "approved_by": None, "note": None}
+    data = {
+        "schema_version": "2.0",
+        "module_scope": {**record("01-system/01-module-intake.html", statuses.get("module_scope", "pending")),
+                         "requested_modules": [], "selected_modules": []},
+        "architecture": record("01-system/03-system-architecture.html", statuses.get("architecture", "pending")),
+        "system_design": record("01-system/04-system-design.html", statuses.get("system_design", "pending")),
+        "visual": record("02-visual/visual-board.html"),
+        "prototype": {**record("03-prototype/interactive-prototype.html", statuses.get("prototype", "pending")),
+                      "browser_acceptance_path": None, "browser_acceptance_sha256": None},
+        "standalone_poster": {"status": "not_requested", "approved_at": None, "approved_by": None, "note": None},
+    }
+    return data
 
-def write_architecture(session: Path) -> None:
-    text = read_template(ROOT, "system-architecture.html")
-    text = text.replace("{{SYSTEM_NAME}}", SYSTEM_NAME).replace("{{MODULE}}", MODULES[0])
-    extras = []
-    for index, (req, module) in enumerate(zip(REQUIREMENTS[1:], MODULES[1:]), 2):
-        extras.append(f'<div class="node" data-function-id="F-{index:03d}" data-module="{module}" data-source="用户要求" data-req-ids="{req}">{module}功能</div>')
-    text = text.replace('</div></section>\n<section id="pages">', ''.join(extras) + '</div></section>\n<section id="pages">', 1)
-    states = ''.join(f'<div class="node" data-state-id="S-{index:03d}" data-module="{module}" data-state-subject="{module}">{module}状态</div>' for index, module in enumerate(MODULES[1:], 2))
-    text = text.replace('</div></div></section>\n<section id="data">', '</div>' + states + '</div></section>\n<section id="data">', 1)
-    (session / "raw" / "01-system" / "03-system-architecture.html").write_text(text, encoding="utf-8")
-
-def write_system_design(session: Path) -> None:
-    icon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" focusable="false"><path d="M4 12h16M12 4v16"/></svg>'
-    sections = []
-    for index, module in enumerate(MODULES, 1):
-        sections.append(f'''<section class="module" data-module="{module}" id="module-{index}">
-<div class="module-head"><span class="module-icon">{icon}</span><h2 class="module-title" data-module="{module}">{module}介绍，{module}设计</h2></div>
-<div class="module-grid"><article class="metric" data-module="{module}"><strong>—</strong></article></div>
-</section>''')
-    template = read_template(ROOT, "system-design.html")
-    body = template.replace("{{SYSTEM_NAME}}", SYSTEM_NAME).replace("{{MODULE_SECTIONS}}", "\n".join(sections))
-    body = body.replace("<main>", '<main data-artifact="system-design">', 1)
-    (session / "raw" / "01-system" / "04-system-design.html").write_text(body, encoding="utf-8")
-
-def prepare_approved_system(root: Path, *, live: bool = True) -> Path:
-    session = make_system(root)
-    write_requirements(session)
-    approve_module(session)
-    write_research(session)
-    write_architecture(session)
-    approve_artifact(session, "architecture", "01-system/03-system-architecture.html")
-    write_system_design(session)
-    approve_artifact(session, "system_design", "01-system/04-system-design.html")
-    return session
+def legacy_manifest(manifest: dict) -> dict:
+    """MANIFEST.json as written before the split: schema 2.0 with the six old stages."""
+    stage = lambda path, approval="pending": {"path": path, "sha256": None, "approval": approval}
+    return {**manifest, "schema_version": "2.0", "stages": {
+        "module_scope": stage("01-system/01-module-intake.html"),
+        "research": stage("01-system/02-research.md", "research_pending"),
+        "architecture": stage("01-system/03-system-architecture.html"),
+        "system_design": stage("01-system/04-system-design.html"),
+        "visual": stage("02-visual/visual-board.html"),
+        "prototype": stage("03-prototype/interactive-prototype.html"),
+    }}
 
 def minimal_rule_page() -> str:
     sections = []
@@ -350,10 +273,143 @@ class SessionFlowTests(unittest.TestCase):
             for expected in ("placeholder", "party information", "signature block", "第 X 页 共 Y 页", "大写"):
                 self.assertIn(expected, joined)
 
-    def test_standalone_poster_still_starts_visual_only(self) -> None:
-        with tempfile.TemporaryDirectory(dir=ROOT) as temp:
-            session = create_session(tool_root(temp), "秋季海报", ["visual"], skill_root=ROOT, session_kind="standalone_poster")
+    def test_standalone_poster_session_is_created_validated_and_published(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = tool_root(temp)
+            session = create_session(root, "秋季海报", ["visual"], skill_root=ROOT, session_kind="standalone_poster")
+            raw = session / "raw"
+            approvals = read_json(raw / "99-delivery" / "APPROVALS.json")
+            manifest = read_json(raw / "99-delivery" / "MANIFEST.json")
+            self.assertEqual(approvals["schema_version"], SCHEMA_VERSION)
+            self.assertEqual(set(approvals), {"schema_version", "visual", "document", "standalone_poster"})
+            self.assertEqual(approvals["standalone_poster"]["status"], "requested")
+            self.assertEqual(manifest["schema_version"], SCHEMA_VERSION)
+            self.assertEqual(set(manifest["stages"]), {"visual", "document"})
+            self.assertEqual((manifest["session_kind"], manifest["modes"]), ("standalone_poster", ["visual"]))
+            for child in ("visual-board.html", "prompts", "references", "generated"):
+                self.assertTrue((raw / "02-visual" / child).exists(), child)
+            self.assertFalse((raw / "01-system").exists())
             self.assertEqual(validate(session), [])
+            approve_artifact(session, "visual", "02-visual/visual-board.html")
+            self.assertEqual(validate(session), [])
+            final = publish(session, "visual")
+            self.assertEqual(final.name, f"{session.name}.html")
+            self.assertEqual(validate(session), [])
+            # Any change after approval invalidates the hash.
+            board = raw / "02-visual" / "visual-board.html"
+            board.write_text(board.read_text(encoding="utf-8").replace("方向甲", "方向乙"), encoding="utf-8")
+            self.assertTrue(any("hash differs" in error for error in validate(session)))
+            # Every task word new_session accepts is also accepted by the validator's BRIEF check.
+            key_visual = create_session(root, "春季品牌主视觉", ["visual"], skill_root=ROOT, session_kind="standalone_poster")
+            self.assertEqual(validate(key_visual), [])
+
+    def test_visual_mode_is_only_standalone_poster_work(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = tool_root(temp)
+            with self.assertRaises(ValueError) as caught:
+                create_session(root, "门店首页视觉", ["visual"], skill_root=ROOT)
+            self.assertIn("Luz-System", str(caught.exception))
+            with self.assertRaises(ValueError):
+                create_session(root, "门店首页", ["visual"], skill_root=ROOT, session_kind="standalone_poster")
+            document = create_session(root, "月度报告", ["document"], skill_root=ROOT)
+            with self.assertRaises(PermissionError):
+                add_mode(root, document, "visual")
+            self.assertEqual([item.name for item in root.iterdir()], [document.name])
+
+    def test_document_session_is_created_validated_and_published(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = tool_root(temp)
+            session = create_session(root, "门店月度报告", ["document"], skill_root=ROOT)
+            raw = session / "raw"
+            manifest = read_json(raw / "99-delivery" / "MANIFEST.json")
+            self.assertEqual((manifest["session_kind"], manifest["modes"]), ("general", ["document"]))
+            self.assertTrue((raw / "03-documents" / "document.html").is_file())
+            self.assertTrue((raw / "03-documents" / "outputs").is_dir())
+            self.assertFalse((raw / "02-visual").exists())
+            self.assertEqual(validate(session), [])
+            approve_artifact(session, "document", "03-documents/document.html")
+            self.assertEqual(validate(session), [])
+            publish(session, "document")
+            self.assertEqual(validate(session), [])
+
+            # A spreadsheet or Word file named after the folder is the single final deliverable; anything else is stray.
+            sheet_session = create_session(root, "门店销售表", ["document"], skill_root=ROOT)
+            (sheet_session / f"{sheet_session.name}.xlsx").write_bytes(b"xlsx")
+            self.assertEqual(validate(sheet_session), [])
+            (sheet_session / "门店销售表.xlsx").write_bytes(b"xlsx")
+            errors = validate(sheet_session)
+            self.assertEqual(len(errors), 1)
+            self.assertIn("found 门店销售表.xlsx", errors[0])
+            (sheet_session / "门店销售表.xlsx").unlink()
+            (sheet_session / f"{sheet_session.name}.docx").write_bytes(b"docx")
+            self.assertTrue(any("more than one final deliverable" in error for error in validate(sheet_session)))
+
+    def test_system_prototype_and_hardware_are_refused_and_name_luz_system(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = tool_root(temp)
+            for mode in ("system", "prototype", "hardware"):
+                with self.subTest(mode=mode):
+                    with self.assertRaises(ValueError) as caught:
+                        create_session(root, "订餐系统", [mode], skill_root=ROOT)
+                    self.assertIn("Luz-System", str(caught.exception))
+                    stderr = io.StringIO()
+                    with contextlib.redirect_stderr(stderr), contextlib.redirect_stdout(io.StringIO()):
+                        code = new_session_main(["--name", "订餐系统", "--modes", mode, "--root", str(root)])
+                    self.assertEqual(code, 1)
+                    self.assertIn("Luz-System", stderr.getvalue())
+            self.assertEqual(list(root.iterdir()), [])
+            session = create_session(root, "月度报告", ["document"], skill_root=ROOT)
+            for mode in ("system", "prototype", "hardware"):
+                with self.subTest(add_mode=mode), self.assertRaises(ValueError) as caught:
+                    add_mode(root, session, mode)
+                self.assertIn("Luz-System", str(caught.exception))
+            # System folders or declarations in a session are reported, never validated as Luz Design work.
+            (session / "raw" / "01-system").mkdir()
+            manifest_path = session / "raw" / "99-delivery" / "MANIFEST.json"
+            manifest = read_json(manifest_path)
+            write_json(manifest_path, {**manifest, "modes": ["document", "system"]})
+            joined = "\n".join(validate(session))
+            self.assertIn("01-system/ is system work and belongs to Luz-System", joined)
+            self.assertIn("system mode belongs to Luz-System", joined)
+
+    def test_legacy_schema_2_ledgers_are_accepted_and_system_keys_ignored(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = tool_root(temp)
+            session = create_session(root, "验收清单", ["document"], skill_root=ROOT)
+            delivery = session / "raw" / "99-delivery"
+            manifest = read_json(delivery / "MANIFEST.json")
+            write_json(delivery / "APPROVALS.json", legacy_approvals())
+            write_json(delivery / "MANIFEST.json", legacy_manifest(manifest))
+            self.assertEqual(validate(session), [])
+            # not_requested system stages, as written for old standalone posters, are ignored too.
+            write_json(delivery / "APPROVALS.json", legacy_approvals(module_scope="not_requested", system_design="not_requested"))
+            self.assertEqual(validate(session), [])
+            # An approved system stage means the session is system work: it is reported, not silently accepted.
+            write_json(delivery / "APPROVALS.json", legacy_approvals(system_design="approved"))
+            self.assertTrue(any("system_design is approved" in e and "Luz-System" in e for e in validate(session)))
+            # Schema 3.0 ledgers must not carry the old system stages.
+            legacy = legacy_approvals()
+            approvals_3 = {**legacy, "schema_version": SCHEMA_VERSION,
+                           "document": {**legacy["visual"], "artifact_path": "03-documents/document.html"}}
+            write_json(delivery / "APPROVALS.json", approvals_3)
+            write_json(delivery / "MANIFEST.json", manifest)
+            stray = [e for e in validate(session) if "must not contain system stages" in e]
+            self.assertEqual(len(stray), 1)
+            for name in ("module_scope", "architecture", "system_design", "prototype"):
+                self.assertIn(name, stray[0])
+            # Unknown schema versions are rejected; a legacy system session kind is pointed at Luz-System.
+            write_json(delivery / "APPROVALS.json", {**legacy_approvals(), "schema_version": "1.0"})
+            write_json(delivery / "MANIFEST.json", {**legacy_manifest(manifest), "session_kind": "system"})
+            joined = "\n".join(validate(session))
+            self.assertIn("schema_version must be 3.0", joined)
+            self.assertIn("system sessions belong to Luz-System", joined)
+
+    @unittest.skipUnless(next(OUTPUT_ROOT.glob("004-*"), None), "legacy 004 session is not on this machine")
+    def test_existing_legacy_004_session_has_only_its_stray_spreadsheet_error(self) -> None:
+        session = next(OUTPUT_ROOT.glob("004-*"))
+        errors = validate(session)
+        self.assertEqual(len(errors), 1, errors)
+        self.assertIn(".xlsx", errors[0])
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

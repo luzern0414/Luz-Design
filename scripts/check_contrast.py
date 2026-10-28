@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """检查 themes.json 中每套主题的关键对比度与配色规则。
 
-规则（对应 references/design-standards.html 第六层“视觉基础”）：
+规则（对应 references/visual-design.html “一、视觉基础”）：
 - 白字（surface）在 action / actionPress 上 >= 4.5:1（按钮文字）
 - actionPress 文字在 actionTint 上 >= 4.5:1（浅底上的选中态文字用按压档，TDesign 色阶规则）
 - 白字在 action 上 >= 4.5:1 同时保证开关、图表用 action 时对白底 >= 3:1（WCAG 1.4.11）

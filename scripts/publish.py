@@ -10,19 +10,12 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from validate_session import (
-    PROTOTYPE_PATH,
-    SYSTEM_DESIGN_PATH,
-    VISUAL_PATH,
+    STAGE_PATHS,
     final_html,
     sha256_file,
     validate_light_html,
     work_dir,
 )
-
-STAGE_PATHS = {
-    "visual": VISUAL_PATH,
-    "document": "03-documents/document.html",
-}
 
 
 def publish(folder: Path, stage: str) -> Path:
@@ -34,8 +27,8 @@ def publish(folder: Path, stage: str) -> Path:
     if not source.is_file():
         raise FileNotFoundError(f"missing stage artifact: raw/{STAGE_PATHS[stage]}")
     errors: list[str] = []
-    # Prototypes render real interfaces with a 12px floor (design-standards.html 字体与字号); reading pages keep 14px.
-    validate_light_html(source, errors, min_px=12.0 if stage == "prototype" else 14.0)
+    # Visual boards and reading pages keep the 14px floor (visual-design.html 字体与字号).
+    validate_light_html(source, errors)
     if errors:
         raise ValueError("stage artifact fails the HTML contract: " + "; ".join(errors))
     for item in folder.iterdir():

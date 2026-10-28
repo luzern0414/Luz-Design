@@ -164,94 +164,6 @@ def minimal_rule_page() -> str:
     return f'<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><title>视觉设计规范</title><link rel="stylesheet" href="guidelines.css"></head><body><main id="main" aria-label="视觉设计规范"><h1>视觉设计规范</h1>{"".join(sections)}</main></body></html>'
 
 class SessionFlowTests(unittest.TestCase):
-    def test_minimal_system_session_is_valid_and_does_not_prebuild_downstream(self) -> None:
-        with tempfile.TemporaryDirectory(dir=ROOT) as temp:
-            session = make_system(tool_root(temp))
-            self.assertEqual(validate(session), [])
-            self.assertFalse((session / "raw" / "01-system/03-system-architecture.html").exists())
-            self.assertFalse((session / "raw" / "01-system/04-system-design.html").exists())
-            self.assertFalse((session / "raw" / "02-visual").exists())
-            approvals = read_json(session / "raw" / "99-delivery/APPROVALS.json")
-            for name in ("module_scope", "architecture", "system_design", "visual", "prototype"):
-                self.assertIn(name, approvals)
-                self.assertNotEqual(approvals[name]["status"], "approved")
-
-    def test_full_hash_bound_chain_passes(self) -> None:
-        with tempfile.TemporaryDirectory(dir=ROOT) as temp:
-            root = tool_root(temp)
-            session = prepare_approved_system(root)
-            add_mode(root, session, "visual", skill_root=ROOT, allow_live_crawl_offline=True)
-            approve_artifact(session, "visual", "02-visual/visual-board.html")
-            add_mode(root, session, "prototype", skill_root=ROOT, allow_live_crawl_offline=True)
-            screenshot = session / "raw" / "99-delivery" / "browser-acceptance.png"
-            screenshot.write_bytes(b"\x89PNG\r\n\x1a\nacceptance")
-            approve_artifact(session, "prototype", "03-prototype/interactive-prototype.html", "99-delivery/browser-acceptance.png")
-            self.assertEqual(validate(session, allow_live_crawl_offline=True), [])
-
-    def test_session_root_holds_only_the_published_final_html_and_raw(self) -> None:
-        from publish import publish
-        with tempfile.TemporaryDirectory(dir=ROOT) as temp:
-            root = tool_root(temp)
-            session = prepare_approved_system(root)
-            add_mode(root, session, "visual", skill_root=ROOT, allow_live_crawl_offline=True)
-            approve_artifact(session, "visual", "02-visual/visual-board.html")
-            add_mode(root, session, "prototype", skill_root=ROOT, allow_live_crawl_offline=True)
-            final = publish(session, "prototype")
-            self.assertEqual(final.name, session.name + ".html")
-            self.assertEqual(sorted(p.name for p in session.iterdir()), sorted(["raw", final.name]))
-            self.assertFalse(any("final" in e or "may only contain" in e for e in validate(session, allow_live_crawl_offline=True)))
-            final.write_text(final.read_text(encoding="utf-8") + "<!-- edited -->", encoding="utf-8")
-            self.assertTrue(any("differs from its published hash" in e for e in validate(session, allow_live_crawl_offline=True)))
-            (session / "notes.md").write_text("x", encoding="utf-8")
-            self.assertTrue(any("may only contain" in e for e in validate(session, allow_live_crawl_offline=True)))
-
-    def test_modified_architecture_hash_blocks_downstream(self) -> None:
-        with tempfile.TemporaryDirectory(dir=ROOT) as temp:
-            root = tool_root(temp)
-            session = prepare_approved_system(root)
-            path = session / "raw" / "01-system/03-system-architecture.html"
-            path.write_text(path.read_text(encoding="utf-8") + "\n<!-- changed -->\n", encoding="utf-8")
-            errors = validate(session, allow_live_crawl_offline=True)
-            self.assertTrue(any("artifact hash differs" in error for error in errors), errors)
-            with self.assertRaises(PermissionError):
-                add_mode(root, session, "visual", skill_root=ROOT, allow_live_crawl_offline=True)
-
-    def test_research_without_task_or_snapshot_fails(self) -> None:
-        with tempfile.TemporaryDirectory(dir=ROOT) as temp:
-            session = make_system(tool_root(temp))
-            write_requirements(session)
-            approve_module(session)
-            write_research(session, omit_tasks=True)
-            errors = validate(session, allow_live_crawl_offline=True)
-            self.assertTrue(any("LuzCrawl task ID" in error for error in errors), errors)
-            (session / "raw" / "01-system/02-research.md").write_text("# Research\n", encoding="utf-8")
-            errors = validate(session, allow_live_crawl_offline=True)
-            self.assertTrue(any("at least 12 unique sources" in error for error in errors), errors)
-
-    def test_architecture_cannot_exist_before_module_approval(self) -> None:
-        with tempfile.TemporaryDirectory(dir=ROOT) as temp:
-            session = make_system(tool_root(temp))
-            write_requirements(session)
-            write_research(session)
-            write_architecture(session)
-            errors = validate(session, allow_live_crawl_offline=True)
-            self.assertTrue(any("before module_scope approval" in error for error in errors), errors)
-
-    def test_system_design_requires_architecture_approval(self) -> None:
-        with tempfile.TemporaryDirectory(dir=ROOT) as temp:
-            session = make_system(tool_root(temp))
-            write_requirements(session); approve_module(session); write_research(session)
-            write_architecture(session); write_system_design(session)
-            errors = validate(session, allow_live_crawl_offline=True)
-            self.assertTrue(any("before architecture approval" in error for error in errors), errors)
-
-    def test_visual_cannot_start_without_both_approvals(self) -> None:
-        with tempfile.TemporaryDirectory(dir=ROOT) as temp:
-            root = tool_root(temp)
-            session = make_system(root)
-            with self.assertRaises(PermissionError):
-                add_mode(root, session, "visual", skill_root=ROOT)
-
     def test_h1_first_contract_accepts_only_title_then_section(self) -> None:
         with tempfile.TemporaryDirectory(dir=ROOT) as temp:
             page = Path(temp) / "visual-design.html"
@@ -271,9 +183,7 @@ class SessionFlowTests(unittest.TestCase):
                 self.assertTrue(errors)
 
     def test_actual_rules_are_title_first_chinese_and_source_free(self) -> None:
-        cases = [("design-standards.html", "standards", "通用设计规范"), ("visual-design.html", "visual", "视觉设计规范"), ("system-design.html", "system", "系统设计规范"), ("file-design.html", "file", "文件设计规范"),
-                 ("admin-design.html", "admin", "网页管理后台设计规范"), ("miniprogram-design.html", "miniprogram", "小程序设计规范"),
-                 ("agent-design.html", "agent", "智能体设计规范"), ("website-design.html", "website", "网站设计规范")]
+        cases = [("visual-design.html", "visual", "视觉设计规范"), ("file-design.html", "file", "文件设计规范")]
         for filename, prefix, title in cases:
             with self.subTest(filename=filename):
                 path = ROOT / "references" / filename
@@ -285,12 +195,9 @@ class SessionFlowTests(unittest.TestCase):
                     self.assertNotIn(forbidden, text)
 
     def test_rule_content_covers_ordering_visual_and_spreadsheet_contracts(self) -> None:
-        system = (ROOT / "references/design-standards.html").read_text(encoding="utf-8")
-        visual = (ROOT / "references/design-standards.html").read_text(encoding="utf-8")
+        visual = (ROOT / "references/visual-design.html").read_text(encoding="utf-8")
         files = (ROOT / "references/file-design.html").read_text(encoding="utf-8")
-        for token in ("订单", "支付", "预约", "履约", "库存", "优惠券", "取餐码"):
-            self.assertIn(token, system)
-        for token in ("底部导航", "菜品卡", "套餐选择", "购物车", "结算", "浏览器"):
+        for token in ("扁平线性风格", "取色依据", "字体与字号", "海报", "文字纪律"):
             self.assertIn(token, visual)
         for token in ("只能生成一个工作表", "冻结表头", "数据验证", "打印区域", "不得添加建议"):
             self.assertIn(token, files)

@@ -18,9 +18,12 @@ SKILL_ROOT = Path(__file__).resolve().parents[1]
 OUTPUT_ROOT = Path(r"D:\Codes\skill输出\Luz-Design")
 SESSION_RE = re.compile(r"^(\d{3,})-(.+)$")
 INVALID = re.compile(r'[<>:"/\\|?*\x00-\x1f]')
-MODE_NAMES = ("system", "visual", "prototype", "document")
-POSTER_TASK_RE = re.compile(r"海报|poster", re.I)
-SESSION_KINDS = ("general", "system", "standalone_poster")
+# Luz-Design owns standalone visual work (posters, brand key visuals, campaign images) and document layout.
+# System design, product UI, interactive prototypes and hardware belong to Luz-System (D:\Codes\Luz-System).
+MODE_NAMES = ("visual", "document")
+OTHER_SKILL_MODES = {"system": "Luz-System", "prototype": "Luz-System", "hardware": "Luz-System"}
+POSTER_TASK_RE = re.compile(r"海报|poster|主视觉|品牌视觉|宣传图|视觉方向|活动视觉|封面|KV", re.I)
+SESSION_KINDS = ("general", "standalone_poster")
 
 _ICONS = [
     '<path d="M12 3l8 4v10l-8 4-8-4V7l8-4z"/><path d="M8 12h8M12 8v8"/>',
@@ -62,6 +65,9 @@ def parse_modes(value: str | None) -> list[str]:
         modes = list(MODE_NAMES)
     else:
         modes = [item.strip() for item in value.split(",") if item.strip()]
+    elsewhere = [m for m in modes if m in OTHER_SKILL_MODES]
+    if elsewhere:
+        raise ValueError(f"{', '.join(elsewhere)} belongs to {OTHER_SKILL_MODES[elsewhere[0]]}, not Luz-Design; use that skill")
     unknown = sorted(set(modes) - set(MODE_NAMES))
     if unknown:
         raise ValueError(f"unknown modes: {', '.join(unknown)}")
@@ -276,7 +282,7 @@ def create_session(
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Create the next Luz Design session folder.")
     parser.add_argument("--name", required=True, help="Readable session title")
-    parser.add_argument("--modes", default="", help="system, visual, prototype, document, or none")
+    parser.add_argument("--modes", default="", help="visual (with --standalone-poster) or document; system design and prototypes belong to Luz-System")
     parser.add_argument("--session-kind", choices=SESSION_KINDS, default="general")
     parser.add_argument("--system-name", help="Required in system mode; provide the exact system name supplied by the user")
     parser.add_argument("--modules", help="Comma-separated exact module names supplied by the user")

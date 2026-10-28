@@ -26,52 +26,42 @@ LINK_RE = re.compile(r"\[[^\]]*\]\(([^)]+)\)")
 HTML_LINK_RE = re.compile(r'(?:href|src)="([^"]+)"')
 REQUIRED = [
     ".gitignore",
+    "README.md",
+    "LICENSE",
+    "NOTICE",
     "SKILL.md",
     "WORKFLOW.md",
     "agents/openai.yaml",
-    "references/design-standards.html",
-    "references/visual-design.html",
-    "references/system-design.html",
-    "references/file-design.html",
-    "references/function-list-design.html",
-    "references/miniprogram-design.html",
-    "references/admin-design.html",
-    "references/agent-design.html",
-    "references/website-design.html",
     "references/guidelines.css",
-    "references/prompt-image.txt",
     "references/templates.txt",
-    "references/themes.json",
-    "references/handoff.md",
-    "references/handoff.schema.json",
     "scripts/new_session.py",
     "scripts/add_mode.py",
     "scripts/validate_session.py",
     "scripts/validate_skill.py",
+    "scripts/publish.py",
+    "scripts/experience.py",
+    "scripts/test_session_flow.py",
+    "experience/sources.json",
+    "experience/patterns.json",
+    "experience/catalog.md",
+    "references/visual-design.html",
+    "references/file-design.html",
+    "references/themes.json",
+    "references/prompt-image.txt",
     "scripts/check_contrast.py",
     "scripts/check_document.py",
     "scripts/make_xlsx.py",
     "scripts/make_docx.py",
-    "scripts/publish.py",
-    "scripts/experience.py",
-    "experience/sources.json",
-    "experience/patterns.json",
-    "experience/catalog.md",
-    "scripts/test_session_flow.py",
 ]
+RULE_PAGES = [
+    ("visual-design.html", "visual", "视觉设计规范"),
+    ("file-design.html", "file", "文件设计规范"),
+]
+TEMPLATE_NAMES = ("brief.md", "visual-board.html", "document.html", "approvals.json", "manifest.json",)
+REFERENCE_SUBDIRS = {}
 # The skill keeps four folders (agents, references, scripts, experience); sessions are outputs and live in OUTPUT_ROOT.
 ALLOWED_TOP_LEVEL = {".git", ".gitignore", "LICENSE", "NOTICE", "README.md", "SKILL.md", "WORKFLOW.md", "agents", "references", "scripts", "experience"}
-RULE_TITLES = {
-    "design-standards.html": "通用设计规范",
-    "visual-design.html": "视觉设计规范",
-    "system-design.html": "系统设计规范",
-    "file-design.html": "文件设计规范",
-    "function-list-design.html": "系统功能列表规范",
-    "miniprogram-design.html": "小程序设计规范",
-    "admin-design.html": "网页管理后台设计规范",
-    "agent-design.html": "智能体设计规范",
-    "website-design.html": "网站设计规范",
-}
+RULE_TITLES = {f: t for f, _, t in RULE_PAGES}
 TITLE_SEPARATOR_RE = re.compile(r"[,，:：;；|｜/／·・、\\\-–—]")
 RULE_SECTIONS = [
     "scope",
@@ -282,7 +272,7 @@ def main(argv: list[str] | None = None) -> int:
         if item.name not in ALLOWED_TOP_LEVEL and item.name not in {"__pycache__", ".pytest_cache"}:
             errors.append(f"unexpected top-level item in the skill: {item.name} (the skill keeps only LICENSE, NOTICE, README.md, SKILL.md, WORKFLOW.md, agents, references, scripts, experience)")
     for item in (ROOT / "references").iterdir() if (ROOT / "references").is_dir() else []:
-        if item.is_dir():
+        if item.is_dir() and item.name not in REFERENCE_SUBDIRS:
             errors.append(f"references must stay flat: {item.name}/")
 
     skill = ROOT / "SKILL.md"
@@ -297,14 +287,11 @@ def main(argv: list[str] | None = None) -> int:
             errors.append("SKILL.md description is missing")
         if re.search(r"\b(?:TODO|TBD|FIXME)\b", text):
             errors.append("SKILL.md contains an unfinished marker")
-        for expected in ("references/design-standards.html", "references/visual-design.html", "references/system-design.html", "references/file-design.html", "references/function-list-design.html", "references/miniprogram-design.html", "references/admin-design.html", "references/agent-design.html", "references/website-design.html"):
+        for expected in [f"references/{f}" for f, _, _ in RULE_PAGES]:
             if expected not in text:
                 errors.append(f"SKILL.md missing route: {expected}")
 
-    json_files = [
-                    "references/themes.json",
-        "references/handoff.schema.json",
-    ]
+    json_files = ["references/themes.json"]
     for rel in json_files:
         path = ROOT / rel
         if path.is_file():
@@ -313,15 +300,8 @@ def main(argv: list[str] | None = None) -> int:
             except json.JSONDecodeError as exc:
                 errors.append(f"invalid JSON in {rel}: {exc}")
 
-    validate_rule_page(ROOT / "references/visual-design.html", "visual", 0, "视觉设计规范", errors)
-    validate_rule_page(ROOT / "references/system-design.html", "system", 0, "系统设计规范", errors)
-    validate_rule_page(ROOT / "references/file-design.html", "file", 0, "文件设计规范", errors)
-    validate_rule_page(ROOT / "references/function-list-design.html", "flist", 0, "系统功能列表规范", errors)
-    validate_rule_page(ROOT / "references/miniprogram-design.html", "miniprogram", 0, "小程序设计规范", errors)
-    validate_rule_page(ROOT / "references/design-standards.html", "standards", 0, "通用设计规范", errors)
-    validate_rule_page(ROOT / "references/admin-design.html", "admin", 0, "网页管理后台设计规范", errors)
-    validate_rule_page(ROOT / "references/agent-design.html", "agent", 0, "智能体设计规范", errors)
-    validate_rule_page(ROOT / "references/website-design.html", "website", 0, "网站设计规范", errors)
+    for file_name, prefix, title in RULE_PAGES:
+        validate_rule_page(ROOT / "references" / file_name, prefix, 0, title, errors)
 
     guidelines_css = ROOT / "references/guidelines.css"
     if guidelines_css.is_file():
@@ -382,8 +362,7 @@ def main(argv: list[str] | None = None) -> int:
 
     from new_session import read_template
     templates: dict[str, str] = {}
-    for name in ("brief.md", "research.md", "module-intake.html", "system-architecture.html", "system-design.html",
-                 "visual-board.html", "interactive-prototype.html", "document.html", "approvals.json", "manifest.json"):
+    for name in TEMPLATE_NAMES:
         try:
             templates[name] = read_template(ROOT, name)
         except (KeyError, OSError) as exc:
@@ -394,7 +373,7 @@ def main(argv: list[str] | None = None) -> int:
                 json.loads(templates[name])
             except json.JSONDecodeError as exc:
                 errors.append(f"invalid JSON in template {name}: {exc}")
-    for name in ("module-intake.html", "system-design.html"):
+    for name in [n for n in ("module-intake.html", "system-design.html") if n in TEMPLATE_NAMES]:
         for value in re.findall(r"font-size:\s*([0-9.]+)px", templates.get(name, "")):
             if float(value) < 14:
                 errors.append(f"{name} contains a font size below 14px")

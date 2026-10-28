@@ -20,9 +20,7 @@ from validate_session import (
 )
 
 STAGE_PATHS = {
-    "system_design": SYSTEM_DESIGN_PATH,
     "visual": VISUAL_PATH,
-    "prototype": PROTOTYPE_PATH,
     "document": "03-documents/document.html",
 }
 

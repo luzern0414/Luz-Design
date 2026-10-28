@@ -1,4 +1,4 @@
 interface:
   display_name: "Luz Design"
-  short_description: "Approval-gated system, visual, and document design"
-  default_prompt: "Start product interfaces from references/design-standards.html layer by layer, then the surface page (admin-design, miniprogram-design, agent-design, website-design); route modes to system-design.html, visual-design.html or file-design.html; preserve numbered sessions, human approval gates, evidence, and actual output verification."
+  short_description: "Visual standards, posters and brand visuals, document and file layout"
+  default_prompt: "Use Luz Design for visual and layout work: visual-design.html for colour, type, icons, spacing and posters; file-design.html with make_xlsx.py and make_docx.py for spreadsheets, Word, slides and reading HTML; route system design, product UI, prototypes and hardware to Luz System."

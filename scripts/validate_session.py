@@ -119,7 +119,7 @@ REUSE_MAX_DAYS = 180
 SMALL_ELEMENT_TOKENS = (".mark", ".icon", ".avatar", ".badge", ".pill", ".status", ".chip", ".tag", ".logo", ".corner",
                         ".coin", ".dot", ".kk", ".steps", ".copy i", ".check", ".box", "::before", "::after", "button", "input", "svg",
                         # data marks: checkbox fills, check marks, progress and ranking bar fills, heat-map cells
-                        ".cbox", "-mark", "bar i", ".rb i", ".heat i", ".progress i")
+                        ".cbox", "-mark", "bar i", ".bar-fill", ".rb i", ".heat i", ".progress i")
 LUZ_CRAWL_PARTIAL = {"部分", "部分获取", "partial"}
 LUZ_CRAWL_OK = {"成功", "完成", "已完成", "success", "succeeded", "complete", "completed", "ok"}
 # Frontend architecture only: backend boundaries, interfaces and events belong to Luz Dev.
@@ -233,7 +233,7 @@ def local_links(text: str) -> list[str]:
             continue
         target = target.split()[0].strip("<>")
         parsed = urlparse(target)
-        if parsed.scheme in {"http", "https", "mailto", "data"} or target.startswith("#"):
+        if parsed.scheme in {"http", "https", "mailto", "tel", "data"} or target.startswith("#"):
             continue
         result.append(unquote(target.split("#", 1)[0]))
     return [item for item in result if item]

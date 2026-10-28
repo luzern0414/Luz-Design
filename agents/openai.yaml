@@ -1,0 +1,4 @@
+interface:
+  display_name: "Luz Design"
+  short_description: "Approval-gated system, visual, and document design"
+  default_prompt: "Start product interfaces from references/design-standards.html layer by layer, then the surface page (admin-design, miniprogram-design, agent-design, website-design); route modes to system-design.html, visual-design.html or file-design.html; preserve numbered sessions, human approval gates, evidence, and actual output verification."

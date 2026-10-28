@@ -1,0 +1,16 @@
+The image service makes photographs and posters only. Icons, illustrations and interface screens are drawn as flat line vectors in HTML, never generated (design-standards.html, 扁平线性风格). Write one prompt file per image under raw/02-visual/prompts/, dry-run first, then generate one at a time.
+
+=== Store, product and environment photo ===
+A realistic photograph of [subject: store interior, product, training area, dish] for [brand] in [industry].
+Shared style block (identical for every image in the session): bright natural light, clean uncluttered composition, light background, [primary colour] and [accent colour] appearing only as small accents in real objects, no text, no letters, no logos, no watermarks, no identifiable faces (people only from behind or as silhouettes).
+Framing: [aspect ratio, e.g. 4:3 or 1:1], [shot: wide / medium / close-up], subject centred with even margins so it crops cleanly to the same ratio as the rest of its group.
+Avoid: 3D render look, plastic or glossy CGI objects, gradients, glows, neon, heavy filters, dark night scenes unless the user asked for them, collage, device mockups.
+
+=== Poster ===
+Create one [format and exact aspect ratio] poster for [brand/product].
+Audience and context: [who sees it, placement, viewing distance].
+Communication goal: [one business outcome].
+Primary headline: [exact copy]. Supporting proposition: [exact copy]. Required details: [exact copy]. Call to action: [copy and QR/link destination].
+Composition: one dominant focal point (a real photograph or a flat graphic shape), clear copy hierarchy of at most four levels, generous safe margins of about 5%, strong thumbnail recognition. Leave a protected [size] quiet zone for the QR code and keep the lower [px or percent] clear of platform overlays.
+Art direction: light background, flat solid colours from the theme palette, [photography direction], one typeface family. No textures, gradients, 3D objects, glows or glass effects.
+Do not render unverified price, address, legal text, logo, testimonial, or QR destination. Do not add tiny microcopy, unrelated promotions, device frames, or fake seals. Do not imitate a named living artist; when a reference is supplied, borrow only the stated structural attribute and replace its brand, copy, imagery and identity.

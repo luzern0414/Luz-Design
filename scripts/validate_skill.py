@@ -60,7 +60,7 @@ REQUIRED = [
     "scripts/test_session_flow.py",
 ]
 # The skill keeps four folders (agents, references, scripts, experience); sessions are outputs and live in OUTPUT_ROOT.
-ALLOWED_TOP_LEVEL = {".git", ".gitignore", "README.md", "SKILL.md", "WORKFLOW.md", "agents", "references", "scripts", "experience"}
+ALLOWED_TOP_LEVEL = {".git", ".gitignore", "LICENSE", "NOTICE", "README.md", "SKILL.md", "WORKFLOW.md", "agents", "references", "scripts", "experience"}
 RULE_TITLES = {
     "design-standards.html": "通用设计规范",
     "visual-design.html": "视觉设计规范",
@@ -280,7 +280,7 @@ def main(argv: list[str] | None = None) -> int:
             errors.append(f"missing required file: {rel}")
     for item in ROOT.iterdir():
         if item.name not in ALLOWED_TOP_LEVEL and item.name not in {"__pycache__", ".pytest_cache"}:
-            errors.append(f"unexpected top-level item in the skill: {item.name} (the skill keeps only README.md, SKILL.md, WORKFLOW.md, agents, references, scripts, experience)")
+            errors.append(f"unexpected top-level item in the skill: {item.name} (the skill keeps only LICENSE, NOTICE, README.md, SKILL.md, WORKFLOW.md, agents, references, scripts, experience)")
     for item in (ROOT / "references").iterdir() if (ROOT / "references").is_dir() else []:
         if item.is_dir():
             errors.append(f"references must stay flat: {item.name}/")

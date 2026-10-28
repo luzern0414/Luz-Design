@@ -29,6 +29,9 @@ def publish(folder: Path, stage: str) -> Path:
     errors: list[str] = []
     # Visual boards and reading pages keep the 14px floor (visual-design.html 字体与字号).
     validate_light_html(source, errors)
+    # Every delivered HTML carries its own browser-tab icon (visual-design.html 网页图标与品牌标识).
+    from check_document import tab_icon_findings
+    errors.extend(tab_icon_findings(source.read_text(encoding="utf-8"))[0])
     if errors:
         raise ValueError("stage artifact fails the HTML contract: " + "; ".join(errors))
     for item in folder.iterdir():

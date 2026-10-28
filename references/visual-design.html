@@ -168,6 +168,33 @@
 <li>图标要能表达对象本身：先找该对象最具体的形象（转盘、礼盒、毛巾、淋浴），找不到再用通用图形；不把同一个通用图形（设置、文件、星标）挂在多个不同标题前凑数，没有合适图形时宁可不放。</li>
 <li>图形不能替代文字：入口与按钮仍然有文字标签，状态仍然有文字。</li>
 </ul>
+<h4>网页图标与品牌标识</h4>
+<p>每个交付的网页都带浏览器标签页图标；后台与网站的页头再用同一个图案做品牌标识（图标加系统名）。图标让人在一排标签页、书签和历史记录里一眼认出系统，所以画的是系统的主题对象，不是字母，也不是浏览器的空白默认图标。</p>
+<div class="table-wrap"><table><thead><tr><th>项目</th><th>规定</th></tr></thead><tbody>
+<tr><td>画布</td><td><code>viewBox="0 0 32 32"</code>；底是圆角方形 <code>rx="8"</code>，填主题主色的第 1 阶浅色（主题表的 <code>actionTint</code>）或白色</td></tr>
+<tr><td>图案</td><td>取最能代表本页或本系统的一个对象：健身房用哑铃，采购公告用公告喇叭或印章，获客用雷达或靶心，硬件用芯片，财务用账本，门店零售用店铺，文章用与主题相关的物件，调研用放大镜；没有合适对象时用中性宫格</td></tr>
+<tr><td>画法</td><td>扁平单色线稿，描边用主题主色（主题表的 <code>action</code>），线宽 2.5–3（按 32 栅格；标签页以 16 像素显示时约 1.4 像素，与界面图标的 1.5 像素一致），圆角端点与转角；最多 3 个形状（含底）；无文字、无字母、无细节、无渐变与阴影</td></tr>
+<tr><td>可辨认</td><td>缩到 16 像素仍能认出：图案占画布中间约 18×18，平行线间距不小于 3 个单位</td></tr>
+<tr><td>写法</td><td>内联在页面里：<code>&lt;link rel="icon" href="data:image/svg+xml,..."&gt;</code>，不依赖外部文件；不得缺失，不得留空或留着模板占位</td></tr>
+<tr><td>一致</td><td>同一系统的所有页面（系统设计、视觉稿、原型、硬件方案、报告）用同一个图标；页头品牌标识是同一图案的 28–32 像素版本，后面接系统名，不用文字缩写方块或首字母代替</td></tr>
+<tr><td>生成</td><td>模板与生成脚本内置图标参数（图案加主色），不手写：<code>py -X utf8 scripts/new_session.py icon 页面或系统名</code> 打印标签页图标与品牌标识两段代码，<code>--icon</code> 指定图案，<code>--theme</code> 指定主题</td></tr>
+</tbody></table></div>
+<div class="table-wrap"><table><thead><tr><th>图案与主题</th><th>32 像素</th><th>16 像素</th></tr></thead><tbody>
+<tr><td>健身房：哑铃，健身房主题的火山橙</td><td><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="8" fill="#FFF2E8"/><g fill="none" stroke="#D4380D" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11v10M23 11v10M6 14v4M26 14v4M9 16h14"/></g></svg></td><td><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="16" height="16" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="8" fill="#FFF2E8"/><g fill="none" stroke="#D4380D" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11v10M23 11v10M6 14v4M26 14v4M9 16h14"/></g></svg></td></tr>
+<tr><td>采购公告：公告喇叭</td><td><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="8" fill="#E6F4FF"/><g fill="none" stroke="#0958D9" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M8 13v6h4l8 5V8l-8 5z"/><path d="M24 13a4 4 0 0 1 0 6"/></g></svg></td><td><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="16" height="16" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="8" fill="#E6F4FF"/><g fill="none" stroke="#0958D9" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M8 13v6h4l8 5V8l-8 5z"/><path d="M24 13a4 4 0 0 1 0 6"/></g></svg></td></tr>
+<tr><td>获客：雷达</td><td><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="8" fill="#E6F4FF"/><g fill="none" stroke="#0958D9" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="16" cy="16" r="8.5"/><path d="M16 16l5.5-5.5M16 11.5a4.5 4.5 0 1 0 4.5 4.5"/></g></svg></td><td><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="16" height="16" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="8" fill="#E6F4FF"/><g fill="none" stroke="#0958D9" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="16" cy="16" r="8.5"/><path d="M16 16l5.5-5.5M16 11.5a4.5 4.5 0 1 0 4.5 4.5"/></g></svg></td></tr>
+<tr><td>硬件：芯片</td><td><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="8" fill="#E6F4FF"/><g fill="none" stroke="#0958D9" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><rect x="10" y="10" width="12" height="12" rx="2"/><path d="M13.5 7v3M18.5 7v3M13.5 22v3M18.5 22v3M7 13.5h3M7 18.5h3M22 13.5h3M22 18.5h3"/></g></svg></td><td><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="16" height="16" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="8" fill="#E6F4FF"/><g fill="none" stroke="#0958D9" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><rect x="10" y="10" width="12" height="12" rx="2"/><path d="M13.5 7v3M18.5 7v3M13.5 22v3M18.5 22v3M7 13.5h3M7 18.5h3M22 13.5h3M22 18.5h3"/></g></svg></td></tr>
+<tr><td>财务：账本</td><td><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="8" fill="#E6F4FF"/><g fill="none" stroke="#0958D9" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="7" width="14" height="18" rx="2"/><path d="M13 12h6M13 16h6M13 20h3"/></g></svg></td><td><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="16" height="16" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="8" fill="#E6F4FF"/><g fill="none" stroke="#0958D9" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="7" width="14" height="18" rx="2"/><path d="M13 12h6M13 16h6M13 20h3"/></g></svg></td></tr>
+<tr><td>门店零售：店铺</td><td><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="8" fill="#E6F4FF"/><g fill="none" stroke="#0958D9" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M7.5 13l2-5h13l2 5zM9 13v11h14V13"/><path d="M14 24v-5h4v5"/></g></svg></td><td><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="16" height="16" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="8" fill="#E6F4FF"/><g fill="none" stroke="#0958D9" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M7.5 13l2-5h13l2 5zM9 13v11h14V13"/><path d="M14 24v-5h4v5"/></g></svg></td></tr>
+<tr><td>调研：放大镜</td><td><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="8" fill="#E6F4FF"/><g fill="none" stroke="#0958D9" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="14.5" cy="14.5" r="6.5"/><path d="M19.5 19.5l5 5"/></g></svg></td><td><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="16" height="16" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="8" fill="#E6F4FF"/><g fill="none" stroke="#0958D9" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="14.5" cy="14.5" r="6.5"/><path d="M19.5 19.5l5 5"/></g></svg></td></tr>
+<tr><td>没有合适对象：中性宫格</td><td><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="8" fill="#E6F4FF"/><g fill="none" stroke="#0958D9" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 9h5v5H9zM18 9h5v5h-5zM9 18h5v5H9zM18 18h5v5h-5z"/></g></svg></td><td><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="16" height="16" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="8" fill="#E6F4FF"/><g fill="none" stroke="#0958D9" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 9h5v5H9zM18 9h5v5h-5zM9 18h5v5H9zM18 18h5v5h-5z"/></g></svg></td></tr>
+</tbody></table></div>
+<p>健身房系统的标签页图标源码（写进 <code>href</code> 时把双引号换成单引号，<code>#</code>、<code>&lt;</code>、<code>&gt;</code> 按网址编码）：</p>
+<pre><code>&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 32 32&quot;&gt;&lt;rect width=&quot;32&quot; height=&quot;32&quot; rx=&quot;8&quot; fill=&quot;#FFF2E8&quot;/&gt;&lt;g fill=&quot;none&quot; stroke=&quot;#D4380D&quot; stroke-width=&quot;2.75&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;&gt;&lt;path d=&quot;M9 11v10M23 11v10M6 14v4M26 14v4M9 16h14&quot;/&gt;&lt;/g&gt;&lt;/svg&gt;</code></pre>
+<ul>
+<li>阅读页（报告、方案、文章）也带标签页图标，页头可以不放标识。</li>
+<li>检查：<code>check_document.py</code> 在所有网页模式下，缺少 <code>rel="icon"</code> 或图标为空即报错，外部图标文件与图标里写字给出警告；<code>--allow interface</code> 下页头（<code>header</code>、侧栏、顶栏）里没有带图形（<code>svg</code> 或 <code>img</code>）的品牌标识给出警告。</li>
+</ul>
 <h4>图标与图像</h4>
 <ul>
 <li>图标按“图形：一套线性图标”使用；全站同一套、同一线宽、同一圆角端点。</li>
@@ -234,6 +261,14 @@
 <li>短值列（状态标签、日期、时间、负责人、操作）居中。</li>
 <li>数字一律用等宽数字（<code>font-variant-numeric: tabular-nums</code>），同列小数位一致；需要纵向比较大小的金额列右对齐，单位写在表头，例如“金额（元）”；只比较个位数的计数列可以居中。</li>
 <li>不再使用“表头与数据全部居中”的旧写法：长文本居中会让每行起点不同，金额居中会让位数无法对齐比较。</li>
+</ul>
+<h5>分页</h5>
+<ul>
+<li>分页条放在表格下方、靠右，右边缘与表格对齐，距表格 12–16 像素；从左到右：共 <code>N</code> 条、每页条数选择、上一页、页码、下一页，总页数超过 5 页时加“跳至第几页”。</li>
+<li>文字 14 像素，与表格正文同档；页码按钮、翻页按钮、条数选择与跳页输入框高 32 像素，页码按钮最小宽 32，控件间距 8，圆角与输入框一致。</li>
+<li>当前页用主色：主色品牌阶实色底加白字（白字达 4.5:1），或主色描边加主色字；其他页码白底、中性描边、深色字；不可用的上一页与下一页用中性灰字，对白底至少 3:1。</li>
+<li>折叠的页码用省略号，与页码按钮同宽；共 <code>N</code> 条用正文色，不用浅灰小字。</li>
+<li>行为规则（默认每页 20 条、可选 10、20、50、100、记住选择、写进地址参数、小程序滚动加载）见系统技能的<a href="https://github.com/luzern0414/Luz-System/blob/master/references/admin-design.html">网页管理后台设计规范</a>“分页”。</li>
 </ul>
 <h5>依据</h5>
 <div class="table-wrap"><table><thead><tr><th>标准</th><th>规定</th><th>落到界面</th></tr></thead><tbody>
@@ -334,6 +369,8 @@
 <tr><td>图标风格混用</td><td>同屏图标线宽、填充方式或来源不同</td><td>彩色面性图标与线性图标混排、菜单 1.7 像素线宽而返回键 2.2 像素、放大后的图标线条变粗</td><td>全站一套描边图标，线宽统一 1.5 像素且不随尺寸缩放</td></tr>
 <tr><td>图表装饰</td><td>图表里的装饰多于数据</td><td>深色网格与外框、折线下的渐变填充、立体柱、折线锯齿生硬、常驻的大数据点</td><td>平滑细线、淡横向网格、无渐变填充、数据点悬停才出现</td></tr>
 <tr><td>图标重复</td><td>同一个图形代表不同对象，或通用图形挂在多个标题前</td><td>每日抽奖和新人礼券都用礼盒、月卡套餐与会员权益都用皇冠、面积用店面图标、配置面板每组标题都是设置图标</td><td>每个对象用自己最具体的图形；同一对象各处一致；没有合适图形时不放</td></tr>
+<tr><td>缺少标签页图标</td><td>网页没有自己的标签页图标，或图标认不出系统</td><td>浏览器标签页显示空白默认图标、图标留着模板占位、图标里写首字母、同一系统各页图标不同、后台顶栏只有文字或字母方块</td><td>按“网页图标与品牌标识”：主题图案、主色线稿、圆角浅底，标签页与页头同一图案</td></tr>
+<tr><td>分页失范</td><td>分页条的位置、尺寸或当前页样式与表格不成一套</td><td>分页条居中或放在表格上方、页码 12 像素小字、按钮高低不一、当前页只加粗不变色、共 <code>N</code> 条用浅灰小字</td><td>按“界面密度与表格对齐”的“分页”：表格下方靠右、14 像素文字、32 像素控件、当前页主色</td></tr>
 <tr><td>文字头像</td><td>用文字顶替用户头像</td><td>圆圈里放姓氏“林”、拼音首字母、昵称前两字、用户编号</td><td>有照片显示照片，否则按用户标识固定选一个卡通动物默认头像；未登录用线性人像图标</td></tr>
 <tr><td>配色失据</td><td>颜色凭感觉调深或调浅，不来自官方色板与对比标准，整屏显得沉或发飘</td><td>深色渐变主按钮、深紫实色营销按钮铺满卡片；或把按钮、开关改成半浅的粉橙粉紫配深字，开关开启态对白底不足 3:1</td><td>按“取色依据”取阶：一个实色主按钮（白字 4.5:1），营销用浅底容器，控件与图表色对白底 3:1，大面积用中性色</td></tr>
 <tr><td>密度过低</td><td>同样的屏幕放下的有效信息明显少于参考组件库</td><td>后台正文与表格 12–13 像素、表格行高 56 以上、统计卡高 140 且大半空白、1440×900 首屏不到 10 行数据、卡片内边距 32</td><td>按“界面密度与表格对齐”：正文 14/22、行高 44–48、卡片内边距 16–20、统计卡不超过 112</td></tr>

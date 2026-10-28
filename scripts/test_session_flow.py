@@ -127,11 +127,13 @@ class SessionFlowTests(unittest.TestCase):
 
     def test_document_checker_rejects_metadata_and_accepts_clean_html(self) -> None:
         from check_document import check_html
+        from new_session import tab_icon_href
         style = "<style>body{background:#fff;color:#202124;font:16px/1.75 \"Microsoft YaHei\",sans-serif}td{font-size:15px}</style>"
+        icon = f'<link rel="icon" href="{tab_icon_href("门店月度销售报告")}">'
         with tempfile.TemporaryDirectory() as temp:
             clean = Path(temp) / "clean.html"
             clean.write_text(
-                f"<!doctype html><html lang=\"zh-CN\"><head><meta name=\"viewport\" content=\"width=device-width\">{style}</head>"
+                f"<!doctype html><html lang=\"zh-CN\"><head><meta name=\"viewport\" content=\"width=device-width\">{icon}{style}</head>"
                 "<body><main><h1>门店月度销售</h1><section><h2>销售概况</h2><table><tr><td>一店</td></tr></table></section></main></body></html>",
                 encoding="utf-8",
             )
@@ -148,7 +150,7 @@ class SessionFlowTests(unittest.TestCase):
             errors = []
             check_html(dirty, errors, [])
             joined = "\n".join(errors)
-            for expected in ("first visible text", "between the h1", "timestamp", "source metadata", "dark or saturated fill", "below 14px", "note or advice"):
+            for expected in ("no browser-tab icon", "first visible text", "between the h1", "timestamp", "source metadata", "dark or saturated fill", "below 14px", "note or advice"):
                 self.assertIn(expected, joined)
 
     def test_document_checker_catches_problem_families_not_just_listed_words(self) -> None:

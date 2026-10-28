@@ -9,14 +9,17 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import check_document as cd  # noqa: E402
 
+from new_session import TAB_ICONS, fill_icon_slots, read_template, tab_icon_href, tab_icon_svg  # noqa: E402
+
+ICON = f'<link rel="icon" href="{tab_icon_href("门店后台")}">'
 PAGE = """<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width">
-<title>原型</title><style>body{{font-size:14px}} {css}</style></head><body><h1>门店后台原型</h1><h2>会员</h2>{body}</body></html>"""
+<title>原型</title>{head}<style>body{{font-size:14px}} {css}</style></head><body><h1>门店后台原型</h1><h2>会员</h2>{body}</body></html>"""
 
 
-def run(body: str, css: str = "", allow: tuple[str, ...] = ("interface",)) -> tuple[list[str], list[str]]:
+def run(body: str, css: str = "", allow: tuple[str, ...] = ("interface",), head: str = ICON) -> tuple[list[str], list[str]]:
     with tempfile.TemporaryDirectory() as tmp:
         path = Path(tmp) / "page.html"
-        path.write_text(PAGE.format(css=css, body=body), encoding="utf-8")
+        path.write_text(PAGE.format(css=css, body=body, head=head), encoding="utf-8")
         cd.ALLOWED.clear()
         cd.ALLOWED.update(allow)
         errors: list[str] = []
@@ -167,6 +170,92 @@ class TableColumnTest(unittest.TestCase):
     def test_short_cells_are_not_padding_checked(self) -> None:
         _, warnings = run(table([["张三", "月卡"]] * 3, ["姓名", "卡种"], "t"), ".t td{padding:8px}")
         self.assertFalse([w for w in warnings if "side padding" in w])
+
+
+class TabIconTest(unittest.TestCase):
+    """Every HTML mode: a missing, empty or placeholder tab icon is an error."""
+
+    def icon_errors(self, head: str, allow: tuple[str, ...] = ()) -> tuple[list[str], list[str]]:
+        errors, warnings = run("<p>正文</p>", allow=allow, head=head)
+        return [e for e in errors if "tab icon" in e], [w for w in warnings if "tab icon" in w]
+
+    def test_missing_icon_is_an_error_in_every_mode(self) -> None:
+        for allow in ((), ("interface",), ("interface", "website")):
+            with self.subTest(allow=allow):
+                self.assertTrue(any("no browser-tab icon" in e for e in self.icon_errors("", allow)[0]))
+
+    def test_empty_and_placeholder_icons_are_errors(self) -> None:
+        for href in ("", "#", "{{TAB_ICON}}", "data:,", "data:image/svg+xml,", "data:image/svg+xml,%3Csvg%3E%3C/svg%3E"):
+            with self.subTest(href=href):
+                self.assertTrue(any("empty or an unfilled placeholder" in e for e in self.icon_errors(f'<link rel="icon" href="{href}">')[0]))
+        self.assertTrue(self.icon_errors('<link rel="icon">')[0])
+
+    def test_inline_icon_passes_and_rel_may_contain_icon(self) -> None:
+        self.assertEqual(self.icon_errors(ICON), ([], []))
+        svg = tab_icon_href("门店后台").replace("data:image/svg+xml,", "data:image/svg+xml;utf8,")
+        self.assertEqual(self.icon_errors(f'<link rel="shortcut icon" href="{svg}">'), ([], []))
+        import base64
+        b64 = base64.b64encode(tab_icon_svg("门店后台").encode()).decode()
+        self.assertEqual(self.icon_errors(f'<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,{b64}">'), ([], []))
+
+    def test_external_file_and_text_icons_warn(self) -> None:
+        errors, warnings = self.icon_errors('<link rel="icon" href="favicon.ico">')
+        self.assertEqual(errors, [])
+        self.assertTrue(any("external file" in w for w in warnings))
+        text_icon = "data:image/svg+xml,%3Csvg%3E%3Crect width='32' height='32'/%3E%3Ctext%3EA%3C/text%3E%3C/svg%3E"
+        self.assertTrue(any("contains text" in w for w in self.icon_errors(f'<link rel="icon" href="{text_icon}">')[1]))
+
+    def test_templates_and_icon_set_follow_the_drawing_rules(self) -> None:
+        root = Path(__file__).resolve().parents[1]
+        for name in ("visual-board.html", "document.html"):
+            with self.subTest(template=name):
+                text = read_template(root, name)
+                self.assertIn('<link rel="icon" href="{{TAB_ICON}}">', text)
+                self.assertEqual(cd.tab_icon_findings(fill_icon_slots(text, "健身房会员海报")), ([], []))
+        import re
+        for key in TAB_ICONS:
+            svg = tab_icon_svg("某页面", icon=key)
+            self.assertIn('viewBox="0 0 32 32"', svg)
+            self.assertIn('rx="8"', svg)
+            self.assertNotIn("<text", svg)
+            self.assertLessEqual(len(re.findall(r"<(?:path|rect|circle|line|polyline|polygon|ellipse)\b", svg)), 3, key)
+
+
+PAGER = ('<div class="pagination"><span>共 86 条</span><select>{options}</select>'
+         '<button type="button">1</button><button type="button">2</button></div>')
+SIZES = '<option value="10"{a}>10 条/页</option><option value="20"{b}>20 条/页</option><option value="50">50 条/页</option>'
+
+
+class PaginationAndBrandTest(unittest.TestCase):
+    def warns(self, body: str, word: str, allow: tuple[str, ...] = ("interface",)) -> list[str]:
+        return [w for w in run(body, allow=allow)[1] if word in w]
+
+    def test_list_table_without_pagination_warns(self) -> None:
+        self.assertTrue(self.warns(table([["甲", "1"]] * 3, ["客户", "次数"], "member-list"), "without pagination"))
+        self.assertTrue(self.warns(table([[f"客户{i}", str(i)] for i in range(10)], ["客户", "次数"]), "without pagination"))
+
+    def test_short_one_page_and_reading_tables_are_exempt(self) -> None:
+        self.assertFalse(self.warns(table([["甲", "1"]] * 3, ["客户", "次数"]), "without pagination"))
+        self.assertFalse(self.warns(table([[f"档位{i}", str(i)] for i in range(12)], ["档位", "折扣"], 'list" data-pagination="none'), "without pagination"))
+        self.assertFalse(self.warns(table([[f"客户{i}", str(i)] for i in range(12)], ["客户", "次数"], "list"), "without pagination", allow=()))
+
+    def test_default_page_size_must_be_20(self) -> None:
+        good = table([["甲", "1"]] * 3, ["客户", "次数"], "list") + PAGER.format(options=SIZES.format(a="", b=" selected"))
+        self.assertFalse(self.warns(good, "pagination"))
+        bad = table([["甲", "1"]] * 3, ["客户", "次数"], "list") + PAGER.format(options=SIZES.format(a=" selected", b=""))
+        self.assertTrue(self.warns(bad, "defaults to 10"))
+        self.assertTrue(self.warns('<div class="pager" data-page-size="50"></div>', "defaults to 50"))
+        text_only = table([["甲", "1"]] * 3, ["客户", "次数"], "list") + "<div>共 86 条 · 10 条/页</div>"
+        self.assertFalse(self.warns(text_only, "without pagination"))
+        self.assertTrue(self.warns(text_only, "defaults to 10"))
+
+    def test_admin_header_needs_a_graphic_brand_mark(self) -> None:
+        self.assertTrue(self.warns('<header class="topbar"><strong>门店后台</strong></header>', "brand mark"))
+        self.assertTrue(self.warns('<aside class="sidebar"><div class="logo">店</div></aside>', "brand mark"))
+        mark = tab_icon_svg("门店后台", attrs=' class="brand-mark" aria-hidden="true"')
+        self.assertFalse(self.warns(f'<header class="topbar"><div class="brand">{mark}门店后台</div></header>', "brand mark"))
+        self.assertFalse(self.warns('<div class="phone"><header class="mp-nav">首页</header></div>', "brand mark"))
+        self.assertFalse(self.warns("<p>没有页头的原型</p>", "brand mark"))
 
 
 class ExportHeaderTest(unittest.TestCase):

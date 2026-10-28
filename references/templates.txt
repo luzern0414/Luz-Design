@@ -1,6 +1,8 @@
 # Luz Design 会话模板
 # 每个模板以 “=== template: 名称 ===” 开始、以 “=== end ===” 结束；scripts/new_session.py 的 read_template(名称) 按名称读取。
 # 修改模板时只改块内内容，不改标记行。
+# 网页模板的 {{TAB_ICON}}（标签页图标 <link rel="icon"> 的地址）由 new_session.py 的 fill_icon_slots 按会话标题选图案与主题主色填入；
+# 其他生成网页用 py -X utf8 scripts/new_session.py icon 页面或系统名 取得。图案与绘制规范见 visual-design.html“网页图标与品牌标识”。
 
 # BRIEF.md：需求台账、角色、范围、约束、假设与待决事项
 === template: brief.md ===
@@ -69,6 +71,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>视觉方案总览</title>
+<link rel="icon" href="{{TAB_ICON}}">
 <style>
 :root{color-scheme:light;--canvas:#fff;--surface:#f7f9fc;--line:#d9e2eb;--ink:#172033;--muted:#526071;--accent:#235b8a;--tint:#e8f1f8}
 *{box-sizing:border-box}html,body{background:var(--canvas)}body{margin:0;color:var(--ink);font:16px/1.55 "PingFang SC", "Microsoft YaHei", "Noto Sans SC", system-ui, sans-serif}
@@ -104,6 +107,7 @@ main{width:min(1120px,calc(100% - 40px));margin:0 auto;padding:48px 0 72px}h1{ma
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>文件设计</title>
+<link rel="icon" href="{{TAB_ICON}}">
 <style>
 :root{color-scheme:light;--canvas:#f7f7f5;--paper:#fff;--ink:#202124;--muted:#5f6368;--line:#dadce0;--accent:#2b5f73;--tint:#e9f2f5}
 *{box-sizing:border-box}body{margin:0;background:var(--canvas);color:var(--ink);font:15px/1.65 "PingFang SC", "Microsoft YaHei", "Noto Sans SC", system-ui, sans-serif}main{width:min(920px,calc(100% - 40px));margin:24px auto;padding:42px;background:var(--paper)}h1{margin:0 0 28px;font-size:36px;line-height:1.2}h2{margin:0 0 16px;font-size:24px}h3{margin:22px 0 8px;font-size:18px}p{margin:0 0 12px;color:var(--muted)}table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th{background:var(--tint)}

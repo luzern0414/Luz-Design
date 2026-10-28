@@ -183,8 +183,73 @@ def is_hard_stop(value: str) -> bool:
     return any(a == b for a, b in zip(positions, positions[1:]))
 
 
+# ---------------------------------------------------------------- Tab icon (every HTML mode)
+# Every delivered HTML carries its own browser-tab icon: <link rel="icon" href="data:image/svg+xml,...">, a flat line
+# pictogram of the page's subject in the theme's primary colour on a rounded tint square (visual-design.html 网页图标与品牌标识;
+# file-design.html, HTML 必备项). Missing, empty or an unfilled template placeholder is an error.
+ICON_DRAWING = re.compile(r"<(?:path|rect|circle|line|polyline|polygon|ellipse)\b", re.I)
+
+
+class _IconLinks(HTMLParser):
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.links: list[str] = []
+
+    def handle_starttag(self, tag, attrs):
+        if tag == "link":
+            values = {k.lower(): (v or "") for k, v in attrs}
+            if "icon" in values.get("rel", "").lower():
+                self.links.append(values.get("href", "").strip())
+
+    handle_startendtag = handle_starttag
+
+
+def icon_svg(href: str) -> str | None:
+    """The decoded SVG of a data:image/svg+xml icon, or None when the href is not an inline SVG."""
+    from base64 import b64decode
+    from urllib.parse import unquote
+    if not href.lower().startswith("data:") or "," not in href:
+        return None
+    meta, payload = href[5:].split(",", 1)
+    if "svg" not in meta.lower():
+        return None
+    try:
+        return b64decode(payload).decode("utf-8", "replace") if ";base64" in meta.lower() else unquote(payload)
+    except ValueError:
+        return ""
+
+
+def tab_icon_findings(source: str) -> tuple[list[str], list[str]]:
+    """(errors, warnings) for the page's browser-tab icon."""
+    parser = _IconLinks()
+    parser.feed(source)
+    hint = ('add <link rel="icon" href="data:image/svg+xml,..."> — the theme pictogram in the primary colour on a rounded '
+            "tint square (visual-design.html 网页图标与品牌标识)")
+    if not parser.links:
+        return [f"no browser-tab icon: {hint}"], []
+    usable = []
+    for href in parser.links:
+        svg = icon_svg(href)
+        empty = (not href or href in {"#", "about:blank"} or "{{" in href or re.fullmatch(r"data:[^,]*,\s*", href, re.I)
+                 or (svg is not None and not ICON_DRAWING.search(svg)))
+        if not empty:
+            usable.append((href, svg))
+    if not usable:
+        return [f"browser-tab icon is empty or an unfilled placeholder: {hint}"], []
+    warnings = []
+    href, svg = usable[0]
+    if svg is None and not href.lower().startswith("data:"):
+        warnings.append(f"browser-tab icon {href[:40]!r} is an external file: inline it as data:image/svg+xml so the page carries its own icon")
+    if svg is not None and re.search(r"<text\b", svg, re.I):
+        warnings.append("browser-tab icon contains text: draw a pictogram, never letters or initials")
+    return [], warnings
+
+
 def check_html(path: Path, errors: list[str], warnings: list[str]) -> None:
     source = path.read_text(encoding="utf-8")
+    icon_errors, icon_warnings = tab_icon_findings(source)
+    errors.extend(icon_errors)
+    warnings.extend(icon_warnings)
     outline = Outline()
     outline.feed(source)
     blocks = outline.blocks
@@ -778,6 +843,86 @@ def check_interface_layout(source: str, resolve, errors: list[str], warnings: li
                     padding_reported.add(key)
                     warnings.append(f"long-text cell in column {name!r} has {min(values):g}px side padding: data cells keep at least 16px")
                 break
+
+    check_pagination_and_brand(builder.root, warnings)
+
+
+# 7–9. List pagination and the brand mark (visual-design.html 分页 and 网页图标与品牌标识; Luz-System admin-design.html 分页).
+PAGER_CLASS = re.compile(r"pagination|pager", re.I)
+LIST_CLASS = re.compile(r"list|table", re.I)
+PAGE_SIZE_TEXT = re.compile(r"(\d+)\s*条\s*/\s*页")
+TOTAL_TEXT = re.compile(r"共\s*[\d,]+\s*条")
+SKIP_TABLE = re.compile(r"skeleton|loading|export|modal|dialog|detail|popover|tooltip|legend", re.I)
+SHELL_CLASS = re.compile(r"(?:^|[-_\s])(?:header|topbar|top-bar|navbar|nav-bar|appbar|app-bar|masthead|sidebar|side-bar|"
+                         r"site-head|site-header|admin|console)(?:$|[-_\s])", re.I)
+PHONE_CLASS = re.compile(r"(?:^|[-_\s])(?:mp|phone|mobile|miniprogram|mini-program|wx|device|screen-phone)(?:$|[-_\s])", re.I)
+BRAND_CLASS = re.compile(r"logo|brand", re.I)
+DEFAULT_PAGE_SIZE = 20
+
+
+def default_page_size(scope: Node) -> int | None:
+    """The page size a pagination control shows before the user changes it."""
+    for n in [scope] + list(scope.elements()):
+        for attr in ("data-page-size", "data-default-size", "data-size"):
+            if (n.attrs.get(attr) or "").strip().isdigit():
+                return int(n.attrs[attr].strip())
+    for select in (n for n in scope.elements() if n.tag == "select"):
+        options = [o for o in select.elements() if o.tag == "option"]
+        sized = [o for o in options if PAGE_SIZE_TEXT.search(o.text()) or (o.attrs.get("value") or "").strip() in {"10", "20", "50", "100"}]
+        if not sized:
+            continue
+        chosen = next((o for o in sized if "selected" in o.attrs), sized[0])
+        value = (chosen.attrs.get("value") or "").strip()
+        if value.isdigit():
+            return int(value)
+        match = PAGE_SIZE_TEXT.search(chosen.text())
+        if match:
+            return int(match.group(1))
+    match = PAGE_SIZE_TEXT.search(scope.text())
+    return int(match.group(1)) if match else None
+
+
+def check_pagination_and_brand(root: Node, warnings: list[str]) -> None:
+    elements = [n for n in root.elements() if not any(a.tag in {"template", "script"} for a in n.ancestors())]
+
+    def chain(n: Node) -> list[Node]:
+        return [n] + list(n.ancestors())
+
+    # 7. A list table (10+ data rows, or a table marked as a list) without a pagination control.
+    def data_rows(table: Node) -> int:
+        return sum(1 for r in table.elements() if r.tag == "tr" and next((a for a in r.ancestors() if a.tag == "table"), None) is table
+                   and not any(a.tag == "thead" for a in r.ancestors()) and any(isinstance(c, Node) and c.tag == "td" for c in r.children))
+
+    lists = []
+    for table in (n for n in elements if n.tag == "table" and not n.hidden):
+        if any((a.attrs.get("data-pagination") or "").lower() in {"none", "off", "false"} or "data-state-kind" in a.attrs
+               or "data-export-preview" in a.attrs or SKIP_TABLE.search(a.cls()) for a in chain(table)):
+            continue
+        marked = LIST_CLASS.search(table.cls()) or (table.parent is not None and LIST_CLASS.search(table.parent.cls()))
+        if marked or data_rows(table) >= 10:
+            lists.append(table)
+    pagers = [n for n in elements if PAGER_CLASS.search(n.cls())]
+    page_text = root.text()
+    text_pager = bool(TOTAL_TEXT.search(page_text) and PAGE_SIZE_TEXT.search(page_text))
+    if lists and not pagers and not text_pager:
+        sample = lists[0].cls() or (lists[0].parent.cls() if lists[0].parent is not None else "")
+        warnings.append(f"list table without pagination ({len(lists)} list table(s){', e.g. class ' + repr(sample) if sample else ''}): "
+                        "add 共 N 条, a 10/20/50/100 条/页 selector and page numbers below the table, default 20; "
+                        'mark a list that can never exceed one page with data-pagination="none"')
+    # 8. The default page size is 20.
+    sizes = {default_page_size(p) for p in pagers} if pagers else ({default_page_size(root)} if text_pager else set())
+    for size in sorted(s for s in sizes if s is not None and s != DEFAULT_PAGE_SIZE):
+        warnings.append(f"pagination defaults to {size} 条/页: default to {DEFAULT_PAGE_SIZE} (options 10/20/50/100) and remember the user's choice")
+
+    # 9. An admin or website shell (header, side bar, top bar) carries a graphic brand mark: icon + system name.
+    shells = [n for n in elements if (n.tag in {"header", "aside"} or SHELL_CLASS.search(n.cls()))
+              and not any(PHONE_CLASS.search(a.cls()) for a in chain(n))]
+    if shells:
+        holders = [n for n in elements if n.tag == "header" or BRAND_CLASS.search(n.cls())]
+        graphic = any(h.tag in {"svg", "img"} or any(d.tag in {"svg", "img"} for d in h.elements()) for h in holders)
+        if not graphic:
+            warnings.append("admin or website header without a graphic brand mark: put the tab-icon pictogram (svg or img) "
+                            "beside the system name in a header, logo or brand element, never a letter tile")
 
 
 # ---------------------------------------------------------------- XLSX

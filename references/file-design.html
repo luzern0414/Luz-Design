@@ -53,6 +53,8 @@
 <ul>
 <li>单个自包含文件：样式写在文件内，图片内嵌或使用同目录相对路径，不外链网络字体和样式库；只有图表确实需要时才引入脚本。</li>
 <li>文档顺序：主体容器 → 唯一一级标题 → 第一节（以二级标题开头）→ 后续各节。一级标题之前没有页眉、侧栏、导航、品牌块和可见跳转链接。</li>
+<li>必备标签页图标：每个交付的网页文件（阅读页、报告、方案、文章、视觉稿、原型）在头部带 <code>&lt;link rel="icon" href="data:image/svg+xml,..."&gt;</code>，内联 <code>SVG</code>，不依赖外部文件；不得缺失，不得留空、留模板占位或用浏览器默认图标。图案取本页或本系统的主题对象，主色线稿配圆角浅底，同一系统各页同一个；画法见<a href="visual-design.html">视觉设计规范</a>“网页图标与品牌标识”。模板已内置，其他生成的网页用 <code>py -X utf8 scripts/new_session.py icon 页面或系统名</code> 取得。</li>
+<li>阅读页的页头不放品牌块，标签页图标就是它的标识；后台与网站原型才在页头放图形品牌标识（图标加系统名）。</li>
 <li>标题层级最多三级：二级标题分节，三级标题分组；不跳级。</li>
 <li>默认不放目录。超过 8 节时，可以在宽屏右侧放浅色目录，目录在文档顺序中位于正文之后，只列节名，窄屏隐藏。</li>
 <li>不加返回顶部浮钮、主题切换、页脚版权与生成信息。</li>
@@ -321,7 +323,7 @@
 
 <!-- SECTION:output-contract:START id=output-contract data-rule-id=file-output-contract -->
 <section id="output-contract" data-rule-id="file-output-contract" aria-labelledby="output-contract-heading">
-<h2 id="output-contract-heading" class="section-heading"><svg class="icon-linear section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v5h5M9 12h6M9 16h6"/></svg><span>输出契约</span></h2><div class="table-wrap"><table><thead><tr><th>路径</th><th>职责</th><th>通过条件</th></tr></thead><tbody><tr><td><code data-path="03-documents/document.html">可编辑网页源文件</code></td><td>可编辑网页源文件</td><td>语义结构、第一行标题、浅色、单一字体族、字号不低于下限</td></tr><tr><td><code data-path="03-documents/outputs/">导出文件目录</code></td><td>真实导出文件</td><td>用户要求的表格文件、文字文档、演示文稿或便携式文档实际存在并已重新打开</td></tr><tr><td><code data-path="scripts/check_document.py">文档检查脚本</code></td><td>格式检查</td><td>网页、表格、文字文档、标记文本文件逐个检查，零错误</td></tr><tr><td><code data-path="99-delivery/MANIFEST.json">交付清单</code></td><td>交付事实</td><td>源与导出路径、格式、状态和验证记录</td></tr></tbody></table></div><p>若源格式需要文字文档或演示文稿原生文件，不得用一个网页文件代替声明为该格式的交付；实际导出和验证路径必须一致。</p>
+<h2 id="output-contract-heading" class="section-heading"><svg class="icon-linear section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v5h5M9 12h6M9 16h6"/></svg><span>输出契约</span></h2><div class="table-wrap"><table><thead><tr><th>路径</th><th>职责</th><th>通过条件</th></tr></thead><tbody><tr><td><code data-path="03-documents/document.html">可编辑网页源文件</code></td><td>可编辑网页源文件</td><td>语义结构、第一行标题、带标签页图标、浅色、单一字体族、字号不低于下限</td></tr><tr><td><code data-path="03-documents/outputs/">导出文件目录</code></td><td>真实导出文件</td><td>用户要求的表格文件、文字文档、演示文稿或便携式文档实际存在并已重新打开</td></tr><tr><td><code data-path="scripts/check_document.py">文档检查脚本</code></td><td>格式检查</td><td>网页、表格、文字文档、标记文本文件逐个检查，零错误</td></tr><tr><td><code data-path="99-delivery/MANIFEST.json">交付清单</code></td><td>交付事实</td><td>源与导出路径、格式、状态和验证记录</td></tr></tbody></table></div><p>若源格式需要文字文档或演示文稿原生文件，不得用一个网页文件代替声明为该格式的交付；实际导出和验证路径必须一致。</p>
 </section>
 <!-- SECTION:output-contract:END -->
 
@@ -337,6 +339,7 @@
 <li>表格文件出现序号列、同一列在连续多行重复同一个分组名而未合并、数据区横向合并、一格写多个事实，或整表没有任何浅色层次：退回修改。</li>
 <li>出现第二个字体族、任何文字低于该格式最小字号、深色底或深色表头：失败。</li>
 <li>标题层级跳级、表格无表头、图像无替代信息或链接含义不明：失败。</li>
+<li>网页文件没有标签页图标，或图标为空、是模板占位：失败（检查脚本报错）；图标是外部文件或图标里写字：退回修改。</li>
 <li>只存在编辑页或屏幕截图，没有实际导出物：失败。</li>
 <li>导出后出现分页断裂、文字裁切、字体异常、空白媒体、链接失效或阅读顺序错误：失败。</li>
 <li>便携式文档标签、表头、语言或阅读顺序无法验证，却被声明为可访问：失败。</li>

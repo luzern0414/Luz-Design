@@ -68,6 +68,15 @@
       "last_confirmed": "2026-10-28"
     },
     {
+      "key": "luz-skill-order",
+      "kind": "preference",
+      "text": "产品工作按固定顺序调用：Luz-System 需求到系统设计 → Luz-Design 视觉 → Luz-System 原型与发布 → Luz-Dev 实现 → Luz-Writing 文档，每个技能开始检索经验、结束沉淀，不得跳过",
+      "why": "用户 2026-10-28 要求规定调用顺序",
+      "uses": 1,
+      "first_seen": "2026-10-28",
+      "last_confirmed": "2026-10-28"
+    },
+    {
       "key": "no-italics",
       "kind": "preference",
       "text": "中文产出禁用斜体，强调用字重或颜色，不用倾斜与旋转文字。",
@@ -116,6 +125,15 @@
       "key": "word-by-type",
       "kind": "preference",
       "text": "Word 文档先定类型（合同、方案、报告、会议纪要、公文），按该类型的结构与格式排版，用 make_docx.py 生成。",
+      "uses": 1,
+      "first_seen": "2026-10-28",
+      "last_confirmed": "2026-10-28"
+    },
+    {
+      "key": "interface-visual-graphics",
+      "kind": "lesson",
+      "text": "产品界面视觉稿必须先加载 Luz-Design：按行业从 themes.json 取主题（智能体用 ai-agent），头部与横幅用 navBg 浅底，入口、指标、列表项配浅底图标块，一物一图，空状态和封面用线稿插画；只有灰底白卡片会被判为没有设计感",
+      "why": "用户 2026-10-28 反馈视觉板丑、没有图案",
       "uses": 1,
       "first_seen": "2026-10-28",
       "last_confirmed": "2026-10-28"

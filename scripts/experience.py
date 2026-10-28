@@ -1,24 +1,25 @@
 #!/usr/bin/env python3
 """Luz Design experience library: search at the start of every call, note what was learned before it ends.
 
-experience/preferences.json  what this user wants (general, no personal data), at most 60 entries
-experience/lessons.json      reusable fixes and judgements learned from failures or corrections, at most 120
-experience/patterns.json     effective knowledge: 功能, 交互流程, 组件, 色彩, 字阶, 前端规则, 设计理念, 调研经验 (at most 200)
-experience/sources.json      verified references (LuzCrawl captures and official specification pages)
-experience/catalog.md        readable catalog generated from all files after every write
+experience/notes.json     what every call learned: preference / lesson / fact, one entry per key (upsert, bounded)
+experience/patterns.json  curated knowledge: 功能, 交互流程, 组件, 色彩, 字阶, 前端规则, 设计理念, 调研经验 (at most 200)
+experience/sources.json   verified references (LuzCrawl captures and official specification pages)
+experience/catalog.md     readable catalog generated from all files after every write
 
-Every entry has a stable key. `note` upserts by key: the same key replaces the old statement in place and
-keeps one `previous` for audit, so a topic never has two entries. Stores are capped; `prune` drops the least
-valuable entries (fewest uses, then oldest confirmation) and `check` fails on duplicate keys, near-duplicate
-statements, cap overflow and personal data.
+Notes (same file, fields and commands in Luz-System, Luz-Design, Luz-Dev and Luz-Writing):
+  experience.py note --kind preference|lesson|fact --key K --text "…" [--why "…"]
+  experience.py list [--kind K]      experience.py search <words> [--kind K]
+  experience.py prune                experience.py check
 """
 from __future__ import annotations
 
 import argparse
 import hashlib
 import json
+import os
 import re
 import sys
+import unicodedata
 from datetime import date
 from pathlib import Path
 
@@ -26,22 +27,12 @@ SKILL_ROOT = Path(__file__).resolve().parents[1]
 EXP = SKILL_ROOT / "experience"
 SOURCES = EXP / "sources.json"
 PATTERNS = EXP / "patterns.json"
-PREFERENCES = EXP / "preferences.json"
-LESSONS = EXP / "lessons.json"
+NOTES = EXP / "notes.json"
 CATALOG = EXP / "catalog.md"
 KINDS = ["功能", "交互流程", "组件", "色彩", "字阶", "前端规则", "设计理念", "调研经验"]
 CATEGORIES = ["页面结构", "交互流程", "组件状态", "前端规则"]
 STALE_DAYS = 180
-CAPS = {"preference": 60, "lesson": 120, "fact": 200}
-NOTE_KINDS = {"preference": "偏好", "lesson": "教训", "fact": "有效信息"}
-KEY_RE = re.compile(r"^[0-9a-z一-鿿][0-9a-z一-鿿-]{1,63}$")
-PRIVATE_RES = [
-    (re.compile(r"(?<!\d)1[3-9]\d{9}(?!\d)"), "phone number"),
-    (re.compile(r"[\w.+-]+@[\w-]+\.[\w.]+"), "email address"),
-    (re.compile(r"[A-Za-z]:\\Users\\|/Users/|/home/", re.I), "private path"),
-    (re.compile(r"微信号|wxid_", re.I), "WeChat ID"),
-    (re.compile(r"(?:api[_-]?key|secret|password|token)\s*[:=]", re.I), "credential"),
-]
+PATTERN_CAP = 200
 
 
 def load(path: Path, key: str) -> dict:
@@ -75,19 +66,6 @@ def today() -> str:
     return date.today().isoformat()
 
 
-def normalize(text: str) -> str:
-    """Comparison form of a statement: lower case, without whitespace or punctuation."""
-    return re.sub(r"[\W_]+", "", (text or "").lower())
-
-
-def store(kind: str) -> tuple[Path, str]:
-    return {"preference": (PREFERENCES, "preferences"), "lesson": (LESSONS, "lessons"), "fact": (PATTERNS, "patterns")}[kind]
-
-
-def statement(entry: dict) -> str:
-    return entry.get("text") or entry.get("summary") or ""
-
-
 def confirmed(entry: dict) -> str:
     return entry.get("last_confirmed") or entry.get("last_used") or entry.get("first_seen") or "0000-00-00"
 
@@ -102,19 +80,18 @@ def matches(entry: dict, args) -> bool:
         return False
     if args.surface and not any(args.surface in x or x == "通用" for x in entry.get("surfaces", ["通用"])):
         return False
-    return all(term in blob for term in (args.text or "").split())
+    return all(term in blob for term in args.words)
 
 
 def cmd_search(args) -> int:
-    notes = []
-    if not args.kind and not args.industry and not args.surface:
-        for kind in ("preference", "lesson"):
-            path, field = store(kind)
-            notes += [(kind, e) for e in load(path, field)[field] if matches(e, args)]
-    for kind, e in notes:
-        print(f"{e['id']} [{NOTE_KINDS[kind]}] {e['key']}: {e['text']}")
-    patterns = [p for p in load(PATTERNS, "patterns")["patterns"] if matches(p, args)]
-    sources = [s for s in load(SOURCES, "sources")["sources"] if matches(s, args)]
+    """Notes first (filtered by a note kind), then patterns and sources (filtered by a pattern kind, industry or surface)."""
+    note_kind = args.kind if args.kind in NOTE_KINDS else None
+    notes = [] if (args.kind and not note_kind) or args.industry or args.surface else search_notes(load_notes(NOTES), args.words, note_kind)
+    for n in notes:
+        print(format_note(n))
+    library = not note_kind
+    patterns = [p for p in load(PATTERNS, "patterns")["patterns"] if library and matches(p, args)]
+    sources = [s for s in load(SOURCES, "sources")["sources"] if library and matches(s, args)]
     for p in patterns:
         print(f"{p['id']} [{p['kind']}] {p['title']}  ({'、'.join(p.get('surfaces', []))} · {'、'.join(p.get('industries', []))})")
         print(f"    {p.get('summary', '')}")
@@ -122,18 +99,229 @@ def cmd_search(args) -> int:
         age = age_days(s.get("captured_at"))
         flag = "可复用" if s.get("snapshot") and age is not None and age <= STALE_DAYS else ("仅作知识" if not s.get("snapshot") else "已过期，需重新采集")
         print(f"{s['id']} [{s['category']}] {s['title']}  {s['url']}  {s.get('captured_at')} {flag}")
-    print(f"共 {len(notes)} 条偏好与教训，{len(patterns)} 条模式，{len(sources)} 条来源")
+    print(f"共 {len(notes)} 条沉淀，{len(patterns)} 条模式，{len(sources)} 条来源")
     return 0
 
 
-# ---------------------------------------------------------------- note: upsert by key, bounded stores
+# ---------------------------------------------------------------- notes store (identical in Luz-System, Luz-Design, Luz-Dev, Luz-Writing)
+# experience/notes.json = {"schema_version": "1.0", "caps": {...}, "notes": [{key, kind, text, why?, uses, first_seen,
+# last_confirmed, previous?}]}. A note on an existing key replaces its text (one `previous` kept); the same statement
+# under another key confirms that note; over a cap the fewest uses, then the oldest confirmation, are dropped.
+NOTES_SCHEMA_VERSION = "1.0"
+NOTE_KINDS = {"preference": "偏好", "lesson": "教训", "fact": "有效信息"}
+NOTE_CAPS = {"preference": 60, "lesson": 120, "fact": 120}
+NOTE_FIELDS = ("key", "kind", "text", "why", "uses", "first_seen", "last_confirmed", "previous")
+NOTE_REQUIRED = ("key", "kind", "text", "uses", "first_seen", "last_confirmed")
+NOTE_STALE_DAYS = 180
+NOTE_TEXT_MAX = 400
+NOTE_KEY_RE = re.compile(r"[\w一-鿿][\w一-鿿-]{0,47}")
+NOTE_DATE_RE = re.compile(r"\d{4}-\d{2}-\d{2}")
+NOTE_PRIVATE_RES = (
+    (re.compile(r"(?<!\d)(?:\+?86[- ]?)?1[3-9]\d{9}(?!\d)"), "phone number"),
+    (re.compile(r"[\w.+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.(?!(?:png|jpe?g|gif|svg|webp)\b)[A-Za-z]{2,}\b"), "email address"),
+    (re.compile(r"(?i)\bwxid_\w+|(?:微信号?|wechat(?:\s*id)?|weixin|vx)\s*[:：]\s*[A-Za-z][\w-]{5,}"), "WeChat ID"),
+    (re.compile(r"(?i)\b[A-Z]:[\\/]+(?:Users|Documents and Settings)[\\/]|(?<![\w.])/(?:Users|home)/\w"), "user-home path"),
+    (re.compile(r"(?i)\b(?:password|passwd|pwd|secret|token|api[_-]?key|access[_-]?key)\s*[:=：]\s*\S+"
+                r"|(?:密码|口令|密钥)\s*[:=：]\s*\S+|\b(?:sk-[A-Za-z0-9_-]{20,}|AKIA[0-9A-Z]{16}|gh[pousr]_[A-Za-z0-9]{30,})"), "credential"),
+)
+
+
+def note_today() -> str:
+    return date.today().isoformat()
+
+
+def note_normalize(text: str) -> str:
+    """Comparison form of a statement: NFKC, lower case, without whitespace, punctuation or symbols."""
+    return "".join(c for c in unicodedata.normalize("NFKC", str(text or "")).lower()
+                   if not c.isspace() and unicodedata.category(c)[0] not in "PS")
+
+
+def note_private_hits(text: str) -> list[str]:
+    return [label for pattern, label in NOTE_PRIVATE_RES if pattern.search(text or "")]
+
+
+def new_notes_doc() -> dict:
+    return {"schema_version": NOTES_SCHEMA_VERSION, "caps": dict(NOTE_CAPS), "notes": []}
+
+
+def load_notes(path: Path) -> dict:
+    if not path.is_file():
+        return new_notes_doc()
+    doc = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(doc, dict) or not isinstance(doc.get("notes"), list):
+        raise ValueError(f"{path.name} must be an object with a notes array")
+    return doc
+
+
+def save_notes(path: Path, doc: dict) -> None:
+    """Write atomically, notes ordered by kind then key, fields in the shared order."""
+    order = list(NOTE_KINDS)
+    notes = sorted(doc["notes"], key=lambda n: (order.index(n["kind"]) if n.get("kind") in order else len(order), str(n.get("key", ""))))
+    doc.update(schema_version=NOTES_SCHEMA_VERSION, caps=dict(NOTE_CAPS))
+    doc["notes"] = [{**{f: n[f] for f in NOTE_FIELDS if n.get(f) not in (None, "")},
+                     **{k: v for k, v in n.items() if k not in NOTE_FIELDS}} for n in notes]
+    payload = {"schema_version": doc["schema_version"], "caps": doc["caps"], "notes": doc["notes"]}
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_name(f".{path.name}.{os.getpid()}.tmp")
+    tmp.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n")
+    os.replace(tmp, path)
+
+
+def prune_notes(doc: dict, keep: dict | None = None) -> list[dict]:
+    """Enforce the caps: drop the fewest uses first, then the oldest confirmation; never the note just written."""
+    removed: list[dict] = []
+    for kind, cap in NOTE_CAPS.items():
+        group = [n for n in doc["notes"] if n.get("kind") == kind]
+        overflow = len(group) - cap
+        if overflow <= 0:
+            continue
+        ranked = sorted((n for n in group if n is not keep), key=lambda n: (int(n.get("uses") or 0), str(n.get("last_confirmed", ""))))
+        removed += ranked[:overflow]
+    gone = {id(n) for n in removed}
+    doc["notes"] = [n for n in doc["notes"] if id(n) not in gone]
+    return removed
+
+
+def upsert_note(doc: dict, kind: str, key: str, text: str, why: str = "", on: str | None = None,
+                privacy: bool = True) -> tuple[str, dict, list[dict]]:
+    """Insert or replace one note by key. Returns (added|replaced|confirmed, note, pruned notes); raises ValueError."""
+    if kind not in NOTE_KINDS:
+        raise ValueError(f"--kind must be one of {', '.join(NOTE_KINDS)}")
+    key = (key or "").strip()
+    if not NOTE_KEY_RE.fullmatch(key):
+        raise ValueError("--key must be a short slug: letters, digits, Chinese, - or _, at most 48 characters, no spaces")
+    text, why = " ".join((text or "").split()), " ".join((why or "").split())
+    if not text:
+        raise ValueError("--text is empty")
+    if len(text) > NOTE_TEXT_MAX:
+        raise ValueError(f"--text is longer than {NOTE_TEXT_MAX} characters; record the general principle, not task details")
+    hits = note_private_hits(f"{text} {why}") if privacy else []
+    if hits:
+        raise ValueError(f"notes are public; remove the {', '.join(hits)} and write the general principle")
+    on = on or note_today()
+    notes = doc["notes"]
+    norm = note_normalize(text)
+    entry = next((n for n in notes if n.get("key") == key), None)
+    twin = next((n for n in notes if n is not entry and note_normalize(n.get("text", "")) == norm), None)
+    if entry is None and twin is not None:
+        entry, action = twin, "confirmed"
+        if why and not entry.get("why"):
+            entry["why"] = why
+    elif entry is None:
+        entry, action = {"key": key, "kind": kind, "text": text, "why": why, "uses": 0, "first_seen": on}, "added"
+        notes.append(entry)
+    elif twin is not None:
+        raise ValueError(f"the same statement is stored under {twin['key']}; update that key instead")
+    else:
+        action = "confirmed"
+        if note_normalize(entry.get("text", "")) != norm:
+            entry["previous"] = {"text": entry.get("text", ""), "replaced_at": on}
+            action = "replaced"
+        entry.update(kind=kind, text=text)
+        if why:
+            entry["why"] = why
+    entry["uses"] = int(entry.get("uses") or 0) + 1
+    entry["last_confirmed"] = on
+    return action, entry, prune_notes(doc, keep=entry)
+
+
+def stale_notes(doc: dict, now: date | None = None) -> list[dict]:
+    """Notes not confirmed for NOTE_STALE_DAYS days: listed by prune and check, first to go when a cap is hit."""
+    now = now or date.today()
+    out = []
+    for n in doc["notes"]:
+        try:
+            age = (now - date.fromisoformat(str(n.get("last_confirmed")))).days
+        except ValueError:
+            age = NOTE_STALE_DAYS + 1
+        if age > NOTE_STALE_DAYS:
+            out.append(n)
+    return out
+
+
+def check_notes(doc: dict, privacy: bool = True) -> list[str]:
+    """Shape, fields, duplicate keys, duplicate statements, caps and private data."""
+    errors: list[str] = []
+    if not isinstance(doc, dict):
+        return ["notes.json must be a JSON object"]
+    if sorted(doc) != ["caps", "notes", "schema_version"]:
+        errors.append(f"notes.json top-level fields must be schema_version, caps, notes (found {', '.join(sorted(doc))})")
+    if doc.get("schema_version") != NOTES_SCHEMA_VERSION:
+        errors.append(f"notes.json schema_version must be {NOTES_SCHEMA_VERSION}")
+    if doc.get("caps") != NOTE_CAPS:
+        errors.append(f"notes.json caps must be {json.dumps(NOTE_CAPS)}")
+    notes = doc.get("notes")
+    if not isinstance(notes, list):
+        return errors + ["notes.json notes must be an array"]
+    keys: dict[str, int] = {}
+    texts: dict[str, str] = {}
+    for n in notes:
+        key = str(n.get("key", "")) if isinstance(n, dict) else ""
+        if not isinstance(n, dict):
+            errors.append("note is not an object")
+            continue
+        for field in NOTE_REQUIRED:
+            if n.get(field) in (None, ""):
+                errors.append(f"note {key or '?'} missing {field}")
+        extra = sorted(set(n) - set(NOTE_FIELDS))
+        if extra:
+            errors.append(f"note {key} has unknown fields {', '.join(extra)}")
+        if n.get("kind") not in NOTE_KINDS:
+            errors.append(f"note {key} kind must be one of {', '.join(NOTE_KINDS)}")
+        if key and not NOTE_KEY_RE.fullmatch(key):
+            errors.append(f"note key is not a short slug: {key}")
+        if not isinstance(n.get("uses"), int) or isinstance(n.get("uses"), bool) or n.get("uses", 0) < 1:
+            errors.append(f"note {key} uses must be a positive integer")
+        for field in ("first_seen", "last_confirmed"):
+            if n.get(field) and not NOTE_DATE_RE.fullmatch(str(n[field])):
+                errors.append(f"note {key} {field} must be YYYY-MM-DD")
+        previous = n.get("previous")
+        if previous is not None and (not isinstance(previous, dict) or sorted(previous) != ["replaced_at", "text"]
+                                     or not NOTE_DATE_RE.fullmatch(str(previous.get("replaced_at")))):
+            errors.append(f"note {key} previous must be {{text, replaced_at: YYYY-MM-DD}}")
+        if len(str(n.get("text", ""))) > NOTE_TEXT_MAX:
+            errors.append(f"note {key} text is longer than {NOTE_TEXT_MAX} characters")
+        keys[key] = keys.get(key, 0) + 1
+        norm = note_normalize(n.get("text", ""))
+        if norm and norm in texts and texts[norm] != key:
+            errors.append(f"note {key} repeats the statement of {texts[norm]}; keep one key")
+        texts.setdefault(norm, key)
+        if privacy:
+            hits = note_private_hits(f"{n.get('text', '')} {n.get('why', '')} {(previous or {}).get('text', '') if isinstance(previous, dict) else ''}")
+            if hits:
+                errors.append(f"note {key} contains a {', '.join(hits)}; notes are public")
+    errors += [f"duplicate note key {k} ({c} entries); a key is replaced, never repeated" for k, c in keys.items() if c > 1]
+    for kind, cap in NOTE_CAPS.items():
+        count = sum(1 for n in notes if isinstance(n, dict) and n.get("kind") == kind)
+        if count > cap:
+            errors.append(f"{count} {kind} notes exceed the cap {cap}; run prune")
+    return errors
+
+
+def search_notes(doc: dict, words: list[str], kind: str | None = None) -> list[dict]:
+    terms = [t for t in (note_normalize(w) for w in words or []) if t]
+    return [n for n in doc["notes"] if (not kind or n.get("kind") == kind)
+            and all(t in note_normalize(f"{n.get('key', '')} {n.get('text', '')} {n.get('why', '')}") for t in terms)]
+
+
+def format_note(n: dict) -> str:
+    why = f"（{n['why']}）" if n.get("why") else ""
+    return f"[{NOTE_KINDS.get(n.get('kind'), n.get('kind'))}] {n.get('key')}：{n.get('text')}{why}  （{n.get('uses', 1)} 次，最近 {n.get('last_confirmed')}）"
+
+
+def note_counts(doc: dict) -> str:
+    return "，".join(f"{NOTE_KINDS[k]} {sum(1 for n in doc['notes'] if n.get('kind') == k)}/{cap}" for k, cap in NOTE_CAPS.items())
+# ---------------------------------------------------------------- end of notes store
+
+
+# ---------------------------------------------------------------- patterns
 
 def upsert_pattern(patterns: list[dict], entry: dict, session: str) -> bool:
     """Replace the pattern with the same key (or the same kind and title), or add it. Returns True when replaced."""
     for p in patterns:
         same_key = bool(entry.get("key")) and p.get("key") == entry["key"]
         if same_key or (p["kind"] == entry["kind"] and p["title"] == entry["title"]):
-            if p.get("summary") and normalize(p["summary"]) != normalize(entry.get("summary", "")):
+            if p.get("summary") and note_normalize(p["summary"]) != note_normalize(entry.get("summary", "")):
                 p["previous"] = {"summary": p["summary"], "until": today()}
             p.update({k: v for k, v in entry.items() if k not in {"id", "sessions", "first_seen", "uses"}})
             if session not in p.setdefault("sessions", []):
@@ -147,25 +335,6 @@ def upsert_pattern(patterns: list[dict], entry: dict, session: str) -> bool:
     return False
 
 
-def upsert_note(items: list[dict], key: str, text: str, why: str | None, prefix: str) -> tuple[dict, bool]:
-    """Replace the entry with this key in place, or add one. Returns (entry, replaced)."""
-    for e in items:
-        if e.get("key") == key:
-            if normalize(e["text"]) != normalize(text):
-                e["previous"] = {"text": e["text"], "until": today()}
-            e["text"] = text
-            if why:
-                e["why"] = why
-            e["uses"] = e.get("uses", 0) + 1
-            e["last_confirmed"] = today()
-            return e, True
-    e = {"id": next_id(items, prefix), "key": key, "text": text, "first_seen": today(), "last_confirmed": today(), "uses": 1}
-    if why:
-        e["why"] = why
-    items.append(e)
-    return e, False
-
-
 def prune_items(items: list[dict], cap: int, keep: dict | None = None) -> list[dict]:
     """Drop the least valuable entries above the cap: fewest uses first, then oldest confirmation."""
     if len(items) <= cap:
@@ -177,101 +346,52 @@ def prune_items(items: list[dict], cap: int, keep: dict | None = None) -> list[d
     return dropped
 
 
-def private_hits(text: str) -> list[str]:
-    return [label for regex, label in PRIVATE_RES if regex.search(text)]
+def note(kind: str, key: str, text: str, why: str = "") -> tuple[str, dict]:
+    """Upsert one note into experience/notes.json, re-render the catalog; returns (action, note)."""
+    doc = load_notes(NOTES)
+    try:
+        action, entry, removed = upsert_note(doc, kind, key, text, why)
+    except ValueError as exc:
+        raise SystemExit(f"FAIL: {exc}")
+    save_notes(NOTES, doc)
+    render()
+    for n in removed:
+        print(f"pruned {n['kind']} {n['key']} (cap {NOTE_CAPS[n['kind']]})")
+    return action, entry
 
 
 def cmd_note(args) -> int:
-    key = args.key.strip().lower()
-    if not KEY_RE.match(key):
-        raise SystemExit("FAIL: --key must be a short kebab or Chinese slug, e.g. table-header-centred or 表头居中")
-    text = " ".join(args.text.split())
-    hits = private_hits(text + " " + (args.why or ""))
-    if hits:
-        raise SystemExit(f"FAIL: the note contains a {hits[0]}; committed stores hold general principles only")
-    path, field = store(args.kind)
-    doc = load(path, field)
-    items = doc[field]
-    if args.kind == "fact":
-        category = args.category or "调研经验"
-        if category not in KINDS:
-            raise SystemExit(f"FAIL: --category must be one of {KINDS}")
-        entry = {"key": key, "kind": category, "title": args.title or key, "summary": text,
-                 "industries": args.industry.split(",") if args.industry else ["通用"], "surfaces": ["通用"], "sources": []}
-        if args.why:
-            entry["details"] = {"依据": args.why}
-        replaced = upsert_pattern(items, entry, "note")
-        target = next(p for p in items if p.get("key") == key)
-    else:
-        target, replaced = upsert_note(items, key, text, args.why, "PREF" if args.kind == "preference" else "LES")
-    clash = [e for e in items if e is not target and normalize(statement(e)) == normalize(text)]
-    if clash:
-        print(f"WARN the same statement is stored under {clash[0].get('key') or clash[0].get('id')}; keep one of them")
-    dropped = prune_items(items, CAPS[args.kind], keep=target)
-    save(path, doc)
-    render()
-    print(f"{'replaced' if replaced else 'added'} {NOTE_KINDS[args.kind]} {target['id']} {key}")
-    for e in dropped:
-        print(f"pruned {e.get('id')} {e.get('key') or e.get('title')}")
-    return 0
-
-
-def cmd_prune(_args) -> int:
-    total = 0
-    for kind in ("preference", "lesson", "fact"):
-        path, field = store(kind)
-        doc = load(path, field)
-        dropped = prune_items(doc[field], CAPS[kind])
-        if dropped:
-            save(path, doc)
-        for e in dropped:
-            print(f"pruned {NOTE_KINDS[kind]} {e.get('id')} {e.get('key') or e.get('title')}")
-        total += len(dropped)
-        stale = [e for e in doc[field] if (age_days(confirmed(e)) or 0) > STALE_DAYS]
-        if stale:
-            print(f"candidates, not confirmed for {STALE_DAYS} days:", ", ".join(e.get("id", "?") for e in stale))
-    render()
-    print(f"pruned {total} entries")
+    action, entry = note(args.kind, args.key, args.text, args.why or "")
+    print(f"{action} {entry['kind']} {entry['key']}：{entry['text']}")
     return 0
 
 
 def cmd_list(args) -> int:
-    for kind in [args.kind] if args.kind else ["preference", "lesson"]:
-        path, field = store(kind)
-        for e in load(path, field)[field]:
-            if kind == "fact" and not e.get("key"):
-                continue
-            print(f"{e['id']} [{NOTE_KINDS[kind]}] {e.get('key')}: {statement(e)}  (使用 {e.get('uses', 1)} 次，最近 {confirmed(e)})")
+    notes = [n for n in load_notes(NOTES)["notes"] if not args.kind or n.get("kind") == args.kind]
+    for n in notes:
+        print(format_note(n))
+    print(f"共 {len(notes)} 条")
     return 0
 
 
-def check_store(items: list[dict], kind: str) -> list[str]:
-    errors = []
-    if len(items) > CAPS[kind]:
-        errors.append(f"{NOTE_KINDS[kind]} store has {len(items)} entries, cap is {CAPS[kind]}; run prune")
-    keys: dict[str, str] = {}
-    texts: dict[str, str] = {}
-    for e in items:
-        eid = e.get("id", "?")
-        if kind != "fact":
-            for field in ("id", "key", "text", "first_seen", "last_confirmed"):
-                if not e.get(field):
-                    errors.append(f"{eid} missing {field}")
-            if e.get("key") and not KEY_RE.match(e["key"]):
-                errors.append(f"{eid} key {e['key']!r} is not a short kebab or Chinese slug")
-            for what in private_hits(statement(e) + " " + e.get("why", "")):
-                errors.append(f"{eid} contains a {what}")
-        key = e.get("key")
-        if key:
-            if key in keys:
-                errors.append(f"{eid} duplicates key {key} of {keys[key]}")
-            keys.setdefault(key, eid)
-        norm = normalize(statement(e))
-        if norm:
-            if norm in texts:
-                errors.append(f"{eid} repeats the statement of {texts[norm]}")
-            texts.setdefault(norm, eid)
-    return errors
+def cmd_prune(_args) -> int:
+    doc = load_notes(NOTES)
+    removed = prune_notes(doc)
+    save_notes(NOTES, doc)
+    pdoc = load(PATTERNS, "patterns")
+    removed_patterns = prune_items(pdoc["patterns"], PATTERN_CAP)
+    if removed_patterns:
+        save(PATTERNS, pdoc)
+    render()
+    for n in removed:
+        print(f"pruned {n['kind']} {n['key']}")
+    for p in removed_patterns:
+        print(f"pruned pattern {p.get('id')} {p.get('title')}")
+    stale = stale_notes(doc)
+    if stale:
+        print(f"not confirmed for {NOTE_STALE_DAYS} days (confirm or replace):", ", ".join(n["key"] for n in stale))
+    print(f"pruned {len(removed)} notes, {len(removed_patterns)} patterns")
+    return 0
 
 
 # ---------------------------------------------------------------- add, check, render
@@ -289,7 +409,7 @@ def cmd_add(args) -> int:
         if p.get("kind") not in KINDS:
             raise SystemExit(f"FAIL: kind must be one of {KINDS}: {p.get('title')}")
         upsert_pattern(patterns_doc["patterns"], p, data.get("session", "manual"))
-    for e in prune_items(patterns_doc["patterns"], CAPS["fact"]):
+    for e in prune_items(patterns_doc["patterns"], PATTERN_CAP):
         print(f"pruned {e.get('id')} {e.get('title')}")
     save(PATTERNS, patterns_doc)
     render()
@@ -322,41 +442,50 @@ def check() -> list[str]:
         for ref in p.get("sources", []):
             if ref not in ids:
                 errors.append(f"{p['id']} cites unknown source {ref}")
-    errors += check_store(patterns, "fact")
-    errors += check_store(load(PREFERENCES, "preferences")["preferences"], "preference")
-    errors += check_store(load(LESSONS, "lessons")["lessons"], "lesson")
+    if len(patterns) > PATTERN_CAP:
+        errors.append(f"patterns exceed the cap {PATTERN_CAP}; run prune")
+    if not NOTES.is_file():
+        errors.append("experience/notes.json is missing")
+    else:
+        try:
+            errors.extend(check_notes(json.loads(NOTES.read_text(encoding="utf-8"))))
+        except ValueError as exc:
+            errors.append(f"notes.json is not valid JSON: {exc}")
     return errors
 
 
 def cmd_check(_args) -> int:
     errors = check()
     sources = load(SOURCES, "sources")["sources"]
+    notes = load_notes(NOTES)
     stale = [s["id"] for s in sources if s.get("snapshot") and (age_days(s.get("captured_at")) or 0) > STALE_DAYS]
+    old_notes = [n["key"] for n in stale_notes(notes)]
     for e in errors:
         print("ERROR", e)
     if stale:
         print("STALE (crawl again before relying on it):", ", ".join(stale))
-    counts = (f"{len(load(PREFERENCES, 'preferences')['preferences'])} preferences, {len(load(LESSONS, 'lessons')['lessons'])} lessons, "
-              f"{len(load(PATTERNS, 'patterns')['patterns'])} patterns, {len(sources)} sources")
-    print("FAIL" if errors else "PASS", f"experience: {counts}")
+    if old_notes:
+        print(f"UNCONFIRMED over {NOTE_STALE_DAYS} days (first to prune):", ", ".join(old_notes))
+    print("FAIL" if errors else "PASS",
+          f"experience: {len(sources)} sources, {len(load(PATTERNS, 'patterns')['patterns'])}/{PATTERN_CAP} patterns, notes {note_counts(notes)}")
     return 1 if errors else 0
 
 
 def render() -> None:
     sources = load(SOURCES, "sources")["sources"]
     patterns = load(PATTERNS, "patterns")["patterns"]
+    notes = load_notes(NOTES)["notes"]
     src = {s["id"]: s for s in sources}
     lines = ["# Luz Design 经验库", "",
-             "每次调用开始先读本页并运行 `py -X utf8 scripts/experience.py search`：用户偏好与教训直接照做，能复用的配色、字阶与视觉、文件规则直接沿用，只为缺口做新的调研。结束前用 `note` 按主题键写入新的偏好、教训与有效信息，同一个键覆盖旧条目。本页由 `scripts/experience.py` 生成，修改请用命令或改 JSON。", ""]
-    for kind, title in (("preference", "用户偏好"), ("lesson", "教训")):
-        path, field = store(kind)
-        items = load(path, field)[field]
-        if not items:
+             "每次调用开始先读本页并运行 `py -X utf8 scripts/experience.py search <关键词>`：偏好与教训直接照做，能复用的配色、字阶与视觉、文件规则直接沿用，只为缺口做新的调研。结束前用 `note` 按主题键写入新的偏好、教训与有效信息（`experience/notes.json`），同一个键覆盖旧条目。本页由 `scripts/experience.py` 生成，修改请用命令或改 JSON。", ""]
+    for kind, label in NOTE_KINDS.items():
+        group = sorted((n for n in notes if n.get("kind") == kind), key=lambda n: n["key"])
+        if not group:
             continue
-        lines += [f"## {title}", ""]
-        for e in sorted(items, key=lambda x: x["key"]):
-            why = f"（{e['why']}）" if e.get("why") else ""
-            lines.append(f"- **{e['key']}**：{e['text']}{why}　使用 {e.get('uses', 1)} 次，最近 {confirmed(e)}")
+        lines += [f"## {label}（{len(group)}/{NOTE_CAPS[kind]}）", ""]
+        for n in group:
+            why = f"（{n['why']}）" if n.get("why") else ""
+            lines.append(f"- **{n['key']}**：{n['text']}{why}　确认 {n.get('uses', 1)} 次，最近 {n.get('last_confirmed')}")
         lines.append("")
     for kind in KINDS:
         group = [p for p in patterns if p["kind"] == kind]
@@ -389,25 +518,22 @@ def render() -> None:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = parser.add_subparsers(dest="cmd", required=True)
-    s = sub.add_parser("search", help="find preferences, lessons, reusable patterns and sources")
-    s.add_argument("--kind", choices=KINDS + CATEGORIES)
+    s = sub.add_parser("search", help="find notes, reusable patterns and sources; every word must match")
+    s.add_argument("words", nargs="*", help="keywords, all must match")
+    s.add_argument("--kind", choices=list(NOTE_KINDS) + KINDS + CATEGORIES, help="a note kind, or a pattern kind or source category")
     s.add_argument("--industry")
     s.add_argument("--surface", choices=["小程序", "后台", "移动应用", "网页", "通用"])
-    s.add_argument("--text", help="space-separated keywords, all must match")
-    n = sub.add_parser("note", help="upsert a preference, lesson or fact by key; the same key replaces the old statement")
+    n = sub.add_parser("note", help="upsert a preference, lesson or fact by key; the same key replaces")
     n.add_argument("--kind", required=True, choices=list(NOTE_KINDS))
-    n.add_argument("--key", required=True, help="stable topic slug, e.g. table-header-centred or 表头居中")
-    n.add_argument("--text", required=True, help="the general principle, not task trivia")
-    n.add_argument("--why", help="reason or evidence")
-    n.add_argument("--category", help="facts only: pattern kind (default 调研经验)")
-    n.add_argument("--title", help="facts only: catalog title (default the key)")
-    n.add_argument("--industry", help="facts only: comma-separated industries (default 通用)")
-    lst = sub.add_parser("list", help="list preferences and lessons, or keyed facts with --kind fact")
+    n.add_argument("--key", required=True, help="stable topic slug, e.g. 表头居中 or table-header-centred")
+    n.add_argument("--text", required=True, help="the general principle in one sentence")
+    n.add_argument("--why", default="", help="evidence or the correction that led to it")
+    lst = sub.add_parser("list", help="list notes")
     lst.add_argument("--kind", choices=list(NOTE_KINDS))
     a = sub.add_parser("add", help="add curated patterns and knowledge sources from a JSON file")
     a.add_argument("file")
-    sub.add_parser("prune", help="enforce the caps and list entries not confirmed for 180 days")
-    sub.add_parser("check", help="validate fields, duplicate keys and statements, caps, personal data and stale sources")
+    sub.add_parser("prune", help="enforce the caps and list notes not confirmed for 180 days")
+    sub.add_parser("check", help="validate shape, duplicates, caps, private data and stale sources")
     sub.add_parser("render", help="regenerate catalog.md")
     args = parser.parse_args(argv)
     if args.cmd == "render":

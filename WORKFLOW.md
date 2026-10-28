@@ -32,7 +32,7 @@ Publish with `scripts/publish.py <session> <visual | document>` or place the sin
 
 ## 每次调用后沉淀
 
-Before finishing any call, session or not, run `experience.py note` for (a) every preference the user stated or corrected (`--kind preference`), (b) every palette, type scale, source or parameter that proved effective or failed (`--kind fact`), (c) every rule correction (`--kind lesson`). Use a stable topic `--key`: the same key replaces the old statement and keeps one previous version, so knowledge is updated, not piled up. Write the general principle, never personal data or task trivia. Stores are capped (preferences 60, lessons 120, patterns 200) and pruned automatically; `experience.py check` must pass.
+Before finishing any call, session or not, run `experience.py note` for (a) every preference the user stated or corrected (`--kind preference`), (b) every palette, type scale, source or parameter that proved effective or failed (`--kind fact`), (c) every rule correction (`--kind lesson`). Use a stable topic `--key`: the same key replaces the old statement and keeps one previous version, so knowledge is updated, not piled up. Write the general principle, never personal data or task trivia. Notes live in `experience/notes.json` (same shape and commands in all four Luz skills; see SKILL.md), capped at 60 preferences, 120 lessons and 120 facts and pruned automatically; curated patterns are capped at 200; `experience.py check` must pass.
 
 ## 7 Validate and deliver
 

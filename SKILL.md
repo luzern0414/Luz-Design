@@ -33,8 +33,8 @@ D:\Codes\Luz-Design\                   the skill (rules, templates, knowledge, s
     file-design.html                   文件设计规范: reading HTML, Excel, Word by document type (contracts, proposals, reports, minutes, official documents), PowerPoint, PDF, Markdown
     guidelines.css  templates.txt  themes.json  prompt-image.txt
   experience\
-    preferences.json  lessons.json               user preferences and lessons, upserted by key (caps 60 and 120)
-    patterns.json  sources.json  catalog.md      palettes, type scales, visual and document rules, sources; catalog is generated
+    notes.json                                   preferences, lessons and facts from every call, upserted by key (caps 60, 120, 120)
+    patterns.json  sources.json  catalog.md      curated palettes, type scales, visual and document rules, sources; catalog is generated
   scripts\                             check_document, check_contrast, make_xlsx, make_docx, sessions, publish, experience, validation, tests
 
 D:\Codes\skill输出\Luz-Design\         outputs only
@@ -57,16 +57,15 @@ The rule pages define standards and judgment, not templates: derive colour, comp
 
 ## 每次调用后沉淀
 
-Mandatory on every call, not only for sessions.
+Mandatory on every call, not only for sessions. One store, `experience/notes.json`, with the same shape and commands in Luz-System, Luz-Design, Luz-Dev and Luz-Writing:
 
-- **Start:** `py -X utf8 scripts/experience.py search --text "<关键词>"` and apply what it returns; stored preferences and lessons override defaults.
-- **Before finishing**, record with `note` (the same `--key` replaces the old entry, never a second one): (a) any preference the user stated or corrected → `--kind preference`; (b) any palette, type scale, source or parameter that proved effective or failed → `--kind fact --category <色彩|字阶|…>`; (c) any rule correction or fix → `--kind lesson`.
-- Record the general principle, not task trivia: `--text "表头居中，长文本左对齐，金额右对齐"`, not "the 3rd table of project X". No personal names, phone numbers, WeChat IDs, client or company names, private paths or credentials; `note` refuses them.
-- Stores are capped (preferences 60, lessons 120, patterns 200); `note` prunes the least used, oldest entry when full, and `experience.py check` fails on duplicate keys, repeated statements or overflow. `catalog.md` is re-rendered after every write.
+- **Start:** `py -X utf8 scripts/experience.py search <关键词> [--kind preference|lesson|fact]` and apply what matches.
+- **Before finishing:** `py -X utf8 scripts/experience.py note --kind preference|lesson|fact --key <主题> --text "<一句话原则>" [--why "<依据>"]` — preference: what the user stated or corrected; fact: a route, source or parameter that worked or failed; lesson: a rule correction or fix. The general principle, not task trivia.
+- **Fields:** `key`, `kind`, `text`, `why` (optional), `uses`, `first_seen`, `last_confirmed` (YYYY-MM-DD), `previous` (`{text, replaced_at}`, only after a replacement).
+- **Replace, never pile up:** the same key replaces the text (one `previous` kept, `uses` +1); the same statement under another key confirms that note. Caps: preference 60, lesson 120, fact 120; over a cap the fewest uses, then the oldest confirmation, go first. `list [--kind]` shows notes; `prune` enforces caps and lists notes unconfirmed for 180 days; `check` fails on duplicate keys or statements, missing fields, overflow and private data.
+- **Public repository:** no phone numbers, emails, WeChat IDs, user-home paths, credentials, personal or client names; `note` refuses them.
 
-~~~powershell
-py -X utf8 scripts/experience.py note --kind preference --key interface-density-14px --text "后台正文与表格 14 像素、行高 22，辅助 12–13 只给时间单位角标" --why "用户纠正"
-~~~
+Here also: curated palettes, type scales and document rules with sources go to `patterns.json` through `experience.py add <file.json>` (cap 200); `catalog.md` is re-rendered after every write.
 
 ## Output baseline
 

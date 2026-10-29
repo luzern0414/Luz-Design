@@ -2,9 +2,11 @@
 
 每次调用开始先读本页并运行 `py -X utf8 scripts/experience.py search <关键词>`：偏好与教训直接照做，能复用的配色、字阶与视觉、文件规则直接沿用，只为缺口做新的调研。结束前用 `note` 按主题键写入新的偏好、教训与有效信息（`experience/notes.json`），同一个键覆盖旧条目。本页由 `scripts/experience.py` 生成，修改请用命令或改 JSON。
 
-## 偏好（21/60）
+## 偏好（23/60）
 
+- **commercial-miniprogram-density**：小程序界面按商用作品的密度：时间、时长、计数、标签与坐标用 12，表单、消息与列表行名称 14，卡片与区块标题 16，对象名 18，每屏一个 32 大数字；版式混用错落宫格、时间轴、叠卡、出框立体元素、环形与面积图、波形进度条和曲线轨道，不整页用整宽单元格纵向堆叠（用户看到主卡加整宽单元格的版本后说字体太大、排版太规矩无聊）　确认 1 次，最近 2026-10-29
 - **commercial-miniprogram-look**：产品界面做成成熟商用小程序的样子：居中导航栏与胶囊位、分组单元格、首屏一张品牌主卡、底部固定操作栏，令牌仍按主题与层级规则（用户 2026-10-29 要求视觉尽量做成小程序的视觉效果，商用的，成熟的）　确认 1 次，最近 2026-10-29
+- **concise-logic-table-doc**：业务逻辑说明按主题拆成若干张两到四列的表格，每行一条规则，不写解释段落与建议（用户要求列表格理清逻辑关系、要精简）　确认 1 次，最近 2026-10-29
 - **deliver-to-requested-dir**：用户指定保存位置并说只要一个文件时，只把最终成品复制到该位置，规则卡、BRIEF、spec 等过程文件留在会话 raw。（用户要求保存到当前目录且只需一个 Word 文件）　确认 1 次，最近 2026-10-29
 - **elevation-and-canvas**：界面要有立体感：卡片、悬浮卡片、下拉与吸顶、对话框按 themes.json shared.elevation 的五级双层阴影取值，静止卡片 1 像素发丝边加第 1 级，可点击卡片悬停升第 2 级，对话框第 4 级加 45% 遮罩；阴影只向下（贴底的栏向上镜像），用中性深色或主题第 10 阶暗调；页面底可用主色同色相的极浅底（色相差不超过 12 度、亮度不低于 0.85，例如智能体主题 #F0F2FC），不必一律中性灰；阅读型页面只用细线不用卡片阴影（用户 2026-10-29 要求补对话框、卡片与整体立体感，参照 Material 3 高度、Apple HIG 材质、Fluent 2 高度、Ant Design 阴影、Carbon 分层、Atlassian 高度与 Polaris 阴影令牌，并批准页面底用主题极浅底 #F0F2FC）　确认 1 次，最近 2026-10-29
 - **excel-layout**：Excel 最小 12 磅、标题 18 磅；不加序号列；同列重复的分组名纵向合并；一格只写一个事实；用浅色底区分层次。用 make_xlsx.py 生成。　确认 1 次，最近 2026-10-28
@@ -18,7 +20,7 @@
 - **luz-skill-order**：产品工作按固定顺序调用：Luz-System 需求到系统设计 → Luz-Design 视觉 → Luz-System 原型与发布 → Luz-Dev 实现 → Luz-Writing 文档，每个技能开始检索经验、结束沉淀，不得跳过（用户 2026-10-28 要求规定调用顺序）　确认 1 次，最近 2026-10-28
 - **no-italics**：中文产出禁用斜体，强调用字重或颜色，不用倾斜与旋转文字。　确认 1 次，最近 2026-10-28
 - **no-template-reuse**：每次产出前重读规范相关小节与 themes.json，模板只给结构骨架；配色、字体角色、层级、图标与插画按本次内容完整设计，不保留模板默认色板与样式，不沿用上一个项目的样式；交付前逐条自检并把记录写在会话 raw（BRIEF 的采用的规则），不进成品（用户 2026-10-29 要求不允许只套用模板；check_document 对保留模板默认样式的页面给出警告）　确认 1 次，最近 2026-10-29
-- **official-doc-fonts-gbt9704**：正式申请类 Word 的文字按学术论文规范排：标题黑体小二居中；一级标题用 Word 自动编号生成序号（用户首选 1、，也接受 1.），不手打数字和空格，序号后不留空白，黑体四号顶左；标题与各级标题都不加粗；正文宋体小四、西文 Times New Roman、首行空两字、1.5 倍行距；不用公文的 3 号仿宋；图表不用三线表，按普通浅色网格加浅底表头。（用户要求标题序号用顿号，并按 Word 序号功能来做，与句子里的标点区分开）　确认 7 次，最近 2026-10-29
+- **official-doc-fonts-gbt9704**：正式申请类 Word 的文字按学术论文规范排，用 make_docx.py 的 style paper：标题黑体小二居中；一级标题用 Word 自动编号生成序号（用户首选 1、，也接受 1.），不手打数字和空格，黑体四号顶左；标题与各级标题都不加粗；正文宋体小四、西文 Times New Roman、首行空两字、1.5 倍行距；不用公文的 3 号仿宋；图表不用三线表，按普通浅色网格加浅底表头。（用户确认论文版式后要求补充进技能）　确认 8 次，最近 2026-10-29
 - **one-font-stack**：每个文件只用一条字体栈（苹方、微软雅黑、思源黑体、系统无衬线），网页任何文字不小于 12 像素，网站与阅读页正文不小于 14 像素；字重三档：400 正文，600 标题、表头与强调，700 只给 22 像素以上的页面主标题与大号数字，不用 500 与细字重，标题与表头不用浏览器默认粗体；产品界面按七级字体角色取字号、字重与颜色，大段正文用正文深色（用户 2026-10-29 反馈字体没有完整层级且太细，取代原“只用 400 与 600 两种字重”）　确认 2 次，最近 2026-10-29
 - **one-object-one-icon**：一物一图：不同对象不共用同一个图标，同一对象在各处用同一个图标。　确认 1 次，最近 2026-10-28
 - **palette-by-industry**：配色按行业气质从官方 10 阶色板取阶，不凭感觉调深调浅；中性色、主色、强调色按 60-30-10 分配，文字对比度达到 4.5:1。　确认 1 次，最近 2026-10-28
@@ -26,13 +28,14 @@
 - **table-centred**：表格对齐：表头居中；数据不顶格，左右内边距不小于 16 像素；长文本左对齐并收紧列宽，使文字块落在表头下方；状态、日期、负责人、操作等短值居中；需比较大小的金额右对齐、等宽数字、单位写在表头；分组标题加粗（用户纠正：宽列表头居中而文字贴左边显得错位，取代原“表头与数据都居中”）　确认 2 次，最近 2026-10-28
 - **word-by-type**：Word 文档先定类型（合同、方案、报告、会议纪要、公文），按该类型的结构与格式排版，用 make_docx.py 生成。　确认 2 次，最近 2026-10-29
 
-## 教训（16/120）
+## 教训（17/120）
 
-- **check-document-gbt9704-fonts**：check_document 对用户明确要求的多字体规范（GB/T 9704 公文的仿宋黑体宋体、论文的宋体黑体加 Times New Roman）报 more than one font family，且没有对应的 --allow 类型；交付时只把这一项作为已说明的例外，其余检查仍须通过。　确认 2 次，最近 2026-10-29
+- **check-document-gbt9704-fonts**：用户明确要求的多字体规范要带对应参数检查：论文版式 check_document.py --allow paper（宋体、黑体、Times New Roman），公文格式 --allow official；不带参数时多字体仍报 more than one font family，参数只在用户要求时使用。　确认 3 次，最近 2026-10-29
 - **control-fill-by-element**：实色底是否允许按元素认定：button、按钮类 input、带控件角色的元素和类名含 btn 的链接都算控件，类名随意；同一组选择器还命中卡片、横幅等容器时按容器报错（check_document 与会话校验原先只认选择器里的 button 字样，.ok、.btn-primary 这类按钮被误判为大面积深色）　确认 1 次，最近 2026-10-29
+- **docx-latin-width**：make_docx 估算列宽时西文字母与数字按 0.6 个汉字宽（汉字记 2、西文记 1.2），设备地址、编号等无空格长串才不会在格内断开（IEEE 地址在表格里被截成两行）　确认 1 次，最近 2026-10-29
 - **docx-single-face-bold**：黑体、宋体、楷体等系统中文字体没有真粗体，Word 加粗只是模拟描粗，黑体标题加粗会发糊；黑体标题一律不加粗，靠字号与字体区分层级，即使规范写了加粗也先按不加粗出并说明。（用户看过黑体加粗标题后说有点丑）　确认 2 次，最近 2026-10-29
-- **docx-table-column-align**：make_docx 按单元格字数决定对齐（超过 22 字左对齐，否则居中），同一列的值要统一落在同一长度区间，避免一列里居中与左对齐混排。　确认 1 次，最近 2026-10-29
-- **docx-table-keep-together**：Word 表格前的说明段和表格各行（末行除外）都设 keep_with_next，否则表格可能只剩表头落在页底；Word 导出 PDF 逐页看时专门检查页底孤立表头。　确认 2 次，最近 2026-10-29
+- **docx-table-column-align**：一列只用一种对齐：make_docx 按整列判断，任一数据格超过 22 字或会在本列宽内折行则整列左对齐，否则整列居中；不要再按单元格各自判断导致同列混排（业务逻辑关系表交付时同列出现居中与左对齐混排）　确认 2 次，最近 2026-10-29
+- **docx-table-keep-together**：make_docx 只让不超过 8 行的短表整表不跨页；接近页底的表格超过 8 行会把最后一两行挤到下一页，可合并同类行压到 8 行以内或精简长文本（业务逻辑关系表注销表 9 行跨页）　确认 4 次，最近 2026-10-29
 - **element-dropdown-scoped-style**：Element Plus 下拉、弹层内容挂在 body 下，Vue scoped 样式不生效，弹层内自定义样式放进非 scoped 样式块并加专属类名　确认 1 次，最近 2026-10-28
 - **export-from-current-file**：导出或转换格式前从用户手里的当前文件导出，不从会话里的旧源重新生成，以保留用户在 Word 里做的手工修改，并把修改后的版本同步回会话。（用户交付后在 Word 中改过文字）　确认 2 次，最近 2026-10-29
 - **icon-label-consistency**：图标目录里每个图标的说明文字要与页面上同一图标旁的对象名一致或互相包含；确属不同对象就另画一个图标（例如项目问答用问号气泡，与对话分开），否则 check_document --allow interface 判为一图多义（Luz-System 会话的智能体视觉板：图标目录写的说明与页面对象名不一致被判一图多义（同 key 也记在 Luz-System））　确认 1 次，最近 2026-10-29
@@ -47,7 +50,7 @@
 
 ## 有效信息（7/120）
 
-- **docx-heading-auto-numbering**：python-docx 给标题加 Word 自动编号：numbering.xml 新建 abstractNum（插在第一个 num 之前），lvl 设 numFmt decimal、lvlText 为 %1、或 %1.、suff nothing、pStyle 指向 Heading1、rPr 写标题字体字号与不加粗，再新建 num 引用它；在 Heading 1 样式的 pPr 加 numPr，并删去标题文字里手打的序号；用 Word COM 的 ListParagraphs 与 ListString 核对编号。　确认 1 次，最近 2026-10-29
+- **docx-heading-auto-numbering**：make_docx.py 的 style paper 已内置标题自动编号：多级列表接在 Heading 1–3 样式上，一级按 number_format 取 1、（序号后无空白）或 1.（后接空格），二级 1.1、三级 1.1.1，附件重新从 1 开始；改现成文件时仍可按同法给 numbering.xml 加 abstractNum 并删去手打序号，用 Word COM 的 ListParagraphs 与 ListString 核对。　确认 2 次，最近 2026-10-29
 - **docx-pdf-pagination-check**：Word 交付前用 Word COM 导出 PDF 并逐页渲染查看；短文档避免末页只剩一小节、段落末行只剩一两个字，优先删去重复句把内容收进整页。　确认 3 次，最近 2026-10-29
 - **docx-to-pdf-export**：Word 转 PDF 用 Word COM ExportAsFixedFormat：格式 17、CreateBookmarks=1（按标题建书签）、DocStructureTags 与 BitmapMissingFonts 为真；check_document 不支持 PDF，改用 PyMuPDF 核对页面尺寸、书签层级、字体嵌入与文字层，再逐页渲染目检。　确认 2 次，最近 2026-10-29
 - **elevation-research-sources**：层级与阴影的依据用 Luz-Crawl 采集有效：流畅设计二代 elevation 页（双层阴影与 2–64 六档）、材料设计第三版 applying-elevation 与 tokens 页（0–5 级、遮罩 32%）、蚂蚁设计体系阴影页与 genColorMapToken.ts 源码（遮罩 45%）、亚特拉斯 elevation、碳设计体系 color/usage 分层、苹果材质页、约什·科莫阴影文章；北极星文档站的 depth 与 tokens/shadow 页已跳转到通用页，阴影令牌要从 GitHub 的 polaris-tokens/src/themes/base/shadow.ts 读取（2026-10-29 视觉规范补层级依据时的实测，采集目录 Luz-Crawl raw 016 与 019；来源已写入 sources.json SRC-088 至 SRC-102）　确认 1 次，最近 2026-10-29
@@ -182,6 +185,13 @@
 - 检查：check_contrast.py 核对每级两层、只向下、近锐远柔、逐级变大变淡、透明度 ≤ 0.2；check_document.py 对令牌外阴影、向上阴影与阅读页卡片阴影给出警告
 - 依据：[蚂蚁设计体系 阴影](https://ant.design/docs/spec/shadow)；[流畅设计二代 高度](https://fluent2.microsoft.design/elevation)；[谷歌材料设计第三版 应用高度](https://m3.material.io/styles/elevation/applying-elevation)；[谷歌材料设计第三版 高度令牌](https://m3.material.io/styles/elevation/tokens)；[蚂蚁设计体系 颜色映射令牌源码（遮罩）](https://github.com/ant-design/ant-design/blob/master/components/theme/themes/shared/genColorMapToken.ts)；[碳设计体系 颜色用法（分层）](https://carbondesignsystem.com/elements/color/usage)；[苹果人机界面指南 材质](https://developer.apple.com/design/human-interface-guidelines/materials)；[约什·科莫 设计阴影](https://www.joshwcomeau.com/css/designing-shadows)；[尼尔森诺曼集团 卡片](https://www.nngroup.com/articles/cards-component)
 
+### PAT-164 文字文档论文版式：宋体正文、黑体标题不加粗、自动编号
+- 适用：通用；行业：通用；使用 1 次，最近 2026-10-29
+- 要点：用户要求按论文的文字标准排申请、报告、方案时，make_docx.py 描述文件写 "style": "paper"：A4，上下 2.54、左右 3.17 厘米，页眉页脚 1.5 厘米；标题黑体小二居中、一级标题黑体四号顶左段前 24 段后 6、二三级黑体小四，标题都不加粗（黑体无真粗体，模拟加粗发糊）；标题序号用 Word 多级列表自动编号，一级 1、（或 1.），二级 1.1、三级 1.1.1，不手打数字和空格；正文宋体小四、西文 Times New Roman、首行缩进 2 字符、1.5 倍行距、两端对齐；表格按普通浅色网格浅底表头，宋体五号，不用三线表；页码 Times New Roman 五号居中；文字全黑。检查用 check_document.py --allow paper。
+- 取舍：规范原文标题加粗、序号后空一个汉字、页码小五；用户嫌加粗发糊、全角空格像占位，页码按 10.5 磅下限取五号
+- 被否定的方案：GB/T 9704 公文格式（3 号仿宋正文太大）、全文单一黑体或楷体
+- 依据：[中国科学院大学研究生学位论文撰写规范指导意见](http://www.las.cas.cn/yjsjy2021/pyyxw/xwglgd2021/202112/t20211229_6329144.html)；[国家标准 GB/T 7713.2-2022 学术论文编写规则](https://openstd.samr.gov.cn/bzgk/std/newGbInfo?hcno=0B963916637B8F34B295FCF4A51A1BE5)
+
 ## 设计理念
 
 ### PAT-099 主色按行业气质选，不沿用上一个项目
@@ -267,3 +277,5 @@
 | SRC-100 | 组件状态 | [磷光图标 双色字重](https://phosphoricons.com/) | 双色图标块：描边加一个浅色面 | 2026-10-29 | 可复用快照 |
 | SRC-101 | 组件状态 | [昂德劳 开源插画库](https://undraw.co/) | 多层扁平插画、颜色全部取主题阶 | 2026-10-29 | 可复用快照 |
 | SRC-102 | 组件状态 | [故事集插画库](https://storyset.com/) | 主体、配件、地面三层 | 2026-10-29 | 可复用快照 |
+| SRC-103 | 前端规则 | [中国科学院大学研究生学位论文撰写规范指导意见](http://www.las.cas.cn/yjsjy2021/pyyxw/xwglgd2021/202112/t20211229_6329144.html) | 论文版式的字体字号、页边距与编号方式 | 2026-10-29 | 可复用快照 |
+| SRC-104 | 前端规则 | [国家标准 GB/T 7713.2-2022 学术论文编写规则](https://openstd.samr.gov.cn/bzgk/std/newGbInfo?hcno=0B963916637B8F34B295FCF4A51A1BE5) | 论文版式的标准依据与现行状态 | 2026-10-29 | 可复用快照 |

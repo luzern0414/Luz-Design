@@ -13,7 +13,9 @@ spec.json (common keys):
      "table": {"header": ["设备", "数量", "单价（元）"], "rows": [["人脸终端", 2, 1680]], "money_cols": [2]},
      "children": [ {"heading": "...", "paragraphs": ["..."]} ]}
   ],
-  "attachments": [{"title": "设备清单", "sections": [...]}]   # optional, each starts on a new page
+  "attachments": [{"title": "设备清单", "sections": [...]}],  # optional, each starts on a new page
+  "style": "paper",                               # optional, only when the user asks for 论文版式 (not for contracts)
+  "number_format": "1、"                          # paper only: "1、" (default) or "1."
 }
 contract only:
   "number": "DLKJ-2026-018",                      # 合同编号, right-aligned under the title
@@ -27,6 +29,12 @@ minutes only:
 Paragraph text may contain {{money:128000}}, which renders as “人民币 128,000.00 元（大写：壹拾贰万捌仟元整）”.
 Contracts number clauses 第一条、第二条…, sub-clauses 1.1、1.2; other types number 一、（一）1.（1）.
 Footer: contracts “第 X 页 共 Y 页”, other types the page number only.
+A table stays on the page of the paragraph that introduces it (short tables whole, long ones with at least two rows).
+
+"style": "paper" follows file-design.html 文字文档 › 论文版式: A4 with 2.54 / 3.17 cm margins, 宋体 body and 黑体 headings
+with Times New Roman for Latin text, title 18 pt and headings 14 / 12 pt without bold, body 12 pt at 1.5 lines,
+headings numbered by Word's own list numbering (1、 or 1. / 1.1 / 1.1.1) instead of typed numbers, black text;
+tables keep the ordinary light grid. The built-in check then runs with --allow paper.
 """
 from __future__ import annotations
 
@@ -40,6 +48,10 @@ INK = "262626"
 LINE = "D9D9D9"
 HEADER_FILL = "F0F5FF"            # 极浅蓝：表头
 SIZES = {"title": 22, "h1": 16, "h2": 14, "h3": 12, "body": 12, "table": 10.5, "footer": 10.5}
+# 论文版式 (file-design.html 文字文档 › 论文版式). 黑体 and 宋体 have no real bold, so titles and headings stay regular.
+PAPER = {"body": "宋体", "head": "黑体", "latin": "Times New Roman", "ink": "000000", "margins_cm": (2.54, 3.17), "edge_cm": 1.5,
+         "sizes": {"title": 18, "h1": 14, "h2": 12, "h3": 12, "body": 12, "table": 10.5, "footer": 10.5}}
+NUMBER_FORMATS = {"1、": ("%1、", "nothing"), "1.": ("%1.", "space")}   # level-1 text and what follows the number
 CN = "零一二三四五六七八九"
 
 
@@ -109,65 +121,132 @@ def build(spec: dict, out: Path) -> Path:
     from docx.shared import Cm, Pt, RGBColor
 
     kind = spec.get("type", "general")
+    paper = spec.get("style") == "paper" and kind != "contract"
+    sizes = PAPER["sizes"] if paper else SIZES
+    ink = PAPER["ink"] if paper else INK
+    body_font, head_font, latin = (PAPER["body"], PAPER["head"], PAPER["latin"]) if paper else (FONT, FONT, FONT)
+    head_bold = not paper
     doc = docx.Document()
     sec = doc.sections[0]
     sec.page_width, sec.page_height = Cm(21), Cm(29.7)
     sec.top_margin = sec.bottom_margin = Cm(2.54)
-    sec.left_margin = sec.right_margin = Cm(2.8)
+    sec.left_margin = sec.right_margin = Cm(PAPER["margins_cm"][1] if paper else 2.8)
+    if paper:
+        sec.header_distance = sec.footer_distance = Cm(PAPER["edge_cm"])
+    usable = sec.page_width - sec.left_margin - sec.right_margin
 
-    def set_font(run, size, bold=False):
-        run.font.name = FONT
+    def set_font(run, size, bold=False, east=None):
+        run.font.name = latin
         run.font.size = Pt(size)
         run.font.bold = bold
-        run.font.color.rgb = RGBColor.from_string(INK)
-        rpr = run._element.get_or_add_rPr()
-        fonts = rpr.find(qn("w:rFonts"))
-        if fonts is None:
-            fonts = OxmlElement("w:rFonts")
-            rpr.insert(0, fonts)
-        for attr in ("w:ascii", "w:hAnsi", "w:eastAsia", "w:cs"):
-            fonts.set(qn(attr), FONT)
+        run.font.color.rgb = RGBColor.from_string(ink)
+        fonts = run._element.get_or_add_rPr().get_or_add_rFonts()
+        for attr in ("w:ascii", "w:hAnsi", "w:cs"):
+            fonts.set(qn(attr), latin)
+        fonts.set(qn("w:eastAsia"), east or body_font)
 
     # Base and heading styles carry the format, so Word's navigation pane and table of contents work.
     normal = doc.styles["Normal"]
-    normal.font.name = FONT
-    normal.font.size = Pt(SIZES["body"])
-    normal.element.get_or_add_rPr().get_or_add_rFonts().set(qn("w:eastAsia"), FONT)
+    normal.font.name = latin
+    normal.font.size = Pt(sizes["body"])
+    normal.element.get_or_add_rPr().get_or_add_rFonts().set(qn("w:eastAsia"), body_font)
     normal.paragraph_format.line_spacing = 1.5
     normal.paragraph_format.space_after = Pt(0)
-    for level, size in ((1, SIZES["h1"]), (2, SIZES["h2"]), (3, SIZES["h3"])):
+    for level, size in ((1, sizes["h1"]), (2, sizes["h2"]), (3, sizes["h3"])):
         st = doc.styles[f"Heading {level}"]
-        st.font.name = FONT
+        st.font.name = latin
         st.font.size = Pt(size)
-        st.font.bold = True
+        st.font.bold = head_bold
         st.font.italic = False
-        st.font.color.rgb = RGBColor.from_string(INK)
-        st.element.get_or_add_rPr().get_or_add_rFonts().set(qn("w:eastAsia"), FONT)
-        st.paragraph_format.space_before = Pt(12 if level > 1 else 18)
+        st.font.color.rgb = RGBColor.from_string(ink)
+        st.element.get_or_add_rPr().get_or_add_rFonts().set(qn("w:eastAsia"), head_font)
+        st.paragraph_format.space_before = Pt((24 if paper else 18) if level == 1 else 12)
         st.paragraph_format.space_after = Pt(6)
         st.paragraph_format.keep_with_next = True
-        st.paragraph_format.line_spacing = 1.5
+        st.paragraph_format.line_spacing = 1.0 if paper else 1.5
 
-    def para(text="", size=None, bold=False, align=None, indent=True, style=None, after=0):
+    def element(tag, **attrs):
+        e = OxmlElement(tag)
+        for k, v in attrs.items():
+            e.set(qn(k), v)
+        return e
+
+    # 论文版式: Word's own multilevel list numbers the three heading styles, so no number is typed into a heading.
+    paper_num = None
+    if paper:
+        level_text, level_suffix = NUMBER_FORMATS.get(spec.get("number_format", "1、"), NUMBER_FORMATS["1、"])
+        numbering = doc.part.numbering_part.element
+        abstract_id = max([int(a.get(qn("w:abstractNumId"))) for a in numbering.findall(qn("w:abstractNum"))], default=-1) + 1
+        absn = element("w:abstractNum", **{"w:abstractNumId": str(abstract_id)})
+        absn.append(element("w:multiLevelType", **{"w:val": "multilevel"}))
+        for ilvl, (text, suffix) in enumerate(((level_text, level_suffix), ("%1.%2", "space"), ("%1.%2.%3", "space"))):
+            lvl = element("w:lvl", **{"w:ilvl": str(ilvl)})
+            for child in (element("w:start", **{"w:val": "1"}), element("w:numFmt", **{"w:val": "decimal"}),
+                          element("w:pStyle", **{"w:val": doc.styles[f"Heading {ilvl + 1}"].style_id}),
+                          element("w:suff", **{"w:val": suffix}), element("w:lvlText", **{"w:val": text}),
+                          element("w:lvlJc", **{"w:val": "left"})):
+                lvl.append(child)
+            ppr = element("w:pPr")
+            ppr.append(element("w:ind", **{"w:left": "0", "w:firstLine": "0"}))
+            lvl.append(ppr)
+            rpr = element("w:rPr")
+            rpr.append(element("w:rFonts", **{"w:ascii": latin, "w:hAnsi": latin, "w:eastAsia": head_font, "w:cs": latin}))
+            rpr.append(element("w:b", **{"w:val": "0"}))
+            half_points = str(int(sizes[f"h{ilvl + 1}"] * 2))
+            rpr.append(element("w:sz", **{"w:val": half_points}))
+            rpr.append(element("w:szCs", **{"w:val": half_points}))
+            lvl.append(rpr)
+            absn.append(lvl)
+        first_num = numbering.find(qn("w:num"))          # every abstractNum precedes the num elements
+        if first_num is not None:
+            first_num.addprevious(absn)
+        else:
+            numbering.append(absn)
+
+        def new_num(restart=False):
+            num_id = max([int(n.get(qn("w:numId"))) for n in numbering.findall(qn("w:num"))], default=0) + 1
+            num = element("w:num", **{"w:numId": str(num_id)})
+            num.append(element("w:abstractNumId", **{"w:val": str(abstract_id)}))
+            if restart:
+                override = element("w:lvlOverride", **{"w:ilvl": "0"})
+                override.append(element("w:startOverride", **{"w:val": "1"}))
+                num.append(override)
+            numbering.append(num)
+            return num_id
+
+        paper_num = new_num()
+        for level in (1, 2, 3):
+            numpr = doc.styles[f"Heading {level}"].element.get_or_add_pPr().get_or_add_numPr()
+            numpr.get_or_add_ilvl().val = level - 1
+            numpr.get_or_add_numId().val = paper_num
+
+    def para(text="", size=None, bold=False, align=None, indent=True, style=None, after=0, east=None):
         p = doc.add_paragraph(style=style)
         if text:
             text = re.sub(r"\{\{money:([\d.]+)\}\}", money_text, str(text))
-            set_font(p.add_run(text), size or SIZES["body"], bold)
+            set_font(p.add_run(text), size or sizes["body"], bold, east)
         if align:
             p.alignment = align
         if indent and kind != "contract" and not style:
-            p.paragraph_format.first_line_indent = Pt((size or SIZES["body"]) * 2)
+            p.paragraph_format.first_line_indent = Pt((size or sizes["body"]) * 2)
         p.paragraph_format.space_after = Pt(after)
         return p
 
-    def heading(text, level):
+    def heading(text, level, num_id=None):
         p = doc.add_paragraph(style=f"Heading {level}")
-        set_font(p.add_run(text), SIZES[f"h{level}"], True)
+        set_font(p.add_run(text), sizes[f"h{level}"], head_bold, head_font)
+        if num_id and num_id != paper_num:            # attachments restart their own numbering
+            numpr = p._p.get_or_add_pPr().get_or_add_numPr()
+            numpr.get_or_add_ilvl().val = level - 1
+            numpr.get_or_add_numId().val = num_id
         return p
 
     def table(t):
         header, rows = t["header"], t["rows"]
         money = set(t.get("money_cols", []))
+        if doc.paragraphs:                             # the introducing paragraph stays with the table
+            doc.paragraphs[-1].paragraph_format.keep_with_next = True
+        kept = len(rows) if len(rows) <= 8 else 2      # short tables move whole; long ones keep the header and two rows
         tb = doc.add_table(rows=1 + len(rows), cols=len(header))
         tb.alignment = WD_TABLE_ALIGNMENT.CENTER
         borders = OxmlElement("w:tblBorders")
@@ -178,11 +257,11 @@ def build(spec: dict, out: Path) -> Path:
         tb._tbl.tblPr.append(borders)
         # Column widths follow content (CJK counts double); cells centre vertically; a 合计 row is bold and shaded.
         def width(v):
-            return sum(2 if ord(ch) > 0x2E80 else 1 for ch in str(v if v is not None else ""))
+            # 微软雅黑西文字母与数字约 0.6 个汉字宽（汉字记 2），按 1.2 估算，避免地址、编号等无空格长串被截断换行。
+            return sum(2 if ord(ch) > 0x2E80 else 1.2 for ch in str(v if v is not None else ""))
         weights = [min(max([width(header[c])] + [width(f"{r[c]:,.2f}" if c in money and isinstance(r[c], (int, float)) else r[c]) for r in rows]), 28) + 4
                    for c in range(len(header))]
         tb.autofit = False
-        usable = Cm(21 - 2 * 2.8)
         layout = OxmlElement("w:tblLayout")
         layout.set(qn("w:type"), "fixed")
         tb._tbl.tblPr.append(layout)
@@ -190,6 +269,11 @@ def build(spec: dict, out: Path) -> Path:
             tb.columns[c].width = int(usable * w / sum(weights))
             for row in tb.rows:
                 row.cells[c].width = int(usable * w / sum(weights))
+        # 一列只用一种对齐：任一数据格超过 22 字或在本列宽内会折行，整列左对齐；否则整列居中。
+        def _wraps(c):
+            capacity = usable * weights[c] / sum(weights) / 12700 / sizes["table"] - 1
+            return any(isinstance(v[c], str) and len(v[c]) > min(22, capacity) for v in rows if c < len(v))
+        long_cols = {c for c in range(len(header)) if _wraps(c)}
         for r, values in enumerate([header] + rows):
             row = tb.rows[r]
             total_row = r > 0 and str(values[0]).strip() in ("合计", "总计", "小计")
@@ -201,41 +285,50 @@ def build(spec: dict, out: Path) -> Path:
                 cell = row.cells[c]
                 text = f"{v:,.2f}" if (c in money and isinstance(v, (int, float)) and r) else ("" if v is None else str(v))
                 cell.paragraphs[0].text = ""
-                set_font(cell.paragraphs[0].add_run(text), SIZES["table"], r == 0 or total_row)
+                set_font(cell.paragraphs[0].add_run(text), sizes["table"], r == 0 or total_row)
+                cell.paragraphs[0].paragraph_format.keep_with_next = r < kept
                 cell.vertical_alignment = WD_CELL_VERTICAL_ALIGNMENT.CENTER
-                long = r and isinstance(v, str) and len(v) > 22
+                long = r and c in long_cols and not (c in money and isinstance(v, (int, float)))
                 cell.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.LEFT if long else WD_ALIGN_PARAGRAPH.CENTER
                 cell.paragraphs[0].paragraph_format.line_spacing = 1.25
+                if paper:
+                    cell.paragraphs[0].paragraph_format.space_before = cell.paragraphs[0].paragraph_format.space_after = Pt(3)
                 if r == 0 or total_row:
                     shd = OxmlElement("w:shd")
                     shd.set(qn("w:val"), "clear"); shd.set(qn("w:color"), "auto"); shd.set(qn("w:fill"), HEADER_FILL if r == 0 else "F5F5F5")
                     cell._tc.get_or_add_tcPr().append(shd)
         para("", indent=False, after=6)
 
-    def body(sections, depth=1, prefix=""):
+    def body(sections, depth=1, prefix="", num_id=None):
         for i, s in enumerate(sections, 1):
             if kind == "contract":
                 label = f"第{cn_num(i)}条 " if depth == 1 else f"{prefix}{i} "
                 child_prefix = f"{i}." if depth == 1 else f"{prefix}{i}."
+            elif paper:
+                label = "" if depth <= 3 else f"（{i}）"   # Word numbers levels 1–3 itself
+                child_prefix = ""
             else:
                 label = [f"{cn_num(i)}、", f"（{cn_num(i)}）", f"{i}.", f"（{i}）"][min(depth, 4) - 1]
                 child_prefix = ""
             if s.get("heading"):
-                heading(label + s["heading"], min(depth, 3))
+                heading(label + s["heading"], min(depth, 3), num_id)
             for text in s.get("paragraphs", []):
-                para(text)
+                p = para(text)
+                if paper:
+                    p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
             for j, item in enumerate(s.get("items", []), 1):
                 mark = f"{child_prefix}{j} " if kind == "contract" else f"{j}. "
                 p = para(mark + re.sub(r"\{\{money:([\d.]+)\}\}", money_text, item), indent=False)
-                p.paragraph_format.left_indent = Pt(SIZES["body"] * 2)
-                p.paragraph_format.first_line_indent = Pt(-SIZES["body"] * (1.5 if kind != "contract" else 2))
+                p.paragraph_format.left_indent = Pt(sizes["body"] * 2)
+                p.paragraph_format.first_line_indent = Pt(-sizes["body"] * (1.5 if kind != "contract" else 2))
             if s.get("table"):
                 table(s["table"])
             if s.get("children"):
-                body(s["children"], depth + 1, child_prefix)
+                body(s["children"], depth + 1, child_prefix, num_id)
 
     # Title (and contract number)
-    t = para(spec["title"], SIZES["title"], True, WD_ALIGN_PARAGRAPH.CENTER, indent=False, after=6 if kind == "contract" else 12)
+    t = para(spec["title"], sizes["title"], head_bold, WD_ALIGN_PARAGRAPH.CENTER, indent=False,
+             after=6 if kind == "contract" else (18 if paper else 12), east=head_font)
     t.paragraph_format.keep_with_next = True
     if kind == "contract" and spec.get("number"):
         para(f"合同编号：{spec['number']}", align=WD_ALIGN_PARAGRAPH.RIGHT, indent=False, after=12)
@@ -248,7 +341,7 @@ def build(spec: dict, out: Path) -> Path:
                     para(f"{k}：{v}", indent=False)
         if spec.get("preamble"):
             p = para(spec["preamble"], indent=True)
-            p.paragraph_format.first_line_indent = Pt(SIZES["body"] * 2)
+            p.paragraph_format.first_line_indent = Pt(sizes["body"] * 2)
             p.paragraph_format.space_before = Pt(12)
     if kind == "minutes" and spec.get("meta"):
         table({"header": ["项目", "内容"], "rows": spec["meta"]})
@@ -260,16 +353,17 @@ def build(spec: dict, out: Path) -> Path:
         for c, party in enumerate(sig):
             cell = st.rows[0].cells[c]
             cell.paragraphs[0].text = ""
-            set_font(cell.paragraphs[0].add_run(f"{party['role']}（盖章）："), SIZES["body"], True)
+            set_font(cell.paragraphs[0].add_run(f"{party['role']}（盖章）："), sizes["body"], True)
             for line in party.get("lines", ["法定代表人或授权代表（签字）：", "日期：　　　　年　　月　　日"]):
                 p = cell.add_paragraph()
                 p.paragraph_format.space_before = Pt(18)
-                set_font(p.add_run(line), SIZES["body"])
+                set_font(p.add_run(line), sizes["body"])
         st.rows[0]._tr.get_or_add_trPr().append(OxmlElement("w:cantSplit"))
     for att_i, att in enumerate(spec.get("attachments", []), 1):
         doc.add_paragraph().add_run().add_break(WD_BREAK.PAGE)
-        para(f"附件{cn_num(att_i)}：{att['title']}", SIZES["h1"], True, WD_ALIGN_PARAGRAPH.LEFT, indent=False, after=12)
-        body(att.get("sections", []))
+        para(f"附件{cn_num(att_i)}：{att['title']}", sizes["h1"], head_bold, WD_ALIGN_PARAGRAPH.LEFT, indent=False, after=12,
+             east=head_font)
+        body(att.get("sections", []), num_id=new_num(restart=True) if paper else None)
 
     # Footer: page numbers only (contracts: 第 X 页 共 Y 页)
     fp = sec.footer.paragraphs[0]
@@ -278,7 +372,7 @@ def build(spec: dict, out: Path) -> Path:
     def field(paragraph, code):
         for kind_, text in (("begin", None), (None, code), ("separate", None), (None, "1"), ("end", None)):
             r = paragraph.add_run()
-            set_font(r, SIZES["footer"])
+            set_font(r, sizes["footer"])
             if kind_:
                 fc = OxmlElement("w:fldChar"); fc.set(qn("w:fldCharType"), kind_); r._r.append(fc)
             elif text == code:
@@ -287,8 +381,8 @@ def build(spec: dict, out: Path) -> Path:
                 r.text = text
 
     if kind == "contract":
-        set_font(fp.add_run("第 "), SIZES["footer"]); field(fp, "PAGE"); set_font(fp.add_run(" 页 共 "), SIZES["footer"])
-        field(fp, "NUMPAGES"); set_font(fp.add_run(" 页"), SIZES["footer"])
+        set_font(fp.add_run("第 "), sizes["footer"]); field(fp, "PAGE"); set_font(fp.add_run(" 页 共 "), sizes["footer"])
+        field(fp, "NUMPAGES"); set_font(fp.add_run(" 页"), sizes["footer"])
     else:
         field(fp, "PAGE")
     out.parent.mkdir(parents=True, exist_ok=True)
@@ -296,11 +390,11 @@ def build(spec: dict, out: Path) -> Path:
     return out
 
 
-def verify_output(out: Path, kind: str) -> int:
+def verify_output(out: Path, kind: str, allow: list[str] | None = None) -> int:
     """Run the document checker on what was just written; a builder never hands over a file that fails it."""
     import check_document
     print(f"rule card for this file: py -X utf8 scripts/context.py {kind}  (read it before writing the spec)", file=sys.stderr)
-    code = check_document.main([str(out)])
+    code = check_document.main([arg for name in allow or [] for arg in ("--allow", name)] + [str(out)])
     if code:
         print(f"FAIL: {out.name} does not meet the {kind} rules above; fix the spec and build again", file=sys.stderr)
     return code
@@ -311,9 +405,11 @@ def main(argv: list[str] | None = None) -> int:
     if len(argv) != 2:
         print(__doc__)
         return 2
-    out = build(json.loads(Path(argv[0]).read_text(encoding="utf-8")), Path(argv[1]))
+    spec = json.loads(Path(argv[0]).read_text(encoding="utf-8-sig"))
+    out = build(spec, Path(argv[1]))
     print("wrote", out)
-    return verify_output(out, "docx")
+    paper = spec.get("style") == "paper" and spec.get("type") != "contract"
+    return verify_output(out, "docx", ["paper"] if paper else None)
 
 
 if __name__ == "__main__":

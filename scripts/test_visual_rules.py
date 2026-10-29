@@ -88,6 +88,16 @@ class WeightTest(unittest.TestCase):
         errors, _ = run(shell, allow=())
         self.assertTrue(having(errors, "application shell <nav>"))
 
+    def test_interface_version_information_is_not_metadata(self) -> None:
+        # Admin consoles show their version (Luz-System admin-design.html 版本信息); documents still may not.
+        version = '<div class="app-version"><h3>版本信息</h3><p>版本号：1.4.2</p><p>发布时间 2026-10-29 10:00</p></div><p>今日订单 32 笔</p>'
+        errors, _ = run(version)
+        self.assertFalse(having(errors, "production metadata") + having(errors, "timestamp") + having(errors, "accessory"), errors)
+        errors, _ = run(version.replace('class="app-version"', 'class="footer"'))
+        self.assertTrue(having(errors, "production metadata"), errors)
+        errors, _ = run(version, allow=())
+        self.assertTrue(having(errors, "production metadata"), errors)
+
     def test_default_bold_tags_must_be_set_to_600(self) -> None:
         table = "<table><tr><th>客户</th></tr><tr><td>甲</td></tr></table><h3>本周</h3><p><strong>重点</strong></p>"
         _, warnings = run(table, allow=())
@@ -117,6 +127,15 @@ class BrandCardTest(unittest.TestCase):
         self.assertTrue(having(errors, "brand card '.brand-card': text on #7782E3"))
         errors, _ = run('<div class="brand-card">本月新增</div>', ".brand-card{background:#333333;color:#fff}")
         self.assertTrue(having(errors, "dark neutral"))
+        for neutral in ("#2B2326", "#3A3F44"):
+            errors, _ = run('<div class="brand-card">本月新增</div>', ".brand-card{background:%s;color:#fff}" % neutral)
+            self.assertTrue(having(errors, "dark neutral"), neutral)
+
+    def test_deep_theme_primaries_are_hues(self) -> None:
+        # Coffee, salon, cantonese-cafe and western-light primaries in themes.json (deep brown, slate, green).
+        for hue in ("#6B4A34", "#573B2A", "#35546E", "#25594A", "#4F6E55"):
+            errors, _ = run('<div class="brand-card">本月新增</div>', ".brand-card{background:%s;color:#fff}" % hue)
+            self.assertFalse(having(errors, "dark neutral"), hue)
         errors, _ = run('<div class="brand-card">本月新增</div>', ".brand-card{background:#4A5BD6;color:#fff}", allow=())
         self.assertTrue(having(errors, "dark or saturated fill"))
 

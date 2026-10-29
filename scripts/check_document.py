@@ -8,6 +8,7 @@ the deletion test must be applied to every visible element by hand as well.
 from __future__ import annotations
 
 import argparse
+import colorsys
 import re
 import sys
 from html.parser import HTMLParser
@@ -256,7 +257,10 @@ class Outline(HTMLParser):
             or bool(re.search(r"display\s*:\s*none", attrs.get("style") or "", re.I))
         )
         # Verbatim third-party text (captured pages, comments, citations) is marked with data-quoted or <blockquote>.
-        quoted = "data-quoted" in attrs or tag in {"blockquote", "q"} or bool(self.stack and self.stack[-1][2])
+        # An interface's own version information (class or id with "version", Luz-System admin-design.html 版本信息)
+        # is product content, not document metadata.
+        version = "interface" in ALLOWED and bool(re.search(r"version", f'{attrs.get("class") or ""} {attrs.get("id") or ""}', re.I))
+        quoted = "data-quoted" in attrs or tag in {"blockquote", "q"} or version or bool(self.stack and self.stack[-1][2])
         self.stack.append((tag, hidden or bool(self.stack and self.stack[-1][1]), quoted))
         if tag == "style":
             self.in_style = True
@@ -494,7 +498,8 @@ def check_html(path: Path, errors: list[str], warnings: list[str]) -> None:
                     # (or the declared) text at 4.5:1 (visual-design.html 配色, 品牌主卡; WCAG 1.4.3).
                     texts = [c for m in re.finditer(r"(?:^|;)\s*color\s*:\s*([^;]+)", body, re.I) for c in parse_colors(resolve(m.group(1)))]
                     ratio = contrast_ratio(texts[0] if texts else (255, 255, 255), color)
-                    if max(color) - min(color) < 60:
+                    # Neutral means little saturation; deep browns, slates and greens of the industry themes are hues.
+                    if colorsys.rgb_to_hls(*(channel / 255 for channel in color))[2] < 0.15:
                         errors.append(f"brand card {selector[:40]!r} is a dark neutral {decl.group(1).strip()[:30]}: use the primary brand or pressed step")
                     elif ratio < BRAND_CARD_MIN_CONTRAST:
                         errors.append(f"brand card {selector[:40]!r}: text on {decl.group(1).strip()[:30]} is {ratio:.1f}:1, "

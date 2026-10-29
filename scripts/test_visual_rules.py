@@ -69,6 +69,17 @@ class WeightTest(unittest.TestCase):
         errors, _ = run('<p style="font-weight:700">本周会议</p>')
         self.assertTrue(having(errors, "inline font weight 700"))
 
+    def test_made_by_credit_is_metadata_but_content_is_not(self) -> None:
+        for credit in ("本页由 Luz 生成", "本报告由市场部编制", "内容由 AI 整理", "由Claude生成", "由运营组整理"):
+            with self.subTest(credit=credit):
+                errors, _ = run(f"<p>{credit}</p>")
+                self.assertTrue(having(errors, "production metadata"), errors)
+        for content in ("这次改版的缘由是旧报表生成太慢", "理由很简单：系统生成编号更可靠", "订单号由系统自动生成，无需手填",
+                        "由于数据由门店系统生成，月底统一对账", "会员自由选择课程后生成预约单"):
+            with self.subTest(content=content):
+                errors, _ = run(f"<p>{content}</p>")
+                self.assertFalse(having(errors, "production metadata"), errors)
+
     def test_interface_pages_keep_their_application_shell(self) -> None:
         # The Luz-System prototype skeleton puts its menu in <nav>; documents still refuse a shell.
         shell = '<nav><a href="#members">会员列表</a></nav><p>共 32 位会员</p>'

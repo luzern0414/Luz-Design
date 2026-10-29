@@ -671,8 +671,16 @@ def check_html(path: Path, errors: list[str], warnings: list[str]) -> None:
                             f"{' …' if len(off_theme) > 6 else ''} (take fills from themes.json: primary steps, module accents, neutrals)")
         for m in re.finditer(r"<(linearGradient|radialGradient)\b", source):
             errors.append(f"<{m.group(1)}> in an interface graphic: icons, charts and illustrations are flat")
-        for m in re.finditer(r"<img\b[^>]*class=[\"'][^\"']*\b(?:i3|icon|ico)\b", source, re.I):
-            errors.append(f"raster icon {m.group(0)[:50]!r}: draw icons as one set of line vectors")
+        # Generated icons may stand in entries and illustrations; control icons stay line vectors (visual-design.html 图像生成).
+        for node in tree.root.elements():
+            if node.tag != "img" or not re.search(r"\b(?:i3|icon|ico)\b", node.cls(), re.I):
+                continue
+            zone = next((a for a in node.ancestors() if a.tag in CONTROL_ICON_TAGS
+                         or (a.attrs.get("role") or "").strip().lower() in CONTROL_ICON_ROLES), None)
+            if zone is not None:
+                where = zone.attrs.get("role") or zone.tag
+                errors.append(f"raster icon in a control area <{where}>: navigation, tab bar, menu, toolbar, table and form icons "
+                              "stay line vectors; generated icons belong to entries and illustrations")
         # Default avatars are cartoon animals or a line icon, never initials, a surname or any other text (Luz-System ui-standards.html, 头像).
         for m in re.finditer(r"class=[\"'][^\"']*\bavatar\b[^\"']*[\"'][^>]*>\s*([^<\s'][^<]{0,5}?)\s*<", source, re.I):
             errors.append(f"text inside avatar: {m.group(1)!r}; use a cartoon avatar or a line icon")
@@ -910,6 +918,9 @@ def match_selector(node: Node, parts, index: int = 0) -> bool:
 # Controls take a solid fill whatever their class is called (visual-design.html 配色): a button, a button-type input, an
 # element with a control role (role="button", tab, switch …) or a link drawn as a button (class btn or button).
 CONTROL_ROLES = {"button", "tab", "switch", "checkbox", "radio", "option", "menuitemcheckbox", "menuitemradio"}
+# Areas whose icons stay line vectors: they change colour with state and must stay crisp at 16–24 px.
+CONTROL_ICON_TAGS = {"nav", "th", "td", "label", "select", "menu"}
+CONTROL_ICON_ROLES = {"navigation", "tablist", "tab", "menu", "menubar", "menuitem", "toolbar", "grid", "gridcell"}
 CONTROL_INPUT_TYPES = {"button", "submit", "reset", "checkbox", "radio"}
 
 

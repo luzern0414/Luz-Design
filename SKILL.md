@@ -103,7 +103,7 @@ Use `D:\Codes\Imagegen\src\imagegen.py`; every request is billed.
 
 1. Write one prompt file per image under `raw/02-visual/prompts/` from `references/prompt-image.txt`, sharing a style block (light, theme colours, no text, no logos, no identifiable faces); dry-run first.
 2. Send one request at a time; a timeout gets one retry, then fall back to a vector illustration.
-3. Use the image service only for photos of stores, products and environments and for posters. Icons and illustrations are flat line vectors; never generate 3D icon sheets or background textures.
+3. Use the image service for photos of stores, products and environments, for posters, and (the user's decision of 2026-10-29) for entry icons, illustrations and decorative elements in the style the user picks on the visual board: 2–3 candidates by industry and scene, one style per product, transparent background, no text. Control icons in navigation, tab bars, menus, buttons, toolbars, tables and forms stay 2 px line vectors; never generate background textures or interface screens.
 4. Review every image before use; record the actual size and format.
 
 ## Sessions

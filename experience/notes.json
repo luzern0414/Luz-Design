@@ -7,6 +7,24 @@
   },
   "notes": [
     {
+      "key": "commercial-miniprogram-look",
+      "kind": "preference",
+      "text": "产品界面做成成熟商用小程序的样子：居中导航栏与胶囊位、分组单元格、首屏一张品牌主卡、底部固定操作栏，令牌仍按主题与层级规则",
+      "why": "用户 2026-10-29 要求视觉尽量做成小程序的视觉效果，商用的，成熟的",
+      "uses": 1,
+      "first_seen": "2026-10-29",
+      "last_confirmed": "2026-10-29"
+    },
+    {
+      "key": "deliver-to-requested-dir",
+      "kind": "preference",
+      "text": "用户指定保存位置并说只要一个文件时，只把最终成品复制到该位置，规则卡、BRIEF、spec 等过程文件留在会话 raw。",
+      "why": "用户要求保存到当前目录且只需一个 Word 文件",
+      "uses": 1,
+      "first_seen": "2026-10-29",
+      "last_confirmed": "2026-10-29"
+    },
+    {
       "key": "elevation-and-canvas",
       "kind": "preference",
       "text": "界面要有立体感：卡片、悬浮卡片、下拉与吸顶、对话框按 themes.json shared.elevation 的五级双层阴影取值，静止卡片 1 像素发丝边加第 1 级，可点击卡片悬停升第 2 级，对话框第 4 级加 45% 遮罩；阴影只向下（贴底的栏向上镜像），用中性深色或主题第 10 阶暗调；页面底可用主色同色相的极浅底（色相差不超过 12 度、亮度不低于 0.85，例如智能体主题 #F0F2FC），不必一律中性灰；阅读型页面只用细线不用卡片阴影",
@@ -43,13 +61,13 @@
     {
       "key": "flat-line-style",
       "kind": "preference",
-      "text": "界面扁平为主：图标、插画、头像与图表始终是平面矢量（纯色面加统一 2 像素描边，不画体积、透视、光泽与投影）；立体感只属于表面，按五级层级令牌（双层中性阴影、发丝线、遮罩）、主按钮 1 像素按下阶底边与实色面 16%–24% 内顶部高光建立；不用渐变（照片遮罩与骨架流光除外）、玻璃、发光、主色投影、斜面与拟物纹理；海报与宣传图可以用摄影照片",
-      "why": "用户多次纠正立体图标与渐变按钮；2026-10-29 又反馈卡片、对话框与整体缺立体感，要求按 Material 3、Fluent 2、Ant Design 等补层级系统，取代原“纯色或白底线稿、不用立体”",
-      "uses": 2,
+      "text": "界面扁平为主：控件图标、头像与图表是平面矢量（纯色面加统一 2 像素描边）；入口图标、插画与装饰元素可用用户选定风格的生成图（imagegen-decorative-elements）；立体感属于表面，按五级层级令牌（双层中性阴影、发丝线、遮罩）、主按钮 1 像素按下阶底边与实色面 16%–24% 内顶部高光建立；界面不用渐变（照片遮罩与骨架流光除外）、玻璃、发光、主色投影、斜面与拟物纹理",
+      "why": "用户多次纠正立体图标与渐变按钮，2026-10-29 要求补层级系统；同日又确认入口图标、插画与装饰元素可以生成，风格按行业和场景定",
+      "uses": 3,
       "first_seen": "2026-10-28",
       "last_confirmed": "2026-10-29",
       "previous": {
-        "text": "界面一律扁平线性：纯色或白底深灰线稿，不用立体、渐变、纹理、玻璃与发光；海报与宣传图可以用摄影照片。",
+        "text": "界面扁平为主：图标、插画、头像与图表始终是平面矢量（纯色面加统一 2 像素描边，不画体积、透视、光泽与投影）；立体感只属于表面，按五级层级令牌（双层中性阴影、发丝线、遮罩）、主按钮 1 像素按下阶底边与实色面 16%–24% 内顶部高光建立；不用渐变（照片遮罩与骨架流光除外）、玻璃、发光、主色投影、斜面与拟物纹理；海报与宣传图可以用摄影照片",
         "replaced_at": "2026-10-29"
       }
     },
@@ -61,6 +79,19 @@
       "uses": 1,
       "first_seen": "2026-10-28",
       "last_confirmed": "2026-10-28"
+    },
+    {
+      "key": "imagegen-decorative-elements",
+      "kind": "preference",
+      "text": "入口图标、插画与装饰元素（品牌主卡主视觉、横幅、空状态、完成页、引导页、能力清单、宫格入口）可用 Imagegen 生成：风格按行业和场景在视觉稿给 2–3 种候选，用户在视觉审批时选定，一个产品一种风格；透明底、无文字、一物一图；优先一次生成 4×4 拼板再切图；导航、标签栏、菜单、按钮内、工具栏、表格与表单里的控件图标仍用 2 像素线性矢量",
+      "why": "用户 2026-10-29：装饰性的元素图案可以做，尽量生成 4*4 的提高效率；再次确认插画和图标都可生成，风格按行业和场景定",
+      "uses": 2,
+      "first_seen": "2026-10-29",
+      "last_confirmed": "2026-10-29",
+      "previous": {
+        "text": "装饰位置（品牌主卡主视觉、空状态、完成页、封面）可用 Imagegen 生成品牌色的柔和立体元素，透明底、无文字；导航、按钮、单元格里的功能图标仍用线性矢量；尽量一次生成 4×4 拼板再切图，提高效率",
+        "replaced_at": "2026-10-29"
+      }
     },
     {
       "key": "interface-density-14px",
@@ -107,6 +138,19 @@
       "last_confirmed": "2026-10-29"
     },
     {
+      "key": "official-doc-fonts-gbt9704",
+      "kind": "preference",
+      "text": "正式申请类 Word 的文字按学术论文规范排：标题黑体小二居中；一级标题用 Word 自动编号生成序号（用户首选 1、，也接受 1.），不手打数字和空格，序号后不留空白，黑体四号顶左；标题与各级标题都不加粗；正文宋体小四、西文 Times New Roman、首行空两字、1.5 倍行距；不用公文的 3 号仿宋；图表不用三线表，按普通浅色网格加浅底表头。",
+      "why": "用户要求标题序号用顿号，并按 Word 序号功能来做，与句子里的标点区分开",
+      "uses": 7,
+      "first_seen": "2026-10-29",
+      "last_confirmed": "2026-10-29",
+      "previous": {
+        "text": "正式申请类 Word 的文字按学术论文规范排：标题黑体小二居中，一级标题用阿拉伯数字编号，序号后只空一个半角空格（如 1 项目信息，不用全角空格），黑体四号顶左，标题与各级标题都不加粗；正文宋体小四、西文 Times New Roman、首行空两字、1.5 倍行距；不用公文的 3 号仿宋；图表不用三线表，按普通浅色网格加浅底表头。",
+        "replaced_at": "2026-10-29"
+      }
+    },
+    {
       "key": "one-font-stack",
       "kind": "preference",
       "text": "每个文件只用一条字体栈（苹方、微软雅黑、思源黑体、系统无衬线），网页任何文字不小于 12 像素，网站与阅读页正文不小于 14 像素；字重三档：400 正文，600 标题、表头与强调，700 只给 22 像素以上的页面主标题与大号数字，不用 500 与细字重，标题与表头不用浏览器默认粗体；产品界面按七级字体角色取字号、字重与颜色，大段正文用正文深色",
@@ -138,11 +182,15 @@
     {
       "key": "rich-solid-visual",
       "kind": "preference",
-      "text": "界面要图案丰富、字体层级完整且不细、颜色丰富浑厚、图标不单薄：七级字体角色与 400/600/700，图标 2 像素并在入口、指标与空状态用双色图标块，空状态、结果、问候与封面用多层扁平插画，主色按整列多阶使用并给一级模块固定点缀色，每屏至多一张品牌主卡",
-      "why": "用户 2026-10-29 反馈图案太简单、字太细、颜色不够浑厚、图标单薄",
-      "uses": 1,
+      "text": "界面要图案丰富、字体层级完整且不细、颜色丰富浑厚、图标不单薄：七级字体角色与 400/600/700，控件图标 2 像素，入口、指标与空状态用双色图标块或选定风格的生成图标，空状态、结果、问候与封面用多层扁平插画或生成插画，主色按整列多阶使用并给一级模块固定点缀色，每屏至多一张品牌主卡",
+      "why": "用户 2026-10-29 反馈图案太简单、字太细、颜色不够浑厚、图标单薄；同日确认图标与插画可以生成",
+      "uses": 2,
       "first_seen": "2026-10-29",
-      "last_confirmed": "2026-10-29"
+      "last_confirmed": "2026-10-29",
+      "previous": {
+        "text": "界面要图案丰富、字体层级完整且不细、颜色丰富浑厚、图标不单薄：七级字体角色与 400/600/700，图标 2 像素并在入口、指标与空状态用双色图标块，空状态、结果、问候与封面用多层扁平插画，主色按整列多阶使用并给一级模块固定点缀色，每屏至多一张品牌主卡",
+        "replaced_at": "2026-10-29"
+      }
     },
     {
       "key": "table-centred",
@@ -161,9 +209,21 @@
       "key": "word-by-type",
       "kind": "preference",
       "text": "Word 文档先定类型（合同、方案、报告、会议纪要、公文），按该类型的结构与格式排版，用 make_docx.py 生成。",
-      "uses": 1,
+      "uses": 2,
       "first_seen": "2026-10-28",
-      "last_confirmed": "2026-10-28"
+      "last_confirmed": "2026-10-29"
+    },
+    {
+      "key": "check-document-gbt9704-fonts",
+      "kind": "lesson",
+      "text": "check_document 对用户明确要求的多字体规范（GB/T 9704 公文的仿宋黑体宋体、论文的宋体黑体加 Times New Roman）报 more than one font family，且没有对应的 --allow 类型；交付时只把这一项作为已说明的例外，其余检查仍须通过。",
+      "uses": 2,
+      "first_seen": "2026-10-29",
+      "last_confirmed": "2026-10-29",
+      "previous": {
+        "text": "check_document 对按 GB/T 9704 排版的 Word 报 more than one font family，且没有对应的 --allow 类型；规则卡允许公文不受一个字体族限制，交付时只把这一项作为已说明的例外，其余检查仍须通过。",
+        "replaced_at": "2026-10-29"
+      }
     },
     {
       "key": "control-fill-by-element",
@@ -175,12 +235,50 @@
       "last_confirmed": "2026-10-29"
     },
     {
+      "key": "docx-single-face-bold",
+      "kind": "lesson",
+      "text": "黑体、宋体、楷体等系统中文字体没有真粗体，Word 加粗只是模拟描粗，黑体标题加粗会发糊；黑体标题一律不加粗，靠字号与字体区分层级，即使规范写了加粗也先按不加粗出并说明。",
+      "why": "用户看过黑体加粗标题后说有点丑",
+      "uses": 2,
+      "first_seen": "2026-10-29",
+      "last_confirmed": "2026-10-29",
+      "previous": {
+        "text": "Word 全文只用一种中文字体时：黑体本身够重，标题、表头不加粗以免发糊；楷体笔画细，标题、各级标题与表头加粗、正文不加粗，层级才清楚。",
+        "replaced_at": "2026-10-29"
+      }
+    },
+    {
+      "key": "docx-table-column-align",
+      "kind": "lesson",
+      "text": "make_docx 按单元格字数决定对齐（超过 22 字左对齐，否则居中），同一列的值要统一落在同一长度区间，避免一列里居中与左对齐混排。",
+      "uses": 1,
+      "first_seen": "2026-10-29",
+      "last_confirmed": "2026-10-29"
+    },
+    {
+      "key": "docx-table-keep-together",
+      "kind": "lesson",
+      "text": "Word 表格前的说明段和表格各行（末行除外）都设 keep_with_next，否则表格可能只剩表头落在页底；Word 导出 PDF 逐页看时专门检查页底孤立表头。",
+      "uses": 2,
+      "first_seen": "2026-10-29",
+      "last_confirmed": "2026-10-29"
+    },
+    {
       "key": "element-dropdown-scoped-style",
       "kind": "lesson",
       "text": "Element Plus 下拉、弹层内容挂在 body 下，Vue scoped 样式不生效，弹层内自定义样式放进非 scoped 样式块并加专属类名",
       "uses": 1,
       "first_seen": "2026-10-28",
       "last_confirmed": "2026-10-28"
+    },
+    {
+      "key": "export-from-current-file",
+      "kind": "lesson",
+      "text": "导出或转换格式前从用户手里的当前文件导出，不从会话里的旧源重新生成，以保留用户在 Word 里做的手工修改，并把修改后的版本同步回会话。",
+      "why": "用户交付后在 Word 中改过文字",
+      "uses": 2,
+      "first_seen": "2026-10-29",
+      "last_confirmed": "2026-10-29"
     },
     {
       "key": "icon-label-consistency",
@@ -227,10 +325,35 @@
       "last_confirmed": "2026-10-29"
     },
     {
+      "key": "publish-docx-manual-copy",
+      "kind": "lesson",
+      "text": "publish.py 的 document 阶段只发布 HTML（会把模板 document.html 当成品）；Word 或 Excel 成品直接放到会话根目录，命名为文件夹名加扩展名，不跑 publish.py。",
+      "uses": 1,
+      "first_seen": "2026-10-29",
+      "last_confirmed": "2026-10-29"
+    },
+    {
       "key": "reading-page-for-design-docs",
       "kind": "lesson",
       "text": "系统架构与系统设计页是阅读型网页：按 file-design.html 用 32/24/20/16/14 字阶、整句表格 16、只有横线、不给每节套卡片，check_document 不加 --allow interface；用户要求时每节配独立线性图标块并用内嵌线性矢量画页面关系图",
       "why": "用户 2026-10-29 指出系统设计页文字过小、缺图标、未用 Luz-Design 排版",
+      "uses": 1,
+      "first_seen": "2026-10-29",
+      "last_confirmed": "2026-10-29"
+    },
+    {
+      "key": "small-fill-selector-naming",
+      "kind": "lesson",
+      "text": "界面里的小块实色（进度条填充、阶段点、数字角标、播放键）在选择器里写明 -mark、-bar i、.badge 或 button，12 号辅助字的选择器带 caption、tag、time 等标记；否则检查器判为大面积深色或正文过小",
+      "why": "check_document 按选择器里的约定标记识别小元素",
+      "uses": 1,
+      "first_seen": "2026-10-29",
+      "last_confirmed": "2026-10-29"
+    },
+    {
+      "key": "spec-json-utf8-no-bom",
+      "kind": "lesson",
+      "text": "make_docx 与 make_xlsx 的 spec.json 用无 BOM 的 UTF-8 写；PowerShell Set-Content -Encoding utf8 会带 BOM 导致 JSON 读取失败，用文件写入工具或去掉 BOM。",
       "uses": 1,
       "first_seen": "2026-10-29",
       "last_confirmed": "2026-10-29"
@@ -249,10 +372,59 @@
       }
     },
     {
+      "key": "docx-heading-auto-numbering",
+      "kind": "fact",
+      "text": "python-docx 给标题加 Word 自动编号：numbering.xml 新建 abstractNum（插在第一个 num 之前），lvl 设 numFmt decimal、lvlText 为 %1、或 %1.、suff nothing、pStyle 指向 Heading1、rPr 写标题字体字号与不加粗，再新建 num 引用它；在 Heading 1 样式的 pPr 加 numPr，并删去标题文字里手打的序号；用 Word COM 的 ListParagraphs 与 ListString 核对编号。",
+      "uses": 1,
+      "first_seen": "2026-10-29",
+      "last_confirmed": "2026-10-29"
+    },
+    {
+      "key": "docx-pdf-pagination-check",
+      "kind": "fact",
+      "text": "Word 交付前用 Word COM 导出 PDF 并逐页渲染查看；短文档避免末页只剩一小节、段落末行只剩一两个字，优先删去重复句把内容收进整页。",
+      "uses": 3,
+      "first_seen": "2026-10-29",
+      "last_confirmed": "2026-10-29"
+    },
+    {
+      "key": "docx-to-pdf-export",
+      "kind": "fact",
+      "text": "Word 转 PDF 用 Word COM ExportAsFixedFormat：格式 17、CreateBookmarks=1（按标题建书签）、DocStructureTags 与 BitmapMissingFonts 为真；check_document 不支持 PDF，改用 PyMuPDF 核对页面尺寸、书签层级、字体嵌入与文字层，再逐页渲染目检。",
+      "uses": 2,
+      "first_seen": "2026-10-29",
+      "last_confirmed": "2026-10-29"
+    },
+    {
       "key": "elevation-research-sources",
       "kind": "fact",
       "text": "层级与阴影的依据用 Luz-Crawl 采集有效：流畅设计二代 elevation 页（双层阴影与 2–64 六档）、材料设计第三版 applying-elevation 与 tokens 页（0–5 级、遮罩 32%）、蚂蚁设计体系阴影页与 genColorMapToken.ts 源码（遮罩 45%）、亚特拉斯 elevation、碳设计体系 color/usage 分层、苹果材质页、约什·科莫阴影文章；北极星文档站的 depth 与 tokens/shadow 页已跳转到通用页，阴影令牌要从 GitHub 的 polaris-tokens/src/themes/base/shadow.ts 读取",
       "why": "2026-10-29 视觉规范补层级依据时的实测，采集目录 Luz-Crawl raw 016 与 019；来源已写入 sources.json SRC-088 至 SRC-102",
+      "uses": 1,
+      "first_seen": "2026-10-29",
+      "last_confirmed": "2026-10-29"
+    },
+    {
+      "key": "gbt9704-docx-params",
+      "kind": "fact",
+      "text": "python-docx 实现 GB/T 9704 版面：页边上 37、下 35、左 28、右 26 毫米，docGrid linesAndChars linePitch=579（28.95 磅）charSpace=-849（每行 28 字），正文与标题固定行距 28.95 磅，页脚距边界 2.5 厘米使页码一字线约在版心下 7 毫米；表格国标未规定，用小四仿宋、黑体表头、按毫米定列宽并关闭对齐网格；pPr 子元素须按架构顺序插入，否则 Word 打不开。",
+      "uses": 1,
+      "first_seen": "2026-10-29",
+      "last_confirmed": "2026-10-29"
+    },
+    {
+      "key": "imagegen-element-sheet",
+      "kind": "fact",
+      "text": "Imagegen 透明底 4×4 元素拼板：请求 2880 实际返回 1254×1254，每格约 313 像素，界面 120 像素内够用；按网格切图后只保留面积不小于主体 1% 的连通部分，去掉背景碎点，再裁边存 WebP（每个约 15 KB）嵌入页面",
+      "why": "008 视觉板修订 4 实测",
+      "uses": 1,
+      "first_seen": "2026-10-29",
+      "last_confirmed": "2026-10-29"
+    },
+    {
+      "key": "thesis-text-spec",
+      "kind": "fact",
+      "text": "论文文字规范可依《中国科学院大学研究生学位论文撰写规范指导意见》：A4，上下 2.54 厘米、左右 3.17 厘米，页眉页脚 1.5 厘米；章标题黑体四号加粗，节标题黑体小四顶左、段前 24 段后 6 磅；正文宋体小四、英文 Times New Roman、首行缩进两字、段前段后 0、1.5 倍行距；标题编号用阿拉伯数字 1、1.1、1.1.1，序号后空一字；页码 Times New Roman 小五（交付时用五号以守 10.5 磅下限）。GB/T 7713.1-2006 与 GB/T 7713.2-2022 只定结构与编号，不定字体字号。",
       "uses": 1,
       "first_seen": "2026-10-29",
       "last_confirmed": "2026-10-29"

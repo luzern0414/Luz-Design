@@ -238,6 +238,28 @@ class ControlFillTest(unittest.TestCase):
             with self.subTest(selector=selector):
                 self.assertTrue(self.fill_errors(body, selector))
 
+class GeneratedIconTest(unittest.TestCase):
+    """Generated icons may stand in entries and illustrations; control icons stay line vectors (visual-design.html 图像生成)."""
+
+    IMG = '<img class="icon" src="data:image/png;base64,iVBORw0KGgo=" alt="">'
+
+    def test_entries_and_illustrations_may_use_generated_images(self) -> None:
+        for body in (f'<section><h2>常用</h2><div class="grid"><a class="entry" href="#card">{self.IMG}<span>会员卡</span></a></div></section>',
+                     f'<section><h2>入口</h2><button class="tile" type="button">{self.IMG}<span>领取礼券</span></button></section>',
+                     f'<section><h2>暂无会议</h2><img class="ill" src="data:image/png;base64,iVBORw0KGgo=" alt=""><p>还没有会议</p></section>'):
+            with self.subTest(body=body[:40]):
+                errors, _ = run(body)
+                self.assertFalse(having(errors, "raster icon"), errors)
+
+    def test_control_areas_keep_line_vectors(self) -> None:
+        for body in (f'<nav><a href="#home">{self.IMG}首页</a></nav><p>首页内容</p>',
+                     f'<div role="tablist"><span role="tab">{self.IMG}我的</span></div><p>内容</p>',
+                     f'<div role="toolbar"><button type="button">{self.IMG}导出</button></div><p>内容</p>',
+                     f'<table><tr><th>状态</th></tr><tr><td>{self.IMG}已完成</td></tr></table>'):
+            with self.subTest(body=body[:40]):
+                errors, _ = run(body)
+                self.assertTrue(having(errors, "raster icon in a control area"), errors)
+
 class LocalLinkTest(unittest.TestCase):
     def test_script_brackets_are_not_links(self) -> None:
         import validate_session

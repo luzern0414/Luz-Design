@@ -69,6 +69,14 @@ class WeightTest(unittest.TestCase):
         errors, _ = run('<p style="font-weight:700">本周会议</p>')
         self.assertTrue(having(errors, "inline font weight 700"))
 
+    def test_interface_pages_keep_their_application_shell(self) -> None:
+        # The Luz-System prototype skeleton puts its menu in <nav>; documents still refuse a shell.
+        shell = '<nav><a href="#members">会员列表</a></nav><p>共 32 位会员</p>'
+        errors, _ = run(shell)
+        self.assertFalse(having(errors, "application shell"))
+        errors, _ = run(shell, allow=())
+        self.assertTrue(having(errors, "application shell <nav>"))
+
     def test_default_bold_tags_must_be_set_to_600(self) -> None:
         table = "<table><tr><th>客户</th></tr><tr><td>甲</td></tr></table><h3>本周</h3><p><strong>重点</strong></p>"
         _, warnings = run(table, allow=())

@@ -389,7 +389,8 @@ def check_html(path: Path, errors: list[str], warnings: list[str]) -> None:
                 check_heading(text, where, errors)
         in_content = any(a in {"article", "section"} for a in ancestors)
         shell = next((a for a in ancestors if a in {"nav", "aside"} or (a in {"header", "footer"} and not in_content)), None)
-        if shell and "shell" not in ALLOWED and shell not in shell_reported:
+        # An interface prototype is an application: its shell (nav, side bar, top bar) belongs to it.
+        if shell and not ALLOWED & {"shell", "interface"} and shell not in shell_reported:
             shell_reported.add(shell)
             errors.append(f"application shell <{shell}> in a document: {text[:30]!r}")
     for index, (tag, text, _, _) in enumerate(blocks[:-2]):
@@ -1553,7 +1554,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("files", nargs="+", type=Path)
     parser.add_argument("--allow", action="append", default=[], metavar="KIND",
-                        help="interface (prototype pages using interface type scales; add website for a website prototype with 40/48 first-screen titles), or only for items the user explicitly asked for: multi-sheet, chart, accessory, cover, header, "
+                        help="interface (prototype pages: interface type scales and the application shell nav, aside, header; add website for a website prototype with 40/48 first-screen titles), or only for items the user explicitly asked for: multi-sheet, chart, accessory, cover, header, "
                              "shell, dark, note, emoji, or a text family (" + ", ".join(FAMILIES) + ")")
     parser.add_argument("--allow-multi-sheet", action="store_true", help="same as --allow multi-sheet")
     args = parser.parse_args(argv)

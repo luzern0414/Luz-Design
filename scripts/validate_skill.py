@@ -59,6 +59,10 @@ REQUIRED = [
     "scripts/test_context.py",
     "references/cards.json",
     "scripts/sync_rule_core.py",
+    "scripts/cut_element_sheet.py",
+    "scripts/test_check_interface.py",
+    "scripts/test_visual_rules.py",
+    "scripts/test_audit_rules.py",
 ]
 RULE_PAGES = [
     ("visual-design.html", "visual", "视觉设计规范"),
@@ -185,7 +189,7 @@ def validate_rule_page(
     if "<!doctype html>" not in text.lower():
         errors.append(f"HTML missing doctype: {rel}")
     if not re.search(r'<link\s+rel="stylesheet"\s+href="guidelines\.css"', text, re.I):
-        errors.append(f"rule page must use rules/guidelines.css: {rel}")
+        errors.append(f"rule page must use references/guidelines.css: {rel}")
     if re.search(r"color-scheme\s*:\s*dark", text, re.I):
         errors.append(f"dark color scheme is not allowed: {rel}")
 
@@ -303,6 +307,7 @@ def validate_rule_page(
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Validate the flattened Luz Design skill and root-level sessions.")
     parser.add_argument("--strict-production", action="store_true", help="Validate every session as handed off (strict session structure)")
+    parser.add_argument("--package-only", action="store_true", help="Validate only the skill package, not the sessions in the output root")
     args = parser.parse_args(argv)
     errors: list[str] = []
     for rel in REQUIRED:
@@ -431,13 +436,6 @@ def main(argv: list[str] | None = None) -> int:
         if re.search(r"(?<![A-Za-z0-9-])sk-(?:proj-)?[A-Za-z0-9_]{20,}", text):
             errors.append(f"possible API key in {path.relative_to(ROOT)}")
 
-    sessions = [path for path in OUTPUT_ROOT.iterdir() if path.is_dir() and SESSION_RE.match(path.name)] if OUTPUT_ROOT.is_dir() else []
-    for session in sorted(sessions):
-        errors.extend(
-            f"{session.name}: {error}"
-            for error in validate_session(session, strict=args.strict_production)
-        )
-
     from new_session import read_template
     templates: dict[str, str] = {}
     for name in TEMPLATE_NAMES:
@@ -473,11 +471,31 @@ def main(argv: list[str] | None = None) -> int:
 
     from experience import check as check_experience
     errors.extend(f"experience: {e}" for e in check_experience())
+    # Sibling skills cut rule text from these pages by heading path; renaming a heading here must not empty their cards.
+    errors.extend(sibling_card_errors())
 
+    # The package result comes first, then the sessions in the output root (outputs, not part of the package).
     if errors:
-        print(f"FAIL: {len(errors)} issue(s)")
+        print(f"PACKAGE FAIL: {len(errors)} issue(s) in the skill package")
         for error in errors:
             print("ERROR", error)
+    else:
+        print(f"PACKAGE PASS: Luz Design skill package with {len(REQUIRED)} required files and {len(RULE_PAGES)} rule pages")
+    if args.package_only:
+        return 1 if errors else 0
+
+    sessions = [path for path in OUTPUT_ROOT.iterdir() if path.is_dir() and SESSION_RE.match(path.name)] if OUTPUT_ROOT.is_dir() else []
+    session_errors = [
+        f"{session.name}: {error}"
+        for session in sorted(sessions)
+        for error in validate_session(session, strict=args.strict_production)
+    ]
+    if errors or session_errors:
+        if session_errors:
+            print(f"SESSIONS FAIL: {len(session_errors)} issue(s) in {OUTPUT_ROOT}")
+            for error in session_errors:
+                print("ERROR", error)
+        print(f"FAIL: {len(errors) + len(session_errors)} issue(s) ({len(errors)} package, {len(session_errors)} sessions)")
         return 1
     if not Path("D:/Codes/Imagegen/src/imagegen.py").is_file():
         print("WARN: Imagegen was not found at D:\\Codes\\Imagegen")
@@ -488,6 +506,34 @@ def main(argv: list[str] | None = None) -> int:
         f"{session_label}, {len(RULE_PAGES)} rule pages, and {validation_label}"
     )
     return 0
+
+
+def sibling_card_errors() -> list[str]:
+    """Rule cards of sibling skills that cut sections from this skill's rule pages must still resolve."""
+    import context
+    errors: list[str] = []
+    own = (ROOT / "references").resolve()
+    for skill in ("Luz-System", "Luz-Dev", "Luz-Writing"):
+        cards_file = ROOT.parent / skill / "references" / "cards.json"
+        if not cards_file.is_file():
+            continue
+        try:
+            cards = json.loads(cards_file.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            continue
+        specs = [("always", s) for s in cards.get("always", [])]
+        specs += [(kind, s) for kind, card in cards.get("cards", {}).items() for s in card.get("sections", [])]
+        for kind, spec in specs:
+            root = spec.get("root")
+            if not root or Path(root).resolve() != own:
+                continue
+            page = own / spec["page"]
+            try:
+                if not page.is_file() or not context.section_text(page, spec["path"]):
+                    errors.append(f"{skill} card {kind}: empty or missing section {spec['page']} › {' › '.join(spec['path'])}")
+            except KeyError as exc:
+                errors.append(f"{skill} card {kind} cites a heading this skill no longer has: {exc}")
+    return errors
 
 
 if __name__ == "__main__":

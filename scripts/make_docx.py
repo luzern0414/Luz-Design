@@ -30,6 +30,8 @@ Paragraph text may contain {{money:128000}}, which renders as “人民币 128,0
 Contracts number clauses 第一条、第二条…, sub-clauses 1.1、1.2; other types number 一、（一）1.（1）.
 Footer: contracts “第 X 页 共 Y 页”, other types the page number only.
 A table stays on the page of the paragraph that introduces it (short tables whole, long ones with at least two rows).
+Table alignment: header centred; money_cols (0-based) show 1,234.00 and align right; a column whose text wraps or runs
+past 22 characters aligns left; other columns centre (file-design.html 文字文档 › 表格与图片).
 
 "style": "paper" follows file-design.html 文字文档 › 论文版式: A4 with 2.54 / 3.17 cm margins, 宋体 body and 黑体 headings
 with Times New Roman for Latin text, title 18 pt and headings 14 / 12 pt without bold, body 12 pt at 1.5 lines,
@@ -269,7 +271,7 @@ def build(spec: dict, out: Path) -> Path:
             tb.columns[c].width = int(usable * w / sum(weights))
             for row in tb.rows:
                 row.cells[c].width = int(usable * w / sum(weights))
-        # 一列只用一种对齐：任一数据格超过 22 字或在本列宽内会折行，整列左对齐；否则整列居中。
+        # 一列只用一种对齐：金额列（money_cols）整列右对齐；其余列任一数据格超过 22 字或在本列宽内会折行，整列左对齐；否则整列居中。
         def _wraps(c):
             capacity = usable * weights[c] / sum(weights) / 12700 / sizes["table"] - 1
             return any(isinstance(v[c], str) and len(v[c]) > min(22, capacity) for v in rows if c < len(v))
@@ -288,8 +290,10 @@ def build(spec: dict, out: Path) -> Path:
                 set_font(cell.paragraphs[0].add_run(text), sizes["table"], r == 0 or total_row)
                 cell.paragraphs[0].paragraph_format.keep_with_next = r < kept
                 cell.vertical_alignment = WD_CELL_VERTICAL_ALIGNMENT.CENTER
-                long = r and c in long_cols and not (c in money and isinstance(v, (int, float)))
-                cell.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.LEFT if long else WD_ALIGN_PARAGRAPH.CENTER
+                # Header centred; amounts right so digits line up; long text left; short values centred (表格对齐).
+                long = r and c in long_cols and c not in money
+                cell.paragraphs[0].alignment = (WD_ALIGN_PARAGRAPH.CENTER if r == 0 else WD_ALIGN_PARAGRAPH.RIGHT if c in money
+                                                else WD_ALIGN_PARAGRAPH.LEFT if long else WD_ALIGN_PARAGRAPH.CENTER)
                 cell.paragraphs[0].paragraph_format.line_spacing = 1.25
                 if paper:
                     cell.paragraphs[0].paragraph_format.space_before = cell.paragraphs[0].paragraph_format.space_after = Pt(3)

@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Publish one stage artifact as the session's single final HTML: <session>/<session-folder>.html."""
+"""Publish one stage artifact as the session's single final HTML: <session>/<session-folder>.html.
+
+Refuses a session without a current rule card, 采用的规则 or fresh 本次沉淀, a page that fails check_document.py, and a
+visual board that a person has not approved in raw/99-delivery/APPROVALS.json with its current SHA-256.
+"""
 from __future__ import annotations
 
 import argparse
@@ -13,12 +17,49 @@ from validate_session import (
     STAGE_PATHS,
     final_html,
     sha256_file,
+    validate_approval_record,
     validate_light_html,
     work_dir,
 )
 
+# Stages a person approves before they are published (SKILL.md Sessions; visual-design.html 质量门禁).
+APPROVED_STAGES = {"visual"}
 
-def publish(folder: Path, stage: str) -> Path:
+
+def approval_errors(work: Path, stage: str, source: Path) -> list[str]:
+    """The stage is approved by a person in raw/99-delivery/APPROVALS.json for the artifact as it is now."""
+    path = work / "99-delivery" / "APPROVALS.json"
+    try:
+        item = json.loads(path.read_text(encoding="utf-8")).get(stage)
+    except (OSError, ValueError, AttributeError):
+        return [f"cannot read {path}"]
+    if not isinstance(item, dict) or item.get("status") != "approved":
+        return [f"the {stage} stage is not approved by a person in raw/99-delivery/APPROVALS.json; stop and ask for approval"]
+    errors: list[str] = []
+    validate_approval_record(work, stage, item, errors)
+    if item.get("artifact_sha256") != sha256_file(source):
+        errors.append(f"the approved {stage} hash differs from {source.name}; the changed artifact needs a new approval")
+    return sorted(set(errors))
+
+
+def document_errors(source: Path, allow: list[str] | None) -> list[str]:
+    """check_document.py on the page that is about to be published; --allow passes on what the user asked for."""
+    import check_document
+    saved = set(check_document.ALLOWED)
+    check_document.ALLOWED.clear()
+    check_document.ALLOWED.update(kind.strip() for value in (allow or []) for kind in value.split(",") if kind.strip())
+    if "website" in check_document.ALLOWED:
+        check_document.ALLOWED.add("interface")
+    errors: list[str] = []
+    try:
+        check_document.check_html(source, errors, [])
+    finally:
+        check_document.ALLOWED.clear()
+        check_document.ALLOWED.update(saved)
+    return [f"check_document: {e}" for e in errors]
+
+
+def publish(folder: Path, stage: str, allow: list[str] | None = None) -> Path:
     folder = folder.resolve()
     work = work_dir(folder)
     if stage not in STAGE_PATHS:
@@ -38,6 +79,10 @@ def publish(folder: Path, stage: str) -> Path:
     # Every delivered HTML carries its own browser-tab icon (visual-design.html 网页图标与品牌标识).
     from check_document import tab_icon_findings
     errors.extend(tab_icon_findings(source.read_text(encoding="utf-8"))[0])
+    # The page passes the document checks, and an approval stage is approved for exactly this artifact.
+    errors.extend(e for e in document_errors(source, allow) if e not in errors)
+    if stage in APPROVED_STAGES:
+        errors.extend(approval_errors(work, stage, source))
     if errors:
         raise ValueError("stage artifact fails the HTML contract: " + "; ".join(errors))
     for item in folder.iterdir():
@@ -62,9 +107,11 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("session", help="Numbered session folder in the output root")
     parser.add_argument("stage", choices=sorted(STAGE_PATHS), help="Stage artifact to publish")
+    parser.add_argument("--allow", action="append", default=[], metavar="KIND",
+                        help="passed to check_document.py: only kinds the user explicitly asked for (see its --help)")
     args = parser.parse_args(argv)
     try:
-        target = publish(Path(args.session), args.stage)
+        target = publish(Path(args.session), args.stage, args.allow)
     except Exception as exc:
         print(f"FAIL: {exc}", file=sys.stderr)
         return 1

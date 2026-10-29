@@ -21,8 +21,9 @@ spec.json:
   "freeze": 3                                # optional: columns to freeze; default = leading group-name columns
 }
 
-Column types: text (default, centred), longtext (left, wraps), money (#,##0.00), number (#,##0),
-decimal (#,##0.00), percent (0.0%), date (yyyy-mm-dd). Leading text columns that repeat are merged
+Column types: text (default, centred), longtext (left with one indent, wraps), money (#,##0.00, right with one
+indent so amounts line up by digit), number (#,##0), decimal (#,##0.00), percent (0.0%), date (yyyy-mm-dd); the
+header is always centred (file-design.html 表格文件 › 列宽、对齐与格式). Leading text columns that repeat are merged
 automatically when "merge" is not given. No sequence-number column is ever added.
 """
 from __future__ import annotations
@@ -41,6 +42,9 @@ BAND_FILL = "FAFAFA"            # 中性灰第 1 阶：相邻分组交替底色
 GROUP_FILLS = ["E6F4FF", "F6FFED", "FFF7E6", "F9F0FF", "E6FFFB", "FFF0F6"]  # 官方色板各色第 1 阶，分组单元格轮换
 SIZES = {"title": 18, "header": 12, "body": 12}
 FORMATS = {"money": "#,##0.00", "number": "#,##0", "decimal": "#,##0.00", "percent": "0.0%", "date": "yyyy-mm-dd"}
+# Long text reads from the left, amounts compare by digit from the right, short values centre (visual-design.html 表格对齐).
+HORIZONTAL = {"longtext": "left", "money": "right"}
+INDENTED = {"longtext", "money"}
 SEQ_NAMES = {"序号", "编号序号", "行号", "#", "no", "no.", "序"}
 
 
@@ -128,7 +132,8 @@ def build(spec: dict, out: Path) -> Path:
             if types[k] in FORMATS:
                 cell.number_format = FORMATS[types[k]]
             long = types[k] == "longtext"
-            cell.alignment = Alignment(horizontal="left" if long else "center", vertical="center", wrap_text=long, indent=1 if long else 0)
+            cell.alignment = Alignment(horizontal=HORIZONTAL.get(types[k], "center"), vertical="center", wrap_text=long,
+                                       indent=1 if types[k] in INDENTED else 0)
 
     # Vertical merges, hierarchical: a child column merges only inside its parent's run.
     bounds = [(0, len(rows) - 1)] if rows else []
@@ -142,7 +147,8 @@ def build(spec: dict, out: Path) -> Path:
             if depth == 0:
                 cell.fill = PatternFill("solid", fgColor=GROUP_FILLS[g % len(GROUP_FILLS)])
             cell.font = font(SIZES["body"], depth == 0)
-            cell.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
+            cell.alignment = Alignment(horizontal="right" if types[k] == "money" else "center", vertical="center", wrap_text=True,
+                                       indent=1 if types[k] == "money" else 0)
             if b > a:
                 ws.merge_cells(start_row=first + a, start_column=k + 1, end_row=first + b, end_column=k + 1)
         bounds = runs
@@ -169,7 +175,8 @@ def build(spec: dict, out: Path) -> Path:
             cell.font = font(SIZES["body"], True)
             cell.fill = PatternFill("solid", fgColor=TOTAL_FILL)
             cell.border = border
-            cell.alignment = Alignment(horizontal="center", vertical="center")
+            money = k - 1 < len(types) and types[k - 1] == "money" and k > len(merge_cols)
+            cell.alignment = Alignment(horizontal="right" if money else "center", vertical="center", indent=1 if money else 0)
         if merge_cols:
             ws.merge_cells(start_row=tr, start_column=1, end_row=tr, end_column=len(merge_cols))
         last = tr
@@ -178,7 +185,7 @@ def build(spec: dict, out: Path) -> Path:
     for k in range(n):
         values = [columns[k]["name"]] + [FORMULA_SAMPLE.get(types[k], "99,999") if isinstance(v, str) and v.startswith("=") else v for v in (r[k] for r in rows)]
         width = max(display_width(v if types[k] not in ("money", "decimal") else f"{v:,.2f}" if isinstance(v, (int, float)) else v) for v in values) + 4
-        width += 2 if types[k] == "longtext" else 0  # one indent level
+        width += 2 if types[k] in INDENTED else 0  # one indent level
         cap = 40 if types[k] == "longtext" else 30
         ws.column_dimensions[get_column_letter(k + 1)].width = max(10, min(cap, width))
     for i, r in enumerate(rows):

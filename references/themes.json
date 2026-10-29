@@ -1,6 +1,6 @@
 {
-  "version": "2026-10-29.v8",
-  "note": "行业主题表。颜色为语义 token 的起始值，JSON 键 camelCase 对应 Figma/WXSS 的 kebab-case（ink2 = ink-2，navBg = nav-bg）。规则：canvas 用浅白、极浅灰的中性色或主色同色相的极浅底（亮度 >= 0.85），navBg 用白底或主色浅底阶纯色，都不用渐变与纹理；主色与辅色从公开设计体系的官方色板取阶（Ant Design、TDesign 等），阶数从最浅的第 1 阶数起（Ant Design 页面从 0 编号，其第 0 阶即第 1 阶）：action 取白字达 4.5:1 的一阶（品牌阶，第 6 阶附近），actionPress 深一阶，actionTint 取第 1 阶作容器底；scale 给出整列 10 阶，界面只用第 1、2–3、品牌、按下与第 9 阶；modules 是一级模块的点缀色（tint 第 1 阶、mid 第 2 阶、solid 为该列第一个对白底达 4.5:1 的一阶），一个颜色只代表一个模块，色相与成功、警告、危险相差至少 25 度；营销按钮用 accentTint 容器底配 accent 文字（Material 3 色调按钮）；白字只落在 action / actionPress / success / danger / warning 与品牌主卡（action 实色）上；navBg 上只放 ink 文字与图标。shared.elevation 是五级层级的阴影令牌（近处锐利小阴影 + 远处柔和大阴影，颜色为中性深色，可换成主题第 10 阶的同透明度暗调）。dark 为可选深色映射，未提供则该主题不得开启深色模式。换主题只替换 Color/* 变量，结构不变。",
+  "version": "2026-10-29.v9",
+  "note": "行业主题表。颜色为语义 token 的起始值，JSON 键 camelCase 对应 Figma/WXSS 的 kebab-case（ink2 = ink-2，navBg = nav-bg）。规则：canvas 用浅白、极浅灰的中性色或主色同色相的极浅底（亮度 >= 0.85），navBg 用白底或主色浅底阶纯色，都不用渐变与纹理；主色与辅色从公开设计体系的官方色板取阶（Ant Design、TDesign 等），阶数从最浅的第 1 阶数起（Ant Design 页面从 0 编号，其第 0 阶即第 1 阶）：action 取白字达 4.5:1 的一阶（品牌阶，第 6 阶附近），actionPress 深一阶，actionTint 取第 1 阶作容器底；scale 给出整列 10 阶，界面只用第 1、2–3、品牌、按下与第 9 阶；modules 是一级模块的点缀色（tint 第 1 阶、mid 第 2 阶、solid 为该列第一个对白底达 4.5:1 的一阶），一个颜色只代表一个模块，色相与成功、警告、危险相差至少 25 度；营销按钮用 accentTint 容器底配 accent 文字（Material 3 色调按钮）；白字只落在 action / actionPress / success / danger / warning 与品牌主卡（action 实色）上；navBg 上只放 ink 文字与图标。shared.elevation 是五级层级的阴影令牌（近处锐利小阴影 + 远处柔和大阴影，颜色为中性深色，可换成主题第 10 阶的同透明度暗调）。dark 为可选深色映射，未提供则该主题不得开启深色模式。换主题只替换 Color/* 变量，结构不变。b2b-graphite 是面向企业的数据与获客工具后台专用的石墨主题：主按钮用近黑的锌灰实色，accent 在本主题只作链接与焦点色、不作营销辅色，elevationCard 为 hairline 时静止卡片只用发丝线、悬停与浮层仍按层级令牌；其他行业不用。",
   "shared": {
     "surface": "#FFFFFF",
     "ink": "#2B2326",
@@ -411,6 +411,26 @@
         "line": "#3A2A22"
       },
       "source": "Ant Design 官方色板：火山 volcano 作主色（volcano-6 #D4380D 白字 4.8:1，悬停 volcano-5 #FA541C，按下 volcano-7 #AD2102，浅底 volcano-0 #FFF2E8）；营销取邻近色金盏花 gold（文字 gold-8 #874D00，容器 gold-0 #FFFBE6 / gold-1 #FFF1B8，描边 gold-2 #FFE58F）"
+    },
+    "b2b-graphite": {
+      "label": "石墨工具",
+      "industry": "企业软件",
+      "subtype": "面向企业的数据与获客工具后台",
+      "positioning": "克制、专业 · 高频数据工作",
+      "action": "#27272A",
+      "actionPress": "#18181B",
+      "actionTint": "#F4F4F5",
+      "canvas": "#FAFAFA",
+      "navBg": "#FFFFFF",
+      "accent": "#2563EB",
+      "accentTint": "#EFF6FF",
+      "titleWeight": "Medium",
+      "radiusCard": 12,
+      "radiusButton": 8,
+      "elevationCard": "hairline",
+      "imageStyle": "不用生成的装饰图案；需要配图时用产品界面局部或数据图表",
+      "avoid": "卡通形象、立体或生成的装饰图案、彩色底块状态、渐变",
+      "source": "锌灰取自 Tailwind CSS 默认色板 zinc 列：50 #FAFAFA 作页面底、100 #F4F4F5 作浅底、800 #27272A 作主按钮（白字 14.9:1）、900 #18181B 作按下；链接与焦点取 blue-600 #2563EB（对白 5.2:1）与 blue-50 #EFF6FF；状态用小圆点加文字；用户 2026-10-29 在石墨、雾蓝、青石三个方向中选定石墨。"
     }
   }
 }

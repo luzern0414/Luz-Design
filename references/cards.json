@@ -12,16 +12,15 @@
       "sections": [
         {"page": "file-design.html", "title": "文件设计规范", "path": ["核心规则", "所有格式的共同底线"]},
         {"page": "file-design.html", "title": "文件设计规范", "path": ["核心规则", "表格文件"]},
-        {"page": "file-design.html", "title": "文件设计规范", "path": ["案例样本", "单工作表表格"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "主题色系统"], "max_chars": 2500}
+        {"page": "file-design.html", "title": "文件设计规范", "path": ["案例样本", "单工作表表格"]}
       ],
       "tools": [
         "先写描述文件 spec.json，再运行 `py -X utf8 scripts/make_xlsx.py spec.json <输出.xlsx>`；脚本写完会自动检查，有 ERROR 就改到通过",
-        "要放进会话时：`py -X utf8 scripts/new_session.py --name \"<名称>\" --modes document`，成品放会话根目录并以会话名命名"
+        "要放进会话时：`py -X utf8 scripts/new_session.py --name \"<名称>\" --modes document --card xlsx`；描述文件留在 `raw/03-documents/`，成品检查通过后复制到会话根目录并以会话名命名"
       ],
       "checks": [
         "`py -X utf8 scripts/check_document.py <输出.xlsx>` 零 ERROR",
-        "用 WPS 或 Excel 打开实物核对：单工作表、无序号列、分组名纵向合并、12 磅起、浅色层次、冻结表头、打印设置"
+        "用 WPS 或 Excel 打开实物核对：单工作表、无序号列、分组名纵向合并、12 磅起、浅色层次、金额列右对齐、冻结表头、打印设置"
       ]
     },
     "docx": {
@@ -35,11 +34,12 @@
       ],
       "tools": [
         "先写描述文件 spec.json（type: contract | proposal | report | minutes | general；用户要论文版式时加 \"style\": \"paper\"，标题编号 \"number_format\": \"1、\" 或 \"1.\"），再运行 `py -X utf8 scripts/make_docx.py spec.json <输出.docx>`；脚本写完会自动检查",
-        "文字内容来自用户或 Luz-Writing；本技能只负责结构与版式"
+        "文字内容来自用户或 Luz-Writing；本技能只负责结构与版式",
+        "要放进会话时：`py -X utf8 scripts/new_session.py --name \"<名称>\" --modes document --card docx`；描述文件留在 `raw/03-documents/`，成品检查通过后复制到会话根目录并以会话名命名"
       ],
       "checks": [
         "`py -X utf8 scripts/check_document.py <输出.docx>` 零 ERROR（论文版式加 --allow paper，公文格式加 --allow official）",
-        "导出 PDF 核对分页、页码“第几页 共几页”、签署栏、金额大写"
+        "导出 PDF 核对分页、页码“第几页 共几页”、签署栏、金额大写与金额列右对齐"
       ]
     },
     "reading-html": {
@@ -75,8 +75,14 @@
         {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "配色"]},
         {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "图形：一套线性图标"]}
       ],
-      "tools": ["幻灯片版式按本卡；文字来自用户或 Luz-Writing"],
-      "checks": ["`py -X utf8 scripts/check_document.py <文件.pptx>` 零 ERROR", "逐页放映核对：每页一个结论、字号不小于规范、无装饰性立体元素"]
+      "tools": [
+        "幻灯片版式按本卡；文字来自用户或 Luz-Writing",
+        "要放进会话时：`py -X utf8 scripts/new_session.py --name \"<名称>\" --modes document --card slides`；成品检查通过后复制到会话根目录并以会话名命名（`.pptx`）"
+      ],
+      "checks": [
+        "`py -X utf8 scripts/check_document.py <文件.pptx>` 零 ERROR",
+        "逐页放映核对：每页一个结论、字号不小于规范、无装饰性立体元素"
+      ]
     },
     "pdf-markdown": {
       "title": "PDF 与 Markdown",
@@ -85,17 +91,30 @@
       "sections": [
         {"page": "file-design.html", "title": "文件设计规范", "path": ["核心规则", "所有格式的共同底线"]},
         {"page": "file-design.html", "title": "文件设计规范", "path": ["核心规则", "便携式文档"]},
-        {"page": "file-design.html", "title": "文件设计规范", "path": ["核心规则", "标记文本文件"]}
+        {"page": "file-design.html", "title": "文件设计规范", "path": ["核心规则", "标记文本文件"]},
+        {"page": "file-design.html", "title": "文件设计规范", "path": ["核心规则", "文字文档", "页面与字体"]},
+        {"page": "file-design.html", "title": "文件设计规范", "path": ["核心规则", "文字文档", "表格与图片"]},
+        {"page": "file-design.html", "title": "文件设计规范", "path": ["核心规则", "文字文档", "同类问题"]},
+        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "二、排版基础", "文字纪律", "删除测试"]},
+        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "二、排版基础", "文字纪律", "第一行就是主标题"]},
+        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "二、排版基础", "文字纪律", "同类问题"]}
       ],
-      "tools": ["PDF 从 Word 或网页导出；Markdown 直接按本卡书写"],
-      "checks": ["`py -X utf8 scripts/check_document.py <文件>` 零 ERROR"]
+      "tools": [
+        "PDF 从 Word 或网页导出，不手工拼截图；先让源文件（`.docx` 或网页）通过 `check_document.py`，再导出",
+        "Markdown 直接按本卡书写",
+        "要放进会话时：`py -X utf8 scripts/new_session.py --name \"<名称>\" --modes document --card pdf-markdown`；成品核对后复制到会话根目录并以会话名命名"
+      ],
+      "checks": [
+        "Markdown：`py -X utf8 scripts/check_document.py <文件.md>` 零 ERROR",
+        "PDF：`check_document.py` 不读 PDF（报 SKIP）；用 PyMuPDF 核对页面尺寸、书签层级、字体嵌入与文字层，再逐页渲染目检分页、单字末行和页底孤立表头"
+      ]
     },
     "poster": {
       "title": "海报、品牌主视觉与宣传图",
       "summary": "独立视觉会话：活动海报、主视觉、宣传图、生图",
       "keywords": ["海报", "主视觉", "宣传", "生图", "Imagegen", "配色"],
       "sections": [
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "扁平线性风格"], "max_chars": 1660},
+        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "扁平线性风格", "做法与边界"]},
         {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "配色"]},
         {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "主题色系统", "主色按行业气质选择"]},
         {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "主题色系统", "取色依据"]},
@@ -107,33 +126,52 @@
       ],
       "tools": [
         "`py -X utf8 scripts/new_session.py --name \"<活动名>海报\" --modes visual --standalone-poster`",
-        "生图提示词从 `references/prompt-image.txt` 写；`D:\\Codes\\Imagegen\\src\\imagegen.py` 先空跑，一次只发一张，按次计费"
+        "生图提示词从 `references/prompt-image.txt` 写；`D:\\Codes\\Imagegen\\src\\imagegen.py` 先空跑，一次只发一张，按次计费",
+        "实拍优先；生图超时不自动重试：先查服务的已有记录，没有结果就改用矢量图形"
       ],
-      "checks": ["视觉稿 `raw/02-visual/visual-board.html` 经用户批准后再发布", "`py -X utf8 scripts/check_document.py <成品>` 零 ERROR；`py -X utf8 scripts/check_contrast.py` 通过"]
+      "checks": [
+        "视觉稿 `raw/02-visual/visual-board.html` 经用户批准后再发布",
+        "`py -X utf8 scripts/check_document.py <成品>` 零 ERROR；`py -X utf8 scripts/check_contrast.py` 通过"
+      ]
     },
     "interface-visual": {
       "title": "界面视觉（配色、字体角色、图标与插画、层级与立体感、密度与表格对齐）",
-      "summary": "任何后台、小程序、网站、智能体界面的视觉层；行为规则在 Luz-System",
+      "summary": "仅用于审阅或修改界面的视觉层（配色、字阶、图标插画、层级、密度与对齐）；做界面本身用 Luz-System 的规则卡",
       "keywords": ["界面", "后台", "字号", "字重", "密度", "表格", "对齐", "分页", "图标", "插画", "头像", "阴影", "层级", "立体", "卡片", "对话框"],
       "sections": [
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "扁平线性风格"], "max_chars": 1660},
+        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "扁平线性风格", "做法与边界"]},
         {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "配色"]},
         {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "字体与字号", "字体族必须统一"]},
         {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "字体与字号", "字阶：按产品类型各用一套"]},
         {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "字体与字号", "七级字体角色"]},
+        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "字体与字号", "小程序紧凑用法"]},
         {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "图形：一套线性图标"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "插画：多层扁平"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "层级与立体感"], "max_chars": 2647},
+        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "层级与立体感", "原则"]},
+        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "层级与立体感", "五级层级"]},
+        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "层级与立体感", "卡片"]},
+        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "层级与立体感", "对话框与面板"]},
+        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "层级与立体感", "按钮的立体感"]},
+        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "层级与立体感", "圆角"]},
         {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "二、排版基础", "间距与栅格"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "二、排版基础", "界面密度与表格对齐"], "max_chars": 1272}
+        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "二、排版基础", "营销区的不规则排版"]},
+        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "二、排版基础", "界面密度与表格对齐", "字号与密度"]},
+        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "二、排版基础", "界面密度与表格对齐", "表格对齐与缩进"]},
+        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "二、排版基础", "界面密度与表格对齐", "分页"]},
+        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "二、排版基础", "检查脚本的认定"]}
       ],
       "tools": [
         "颜色、页面底色、模块点缀色与层级令牌取自 `references/themes.json`（主题与 `shared.elevation`），每次重读，不沿用上一个项目或模板的默认值",
         "标签页图标与页头品牌标识用 `py -X utf8 scripts/new_session.py icon \"<系统名>\"` 生成（规则见 visual-design.html › 网页图标与品牌标识）",
         "界面的结构、默认视图、筛选、分页、驾驶舱、导出等行为规则先运行 Luz-System 的 `py -X utf8 D:\\Codes\\Luz-System\\scripts\\context.py list` 选对应规则卡",
-        "动手前用 Luz-Crawl 查参考组件库（Ant Design、TDesign、Arco、Semi、Element Plus、Vant、NutUI、Carbon）对应组件的默认值、尺寸与状态"
+        "动手前查参考组件库（Ant Design、TDesign、Arco、Semi、Element Plus、Vant、NutUI、Carbon）对应组件的默认值、尺寸与状态；调研按 Luz-Crawl 的调用协议：doctor → `begin \"<主题>\" --new` → `experience --query` → 每条命令带 `--out <任务目录>`",
+        "本卡未收全文的小节（插画：多层扁平、层级与立体感的边缘线条与层级依据、网页图标与品牌标识）在用到时读 `references/visual-design.html` 原文"
       ],
-      "checks": ["`py -X utf8 scripts/check_document.py <页面.html> --allow interface` 零 ERROR", "`py -X utf8 scripts/check_contrast.py` 通过", "按 visual-design.html › 问题的同类判断 逐类自检（含层级扁平、图形单薄、字体层级不全），结果写进 BRIEF 的“采用的规则”", "浏览器在 1440×900 与 390 宽截图核对密度、对齐、字体角色、图标与层级"]
+      "checks": [
+        "`py -X utf8 scripts/check_document.py <页面.html> --allow interface`（网站加 `--allow website`）零 ERROR",
+        "`py -X utf8 scripts/check_contrast.py` 通过",
+        "按 visual-design.html › 问题的同类判断 逐类自检（含层级扁平、图形单薄、字体层级不全），结果写进 BRIEF 的“采用的规则”",
+        "浏览器在 1440×900 与 390 宽截图核对密度、对齐、字体角色、图标与层级"
+      ]
     },
     "palette": {
       "title": "配色与主题",
@@ -143,8 +181,14 @@
         {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "配色"]},
         {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "主题色系统"]}
       ],
-      "tools": ["行业主题见 `references/themes.json`；官方色板用 Luz-Crawl 查后取阶"],
-      "checks": ["`py -X utf8 scripts/check_contrast.py` 通过", "回复里写明每个颜色取自哪套色板第几阶"]
+      "tools": [
+        "行业主题见 `references/themes.json`；官方色板查到后按“取色依据”取阶",
+        "调研按 Luz-Crawl 的调用协议：doctor → `begin \"<主题>\" --new` → `experience --query` → 每条命令带 `--out <任务目录>`"
+      ],
+      "checks": [
+        "`py -X utf8 scripts/check_contrast.py` 通过",
+        "回复里写明每个颜色取自哪套色板第几阶"
+      ]
     }
   }
 }

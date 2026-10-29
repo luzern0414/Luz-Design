@@ -21,10 +21,11 @@ from typing import Iterable
 from urllib.parse import unquote, urlparse
 
 SESSION_RE = re.compile(r"^(\d{3,})-(.+)$")
-# A session folder holds exactly one final deliverable named after the folder (.html, .xlsx or .docx), plus raw/
-# with every working file: brief, prompts, references, generated images, document sources, approvals and manifest.
+# A session folder holds exactly one final deliverable named after the folder, plus raw/ with every working file: brief,
+# rule cards, prompts, references, generated images, document sources, approvals and manifest. HTML is published with
+# publish.py; spreadsheets, Word, slides, PDF, Markdown and poster images are copied there after their checks pass.
 RAW_DIR = "raw"
-FINAL_SUFFIXES = (".html", ".xlsx", ".docx")
+FINAL_SUFFIXES = (".html", ".xlsx", ".docx", ".pptx", ".pdf", ".md", ".png", ".jpg", ".jpeg", ".webp")
 PUBLISHABLE_STAGES = ("visual", "document")
 
 
@@ -67,10 +68,6 @@ LEGACY_SYSTEM_STAGES = ("module_scope", "research", "architecture", "system_desi
 # Folders of the old system engine; a Luz Design session never contains them.
 SYSTEM_DIRS = ("01-system", "03-prototype", "04-hardware")
 SHA256_RE = re.compile(r"^[a-f0-9]{64}$")
-SMALL_ELEMENT_TOKENS = (".mark", ".icon", ".avatar", ".badge", ".pill", ".status", ".chip", ".tag", ".logo", ".corner",
-                        ".coin", ".dot", ".kk", ".steps", ".copy i", ".check", ".box", "::before", "::after", "button", "input", "svg",
-                        # data marks: checkbox fills, check marks, progress and ranking bar fills, heat-map cells
-                        ".cbox", "-mark", "bar i", ".bar-fill", ".rb i", ".heat i", ".progress i")
 
 
 @dataclass
@@ -539,10 +536,12 @@ def validate_light_html(path: Path, errors: list[str], min_px: float = 14.0) -> 
             opening = style.rfind("{", 0, match.start())
             selector = style[style.rfind("}", 0, opening) + 1:opening].split("@media")[-1] if opening >= 0 else ""
             raw_selector = selector.strip()
-            selector = raw_selector.casefold()
-            # Solid colour is allowed on elements smaller than a line of text (visual-design.html, 配色): marks, icons,
-            # avatars, badges, chips, tags, logos, corner labels, step pills, coins, pseudo-element bars and controls.
-            small_control = any(token in selector for token in SMALL_ELEMENT_TOKENS) or selector_styles_controls(raw_selector, root)
+            # Solid colour is allowed on elements smaller than a line of text and on controls (visual-design.html 配色);
+            # the same size-and-class rule as check_document.py decides.
+            from check_document import small_fill
+            closing = style.find("}", opening) if opening >= 0 else -1
+            rule_body = style[opening + 1:closing] if opening >= 0 and closing > opening else ""
+            small_control = small_fill(raw_selector, rule_body) or selector_styles_controls(raw_selector, root)
             if not small_control:
                 errors.append(f"{path.name} contains a dark background color: {match.group(1).strip()}")
     body_rules = []
@@ -596,8 +595,8 @@ def validate_session_root(folder: Path, errors: list[str]) -> None:
             present.append(item.name)
             continue
         errors.append(
-            f"session folder may only contain one final deliverable ({folder.name}.html, .xlsx or .docx) "
-            f"and {RAW_DIR}/; found {item.name}"
+            f"session folder may only contain one final deliverable ({folder.name} with one of "
+            f"{', '.join(FINAL_SUFFIXES)}) and {RAW_DIR}/; found {item.name}"
         )
     if len(present) > 1:
         errors.append("session folder holds more than one final deliverable: " + ", ".join(sorted(present)))
@@ -736,7 +735,7 @@ def validate(session: Path, strict: bool = False) -> list[str]:
             errors.append("MANIFEST.json has an invalid session_kind")
         poster_session = session_kind == "standalone_poster"
         if not legacy:
-            delivered = any((folder / f"{folder.name}{ext}").is_file() for ext in (".html", ".xlsx", ".docx"))
+            delivered = any((folder / f"{folder.name}{ext}").is_file() for ext in FINAL_SUFFIXES)
             errors.extend(rule_card_errors(session, require_adopted=delivered or strict, check_current=strict))
             if delivered or strict:
                 errors.extend(sediment_errors(session, str(manifest.get("created_at", ""))[:10]))

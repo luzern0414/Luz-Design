@@ -10,6 +10,10 @@ Every call of this skill starts here:
   py -X utf8 scripts/context.py check                      verify every card resolves to existing rule sections
 
 Cards are defined in references/cards.json; rule text is extracted from the rule pages at run time, so it never drifts.
+
+The code between the two "shared rule-card core" marker lines is the master copy for every Luz skill with rule cards
+(Luz-System, Luz-Dev, Luz-Writing). Change it here only, then run `py -X utf8 scripts/sync_rule_core.py --write`;
+`sync_rule_core.py` without arguments only reports which copies differ.
 """
 from __future__ import annotations
 

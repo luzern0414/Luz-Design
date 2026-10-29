@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
-"""Copy the shared rule-card core from this skill's scripts/context.py into the other Luz skills, byte for byte.
+"""Check (default) or copy the shared rule-card core of scripts/context.py into the other Luz skills, byte for byte.
 
-  py -X utf8 scripts/sync_rule_core.py            copy the core into every sibling skill that has a rule-card script
-  py -X utf8 scripts/sync_rule_core.py --check    report which copies differ; exit 1 when any does
+Luz-Design holds the master copy of the code between the two "shared rule-card core" marker lines. Edit it here only,
+then copy it into Luz-System, Luz-Dev and Luz-Writing with --write; their own validators fail while a copy differs.
+
+  py -X utf8 scripts/sync_rule_core.py            report SAME or DIFF for every sibling copy; exit 1 when any differs
+  py -X utf8 scripts/sync_rule_core.py --write    replace each sibling's core with this one (writes into the other repos)
 
 Only the text between the two marker lines is replaced; each skill keeps its own docstring and cards.json.
 """
@@ -32,7 +35,9 @@ def core(data: bytes) -> tuple[int, int]:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--check", action="store_true")
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument("--check", action="store_true", help="report which copies differ without writing (the default)")
+    mode.add_argument("--write", action="store_true", help="copy this skill's core into every sibling that differs")
     args = parser.parse_args(argv)
     source = (SKILL_ROOT / "scripts" / "context.py").read_bytes()
     s0, s1 = core(source)
@@ -49,12 +54,14 @@ def main(argv: list[str] | None = None) -> int:
             print(f"SAME {skill}")
             continue
         differ += 1
-        if args.check:
-            print(f"DIFF {skill}: {target}")
-        else:
+        if args.write:
             target.write_bytes(data[:t0] + block + data[t1:])
             print(f"SYNCED {skill}: {target}")
-    return 1 if args.check and differ else 0
+        else:
+            print(f"DIFF {skill}: {target}")
+    if differ and not args.write:
+        print("run with --write to copy the Luz-Design core into the copies that differ")
+    return 1 if differ and not args.write else 0
 
 
 if __name__ == "__main__":

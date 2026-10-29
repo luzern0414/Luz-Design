@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Check a delivered HTML, XLSX, DOCX, PPTX, or Markdown file against references/file-design.html.
+"""Check a delivered HTML, XLSX, DOCX, PPTX, or Markdown file against references/file-design.html and visual-design.html.
+A PDF is reported as SKIP: it is checked with PyMuPDF and page renders (file-design.html 便携式文档).
 
 The checks follow the problem families in references/visual-design.html (删除测试 and 问题的同类判断), not a fixed
 word list. The patterns still catch only common wordings, so a clean run is necessary, not sufficient:
@@ -18,11 +19,11 @@ from pathlib import Path
 # metadata lines live, so the same words quoted inside long body text are not reported.
 FAMILY_PATTERNS = [
     (r"\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}(?::\d{2})?(?:\.\d+)?Z?", "timestamp", True),
-    (r"(?:生成|更新|修改|编制|导出|发布)(?:于|时间|日期)|最后(?:更新|修改)|(?:本(?:页面|页|文档|文|报告|表格|表|方案|清单)|此(?:页|文|表))[^。，,；;！？!?\n]{0,6}由[^。，,；;！？!?\n]{1,12}(?:生成|整理|撰写|编制|制作)|由\s*(?:AI|人工智能|Claude|ChatGPT|GPT|大模型|模型|智能体|AI\s?助手|Codex|Luz)[^。，,；;！？!?\n]{0,8}(?:生成|整理|撰写|编制|制作)|^\s*由[^。，,；;！？!?\n]{1,12}(?:生成|整理|撰写|编制|制作)\s*$|"
-     r"版本[号:：]|编制人|制表人|审核人|作者[:：]|阅读(?:时长|时间)|字数[:：]|智能生成|人工智能生成|提示词|"
+    (r"(?:生成|更新|修改|编制|导出|发布)于|最后(?:更新|修改)|(?:本(?:页面|页|文档|文|报告|表格|表|方案|清单)|此(?:页|文|表))[^。，,；;！？!?\n]{0,6}由[^。，,；;！？!?\n]{1,12}(?:生成|整理|撰写|编制|制作)|由\s*(?:AI|人工智能|Claude|ChatGPT|GPT|大模型|模型|智能体|AI\s?助手|Codex|Luz)[^。，,；;！？!?\n]{0,8}(?:生成|整理|撰写|编制|制作)|^\s*由[^。，,；;！？!?\n]{1,12}(?:生成|整理|撰写|编制|制作)\s*$|"
+     r"编制人|制表人|审核人|作者[:：]|阅读(?:时长|时间)|字数[:：]|智能生成|人工智能生成|"
      r"Generated|Last updated|Created by|Powered by|Author:", "production metadata", False),
-    (r"数据来源|信息来源|来源[:：]|去重来源|来源(?:统计|数量|索引|目录)|\d+\s*个(?:来源|官方页面|网页|链接)|官方页面|"
-     r"采集(?:日期|时间|状态|范围)|证据(?:部分|状态|等级)|部分获取|(?:资料|信息|来源|数据|内容|事实)(?:已核验|核验通过|校验通过|已校验)|哈希|SHA-?256|"
+    (r"数据来源|信息来源|来源[:：]|去重来源|来源(?:统计|数量|索引|目录)|\d+\s*个(?:来源|官方页面|网页|链接)|"
+     r"采集(?:日期|时间|状态|范围)|证据(?:部分|状态|等级)|部分获取|(?:资料|信息|来源|数据|内容|事实)(?:已核验|核验通过|校验通过|已校验)|"
      r"以官方(?:信息|公告)?为准|信息可能(?:不完整|有误|存在)|免责声明", "source metadata", False),
     (r"(?<![A-Za-z])raw/|单页\s*HTML|单页总结|本文件|[A-Za-z]:\\\S+|输出目录|源文件目录", "file metadata", False),
     (r"Design reference|设计参考|Luz Design|Admin SPEC|参考.{0,8}(?:规范|主题)(?:设计|制作)|"
@@ -41,7 +42,18 @@ FAMILY_PATTERNS = [
     (r"全网最|最全|史上最|高质量(?:报告|内容|文档)|权威(?:指南|报告)|深度(?:好文|解析)|震撼", "self-evaluation", False),
 ]
 FAMILY_PATTERNS = [(re.compile(p, re.I | re.M), family, short) for p, family, short in FAMILY_PATTERNS]
-FAMILIES = sorted({family for _, family, _ in FAMILY_PATTERNS} | {"note", "emoji"})
+# Words that are metadata on a label line but ordinary topics in prose: an article about prompts, a release note with its
+# version and release time, a security post about SHA-256 (visual-design.html 文字纪律, 边界). They are reported only in metadata-shaped
+# blocks: a "label: value" line whose label holds the word, a footer, time or small element, or a short fragment that
+# is not a sentence (<= 80 characters, no sentence punctuation). Titles and body sentences may discuss them.
+META_TERMS = [
+    (re.compile(r"版本号|版本[:：]|提示词|(?:生成|更新|修改|编制|导出|发布)(?:时间|日期)", re.I), "production metadata"),
+    (re.compile(r"官方页面|哈希|SHA-?256", re.I), "source metadata"),
+]
+META_LABEL = re.compile(r"^\s*([^，。！？；：:\s][^，。！？；：:]{0,15}?)\s*[:：]")
+SENTENCE = re.compile(r"[，。！？；]|[.!?;](?:\s|$)")
+META_CONTAINERS = {"footer", "time", "small"}
+FAMILIES = sorted({family for _, family, _ in FAMILY_PATTERNS} | {family for _, family in META_TERMS} | {"note", "emoji"})
 NOTE_PREFIX = re.compile(r"^\s*(?:说明|注|注意|提示|备注|补充|温馨提示|小贴士|注意事项|建议|Tips?|PS|Note)\s*[:：]", re.I)
 EMOJI = re.compile(r"[\U0001F300-\U0001FAFF☀-➿⭐⭕■-◿]")
 # Unrequested accessory sections (file-design.html, 同类问题 for documents and slides).
@@ -49,8 +61,16 @@ ACCESSORY_HEADING = re.compile(
     r"^(?:\S{0,4}[、.．]?\s*)?(?:摘要|前言|序言|编写(?:说明|目的)|阅读(?:指南|说明)|使用说明|修订记录|版本(?:信息|记录|历史)|"
     r"更新(?:记录|日志)|免责声明|致谢|术语表|关于本(?:文档|报告|文)|本章小结|小结|参考来源|数据来源|附录说明)$")
 FILLER_SLIDE = re.compile(r"^(?:目录|议程|大纲|内容提要|谢谢|感谢|谢谢观看|感谢聆听|问答|答疑|结束|结语|关于我们|附录|Q\s*&\s*A|Thanks?|Agenda)[!！。]*$", re.I)
-GRAPHIC_SELECTOR = re.compile(r"svg|\.icon|frame|illustration|\.empty|chart|star|\.kk|\.logo|face|ring|scan", re.I)
-DARK_SMALL_SELECTOR = re.compile(r"\.(?:dot|icon|legend|bar|badge|pill|status|progress|chip|tag|logo|corner|coins?|kk|steps|mark|avatar|check|box|ring|scan|cbox|heat|rb)\b|-(?:mark|bar)\b|\.copy i|::?(?:before|after|marker)|svg|button|input", re.I)
+GRAPHIC_SELECTOR = re.compile(r"svg|\.icon|frame|illustration|\.empty|chart|star|\.logo|face|ring|scan", re.I)
+# Solid fills are allowed on elements smaller than a line of text (visual-design.html 配色, 深色的使用范围). The size a rule
+# declares decides first; the class only helps when no size is given. The last word of a class names the object
+# (top-bar → bar, status-dot → dot): small object words pass, the ambiguous bar and box pass only with a small declared
+# size, and anything declared at 32px or taller is a container whatever its name.
+SMALL_NOUNS = {"dot", "dots", "icon", "ico", "legend", "badge", "pill", "status", "progress", "chip", "tag", "logo", "corner",
+               "coin", "coins", "step", "steps", "mark", "avatar", "check", "checkbox", "radio", "switch", "toggle", "ring",
+               "scan", "knob", "thumb", "swatch", "indicator", "bullet", "caret", "spark", "sparkline", "fill"}
+AMBIGUOUS_NOUNS = {"bar", "box", "line", "track"}
+SMALL_TAGS = {"i", "svg", "path", "circle", "rect", "line", "polyline", "polygon", "ellipse", "use", "g", "button", "input"}
 # Filled controls in their active state: primary and danger buttons, checked switches and boxes, selected options.
 ACTIVE_CONTROL_SELECTOR = re.compile(r"primary|danger|aria-checked=.?true|aria-pressed=.?true|\.on\b|ck-mark", re.I)
 # The one brand card per screen (visual-design.html 配色, 品牌主卡): a solid primary-step card with white text.
@@ -72,14 +92,87 @@ ALLOWED: set[str] = set()
 
 
 def FLOOR_PX() -> float:
-    """Reading pages keep 14px; interface prototypes (--allow interface) use the 12px annotation step."""
-    return 12.0 if "interface" in ALLOWED else 14.0
+    """Reading pages and websites keep 14px; interface pages (--allow interface) use the 12px auxiliary step."""
+    return 12.0 if "interface" in ALLOWED and "website" not in ALLOWED else 14.0
 
 
 # One shared scale for the function list, mini-program and admin of a product deliverable (visual-design.html, 字阶).
 INTERFACE_SCALE = {12, 14, 16, 18, 22, 28, 32}
-# Websites add the first-screen title steps (website-design.html, 六、视觉基础): 40 on desktop, 48 for a brand home page.
-WEBSITE_SCALE = INTERFACE_SCALE | {40, 48}
+# Websites and landing pages (visual-design.html 字阶, 网站与落地页): 14 at the least, 40 and 48 for first-screen titles.
+WEBSITE_SCALE = {14, 16, 18, 22, 28, 40, 48}
+
+
+def small_fill(selector: str, body: str, sizes: dict[str, tuple[float | None, float | None]] | None = None) -> bool:
+    """True when every selector in the group styles an element smaller than a line of text, or a control.
+    sizes maps a selector without states (size_key) to the height and width other rules declare for it, so a state rule
+    such as .cbox.on is judged by the size .cbox declares."""
+    parts = [p.strip() for p in selector.split(",") if p.strip()]
+    return bool(parts) and all(small_part(part, body, sizes or {}) for part in parts)
+
+
+STATE_CLASSES = {"on", "off", "active", "current", "cur", "selected", "checked", "done", "disabled", "open", "show",
+                 "hide", "hover", "focus", "is-active", "is-on", "is-selected", "is-checked"}
+
+
+def size_key(part: str) -> str:
+    """A selector without attribute tests, pseudo-classes, pseudo-elements and state classes."""
+    part = re.sub(r"\[[^\]]*\]|::?[\w-]+(?:\([^)]*\))?", "", part)
+    part = re.sub(r"\.([\w-]+)", lambda m: "" if m.group(1).lower() in STATE_CLASSES else m.group(0), part)
+    return re.sub(r"\s+", " ", part).strip()
+
+
+def declared_px(body: str, names: tuple[str, ...]) -> float | None:
+    values = []
+    for name in names:
+        for m in re.finditer(rf"(?:^|;)\s*{name}\s*:\s*(-?\d+(?:\.\d+)?)px", body, re.I):
+            values.append(float(m.group(1)))
+    return max(values) if values else None
+
+
+def declared_size(body: str) -> tuple[float | None, float | None]:
+    return (declared_px(body, ("height", "min-height", "max-height", "flex-basis")),
+            declared_px(body, ("width", "min-width", "max-width")))
+
+
+def class_nouns(compound: str) -> list[str]:
+    """The object word of each class in one compound selector: the last hyphen or underscore segment, digits dropped;
+    state classes (on, active, selected …) name no object."""
+    nouns = []
+    for cls in re.findall(r"\.([\w-]+)", compound):
+        if cls.lower() in STATE_CLASSES:
+            continue
+        segment = re.split(r"[-_]+", cls.lower().strip("-_"))[-1]
+        nouns.append(re.sub(r"\d+$", "", segment))
+    return nouns
+
+
+def small_part(part: str, body: str, sizes: dict[str, tuple[float | None, float | None]]) -> bool:
+    if re.search(r"::?(?:before|after|marker)\b", part, re.I):
+        return True
+    compounds = re.split(r"\s*[\s>+~]\s*", re.sub(r"\[[^\]]*\]|:[\w-]+(?:\([^)]*\))?", "", part).strip())
+    compounds = [c for c in compounds if c]
+    if not compounds:
+        return False
+    subject = compounds[-1]
+    tag = re.match(r"^[a-z][\w-]*", subject, re.I)
+    if tag and tag.group(0).lower() in SMALL_TAGS:
+        return True                     # icons, vector shapes and controls (buttons, inputs) at any size
+    height, width = declared_size(body)
+    if height is None and width is None:
+        height, width = sizes.get(size_key(part), (None, None))
+    if height is not None and height >= 32:
+        return False                    # a container, whatever its class is called
+    if height is not None and (height <= 20 or (width is not None and width <= 24 and height <= 24)):
+        return True
+    context = [n for c in compounds[:-1] for n in class_nouns(c)]
+    nouns = class_nouns(subject)
+    if nouns:
+        if any(n in SMALL_NOUNS for n in nouns):
+            return True
+        # An ambiguous part (bar, box, line, track) inside a small thing: the box of a check, the bar of a progress.
+        return any(n in AMBIGUOUS_NOUNS for n in nouns) and any(n in SMALL_NOUNS for n in context)
+    # A bare inner element (span, b, em) takes its size from its context: the fill inside a progress bar or a legend.
+    return any(n in SMALL_NOUNS or n in AMBIGUOUS_NOUNS for n in context)
 
 
 def luminance(rgb: tuple[int, int, int]) -> float:
@@ -207,17 +300,34 @@ def parse_colors(value: str) -> list[tuple[int, int, int]]:
     return colors
 
 
-def check_text(text: str, where: str, errors: list[str]) -> None:
+def check_text(text: str, where: str, errors: list[str], *, heading: bool = False, meta_line: bool = False,
+               terms: bool = True) -> None:
     for pattern, family, short_only in FAMILY_PATTERNS:
         if family in ALLOWED or (short_only and len(text) > 80):
             continue
         match = pattern.search(text)
         if match:
             errors.append(f"{where}: banned {family}: {match.group(0)!r}")
+    if terms:
+        check_meta_terms(text, where, errors, heading=heading, meta_line=meta_line)
     if "note" not in ALLOWED and NOTE_PREFIX.search(text):
         errors.append(f"{where}: note or advice prefix: {text.strip()[:40]!r}")
     if "emoji" not in ALLOWED and EMOJI.search(text):
         errors.append(f"{where}: emoji or decorative symbol: {EMOJI.search(text).group(0)!r}")
+
+
+def check_meta_terms(text: str, where: str, errors: list[str], *, heading: bool = False, meta_line: bool = False) -> None:
+    """Topic words count as metadata only in metadata-shaped blocks (META_TERMS)."""
+    if heading:
+        return
+    label = META_LABEL.match(text)
+    short_fragment = len(text) <= 80 and not SENTENCE.search(text)
+    for pattern, family in META_TERMS:
+        if family in ALLOWED:
+            continue
+        match = pattern.search(text)
+        if match and (meta_line or short_fragment or (label is not None and match.start() < label.end())):
+            errors.append(f"{where}: banned {family}: {match.group(0)!r}")
 
 
 def check_heading(text: str, where: str, errors: list[str]) -> None:
@@ -237,12 +347,20 @@ class Outline(HTMLParser):
               "caption", "summary", "dt", "dd", "header", "nav", "aside", "footer", "time", "strong", "em",
               "small", "label", "button", "section", "article", "main", "blockquote", "pre", "code"}
 
+    # The nearest of these holds a fragment's paragraph: topic words are judged on the whole paragraph (META_TERMS).
+    PARAGRAPHS = {"h1", "h2", "h3", "h4", "h5", "h6", "p", "li", "td", "th", "dt", "dd", "figcaption", "caption", "summary",
+                  "blockquote", "pre", "label", "button", "div", "section", "article", "main", "header", "footer", "aside",
+                  "nav", "time", "small"}
+
     def __init__(self) -> None:
         super().__init__(convert_charrefs=True)
-        self.stack: list[tuple[str, bool, bool]] = []
+        self.stack: list[tuple[str, bool, bool, int]] = []
         self.blocks: list[tuple[str, str, tuple[str, ...], bool]] = []
+        # paragraph id -> [tag, unquoted fragments, ancestor tags]
+        self.paragraphs: dict[int, list] = {}
         self.styles: list[str] = []
         self.in_style = False
+        self.counter = 0
 
     def handle_starttag(self, tag, attrs):
         attrs = dict(attrs)
@@ -261,7 +379,8 @@ class Outline(HTMLParser):
         # is product content, not document metadata.
         version = "interface" in ALLOWED and bool(re.search(r"version", f'{attrs.get("class") or ""} {attrs.get("id") or ""}', re.I))
         quoted = "data-quoted" in attrs or tag in {"blockquote", "q"} or version or bool(self.stack and self.stack[-1][2])
-        self.stack.append((tag, hidden or bool(self.stack and self.stack[-1][1]), quoted))
+        self.counter += 1
+        self.stack.append((tag, hidden or bool(self.stack and self.stack[-1][1]), quoted, self.counter))
         if tag == "style":
             self.in_style = True
         if attrs.get("style"):
@@ -281,9 +400,16 @@ class Outline(HTMLParser):
             return
         if not data.strip() or (self.stack and self.stack[-1][1]):
             return
-        tag = next((t for t, _, _ in reversed(self.stack) if t in self.BLOCKS), "text")
+        tag = next((t for t, _, _, _ in reversed(self.stack) if t in self.BLOCKS), "text")
         quoted = bool(self.stack and self.stack[-1][2])
-        self.blocks.append((tag, " ".join(data.split()), tuple(t for t, _, _ in self.stack), quoted))
+        text = " ".join(data.split())
+        ancestors = tuple(t for t, _, _, _ in self.stack)
+        self.blocks.append((tag, text, ancestors, quoted))
+        holder = next(((t, uid, i) for i, (t, _, _, uid) in reversed(list(enumerate(self.stack))) if t in self.PARAGRAPHS), None)
+        if holder is not None and not quoted:
+            p_tag, uid, depth = holder
+            entry = self.paragraphs.setdefault(uid, [p_tag, [], ancestors[:depth + 1]])
+            entry[1].append(text)
 
 
 def is_scrim(value: str) -> bool:
@@ -388,7 +514,7 @@ def check_html(path: Path, errors: list[str], warnings: list[str]) -> None:
     for tag, text, ancestors, quoted in blocks:
         where = f"<{tag}>"
         if not quoted:
-            check_text(text, where, errors)
+            check_text(text, where, errors, terms=False)
             if tag in {"h2", "h3", "h4"}:
                 check_heading(text, where, errors)
         in_content = any(a in {"article", "section"} for a in ancestors)
@@ -397,6 +523,9 @@ def check_html(path: Path, errors: list[str], warnings: list[str]) -> None:
         if shell and not ALLOWED & {"shell", "interface"} and shell not in shell_reported:
             shell_reported.add(shell)
             errors.append(f"application shell <{shell}> in a document: {text[:30]!r}")
+    for p_tag, fragments, p_ancestors in outline.paragraphs.values():
+        check_meta_terms(" ".join(fragments), f"<{p_tag}>", errors, heading=bool(re.fullmatch(r"h[1-6]", p_tag)),
+                         meta_line=any(a in META_CONTAINERS for a in p_ancestors))
     for index, (tag, text, _, _) in enumerate(blocks[:-2]):
         nxt_tag, nxt_text, _, _ = blocks[index + 1]
         if tag in {"h2", "h3"} and nxt_tag == "p" and len(nxt_text) <= 40 and blocks[index + 2][0] in {"table", "th", "td", "li", "h3", "h4", "div"}:
@@ -414,6 +543,16 @@ def check_html(path: Path, errors: list[str], warnings: list[str]) -> None:
     tree = TreeBuilder()
     tree.feed(source)
     control_rules: dict[str, bool] = {}
+    # Declared sizes by selector without states, so a state rule (.cbox.on) is judged by its base rule (.cbox).
+    size_index: dict[str, tuple[float | None, float | None]] = {}
+    for rule in re.finditer(r"([^{}]*)\{([^{}]*)\}", css):
+        h, w = declared_size(rule.group(2))
+        if h is None and w is None:
+            continue
+        for part in rule.group(1).split(","):
+            key = size_key(part.strip())
+            old_h, old_w = size_index.get(key, (None, None))
+            size_index[key] = (h if h is not None else old_h, w if w is not None else old_w)
     if re.search(r"color-scheme\s*:\s*dark|prefers-color-scheme\s*:\s*dark", css, re.I) and "dark" not in ALLOWED:
         errors.append("dark color scheme declared")
     families: set[str] = set()
@@ -455,7 +594,7 @@ def check_html(path: Path, errors: list[str], warnings: list[str]) -> None:
                 if decl.group(1).strip().lower() not in {"0", "normal", "0px", "inherit"}:
                     errors.append(f"letter spacing in {selector[:40]!r}: {decl.group(1).strip()}")
         else:
-            # Reading pages use the same three weights (file-design.html 网页文件): 700 only for the 24 and 32px titles.
+            # Reading pages use the same three weights (file-design.html 网页文件): 700 only at 22px and larger (their 24 and 32px titles).
             own_size = font_size_value(declarations(body, resolve))
             own_px = length_px(own_size, 16.0) if own_size else None
             for decl in re.finditer(r"(?:^|;)\s*font-weight\s*:\s*([^;]+)", body, re.I):
@@ -482,7 +621,7 @@ def check_html(path: Path, errors: list[str], warnings: list[str]) -> None:
                 families.add(first.lower())
         for decl in re.finditer(r"(?:^|;)\s*background(?:-color|-image)?\s*:\s*([^;]+)", body, re.I):
             value = resolve(decl.group(1))
-            small = DARK_SMALL_SELECTOR.search(selector)
+            small = small_fill(selector, body, size_index)
             # Flat style everywhere (visual-design.html, 扁平线性风格): no decorative gradients. Interfaces may keep a
             # black-alpha scrim over a photo, a hard-stop fill (sliders, progress) and skeleton shimmer.
             if re.search(r"gradient", value, re.I):
@@ -703,8 +842,9 @@ def check_html(path: Path, errors: list[str], warnings: list[str]) -> None:
 # Only the static DOM is seen: content a script renders at run time is checked in the browser by the prototype tests.
 
 BODY_TAGS = {"td", "th", "p", "li", "label", "input", "button", "select", "textarea"}
-# Auxiliary text may use the 12–13px step: timestamps, units, badges, hints, captions.
-AUX_CLASS = re.compile(r"meta|hint|time|unit|badge|caption|aux", re.I)
+# Auxiliary text may use the 12px step: timestamps, units, badges, tags, hints, captions (visual-design.html 字号与密度).
+# The word is a whole class or one hyphen or underscore segment of it, so "community" or "timeline" do not count.
+AUX_CLASS = re.compile(r"(?:^|[\s_-])(?:meta|hint|time|unit|badge|tag|caption|aux)(?:$|[\s_-])", re.I)
 EMPTY_CELL = {"", "—", "-", "–", "--", "——", "/"}
 CONTROL_TAGS = {"button", "a", "input", "select", "textarea", "img", "svg", "progress", "meter"}
 NAV_CLASS = re.compile(r"nav|menu|side-?bar|\bside\b", re.I)
@@ -1069,7 +1209,7 @@ def check_interface_layout(source: str, resolve, errors: list[str], warnings: li
     for (tag, cls, px), texts in small.items():
         label = f"<{tag}{' class=' + repr(cls) if cls else ''}>"
         errors.append(f"interface body text {px:g}px in {label} ({len(texts)}x, e.g. {texts[0][:16]!r}): body, tables and forms use 14px; "
-                      "12–13px only for elements marked meta, hint, time, unit, badge, caption or aux")
+                      "12px only for elements whose class has the word meta, hint, time, unit, badge, tag, caption or aux")
 
     def in_nav(n: Node) -> bool:
         return any(a.tag in {"nav", "aside"} or (a.attrs.get("role") or "") in {"navigation", "menu", "menubar", "tree"}
@@ -1355,7 +1495,7 @@ def check_xlsx(path: Path, errors: list[str], warnings: list[str]) -> None:
         for row in rows:
             for cell in row:
                 if isinstance(cell.value, str):
-                    check_text(cell.value, f"{where}{cell.coordinate}", errors)
+                    check_text(cell.value, f"{where}{cell.coordinate}", errors, heading=cell.row == rows[0][0].row)
                 fonts.add((cell.font.name or "").lower())
                 size = float(cell.font.sz or 11)
                 sizes.add(size)
@@ -1487,7 +1627,7 @@ def check_docx(path: Path, errors: list[str], warnings: list[str]) -> None:
         errors.append(f"text between the title and the first heading: {paragraphs[1].text[:40]!r}")
     families: set[str] = set()
     for paragraph in paragraphs:
-        check_text(paragraph.text, "paragraph", errors)
+        check_text(paragraph.text, "paragraph", errors, heading=paragraph is first or is_heading(paragraph))
         if is_heading(paragraph):
             check_heading(paragraph.text, "heading", errors)
         for run in paragraph.runs:
@@ -1538,6 +1678,14 @@ def check_docx(path: Path, errors: list[str], warnings: list[str]) -> None:
 
 # ---------------------------------------------------------------- PPTX
 
+def is_title_shape(shape) -> bool:
+    """A slide title placeholder (title or centred title): its text is a heading, not a metadata line."""
+    try:
+        return bool(shape.is_placeholder) and int(shape.placeholder_format.type) in (1, 3)
+    except (AttributeError, ValueError, TypeError):
+        return False
+
+
 def check_pptx(path: Path, errors: list[str], warnings: list[str]) -> None:
     try:
         from pptx import Presentation
@@ -1570,7 +1718,7 @@ def check_pptx(path: Path, errors: list[str], warnings: list[str]) -> None:
                 if not text:
                     continue
                 texts.append(text)
-                check_text(text, where, errors)
+                check_text(text, where, errors, heading=is_title_shape(shape))
                 for run in paragraph.runs:
                     if run.font.size is not None and Emu(run.font.size).pt < 16:
                         errors.append(f"{where}: font {Emu(run.font.size).pt:g}pt below 16pt: {run.text[:20]!r}")
@@ -1603,7 +1751,8 @@ def check_markdown(path: Path, errors: list[str], warnings: list[str]) -> None:
     if any(re.match(r"##\s", line) for _, line in content) and len(content) > 1 and not re.match(r"##\s", content[1][1]):
         errors.append(f"line {content[1][0]}: text between the title and the first section: {content[1][1][:40]!r}")
     for number, line in content:
-        check_text(line, f"line {number}", errors)
+        check_text(line.lstrip("#").strip() if line.startswith("#") else line, f"line {number}", errors,
+                   heading=bool(re.match(r"#{1,6}\s", line)))
         heading = re.match(r"#{2,4}\s+(.*)", line)
         if heading:
             check_heading(heading.group(1), f"line {number}", errors)
@@ -1620,7 +1769,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("files", nargs="+", type=Path)
     parser.add_argument("--allow", action="append", default=[], metavar="KIND",
-                        help="interface (prototype pages: interface type scales and the application shell nav, aside, header; add website for a website prototype with 40/48 first-screen titles), or only for items the user explicitly asked for: multi-sheet, chart, accessory, cover, header, "
+                        help="interface (interface pages: product type scale and the application shell nav, aside, header), website (a website or landing page: implies interface, 14px floor and 40/48 first-screen titles), or only for items the user explicitly asked for: multi-sheet, chart, accessory, cover, header, "
                              "shell, dark, note, emoji, paper (Word 论文版式 fonts: 宋体, 黑体, Times New Roman), official (Word 公文格式 fonts), or a text family (" + ", ".join(FAMILIES) + ")")
     parser.add_argument("--allow-multi-sheet", action="store_true", help="same as --allow multi-sheet")
     args = parser.parse_args(argv)
@@ -1628,6 +1777,8 @@ def main(argv: list[str] | None = None) -> int:
     ALLOWED.update(kind.strip() for value in args.allow for kind in value.split(","))
     if args.allow_multi_sheet:
         ALLOWED.add("multi-sheet")
+    if "website" in ALLOWED:
+        ALLOWED.add("interface")
     failed = False
     for path in args.files:
         errors: list[str] = []
@@ -1645,8 +1796,12 @@ def main(argv: list[str] | None = None) -> int:
             check_pptx(path, errors, warnings)
         elif suffix in {".md", ".markdown"}:
             check_markdown(path, errors, warnings)
+        elif suffix == ".pdf":
+            print(f"SKIP: {path} (PDF is not read here: check page size, bookmarks, embedded fonts and the text layer with "
+                  "PyMuPDF, then render every page; file-design.html 便携式文档)")
+            continue
         else:
-            errors.append(f"unsupported format {suffix}; review it manually against rules/file-design.html")
+            errors.append(f"unsupported format {suffix}; review it manually against references/file-design.html")
         status = "FAIL" if errors else "PASS"
         print(f"{status}: {path} ({len(errors)} error(s), {len(warnings)} warning(s))")
         for item in errors:

@@ -2,8 +2,8 @@
 """Luz Design experience library: search at the start of every call, note what was learned before it ends.
 
 experience/notes.json     what every call learned: preference / lesson / fact, one entry per key (upsert, bounded)
-experience/patterns.json  curated knowledge: 功能, 交互流程, 组件, 色彩, 字阶, 前端规则, 设计理念, 调研经验 (at most 200)
-experience/sources.json   verified references (LuzCrawl captures and official specification pages)
+experience/patterns.json  curated knowledge: 色彩, 字阶, 视觉规则, 文件规则, 设计理念, 调研经验 (at most 200)
+experience/sources.json   verified references: 视觉规范, 文件规范, 组件库, 调研经验 (LuzCrawl captures, official pages)
 experience/catalog.md     readable catalog generated from all files after every write
 
 Notes (same file, fields and commands in Luz-System, Luz-Design, Luz-Dev and Luz-Writing):
@@ -31,8 +31,9 @@ PATTERNS = EXP / "patterns.json"
 NOTES = Path(os.environ.get("LUZ_EXPERIENCE_STORE") or EXP / "notes.json")
 STORE_OVERRIDDEN = NOTES != EXP / "notes.json"
 CATALOG = EXP / "catalog.md"
-KINDS = ["功能", "交互流程", "组件", "色彩", "字阶", "前端规则", "设计理念", "调研经验"]
-CATEGORIES = ["页面结构", "交互流程", "组件状态", "前端规则"]
+# Luz Design keeps visual and file knowledge only; page structure, interaction and component behaviour live in Luz-System.
+KINDS = ["色彩", "字阶", "视觉规则", "文件规则", "设计理念", "调研经验"]
+CATEGORIES = ["视觉规范", "文件规范", "组件库", "调研经验"]
 STALE_DAYS = 180
 PATTERN_CAP = 200
 
@@ -510,7 +511,8 @@ def render() -> None:
             if refs:
                 lines.append("- 依据：" + "；".join(f"[{r['title']}]({r['url']})" for r in refs))
             lines.append("")
-    lines += ["## 来源", "", "| 编号 | 类别 | 来源 | 可借鉴 | 采集日期 | 复用 |", "|---|---|---|---|---|---|"]
+    # Short values centred, long text (source title, what to borrow) left (visual-design.html 表格对齐).
+    lines += ["## 来源", "", "| 编号 | 类别 | 来源 | 可借鉴 | 采集日期 | 复用 |", "| :---: | :---: | :--- | :--- | :---: | :---: |"]
     for s in sources:
         age = age_days(s.get("captured_at"))
         reuse = "可复用快照" if s.get("snapshot") and age is not None and age <= STALE_DAYS else ("知识，无快照" if not s.get("snapshot") else "已过期")

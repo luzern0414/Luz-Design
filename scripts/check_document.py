@@ -407,6 +407,9 @@ def check_html(path: Path, errors: list[str], warnings: list[str]) -> None:
         return re.sub(r"var\((--[\w-]+)(?:\s*,\s*([^)]+))?\)",
                       lambda m: resolve(variables.get(m.group(1), m.group(2) or ""), depth + 1), value)
 
+    tree = TreeBuilder()
+    tree.feed(source)
+    control_rules: dict[str, bool] = {}
     if re.search(r"color-scheme\s*:\s*dark|prefers-color-scheme\s*:\s*dark", css, re.I) and "dark" not in ALLOWED:
         errors.append("dark color scheme declared")
     families: set[str] = set()
@@ -496,7 +499,8 @@ def check_html(path: Path, errors: list[str], warnings: list[str]) -> None:
                     elif ratio < BRAND_CARD_MIN_CONTRAST:
                         errors.append(f"brand card {selector[:40]!r}: text on {decl.group(1).strip()[:30]} is {ratio:.1f}:1, "
                                       f"needs {BRAND_CARD_MIN_CONTRAST:g}:1 (use the step where white text reaches 4.5:1)")
-                elif lum < 0.6 and not small and "dark" not in ALLOWED:
+                elif lum < 0.6 and not small and "dark" not in ALLOWED and \
+                        not control_rules.setdefault(selector, styles_controls(selector, tree.root)):
                     errors.append(f"dark or saturated fill in {selector[:40]!r}: {decl.group(1).strip()[:30]} (luminance {lum:.2f})")
                 elif ("interface" in ALLOWED and 0.3 < lum < 0.7 and ACTIVE_CONTROL_SELECTOR.search(selector)
                       and not re.search(r"::?(?:before|after)|-thumb|:disabled|:hover", selector)
@@ -901,6 +905,39 @@ def match_selector(node: Node, parts, index: int = 0) -> bool:
         if combinator == ">":
             return False
     return False
+
+
+# Controls take a solid fill whatever their class is called (visual-design.html 配色): a button, a button-type input, an
+# element with a control role (role="button", tab, switch …) or a link drawn as a button (class btn or button).
+CONTROL_ROLES = {"button", "tab", "switch", "checkbox", "radio", "option", "menuitemcheckbox", "menuitemradio"}
+CONTROL_INPUT_TYPES = {"button", "submit", "reset", "checkbox", "radio"}
+
+
+def is_control(node: Node) -> bool:
+    if node.tag == "button" or (node.attrs.get("role") or "").strip().lower() in CONTROL_ROLES:
+        return True
+    if node.tag == "input":
+        return (node.attrs.get("type") or "text").strip().lower() in CONTROL_INPUT_TYPES
+    return node.tag == "a" and bool(re.search(r"(?:^|[\s_-])(?:btn|button)(?:$|[\s_-])", node.cls()))
+
+
+def styles_controls(selector: str, root: Node) -> bool:
+    """True when the selector matches at least one element and every element it matches is a control (hidden dialogs
+    and templates included). State pseudo-classes and pseudo-elements are dropped and a sibling combinator keeps only
+    its subject, so the test errs towards matching more elements."""
+    matched = False
+    for part in selector.split(","):
+        part = re.sub(r"::?[\w-]+(?:\([^)]*\))?", "", part.strip())
+        part = re.split(r"\s*[+~]\s*(?![^\[]*\])", part)[-1].strip()
+        parts = parse_selector(part) if part else None
+        if not parts:
+            continue
+        for node in root.elements():
+            if match_selector(node, parts):
+                if not is_control(node):
+                    return False
+                matched = True
+    return matched
 
 
 def length_px(value: str, parent: float) -> float | None:

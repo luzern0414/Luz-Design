@@ -166,6 +166,15 @@
       "last_confirmed": "2026-10-28"
     },
     {
+      "key": "control-fill-by-element",
+      "kind": "lesson",
+      "text": "实色底是否允许按元素认定：button、按钮类 input、带控件角色的元素和类名含 btn 的链接都算控件，类名随意；同一组选择器还命中卡片、横幅等容器时按容器报错",
+      "why": "check_document 与会话校验原先只认选择器里的 button 字样，.ok、.btn-primary 这类按钮被误判为大面积深色",
+      "uses": 1,
+      "first_seen": "2026-10-29",
+      "last_confirmed": "2026-10-29"
+    },
+    {
       "key": "element-dropdown-scoped-style",
       "kind": "lesson",
       "text": "Element Plus 下拉、弹层内容挂在 body 下，Vue scoped 样式不生效，弹层内自定义样式放进非 scoped 样式块并加专属类名",

@@ -208,6 +208,47 @@ class IconAndFillTest(unittest.TestCase):
         self.assertTrue(having(warnings, "default style of template document.html"))
 
 
+class ControlFillTest(unittest.TestCase):
+    """Controls take a solid fill whatever their class is called; containers do not (visual-design.html 配色)."""
+
+    FILL = "{{background:#0958d9;color:#fff}}"
+
+    def fill_errors(self, body: str, selector: str) -> list[str]:
+        errors, _ = run(body, selector + self.FILL.format())
+        return having(errors, "dark or saturated fill")
+
+    def test_controls_by_element(self) -> None:
+        for body, selector in (('<button class="btn-primary" type="button">保存</button>', ".btn-primary"),
+                               ('<button class="ok" type="button">确认</button>', ".ok"),
+                               ('<button class="ok" type="button">确认</button>', ".ok:hover"),
+                               ('<div role="dialog"><a class="confirm" role="button">删除</a></div>', '[role=dialog] .confirm'),
+                               ('<a class="cta-btn" href="#book">立即预约</a>', ".cta-btn"),
+                               ('<input class="go" type="submit" value="提交">', ".go"),
+                               ('<div role="tablist"><span class="seg on" role="tab">本周</span></div>', ".seg.on"),
+                               ('<dialog><button class="ok" type="button" data-control="confirm">确认</button></dialog>', "dialog .ok")):
+            with self.subTest(selector=selector):
+                self.assertEqual(self.fill_errors(body, selector), [])
+
+    def test_containers_and_mixed_selectors_still_fail(self) -> None:
+        for body, selector in (('<section class="hero"><p>本周新品</p></section>', ".hero"),
+                               ('<button class="ok" type="button">确认</button><div class="ok"><p>已完成</p></div>', ".ok"),
+                               ('<button class="ok" type="button">确认</button><section class="hero"><p>新品</p></section>', ".ok, .hero"),
+                               ('<a class="more" href="#all">全部</a>', ".more"),
+                               ('<p>没有元素用这个类</p>', ".ghost")):
+            with self.subTest(selector=selector):
+                self.assertTrue(self.fill_errors(body, selector))
+
+class LocalLinkTest(unittest.TestCase):
+    def test_script_brackets_are_not_links(self) -> None:
+        import validate_session
+        import validate_skill
+        html = '<a href="a.html">A</a><script>const r = map[key](event);</script><p>[x](y.md)</p>'
+        markdown = "[方案](plan.md) 与 `arr[0](x)`"
+        for find in (validate_session.local_links, validate_skill.local_targets):
+            with self.subTest(find=find.__module__):
+                self.assertEqual(find(html, html=True), ["a.html"])
+                self.assertEqual(find(markdown), ["plan.md"])
+
 class OneObjectOneIconTest(unittest.TestCase):
     def test_list_rows_of_one_kind_share_the_object_icon(self) -> None:
         rows = "".join(f'<li class="row">{MEETING}<span>{t}</span><span class="time">10-2{i} 09:30</span></li>'

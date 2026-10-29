@@ -1447,6 +1447,14 @@ def check_xlsx(path: Path, errors: list[str], warnings: list[str]) -> None:
 
 # ---------------------------------------------------------------- DOCX
 
+# Font sets a Word file may mix when the user asked for that standard (file-design.html 文字文档 › 论文版式 / 公文格式).
+DOCX_FONT_SETS = {
+    "paper": {"宋体", "黑体", "times new roman", "simsun", "simhei"},
+    "official": {"仿宋", "仿宋_gb2312", "楷体", "楷体_gb2312", "黑体", "宋体", "方正小标宋简体", "方正小标宋_gbk",
+                 "fangsong", "kaiti", "simhei", "simsun", "times new roman"},
+}
+
+
 def check_docx(path: Path, errors: list[str], warnings: list[str]) -> None:
     try:
         import docx
@@ -1489,8 +1497,13 @@ def check_docx(path: Path, errors: list[str], warnings: list[str]) -> None:
         for row in table.rows:
             for cell in row.cells:
                 check_text(cell.text, "table cell", errors)
-    if len(families) > 2:
-        errors.append(f"more than one font family: {sorted(families)}")
+    requested = [name for name in DOCX_FONT_SETS if name in ALLOWED]
+    if requested:
+        outside = families - set().union(*(DOCX_FONT_SETS[name] for name in requested))
+        if outside:
+            errors.append(f"font outside the requested {' / '.join(requested)} set: {sorted(outside)}")
+    elif len(families) > 2:
+        errors.append(f"more than one font family: {sorted(families)} (pass --allow paper or --allow official only when the user asked for 论文版式 or 公文格式)")
     # Document types (file-design.html, 按文档类型).
     full_text = "\n".join([p.text for p in document.paragraphs] + [c.text for t in document.tables for r in t.rows for c in r.cells])
     for m in re.finditer(r"【[^】]{0,12}】|[×xX]{2,}|待定|待补充|请填写|TBD", full_text):
@@ -1603,7 +1616,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("files", nargs="+", type=Path)
     parser.add_argument("--allow", action="append", default=[], metavar="KIND",
                         help="interface (prototype pages: interface type scales and the application shell nav, aside, header; add website for a website prototype with 40/48 first-screen titles), or only for items the user explicitly asked for: multi-sheet, chart, accessory, cover, header, "
-                             "shell, dark, note, emoji, or a text family (" + ", ".join(FAMILIES) + ")")
+                             "shell, dark, note, emoji, paper (Word 论文版式 fonts: 宋体, 黑体, Times New Roman), official (Word 公文格式 fonts), or a text family (" + ", ".join(FAMILIES) + ")")
     parser.add_argument("--allow-multi-sheet", action="store_true", help="same as --allow multi-sheet")
     args = parser.parse_args(argv)
     ALLOWED.clear()

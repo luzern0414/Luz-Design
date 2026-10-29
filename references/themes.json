@@ -13,6 +13,8 @@
     "warningTint": "#FBF0DE",
     "danger": "#C93644",
     "dangerTint": "#FBE7E9",
+    "price": "#D9001B",
+    "priceTint": "#FFF1F0",
     "info": "#2F5F8A",
     "infoTint": "#E6EEF5",
     "sage": "#5F7354",

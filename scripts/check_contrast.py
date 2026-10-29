@@ -183,6 +183,9 @@ def main() -> int:
             ("success on surface", shared["success"], surface, 4.5),
             ("warning on surface", shared["warning"], surface, 4.5),
             ("danger on surface", shared["danger"], surface, 4.5),
+            # Prices stay one red whatever the brand colour (Luz-System commerce-design.html 价格展示).
+            ("price on surface", shared.get("price", "#D9001B"), surface, 4.5),
+            ("price on priceTint", shared.get("price", "#D9001B"), shared.get("priceTint", "#FFF1F0"), 4.5),
             ("info on surface", shared.get("info", "#2F5F8A"), surface, 4.5),
             ("ink on accentTint", shared["ink"], t["accentTint"], 4.5),
         ]

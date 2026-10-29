@@ -1592,6 +1592,54 @@
         "path": "D:/Codes/skill输出/Luz-Crawl/raw/016_Demo一键生成助手 UI升级与闭环审计/raw/1216_Storyset Customize, animate and download illustration for free"
       },
       "id": "SRC-102"
+    },
+    {
+      "url": "http://www.las.cas.cn/yjsjy2021/pyyxw/xwglgd2021/202112/t20211229_6329144.html",
+      "title": "中国科学院大学研究生学位论文撰写规范指导意见",
+      "page_title": "中国科学院大学研究生学位论文撰写规范指导意见--中国科学院文献情报中心",
+      "domain": "las.cas.cn",
+      "category": "前端规则",
+      "evidence": "A4，上下 2.54 厘米、左右 3.17 厘米，页眉页脚 1.5 厘米；章标题黑体四号加粗居中，节标题黑体小四顶左段前 24 段后 6 磅；正文宋体小四、英文 Times New Roman、首行缩进两字、段前段后 0、1.5 倍行距；标题阿拉伯数字分层编号 1.1、1.1.1，序号后空一字；页码 Times New Roman 小五",
+      "borrowable": "论文版式的字体字号、页边距与编号方式",
+      "not_copyable": "原文",
+      "supports": "论文版式参数",
+      "surfaces": [
+        "通用"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-10-29",
+      "luzcrawl_status": "成功",
+      "method": "LuzCrawl",
+      "snapshot": {
+        "path": "D:/Codes/skill输出/Luz-Crawl/raw/022_学术论文排版标准与字体字号/raw/1334_中国科学院大学研究生学位论文撰写规范指导意见--中国科学院文献情报中心"
+      },
+      "id": "SRC-103"
+    },
+    {
+      "url": "https://openstd.samr.gov.cn/bzgk/std/newGbInfo?hcno=0B963916637B8F34B295FCF4A51A1BE5",
+      "title": "国家标准 GB/T 7713.2-2022 学术论文编写规则",
+      "page_title": "国家标准 GB/T 7713.2-2022",
+      "domain": "openstd.samr.gov.cn",
+      "category": "前端规则",
+      "evidence": "现行；2022-12-30 发布，2023-07-01 实施；规定学术论文的结构与编写，不规定字体字号",
+      "borrowable": "论文版式的标准依据与现行状态",
+      "not_copyable": "原文",
+      "supports": "论文版式依据",
+      "surfaces": [
+        "通用"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-10-29",
+      "luzcrawl_status": "成功",
+      "method": "LuzCrawl",
+      "snapshot": {
+        "path": "D:/Codes/skill输出/Luz-Crawl/raw/022_学术论文排版标准与字体字号/raw/1331_国家标准 GB T 7713.2-2022"
+      },
+      "id": "SRC-104"
     }
   ]
 }

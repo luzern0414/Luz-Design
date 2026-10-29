@@ -295,6 +295,43 @@ class SessionFlowTests(unittest.TestCase):
             for expected in ("placeholder", "party information", "signature block", "第 X 页 共 Y 页", "大写"):
                 self.assertIn(expected, joined)
 
+    def test_paper_style_numbers_headings_in_word_and_needs_allow_paper(self) -> None:
+        import docx
+        import check_document
+        from check_document import check_docx
+        from docx.oxml.ns import qn
+        from make_docx import build
+        spec = {"type": "general", "style": "paper", "title": "项目硬件开发资源申请",
+                "sections": [{"heading": "项目信息", "paragraphs": ["门店入口采用 A、B 双门门斗。"],
+                              "table": {"header": ["项目", "内容"], "rows": [["协助周期", "一周"]]},
+                              "children": [{"heading": "现场条件", "paragraphs": ["二级标题由 Word 编号。"]}]},
+                             {"heading": "时间要求", "paragraphs": ["协助周期一周。"]}],
+                "attachments": [{"title": "设备清单", "sections": [{"heading": "清单", "paragraphs": ["附件编号重新开始。"]}]}]}
+        with tempfile.TemporaryDirectory() as temp:
+            out = build(spec, Path(temp) / "paper.docx")
+            document = docx.Document(str(out))
+            headings = [p for p in document.paragraphs if p.style.name.startswith("Heading")]
+            self.assertEqual([p.text for p in headings], ["项目信息", "现场条件", "时间要求", "清单"])   # nothing typed
+            self.assertFalse(any(r.bold for p in headings + [document.paragraphs[0]] for r in p.runs))
+            numbering = document.part.numbering_part.element
+            self.assertIn("%1、", [lvl.get(qn("w:val")) for lvl in numbering.iter(qn("w:lvlText"))])
+            self.assertIsNotNone(document.styles["Heading 1"].element.pPr.numPr)
+            self.assertIsNotNone(headings[-1]._p.pPr.numPr)                                        # attachment restarts
+            fonts = document.styles["Normal"].element.rPr.rFonts
+            self.assertEqual((fonts.get(qn("w:ascii")), fonts.get(qn("w:eastAsia"))), ("Times New Roman", "宋体"))
+            self.assertAlmostEqual(document.sections[0].left_margin.cm, 3.17, places=2)
+            errors: list[str] = []
+            check_docx(out, errors, [])
+            self.assertTrue(any("more than one font family" in e for e in errors))
+            check_document.ALLOWED.clear()
+            check_document.ALLOWED.add("paper")
+            try:
+                errors = []
+                check_docx(out, errors, [])
+            finally:
+                check_document.ALLOWED.clear()
+            self.assertEqual(errors, [])
+
     def test_standalone_poster_session_is_created_validated_and_published(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             root = tool_root(temp)

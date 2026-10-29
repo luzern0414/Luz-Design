@@ -27,18 +27,18 @@
     "docx": {
       "title": "文字文档（Word：合同、方案、报告、纪要、制度、公文）",
       "summary": "先定文档类型，再按类型的结构排版",
-      "keywords": ["Word", "docx", "合同", "方案", "报告", "纪要", "公文", "制度"],
+      "keywords": ["Word", "docx", "合同", "方案", "报告", "纪要", "公文", "制度", "申请", "论文版式"],
       "sections": [
         {"page": "file-design.html", "title": "文件设计规范", "path": ["核心规则", "所有格式的共同底线"]},
         {"page": "file-design.html", "title": "文件设计规范", "path": ["核心规则", "文字文档"]},
         {"page": "file-design.html", "title": "文件设计规范", "path": ["案例样本", "文字文档"]}
       ],
       "tools": [
-        "先写描述文件 spec.json（type: contract | proposal | report | minutes | general），再运行 `py -X utf8 scripts/make_docx.py spec.json <输出.docx>`；脚本写完会自动检查",
+        "先写描述文件 spec.json（type: contract | proposal | report | minutes | general；用户要论文版式时加 \"style\": \"paper\"，标题编号 \"number_format\": \"1、\" 或 \"1.\"），再运行 `py -X utf8 scripts/make_docx.py spec.json <输出.docx>`；脚本写完会自动检查",
         "文字内容来自用户或 Luz-Writing；本技能只负责结构与版式"
       ],
       "checks": [
-        "`py -X utf8 scripts/check_document.py <输出.docx>` 零 ERROR",
+        "`py -X utf8 scripts/check_document.py <输出.docx>` 零 ERROR（论文版式加 --allow paper，公文格式加 --allow official）",
         "导出 PDF 核对分页、页码“第几页 共几页”、签署栏、金额大写"
       ]
     },

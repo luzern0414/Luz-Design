@@ -22,6 +22,8 @@ MODE_NAMES = ("visual", "document")
 OTHER_SKILL_MODES = {"system": "Luz-System", "prototype": "Luz-System", "hardware": "Luz-System"}
 POSTER_TASK_RE = re.compile(r"海报|poster|主视觉|品牌视觉|宣传图|视觉方向|活动视觉|封面|KV", re.I)
 SESSION_KINDS = ("general", "standalone_poster")
+# Rule card written into raw/00-rules/ when a mode starts (scripts/context.py; references/cards.json).
+DEFAULT_CARDS = {"visual": "poster", "document": "reading-html"}
 
 # Tab icon (references/visual-design.html 网页图标与品牌标识): every delivered HTML carries one flat line pictogram of its
 # subject, primary-colour strokes on a rounded square in the theme's lightest tint, 32×32, at most three shapes, no text.
@@ -200,8 +202,14 @@ def create_session(
     *,
     skill_root: Path = SKILL_ROOT,
     session_kind: str = "general",
+    cards: list[str] | None = None,
 ) -> Path:
     validate_creation(modes, session_kind)
+    import context
+    kinds = list(dict.fromkeys(cards or [DEFAULT_CARDS[m] for m in modes if m in DEFAULT_CARDS]))
+    unknown_cards = sorted(set(kinds) - set(context.card_kinds()))
+    if unknown_cards:
+        raise ValueError(f"unknown rule card: {', '.join(unknown_cards)}; see scripts/context.py list")
     root = root.resolve()
     root.mkdir(parents=True, exist_ok=True)
     clean = clean_title(title)
@@ -253,6 +261,9 @@ def create_session(
         )
         for mode in modes:
             init_mode(skill_root, work, mode)
+        # The rules, preferences, lessons, tools and checks for this task, cut from the rule pages (read before producing).
+        for kind in kinds:
+            context.save_card(work, kind)
     except Exception:
         shutil.rmtree(folder, ignore_errors=True)
         raise
@@ -282,15 +293,21 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--session-kind", choices=SESSION_KINDS, default="general")
     parser.add_argument("--standalone-poster", action="store_true", help="Standalone visual work (poster, brand key visual, campaign image); required for visual mode")
     parser.add_argument("--root", help="Output root override, primarily for tests")
+    parser.add_argument("--card", action="append", help="Rule card kind for this task (repeatable): xlsx, docx, reading-html, slides, pdf-markdown, poster, interface-visual, palette; default from the mode")
     args = parser.parse_args(argv)
     root = Path(args.root).resolve() if args.root else OUTPUT_ROOT
     kind = "standalone_poster" if args.standalone_poster else args.session_kind
     try:
-        folder = create_session(root, args.name, parse_modes(args.modes), session_kind=kind)
+        folder = create_session(root, args.name, parse_modes(args.modes), session_kind=kind, cards=args.card)
     except Exception as exc:
         print(f"FAIL: {type(exc).__name__}: {exc}", file=sys.stderr)
         return 1
     print(str(folder))
+    cards = sorted((folder / "raw" / "00-rules").glob("*.md"))
+    if cards:
+        print("NEXT: read the rule card(s) before producing anything, then fill BRIEF 采用的规则:", file=sys.stderr)
+        for card in cards:
+            print(f"  {card}", file=sys.stderr)
     return 0
 
 

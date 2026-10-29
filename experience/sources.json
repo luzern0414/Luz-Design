@@ -1232,6 +1232,366 @@
         "path": "D:/Codes/skill输出/Luz-Crawl/raw/001_Luz-Design 健身房小程序与后台设计规范调研/raw/551_合同示范文本_百度百科"
       },
       "id": "SRC-087"
+    },
+    {
+      "url": "https://fluent2.microsoft.design/elevation",
+      "title": "流畅设计二代 高度",
+      "page_title": "Elevation - Fluent 2 Design System",
+      "domain": "fluent2.microsoft.design",
+      "category": "前端规则",
+      "evidence": "阴影由锐利的方向阴影（定边缘）与柔和的环境阴影（表距离）组合；阴影方向一致表示同一光源；模糊 2、4、8、16、28、64 六档：无边卡片 4，浮动按钮与升起的卡片 8，悬停卡片与气泡 16，底部弹层与侧边导航 28，对话框 64；高层阴影透明度高于低层（24% 对 14%）；视窗平台用描边代替近处阴影",
+      "borrowable": "每级双层阴影、模糊逐级增大、卡片用描边定边缘",
+      "not_copyable": "令牌值与示意图",
+      "supports": "层级与立体感、五级阴影令牌",
+      "surfaces": [
+        "通用"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-10-29",
+      "luzcrawl_status": "成功",
+      "method": "LuzCrawl",
+      "snapshot": {
+        "path": "D:/Codes/skill输出/Luz-Crawl/raw/016_Demo一键生成助手 UI升级与闭环审计/raw/1221_Elevation - Fluent 2 Design System"
+      },
+      "id": "SRC-088"
+    },
+    {
+      "url": "https://m3.material.io/styles/elevation/applying-elevation",
+      "title": "谷歌材料设计第三版 应用高度",
+      "page_title": "Elevation – Material Design 3",
+      "domain": "material.io",
+      "category": "前端规则",
+      "evidence": "六级高度 0 到 +5，静止元素 0 到 +3，+4、+5 留给悬停与拖动；层级靠表面边缘、重叠与距离表达，可用阴影、色调差或遮罩；小而锐利的阴影表示贴近，大而柔和表示远离；层级越少越有力；遮罩 32%",
+      "borrowable": "少数几级层级、交互升一级、遮罩",
+      "not_copyable": "原文与示例",
+      "supports": "层级与立体感",
+      "surfaces": [
+        "通用"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-10-29",
+      "luzcrawl_status": "部分",
+      "method": "LuzCrawl",
+      "snapshot": {
+        "path": "D:/Codes/skill输出/Luz-Crawl/raw/016_Demo一键生成助手 UI升级与闭环审计/raw/1219_Elevation – Material Design 3"
+      },
+      "id": "SRC-089"
+    },
+    {
+      "url": "https://m3.material.io/styles/elevation/tokens",
+      "title": "谷歌材料设计第三版 高度令牌",
+      "page_title": "Elevation – Material Design 3",
+      "domain": "material.io",
+      "category": "前端规则",
+      "evidence": "高度令牌 0–5 对应 0、1、3、6、8、12 dp；卡片与填充按钮静止在 0 或 1 级，菜单与滚动后的顶栏 2 级，对话框与浮动按钮 3 级，4、5 级不作静止层级；悬停或聚焦通常升一级",
+      "borrowable": "组件静止层级与交互升级",
+      "not_copyable": "令牌值",
+      "supports": "五级层级的用途分配",
+      "surfaces": [
+        "通用"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-10-29",
+      "luzcrawl_status": "部分",
+      "method": "LuzCrawl",
+      "snapshot": {
+        "path": "D:/Codes/skill输出/Luz-Crawl/raw/019_Luz-Design 层级与阴影依据补采（Polaris、Ant Design 遮罩）/raw/1297_Elevation – Material Design 3"
+      },
+      "id": "SRC-090"
+    },
+    {
+      "url": "https://github.com/ant-design/ant-design/blob/master/components/theme/themes/shared/genColorMapToken.ts",
+      "title": "蚂蚁设计体系 颜色映射令牌源码（遮罩）",
+      "page_title": "ant-design/components/theme/themes/shared/genColorMapToken.ts",
+      "domain": "github.com",
+      "category": "前端规则",
+      "evidence": "对话框遮罩令牌 colorBgMask 为黑色 45% 透明度",
+      "borrowable": "遮罩 45%",
+      "not_copyable": "源码",
+      "supports": "对话框与面板的遮罩",
+      "surfaces": [
+        "通用"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-10-29",
+      "luzcrawl_status": "成功",
+      "method": "LuzCrawl",
+      "snapshot": {
+        "path": "D:/Codes/skill输出/Luz-Crawl/raw/019_Luz-Design 层级与阴影依据补采（Polaris、Ant Design 遮罩）/raw/1299_ant-design components theme themes shared genColorMapToken.ts at"
+      },
+      "id": "SRC-091"
+    },
+    {
+      "url": "https://github.com/Shopify/polaris/blob/main/polaris-tokens/src/themes/base/shadow.ts",
+      "title": "肖普菲北极星设计体系 阴影令牌源码",
+      "page_title": "polaris-react-archive/polaris-tokens/src/themes/base/shadow.ts",
+      "domain": "github.com",
+      "category": "前端规则",
+      "evidence": "阴影 0 到 600 七档；按钮专用令牌：底部 1 像素深色内边线、顶部半像素白色高光（实色按钮约 25%），按下换成内阴影；文档站深度与令牌页已跳转到通用页，只能从源码读取",
+      "borrowable": "主按钮底边与实色面内顶部高光",
+      "not_copyable": "令牌值",
+      "supports": "按钮的立体感、内顶部高光",
+      "surfaces": [
+        "通用"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-10-29",
+      "luzcrawl_status": "成功",
+      "method": "LuzCrawl",
+      "snapshot": {
+        "path": "D:/Codes/skill输出/Luz-Crawl/raw/019_Luz-Design 层级与阴影依据补采（Polaris、Ant Design 遮罩）/raw/1296_polaris-react-archive polaris-tokens src themes base shadow.ts a"
+      },
+      "id": "SRC-092"
+    },
+    {
+      "url": "https://carbondesignsystem.com/elements/color/usage",
+      "title": "碳设计体系 颜色用法（分层）",
+      "page_title": "Color | Carbon Design System",
+      "domain": "carbondesignsystem.com",
+      "category": "前端规则",
+      "evidence": "底层与第 1、2、3 层四层依次叠放，每层用对应的一组层级令牌；浅色主题的层在白与浅灰之间交替",
+      "borrowable": "页面底与卡片交替分层，卡片内用浅灰分区",
+      "not_copyable": "令牌名",
+      "supports": "页面底、卡片与分区的分层",
+      "surfaces": [
+        "通用"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-10-29",
+      "luzcrawl_status": "成功",
+      "method": "LuzCrawl",
+      "snapshot": {
+        "path": "D:/Codes/skill输出/Luz-Crawl/raw/019_Luz-Design 层级与阴影依据补采（Polaris、Ant Design 遮罩）/raw/1298_Color Carbon Design System"
+      },
+      "id": "SRC-093"
+    },
+    {
+      "url": "https://developer.apple.com/design/human-interface-guidelines/materials",
+      "title": "苹果人机界面指南 材质",
+      "page_title": "Materials | Apple Developer Documentation",
+      "domain": "apple.com",
+      "category": "前端规则",
+      "evidence": "材质在前景与背景之间建立深度与层级；液态玻璃只用于控件与导航这一功能层，不用于内容层；内容层用标准材质",
+      "borrowable": "深度来自分层而非装饰",
+      "not_copyable": "原文与图",
+      "supports": "不用半透明玻璃，深度靠不透明表面、阴影与遮罩",
+      "surfaces": [
+        "通用"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-10-29",
+      "luzcrawl_status": "成功",
+      "method": "LuzCrawl",
+      "snapshot": {
+        "path": "D:/Codes/skill输出/Luz-Crawl/raw/016_Demo一键生成助手 UI升级与闭环审计/raw/1220_Materials Apple Developer Documentation"
+      },
+      "id": "SRC-094"
+    },
+    {
+      "url": "https://www.joshwcomeau.com/css/designing-shadows",
+      "title": "约什·科莫 设计阴影",
+      "page_title": "Designing Beautiful Shadows in CSS • Josh W. Comeau",
+      "domain": "joshwcomeau.com",
+      "category": "前端规则",
+      "evidence": "全页一个光源，所有阴影方向一致；多层阴影叠加更自然；阴影取背景色相并降低明度比透明黑更干净",
+      "borrowable": "阴影只向下、双层令牌、主题暗调阴影",
+      "not_copyable": "原文与代码",
+      "supports": "层级与立体感",
+      "surfaces": [
+        "通用"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-10-29",
+      "luzcrawl_status": "成功",
+      "method": "LuzCrawl",
+      "snapshot": {
+        "path": "D:/Codes/skill输出/Luz-Crawl/raw/016_Demo一键生成助手 UI升级与闭环审计/raw/1231_Designing Beautiful Shadows in CSS  Josh W. Comeau"
+      },
+      "id": "SRC-095"
+    },
+    {
+      "url": "https://www.nngroup.com/articles/cards-component",
+      "title": "尼尔森诺曼集团 卡片",
+      "page_title": "Cards: UI-Component Definition - NN/G",
+      "domain": "nngroup.com",
+      "category": "组件状态",
+      "evidence": "卡片用边框和与页面底不同的底色把内容归成一组，轻微投影提示可点击；卡片内次要操作用横线与内容分开",
+      "borrowable": "白卡、发丝边、最轻一级阴影、内缩分隔",
+      "not_copyable": "原文与截图",
+      "supports": "卡片",
+      "surfaces": [
+        "通用"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-10-29",
+      "luzcrawl_status": "成功",
+      "method": "LuzCrawl",
+      "snapshot": {
+        "path": "D:/Codes/skill输出/Luz-Crawl/raw/016_Demo一键生成助手 UI升级与闭环审计/raw/1232_Cards UI-Component Definition - NN G"
+      },
+      "id": "SRC-096"
+    },
+    {
+      "url": "https://www.nngroup.com/articles/visual-hierarchy-ux-definition",
+      "title": "尼尔森诺曼集团 视觉层级",
+      "page_title": "Visual Hierarchy in UX: Definition - NN/G",
+      "domain": "nngroup.com",
+      "category": "前端规则",
+      "evidence": "层级来自颜色与对比、尺寸、分组；字号分大中小三类即可（正文 14–16、副标题 18–22、标题到 32）；粗字重比常规更突出",
+      "borrowable": "标题与数字三级拉开，其余靠字重与颜色",
+      "not_copyable": "原文",
+      "supports": "七级字体角色",
+      "surfaces": [
+        "通用"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-10-29",
+      "luzcrawl_status": "成功",
+      "method": "LuzCrawl",
+      "snapshot": {
+        "path": "D:/Codes/skill输出/Luz-Crawl/raw/016_Demo一键生成助手 UI升级与闭环审计/raw/1215_Visual Hierarchy in UX Definition - NN G"
+      },
+      "id": "SRC-097"
+    },
+    {
+      "url": "https://carbondesignsystem.com/elements/typography/type-sets",
+      "title": "碳设计体系 字体字阶",
+      "page_title": "Typography | Carbon Design System",
+      "domain": "carbondesignsystem.com",
+      "category": "前端规则",
+      "evidence": "14、16 的标题用 600，20 以上的标题用 400 或 300，靠字号表达层级",
+      "borrowable": "小标题 600、层级靠字号",
+      "not_copyable": "字阶令牌",
+      "supports": "字重三档（中文没有可用细体，大标题改用 700）",
+      "surfaces": [
+        "通用"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-10-29",
+      "luzcrawl_status": "成功",
+      "method": "LuzCrawl",
+      "snapshot": {
+        "path": "D:/Codes/skill输出/Luz-Crawl/raw/016_Demo一键生成助手 UI升级与闭环审计/raw/1210_Typography Carbon Design System"
+      },
+      "id": "SRC-098"
+    },
+    {
+      "url": "https://m3.material.io/styles/typography/type-scale-tokens",
+      "title": "谷歌材料设计第三版 字阶令牌",
+      "page_title": "Typography – Material Design 3",
+      "domain": "material.io",
+      "category": "前端规则",
+      "evidence": "一套字阶分基础与强调两组，强调组字重更高，用于选中、主要操作与标题",
+      "borrowable": "600 与 700 只给标题、数字与强调",
+      "not_copyable": "字阶令牌",
+      "supports": "七级字体角色",
+      "surfaces": [
+        "通用"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-10-29",
+      "luzcrawl_status": "部分",
+      "method": "LuzCrawl",
+      "snapshot": {
+        "path": "D:/Codes/skill输出/Luz-Crawl/raw/016_Demo一键生成助手 UI升级与闭环审计/raw/1207_Typography – Material Design 3"
+      },
+      "id": "SRC-099"
+    },
+    {
+      "url": "https://phosphoricons.com/",
+      "title": "磷光图标 双色字重",
+      "page_title": "Phosphor Icons",
+      "domain": "phosphoricons.com",
+      "category": "组件状态",
+      "evidence": "双色字重由背景层（浅色面）与前景层（完整描边）叠成",
+      "borrowable": "双色图标块：描边加一个浅色面",
+      "not_copyable": "图标源文件",
+      "supports": "双色线性图标",
+      "surfaces": [
+        "通用"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-10-29",
+      "luzcrawl_status": "成功",
+      "method": "LuzCrawl",
+      "snapshot": {
+        "path": "D:/Codes/skill输出/Luz-Crawl/raw/016_Demo一键生成助手 UI升级与闭环审计/raw/1212_Phosphor Icons"
+      },
+      "id": "SRC-100"
+    },
+    {
+      "url": "https://undraw.co/",
+      "title": "昂德劳 开源插画库",
+      "page_title": "unDraw - Open source illustrations for any idea",
+      "domain": "undraw.co",
+      "category": "组件状态",
+      "evidence": "极简插画由多层对象组成，主色可以整体替换以匹配品牌",
+      "borrowable": "多层扁平插画、颜色全部取主题阶",
+      "not_copyable": "插画素材",
+      "supports": "插画：多层扁平",
+      "surfaces": [
+        "通用"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-10-29",
+      "luzcrawl_status": "成功",
+      "method": "LuzCrawl",
+      "snapshot": {
+        "path": "D:/Codes/skill输出/Luz-Crawl/raw/016_Demo一键生成助手 UI升级与闭环审计/raw/1218_unDraw - Open source illustrations for any idea"
+      },
+      "id": "SRC-101"
+    },
+    {
+      "url": "https://storyset.com/",
+      "title": "故事集插画库",
+      "page_title": "Storyset | Customize, animate and download illustration for free",
+      "domain": "storyset.com",
+      "category": "组件状态",
+      "evidence": "插画可换色，背景分隐藏、简单、详细三层",
+      "borrowable": "主体、配件、地面三层",
+      "not_copyable": "插画素材",
+      "supports": "插画：多层扁平",
+      "surfaces": [
+        "通用"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-10-29",
+      "luzcrawl_status": "部分",
+      "method": "LuzCrawl",
+      "snapshot": {
+        "path": "D:/Codes/skill输出/Luz-Crawl/raw/016_Demo一键生成助手 UI升级与闭环审计/raw/1216_Storyset Customize, animate and download illustration for free"
+      },
+      "id": "SRC-102"
     }
   ]
 }

@@ -27,6 +27,12 @@ def publish(folder: Path, stage: str) -> Path:
     if not source.is_file():
         raise FileNotFoundError(f"missing stage artifact: raw/{STAGE_PATHS[stage]}")
     errors: list[str] = []
+    # Work starts from a current rule card and the BRIEF names the rules it applied (scripts/context.py).
+    from validate_session import rule_card_errors, sediment_errors
+    errors.extend(rule_card_errors(work, require_adopted=True, check_current=True))
+    # Every call leaves experience behind (SKILL.md 每次调用后沉淀): notes written or confirmed for this session.
+    created = json.loads((work / "99-delivery" / "MANIFEST.json").read_text(encoding="utf-8")).get("created_at", "")
+    errors.extend(sediment_errors(work, str(created)[:10]))
     # Visual boards and reading pages keep the 14px floor (visual-design.html 字体与字号).
     validate_light_html(source, errors)
     # Every delivered HTML carries its own browser-tab icon (visual-design.html 网页图标与品牌标识).

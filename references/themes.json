@@ -1,6 +1,6 @@
 {
-  "version": "2026-10-28.v7",
-  "note": "行业主题表。颜色为语义 token 的起始值，JSON 键 camelCase 对应 Figma/WXSS 的 kebab-case（ink2 = ink-2，navBg = nav-bg）。规则：canvas 用浅白或极浅灰的中性色（扁平线性风格：低饱和、干净中性），navBg 用白底或主色浅底阶纯色，都不用渐变与纹理；主色与辅色从公开设计体系的官方色板取阶（Ant Design、TDesign 等）：action 取白字达 4.5:1 的一阶，actionPress 深一阶，actionTint 取最浅一阶作容器底；营销按钮用 accentTint 容器底配 accent 文字（Material 3 色调按钮）；白字只落在 action / actionPress / success / danger / warning 底上；navBg 上只放 ink 文字与图标。dark 为可选深色映射，未提供则该主题不得开启深色模式。换主题只替换 Color/* 变量，结构不变。",
+  "version": "2026-10-29.v8",
+  "note": "行业主题表。颜色为语义 token 的起始值，JSON 键 camelCase 对应 Figma/WXSS 的 kebab-case（ink2 = ink-2，navBg = nav-bg）。规则：canvas 用浅白、极浅灰的中性色或主色同色相的极浅底（亮度 >= 0.85），navBg 用白底或主色浅底阶纯色，都不用渐变与纹理；主色与辅色从公开设计体系的官方色板取阶（Ant Design、TDesign 等），阶数从最浅的第 1 阶数起（Ant Design 页面从 0 编号，其第 0 阶即第 1 阶）：action 取白字达 4.5:1 的一阶（品牌阶，第 6 阶附近），actionPress 深一阶，actionTint 取第 1 阶作容器底；scale 给出整列 10 阶，界面只用第 1、2–3、品牌、按下与第 9 阶；modules 是一级模块的点缀色（tint 第 1 阶、mid 第 2 阶、solid 为该列第一个对白底达 4.5:1 的一阶），一个颜色只代表一个模块，色相与成功、警告、危险相差至少 25 度；营销按钮用 accentTint 容器底配 accent 文字（Material 3 色调按钮）；白字只落在 action / actionPress / success / danger / warning 与品牌主卡（action 实色）上；navBg 上只放 ink 文字与图标。shared.elevation 是五级层级的阴影令牌（近处锐利小阴影 + 远处柔和大阴影，颜色为中性深色，可换成主题第 10 阶的同透明度暗调）。dark 为可选深色映射，未提供则该主题不得开启深色模式。换主题只替换 Color/* 变量，结构不变。",
   "shared": {
     "surface": "#FFFFFF",
     "ink": "#2B2326",
@@ -18,7 +18,21 @@
     "sage": "#5F7354",
     "sageTint": "#EEF2EB",
     "photo": "#EBDCD6",
-    "photo2": "#DDE5D7"
+    "photo2": "#DDE5D7",
+    "elevation": {
+      "note": "visual-design.html 层级与立体感：0 底面无阴影；1 卡片；2 悬浮卡片（悬停、拖动）；3 下拉、提示、吸顶栏与轻提示；4 对话框、底部弹层与抽屉。按下时从 2 回到 1（卡片缩放到 0.98，按钮下沉 1 像素）。每级两层，只向下偏移（贴底的操作栏与标签栏用纵向镜像），远处一层逐级更大更柔，单位面积浓度逐级降低，单层透明度不超过 0.2。hairline 是卡片边与分隔线，hairlineStrong 是可点击卡片悬停时加深一阶的边线（输入框边线另取对白 3:1 的中性灰）；highlight 是浅底卡的内顶部高光（白 60%–80%），highlightSolid 是品牌主卡与主按钮等实色面的内顶部高光（白 16%–24%）；buttonEdge 配按下阶作主按钮底边，focusRing 配主色 24% 作键盘聚焦环。",
+      "level1": "0 1px 2px rgba(16,24,40,.06), 0 2px 6px rgba(16,24,40,.04)",
+      "level2": "0 2px 4px rgba(16,24,40,.06), 0 8px 16px rgba(16,24,40,.08)",
+      "level3": "0 4px 8px rgba(16,24,40,.06), 0 12px 24px rgba(16,24,40,.10)",
+      "level4": "0 8px 16px rgba(16,24,40,.08), 0 24px 48px rgba(16,24,40,.14)",
+      "hairline": "rgba(16,24,40,.08)",
+      "hairlineStrong": "rgba(16,24,40,.14)",
+      "highlight": "inset 0 1px 0 rgba(255,255,255,.7)",
+      "highlightSolid": "inset 0 1px 0 rgba(255,255,255,.2)",
+      "scrim": "rgba(16,24,40,.45)",
+      "focusRing": "0 0 0 3px",
+      "buttonEdge": "0 1px 0"
+    }
   },
   "themes": {
     "xiangcai": {
@@ -315,7 +329,7 @@
       "action": "#4A5BD6",
       "actionPress": "#3A48B0",
       "actionTint": "#E6E9FA",
-      "canvas": "#F5F5F5",
+      "canvas": "#F0F2FC",
       "navBg": "#E2E5F3",
       "accent": "#D98C3F",
       "accentTint": "#F9EBDD",
@@ -323,7 +337,51 @@
       "radiusCard": 12,
       "radiusButton": 8,
       "imageStyle": "办公桌面与设备局部实拍，冷调自然光，画面干净，无文字",
-      "avoid": "机器人形象、二进制雨、赛博霓虹"
+      "avoid": "机器人形象、二进制雨、赛博霓虹",
+      "scale": [
+        "#E6E9FA",
+        "#D4D8F7",
+        "#C5CBF5",
+        "#A1A9EE",
+        "#7782E3",
+        "#4A5BD6",
+        "#3A48B0",
+        "#28378E",
+        "#1A2872",
+        "#0B1B58"
+      ],
+      "modules": {
+        "meeting": {
+          "label": "客户会议（首页与会议）",
+          "hue": "明青 cyan",
+          "tint": "#E6FFFB",
+          "mid": "#B5F5EC",
+          "solid": "#006D75"
+        },
+        "demo": {
+          "label": "Demo 生成",
+          "hue": "酱紫 purple",
+          "tint": "#F9F0FF",
+          "mid": "#EFDBFF",
+          "solid": "#722ED1"
+        },
+        "product": {
+          "label": "产品库",
+          "hue": "法式洋红 magenta",
+          "tint": "#FFF0F6",
+          "mid": "#FFD6E7",
+          "solid": "#C41D7F"
+        },
+        "dashboard": {
+          "label": "数据工作台与智能体工作台",
+          "hue": "主色（品牌与通用对象，不另设点缀色）",
+          "tint": "#E6E9FA",
+          "mid": "#D4D8F7",
+          "solid": "#3A48B0",
+          "brand": true
+        }
+      },
+      "source": "主色 #4A5BD6、按下 #3A48B0、浅底 #E6E9FA、页面底 #F0F2FC 为用户已批准取值（2026-10-28）；scale 第 1、6、7 阶即这三个值，第 2–5、8–10 阶在同一色相上按 CIELAB 明度阶梯补齐（L* 87、82.5、71、57.5、27、20、13；第 2、3 阶亮度 0.70、0.61，仍可作大面积浅色块；第 9 阶 #1A2872 对白 13.2:1，用于深色强调与插画描边）。模块点缀色取 Ant Design 官方色板：明青 cyan 第 1/2/8 阶（#006D75 对白 6.1:1）、酱紫 purple 第 1/2/6 阶（#722ED1 对白 6.9:1）、法式洋红 magenta 第 1/2/7 阶（#C41D7F 对白 5.5:1）；色相与成功 #18794E（153 度）、警告 #A15C00（34 度）、危险 #C93644（354 度）分别相差 31、89、29 度以上；拂晓蓝与主色只差 16 度、金盏花与日暮接近警告、极光绿与青柠接近成功，因此不用作点缀色；数据工作台汇总其他模块，沿用主色。"
     },
     "fitness-gym": {
       "label": "健身房 / 运动馆",

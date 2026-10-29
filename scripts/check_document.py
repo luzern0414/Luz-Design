@@ -52,6 +52,21 @@ GRAPHIC_SELECTOR = re.compile(r"svg|\.icon|frame|illustration|\.empty|chart|star
 DARK_SMALL_SELECTOR = re.compile(r"\.(?:dot|icon|legend|bar|badge|pill|status|progress|chip|tag|logo|corner|coins?|kk|steps|mark|avatar|check|box|ring|scan|cbox|heat|rb)\b|-(?:mark|bar)\b|\.copy i|::?(?:before|after|marker)|svg|button|input", re.I)
 # Filled controls in their active state: primary and danger buttons, checked switches and boxes, selected options.
 ACTIVE_CONTROL_SELECTOR = re.compile(r"primary|danger|aria-checked=.?true|aria-pressed=.?true|\.on\b|ck-mark", re.I)
+# The one brand card per screen (visual-design.html 配色, 品牌主卡): a solid primary-step card with white text.
+BRAND_CARD = re.compile(r"\.brand-card(?![\w-])")
+BRAND_CARD_CLASS = "brand-card"
+BRAND_CARD_MIN_CONTRAST = 4.5
+# One line icon set (visual-design.html 图形：一套线性图标): 2 on the 24 grid, 1.75 allowed for 16px icons.
+ICON_SELECTOR = re.compile(r"\.icon\b|\.icon-|svg\.fi\b|\bfi\b|svg\.i\b|\.ico\b")
+ICON_STROKES = {1.75, 2.0}
+# Three weights (visual-design.html 字体与字号): 400 body, 600 headings and emphasis, 700 only at 22px and larger.
+PLAIN_WEIGHTS = {"400", "600", "normal", "inherit", "initial", "unset"}
+BOLD_WEIGHTS = {"700", "bold"}
+BOLD_MIN_PX = 22.0
+# Elevation (visual-design.html 层级与立体感): cards take levels 1–2 (far blur up to 24), overlays up to level 4 (48).
+CARD_MAX_BLUR = 24.0
+OVERLAY_MAX_BLUR = 48.0
+SHADOW_MAX_ALPHA = 0.2
 ALLOWED: set[str] = set()
 
 
@@ -77,6 +92,102 @@ def luminance(rgb: tuple[int, int, int]) -> float:
 def hex_rgb(value: str) -> tuple[int, int, int]:
     value = value[-6:]
     return tuple(int(value[i:i + 2], 16) for i in (0, 2, 4))
+
+
+def parse_colors_alpha(value: str) -> list[tuple[tuple[int, int, int], float]]:
+    """Every colour in a value with its alpha (hex and rgb are opaque)."""
+    found = []
+    for hex_value in re.findall(r"#([0-9a-fA-F]{6}|[0-9a-fA-F]{3})\b", value):
+        if len(hex_value) == 3:
+            hex_value = "".join(c * 2 for c in hex_value)
+        found.append((hex_rgb(hex_value), 1.0))
+    for match in re.finditer(r"rgba?\(\s*(\d+)[ ,]+(\d+)[ ,]+(\d+)(?:[ ,/]+([\d.]+%?))?", value):
+        alpha = match.group(4)
+        a = 1.0 if not alpha else float(alpha.rstrip("%")) / (100 if alpha.endswith("%") else 1)
+        found.append((tuple(int(match.group(i)) for i in (1, 2, 3)), a))
+    return found
+
+
+def shadow_layers(value: str) -> list[dict]:
+    """Each layer of a box-shadow or text-shadow: inset, x, y, blur, spread, colour and alpha (no colour = opaque black)."""
+    layers = []
+    if value.strip().lower() in {"none", "0", "inherit", "initial", "unset", ""}:
+        return layers
+    for part in re.split(r",(?![^(]*\))", value):
+        if not part.strip():
+            continue
+        lengths = re.sub(r"(?:rgba?|hsla?|var)\([^)]*\)|#[0-9a-f]{3,8}\b|\binset\b", " ", part, flags=re.I)
+        nums = [float(n) for n in re.findall(r"(-?\d*\.?\d+)(?:px)?\b", lengths)] + [0.0, 0.0, 0.0, 0.0]
+        colours = parse_colors_alpha(part)
+        colour, alpha = colours[0] if colours else ((0, 0, 0), 1.0)
+        layers.append({"inset": bool(re.search(r"\binset\b", part, re.I)), "x": nums[0], "y": nums[1], "blur": nums[2],
+                       "spread": nums[3], "colour": colour, "alpha": alpha, "text": part.strip()[:34]})
+    return layers
+
+
+def blend(color: tuple[int, int, int], alpha: float, backdrop: tuple[int, int, int]) -> tuple[int, int, int]:
+    return tuple(round(c * alpha + b * (1 - alpha)) for c, b in zip(color, backdrop))
+
+
+def contrast_ratio(a: tuple[int, int, int], b: tuple[int, int, int]) -> float:
+    lighter, darker = sorted((luminance(a), luminance(b)), reverse=True)
+    return (lighter + 0.05) / (darker + 0.05)
+
+
+# Ant Design official 10-step columns (ant.design/docs/spec/colors-cn, step 1 = lightest). A theme that takes one step of a
+# column may use the column's other steps in icons and illustrations.
+ANT_COLUMNS = {
+    "red": "#FFF1F0 #FFCCC7 #FFA39E #FF7875 #FF4D4F #F5222D #CF1322 #A8071A #820014 #5C0011",
+    "volcano": "#FFF2E8 #FFD8BF #FFBB96 #FF9C6E #FF7A45 #FA541C #D4380D #AD2102 #871400 #610B00",
+    "orange": "#FFF7E6 #FFE7BA #FFD591 #FFC069 #FFA940 #FA8C16 #D46B08 #AD4E00 #873800 #612500",
+    "lime": "#FCFFE6 #F4FFB8 #EAFF8F #D3F261 #BAE637 #A0D911 #7CB305 #5B8C00 #3F6600 #254000",
+    "gold": "#FFFBE6 #FFF1B8 #FFE58F #FFD666 #FFC53D #FAAD14 #D48806 #AD6800 #874D00 #613400",
+    "yellow": "#FEFFE6 #FFFFB8 #FFFB8F #FFF566 #FFEC3D #FADB14 #D4B106 #AD8B00 #876800 #614700",
+    "green": "#F6FFED #D9F7BE #B7EB8F #95DE64 #73D13D #52C41A #389E0D #237804 #135200 #092B00",
+    "cyan": "#E6FFFB #B5F5EC #87E8DE #5CDBD3 #36CFC9 #13C2C2 #08979C #006D75 #00474F #002329",
+    "blue": "#E6F4FF #BAE0FF #91CAFF #69B1FF #4096FF #1677FF #0958D9 #003EB3 #002C8C #001D66",
+    "geekblue": "#F0F5FF #D6E4FF #ADC6FF #85A5FF #597EF7 #2F54EB #1D39C4 #10239E #061178 #030852",
+    "purple": "#F9F0FF #EFDBFF #D3ADF7 #B37FEB #9254DE #722ED1 #531DAB #391085 #22075E #120338",
+    "magenta": "#FFF0F6 #FFD6E7 #FFADD2 #FF85C0 #F759AB #EB2F96 #C41D7F #9E1068 #780650 #520339",
+}
+
+
+def theme_palette() -> set[tuple[int, int, int]]:
+    """Every colour defined in references/themes.json (shared tokens, theme steps, scales and module accents), plus the other
+    steps of each official Ant Design column a theme already uses."""
+    import json
+    path = Path(__file__).resolve().parents[1] / "references" / "themes.json"
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return set()
+    text = json.dumps({"shared": data.get("shared", {}),
+                       "themes": {k: {x: y for x, y in v.items() if x != "dark"} for k, v in data.get("themes", {}).items()}})
+    colours = {hex_rgb(h) for h in re.findall(r"#([0-9a-fA-F]{6})\b", text)}
+    for column in ANT_COLUMNS.values():
+        steps = {hex_rgb(h) for h in re.findall(r"#([0-9A-F]{6})", column)}
+        if steps & colours:
+            colours |= steps
+    return colours
+
+
+def light_neutral(color: tuple[int, int, int]) -> bool:
+    return max(color) - min(color) <= 8 and luminance(color) >= 0.6
+
+
+def template_styles() -> list[tuple[str, str]]:
+    """(name, normalised <style>) for the HTML templates in references/templates.txt."""
+    path = Path(__file__).resolve().parents[1] / "references" / "templates.txt"
+    try:
+        text = path.read_text(encoding="utf-8")
+    except OSError:
+        return []
+    found = []
+    for name, body in re.findall(r"=== template: ([\w.-]+\.html) ===\n(.*?)\n=== end ===", text, re.S):
+        style = re.search(r"<style[^>]*>(.*?)</style>", body, re.S | re.I)
+        if style:
+            found.append((name, re.sub(r"\s+", "", style.group(1))))
+    return found
 
 
 def parse_colors(value: str) -> list[tuple[int, int, int]]:
@@ -299,8 +410,19 @@ def check_html(path: Path, errors: list[str], warnings: list[str]) -> None:
         errors.append("dark color scheme declared")
     families: set[str] = set()
     icon_strokes: set[str] = set()
+    bold_rules: list[tuple[str, str]] = []
+    # Brand cards (visual-design.html 配色, 品牌主卡): their fill is the backdrop for text in descendant rules.
+    brand_fills: list[tuple[int, int, int]] = []
+    for rule in re.finditer(r"([^{}]*)\{([^{}]*)\}", css):
+        sel, bod = rule.group(1).strip(), rule.group(2)
+        if any(BRAND_CARD.search(part.split()[-1]) for part in sel.split(",") if part.split()):
+            brand_fills += [c for m in re.finditer(r"(?:^|;)\s*background(?:-color)?\s*:\s*([^;]+)", bod, re.I)
+                            for c in parse_colors(resolve(m.group(1))) if luminance(c) < 0.6]
     for rule in re.finditer(r"([^{}]*)\{([^{}]*)\}", css):
         selector, body = rule.group(1).strip(), rule.group(2)
+        parts = [part.split() for part in selector.split(",") if part.split()]
+        brand_self = bool(parts) and all(BRAND_CARD.search(part[-1]) for part in parts)
+        brand_inside = bool(parts) and not brand_self and all(any(BRAND_CARD.search(x) for x in part[:-1]) for part in parts)
         for decl in re.finditer(r"(?:^|;)\s*font-size\s*:\s*([^;]+)", body, re.I):
             value = resolve(decl.group(1))
             for number, unit in re.findall(r"(\d+(?:\.\d+)?)\s*(px|rem|em|pt)\b", value, re.I):
@@ -312,13 +434,28 @@ def check_html(path: Path, errors: list[str], warnings: list[str]) -> None:
             # Details and forms float in the centre; only navigation may slide in from the side (Luz-System ui-standards.html, 浮层与反馈).
             errors.append(f"side drawer for content in {selector[:40]!r}: use a centred floating panel")
         if "interface" in ALLOWED:
-            # Product deliverables use two weights only and no tracking (visual-design.html, 字体与字号).
+            # Product deliverables use three weights and no tracking (visual-design.html, 字体与字号): 400 body,
+            # 600 headings and emphasis, 700 only for page titles and large numbers at 22px and larger.
             for decl in re.finditer(r"(?:^|;)\s*font-weight\s*:\s*([^;]+)", body, re.I):
-                if decl.group(1).strip().lower() not in {"400", "600", "normal", "inherit"}:
-                    errors.append(f"font weight outside 400/600 in {selector[:40]!r}: {decl.group(1).strip()}")
+                weight = decl.group(1).replace("!important", "").strip().lower()
+                if weight in BOLD_WEIGHTS:
+                    if selector != "x":
+                        bold_rules.append((selector, body))
+                elif weight not in PLAIN_WEIGHTS:
+                    errors.append(f"font weight outside 400/600/700 in {selector[:40]!r}: {decl.group(1).strip()}")
             for decl in re.finditer(r"(?:^|;)\s*letter-spacing\s*:\s*([^;]+)", body, re.I):
                 if decl.group(1).strip().lower() not in {"0", "normal", "0px", "inherit"}:
                     errors.append(f"letter spacing in {selector[:40]!r}: {decl.group(1).strip()}")
+        else:
+            # Reading pages use the same three weights (file-design.html 网页文件): 700 only for the 24 and 32px titles.
+            own_size = font_size_value(declarations(body, resolve))
+            own_px = length_px(own_size, 16.0) if own_size else None
+            for decl in re.finditer(r"(?:^|;)\s*font-weight\s*:\s*([^;]+)", body, re.I):
+                weight = decl.group(1).replace("!important", "").strip().lower()
+                if weight in BOLD_WEIGHTS and own_px is not None and own_px < BOLD_MIN_PX:
+                    warnings.append(f"font weight 700 at {own_px:g}px in {selector[:40]!r}: below 22px use 600")
+                elif weight not in BOLD_WEIGHTS | PLAIN_WEIGHTS:
+                    warnings.append(f"font weight outside 400/600/700 in {selector[:40]!r}: {decl.group(1).strip()}")
         if re.search(r"(?:^|;)\s*font-style\s*:\s*(?:italic|oblique)", body, re.I):
             errors.append(f"italic text in {selector[:40]!r}: Chinese has no true italic")
         for decl in re.finditer(r"(?:^|;)\s*font\s*:\s*([^;]+)", body, re.I):
@@ -348,7 +485,17 @@ def check_html(path: Path, errors: list[str], warnings: list[str]) -> None:
                     errors.append(f"decorative gradient in {selector[:40]!r}: use one flat colour (扁平线性风格)")
             for color in parse_colors(value):
                 lum = luminance(color)
-                if lum < 0.6 and not small and "dark" not in ALLOWED:
+                if lum < 0.6 and brand_self and "interface" in ALLOWED:
+                    # One brand card per screen may take a solid primary step: a hue, not a dark neutral, with white
+                    # (or the declared) text at 4.5:1 (visual-design.html 配色, 品牌主卡; WCAG 1.4.3).
+                    texts = [c for m in re.finditer(r"(?:^|;)\s*color\s*:\s*([^;]+)", body, re.I) for c in parse_colors(resolve(m.group(1)))]
+                    ratio = contrast_ratio(texts[0] if texts else (255, 255, 255), color)
+                    if max(color) - min(color) < 60:
+                        errors.append(f"brand card {selector[:40]!r} is a dark neutral {decl.group(1).strip()[:30]}: use the primary brand or pressed step")
+                    elif ratio < BRAND_CARD_MIN_CONTRAST:
+                        errors.append(f"brand card {selector[:40]!r}: text on {decl.group(1).strip()[:30]} is {ratio:.1f}:1, "
+                                      f"needs {BRAND_CARD_MIN_CONTRAST:g}:1 (use the step where white text reaches 4.5:1)")
+                elif lum < 0.6 and not small and "dark" not in ALLOWED:
                     errors.append(f"dark or saturated fill in {selector[:40]!r}: {decl.group(1).strip()[:30]} (luminance {lum:.2f})")
                 elif ("interface" in ALLOWED and 0.3 < lum < 0.7 and ACTIVE_CONTROL_SELECTOR.search(selector)
                       and not re.search(r"::?(?:before|after)|-thumb|:disabled|:hover", selector)
@@ -361,41 +508,72 @@ def check_html(path: Path, errors: list[str], warnings: list[str]) -> None:
                 # Design systems fill buttons with one flat palette step (Ant Design, TDesign, Material 3).
                 errors.append(f"gradient on control in {selector[:40]!r}: use one flat palette step")
         own_bg = [c for m in re.finditer(r"(?:^|;)\s*background(?:-color)?\s*:\s*([^;]+)", body, re.I) for c in parse_colors(resolve(m.group(1)))]
-        backdrop = own_bg[0] if own_bg else (255, 255, 255)
+        # Text inside a brand card sits on the card's solid fill, not on white.
+        inside_card = brand_inside and brand_fills and "interface" in ALLOWED
+        backdrop = own_bg[0] if own_bg else (brand_fills[0] if inside_card else (255, 255, 255))
         # Text on a transparent layer sits over imagery or a parent surface we cannot see here; skip it.
         transparent_layer = bool(re.search(r"background(?:-color)?\s*:\s*(?:transparent|none)\b", body, re.I))
         # Text needs 4.5:1; graphics (icons, frames, illustrations) and disabled controls need 3:1.
         minimum = 3.0 if GRAPHIC_SELECTOR.search(selector) or ":disabled" in selector else 4.5
         for decl in (() if transparent_layer else re.finditer(r"(?:^|;)\s*color\s*:\s*([^;]+)", body, re.I)):
-            for color in parse_colors(resolve(decl.group(1))):
-                lighter, darker = sorted((luminance(color), luminance(backdrop)), reverse=True)
-                contrast = (lighter + 0.05) / (darker + 0.05)
+            for color, alpha in parse_colors_alpha(resolve(decl.group(1))):
+                if alpha < 0.5 and not inside_card:
+                    continue
+                shown = blend(color, alpha, backdrop) if alpha < 1 else color
+                contrast = contrast_ratio(shown, backdrop)
                 if contrast < minimum:
                     errors.append(f"color too light in {selector[:40]!r}: {decl.group(1).strip()} ({contrast:.1f}:1, needs {minimum:g}:1)")
-        for decl in re.finditer(r"(?:^|;)\s*(?:box-shadow|text-shadow)\s*:\s*([^;]+)", body, re.I):
-            blur = re.findall(r"(\d+)px", decl.group(1))
-            if len(blur) >= 3 and int(blur[2]) > 24:
-                warnings.append(f"heavy shadow in {selector[:40]!r}: {decl.group(1).strip()[:30]}")
+        if "interface" not in ALLOWED:
+            # Reading pages stay on level 0 with hairlines (visual-design.html 层级与立体感; file-design.html 网页文件).
+            for decl in re.finditer(r"(?:^|;)\s*(?:box-shadow|text-shadow)\s*:\s*([^;]+)", body, re.I):
+                blurred = [layer for layer in shadow_layers(resolve(decl.group(1)))
+                           if not layer["inset"] and layer["blur"] >= 4 and layer["alpha"] > 0]
+                if blurred:
+                    warnings.append(f"shadow in a reading page {selector[:40]!r}: {decl.group(1).strip()[:30]} "
+                                    "(reading pages use level 0, hairlines and pale fills; no card shadows)")
         if "interface" in ALLOWED:
-            # Flat interface (visual-design.html, 扁平线性风格; Ant Design shadow levels, Material 3 elevation):
-            # cards take the lowest neutral shadow, overlays one level higher; no bevels, glows, glass or blobs.
-            overlay = re.search(r"modal|dialog|pop|toast|tip|drop|sheet|layer|confirm|drawer|menu|float|picker|lightbox|panel", selector, re.I)
+            # Elevation (visual-design.html 层级与立体感; Material 3 elevation, Fluent 2 shadows, Ant Design shadow tokens):
+            # two-layer neutral (or dark theme-tinted) shadows by level; cards up to level 2, overlays up to level 4.
+            # 1–2px edges (an inset top highlight, a button's pressed-step bottom edge) and focus rings are lines, not bevels.
+            overlay = re.search(r"modal|dialog|pop|toast|tip|drop|sheet|layer|confirm|drawer|menu|float|picker|lightbox|panel|sticky|fixed",
+                                selector, re.I)
+            # Bars docked at the bottom mirror their level upward (Ant Design upward shadows for bottom navigation and toolbars).
+            bottom_bar = re.search(r"bottom|tab-?bar|foot|action-?bar|toolbar|dock", selector, re.I)
             for decl in re.finditer(r"(?:^|;)\s*box-shadow\s*:\s*([^;]+)", body, re.I):
-                value = resolve(decl.group(1))
-                for part in re.split(r",(?![^(]*\))", value):
-                    lengths = re.sub(r"(?:rgba?|hsla?|var)\([^)]*\)|#[0-9a-f]{3,8}\b|\binset\b", " ", part, flags=re.I)
-                    nums = [float(n) for n in re.findall(r"(-?\d*\.?\d+)(?:px)?\b", lengths)]
-                    if part.strip().startswith("inset") and len(nums) >= 2 and nums[1] != 0:
-                        errors.append(f"bevel shadow in {selector[:40]!r}: {part.strip()[:30]} (flat style has no raised or sunken buttons)")
-                    elif len(nums) >= 3 and nums[0] == 0 and nums[1] == 0 and nums[2] >= 8 and not part.strip().startswith("inset"):
-                        errors.append(f"glow in {selector[:40]!r}: {part.strip()[:30]}")
-                    elif len(nums) >= 3 and nums[2] > 12 and not overlay:
-                        errors.append(f"heavy card shadow in {selector[:40]!r}: {part.strip()[:30]} (cards use the lowest elevation)")
+                for layer in shadow_layers(resolve(decl.group(1))):
+                    inset, x, y, blur, spread = layer["inset"], layer["x"], layer["y"], layer["blur"], layer["spread"]
+                    colour, alpha, text = layer["colour"], layer["alpha"], layer["text"]
+                    bright = luminance(colour) > 0.5
+                    # A primary or other mid-tone hue casts a coloured shadow; a dark theme tint (the 10th step) is allowed.
+                    tinted = max(colour) - min(colour) > 40 and luminance(colour) > 0.05
+                    if alpha == 0:
+                        continue
+                    if inset:
+                        edge = x == 0 and abs(y) <= 2 and blur <= 2 and spread <= 0
+                        ring = x == 0 and y == 0 and blur == 0 and 0 < spread <= 2
+                        if not (edge or ring):
+                            errors.append(f"bevel shadow in {selector[:40]!r}: {text} (only a 1–2px inset edge or ring; no raised or sunken bevels)")
+                    elif blur <= 1 and abs(y) <= 2 and x == 0 and spread <= 0:
+                        continue  # a 1–2px edge line, such as a button's pressed-step bottom edge
+                    elif blur == 0 and x == 0 and y == 0:
+                        continue  # a solid ring (focus ring, halo around a round control)
+                    elif x == 0 and y == 0 and blur >= 8 and (bright or tinted or alpha > SHADOW_MAX_ALPHA):
+                        errors.append(f"glow in {selector[:40]!r}: {text}")
+                    elif (bright or tinted) and alpha >= 0.1 and blur >= 4:
+                        errors.append(f"coloured shadow in {selector[:40]!r}: {text} (shadows are neutral or a dark theme tint)")
+                    elif y < 0 and blur >= 2 and not bottom_bar:
+                        warnings.append(f"upward shadow in {selector[:40]!r}: {text} (one light source above: shadows fall downward; "
+                                        "only bars docked at the bottom mirror the level upward)")
+                    elif blur > (OVERLAY_MAX_BLUR if overlay else CARD_MAX_BLUR):
+                        warnings.append(f"shadow beyond the elevation levels in {selector[:40]!r}: {text} "
+                                        f"(cards use levels 1–2, far blur up to {CARD_MAX_BLUR:g}; overlays up to {OVERLAY_MAX_BLUR:g})")
+                    elif alpha > SHADOW_MAX_ALPHA and blur >= 4:
+                        warnings.append(f"dark shadow in {selector[:40]!r}: {text} (layer alpha up to {SHADOW_MAX_ALPHA:g})")
             if re.search(r"(?:^|;)\s*(?:-webkit-)?backdrop-filter\s*:\s*[^;]*blur", body, re.I):
                 errors.append(f"glass blur in {selector[:40]!r}: flat surfaces are opaque")
             if re.search(r"(?:^|;)\s*border-radius\s*:\s*[^;]*\d+%\s+\d+%[^;]*", body, re.I):
                 errors.append(f"organic blob shape in {selector[:40]!r}")
-            if re.search(r"\.icon\b|svg\.fi\b|\bfi\b", selector) and not re.search(r"chart|check|box|avatar|art\b", selector):
+            if ICON_SELECTOR.search(selector) and not re.search(r"chart|check|box|avatar|art\b", selector):
                 for decl in re.finditer(r"(?:^|;)\s*stroke-width\s*:\s*([\d.]+)", body, re.I):
                     icon_strokes.add(decl.group(1))
     if len(families) > 1:
@@ -417,7 +595,11 @@ def check_html(path: Path, errors: list[str], warnings: list[str]) -> None:
     # different things. Short glyphs (arrows, close, plus, check) are controls, not pictograms, and are skipped.
     if "interface" in ALLOWED or "website" in ALLOWED:
         meaning: dict[str, set[str]] = {}
+        # Rows of one list that all carry the same object icon (several meetings, several accounts) name one kind of object.
+        row_icons = repeated_row_icons(source)
         for m in re.finditer(r"<svg\b[^>]*>(.*?)</svg>\s*(?:<[^>]+>\s*)*([^<>{}'\"+]{2,16})", source, re.S):
+            if m.start() in row_icons:
+                continue
             drawing = re.sub(r"\s+", "", m.group(1))
             if len(drawing) < 60 or "<text" in drawing:
                 continue
@@ -434,12 +616,54 @@ def check_html(path: Path, errors: list[str], warnings: list[str]) -> None:
     for tag in italic_tags:
         if not any(re.search(rf"(?:^|[\s,>+~(]){tag}\b|(?:^|[\s,])\*(?:[\s,]|$)", sel) for sel in resets):
             errors.append(f"<{tag}> renders italic by default; reset it with font-style: normal")
+    # Headings below 22px, table headers and bold tags render 700 by default; the rule is 600 there (visual-design.html 字体与字号).
+    # An occurrence that sets its own font-weight inline (pages pasted into editors that strip classes) is already decided.
+    bold_tags = sorted({t.lower() for t, attrs, inner in re.findall(r"<(th|strong|b|h3|h4|h5|h6)\b([^>]*)>(.*?)</\1>", source, re.I | re.S)
+                        if re.sub(r"<[^>]+>", "", inner).strip()
+                        and not re.search(r"""style\s*=\s*["'][^"']*font-weight\s*:""", attrs, re.I)})
+    weight_rules = [sel for sel, decls in re.findall(r"([^{}]*)\{([^{}]*)\}", css)
+                    if re.search(r"(?:^|;)\s*font-weight\s*:", decls, re.I)
+                    or re.search(r"(?:^|;)\s*font\s*:\s*[^;]*\b(?:[1-9]00|bold|normal)\b", decls, re.I)]
+    for tag in bold_tags:
+        if not any(re.search(rf"(?:^|[\s,>+~(]){tag}\b|(?:^|[\s,])\*(?:[\s,]|$)", sel) for sel in weight_rules):
+            warnings.append(f"<{tag}> renders 700 by default; set font-weight: 600 (700 is only for titles and numbers at 22px and larger)")
     radii = {v for v in re.findall(r"border-radius\s*:\s*(\d+)px", css) if v not in {"0", "999", "9999", "50"}}
-    if len(radii) > 3:
-        warnings.append(f"inconsistent corner radii: {sorted(radii, key=int)}")
+    if len(radii) > 4:
+        warnings.append(f"inconsistent corner radii: {sorted(radii, key=int)} (tags 4, controls 8, cards 12, large cards and dialogs 16)")
+    # Templates are skeletons (SKILL.md, WORKFLOW.md): a page that keeps a template's whole style sheet or its default
+    # :root palette was not designed for its content.
+    page_style = re.sub(r"\s+", "", "\n".join(re.findall(r"<style[^>]*>(.*?)</style>", source, re.S | re.I)))
+    for name, template_css in template_styles():
+        root_block = re.search(r":root\{[^}]*\}", template_css)
+        if page_style and (page_style == template_css or (root_block and root_block.group(0) in page_style)):
+            warnings.append(f"page keeps the default style of template {name}: templates are skeletons; design colour, type, "
+                            "elevation and graphics for this content from visual-design.html and themes.json")
+            break
     if "interface" in ALLOWED:
-        if len(icon_strokes) > 1:
+        for m in re.finditer(r"<svg\b[^>]*\bclass=[\"'][^\"']*\b(?:icon|i|fi|ico)\b[^\"']*[\"'][^>]*>", source, re.I):
+            width = re.search(r"\bstroke-width=[\"']([\d.]+)", m.group(0))
+            if width:
+                icon_strokes.add(width.group(1))
+        widths = {float(w) for w in icon_strokes}
+        if len(widths) > 1 and not widths <= ICON_STROKES:
             errors.append(f"mixed icon stroke widths {sorted(icon_strokes)}: one icon set, one stroke width (扁平线性风格)")
+        for width in sorted(widths - ICON_STROKES):
+            warnings.append(f"icon stroke width {width:g}: line icons use 2 on the 24 grid, 1.75 at the least for 16px icons (图形：一套线性图标)")
+        # Duotone icons and layered illustrations fill with theme steps or light neutral grey (visual-design.html 插画).
+        palette = theme_palette() | {c for v in variables.values() for c in parse_colors(resolve(v))}
+        off_theme: list[str] = []
+        fills = re.findall(r"<(?:svg|g|path|rect|circle|ellipse|polygon|polyline|line)\b[^>]*?\bfill=[\"']([^\"']+)[\"']", source, re.I)
+        fills += [m.group(1) for r in re.finditer(r"([^{}]*)\{([^{}]*)\}", css) if re.search(r"svg|ill|icon|duo|cover|art|\bi\b", r.group(1), re.I)
+                  for m in re.finditer(r"(?:^|;)\s*fill\s*:\s*([^;]+)", r.group(2), re.I)]
+        for raw in fills:
+            for color, alpha in parse_colors_alpha(resolve(raw)):
+                hex_value = "#%02X%02X%02X" % color
+                if alpha < 1 or color in palette or light_neutral(color) or hex_value in off_theme:
+                    continue
+                off_theme.append(hex_value)
+        if off_theme:
+            warnings.append(f"icon or illustration fills outside the theme steps and light neutral grey: {', '.join(off_theme[:6])}"
+                            f"{' …' if len(off_theme) > 6 else ''} (take fills from themes.json: primary steps, module accents, neutrals)")
         for m in re.finditer(r"<(linearGradient|radialGradient)\b", source):
             errors.append(f"<{m.group(1)}> in an interface graphic: icons, charts and illustrations are flat")
         for m in re.finditer(r"<img\b[^>]*class=[\"'][^\"']*\b(?:i3|icon|ico)\b", source, re.I):
@@ -449,7 +673,7 @@ def check_html(path: Path, errors: list[str], warnings: list[str]) -> None:
             errors.append(f"text inside avatar: {m.group(1)!r}; use a cartoon avatar or a line icon")
         for m in re.finditer(r"avatar[^\n]{0,80}?(?:\[0\]|charAt\(0\)|slice\(0,\s*[12]\)|substr(?:ing)?\(0,\s*[12]\)|\.(?:name|nick\w*|user\w*)\b[^\n]{0,6}?(?:\[0\]|\.slice))", source, re.I):
             errors.append(f"initials or text used as avatar: {m.group(0)[:60]!r}")
-        check_interface_layout(source, resolve, errors, warnings)
+        check_interface_layout(source, resolve, errors, warnings, bold_rules)
     if not re.search(r"<html[^>]+lang=", source, re.I):
         warnings.append("missing lang attribute")
     if not re.search(r"name=[\"']viewport", source, re.I):
@@ -472,10 +696,11 @@ STATE_PSEUDO = re.compile(r":(?:hover|focus|active|disabled|checked|visited|focu
 
 
 class Node:
-    __slots__ = ("tag", "attrs", "children", "parent", "hidden", "classes")
+    __slots__ = ("tag", "attrs", "children", "parent", "hidden", "classes", "pos")
 
     def __init__(self, tag: str, attrs: dict, parent: "Node | None") -> None:
         self.tag, self.attrs, self.parent, self.children = tag, attrs, parent, []
+        self.pos: tuple[int, int] | None = None
         self.classes = set((attrs.get("class") or "").split())
         self.hidden = bool(parent and parent.hidden) or tag in {"script", "style", "template", "head", "noscript"} \
             or "hidden" in attrs or (attrs.get("aria-hidden") or "").lower() == "true" \
@@ -533,12 +758,14 @@ class TreeBuilder(HTMLParser):
                     break
                 node = node.parent
         node = Node(tag, {k: (v if v is not None else "") for k, v in attrs}, self.current)
+        node.pos = self.getpos()
         self.current.children.append(node)
         if tag not in self.VOID:
             self.current = node
 
     def handle_startendtag(self, tag, attrs):
         node = Node(tag, {k: (v if v is not None else "") for k, v in attrs}, self.current)
+        node.pos = self.getpos()
         self.current.children.append(node)
 
     def handle_endtag(self, tag):
@@ -551,6 +778,46 @@ class TreeBuilder(HTMLParser):
     def handle_data(self, data):
         if data.strip():
             self.current.children.append(data)
+
+
+def repeated_row_icons(source: str) -> set[int]:
+    """Source offsets of <svg> icons that mark the kind of object in a repeated list row: the svg sits in one of two or more
+    sibling rows of the same tag and class, every one of those rows carries the same drawing, and every row holds at
+    least two pieces of text one of which has a digit (an instance's name plus its time, date, count or amount: each
+    meeting in a meeting list, each account in an account list). Entry grids (an icon and one label), rows that mix
+    drawings and feature lists that hang one generic icon before different titles are not exempt, so different objects
+    sharing one pictogram are still reported (visual-design.html 图形：一套线性图标)."""
+    builder = TreeBuilder()
+    builder.feed(source)
+    line_starts = [0] + [m.end() for m in re.finditer(r"\n", source)]
+
+    def drawing(svg: Node) -> str:
+        return "".join(f"<{n.tag}{sorted(n.attrs.items())}>" for n in svg.elements())
+
+    def text_pieces(node: Node) -> int:
+        if node.tag == "svg":
+            return 0
+        return sum(1 if isinstance(c, str) and c.strip() else text_pieces(c) if isinstance(c, Node) else 0 for c in node.children)
+
+    exempt: set[int] = set()
+    for svg in (n for n in builder.root.elements() if n.tag == "svg" and n.pos):
+        sig = drawing(svg)
+        if not sig:
+            continue
+        row = svg.parent
+        for _ in range(5):
+            parent = row.parent if row is not None else None
+            if parent is None or row.tag == "#root" or parent.tag == "#root":
+                break
+            rows = [c for c in parent.children if isinstance(c, Node) and c.tag == row.tag and c.cls() == row.cls()]
+            if len(rows) >= 2:
+                if all(text_pieces(r) >= 2 and re.search(r"\d", r.text()) and any(drawing(d) == sig for d in r.elements() if d.tag == "svg")
+                       for r in rows):
+                    line, col = svg.pos
+                    exempt.add(line_starts[line - 1] + col)
+                break
+            row = parent
+    return exempt
 
 
 def css_rules(css: str) -> list[tuple[str, str]]:
@@ -675,7 +942,8 @@ def padding_sides(decls: dict[str, str]) -> tuple[str | None, str | None]:
     return left, right
 
 
-def check_interface_layout(source: str, resolve, errors: list[str], warnings: list[str]) -> None:
+def check_interface_layout(source: str, resolve, errors: list[str], warnings: list[str],
+                           bold_rules: list[tuple[str, str]] | None = None) -> None:
     builder = TreeBuilder()
     builder.feed(source)
     nodes = [n for n in builder.root.elements() if not n.hidden and not any(a.tag == "svg" for a in n.ancestors())]
@@ -844,6 +1112,47 @@ def check_interface_layout(source: str, resolve, errors: list[str], warnings: li
                     warnings.append(f"long-text cell in column {name!r} has {min(values):g}px side padding: data cells keep at least 16px")
                 break
 
+    # 700 only at 22px and larger (visual-design.html 字体与字号): judge each 700 rule by its own size, else by the computed
+    # size of the elements it matches; a 700 rule that matches nothing and states no size cannot be judged and is refused.
+    for selector, body in bold_rules or []:
+        own = font_size_value(declarations(body, resolve))
+        own_px = length_px(own, 16.0) if own else None
+        if own_px is not None:
+            if own_px < BOLD_MIN_PX:
+                errors.append(f"font weight 700 at {own_px:g}px in {selector[:40]!r}: 700 is only for page titles and large numbers at {BOLD_MIN_PX:g}px and larger; use 600")
+            continue
+        matched: list[Node] = []
+        for part in selector.split(","):
+            plain = re.sub(r"::?[\w-]+(?:\([^)]*\))?", "", part).strip()
+            parsed = parse_selector(plain) if plain else None
+            if parsed:
+                matched += [n for n in nodes if match_selector(n, parsed)]
+        if matched:
+            small_sizes = sorted({round(size_of(n), 1) for n in matched if size_of(n) < BOLD_MIN_PX})
+            if small_sizes:
+                errors.append(f"font weight 700 in {selector[:40]!r} on {', '.join(f'{v:g}px' for v in small_sizes)} text: "
+                              f"700 is only for {BOLD_MIN_PX:g}px and larger; use 600")
+        else:
+            errors.append(f"font weight 700 in {selector[:40]!r} without a font size: 700 is only for page titles and large numbers "
+                          f"at {BOLD_MIN_PX:g}px and larger; state the size in the same rule or use 600")
+    for n in nodes:
+        inline = declarations(n.attrs.get("style") or "", resolve)
+        if inline.get("font-weight", "").strip().lower() in BOLD_WEIGHTS and size_of(n) < BOLD_MIN_PX:
+            errors.append(f"inline font weight 700 on <{n.tag}> at {size_of(n):g}px: 700 is only for {BOLD_MIN_PX:g}px and larger")
+
+    # One brand card per screen (visual-design.html 配色, 品牌主卡): a screen is the nearest element carrying data-page-id
+    # or a phone frame class; without one, the whole page is one screen.
+    screens: dict[int, list[Node]] = {}
+    for n in builder.root.elements():
+        if BRAND_CARD_CLASS not in n.classes:
+            continue
+        scope = next((a for a in n.ancestors() if a.tag != "#root" and ("data-page-id" in a.attrs or PHONE_CLASS.search(a.cls()))), None)
+        screens.setdefault(id(scope) if scope is not None else 0, []).append(n)
+    for cards in screens.values():
+        if len(cards) > 1:
+            where = next((a.attrs.get("data-page-id") for a in cards[0].ancestors() if a.attrs.get("data-page-id")), "the page")
+            errors.append(f"{len(cards)} brand cards on one screen ({where}): a screen carries at most one solid brand card")
+
     check_pagination_and_brand(builder.root, warnings)
 
 
@@ -856,7 +1165,7 @@ SKIP_TABLE = re.compile(r"skeleton|loading|export|modal|dialog|detail|popover|to
 SHELL_CLASS = re.compile(r"(?:^|[-_\s])(?:header|topbar|top-bar|navbar|nav-bar|appbar|app-bar|masthead|sidebar|side-bar|"
                          r"site-head|site-header|admin|console)(?:$|[-_\s])", re.I)
 PHONE_CLASS = re.compile(r"(?:^|[-_\s])(?:mp|phone|mobile|miniprogram|mini-program|wx|device|screen-phone)(?:$|[-_\s])", re.I)
-BRAND_CLASS = re.compile(r"logo|brand", re.I)
+BRAND_CLASS = re.compile(r"logo|brand(?!-card)", re.I)
 DEFAULT_PAGE_SIZE = 20
 
 

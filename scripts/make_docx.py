@@ -1,4 +1,6 @@
-"""Build a formatted Word document that follows file-design.html (文字文档 and 文档类型).
+"""Read the rule card first: py -X utf8 scripts/context.py docx
+
+Build a formatted Word document that follows file-design.html (文字文档 and 文档类型).
 
     py -X utf8 scripts/make_docx.py spec.json out.docx
 
@@ -294,13 +296,24 @@ def build(spec: dict, out: Path) -> Path:
     return out
 
 
+def verify_output(out: Path, kind: str) -> int:
+    """Run the document checker on what was just written; a builder never hands over a file that fails it."""
+    import check_document
+    print(f"rule card for this file: py -X utf8 scripts/context.py {kind}  (read it before writing the spec)", file=sys.stderr)
+    code = check_document.main([str(out)])
+    if code:
+        print(f"FAIL: {out.name} does not meet the {kind} rules above; fix the spec and build again", file=sys.stderr)
+    return code
+
+
 def main(argv: list[str] | None = None) -> int:
     argv = argv if argv is not None else sys.argv[1:]
     if len(argv) != 2:
         print(__doc__)
         return 2
-    print("wrote", build(json.loads(Path(argv[0]).read_text(encoding="utf-8")), Path(argv[1])))
-    return 0
+    out = build(json.loads(Path(argv[0]).read_text(encoding="utf-8")), Path(argv[1]))
+    print("wrote", out)
+    return verify_output(out, "docx")
 
 
 if __name__ == "__main__":

@@ -86,7 +86,27 @@ def minimal_rule_page() -> str:
         sections.append(f'<!-- SECTION:{section_id}:START id={section_id} data-rule-id=visual-{section_id} -->\n<section id="{section_id}" data-rule-id="visual-{section_id}" aria-labelledby="{section_id}-heading"><h2 id="{section_id}-heading" class="section-heading">{icon}<span>{heading}</span></h2><p>按标准执行并验收。</p></section>\n<!-- SECTION:{section_id}:END -->')
     return f'<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><title>视觉设计规范</title><link rel="stylesheet" href="guidelines.css"></head><body><main id="main" aria-label="视觉设计规范"><h1>视觉设计规范</h1>{"".join(sections)}</main></body></html>'
 
+def adopt_rules(session: Path, rule: str = "文件设计规范 › 核心规则 › 所有格式的共同底线", how: str = "第一行即主标题，无说明文字") -> None:
+    """Fill BRIEF 采用的规则 and 本次沉淀 the way an agent does after reading the rule card and writing a note."""
+    import datetime
+    import validate_session
+    brief = session / "raw" / "BRIEF.md"
+    text = brief.read_text(encoding="utf-8")
+    head, tail = text.split("## 本次沉淀", 1)
+    head = head.rstrip("\n") + f"\n| {rule} | {how} |\n\n"
+    tail = tail.rstrip("\n") + "\n| test-session-note | lesson | 测试会话写入的经验 |\n"
+    brief.write_text(head + "## 本次沉淀" + tail, encoding="utf-8")
+    notes = session.parent / "notes.json"
+    today = datetime.date.today().isoformat()
+    notes.write_text(json.dumps({"schema_version": "1.0", "notes": [{"key": "test-session-note", "kind": "lesson", "text": "测试会话写入的经验", "uses": 1, "first_seen": today, "last_confirmed": today}]}, ensure_ascii=False), encoding="utf-8")
+    validate_session.NOTES_FILE = notes
+
+
 class SessionFlowTests(unittest.TestCase):
+    def tearDown(self) -> None:
+        import validate_session
+        validate_session.NOTES_FILE = ROOT / "experience" / "notes.json"  # adopt_rules points it at a temporary store
+
     def test_h1_first_contract_accepts_only_title_then_section(self) -> None:
         with tempfile.TemporaryDirectory(dir=ROOT) as temp:
             page = Path(temp) / "visual-design.html"
@@ -294,6 +314,11 @@ class SessionFlowTests(unittest.TestCase):
             self.assertEqual(validate(session), [])
             approve_artifact(session, "visual", "02-visual/visual-board.html")
             self.assertEqual(validate(session), [])
+            self.assertTrue((raw / "00-rules" / "poster.md").is_file())
+            with self.assertRaises(ValueError) as caught:
+                publish(session, "visual")
+            self.assertIn("采用的规则", str(caught.exception))
+            adopt_rules(session, "视觉设计规范 › 三、视觉产出", "安全区与四级文字层级")
             final = publish(session, "visual")
             self.assertEqual(final.name, f"{session.name}.html")
             self.assertEqual(validate(session), [])
@@ -331,12 +356,17 @@ class SessionFlowTests(unittest.TestCase):
             self.assertEqual(validate(session), [])
             approve_artifact(session, "document", "03-documents/document.html")
             self.assertEqual(validate(session), [])
+            self.assertTrue((raw / "00-rules" / "reading-html.md").is_file())
+            adopt_rules(session)
             publish(session, "document")
             self.assertEqual(validate(session), [])
 
             # A spreadsheet or Word file named after the folder is the single final deliverable; anything else is stray.
-            sheet_session = create_session(root, "门店销售表", ["document"], skill_root=ROOT)
+            sheet_session = create_session(root, "门店销售表", ["document"], skill_root=ROOT, cards=["xlsx"])
+            self.assertTrue((sheet_session / "raw" / "00-rules" / "xlsx.md").is_file())
             (sheet_session / f"{sheet_session.name}.xlsx").write_bytes(b"xlsx")
+            self.assertTrue(any("采用的规则" in error for error in validate(sheet_session)))
+            adopt_rules(sheet_session, "文件设计规范 › 核心规则 › 表格文件", "无序号列，分组名纵向合并")
             self.assertEqual(validate(sheet_session), [])
             (sheet_session / "门店销售表.xlsx").write_bytes(b"xlsx")
             errors = validate(sheet_session)

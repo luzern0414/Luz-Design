@@ -1,4 +1,4 @@
 interface:
   display_name: "Luz Design"
   short_description: "Visual standards, posters and brand visuals, document and file layout"
-  default_prompt: "Use Luz Design for visual and layout work: visual-design.html for colour, type, icons, spacing and posters; file-design.html with make_xlsx.py and make_docx.py for spreadsheets, Word, slides and reading HTML; route system design, product UI, prototypes and hardware to Luz System."
+  default_prompt: "Use Luz Design for visual and layout work. First run py -X utf8 scripts/context.py list and read the rule card for the task kind (preferences, lessons, rule text, tools, checks); templates and make_xlsx.py / make_docx.py are skeletons only. Record the rules applied in BRIEF 采用的规则, pass check_document.py, then note new lessons with experience.py. Route system design, product UI, prototypes and hardware to Luz System."

@@ -526,6 +526,93 @@ def validate_session_root(folder: Path, errors: list[str]) -> None:
         errors.append("session folder holds more than one final deliverable: " + ", ".join(sorted(present)))
 
 
+RULES_HEADING = "## 采用的规则"
+
+
+def adopted_rules(brief_text: str) -> list[tuple[str, str]] | None:
+    """Filled rows of the BRIEF table "采用的规则" (rule → how it was applied); None when the section is missing."""
+    if RULES_HEADING not in brief_text:
+        return None
+    section = brief_text.split(RULES_HEADING, 1)[1].split("\n## ", 1)[0]
+    section = re.sub(r"<!--.*?-->", "", section, flags=re.S)
+    lines = [line.strip() for line in section.splitlines() if line.strip().startswith("|")]
+    separator = re.compile(r"^\|(\s*:?-{2,}:?\s*\|)+\s*$")
+    rows = []
+    for i, line in enumerate(lines):
+        if separator.match(line) or (i + 1 < len(lines) and separator.match(lines[i + 1])):
+            continue  # the separator itself, or the header row right above it
+        cells = [c.strip() for c in line.strip("|").split("|")]
+        if len(cells) >= 2 and cells[0] and cells[1]:
+            rows.append((cells[0], cells[1]))
+    return rows
+
+
+SEDIMENT_HEADING = "## 本次沉淀"
+NOTES_FILE = Path(__file__).resolve().parents[1] / "experience" / "notes.json"
+
+
+def table_rows(brief_text: str, heading: str) -> list[list[str]] | None:
+    """Filled rows of the Markdown table under a BRIEF heading (header and separator skipped); None when the heading is missing."""
+    if heading not in brief_text:
+        return None
+    section = brief_text.split(heading, 1)[1].split("\n## ", 1)[0]
+    section = re.sub(r"<!--.*?-->", "", section, flags=re.S)
+    lines = [line.strip() for line in section.splitlines() if line.strip().startswith("|")]
+    separator = re.compile(r"^\|(\s*:?-{2,}:?\s*\|)+\s*$")
+    rows = []
+    for i, line in enumerate(lines):
+        if separator.match(line) or (i + 1 < len(lines) and separator.match(lines[i + 1])):
+            continue
+        cells = [c.strip() for c in line.strip("|").split("|")]
+        if any(cells):
+            rows.append(cells)
+    return rows
+
+
+def sediment_errors(work: Path, since: str) -> list[str]:
+    """Every session leaves experience behind: BRIEF 本次沉淀 names notes written or confirmed on or after the session date."""
+    brief = work / "BRIEF.md"
+    rows = table_rows(brief.read_text(encoding="utf-8"), SEDIMENT_HEADING) if brief.is_file() else None
+    if rows is None:
+        return ["BRIEF.md has no 本次沉淀 section: record at least one note with scripts/experience.py note and list its key"]
+    keys = [r[0].strip("` ") for r in rows if r and r[0].strip("` ")]
+    if not keys:
+        return ["BRIEF.md 本次沉淀 is empty: every call records or confirms at least one note (preference, lesson or fact) with scripts/experience.py note"]
+    try:
+        notes = {n["key"]: n for n in json.loads(NOTES_FILE.read_text(encoding="utf-8")).get("notes", [])}
+    except (OSError, ValueError):
+        notes = {}
+    errors = []
+    for key in keys:
+        note = notes.get(key)
+        if not note:
+            errors.append(f"本次沉淀 key '{key}' is not in experience/notes.json: write it with scripts/experience.py note --key {key} …")
+        elif since and str(note.get("last_confirmed", "")) < since:
+            errors.append(f"本次沉淀 key '{key}' was last confirmed {note.get('last_confirmed')}, before this session ({since}): write it again to confirm or update it")
+    return errors
+
+
+def rule_card_errors(work: Path, *, require_adopted: bool, check_current: bool) -> list[str]:
+    """Every session works from a rule card (scripts/context.py) and records which rules it applied."""
+    errors: list[str] = []
+    cards = sorted((work / "00-rules").glob("*.md"))
+    if not cards:
+        errors.append("missing raw/00-rules/ rule card: run `py -X utf8 scripts/context.py <kind> --session <会话>` and read it before producing")
+    elif check_current:
+        import context
+        for card in cards:
+            if card.stem in context.card_kinds() and not context.card_is_current(card):
+                errors.append(f"rule card raw/00-rules/{card.name} is out of date (the rule pages changed): regenerate with `py -X utf8 scripts/context.py {card.stem} --session <会话>` and re-check the work")
+    if require_adopted:
+        brief = work / "BRIEF.md"
+        rows = adopted_rules(brief.read_text(encoding="utf-8")) if brief.is_file() else None
+        if rows is None:
+            errors.append("BRIEF.md has no 采用的规则 section (rule → how it was applied)")
+        elif not rows:
+            errors.append("BRIEF.md 采用的规则 is empty: list the rule-card rules and preferences this work applies, one row each")
+    return errors
+
+
 def validate(session: Path, strict: bool = False) -> list[str]:
     errors: list[str] = []
     if not session.is_dir():
@@ -568,6 +655,11 @@ def validate(session: Path, strict: bool = False) -> list[str]:
         elif session_kind not in SESSION_KINDS:
             errors.append("MANIFEST.json has an invalid session_kind")
         poster_session = session_kind == "standalone_poster"
+        if not legacy:
+            delivered = any((folder / f"{folder.name}{ext}").is_file() for ext in (".html", ".xlsx", ".docx"))
+            errors.extend(rule_card_errors(session, require_adopted=delivered or strict, check_current=strict))
+            if delivered or strict:
+                errors.extend(sediment_errors(session, str(manifest.get("created_at", ""))[:10]))
         if manifest.get("folder") != folder.name:
             errors.append("MANIFEST.json folder does not match directory name")
         final = final_html(folder)

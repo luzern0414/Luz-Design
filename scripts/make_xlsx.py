@@ -1,4 +1,6 @@
-"""Build a styled single-sheet spreadsheet that follows file-design.html (表格文件).
+"""Read the rule card first: py -X utf8 scripts/context.py xlsx
+
+Build a styled single-sheet spreadsheet that follows file-design.html (表格文件).
 
     py -X utf8 scripts/make_xlsx.py spec.json out.xlsx
 
@@ -16,6 +18,7 @@ spec.json:
   ],
   "rows": [["华南", "科技园店", "9 月", 128000, 0.052, ""], ...],
   "total": {"label": "合计", "sum": ["销售额（元）"]}   # optional, formulas
+  "freeze": 3                                # optional: columns to freeze; default = leading group-name columns
 }
 
 Column types: text (default, centred), longtext (left, wraps), money (#,##0.00), number (#,##0),
@@ -39,6 +42,10 @@ GROUP_FILLS = ["E6F4FF", "F6FFED", "FFF7E6", "F9F0FF", "E6FFFB", "FFF0F6"]  # �
 SIZES = {"title": 18, "header": 12, "body": 12}
 FORMATS = {"money": "#,##0.00", "number": "#,##0", "decimal": "#,##0.00", "percent": "0.0%", "date": "yyyy-mm-dd"}
 SEQ_NAMES = {"序号", "编号序号", "行号", "#", "no", "no.", "序"}
+
+
+# Width of a formula cell is the width of what it shows, not of the formula text.
+FORMULA_SAMPLE = {"percent": "100.0%", "money": 999999.99, "decimal": 9999.99, "number": "99,999", "date": "2026-10-29", "text": "—"}
 
 
 def display_width(value) -> int:
@@ -120,7 +127,8 @@ def build(spec: dict, out: Path) -> Path:
             cell.border = border
             if types[k] in FORMATS:
                 cell.number_format = FORMATS[types[k]]
-            cell.alignment = Alignment(horizontal="left" if types[k] == "longtext" else "center", vertical="center", wrap_text=types[k] == "longtext")
+            long = types[k] == "longtext"
+            cell.alignment = Alignment(horizontal="left" if long else "center", vertical="center", wrap_text=long, indent=1 if long else 0)
 
     # Vertical merges, hierarchical: a child column merges only inside its parent's run.
     bounds = [(0, len(rows) - 1)] if rows else []
@@ -168,20 +176,26 @@ def build(spec: dict, out: Path) -> Path:
 
     # Column widths from content (CJK counts double), row heights for wrapped text.
     for k in range(n):
-        values = [columns[k]["name"]] + [r[k] for r in rows]
+        values = [columns[k]["name"]] + [FORMULA_SAMPLE.get(types[k], "99,999") if isinstance(v, str) and v.startswith("=") else v for v in (r[k] for r in rows)]
         width = max(display_width(v if types[k] not in ("money", "decimal") else f"{v:,.2f}" if isinstance(v, (int, float)) else v) for v in values) + 4
+        width += 2 if types[k] == "longtext" else 0  # one indent level
         cap = 40 if types[k] == "longtext" else 30
         ws.column_dimensions[get_column_letter(k + 1)].width = max(10, min(cap, width))
     for i, r in enumerate(rows):
         lines = 1
         for k, v in enumerate(r):
             if types[k] == "longtext" and v:
-                cap = ws.column_dimensions[get_column_letter(k + 1)].width - 2
+                cap = ws.column_dimensions[get_column_letter(k + 1)].width - 4  # padding and indent
                 lines = max(lines, -(-display_width(v) // max(cap, 1)))
         ws.row_dimensions[first + i].height = max(24, 18 * lines + 6)
 
     ws.sheet_view.showGridLines = False
-    ws.freeze_panes = ws.cell(first, len(merge_cols) + 1 if merge_cols else 1)
+    freeze = spec.get("freeze")
+    if freeze is None:
+        freeze = 0
+        while freeze in merge_cols and types[freeze] == "text":
+            freeze += 1  # group names only; merged group-level numbers scroll with the data
+    ws.freeze_panes = ws.cell(first, int(freeze) + 1)
     if len(rows) > 20 and not merge_cols:
         ws.auto_filter.ref = f"A{hr}:{get_column_letter(n)}{first + len(rows) - 1}"
     ws.print_area = f"A1:{get_column_letter(n)}{last}"
@@ -195,14 +209,25 @@ def build(spec: dict, out: Path) -> Path:
     return out
 
 
+def verify_output(out: Path, kind: str) -> int:
+    """Run the document checker on what was just written; a builder never hands over a file that fails it."""
+    import check_document
+    print(f"rule card for this file: py -X utf8 scripts/context.py {kind}  (read it before writing the spec)", file=sys.stderr)
+    code = check_document.main([str(out)])
+    if code:
+        print(f"FAIL: {out.name} does not meet the {kind} rules above; fix the spec and build again", file=sys.stderr)
+    return code
+
+
 def main(argv: list[str] | None = None) -> int:
     argv = argv if argv is not None else sys.argv[1:]
     if len(argv) != 2:
         print(__doc__)
         return 2
     spec = json.loads(Path(argv[0]).read_text(encoding="utf-8"))
-    print("wrote", build(spec, Path(argv[1])))
-    return 0
+    out = build(spec, Path(argv[1]))
+    print("wrote", out)
+    return verify_output(out, "xlsx")
 
 
 if __name__ == "__main__":

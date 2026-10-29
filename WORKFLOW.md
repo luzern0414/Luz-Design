@@ -2,9 +2,9 @@
 
 Sessions live in `D:\Codes\skill输出\Luz-Design\NNN-名称\`: the single final deliverable (HTML, XLSX or DOCX) at the root and every working file under `raw\`. Rules and templates live in `references\`, accumulated knowledge in `experience\`. Luz Design covers visual standards, standalone visual work and document layout. System design, product UI, prototypes and hardware belong to Luz-System; backend to Luz-Dev; the prose itself to Luz-Writing.
 
-## 0 Experience first
+## 0 Rule card and experience first
 
-Read `experience/catalog.md` and search it with `scripts/experience.py search`. Stored user preferences and lessons apply without being asked again. Reuse palettes, type scales and visual or document rules that already fit; record in BRIEF which ones the session builds on.
+Run `py -X utf8 scripts/context.py <kind>` and read the whole rule card before anything else: it carries the user's preferences, matching lessons, the rule text for this kind of task, the tools and the checks (sessions save it to `raw/00-rules/`). Templates and builders are skeletons; the card decides. Then read `experience/catalog.md` and search it with `scripts/experience.py search`. Stored user preferences and lessons apply without being asked again. Reuse palettes, type scales and visual or document rules that already fit; record in BRIEF which ones the session builds on.
 
 ## 1 Brief
 
@@ -20,7 +20,7 @@ When colour, type or a document format needs evidence, research official colour 
 
 ## 4 Visual work
 
-Follow `references/visual-design.html`: choose the primary colour from the industry's mood and an official colour scale, keep one font stack and the type scale of the output, flat line graphics, one object one icon. Posters keep a safe area, at most four text levels and real or generated photography. Write prompts from `references/prompt-image.txt`, dry-run Imagegen, generate one image at a time and review every output. Assemble the direction, references, outputs and verification in `raw/02-visual/visual-board.html` and stop for human approval.
+Follow `references/visual-design.html`: choose the primary colour from the industry's mood and an official colour scale, keep one font stack, the type scale and type roles of the output (weights 400/600/700), flat graphics (2 px line and duotone icons, layered flat illustrations) with depth only from the five elevation levels, one object one icon. Re-read the rule sections and `themes.json` for each deliverable; templates are skeletons, never the design. Posters keep a safe area, at most four text levels and real or generated photography. Write prompts from `references/prompt-image.txt`, dry-run Imagegen, generate one image at a time and review every output. Assemble the direction, references, outputs and verification in `raw/02-visual/visual-board.html` and stop for human approval.
 
 ## 5 Documents
 

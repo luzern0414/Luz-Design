@@ -2,35 +2,47 @@
 
 每次调用开始先读本页并运行 `py -X utf8 scripts/experience.py search <关键词>`：偏好与教训直接照做，能复用的配色、字阶与视觉、文件规则直接沿用，只为缺口做新的调研。结束前用 `note` 按主题键写入新的偏好、教训与有效信息（`experience/notes.json`），同一个键覆盖旧条目。本页由 `scripts/experience.py` 生成，修改请用命令或改 JSON。
 
-## 偏好（14/60）
+## 偏好（17/60）
 
+- **elevation-and-canvas**：界面要有立体感：卡片、悬浮卡片、下拉与吸顶、对话框按 themes.json shared.elevation 的五级双层阴影取值，静止卡片 1 像素发丝边加第 1 级，可点击卡片悬停升第 2 级，对话框第 4 级加 45% 遮罩；阴影只向下（贴底的栏向上镜像），用中性深色或主题第 10 阶暗调；页面底可用主色同色相的极浅底（色相差不超过 12 度、亮度不低于 0.85，例如智能体主题 #F0F2FC），不必一律中性灰；阅读型页面只用细线不用卡片阴影（用户 2026-10-29 要求补对话框、卡片与整体立体感，参照 Material 3 高度、Apple HIG 材质、Fluent 2 高度、Ant Design 阴影、Carbon 分层、Atlassian 高度与 Polaris 阴影令牌，并批准页面底用主题极浅底 #F0F2FC）　确认 1 次，最近 2026-10-29
 - **excel-layout**：Excel 最小 12 磅、标题 18 磅；不加序号列；同列重复的分组名纵向合并；一格只写一个事实；用浅色底区分层次。用 make_xlsx.py 生成。　确认 1 次，最近 2026-10-28
 - **export-cleaned-chinese**：系统导出的表格是清洗后的中文数据：中文表头、枚举译成中文、日期年-月-日 时:分、金额两位小数单位在表头、去掉内部编号技术字段与空列、范围等于当前筛选、中文文件名带范围，用表格生成脚本出版式（用户要求导出给人看的数据，不是数据库原表）　确认 1 次，最近 2026-10-28
 - **fitness-palette**：健身行业主色用火山橙，营销用金色，二者是邻近色、和谐不冲突。　确认 1 次，最近 2026-10-28
-- **flat-line-style**：界面一律扁平线性：纯色或白底深灰线稿，不用立体、渐变、纹理、玻璃与发光；海报与宣传图可以用摄影照片。（用户多次纠正立体图标与渐变按钮）　确认 1 次，最近 2026-10-28
+- **flat-line-style**：界面扁平为主：图标、插画、头像与图表始终是平面矢量（纯色面加统一 2 像素描边，不画体积、透视、光泽与投影）；立体感只属于表面，按五级层级令牌（双层中性阴影、发丝线、遮罩）、主按钮 1 像素按下阶底边与实色面 16%–24% 内顶部高光建立；不用渐变（照片遮罩与骨架流光除外）、玻璃、发光、主色投影、斜面与拟物纹理；海报与宣传图可以用摄影照片（用户多次纠正立体图标与渐变按钮；2026-10-29 又反馈卡片、对话框与整体缺立体感，要求按 Material 3、Fluent 2、Ant Design 等补层级系统，取代原“纯色或白底线稿、不用立体”）　确认 2 次，最近 2026-10-29
 - **html-tab-icon-required**：每个交付的网页都要有浏览器标签页图标：内联 SVG，32 栅格、圆角 8 浅底、主色线稿、最多 3 个形状、无文字、16 像素可辨认，同一系统各页同一图案；后台与网站页头放同一图案的图形品牌标识；模板与生成脚本内置图标参数，check_document 缺失即报错（用户要求（2026-10-28））　确认 1 次，最近 2026-10-28
 - **interface-density-14px**：界面密度：后台正文与表格 14 像素、行高 22，辅助 12 像素只给时间、单位、角标；字号 3–5 种；8 像素网格，卡片内边距 16–20、间距 16；表格行高 44–48，紧凑 36–40；1440×900 首屏至少 10 行，统计卡不超过 112 像素，不留大块空白（用户反馈后台字太小、留白太多、密度低；依据蚂蚁、腾讯字体规范与碳设计体系数据表格）　确认 1 次，最近 2026-10-28
 - **list-pagination-default-20**：后台与网站里可能超过一页的列表都要分页：默认每页 20 条，可选 10/20/50/100 条/页；分页条在表格下方靠右，14 像素文字、32 像素控件、当前页主色；页码与条数写进地址并记住用户选择；小程序与移动端滚动加载，每批 20 条（用户要求（2026-10-28）；依据 Element Plus、Ant Design、TDesign 分页组件与 NN/g 分页偏好研究）　确认 1 次，最近 2026-10-28
 - **luz-skill-order**：产品工作按固定顺序调用：Luz-System 需求到系统设计 → Luz-Design 视觉 → Luz-System 原型与发布 → Luz-Dev 实现 → Luz-Writing 文档，每个技能开始检索经验、结束沉淀，不得跳过（用户 2026-10-28 要求规定调用顺序）　确认 1 次，最近 2026-10-28
 - **no-italics**：中文产出禁用斜体，强调用字重或颜色，不用倾斜与旋转文字。　确认 1 次，最近 2026-10-28
-- **one-font-stack**：每个文件只用一条字体栈（苹方、微软雅黑、思源黑体、系统无衬线），网页任何文字不小于 12 像素，网站与阅读页正文不小于 14 像素。　确认 1 次，最近 2026-10-28
+- **no-template-reuse**：每次产出前重读规范相关小节与 themes.json，模板只给结构骨架；配色、字体角色、层级、图标与插画按本次内容完整设计，不保留模板默认色板与样式，不沿用上一个项目的样式；交付前逐条自检并把记录写在会话 raw（BRIEF 的采用的规则），不进成品（用户 2026-10-29 要求不允许只套用模板；check_document 对保留模板默认样式的页面给出警告）　确认 1 次，最近 2026-10-29
+- **one-font-stack**：每个文件只用一条字体栈（苹方、微软雅黑、思源黑体、系统无衬线），网页任何文字不小于 12 像素，网站与阅读页正文不小于 14 像素；字重三档：400 正文，600 标题、表头与强调，700 只给 22 像素以上的页面主标题与大号数字，不用 500 与细字重，标题与表头不用浏览器默认粗体；产品界面按七级字体角色取字号、字重与颜色，大段正文用正文深色（用户 2026-10-29 反馈字体没有完整层级且太细，取代原“只用 400 与 600 两种字重”）　确认 2 次，最近 2026-10-29
 - **one-object-one-icon**：一物一图：不同对象不共用同一个图标，同一对象在各处用同一个图标。　确认 1 次，最近 2026-10-28
 - **palette-by-industry**：配色按行业气质从官方 10 阶色板取阶，不凭感觉调深调浅；中性色、主色、强调色按 60-30-10 分配，文字对比度达到 4.5:1。　确认 1 次，最近 2026-10-28
+- **rich-solid-visual**：界面要图案丰富、字体层级完整且不细、颜色丰富浑厚、图标不单薄：七级字体角色与 400/600/700，图标 2 像素并在入口、指标与空状态用双色图标块，空状态、结果、问候与封面用多层扁平插画，主色按整列多阶使用并给一级模块固定点缀色，每屏至多一张品牌主卡（用户 2026-10-29 反馈图案太简单、字太细、颜色不够浑厚、图标单薄）　确认 1 次，最近 2026-10-29
 - **table-centred**：表格对齐：表头居中；数据不顶格，左右内边距不小于 16 像素；长文本左对齐并收紧列宽，使文字块落在表头下方；状态、日期、负责人、操作等短值居中；需比较大小的金额右对齐、等宽数字、单位写在表头；分组标题加粗（用户纠正：宽列表头居中而文字贴左边显得错位，取代原“表头与数据都居中”）　确认 2 次，最近 2026-10-28
 - **word-by-type**：Word 文档先定类型（合同、方案、报告、会议纪要、公文），按该类型的结构与格式排版，用 make_docx.py 生成。　确认 1 次，最近 2026-10-28
 
-## 教训（1/120）
+## 教训（6/120）
 
-- **interface-visual-graphics**：产品界面视觉稿必须先加载 Luz-Design：按行业从 themes.json 取主题（智能体用 ai-agent），头部与横幅用 navBg 浅底，入口、指标、列表项配浅底图标块，一物一图，空状态和封面用线稿插画；只有灰底白卡片会被判为没有设计感（用户 2026-10-28 反馈视觉板丑、没有图案）　确认 1 次，最近 2026-10-28
+- **element-dropdown-scoped-style**：Element Plus 下拉、弹层内容挂在 body 下，Vue scoped 样式不生效，弹层内自定义样式放进非 scoped 样式块并加专属类名　确认 1 次，最近 2026-10-28
+- **interface-rich-but-flat**：用户要更多动画与图形时：动效挂在状态变化上（按钮下沉 1 像素、卡片悬停升级、对话框放大弹入、计数、描线），循环只留进行中状态；线条承担结构（调用链、时间线、阶段轨道、横向网格、内缩分隔）；插画用多层扁平进空状态、结果、登录与问候；阴影按五级令牌，点缀色不借用状态色（多动效多图形的诉求与扁平、动效只说明来去的规范冲突时，按此取舍能同时满足用户意图与规范（2026-10-29 随层级系统更新））　确认 2 次，最近 2026-10-29
+- **interface-visual-graphics**：产品界面视觉稿先读规范与 themes.json：按行业取主题与页面底色，头部浅底，入口、指标、列表项配双色图标块（主色或模块点缀色），一物一图，空状态、问候与封面用多层扁平插画，卡片发丝边加第 1 级阴影，首页与工作台各一张品牌主卡；只有灰底白卡与细线图标会被判为没有设计感（用户 2026-10-28 反馈视觉板丑、没有图案，2026-10-29 又反馈图案简单、图标单薄、缺立体感；取代原“线稿插画、浅底图标块”的做法）　确认 2 次，最近 2026-10-29
+- **layered-rule-consistency**：改上层视觉规范时同步核对同页的平台矩阵、分端规范（Luz-System 各端页面）与检查脚本：上层不能比分端更宽松或互相矛盾，例如七级字体角色把小程序正文写成 16 而平台矩阵与小程序规范是 14，应以分端的 14 为准；实色面与浅底面的高光透明度、点击反馈也要在动效表与按钮规则里取同一值（2026-10-29 视觉规范修订复核时发现小程序正文、按钮按下反馈与实色面高光三处前后不一致）　确认 1 次，最近 2026-10-29
+- **reading-page-for-design-docs**：系统架构与系统设计页是阅读型网页：按 file-design.html 用 32/24/20/16/14 字阶、整句表格 16、只有横线、不给每节套卡片，check_document 不加 --allow interface；用户要求时每节配独立线性图标块并用内嵌线性矢量画页面关系图（用户 2026-10-29 指出系统设计页文字过小、缺图标、未用 Luz-Design 排版）　确认 1 次，最近 2026-10-29
+- **xlsx-group-level-values**：明细拆成多行的表格里，属于上级分组的数值（次数、问题数、整改数及其派生公式）随该分组纵向合并、公式只写在组首行；make_xlsx 默认只冻结开头的分组名称列（合并的数值列随数据滚动），需要别的冻结范围在描述文件写 freeze；长文本列自带一级缩进，列宽和折行已把缩进算进去；仍要用 Excel 导出 PDF 目检折行是否被行高截断（门店巡检汇总表评测：旧版 builder 冻结到最后一个合并列、公式列按公式文字估宽、缩进后折行被截断；已改 make_xlsx 默认值）　确认 2 次，最近 2026-10-29
+
+## 有效信息（1/120）
+
+- **elevation-research-sources**：层级与阴影的依据用 Luz-Crawl 采集有效：流畅设计二代 elevation 页（双层阴影与 2–64 六档）、材料设计第三版 applying-elevation 与 tokens 页（0–5 级、遮罩 32%）、蚂蚁设计体系阴影页与 genColorMapToken.ts 源码（遮罩 45%）、亚特拉斯 elevation、碳设计体系 color/usage 分层、苹果材质页、约什·科莫阴影文章；北极星文档站的 depth 与 tokens/shadow 页已跳转到通用页，阴影令牌要从 GitHub 的 polaris-tokens/src/themes/base/shadow.ts 读取（2026-10-29 视觉规范补层级依据时的实测，采集目录 Luz-Crawl raw 016 与 019；来源已写入 sources.json SRC-088 至 SRC-102）　确认 1 次，最近 2026-10-29
 
 ## 组件
 
 ### PAT-149 一套线性图标：线宽统一、强调靠浅底块
-- 适用：小程序、后台；行业：通用；使用 1 次，最近 2026-10-28
-- 要点：全站只用一套 24 栅格描边图标，线宽 1.5 像素并设为不随尺寸缩放（矢量描边不缩放），圆角端点与连接，颜色跟旁边文字；入口、设施、权益、指标卡用主色浅底阶圆角块承托图标、图标用按下阶；底部标签当前项主色、未选中灰色，不用灰度滤镜。尺寸：按钮内 16，菜单 20，底部标签 22–24，图标块 32–40。
-- 反例：菜单 1.7 像素、返回键 2.2 像素、放大到 30 像素的图标线条变粗；彩色面性图标与线性图标混排
-- 依据：蚂蚁设计体系图标（统一线宽是体系统一的关键）、琉西德设计语言（不混用线宽）、碳设计体系图标尺寸
-- 依据：[蚂蚁设计体系 图标](https://ant.design/docs/spec/icon)；[琉西德图标设计语言](https://lucide.dev/contribute/icon-design-guide)；[碳设计体系 图标用法](https://carbondesignsystem.com/elements/icons/usage)
+- 适用：小程序、后台、智能体、网站；行业：通用；使用 2 次，最近 2026-10-29
+- 要点：全站一套 24 栅格描边图标，线宽 2 像素并设为不随尺寸缩放（16 像素按钮内图标可 1.75，任何尺寸不细于 1.75），圆角端点与连接；导航、底部标签、按钮内与工具操作用单色描边、颜色跟旁边文字；入口、指标、设施与空状态用双色图标块：第 1 阶浅底圆角 8 的方块，描边取按下阶或模块点缀色实色阶，主体内一个面填第 2 阶。尺寸：按钮内 16，菜单 20，底部标签 22–24，图标块 32–40。
+- 反例：1.5 像素灰线图标显得单薄；菜单 1.7 像素、返回键 2.2 像素混用；彩色面性图标与线性图标混排；导航图标用双色
+- 依据：琉西德图标设计指南（2 像素、不混用线宽）、蚂蚁设计体系图标、磷光图标双色字重、碳设计体系图标尺寸
+- 依据：[蚂蚁设计体系 图标](https://ant.design/docs/spec/icon)；[琉西德图标设计语言](https://lucide.dev/contribute/icon-design-guide)；[碳设计体系 图标用法](https://carbondesignsystem.com/elements/icons/usage)；[磷光图标 双色字重](https://phosphoricons.com/)
 
 ### PAT-155 单表验收清单：功能验收与甲方配合同表
 - 适用：表格；行业：企业服务、财务；使用 1 次，最近 2026-10-28
@@ -81,11 +93,11 @@
 - 用途：14 辅助与数字表格；16 正文与整句表格；20 三级标题；24 二级标题；32 主标题
 
 ### PAT-090 产品交付网页三部分共用一套字体与字阶
-- 适用：小程序、后台、网页；行业：通用；使用 1 次，最近 2026-10-27
-- 要点：功能列表、小程序、后台放在一个网页里时：同一字体族（苹方、微软雅黑、思源黑体回退），字阶 12/14/16/18/22/28，网页主标题 32；每个字号只配一个行高 12/18、14/22、16/24、18/26、22/30、28/36；正文 14；不用 11、13、15、20、24 等中间值
-- 来源：用户反馈：后台、小程序、功能列表字体不统一
-- 检查：原型测试统计所有可见文字的字体族与字号；check_document --allow interface 拦截字阶外字号
-- 依据：[中后台字体规范](https://ant.design/docs/spec/font-cn)；[字体与数字字体规范](https://tdesign.tencent.com/design/fonts)
+- 适用：小程序、后台、网页；行业：通用；使用 2 次，最近 2026-10-29
+- 要点：功能列表、小程序、后台放在一个网页里时：同一字体族（苹方、微软雅黑、思源黑体回退），字阶 12/14/16/18/22/28/32，每个字号一个行高 12/18、14/22、16/24、18/26、22/30、28/36、32/40；按七级字体角色取用：大号数字 32/700、页面主标题 22/700、区块标题 18/600、卡片标题 16/600、正文 14/400（智能体消息 16）、次要 14/400、辅助 12/400；字重只有 400、600 与 22 像素以上的 700，不用 500
+- 来源：用户反馈后台、小程序、功能列表字体不统一；2026-10-29 反馈字体层级不全且太细
+- 检查：check_document --allow interface 拦截字阶外字号、22 像素以下的 700 与 500
+- 依据：[中后台字体规范](https://ant.design/docs/spec/font-cn)；[字体与数字字体规范](https://tdesign.tencent.com/design/fonts)；[尼尔森诺曼集团 视觉层级](https://www.nngroup.com/articles/visual-hierarchy-ux-definition)；[碳设计体系 字体字阶](https://carbondesignsystem.com/elements/typography/type-sets)；[谷歌材料设计第三版 字阶令牌](https://m3.material.io/styles/typography/type-scale-tokens)
 
 ## 前端规则
 
@@ -96,8 +108,9 @@
 - 旁注：禁用必须就地写明原因，例如“勾选同意后才能拍摄或上传”
 
 ### PAT-032 圆角三档与胶囊
-- 适用：通用；行业：通用；使用 1 次，最近 2026-10-26
-- 要点：界面只用 4（标签与小部件）、8（控件）、12（卡片、弹层、页面框）三档；胶囊与圆形统一 999
+- 适用：通用；行业：通用；使用 2 次，最近 2026-10-29
+- 要点：产品界面圆角四档：标签 4，输入框、按钮、下拉与图标底块 8，卡片与图片 12，品牌主卡、横幅、对话框与底部弹层 16；头像、开关、胶囊全圆；阅读型产出全篇一个值（4–12）
+- 更新：2026-10-29 增加 16 一档给大卡片与对话框
 
 ### PAT-091 中文界面禁用斜体
 - 适用：小程序、后台、网页；行业：通用；使用 1 次，最近 2026-10-27
@@ -111,12 +124,12 @@
 - 实现：fitCharts() 在每次渲染后为 svg.chart 设置 --k；窗口尺寸变化时重算
 
 ### PAT-148 扁平线性风格：纯色与线稿，不用立体和渐变
-- 适用：小程序、后台；行业：通用；使用 1 次，最近 2026-10-28
-- 要点：所有产品界面用扁平风格：图形只用简单纯色，或白底深灰线条的镂空线稿；不用立体图标、图像生成的图标拼板、彩色面性渐变图标、装饰渐变、纹理、半透明玻璃、有机斑点、斜面内凹按钮与发光阴影。只有照片上的黑色透明度遮罩和加载骨架流光可以用渐变。页面底浅白或极浅灰，卡片白底配最轻一级中性阴影形成轻微悬浮，浮层高一级；卡片圆角 12，输入框与按钮 8。
-- 反例：九宫格立体图标切图、橙色渐变头部、抽奖格子底部内凹的立体按钮、中奖格外发光、个人中心半透明玻璃卡、背景白色斑点、插画下的椭圆投影
-- 依据：尼尔森诺曼集团与维基百科扁平设计；谷歌材料设计第三版、亚特拉斯、蚂蚁设计体系的层级与阴影
-- 检查：check_document.py interface 模式拦截装饰渐变、斜面与发光阴影、卡片厚阴影、背景模糊、斑点圆角、矢量渐变与位图图标
-- 依据：[尼尔森诺曼集团 扁平设计的起源、问题与扁平 2.0](https://www.nngroup.com/articles/flat-design)；[维基百科 扁平设计](https://en.wikipedia.org/wiki/Flat_design)；[谷歌材料设计第三版 层级](https://m3.material.io/styles/elevation/overview)；[亚特拉斯设计体系 层级](https://atlassian.design/foundations/elevation)；[蚂蚁设计体系 阴影](https://ant.design/docs/spec/shadow)
+- 适用：小程序、后台、智能体、网站；行业：通用；使用 2 次，最近 2026-10-29
+- 要点：“扁平”管图形，“立体感”只属于表面：图标、插画、头像、图表始终是平面矢量（纯色面加统一 2 像素描边，不画体积、透视、光泽、投影与渐变）；卡片、浮层与按钮按五级层级令牌表达前后关系（双层中性阴影、1 像素发丝边、遮罩、主按钮 1 像素按下阶底边与实色面 16%–24% 内顶部高光）。仍禁止装饰渐变（照片遮罩与骨架流光除外）、半透明玻璃与背景模糊、发光与主色投影、斜面与内凹、拟物纹理、有机斑点。判断：去掉阴影与细线后仍是一张完整的扁平稿。
+- 反例：九宫格立体图标切图、橙色渐变头部、内凹立体按钮、外发光、半透明玻璃卡、插画椭圆投影；以及另一极端：灰底白块没有边线与阴影、对话框与卡片同一阴影、主按钮像平贴色块
+- 依据：尼尔森诺曼集团扁平 2.0；谷歌材料设计第三版、流畅设计二代、蚂蚁设计体系、亚特拉斯、北极星的层级与阴影
+- 检查：check_document.py interface 模式拦截渐变、斜面、发光、彩色投影、玻璃、斑点；check_contrast.py 核对层级令牌形状
+- 依据：[尼尔森诺曼集团 扁平设计的起源、问题与扁平 2.0](https://www.nngroup.com/articles/flat-design)；[维基百科 扁平设计](https://en.wikipedia.org/wiki/Flat_design)；[谷歌材料设计第三版 层级](https://m3.material.io/styles/elevation/overview)；[亚特拉斯设计体系 层级](https://atlassian.design/foundations/elevation)；[蚂蚁设计体系 阴影](https://ant.design/docs/spec/shadow)；[流畅设计二代 高度](https://fluent2.microsoft.design/elevation)；[谷歌材料设计第三版 应用高度](https://m3.material.io/styles/elevation/applying-elevation)；[肖普菲北极星设计体系 阴影令牌源码](https://github.com/Shopify/polaris/blob/main/polaris-tokens/src/themes/base/shadow.ts)
 
 ### PAT-158 表格文件：12 磅、无序号、分组名纵向合并、浅色层次
 - 适用：通用；行业：通用；使用 2 次，最近 2026-10-28
@@ -143,6 +156,12 @@
 - 注意：民法典第四百七十条原文三个来源都没抓取成功，条款清单按法条通行文本写入
 - 依据：[国务院 党政机关公文处理工作条例](https://www.gov.cn/zwgk/2013-02/22/content_2337704.htm)；[党政机关公文格式（国家标准 GB/T 9704-2012）](https://baike.baidu.com/item/%E5%85%9A%E6%94%BF%E6%9C%BA%E5%85%B3%E5%85%AC%E6%96%87%E6%A0%BC%E5%BC%8F)；[合同示范文本（市场监管总局合同示范文本库）](https://baike.baidu.com/item/%E5%90%88%E5%90%8C%E7%A4%BA%E8%8C%83%E6%96%87%E6%9C%AC)
 
+### PAT-162 五级层级：双层阴影、发丝线与遮罩
+- 适用：小程序、后台、智能体、网站；行业：通用；使用 1 次，最近 2026-10-29
+- 要点：0 底面（页面底、输入框）无阴影；1 静止卡片：1 像素发丝线加 0 1px 2px 6% + 0 2px 6px 4%；2 悬停与拖动：0 2px 4px 6% + 0 8px 16px 8%；3 下拉、气泡、滚过后的吸顶栏：0 4px 8px 6% + 0 12px 24px 10%；4 对话框与底部弹层：0 8px 16px 8% + 0 24px 48px 14% 加 45% 遮罩。阴影色 rgba(16,24,40) 或主题第 10 阶暗调；只向下（贴底的栏向上镜像）；远处一层逐级更大更柔、单位面积浓度逐级降低；状态整级切换，静止时同屏不超过三级；阅读型页面只用第 0 级与细线。令牌在 themes.json shared.elevation。
+- 检查：check_contrast.py 核对每级两层、只向下、近锐远柔、逐级变大变淡、透明度 ≤ 0.2；check_document.py 对令牌外阴影、向上阴影与阅读页卡片阴影给出警告
+- 依据：[蚂蚁设计体系 阴影](https://ant.design/docs/spec/shadow)；[流畅设计二代 高度](https://fluent2.microsoft.design/elevation)；[谷歌材料设计第三版 应用高度](https://m3.material.io/styles/elevation/applying-elevation)；[谷歌材料设计第三版 高度令牌](https://m3.material.io/styles/elevation/tokens)；[蚂蚁设计体系 颜色映射令牌源码（遮罩）](https://github.com/ant-design/ant-design/blob/master/components/theme/themes/shared/genColorMapToken.ts)；[碳设计体系 颜色用法（分层）](https://carbondesignsystem.com/elements/color/usage)；[苹果人机界面指南 材质](https://developer.apple.com/design/human-interface-guidelines/materials)；[约什·科莫 设计阴影](https://www.joshwcomeau.com/css/designing-shadows)；[尼尔森诺曼集团 卡片](https://www.nngroup.com/articles/cards-component)
+
 ## 设计理念
 
 ### PAT-099 主色按行业气质选，不沿用上一个项目
@@ -156,6 +175,13 @@
 - 触发：用户先后反馈“配色太重”“不要有过亮的颜色，要找标准、多找参考”
 - 检查：check_document.py interface 模式拦截主按钮渐变与对白底不足 3:1 的激活态控件填充；check_contrast.py 校验白字与浅底文字对比
 - 依据：[Ant Design 色彩](https://ant.design/docs/spec/colors-cn)；[TDesign 色彩](https://tdesign.tencent.com/design/color)；[Material 3 颜色角色](https://m3.material.io/styles/color/roles)；[Carbon 色彩概览](https://carbondesignsystem.com/elements/color/overview)；[Apple 人机界面指南 颜色](https://developer.apple.com/design/human-interface-guidelines/color)；[NN/g 用色增强设计](https://www.nngroup.com/articles/color-enhance-design)；[Datawrapper 数据可视化配色指南](https://blog.datawrapper.de/colors-for-data-vis-style-guides)；[WCAG 2.1 理解 1.4.11 非文本对比](https://www.w3.org/WAI/WCAG21/Understanding/non-text-contrast.html)；[Atlassian 色彩概览](https://atlassian.design/foundations/color-new)；[Material 3 高级颜色定制](https://m3.material.io/styles/color/advanced/adjust-existing-colors)；[Canva 色轮与配色类型](https://www.canva.com/colors/color-wheel)；[维基百科 色彩和谐](https://en.wikipedia.org/wiki/Harmony_(color))；[Figma 100 组配色](https://www.figma.com/resource-library/color-combinations)；[Smashing Magazine 色彩理论第二部分](https://www.smashingmagazine.com/2010/02/color-theory-for-designers-part-2-understanding-concepts-and-terminology)
+
+### PAT-163 多层扁平插画
+- 适用：小程序、后台、智能体、网站；行业：通用；使用 1 次，最近 2026-10-29
+- 要点：空状态、结果页、登录引导、首页问候与产品封面用多层扁平插画：深色 2 像素描边（主色第 9 阶或正文深色），2–4 个主题纯色面（主色第 1、2–3 阶，模块点缀色第 1–2 阶，中性浅灰），至多 1 个实色强调（面积不超过一成）；主体、配件、地面三层，每张 12–30 个形状；不加阴影、渐变、高光、透视与发光；品牌主卡里改用白色 2 像素线稿或 10%–16% 白色纯色形。
+- 取代：白底深灰线稿、最多一处主色的旧画法（用户 2026-10-29 反馈图案太简单）
+- 检查：check_document.py 对不在主题阶与中性浅灰里的填色给出警告
+- 依据：[昂德劳 开源插画库](https://undraw.co/)；[故事集插画库](https://storyset.com/)
 
 ## 来源
 
@@ -206,3 +232,18 @@
 | SRC-085 | 前端规则 | [国务院 党政机关公文处理工作条例](https://www.gov.cn/zwgk/2013-02/22/content_2337704.htm) | 公文要素顺序 | 2026-10-28 | 可复用快照 |
 | SRC-086 | 前端规则 | [党政机关公文格式（国家标准 GB/T 9704-2012）](https://baike.baidu.com/item/%E5%85%9A%E6%94%BF%E6%9C%BA%E5%85%B3%E5%85%AC%E6%96%87%E6%A0%BC%E5%BC%8F) | 用户要求公文格式时按此排版 | 2026-10-28 | 可复用快照 |
 | SRC-087 | 前端规则 | [合同示范文本（市场监管总局合同示范文本库）](https://baike.baidu.com/item/%E5%90%88%E5%90%8C%E7%A4%BA%E8%8C%83%E6%96%87%E6%9C%AC) | 按同类示范文本确定条款 | 2026-10-28 | 可复用快照 |
+| SRC-088 | 前端规则 | [流畅设计二代 高度](https://fluent2.microsoft.design/elevation) | 每级双层阴影、模糊逐级增大、卡片用描边定边缘 | 2026-10-29 | 可复用快照 |
+| SRC-089 | 前端规则 | [谷歌材料设计第三版 应用高度](https://m3.material.io/styles/elevation/applying-elevation) | 少数几级层级、交互升一级、遮罩 | 2026-10-29 | 可复用快照 |
+| SRC-090 | 前端规则 | [谷歌材料设计第三版 高度令牌](https://m3.material.io/styles/elevation/tokens) | 组件静止层级与交互升级 | 2026-10-29 | 可复用快照 |
+| SRC-091 | 前端规则 | [蚂蚁设计体系 颜色映射令牌源码（遮罩）](https://github.com/ant-design/ant-design/blob/master/components/theme/themes/shared/genColorMapToken.ts) | 遮罩 45% | 2026-10-29 | 可复用快照 |
+| SRC-092 | 前端规则 | [肖普菲北极星设计体系 阴影令牌源码](https://github.com/Shopify/polaris/blob/main/polaris-tokens/src/themes/base/shadow.ts) | 主按钮底边与实色面内顶部高光 | 2026-10-29 | 可复用快照 |
+| SRC-093 | 前端规则 | [碳设计体系 颜色用法（分层）](https://carbondesignsystem.com/elements/color/usage) | 页面底与卡片交替分层，卡片内用浅灰分区 | 2026-10-29 | 可复用快照 |
+| SRC-094 | 前端规则 | [苹果人机界面指南 材质](https://developer.apple.com/design/human-interface-guidelines/materials) | 深度来自分层而非装饰 | 2026-10-29 | 可复用快照 |
+| SRC-095 | 前端规则 | [约什·科莫 设计阴影](https://www.joshwcomeau.com/css/designing-shadows) | 阴影只向下、双层令牌、主题暗调阴影 | 2026-10-29 | 可复用快照 |
+| SRC-096 | 组件状态 | [尼尔森诺曼集团 卡片](https://www.nngroup.com/articles/cards-component) | 白卡、发丝边、最轻一级阴影、内缩分隔 | 2026-10-29 | 可复用快照 |
+| SRC-097 | 前端规则 | [尼尔森诺曼集团 视觉层级](https://www.nngroup.com/articles/visual-hierarchy-ux-definition) | 标题与数字三级拉开，其余靠字重与颜色 | 2026-10-29 | 可复用快照 |
+| SRC-098 | 前端规则 | [碳设计体系 字体字阶](https://carbondesignsystem.com/elements/typography/type-sets) | 小标题 600、层级靠字号 | 2026-10-29 | 可复用快照 |
+| SRC-099 | 前端规则 | [谷歌材料设计第三版 字阶令牌](https://m3.material.io/styles/typography/type-scale-tokens) | 600 与 700 只给标题、数字与强调 | 2026-10-29 | 可复用快照 |
+| SRC-100 | 组件状态 | [磷光图标 双色字重](https://phosphoricons.com/) | 双色图标块：描边加一个浅色面 | 2026-10-29 | 可复用快照 |
+| SRC-101 | 组件状态 | [昂德劳 开源插画库](https://undraw.co/) | 多层扁平插画、颜色全部取主题阶 | 2026-10-29 | 可复用快照 |
+| SRC-102 | 组件状态 | [故事集插画库](https://storyset.com/) | 主体、配件、地面三层 | 2026-10-29 | 可复用快照 |

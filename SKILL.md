@@ -44,7 +44,7 @@ D:\Codes\Luz-Design\                   the skill (rules, templates, knowledge, s
   experience\
     notes.json                         preferences, lessons and facts from every call, upserted by key (caps 60, 120, 120)
     patterns.json  sources.json  catalog.md      curated palettes, type scales, visual and file rules, sources; catalog is generated
-  scripts\                             check_document, check_contrast, make_xlsx, make_docx, cut_element_sheet, sessions, publish, experience, validation, tests
+  scripts\                             check_document, check_contrast, make_xlsx, make_docx, make_table_pdf, cut_element_sheet, sessions, publish, experience, validation, tests
 
 D:\Codes\skill输出\Luz-Design\         outputs only
   NNN-名称\
@@ -93,7 +93,8 @@ Each line is a summary; the rule page section named in brackets is the rule.
 - **Colour** (配色, 主题色系统, 取色依据): light surfaces; one primary from the industry's mood (`themes.json`), taken from one column of an official 10-step palette; 60-30-10 with neutrals dominant; product UI adds at most one marketing accent, one fixed accent per top-level module, the shared price colour and one solid brand card per screen; no gradient buttons; `check_contrast.py` and `check_document.py` enforce it.
 - **Type** (字体与字号, 七级字体角色, 小程序紧凑用法): one font stack `"PingFang SC", "Microsoft YaHei", "Noto Sans SC", system-ui, sans-serif` in HTML and Microsoft YaHei in files; weights 400/600/700 with 700 only at 22px and larger; nothing below 12px in HTML (websites and reading pages 14); no italics, letter spacing or rotated text; every size comes from the scale of its product type.
 - **Graphics and depth** (扁平线性风格, 图形：一套线性图标, 插画：多层扁平, 层级与立体感): control icons are 2 px line vectors (1.75 at 16 px); entry icons, illustrations and decorative elements are duotone line, layered flat or generated in the one style the user picked; depth belongs to surfaces only, from the five elevation tokens in `themes.json` `shared.elevation`; one object, one icon.
-- **Tables** (界面密度与表格对齐; file-design.html 表格文件): header centred, long text left, short values centred, amounts right-aligned with tabular figures — in interfaces, reading pages, Excel and Word alike.
+- **Tables** (界面密度与表格对齐; file-design.html 表格文件): header centred, long text left, short values centred, amounts right-aligned with tabular figures — in interfaces, reading pages, Excel and Word alike. The table reads as centred overall: columns fit their content, every cell is vertically centred, and when columns are wide or equal, left-aligned text sits as a block in the middle of its column; Chinese cells break only between words, with balanced line lengths.
+- **Table PDFs** (file-design.html 网页文件 › 组件, 便携式文档): catalogues and lists (industries, products, directions, price lists) in landscape — build with `make_table_pdf.py spec.json out.pdf`: one title, one table per section, cells written as a short lead plus one line of detail; it checks the HTML source, prints the PDF with bookmarks and page numbers, enforces `max_pages` and saves overview images.
 - **Spreadsheets** (file-design.html 表格文件, 导出文件): build with `make_xlsx.py spec.json out.xlsx`; one sheet, title 18 pt and everything else 12 pt, no sequence column, group names merged vertically, one fact per cell, pale tints; system exports are cleaned Chinese data.
 - **Word** (file-design.html 文字文档, 按文档类型, 论文版式): build with `make_docx.py spec.json out.docx`; decide the document type first (contract, proposal, report, minutes, general; `"style": "paper"` only when the user asks for the paper text rules; GB/T 9704 only when asked).
 

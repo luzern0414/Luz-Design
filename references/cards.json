@@ -91,6 +91,8 @@
       "sections": [
         {"page": "file-design.html", "title": "文件设计规范", "path": ["核心规则", "所有格式的共同底线"]},
         {"page": "file-design.html", "title": "文件设计规范", "path": ["核心规则", "便携式文档"]},
+        {"page": "file-design.html", "title": "文件设计规范", "path": ["核心规则", "网页文件", "组件"]},
+        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "二、排版基础", "界面密度与表格对齐", "表格对齐与缩进"]},
         {"page": "file-design.html", "title": "文件设计规范", "path": ["核心规则", "标记文本文件"]},
         {"page": "file-design.html", "title": "文件设计规范", "path": ["核心规则", "文字文档", "页面与字体"]},
         {"page": "file-design.html", "title": "文件设计规范", "path": ["核心规则", "文字文档", "表格与图片"]},
@@ -101,6 +103,7 @@
       ],
       "tools": [
         "PDF 从 Word 或网页导出，不手工拼截图；先让源文件（`.docx` 或网页）通过 `check_document.py`，再导出",
+        "横版表格目录（行业、产品、方向、价目清单）：写 spec.json，运行 `py -X utf8 scripts/make_table_pdf.py spec.json out.pdf`；脚本生成阅读型网页源并跑 `check_document.py`，用 Edge 导出带书签、标签与页码的 PDF，核对页数上限、字体嵌入与文字层，再输出每 6 页一张的总览图",
         "Markdown 直接按本卡书写",
         "要放进会话时：`py -X utf8 scripts/new_session.py --name \"<名称>\" --modes document --card pdf-markdown`；成品核对后复制到会话根目录并以会话名命名"
       ],

@@ -24,7 +24,7 @@ Follow `references/visual-design.html` and the poster card; templates are skelet
 
 ## 5 Documents
 
-Follow `references/file-design.html`. Decide the document type first, then its structure; the words come from the user or Luz-Writing. Spreadsheets are built with `scripts/make_xlsx.py` and Word documents with `scripts/make_docx.py` (contract, proposal, report, minutes, general), both from a `spec.json` kept in `raw/03-documents/`; reading HTML uses the reading type scale. Export, reopen and check the actual file.
+Follow `references/file-design.html`. Decide the document type first, then its structure; the words come from the user or Luz-Writing. Spreadsheets are built with `scripts/make_xlsx.py`, Word documents with `scripts/make_docx.py` (contract, proposal, report, minutes, general) and landscape table PDFs (catalogues and lists) with `scripts/make_table_pdf.py`, all from a `spec.json` kept in `raw/03-documents/`; reading HTML uses the reading type scale. Export, reopen and check the actual file.
 
 ## 6 Publish and sediment
 

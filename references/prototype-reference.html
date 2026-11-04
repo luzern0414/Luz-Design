@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>原型参考实现与组件模板库</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23E6F0F7'/%3E%3Cg fill='none' stroke='%23205B88' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='10' y='6' width='12' height='20' rx='2'/%3E%3Cpath d='M14 22h4'/%3E%3C/g%3E%3C/svg%3E">
+  <link rel="stylesheet" href="guidelines.css">
+</head>
+<body>
+<main id="main" aria-label="原型参考实现与组件模板库">
+    <h1>原型参考实现与组件模板库</h1>
+<!-- SECTION:scope:START id=scope data-rule-id=proto-scope -->
+<section id="scope" data-rule-id="proto-scope" aria-labelledby="scope-heading">
+<h2 id="scope-heading" class="section-heading"><svg class="icon-linear section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3"/><circle cx="12" cy="12" r="3"/></svg><span>适用范围</span></h2>
+<p>产品开发阶段要交付的前端界面 <code>HTML</code>：小程序、手机网页、后台、网站、智能体界面的可交互原型，一个系统一份，或把多个系统装进一份多页签文档。本页回答三件事：什么时候整套用仓库里的原型参考实现，什么时候只取一块，什么时候自己写；组件模板库怎么按编号取用，怎么与 <code>Element Plus</code>、<code>Vant</code> 这类真实库取舍；交付的原型要满足哪些形态与检查。</p>
+<p>页面有哪些、首页放什么、标签栏几项由系统技能的功能清单决定（划线见 <code>references/ui-ownership.md</code>），首页与常见页面怎么排读页面范式库，阶段顺序读设计路径，本页都不改。参考实现和组件库都只是参考：机制可复用，内容与结构不是默认值。机制在 <code>references/prototype-templates/</code>，组件在 <code>references/component-library/</code>，生成与检查用 <code>scripts/</code> 下的脚本；方案与分工的单一出处是 <code>references/prototype-templates/README.md</code>。</p>
+</section>
+<!-- SECTION:scope:END -->
+
+<!-- SECTION:workflow:START id=workflow data-rule-id=proto-workflow -->
+<section id="workflow" data-rule-id="proto-workflow" aria-labelledby="workflow-heading">
+<h2 id="workflow-heading" class="section-heading"><svg class="icon-linear section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="6" cy="6" r="2"/><circle cx="18" cy="18" r="2"/><path d="M8 6h5a3 3 0 0 1 3 3v1M16 18h-5a3 3 0 0 1-3-3v-1"/><path d="m13 8 3 2 3-2M11 16l-3-2-3 2"/></svg><span>工作流程</span></h2>
+<ol>
+<li>先问行业：这个行业的用户（后台是管理员）回来做的第一件事是什么。页面清单、首页组成、标签栏项数由系统技能的功能清单与入口表和页面范式库决定，不从示例里挑。</li>
+<li>判定怎么用参考实现：整套用、只取一块还是自己写（见“一、定位”的判定表），结论和理由写进简报。</li>
+<li>选一个组件库：要出带编号、可直接演示的原型选 <code>luz-kit</code>，要接真实代码选 <code>Element Plus</code>、<code>Vant</code> 等登记表里的库；同一个原型只选一个，写进前端架构（见“三、组件模板库怎么用”）。</li>
+<li>写规格：列出要做的页面、标签栏或侧栏、流程、场景、角色与演示数据，每页的 <code>logic</code> 按功能说明填，不需要的页面和模块不写（见“四、规格与生成”）。</li>
+<li>校验与生成：先 <code>build_prototype.py 规格 --check</code> 查结构与引用，通过后 <code>--out</code> 生成单文件；多个系统再用 <code>build_prototype_suite.py</code> 装进多页签文档。</li>
+<li>补专属内容：库里没有的整页写 <code>custom</code>（内容模块），仍用库的积木并保留 <code>data-cid</code>；没用库组件的地方在偏离说明里写明原因。</li>
+<li>验收：浅色与深色、390 与桌面宽度，各把每一页开一遍，跑审计、<code>check-page</code>、各测试与项目技能的原型检查（见“六、验收”）。</li>
+<li>交接与沉淀：简报写采用的规则与偏离说明，随原型交令牌、组件编号对应和退回清单；用 <code>experience.py note</code> 沉淀（见交接规则）。</li>
+</ol>
+</section>
+<!-- SECTION:workflow:END -->
+
+<!-- SECTION:rules:START id=rules data-rule-id=proto-rules -->
+<section id="rules" data-rule-id="proto-rules" aria-labelledby="rules-heading">
+<h2 id="rules-heading" class="section-heading"><svg class="icon-linear section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3 5 6v5c0 4.5 2.8 7.8 7 10 4.2-2.2 7-5.5 7-10V6l-7-3Z"/><path d="m9 12 2 2 4-5"/></svg><span>核心规则</span></h2>
+
+<h3>一、定位：参考，不是模板</h3>
+<p>目录路径仍叫 <code>prototype-templates</code>，里面的东西只供参考。行业不同，首页的功能、模块和布局就不同：页面清单、首页组成、标签栏、流程由项目自己的功能说明和行业决定，再用页面范式库选范式。引擎接口见 <code>references/prototype-templates/engine/ENGINE.md</code>，后台与小程序各有自己的 <code>README.md</code>。</p>
+<h4>可以直接拿来用的机制</h4>
+<ul>
+<li>页面栈与路由语义（<code>go</code>、<code>replace</code>、<code>back</code>、<code>popTo</code>、<code>toTab</code>、<code>jump</code>），标签栏与导航栏外壳，弹层、对话框与提示。</li>
+<li>左栏配置面板（主题色、图标风格、图标底、外观，小程序另有头部背景，后台另有侧栏深浅与密度）、场景面板，右栏逻辑面板。</li>
+<li>后台的外壳（侧栏、顶栏、多标签页、面包屑）和页面写法（<code>list</code>、<code>dashboard</code>、<code>form</code>、<code>settings</code>、<code>detail</code>、<code>result</code>）。</li>
+<li>规格校验、单文件生成器、多系统外壳。</li>
+</ul>
+<h4>只能当参考的内容与结构</h4>
+<ul>
+<li>示例里的页面清单、首页的模块顺序、标签栏、菜单、工作台指标、文案、数据、商品，都是某个行业的一种答案，不是默认值。</li>
+<li>不要因为示例有购物车和订单就给每个项目加购物车和订单；到店预约小程序与到店服务后台两份示例就没有商品和订单。</li>
+<li>规格里除了引用关系必须成立（页面存在、返回目标存在、标签页不被 <code>go</code> 指向、二级页不进标签栏……）之外，没有任何必填的页面或模块；校验器只查结构，不查行业内容，也不内置“首页应该长这样”。</li>
+<li>组件模板库的 303 个组件同理：是按场景挑、改、组合的积木和参照写法，不要求每页都用库里的组件原样拼出来。</li>
+</ul>
+<h4>什么时候整套用、只取一块、自己写</h4>
+<div class="table-wrap"><table><thead><tr><th>做法</th><th>什么时候</th><th>怎么做</th></tr></thead><tbody>
+<tr><td>整套用</td><td>需要手机框或后台外壳加页面栈、配置面板、场景与逻辑面板这一整套，页面大多能用库组件或内容模块表达</td><td>用规格描述页面，生成器出单文件；不改引擎和模板；专属页面写进内容模块</td></tr>
+<tr><td>只取一块</td><td>项目已有自己的外壳或页面栈，只缺配置面板、场景面板、逻辑面板或页面栈里的一两块</td><td>读引擎接口的对应章节，取那一块的写法；不整套引入，不为凑齐而加用不到的页面</td></tr>
+<tr><td>自己写</td><td>交互模型与引擎不同（画布、地图、大屏、对话类界面），或必须接真实框架的代码</td><td>沿用“二”和“六”的要求，写法自定；简报里写明为什么不用参考实现</td></tr>
+</tbody></table></div>
+<h4>不要从示例继承什么</h4>
+<ul>
+<li>页面清单与首页组成：生成器不给默认首页，三份小程序示例的首页完全不同（见案例样本）。先答“这个行业的用户第一件事是什么”，再答页面范式库的“选它前要问的问题”。</li>
+<li>标签栏项数与名字、金刚区的列数与条目、轮播与秒杀这类营销位：都是输入的函数，不是示例里写了几个就做几个。</li>
+<li>文案、数据、商品图、品牌名：示例的内容全部虚构，换成项目自己的；组件自带的演示数据（姓名、订单号、价格）也要换，或改用 <code>custom</code> 页面。</li>
+<li>业务规则与状态机（订单状态、预约状态）：来自系统技能的功能说明，不从示例抄。</li>
+</ul>
+
+<h3>二、交付物的形态</h3>
+<p>“产品开发用的前端界面 <code>HTML</code>”做成花店小程序示例那样，说的是形态而不是结构：</p>
+<ul>
+<li>三栏单文件：左栏是页面目录、外观配置（主题色、头部背景或侧栏深浅、图标风格、图标底）和场景开关；中间是手机框（小程序）或浏览器框（后台）；右栏是“本页逻辑”（来源、返回、完成后、主操作、规则、状态、后台维护）、业务规则和状态流转。</li>
+<li>页面栈导航真实可点：标签只由标签栏切换，二级页隐藏标签栏，返回到来源，流程完成回到发起处；每个标签独立页面栈。</li>
+<li>交互完整：点击、滑动、切换、弹层、表单校验、状态变化都做出来，不是静态图；主题色、图标风格、外观可配置。场景开关列全：成功、处理中、每种失败原因、加载、空、禁用、无权限；全局含网络、减少动态效果、角色、重置演示数据。</li>
+<li>手机宽度 390 完整可操作，无横向页面滚动；窗口窄于约 910 时三栏改为手机在上、面板在下。</li>
+<li>多个系统就多个页签：“前端架构”页签加每个系统或设备端各一个页签，每个页签只放一个可交互原型，路径与页面清单只写在前端架构里。</li>
+<li>单文件、不连网：素材内嵌，字体用系统字体，没有外部请求。</li>
+<li>视觉：低饱和、一条字体栈、字重 400/600/700、不斜体、控件图标线性 2 像素、头像用卡通动物、详情与编辑用居中面板、文本框聚焦只加深边框；引擎自带的硬要求见 <code>ENGINE.md</code> 第十二节。</li>
+</ul>
+<h4>与项目技能的 02 文档对齐</h4>
+<ul>
+<li>项目模式下的前端界面设计是 <code>docs/02-产品开发/02-前端界面设计.html</code>，用项目技能自己的生成器、校验器和审批，不用多系统外壳代替；不走项目流程才用外壳，页签结构与它一致。</li>
+<li>原型文件放在 <code>docs/02-产品开发/</code>，与文档同一层，名字是“序号 + 前端名称 + 原型”，如 <code>03-小程序原型.html</code>；文档里用 <code>prototype</code> 块，只写 <code>file</code>、<code>title</code>、<code>kind</code>（<code>phone</code> 或 <code>wide</code>）、<code>library</code> 和可选的 <code>height</code>；不同前端不能共用一个原型文件，小程序的 <code>kind</code> 只能是 <code>phone</code>。</li>
+<li>硬检查五项（<code>dev_documents.py</code> 的 <code>_prototype_errors</code>）：文件不小于 120 <code>KB</code>；有“减少动态效果”分支（<code>prefers-reduced-motion</code>）；有对话框角色（<code>showModal</code> 或 <code>role: 'dialog'</code>）；有场景配置面板（<code>K.panel(</code>）；所用库的组件不少于 6 种。参考实现由引擎与模板自带满足，自己写的原型要自己满足。</li>
+<li>路径与页面清单写进 02 文档“前端规范”的“页面与路径”，不写进前端页签，也不配截图；对接细节见 <code>shell/README.md</code> 第三、四节。</li>
+</ul>
+
+<h3>三、组件模板库怎么用</h3>
+<p>303 个带固定编号的交互组件：小程序 <code>MP</code> 160 个、后台 <code>AD</code> 143 个。编号 = <code>域-类别-三位序号</code>，如 <code>MP-CARD-003</code>、<code>AD-TBL-001</code>，一经发出不改、不复用；每个类别有一张“怎么选”表。每个组件是一段完整源码（样式、结构、交互）。它是参考与取用库，不是框架，没有依赖和运行时包。取用方法见 <code>references/component-library/README.md</code>，开发规范见 <code>src/SPEC.md</code>，按编号查适合与避免见 <code>registry/index.md</code>。</p>
+<h4>按编号取用</h4>
+<ol>
+<li>在编号索引或库页面里选好编号：先看类别的“怎么选”表，再看组件的“适合”与“避免”。</li>
+<li>找源码：<code>grep -n "id: 'AD-TBL-003'" references/component-library/src/blocks-*.js</code>；第一代 52 个模板按名称在 <code>blocks1.js</code> 到 <code>blocks3.js</code> 里找，编号与名称的对应在 <code>taxonomy.js</code> 的 <code>LEGACY</code> 表。</li>
+<li>取走从 <code>def({</code> 到收尾 <code>})</code> 的整段：样式、结构和可选的交互钩子都在里面。</li>
+<li>文件头要一起带。每个 <code>blocks-*.js</code> 最上面几段（图标补充、共用小工具、演示数据）是该文件各组件共用的，只拷一个 <code>def()</code> 会缺函数；整个文件头（到第一个 <code>def(</code> 之前）连同要的 <code>def()</code> 一起拿。生成器按编号整个文件连文件头一起带。</li>
+<li>全局名字（<code>def</code>、<code>P</code>、<code>IC</code>、<code>sv</code>、<code>critter</code>、<code>LINE</code>、<code>ASSETS</code> 等）来自核心文件，样式依赖 <code>kit.css</code> 的令牌区块与 <code>ix.css</code>，交互依赖 <code>ix.js</code>，原型里都要有。</li>
+<li>块的样式一律以块根类（小写的 <code>域类别序号</code>，如 <code>adtbl001</code>）为前缀，单独拷走不会串到别处；<code>js(root)</code> 的 <code>root</code> 是外层 <code>.ixr</code> 而不是块根，钩子里不挂全局监听、不留计时器。</li>
+</ol>
+<h4>组件根上的编号标记</h4>
+<ul>
+<li>库页面和原型引擎把每个组件包成带 <code>data-cid="编号"</code> 的块容器；原型里每个组件根都带 <code>data-cid</code>，值就是组件编号。</li>
+<li>按钮、表单、表格、对话框等控件必须落在某个带 <code>data-cid</code> 的组件根里，否则审计报“自造控件”；“组件种类”按不同的 <code>data-cid</code> 的个数计，至少 6 种。</li>
+<li>引擎或模板自己画的控件（标签栏、导航栏、状态页、提示、弹层）标最接近的库编号；原型外壳（页头、配置面板、场景开关、逻辑面板）标 <code>data-shell</code>，不算自造控件，也不计入种类。</li>
+<li>注册表里 <code>luz-kit</code> 的 <code>prefix</code> 是组件根类的前缀，项目技能按“类名以前缀开头”数库的组件种类，所以根类必须保持 <code>域类别序号</code> 的写法。</li>
+</ul>
+<h4>作用域前缀与令牌</h4>
+<ul>
+<li>颜色一律写令牌（<code>--card</code>、<code>--ink</code>、<code>--line</code>、<code>--ok</code>、<code>--p</code> 等）：写死的白与灰、状态色会被 <code>check_component_library.py</code> 报错并指出该写哪个；白字只放在实色填充上；不要把 <code>dark</code>、<code>light</code> 当类名，它们是外观开关。</li>
+<li>主题色当填充用 <code>--p</code>、<code>--pd</code>（上面放白字），当文字或图标用 <code>--p-text</code>、<code>--p-fg</code>；换主题色只改变量，组件的样式不写死主色。</li>
+</ul>
+<h4>取不到合适组件时</h4>
+<ol>
+<li>先挑最贴近的组件，用覆盖键改它：<code>text</code>、<code>img</code>、<code>go</code>、<code>back</code>、<code>tab</code>、<code>sheet</code>、<code>act</code>、<code>toast</code>、<code>attrs</code>、<code>class</code>、<code>hide</code>。覆盖在挂载后应用，改不了组件自己重绘的节点，遇到就换一个组件。</li>
+<li>仍不合适：写 <code>custom</code> 页面（内容模块），用库的原子组件当积木，保留 <code>data-cid</code> 或在元素上标最接近的库编号；业务块只管布局、令牌与业务组合，按钮、输入框、表格、对话框仍是库的。</li>
+<li>实在没有对应的库组件：在偏离说明里写明缺口是什么、为什么库的原子组装不出来、风险和验证办法，或回问系统技能能否换成库里有的组件；不要手写一个自造控件顶上。</li>
+<li>库里缺一个会反复用到的组件：按库 <code>README.md</code> 第五节新增（顺着编号往后编、颜色写令牌、补“怎么选”、跑检查与测试），不要在某个原型里私改库源码。</li>
+</ol>
+<h4>与真实库的取舍</h4>
+<div class="table-wrap"><table><thead><tr><th>目标</th><th>选</th><th>原因</th></tr></thead><tbody>
+<tr><td>出带编号、可直接演示、一份单文件的原型（项目 02 文档里的原型就是这一类）</td><td><code>luz-kit</code></td><td>组件有编号，审计按 <code>data-cid</code> 核对，深浅色已适配，不依赖框架</td></tr>
+<tr><td>接真实代码：后台用 <code>Element Plus</code>、<code>Ant Design</code> 等，手机网页用 <code>Vant</code>，小程序用 <code>Vant Weapp</code>、<code>WeUI</code> 等</td><td>登记表 <code>references/component-libraries.json</code> 里该端的真实库</td><td>原型里的组件就是将来的实现，开发直接复用；选库与主题接入读视觉设计规范的“组件与组件库”</td></tr>
+<tr><td>同一个原型</td><td>只选一个库</td><td>两个库的令牌、类名前缀和审计口径会互相干扰；一个前端一个库，写进前端架构</td></tr>
+</tbody></table></div>
+
+<h3>四、规格与生成</h3>
+<h4>规格里有哪些字段</h4>
+<p>规格是一份 <code>JSON</code>，结构以 <code>schema/prototype.schema.json</code> 为准，字段与系统技能的界面功能说明对齐。必填只有四项：<code>schema</code>（固定 <code>luz-prototype/1</code>）、<code>kind</code>（<code>mini</code> 或 <code>admin</code>）、<code>meta</code>（至少有 <code>title</code>）、<code>pages</code>；标签栏 <code>tabbar</code>（小程序）或侧栏 <code>nav</code>（后台）由模板要求；其余都是可选。</p>
+<div class="table-wrap"><table><thead><tr><th>字段</th><th>内容</th><th>渲染到</th></tr></thead><tbody>
+<tr><td><code>pages[]</code></td><td>页面：<code>id</code>、<code>name</code>、<code>type</code>（<code>tab</code> 一级页、<code>sub</code> 二级页、<code>sheet</code> 弹层、<code>result</code> 结果页）、<code>blocks</code> 或 <code>custom</code></td><td>中间舞台与左栏目录</td></tr>
+<tr><td><code>pages[].logic</code></td><td><code>from</code> 来源、<code>back</code> 返回、<code>done</code> 完成后、<code>primary</code> 主操作、<code>rules</code>、<code>states</code>、<code>backend</code></td><td>右栏“本页逻辑”</td></tr>
+<tr><td><code>tabbar[]</code> <code>nav[]</code></td><td>标签栏、侧栏菜单</td><td>手机框的标签栏、后台侧栏</td></tr>
+<tr><td><code>flows[]</code> <code>scenes[]</code> <code>roles[]</code></td><td>流程（<code>start</code>、<code>steps</code>、<code>done</code>）、业务场景开关（每种失败原因一项）、角色</td><td>左栏流程直达与场景面板，右栏流程条</td></tr>
+<tr><td><code>rules[]</code> <code>statuses[]</code> <code>theme</code> <code>config</code></td><td>业务规则分组、状态机，配置面板各组的默认值与清单</td><td>右栏“业务规则”“状态流转”，左栏外观配置</td></tr>
+<tr><td><code>actions{}</code> <code>data{}</code> <code>assets</code> <code>device</code> <code>directory</code> <code>content</code></td><td>声明式动作、演示数据（重置会还原）、素材目录、手机框尺寸、目录分组、内容模块文件</td><td>交互、演示内容、左栏目录、专属页面</td></tr>
+</tbody></table></div>
+<h4>生成命令</h4>
+<div class="table-wrap"><table><thead><tr><th>命令</th><th>做什么</th></tr></thead><tbody>
+<tr><td><code>py -X utf8 scripts/build_prototype.py 规格.json --check</code></td><td>只校验结构与引用：页面存在、标签栏页面是一级页、<code>go</code> 与 <code>replace</code> 不指向标签栏页面、跳转目标存在、孤岛页面、同一页同一目的地多个入口、组件编号在库里、缺逻辑字段；中文报错，不查行业内容</td></tr>
+<tr><td><code>py -X utf8 scripts/build_prototype.py 规格.json --out 输出.html [--content content.js]</code></td><td>生成单文件；先做同样的校验，有错就不出文件；默认写到 <code>references/prototype-templates/dist/</code>，版本库忽略它</td></tr>
+<tr><td><code>py -X utf8 scripts/build_prototype_suite.py suite.json --out 文档.html [--inline] [--check]</code></td><td>多系统外壳：“前端架构”页签加每个系统一个页签，默认用 <code>iframe</code> 引用同目录的原型文件、切到页签才加载，<code>--inline</code> 内嵌成单文件；<code>--number-from</code> 与 <code>--project-tabs</code> 按项目文档的命名写文件并写出前端页签的 <code>JSON</code></td></tr>
+</tbody></table></div>
+<p>示例在 <code>references/prototype-templates/examples/</code> 下：小程序三份 <code>generic-mini</code>（24 个页面）、<code>florist-mini</code>（30 个页面，专属页面走内容模块）、<code>booking-mini</code>（10 个页面），后台两份 <code>generic-admin</code>（19 个页面）、<code>service-admin</code>（11 个页面），多系统文档 <code>suite-demo</code>；首页组成与菜单的对照见案例样本。</p>
+<h4>怎么写自己的规格</h4>
+<ol>
+<li>从项目的功能清单与入口表出发列页面和菜单，不从示例复制；首页方案先用 <code>page_pattern.py</code> 的 <code>brief</code>、<code>plan</code>、<code>check</code> 做出来，再写进规格。</li>
+<li>从最小规格起步，一个一级页加标签栏，<code>--check</code> 通过再往里加页面。</li>
+<li>每页写 <code>logic</code>：缺项右栏就不显示那一行，引擎不会补规则；规则来自系统技能。场景与角色按项目真实情况列，每种失败原因各一项。</li>
+<li>演示数据全部虚构；图片只用 <code>Imagegen</code> 生成的素材或库的素材，放进 <code>assets.dir</code>。</li>
+<li>复制示例当起点时，先删掉不属于本项目的页面、菜单、文案和素材。</li>
+</ol>
+
+<h3>五、深色与浅色</h3>
+<p>默认浅色，设计与验收从浅色起；深色是第二套配色（更暗的底、更亮的前景、品牌色取同色相更亮的一阶），不是浅色取反。所有前端及其原型都要有两套，默认跟随系统，可手动切换跟随系统、浅色、深色；阅读型网页不做深色。组件库已按这个契约适配：</p>
+<div class="table-wrap"><table><thead><tr><th>写法</th><th>效果</th></tr></thead><tbody>
+<tr><td>根或任一祖先带类 <code>dark</code></td><td>这个元素以内是深色</td></tr>
+<tr><td>根或任一祖先带类 <code>light</code></td><td>强制浅色，系统是深色也不变</td></tr>
+<tr><td>没有类</td><td>跟随系统（<code>prefers-color-scheme</code>）</td></tr>
+<tr><td><code>data-theme="dark"</code>、<code>data-theme="light"</code></td><td>与同名类等价</td></tr>
+<tr><td>嵌套</td><td>颜色令牌取离元素最近的一层；主题色（带 <code>data-lt</code>）同理，只有“外层 <code>light</code>、中层 <code>dark</code>、最里层 <code>data-lt</code>”这一种嵌法浅色优先，不要这样嵌</td></tr>
+<tr><td><code>setAppearance('system'|'light'|'dark')</code></td><td>给根元素设类与 <code>data-theme</code>（<code>system</code> 时两者都去掉），同步声明 <code>color-scheme</code>；原型引擎调用它时不记到本机</td></tr>
+</tbody></table></div>
+<h4>引擎怎么接</h4>
+<ul>
+<li>外观配置组取跟随系统、浅色、深色；引擎把选择交给库的 <code>setAppearance</code>，再把“跟随系统”算成具体的深或浅写到 <code>html[data-theme]</code> 与 <code>color-scheme</code>，并监听系统外观变化。外壳用自己的两套令牌；接口出处是 <code>ENGINE.md</code> 的外观一节。</li>
+<li>产品区的颜色全部来自库的令牌，<code>data-theme</code> 一变就跟着变，不用反色滤镜近似；模板自己的样式也写成令牌（后台是 <code>--ad-*</code>）。</li>
+<li>主题色用库的 <code>applyTheme</code>：只写 <code>data-lt</code> 属性，浅深两组值由库按外观选；不要往行内样式里写主色，否则压住深色。</li>
+<li>内容模块、自写样式和 <code>custom</code> 页面的颜色自己写成令牌，否则深色下会留浅色底；每一页都要在深色下打开，用 <code>audit_rendered.py --scheme dark</code> 量。</li>
+</ul>
+<h4>已知例外（有理由地保持原样）</h4>
+<ul>
+<li>白字压在主色、状态色、点缀色的实色底上；登录二维码保持白底深码点（扫码器读不了反色码）。</li>
+<li>深色侧栏的后台组件、深底舞台、第一代的暗金奢品卡与大图沉浸卡，两种外观下都是深的；压在图片上的遮罩与文字、玻璃块上的白字、纯黑阴影与白色高光保持原样。</li>
+<li>金、沙、棕、青灰等彩色点缀，默认头像和空状态插画的内部色保持原色；后台结果页里 100 像素的装饰性幽灵数字是唯一的对比度例外。完整清单见库 <code>README.md</code> 的“深色”一节。</li>
+</ul>
+
+<h3>六、验收</h3>
+<p>每个原型都要在真实浏览器里实测，没有浏览器时对应检查跳过并写明，不当作通过。</p>
+<div class="table-wrap"><table><thead><tr><th>检查</th><th>命令</th><th>看什么</th></tr></thead><tbody>
+<tr><td>规格</td><td><code>build_prototype.py 规格.json --check</code></td><td>零错误；报错是“规格引用了不存在的……”，不是“模板必须包含……”</td></tr>
+<tr><td>真实浏览器审计</td><td><code>audit_rendered.py 原型.html --library luz-kit --min-font 12 --width 390 --scheme light</code>，再 <code>--scheme dark</code>，再桌面宽度</td><td>字号、对比度、斜体、字重、触控尺寸、<code>transition: all</code>、聚焦框、手写控件、组件种类不少于 6；原型一次只渲染当前页，逐页用 <code>--walk</code> 脚本调 <code>K.jump</code> 或改地址里的 <code>#/页面 id</code></td></tr>
+<tr><td>首页重复入口、配色与稳定</td><td><code>page_pattern.py check-page 生成物.html --hash "#/home" --width 390</code>；<code>audit_palette.py</code>、<code>audit_stability.py</code>（再加 <code>--scheme dark</code>）</td><td>同一目的地一页只出现一次；用色只来自主题；深色下首帧没有底色突变</td></tr>
+<tr><td>参考实现与组件库的测试</td><td><code>test_prototype_mini.py</code>、<code>test_prototype_florist.py</code>、<code>test_prototype_admin.py</code>、<code>test_prototype_suite.py</code>；<code>check_component_library.py</code>、<code>test_component_library.py</code>、<code>test_component_libraries.py</code></td><td>生成器、坏规格逐类报错、页面栈、配置面板、场景、逻辑面板、390 与桌面宽度、深浅外观、无控制台错误；库的编号、前缀、令牌与“怎么选”</td></tr>
+<tr><td>项目技能兼容</td><td><code>dev_documents.py</code> 的 <code>_prototype_errors</code>（<code>test_prototype_suite.py</code> 里已跑）</td><td>五项硬检查：120 <code>KB</code>、减少动态效果分支、对话框角色、场景配置面板、库组件不少于 6 种</td></tr>
+<tr><td>人眼</td><td>390 与桌面宽度、浅色与深色，各把每一页和每个场景打开一遍</td><td>第一眼是不是第一落点；有没有留浅色底、文字看不清、被撑破的地方</td></tr>
+</tbody></table></div>
+
+<h3>七、已知限制</h3>
+<p>下面是各 <code>README.md</code> 里已经记录的缺口，如实列出，不当作已解决：</p>
+<ul>
+<li>浅色下库里仍有一批组件的对比度低于 4.5:1：用 <code>dark_audit.py --mode light</code> 作对照量，303 个组件里约 164 到 171 个（随宽度、主题色与构建而异），多数在 4.0 到 4.5 之间，常见的是状态绿字落在浅绿底、白字落在主题色底、灰字落在浅灰底。深色下除一个装饰数字外全部达标。取用时按审计报告逐个看，不要当它已经达标。</li>
+<li>原型文件自己过不了 <code>check_document.py --allow interface</code>：<code>shell/README.md</code> 第五节记录小程序 18 项、后台 30 项，类别是装饰渐变、深色或饱和填充、状态栏对比度等，是外壳与引擎的外观取舍；项目技能目前只对文档跑这个检查，不挡。要不要让两边一致，待决定；原型改用 <code>audit_rendered.py</code> 验收。</li>
+<li>库组件和引擎的动效时长（0.12 到 0.5 秒十几个取值）不在项目文档要求的 100、150、200、300 毫秒四档，退出时长也没逐项核对；校验器不查，文档措辞与实际不一致，二选一。</li>
+<li>审计与库的已知差距：<code>MP-ENT-001</code>、<code>MP-ENT-002</code>、<code>MP-ENT-004</code>、<code>MP-ENT-005</code>、<code>MP-NAV-002</code> 的字重不在 400、600、700，另有 35 个组件的过渡写在宽度、位置或边距上；取用时按审计规则改成位移与透明度、字重改 600。</li>
+<li>含自带演示数据的整屏组件：同一页里的商品、价格、订单号来自各组件自带的演示数据，彼此不一定一致（购物车里的商品与详情页的不是同一件）；有的是几种形态并排的对照块，要用 <code>hide</code> 去掉演示用的切换条。真实项目里用 <code>custom</code> 页面或后台数据替换。</li>
+<li>场景面板没有按模块显示或隐藏的开关；各前端的原型之间没有共用演示数据的机制；后台的表格转卡片没有逐项验证。</li>
+<li>后台没做：多级菜单、列设置、列宽拖拽、地址栏参数、删除与停用的 5 秒撤销；“未保存先确认”做成了关闭后草稿保留。</li>
+<li>小程序的左栏页面目录不能带进入参数，同一页的状态变体用流程或 <code>K.jump</code> 直达；导航栏标题是页面固定的名字。</li>
+<li>后台两份示例的页头副标题还带着工具口吻，项目里换成产品自己的或留空（规格的 <code>meta.subtitle</code>），成品页面不写工具名。</li>
+<li>没有网站和智能体界面的专属模板；<code>luz-kit</code> 登记的端是小程序、手机网页和后台。</li>
+</ul>
+</section>
+<!-- SECTION:rules:END -->
+
+<!-- SECTION:platform-matrix:START id=platform-matrix data-rule-id=proto-platform-matrix -->
+<section id="platform-matrix" data-rule-id="proto-platform-matrix" aria-labelledby="platform-matrix-heading">
+<h2 id="platform-matrix-heading" class="section-heading"><svg class="icon-linear section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="4" width="7" height="6" rx="1"/><rect x="14" y="4" width="7" height="6" rx="1"/><rect x="3" y="14" width="7" height="6" rx="1"/><rect x="14" y="14" width="7" height="6" rx="1"/></svg><span>平台矩阵</span></h2>
+<div class="table-wrap"><table><thead><tr><th>参考实现</th><th>小程序</th><th>手机网页</th><th>后台</th><th>网站</th><th>智能体界面</th></tr></thead><tbody>
+<tr><td>引擎 <code>engine/</code></td><td>共用</td><td>共用，按 <code>phone</code> 对待</td><td>共用</td><td>共用，按 <code>wide</code> 对待，没有专属 <code>kind</code></td><td>没有对应的 <code>kind</code></td></tr>
+<tr><td>小程序模板 <code>mini/</code></td><td>有：手机框、胶囊、导航栏、标签栏、弹层、状态页、头部背景</td><td>没有专属模板；外壳的 <code>h5</code> 页签用 <code>mini</code> 规格，路由语义仍是小程序的</td><td>无</td><td>无</td><td>无</td></tr>
+<tr><td>后台模板 <code>admin/</code></td><td>无</td><td>无</td><td>有：侧栏、顶栏、多标签页、面包屑，六种页面写法</td><td>没有专属模板；外壳的 <code>website</code> 页签用 <code>admin</code> 规格</td><td>无</td></tr>
+<tr><td>多系统外壳 <code>shell/</code></td><td><code>miniapp</code> 页签，<code>phone</code></td><td><code>h5</code> 页签，<code>phone</code></td><td><code>admin</code> 页签，<code>wide</code></td><td><code>website</code> 页签，<code>wide</code></td><td>没有这个 <code>surface</code> 取值</td></tr>
+<tr><td>组件库 <code>luz-kit</code></td><td>有：<code>MP</code> 160 个</td><td>登记为适用，用 <code>MP</code> 系列</td><td>有：<code>AD</code> 143 个</td><td>登记项不含网站</td><td>登记项不含智能体界面</td></tr>
+<tr><td>真实库（登记表）</td><td><code>tdesign-miniprogram</code>、<code>vant-weapp</code>、<code>weui</code></td><td><code>vant</code>、<code>weui</code></td><td><code>element-plus</code>、<code>ant-design</code>、<code>tdesign</code>、<code>arco-design</code>、<code>semi-design</code>、<code>naive-ui</code></td><td>同后台</td><td>无登记项，按承载形态选网站或后台的库并写依据</td></tr>
+</tbody></table></div>
+<div class="table-wrap"><table><thead><tr><th>端</th><th>差异</th></tr></thead><tbody>
+<tr><td>小程序</td><td>路由语义对应微信小程序：<code>go</code> 是 <code>navigateTo</code>（目标不能是标签页）、<code>replace</code> 是 <code>redirectTo</code>、<code>back</code> 是 <code>navigateBack</code>、<code>toTab</code> 是 <code>switchTab</code>（清空二级页）、<code>jump</code> 是 <code>reLaunch</code>；页面栈上限 10 层是本技能的取值</td></tr>
+<tr><td>后台</td><td>按舞台宽度响应：960 以上完整侧栏，640 到 960 图标栏，640 以下抽屉且表格转卡片；每个侧栏标签是一个工作区，各自保留页面栈，最多 15 个；详情与编辑用居中面板</td></tr>
+<tr><td>手机网页与网站</td><td>没有专属模板，不照搬小程序的标签栏与路由语义，也不照搬后台的菜单；先按功能清单和页面范式库定结构，再决定借哪一块机制</td></tr>
+<tr><td>智能体界面</td><td>没有参考实现；对话类界面自己写，沿用“二、交付物的形态”和“六、验收”的要求</td></tr>
+</tbody></table></div>
+</section>
+<!-- SECTION:platform-matrix:END -->
+
+<!-- SECTION:examples:START id=examples data-rule-id=proto-examples -->
+<section id="examples" data-rule-id="proto-examples" aria-labelledby="examples-heading">
+<h2 id="examples-heading" class="section-heading"><svg class="icon-linear section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m4 17 5-5 3 3 2-2 6 6"/></svg><span>案例样本</span></h2>
+<p>三份小程序示例用同一套机制长出不同的首页，后台两份示例长出不同的菜单与工作台。下面是各自的组成，用来看“行业不同组成就不同”，不是要你挑一个照做。</p>
+<div class="table-wrap"><table><thead><tr><th>小程序示例</th><th>首页组成（自上而下）</th><th>没有的东西</th></tr></thead><tbody>
+<tr><td>通用商品商城</td><td>搜索栏加门店与配送时效 → 轮播活动 → 金刚区（6 个高频核心入口）→ 限时秒杀 → 商品卡；首屏营销模块不超过 2 个</td><td>金刚区里没有账户类与订单类，也不重复标签栏已有的分类与购物车</td></tr>
+<tr><td>垂直电商（花店）</td><td>配送地址与门店合成一个入口，下面是搜索框 → 一张活动卡 → 截单提示 → 入口宫格（5 条业务线）→ 新人礼券（领取后收起）→ 当季热卖（本模块内筛选，两列商品卡）</td><td>收藏、优惠券、会员、门店、订单与账户类入口都不放首页</td></tr>
+<tr><td>到店预约与会员</td><td>门店上下文栏（门店、营业状态、距离）→ 入口大卡（现场取号、会员签到）→ 单列预约服务列表</td><td>没有搜索、金刚栅格、营销轮播、购物车和商品交易</td></tr>
+</tbody></table></div>
+<div class="table-wrap"><table><thead><tr><th>后台示例</th><th>菜单</th><th>工作台第一屏</th></tr></thead><tbody>
+<tr><td>商品与订单运营</td><td>工作台 / 交易（订单、商品）/ 会员与营销（会员、营销活动、评价）/ 财务与权限（财务对账、角色权限、操作日志）/ 系统设置；通知中心与个人中心从顶栏进入</td><td>指标卡（销售额、订单数、客单价、新增会员、退款额，较上期变化）→ 趋势与渠道占比 → 待办与商品排行 → 最新待发货</td></tr>
+<tr><td>到店服务运营</td><td>今日台 / 预约与排班（预约日历、员工排班）/ 客户与服务（客户档案、服务项目、核销记录）/ 门店设置；没有商品和订单</td><td>预约数、到店率、核销次数、核销金额 → 今天的预约日程与待办（待核销、未到店、沉睡客户）→ 服务热度与预约来源</td></tr>
+</tbody></table></div>
+<p>要点：可复用的是外壳、配置面板、场景与逻辑面板、列表与表单的写法这些机制；首页组成、菜单、指标和数据随行业变，没有哪一份是别的行业的默认值。</p>
+</section>
+<!-- SECTION:examples:END -->
+
+<!-- SECTION:output-contract:START id=output-contract data-rule-id=proto-output-contract -->
+<section id="output-contract" data-rule-id="proto-output-contract" aria-labelledby="output-contract-heading">
+<h2 id="output-contract-heading" class="section-heading"><svg class="icon-linear section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v5h5M9 12h6M9 16h6"/></svg><span>输出契约</span></h2>
+<ul>
+<li>规格 <code>JSON</code>（需要时加内容模块与素材目录）：生成的 <code>HTML</code> 是产物，版本库默认忽略它；交付给项目的是生成后的单文件原型。</li>
+<li>单文件原型 <code>HTML</code>：满足核心规则二；项目里放在 <code>docs/02-产品开发/</code>，命名“序号 + 前端名称 + 原型”；多个系统各一份，另有一份多页签文档（项目模式由项目技能的生成器出，独立使用由 <code>build_prototype_suite.py</code> 出）。</li>
+<li>组件映射表：每个页面区域用到的库组件编号、覆盖项、自定义块及理由；交给开发做“组件编号到实现”的对应。</li>
+<li>简报 <code>BRIEF</code>：采用的规则（规则 <code>id</code>）、偏离说明（被偏离的规则、原因、风险、验证办法）、整套用、只取一块或自己写的判定与理由、本次沉淀。</li>
+<li>设计令牌：用 <code>export_tokens.py</code> 导出，浅色在 <code>$value</code>，深色在 <code>$extensions.mode.dark</code>；开发从令牌文件取色，不抄原型里的数字。</li>
+<li>验收记录：浅色与深色各一份审计结果、<code>check-page</code> 结果、各测试的通过或跳过（跳过写原因）。</li>
+</ul>
+</section>
+<!-- SECTION:output-contract:END -->
+
+<!-- SECTION:quality-gates:START id=quality-gates data-rule-id=proto-quality-gates -->
+<section id="quality-gates" data-rule-id="proto-quality-gates" aria-labelledby="quality-gates-heading">
+<h2 id="quality-gates-heading" class="section-heading"><svg class="icon-linear section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 7h5M15 7h5M9 7a3 3 0 1 0 6 0 3 3 0 0 0-6 0ZM4 17h10M18 17h2M14 14a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z"/></svg><span>质量门禁</span></h2>
+<ul>
+<li>控件不在带 <code>data-cid</code> 的组件里，又没有偏离说明（审计报“自造控件”）；同一个原型混用两个库：退回修改。</li>
+<li>缺场景配置面板、逻辑面板、减少动态效果分支或对话框角色，库组件少于 6 种：退回修改。</li>
+<li>390 宽出现横向页面滚动或某一页无法完整操作；浅色或深色任一外观下有页面打不开、报控制台错误、留浅色底或文字看不清；首页 <code>check-page</code> 报重复入口：退回修改。</li>
+<li>页面清单、首页组成、标签栏与系统技能的功能清单对不上，或原样搬了示例（项目没有的购物车、订单、搜索、金刚区）：退回修改。</li>
+<li>增删了系统技能已批准的页面、入口、标签栏项数、组件或按钮动作：退回修改，画不下的退回系统技能。</li>
+<li>默认规则被偏离却没有偏离说明，或偏离说明缺项；没有跑审计与测试，或跳过了却没有写原因：不得交付。</li>
+</ul>
+<p>命令：<code>py -X utf8 scripts/build_prototype.py 规格.json --check</code>；<code>py -X utf8 scripts/audit_rendered.py 原型.html --library luz-kit --min-font 12 --width 390 --scheme light</code>（再 <code>--scheme dark</code>）；<code>py -X utf8 scripts/page_pattern.py check-page 生成物.html --hash "#/home" --width 390</code>；<code>py -X utf8 scripts/check_component_library.py</code>；各 <code>test_prototype_*.py</code>。规则页自检 <code>py -X utf8 scripts/check_document.py references/prototype-reference.html</code>。</p>
+</section>
+<!-- SECTION:quality-gates:END -->
+
+<!-- SECTION:handoff:START id=handoff data-rule-id=proto-handoff -->
+<section id="handoff" data-rule-id="proto-handoff" aria-labelledby="handoff-heading">
+<h2 id="handoff-heading" class="section-heading"><svg class="icon-linear section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 7h12M13 4l3 3-3 3M20 17H8M11 14l-3 3 3 3"/></svg><span>交接规则</span></h2>
+<p>原型交给开发时，随附规格、组件映射表、设计令牌和简报；放进项目技能的 02 文档时按 <code>prototype</code> 块写，路径与页面清单写进“前端规范”。系统技能收到的是退回清单：画不下的页面、库里没有对应组件的缺口、入口冲突、标签栏项数越界；项目模式走需求变更台账。被偏离的默认规则和待验证的数值写进 <code>BRIEF</code>。结束前把有效或失败的做法、新的偏好与调研来源用 <code>experience.py note</code> 沉淀，并写进 <code>BRIEF</code> 的“本次沉淀”。</p>
+</section>
+<!-- SECTION:handoff:END -->
+
+</main>
+</body>
+</html>

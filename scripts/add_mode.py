@@ -70,7 +70,7 @@ def add_mode(root: Path, session: Path, mode: str, *, standalone_poster: bool = 
             and approvals.get("standalone_poster", {}).get("status") in {"requested", "approved"}
         )
         if not poster_requested:
-            raise PermissionError("visual mode is standalone visual work and must be declared with --standalone-poster when the session is created; product visuals belong to Luz-System")
+            raise PermissionError("visual mode is standalone visual work and must be declared with --standalone-poster when the session is created; the functional structure of a product interface belongs to Luz-System and its look is worked from the interface rule cards (context.py interface-visual) in a document session")
         errors = validate(session)
         if errors:
             raise PermissionError("standalone poster gate failed: " + "; ".join(errors))

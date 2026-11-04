@@ -1,0 +1,252 @@
+{
+  "version": "2026-11-04.v3",
+  "note": "前端组件库注册表。规则：每个前端（后台、小程序、网站、H5）在设计开始前从这里选一个组件库，一个前端一个库，不混用；按钮、表单、表格、对话框、导航等控件一律是该库的真实组件，不手写 HTML/CSS 自造控件，自定义只限布局与组合、按主题令牌换色、由库的原子组件拼成的业务块（visual-design.html 二、排版基础 › 组件与组件库）。prefix 是该库渲染出的类名（或自定义元素标签）前缀，scripts/audit_rendered.py --library 按它判断一个控件是不是来自库；theme 是该库官方的换色方式，主题库 themes.json 的令牌通过它落到组件上；surfaces 是适用的前端：admin 后台、website 网站、h5 手机网页、miniapp 小程序。新增一个库要先用 Luz-Crawl 读它的官方文档，再写 docs、theme、prefix，并在 verified 写核验日期。 类名前缀（prefix）来自各库的通行写法，还没有在官方文档页里逐一核对：第一次用审计脚本跑真实渲染页时核对，不对就改这里。verified 为空表示还没有核对过官方文档。 dark 是该库的暗色接入方式（visual-design.html 一、视觉基础 › 深色与浅色两套主题：产品前端同时有浅色与深色两套主题，库的暗色机制与页面的 data-theme 必须同步），darkSource 写依据：登记已有的事实、用户给出的写法或官方文档核验日期；dark 为空表示还没有核对，先读官方文档再填，不得凭记忆假设。 带 attr 字段的库（luz-kit，仓库自有）不按类名前缀核对，按组件根上的该属性（data-cid，值是组件编号）核对：audit_rendered.py --library luz-kit 要求每个控件落在带该属性的组件根里，组件种类按不同的属性值计；它的 prefix 是组件根类（mpcard003、adtbl001）的前缀，docs 指向仓库内文档。",
+  "libraries": {
+    "element-plus": {
+      "name": "Element Plus",
+      "stack": "Vue 3",
+      "surfaces": [
+        "admin",
+        "website"
+      ],
+      "prefix": [
+        "el-"
+      ],
+      "theme": "改样式变量而不是逐个覆盖：SCSS 变量映射（$colors 等，用 @forward … with 覆盖），按需引入时用 scss.additionalData 让每个组件吃到变量；类名按 BEM 命名",
+      "dark": "根元素加 dark 类并引入暗色变量表（element-plus/theme-chalk/dark/css-vars.css），自定义变量在 html.dark 下另设一份；与页面的深浅切换同步：切换时同时改 html 的 dark 类与 data-theme",
+      "darkSource": "用户 2026-11-04 提供，未对官方文档逐项核对",
+      "license": "MIT",
+      "docs": "https://element-plus.org/zh-CN/",
+      "fit": "中后台：表格、表单、级联、树、日期、对话框、抽屉、步骤、描述列表、统计数值最全，Vue 3 技术栈的首选",
+      "verified": "2026-11-03",
+      "seen": "官方主题页"
+    },
+    "ant-design": {
+      "name": "Ant Design",
+      "stack": "React",
+      "surfaces": [
+        "admin",
+        "website"
+      ],
+      "prefix": [
+        "ant-"
+      ],
+      "theme": "ConfigProvider 的 theme：种子令牌 token、预设算法（默认、暗色、紧凑）、组件令牌 components，可嵌套做局部主题；message、Modal 等静态方法拿不到上下文，要用 useModal 或 App 包裹",
+      "dark": "ConfigProvider 的 theme.algorithm 取 theme.darkAlgorithm（预设算法之一，可与 compactAlgorithm 组成数组）；种子令牌 token 仍由主题库的 dark 映射给；切换时同时改算法与页面的 data-theme",
+      "darkSource": "登记已有“预设算法（默认、暗色、紧凑）”，算法名 darkAlgorithm 为用户 2026-11-04 提供，未对官方文档逐项核对",
+      "license": "MIT",
+      "docs": "https://ant.design/index-cn",
+      "fit": "中后台与数据密集页面：表格、表单、描述列表、统计、时间轴、结果页最成熟，React 技术栈的首选",
+      "verified": "2026-11-03",
+      "seen": "5.x 令牌方案，6.0 起有 zeroRuntime"
+    },
+    "tdesign": {
+      "name": "TDesign（Vue Next / React）",
+      "stack": "Vue 3 或 React",
+      "surfaces": [
+        "admin",
+        "website"
+      ],
+      "prefix": [
+        "t-"
+      ],
+      "theme": "CSS 变量（--td-brand-color 等）加主题生成器；色板 10 阶",
+      "dark": "",
+      "darkSource": "未核对：先用 Luz-Crawl 读该库官方文档里暗色或主题切换的页面，再填本字段；填之前不得假设它有暗色模式",
+      "license": "MIT",
+      "docs": "https://tdesign.tencent.com/",
+      "fit": "与微信生态的设计语言一致，后台与小程序可用同一套视觉；组件齐全，默认外观干净",
+      "verified": "",
+      "seen": "网页版入门页本轮没有取到内容，主题变量未核对"
+    },
+    "arco-design": {
+      "name": "Arco Design",
+      "stack": "Vue 3 或 React",
+      "surfaces": [
+        "admin",
+        "website"
+      ],
+      "prefix": [
+        "arco-"
+      ],
+      "theme": "全局令牌暴露为 CSS 变量（--primary-6 等，6 常规、5 悬停、7 点击），成功、警示、错误、链接同样分阶，支持亮暗两套",
+      "dark": "登记写明支持亮暗两套；切换写法（属性或类、变量名）未核对，用之前先读官方文档的暗色页",
+      "darkSource": "登记已有“支持亮暗两套”，切换写法未核对",
+      "license": "MIT",
+      "docs": "https://arco.design/",
+      "fit": "中后台，外观精致克制，适合数据与工具类产品",
+      "verified": "2026-11-03",
+      "seen": "Arco Design Vue 的设计变量页"
+    },
+    "semi-design": {
+      "name": "Semi Design",
+      "stack": "React",
+      "surfaces": [
+        "admin",
+        "website"
+      ],
+      "prefix": [
+        "semi-"
+      ],
+      "theme": "CSS 变量（--semi-color-primary 等）与 Semi Design Lab 主题",
+      "dark": "",
+      "darkSource": "未核对：先用 Luz-Crawl 读该库官方文档里暗色或主题切换的页面，再填本字段；填之前不得假设它有暗色模式",
+      "license": "MIT",
+      "docs": "https://semi.design/zh-CN",
+      "fit": "React 中后台，设计细节与动效完成度高，适合内容与运营类后台",
+      "verified": "",
+      "seen": "首页部分采集：三千多个设计令牌、主题编辑器与主题商店、设计转代码"
+    },
+    "naive-ui": {
+      "name": "Naive UI",
+      "stack": "Vue 3",
+      "surfaces": [
+        "admin",
+        "website"
+      ],
+      "prefix": [
+        "n-"
+      ],
+      "theme": "n-config-provider 的 theme-overrides（common 全局、按组件覆盖令牌，不用写 CSS），默认亮色",
+      "dark": "",
+      "darkSource": "未核对：先用 Luz-Crawl 读该库官方文档里暗色或主题切换的页面，再填本字段；填之前不得假设它有暗色模式",
+      "license": "MIT",
+      "docs": "https://www.naiveui.com/zh-CN/os-theme",
+      "fit": "Vue 3 中后台，外观克制，主题覆盖粒度细",
+      "verified": "2026-11-03",
+      "seen": "2.45.3"
+    },
+    "vant": {
+      "name": "Vant",
+      "stack": "Vue 3",
+      "surfaces": [
+        "h5"
+      ],
+      "prefix": [
+        "van-"
+      ],
+      "theme": "ConfigProvider 全局配置与 CSS 变量",
+      "dark": "ConfigProvider 的 theme 属性取 dark（Vant 4）；自定义的 CSS 变量在深色下另设一份；切换时同时改 theme 与页面的 data-theme",
+      "darkSource": "登记已有“支持深色模式”，theme 属性写法为用户 2026-11-04 提供，未对官方文档逐项核对",
+      "license": "MIT",
+      "docs": "https://vant-ui.github.io/vant/#/zh-CN",
+      "fit": "手机网页与 H5 商城、会员、点餐类页面，移动端控件最全",
+      "verified": "2026-11-03",
+      "seen": "4.9.22，Vue 3，MIT，长期支持，支持深色模式与按需引入"
+    },
+    "tdesign-miniprogram": {
+      "name": "TDesign 小程序版",
+      "stack": "微信小程序",
+      "surfaces": [
+        "miniapp"
+      ],
+      "prefix": [
+        "t-"
+      ],
+      "theme": "CSS 变量（--td-brand-color 等），与 TDesign 网页版同一套令牌",
+      "dark": "",
+      "darkSource": "未核对：先用 Luz-Crawl 读该库官方文档里暗色或主题切换的页面，再填本字段；填之前不得假设它有暗色模式",
+      "license": "MIT",
+      "docs": "https://tdesign.tencent.com/miniprogram/overview",
+      "fit": "微信小程序首选之一：与 TDesign 后台同一设计语言，组件与小程序原生能力贴合",
+      "verified": "2026-11-03",
+      "seen": "npm 包 tdesign-miniprogram，以 t- 开头的自定义组件，最低基础库 2.12.0",
+      "watch": [
+        "app.json 要去掉 style: v2，否则组件样式错乱",
+        "最低基础库 2.12.0",
+        "Upload 等组件用到会收集用户隐私的接口，发布前要填写用户隐私保护指引"
+      ]
+    },
+    "vant-weapp": {
+      "name": "Vant Weapp",
+      "stack": "微信小程序",
+      "surfaces": [
+        "miniapp"
+      ],
+      "prefix": [
+        "van-"
+      ],
+      "theme": "与 Less 变量同名的 CSS 变量，设在单个组件、外层容器或 app.wxss 的 page 上，也可用 style 属性动态切换；不支持 CSS 变量的设备主题不生效、默认样式仍在",
+      "dark": "",
+      "darkSource": "未核对：先用 Luz-Crawl 读该库官方文档里暗色或主题切换的页面，再填本字段；填之前不得假设它有暗色模式",
+      "license": "MIT",
+      "docs": "https://vant-ui.github.io/vant-weapp/#/home",
+      "fit": "微信小程序：商城、会员、点餐类页面的组件最全，社区成熟",
+      "verified": "2026-11-03",
+      "seen": "1.11.7，组件分基础、表单、反馈、展示、导航、业务六类（商品卡片、提交订单栏、省市区选择等）",
+      "watch": [
+        "要按需引入控制包体",
+        "页面要覆盖组件样式时用 CSS 变量，不用 !important",
+        "Dialog、Toast 在页面未渲染完成时调用会失败，放到 onReady 之后"
+      ]
+    },
+    "weui": {
+      "name": "WeUI",
+      "stack": "微信小程序与手机网页",
+      "surfaces": [
+        "miniapp",
+        "h5"
+      ],
+      "prefix": [
+        "weui-"
+      ],
+      "theme": "CSS 变量（--weui-BRAND 等），微信官方视觉",
+      "dark": "",
+      "darkSource": "未核对：先用 Luz-Crawl 读该库官方文档里暗色或主题切换的页面，再填本字段；填之前不得假设它有暗色模式",
+      "license": "MIT",
+      "docs": "https://weui.io/",
+      "fit": "要和微信原生界面完全一致时用（表单、列表、结果页、半屏弹层）；控件种类比前两个少",
+      "verified": "2026-11-03",
+      "seen": "微信官方设计团队的基础样式库，视觉与微信原生一致"
+    },
+    "luz-kit": {
+      "name": "Luz 组件模板库",
+      "stack": "原生 HTML、CSS 与 JS，无框架依赖",
+      "surfaces": [
+        "miniapp",
+        "h5",
+        "admin"
+      ],
+      "prefix": [
+        "mphdr",
+        "mpent",
+        "mpcard",
+        "mpprc",
+        "mpbtn",
+        "mpnav",
+        "mpform",
+        "mpfb",
+        "mpmkt",
+        "mpgoods",
+        "mpord",
+        "mpmem",
+        "mpcont",
+        "mplist",
+        "mpstate",
+        "mpsvc",
+        "adtbl",
+        "adflt",
+        "adform",
+        "adctrl",
+        "addata",
+        "adchart",
+        "adnav",
+        "adfb",
+        "adstate",
+        "adflow",
+        "adcomm",
+        "admgmt",
+        "adpage"
+      ],
+      "attr": "data-cid",
+      "theme": "主题令牌 --p --pd --pt --pm --ga --gb --p-rgb，文字用 --p-text（浅色 = --pd）与 --p-fg（浅色 = --p）；kit.js 的 THEMES 有 8 套低饱和主题（雾粉、珊瑚、暖橙、草绿、青碧、天蓝、紫藤、石墨），每套有浅色与深色两组值，applyTheme(el, id) 只写 data-lt 属性，kit.css 按元素所在的外观选一组；换色只改这些变量，组件 CSS 不写死主色",
+      "dark": "已做，浅色是默认。<html> 或任意祖先带类 dark 为深色，带类 light 强制浅色，都没有则跟随系统（prefers-color-scheme: dark）；data-theme=\"dark\"/\"light\" 与同名类等价，color-scheme 同步声明；kit.js 的 setAppearance('system'|'light'|'dark') 设置并记到 localStorage 的 luz-theme，库页面工具栏有“外观”三选一。组件的背景、文字、边框、阴影、遮罩与状态色一律是令牌（--card --soft --n1…n12 --line --ink…--ink7 --ok --ok-bg --ok-fill --sh06 --mask 等，浅色值等于原来写死的值，深色值由 tools/tokens.py 生成），静态检查禁止写死。深色下 303 个组件的文字、图标与占位对比度全库实测，只剩 1 个有理由的例外（AD-STATE-002 的装饰数字）；例外清单与取值见 README“深色”一节",
+      "darkSource": "2026-11-04 在本库内做成并实测：令牌化后用 Playwright 逐个文本节点量对比度（桌面 1500、手机 390，8 套主题，系统跟随与类两种触发）；取值思路借自 references/themes.json 的 shared.dark 与各主题 dark 映射和 scripts/make_dark.py（同色相，明度按对比度目标求解）；未参照外部文档",
+      "license": "项目自有",
+      "docs": "references/component-library/README.md",
+      "fit": "要出带编号、可直接演示的原型：小程序 160 个、后台 143 个可交互组件，凭编号（如 MP-CARD-003、AD-TBL-001）取源码；三栏原型模板的页面由它拼装。与 Element Plus、Vant 并存：要接真实代码用它们，同一个原型只选一个库",
+      "verified": "2026-11-04",
+      "seen": "本仓库 references/component-library：303 个组件（MP 160、AD 143），静态检查与 Playwright 实测通过，含深色全库对比度与浅色逐像素回归；按组件根上的 data-cid 核对（audit_rendered.py --library luz-kit），不按类名前缀"
+    }
+  }
+}

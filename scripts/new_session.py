@@ -17,7 +17,7 @@ OUTPUT_ROOT = Path(r"D:\Codes\skill输出\Luz-Design")
 SESSION_RE = re.compile(r"^(\d{3,})-(.+)$")
 INVALID = re.compile(r'[<>:"/\\|?*\x00-\x1f]')
 # Luz-Design owns standalone visual work (posters, brand key visuals, campaign images) and document layout.
-# System design, product UI, interactive prototypes and hardware belong to Luz-System (D:\Codes\Luz-System).
+# System design, the functional structure of product UI, the behaviour of interactive prototypes and hardware belong to Luz-System (D:\Codes\Luz-System); the look of product UI is worked here from the interface rule cards.
 MODE_NAMES = ("visual", "document")
 OTHER_SKILL_MODES = {"system": "Luz-System", "prototype": "Luz-System", "hardware": "Luz-System"}
 POSTER_TASK_RE = re.compile(r"海报|poster|主视觉|品牌视觉|宣传图|视觉方向|活动视觉|封面|KV", re.I)
@@ -198,7 +198,7 @@ def validate_creation(modes: list[str], session_kind: str) -> None:
     if unknown:
         raise ValueError(f"unknown modes: {', '.join(unknown)}")
     if "visual" in modes and session_kind != "standalone_poster":
-        raise ValueError("visual mode is standalone visual work: pass --standalone-poster and name the task in the title; product visuals belong to Luz-System")
+        raise ValueError("visual mode is standalone visual work: pass --standalone-poster and name the task in the title; the functional structure of a product interface belongs to Luz-System and its look is worked from the interface rule cards (context.py interface-visual) in a document session")
 
 
 def create_session(
@@ -299,7 +299,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--session-kind", choices=SESSION_KINDS, default="general")
     parser.add_argument("--standalone-poster", action="store_true", help="Standalone visual work (poster, brand key visual, campaign image); required for visual mode")
     parser.add_argument("--root", help="Output root override, primarily for tests")
-    parser.add_argument("--card", action="append", help="Rule card kind for this task (repeatable): xlsx, docx, reading-html, slides, pdf-markdown, poster, interface-visual, palette; default from the mode")
+    parser.add_argument("--card", action="append", help="Rule card kind for this task (repeatable); the kinds are listed by scripts/context.py list; default from the mode")
     args = parser.parse_args(argv)
     root = Path(args.root).resolve() if args.root else OUTPUT_ROOT
     kind = "standalone_poster" if args.standalone_poster else args.session_kind

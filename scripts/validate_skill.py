@@ -49,27 +49,169 @@ REQUIRED = [
     "experience/catalog.md",
     "references/visual-design.html",
     "references/file-design.html",
+    "references/ui-recipes.html",
+    "references/ui-kit/commerce-kit/index.html",
     "references/themes.json",
+    "references/component-libraries.json",
+    "scripts/test_component_libraries.py",
     "references/prompt-image.txt",
     "scripts/check_contrast.py",
+    "scripts/make_dark.py",
+    "scripts/test_dark_themes.py",
     "scripts/check_document.py",
     "scripts/make_xlsx.py",
+    "scripts/xlsx_metrics.py",
+    "scripts/make_showcase.py",
+    "scripts/showcase.py",
+    "scripts/showcase_figures.py",
+    "scripts/showcase_icons.py",
+    "scripts/test_showcase.py",
+    "scripts/test_xlsx_layout.py",
     "scripts/make_docx.py",
+    "scripts/make_docx_paginated.py",
+    "scripts/docx_layout.ps1",
     "scripts/context.py",
     "scripts/test_context.py",
     "references/cards.json",
+    "references/ui-ownership.md",
     "scripts/sync_rule_core.py",
+    "scripts/sync_md_type.py",
+    "scripts/audit_palette.py",
+    "scripts/audit_stability.py",
+    "scripts/test_audit_stability.py",
+    "scripts/test_audit_palette.py",
+    "scripts/test_md_type.py",
+    "references/md-type.css",
     "scripts/cut_element_sheet.py",
     "scripts/test_check_interface.py",
     "scripts/test_visual_rules.py",
     "scripts/test_audit_rules.py",
+    "scripts/check_pdf.py",
+    "scripts/test_check_pdf.py",
+    "scripts/export_tokens.py",
+    "scripts/test_export_tokens.py",
+    "scripts/test_check_pptx.py",
+    "scripts/test_viewport_motion.py",
+    "references/design-craft.md",
+    "references/token-system.md",
+    "references/style-boards.json",
+    "references/style-lab.template.txt",
+    "references/reference-research.md",
+    "references/reference-sites.json",
+    "references/imagegen-playbook.md",
+    "references/design-prompts.md",
+    "references/motion-recipes.md",
+    "scripts/make_style_lab.py",
+    "scripts/teardown.py",
+    "scripts/test_teardown.py",
+    "scripts/audit_theme_discipline.py",
+    "scripts/test_audit_theme_discipline.py",
+    "scripts/test_style_boards.py",
+    "references/page-patterns.json",
+    "references/page-patterns.html",
+    "scripts/page_pattern.py",
+    "scripts/test_page_pattern.py",
+    "references/component-library/README.md",
+    "references/component-library/registry/index.md",
+    "scripts/check_component_library.py",
+    "scripts/build_component_library.py",
+    "scripts/test_component_library.py",
+    "references/ui-details.json",
+    "references/ui-details.html",
+    "scripts/check_icon_image.py",
+    "scripts/test_check_icon_image.py",
+    "scripts/ui_details.py",
+    "scripts/test_ui_details.py",
+    "references/design-path.json",
+    "references/design-path.html",
+    "scripts/design_path.py",
+    "scripts/test_design_path.py",
+    "references/prototype-reference.html",
+    "references/prototype-templates/README.md",
+    "references/prototype-templates/engine/ENGINE.md",
+    "references/prototype-templates/engine/engine.js",
+    "references/prototype-templates/engine/engine.css",
+    "references/prototype-templates/engine/shell.template.html",
+    "references/prototype-templates/mini/README.md",
+    "references/prototype-templates/mini/build_kind.py",
+    "references/prototype-templates/mini/mini.css",
+    "references/prototype-templates/mini/mini.js",
+    "references/prototype-templates/mini/stage.html",
+    "references/prototype-templates/admin/README.md",
+    "references/prototype-templates/admin/build_kind.py",
+    "references/prototype-templates/admin/admin.css",
+    "references/prototype-templates/admin/stage.html",
+    "references/prototype-templates/admin/js/00-base.js",
+    "references/prototype-templates/admin/js/90-register.js",
+    "references/prototype-templates/schema/prototype.schema.json",
+    "references/prototype-templates/shell/README.md",
+    "references/prototype-templates/examples/generic-mini/spec.json",
+    "references/prototype-templates/examples/generic-mini/README.md",
+    "references/prototype-templates/examples/florist-mini/spec.json",
+    "references/prototype-templates/examples/florist-mini/README.md",
+    "references/prototype-templates/examples/florist-mini/content.js",
+    "references/prototype-templates/examples/florist-mini/content.css",
+    "references/prototype-templates/examples/florist-mini/assets/icons/3d/bouquet.webp",
+    "references/prototype-templates/examples/booking-mini/spec.json",
+    "references/prototype-templates/examples/booking-mini/README.md",
+    "references/prototype-templates/examples/generic-admin/spec.json",
+    "references/prototype-templates/examples/generic-admin/README.md",
+    "references/prototype-templates/examples/generic-admin/content.js",
+    "references/prototype-templates/examples/service-admin/spec.json",
+    "references/prototype-templates/examples/service-admin/README.md",
+    "references/prototype-templates/examples/service-admin/content.js",
+    "references/prototype-templates/examples/suite-demo/suite.json",
+    "references/prototype-templates/examples/suite-demo/README.md",
+    "references/component-library/build.py",
+    "references/component-library/src/SPEC.md",
+    "references/component-library/tools/tokens.py",
+    "references/component-library/tools/tokenize_colours.py",
+    "references/component-library/tools/dark_audit.py",
+    "references/component-library/tools/visual_regression.py",
+    "references/component-library/src/taxonomy.js",
+    "references/component-library/src/core-def.js",
+    "references/component-library/src/core-ui.js",
+    "references/component-library/src/extras.js",
+    "references/component-library/src/ix.js",
+    "references/component-library/src/ix.css",
+    "references/component-library/src/kit.js",
+    "references/component-library/src/kit.css",
+    "references/component-library/src/combo.js",
+    "references/component-library/src/lib.template.html",
+    "references/component-library/src/blocks1.js",
+    "references/component-library/src/blocks2.js",
+    "references/component-library/src/blocks3.js",
+    "references/component-library/src/blocks-zz-legacy-ix.js",
+    "references/component-library/src/blocks-mp-basic.js",
+    "references/component-library/src/blocks-mp-content.js",
+    "references/component-library/src/blocks-mp-grow.js",
+    "references/component-library/src/blocks-mp-trade.js",
+    "references/component-library/src/blocks-ad-table.js",
+    "references/component-library/src/blocks-ad-form.js",
+    "references/component-library/src/blocks-ad-viz.js",
+    "references/component-library/src/blocks-ad-shell.js",
+    "references/component-library/src/blocks-ad-biz.js",
+    "references/component-library/src/blocks-ad-comm.js",
+    "references/component-library/assets/icons/flat/bag.webp",
+    "references/component-library/assets/products/p0.webp",
+    "scripts/build_prototype.py",
+    "scripts/build_prototype_suite.py",
+    "scripts/test_prototype_mini.py",
+    "scripts/test_prototype_florist.py",
+    "scripts/test_prototype_suite.py",
+    "scripts/test_prototype_admin.py",
 ]
 RULE_PAGES = [
     ("visual-design.html", "visual", "视觉设计规范"),
     ("file-design.html", "file", "文件设计规范"),
+    ("ui-recipes.html", "recipes", "界面实现参考"),
+    ("page-patterns.html", "patterns", "页面范式库"),
+    ("design-path.html", "path", "设计路径与思考链"),
+    ("ui-details.html", "details", "界面细节规范"),
+    ("prototype-reference.html", "proto", "原型参考实现与组件模板库"),
 ]
-TEMPLATE_NAMES = ("brief.md", "visual-board.html", "document.html", "approvals.json", "manifest.json",)
-REFERENCE_SUBDIRS = {}
+TEMPLATE_NAMES = ("brief.md", "visual-board.html", "document.html", "commerce-kit.html", "approvals.json", "manifest.json",)
+REFERENCE_SUBDIRS = {"ui-kit", "component-library", "prototype-templates"}   # ui-kit: 视觉实现底座（样式、行为、六种布局的可运行页面），页面本身也要过顶部结构检查
 # The skill keeps four folders (agents, references, scripts, experience); sessions are outputs and live in OUTPUT_ROOT.
 ALLOWED_TOP_LEVEL = {".git", ".gitignore", "LICENSE", "NOTICE", "README.md", "SKILL.md", "WORKFLOW.md", "agents", "references", "scripts", "experience"}
 RULE_TITLES = {f: t for f, _, t in RULE_PAGES}
@@ -190,7 +332,8 @@ def validate_rule_page(
         errors.append(f"HTML missing doctype: {rel}")
     if not re.search(r'<link\s+rel="stylesheet"\s+href="guidelines\.css"', text, re.I):
         errors.append(f"rule page must use references/guidelines.css: {rel}")
-    if re.search(r"color-scheme\s*:\s*dark", text, re.I):
+    # a declaration `color-scheme: dark` is banned on the rule pages (documents stay light); the rule text may still name the media query prefers-color-scheme: dark
+    if re.search(r"(?<!prefers-)color-scheme\s*:\s*dark", text, re.I):
         errors.append(f"dark color scheme is not allowed: {rel}")
 
     root_node = parse_html(path, errors)
@@ -304,6 +447,69 @@ def validate_rule_page(
             errors.append(f"{rel} missing section edit boundaries: {section}")
 
 
+COMPONENT_SURFACES = {"admin", "website", "h5", "miniapp"}
+
+
+def component_library_errors(data: dict | None = None) -> list[str]:
+    """The component library registry: every library has what the rule, the audit and the prototype check read from it."""
+    import re
+
+    if data is None:
+        path = ROOT / "references" / "component-libraries.json"
+        if not path.is_file():
+            return []
+        data = json.loads(path.read_text(encoding="utf-8"))
+    libs = data.get("libraries")
+    if not isinstance(libs, dict) or len(libs) < 8:
+        return ["component-libraries.json: at least 8 libraries"]
+    errors: list[str] = []
+    seen_prefix: dict[tuple[str, str], str] = {}
+    for key, lib in libs.items():
+        where = f"component-libraries.json {key}"
+        if not re.fullmatch(r"[a-z][a-z0-9-]+", key):
+            errors.append(f"{where}: id must be lower-case words joined by hyphens")
+        for field in ("name", "stack", "theme", "license", "docs", "fit"):
+            if not str(lib.get(field, "")).strip():
+                errors.append(f"{where}: missing {field}")
+        # dark: how the library switches to its dark theme (visual-design.html 深色与浅色两套主题); empty means not yet checked, and darkSource says on what ground
+        if not isinstance(lib.get("dark"), str):
+            errors.append(f"{where}: dark must be a string (how the library goes dark; empty until checked against its documentation)")
+        if not str(lib.get("darkSource", "")).strip():
+            errors.append(f"{where}: missing darkSource (the ground of dark, or why it is not yet checked)")
+        surfaces = lib.get("surfaces")
+        if not isinstance(surfaces, list) or not surfaces or not set(surfaces) <= COMPONENT_SURFACES:
+            errors.append(f"{where}: surfaces must be a non-empty list of {sorted(COMPONENT_SURFACES)}")
+        prefixes = lib.get("prefix")
+        # A library of this repository (luz-kit) names its component roots by an attribute (attr, data-cid) and its root classes carry no hyphen (mpcard003): its prefixes are
+        # lower-case letters and digits and its docs are a path inside the repository. Every other library keeps the rule: a hyphenated prefix and an https link.
+        own = "attr" in lib
+        if own and not re.fullmatch(r"data-[a-z][a-z0-9-]*", str(lib.get("attr"))):
+            errors.append(f"{where}: attr must be a data-* attribute name such as data-cid")
+        if not isinstance(prefixes, list) or not prefixes or any(not isinstance(x, str) or not re.fullmatch(r"[a-z][a-z0-9]*" if own else r"[a-z]+-", x) for x in prefixes):
+            errors.append(f"{where}: prefix must be a list of lower-case prefixes " + ("of letters and digits, such as mpcard" if own else "ending in a hyphen, such as el-"))
+        docs = str(lib.get("docs", ""))
+        if own and docs.startswith("references/"):
+            if not (ROOT / docs).is_file():
+                errors.append(f"{where}: docs points at {docs}, which does not exist in the repository")
+        elif not docs.startswith("https://"):
+            errors.append(f"{where}: docs must be an https link to the official documentation" + (" (or a references/ path of this repository for a library with attr)" if own else ""))
+        verified = str(lib.get("verified", ""))
+        if verified and not re.fullmatch(r"\d{4}-\d{2}-\d{2}", verified):
+            errors.append(f"{where}: verified is empty or a date YYYY-MM-DD")
+        for prefix in prefixes if isinstance(prefixes, list) else []:
+            for surface in surfaces if isinstance(surfaces, list) else []:
+                other = seen_prefix.setdefault((prefix, surface), key)
+                if other != key:
+                    errors.append(f"{where}: prefix {prefix} on {surface} is already the prefix of {other}; the audit could not tell the two libraries apart")
+    return errors
+
+
+def is_build_template(path: Path) -> bool:
+    """Pages under the component library and the prototype templates are build templates with slot markers, not rule pages."""
+    parts = path.relative_to(ROOT).parts
+    return len(parts) > 2 and parts[0] == "references" and parts[1] in {"component-library", "prototype-templates"}
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Validate the flattened Luz Design skill and root-level sessions.")
     parser.add_argument("--strict-production", action="store_true", help="Validate every session as handed off (strict session structure)")
@@ -313,6 +519,7 @@ def main(argv: list[str] | None = None) -> int:
     for rel in REQUIRED:
         if not (ROOT / rel).is_file():
             errors.append(f"missing required file: {rel}")
+    errors += component_library_errors()
     for item in ROOT.iterdir():
         if item.name not in ALLOWED_TOP_LEVEL and item.name not in {"__pycache__", ".pytest_cache"}:
             errors.append(f"unexpected top-level item in the skill: {item.name} (the skill keeps only LICENSE, NOTICE, README.md, SKILL.md, WORKFLOW.md, agents, references, scripts, experience)")
@@ -354,8 +561,8 @@ def main(argv: list[str] | None = None) -> int:
         except Exception as exc:
             errors.append(f"SKILL.md frontmatter is not valid YAML: {exc}")
         description = re.search(r"(?m)^description: (.+)$", normalized)
-        if not description or "context.py" not in description.group(1):
-            errors.append("SKILL.md description must tell agents to start with scripts/context.py")
+        # The description is for choosing a skill; the mandatory invocation protocol
+        # above is checked in the first body section, where agents execute it.
         if len(description.group(1) if description else "") > 1024:
             errors.append("SKILL.md description exceeds 1024 characters")
 
@@ -382,6 +589,12 @@ def main(argv: list[str] | None = None) -> int:
         drift = sync_rule_core.main(["--check"])
     if drift:
         errors.extend("rule-card core differs from Luz-Design: " + line[5:] for line in buffer.getvalue().splitlines() if line.startswith("DIFF"))
+    # The Markdown type block of reading pages is shared text too: every copy that exists on this machine equals references/md-type.css.
+    import sync_md_type
+    buffer = io.StringIO()
+    with contextlib.redirect_stdout(buffer):
+        sync_md_type.main(["--check"])
+    errors.extend("reading-page type block (md-type.css): " + line for line in buffer.getvalue().splitlines() if line.startswith(("DIFF", "MISSING")))
     head = (ROOT / "references" / "templates.txt").read_text(encoding="utf-8").splitlines()[:4]
     if not any("context.py" in line for line in head):
         errors.append("references/templates.txt must say at the top that templates are skeletons and point to scripts/context.py")
@@ -401,8 +614,8 @@ def main(argv: list[str] | None = None) -> int:
                 compact = re.sub(r"\s+", "", icon_rules).lower()
                 if token not in compact:
                     errors.append(f"rule stylesheet icon style missing {token}")
-        heading_style = re.search(r"h2\s*\{([^}]*)\}", css_body, re.S)
-        heading_rules = heading_style.group(1) if heading_style else ""
+        # every h2 rule counts: the Markdown type block (its h2 is the first one) and the page's own h2 that aligns the icon
+        heading_rules = " ".join(m.group(1) for m in re.finditer(r"(?<![\w.-])h2\s*\{([^}]*)\}", css_body, re.S))
         compact_heading = re.sub(r"\s+", "", heading_rules).lower()
         if "display:flex" not in compact_heading or "align-items:center" not in compact_heading:
             errors.append("rule stylesheet must align h2 icons and text vertically")
@@ -412,14 +625,16 @@ def main(argv: list[str] | None = None) -> int:
             continue
         if path.is_file() and path.suffix.lower() in {".md", ".html"}:
             text = path.read_text(encoding="utf-8")
+            if path.suffix.lower() == ".html" and is_build_template(path):
+                continue   # build templates and partials carry slot markers; the generated pages are checked by the template tests
             for target in local_targets(text, html=path.suffix.lower() == ".html"):
                 if not (path.parent / target).resolve().exists():
                     errors.append(f"broken local link in {path.relative_to(ROOT)}: {target}")
             if path.suffix.lower() == ".html" and "<!doctype html>" not in text.lower():
                 errors.append(f"HTML missing doctype: {path.relative_to(ROOT)}")
-            if path.suffix.lower() == ".html" and re.search(r"color-scheme\s*:\s*dark", text, re.I):
+            if path.suffix.lower() == ".html" and re.search(r"(?<!prefers-)color-scheme\s*:\s*dark", text, re.I):
                 errors.append(f"dark color scheme is not allowed: {path.relative_to(ROOT)}")
-            if path.suffix.lower() == ".html" and "{{" not in text:
+            if path.suffix.lower() == ".html" and "{{" not in text and not is_build_template(path):
                 root = parse_html(path, errors)
                 if root is not None:
                     validate_html_top_contract(root, str(path.relative_to(ROOT)), errors)

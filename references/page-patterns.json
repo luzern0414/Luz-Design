@@ -1,0 +1,8663 @@
+{
+ "version": 1,
+ "title": "页面范式库",
+ "updated": "2026-11-04",
+ "owner": "Luz-Design",
+ "scope": "小程序与应用的首页布局范式、常见页面范式、入口归属与精简去重规则；System 决定功能与入口归属，本库决定首页怎么排。",
+ "strength": {
+  "must": "硬规则，违反即退回",
+  "default": "默认做法，可偏离，但要写偏离说明（为什么偏离、风险、怎么验证）",
+  "hint": "建议，按情境取舍"
+ },
+ "method": {
+  "principle": "范式是词汇，不是句子：库给你名词、参数和理由，句子由你按这个产品、这批用户、这次内容来写。照抄范式表不叫设计，答完“选它前要问的问题”才叫。",
+  "steps": [
+   {
+    "n": 1,
+    "name": "先问用户",
+    "do": "写出这一页用户回来做的第一件事，以及新用户、回访、空数据三种状态下它各是什么。"
+   },
+   {
+    "n": 2,
+    "name": "分类归位",
+    "do": "把 System 入口表里每个功能按九类对到区域：上下文进顶部，搜索进顶部，账户与低频进我的，订单只出状态卡，营销进营销位，核心任务看是不是标签。"
+   },
+   {
+    "n": 3,
+    "name": "去重",
+    "do": "按目的地归并，标签栏已有的丢弃，同目的地只留一个载体；记下每个被拒功能的去处与原因。"
+   },
+   {
+    "n": 4,
+    "name": "选骨架与模块",
+    "do": "从应用类型的推荐组合出发，按内容量与频次调整：入口少用大卡，入口多用金刚栅格，内容多用信息流；每个范式先答它的“选它前要问的问题”。"
+   },
+   {
+    "n": 5,
+    "name": "过精简五问",
+    "do": "对每个模块问五问；不过的删掉或合并，不是缩小。"
+   },
+   {
+    "n": 6,
+    "name": "写方案与偏离说明",
+    "do": "用 plan 生成 spec；要偏离 default 规则时写偏离说明，must 规则不偏离。"
+   },
+   {
+    "n": 7,
+    "name": "检查与渲染验证",
+    "do": "跑 check；做成页面后跑 check-page，在手机宽度截图核对；再用六种账号状态走一遍。"
+   }
+  ],
+  "five_questions": [
+   "删掉它，用户在首屏的决策会受影响吗？（删除测试）",
+   "它的功能类型允许出现在这里吗？（九类到区域表）",
+   "它的目的地在本页或标签栏已经出现过吗？（去重）",
+   "它是并列、高频、核心的吗？还是为了凑满或好看？（频次与重要性）",
+   "在这个用户状态下，它是第一时间要做的事吗？能不能由状态决定显隐？（状态）"
+  ],
+  "strength": {
+   "must": "硬规则，违反即退回",
+   "default": "默认做法，可偏离，但要写偏离说明（为什么偏离、风险、怎么验证）",
+   "hint": "建议，按情境取舍"
+  },
+  "deviation_format": {
+   "rule": "被偏离的规则 id",
+   "why": "业务依据：为什么这个产品需要偏离",
+   "risk": "偏离带来的风险",
+   "verify": "怎么验证：样板页、渲染检查或指标"
+  },
+  "evidence_kinds": {
+   "rule": "官方文档或研究机构（规则证据）",
+   "example": "博客、工程贴、示例、厂商页、经验文章（实例证据，数值不当规则）",
+   "user": "用户给出的范式清单与要求",
+   "convention": "没有来源的行业惯例，资料未核对",
+   "skill": "Luz 技能内部规则、公式或本技能取值（含 System 默认入口位置表与视觉规范公式）"
+  }
+ },
+ "coverage_notes": [
+  "证据分五类：rule 官方文档或研究机构；example 博客、工程贴、示例；user 用户要求；convention 无来源惯例，资料未核对；skill Luz 技能内部规则、公式与本技能取值。",
+  "资料未覆盖：TDesign 小程序版整列、WeUI 组件接口、微信原生搜索区与公告栏与商品卡、订单详情区块顺序、秒杀与抽奖与领券的界面、金刚区行数与总数上限、iPhone 标签栏项数硬上限、全屏沉浸式、美团类超级应用的标签栏与区块顺序。",
+  "“入口不重复”只有窄依据（混合模式不要把同一动作放多处、多种导航模式各有不同用途）；“门店与配送放顶部”没有直接论述，主要来自用户要求与 System 的默认入口位置表，需样板页验证。",
+  "博客与工程贴里的像素数不当规则；数值只用公式（dock_grid、自适应列数）、官方文档默认值或本技能取值。"
+ ],
+ "sources": {
+  "home:SRC-001": {
+   "title": "微信小程序首页-----布局（详细教程赶快收藏吧）_微信小程序页面-CSDN博客",
+   "url": "https://blog.csdn.net/2301_76988707/article/details/133882748",
+   "grade": "example",
+   "caution": "初学者博客，方向描述有误，只取结构",
+   "captured_at": "2026-11-04"
+  },
+  "home:SRC-002": {
+   "title": "瑞幸咖啡风格uniapp小程序实战工程：Vue2前端+MySQL后端+完整页面截图与本地部署方案-CSDN博客",
+   "url": "https://blog.csdn.net/orange/article/details/161557147",
+   "grade": "example",
+   "caution": "下载引流文，色值与别处矛盾",
+   "captured_at": "2026-11-04"
+  },
+  "home:SRC-003": {
+   "title": "我从瑞幸咖啡小程序里，拆出了一套 22 个组件的开源 UI 库我从瑞幸咖啡小程序里，拆出了一套 22 个组件的开源 UI - 掘金",
+   "url": "https://juejin.cn/post/7628784778842898484",
+   "grade": "example",
+   "caution": "个人开源项目，非瑞幸官方；仅作模块清单参考",
+   "captured_at": "2026-11-04"
+  },
+  "home:SRC-004": {
+   "title": "星巴克中国版微信小程序前端工程全量代码（含页面、样式、工具函数及配置）-CSDN博客",
+   "url": "https://blog.csdn.net/plant/article/details/161557667",
+   "grade": "example",
+   "caution": "自相矛盾，可信度很低，不采数值",
+   "captured_at": "2026-11-04"
+  },
+  "home:SRC-005": {
+   "title": "Starbucks: Vue框架&响应式布局的星巴克官网",
+   "url": "https://gitee.com/A-Zh/starbucks",
+   "grade": "shell",
+   "caution": "",
+   "captured_at": "2026-11-04"
+  },
+  "home:SRC-006": {
+   "title": "Bento Grid 崛起：2026 年 SaaS 产品展示的主导布局模式 | SOTA Sync",
+   "url": "https://sotasync.com/reader/2026-05-18-bento-grid-saas-design/",
+   "grade": "example",
+   "caution": "网站与 SaaS 营销页，统计数字无出处",
+   "captured_at": "2026-11-04"
+  },
+  "home:SRC-007": {
+   "title": "Bento Grid Design: How to Create Modern Modular Layouts in 2026 - Landdding",
+   "url": "https://landdding.com/blog/blog-bento-grid-design-guide",
+   "grade": "example",
+   "caution": "网站设计博客，统计数字无出处",
+   "captured_at": "2026-11-04"
+  },
+  "home:SRC-008": {
+   "title": "网格车道布局 - CSS：层叠样式表 | MDN",
+   "url": "https://developer.mozilla.org/zh-CN/docs/Web/CSS/Guides/Grid_layout/Grid_lanes",
+   "grade": "rule",
+   "caution": "官方 CSS 文档，实验性、非 Baseline",
+   "captured_at": "2026-11-04"
+  },
+  "home:SRC-009": {
+   "title": "首页URL带参导致SEO重复内容如何解决？_编程语言-CSDN问答",
+   "url": "https://ask.csdn.net/questions/9692524",
+   "grade": "shell",
+   "caution": "",
+   "captured_at": "2026-11-04"
+  },
+  "home:SRC-010": {
+   "title": "如何避免网站内容重复？",
+   "url": "https://www.zhihu.com/question/566361275",
+   "grade": "shell",
+   "caution": "",
+   "captured_at": "2026-11-04"
+  },
+  "home:SRC-011": {
+   "title": "常见布局  |  Mobile  |  Android Developers",
+   "url": "https://developer.android.com/design/ui/mobile/guides/layout-and-content/common-layouts?hl=zh-cn",
+   "grade": "rule",
+   "caution": "Android 官方，页面带机器翻译提示",
+   "captured_at": "2026-11-04"
+  },
+  "home:SRC-012": {
+   "title": "14 Mobile App Home Screen Design Examples | ScreensDesign",
+   "url": "https://screensdesign.com/articles/mobile-app-home-screen-design/",
+   "grade": "example",
+   "caution": "海外 App 编辑性原则，不是小程序",
+   "captured_at": "2026-11-04"
+  },
+  "home:SRC-013": {
+   "title": "微信小程序电商应用完整开发指南-CSDN博客",
+   "url": "https://blog.csdn.net/weixin_42590539/article/details/150541524",
+   "grade": "example",
+   "caution": "模板化博客，代码有错误",
+   "captured_at": "2026-11-04"
+  },
+  "home:SRC-014": {
+   "title": "微信开放文档 / 小程序-开发-组件 / Skyline / grid-view",
+   "url": "https://developers.weixin.qq.com/miniprogram/dev/component/grid-view.html",
+   "grade": "rule",
+   "caution": "微信官方；示例代码段未抓到，单位未说明",
+   "captured_at": "2026-11-04"
+  },
+  "home:SRC-015": {
+   "title": "Material Design",
+   "url": "https://m3.material.io/foundations/layout/canonical-examples/overview",
+   "grade": "shell",
+   "caution": "",
+   "captured_at": "2026-11-04"
+  },
+  "home:SRC-016": {
+   "title": "Grid 宫格 - Vant 4",
+   "url": "https://vant-ui.github.io/vant/#/zh-CN/grid",
+   "grade": "rule",
+   "caution": "Vant 4 Vue 3 网页版，不是 Vant Weapp",
+   "captured_at": "2026-11-04"
+  },
+  "home:SRC-017": {
+   "title": "Tab bars | Apple Developer Documentation",
+   "url": "https://developer.apple.com/design/human-interface-guidelines/tab-bars",
+   "grade": "rule",
+   "caution": "苹果官方，管一级标签栏，不管页内标签",
+   "captured_at": "2026-11-04"
+  },
+  "pages:SRC-001": {
+   "title": "【微信小程序开发系列】ep22 商城小程序 分类页教学视频_哔哩哔哩_bilibili",
+   "url": "https://www.bilibili.com/video/BV1Uv41147oS/",
+   "grade": "shell",
+   "caution": "",
+   "captured_at": "2026-11-04"
+  },
+  "pages:SRC-002": {
+   "title": "微信小程序个人中心、我的界面_微信小程序我的页面设计-CSDN博客",
+   "url": "https://blog.csdn.net/weixin_42602526/article/details/134399333",
+   "grade": "example",
+   "caution": "",
+   "captured_at": "2026-11-04"
+  },
+  "pages:SRC-003": {
+   "title": "《微信小程序》第八章：“我的“设计_微信小程序我的页面设计-CSDN博客",
+   "url": "https://blog.csdn.net/sen_shan/article/details/154015016",
+   "grade": "example",
+   "caution": "",
+   "captured_at": "2026-11-04"
+  },
+  "pages:SRC-004": {
+   "title": "店铺装修常用组件合集 - 帮助中心 - 有赞",
+   "url": "https://help.youzan.com/displaylist/detail_13_13-2-59408",
+   "grade": "rule",
+   "caution": "有赞平台官方帮助，对有赞平台是规则，对通用范式只是模块清单",
+   "captured_at": "2026-11-04"
+  },
+  "pages:SRC-005": {
+   "title": "拼团活动之小程序前端页面实例讲解 | 人人都是产品经理",
+   "url": "https://www.woshipm.com/pd/2974166.html",
+   "grade": "example",
+   "caution": "产品经理博客，配图缺失",
+   "captured_at": "2026-11-04"
+  },
+  "pages:SRC-006": {
+   "title": "电商 营销活动页 模块 布局 规范 倒计时 价格 主视觉 - 搜索",
+   "url": "https://www.bing.com/search?search=&q=%E7%94%B5%E5%95%86+%E8%90%A5%E9%94%80%E6%B4%BB%E5%8A%A8%E9%A1%B5+%E6%A8%A1%E5%9D%97+%E5%B8%83%E5%B1%80+%E8%A7%84%E8%8C%83+%E5%80%92%E8%AE%A1%E6%97%B6+%E4%BB%B7%E6%A0%BC+%E4%B8%BB%E8%A7%86%E8%A7%89&form=QBLH",
+   "grade": "shell",
+   "caution": "",
+   "captured_at": "2026-11-04"
+  },
+  "pages:SRC-007": {
+   "title": "E-Commerce Product Lists & Filtering UX – Baymard",
+   "url": "https://baymard.com/research/ecommerce-product-lists",
+   "grade": "rule",
+   "caution": "研究机构概览页，细则付费未抓到",
+   "captured_at": "2026-11-04"
+  },
+  "pages:SRC-008": {
+   "title": "Order Tracking Page UX: Best Practices for a Clearer Post-Purchase Experience",
+   "url": "https://forixcommerce.com/order-tracking-page-ux/",
+   "grade": "example",
+   "caution": "Shopify 服务商经验文章，网页场景",
+   "captured_at": "2026-11-04"
+  },
+  "pages:SRC-009": {
+   "title": "15 Ecommerce Checkout UX Best Practices That Convert 2026",
+   "url": "https://www.designstudiouiux.com/blog/ecommerce-checkout-ux-best-practices/",
+   "grade": "example",
+   "caution": "网页结算经验文章，统计数字全是转引且自相矛盾",
+   "captured_at": "2026-11-04"
+  },
+  "pages:SRC-010": {
+   "title": "Sidebar 侧边导航 - Vant 4",
+   "url": "https://vant-ui.github.io/vant/#/zh-CN/sidebar",
+   "grade": "rule",
+   "caution": "Vant 4 网页版",
+   "captured_at": "2026-11-04"
+  },
+  "pages:SRC-011": {
+   "title": "Tabbar 标签栏 - Vant 4",
+   "url": "https://vant-ui.github.io/vant/#/zh-CN/tabbar",
+   "grade": "rule",
+   "caution": "Vant 4 网页版",
+   "captured_at": "2026-11-04"
+  },
+  "pages:SRC-012": {
+   "title": "TDesign",
+   "url": "https://tdesign.tencent.com/miniprogram/components/side-bar",
+   "grade": "rule",
+   "caution": "TDesign 只抓到引入方式与示例名",
+   "captured_at": "2026-11-04"
+  },
+  "pages2:SRC-001": {
+   "title": "极简订单列表页设计与实现：清晰信息层级打造高效电商订单管理体验_订单网站 主题-CSDN博客",
+   "url": "https://blog.csdn.net/zsh_1314520/article/details/163054895",
+   "grade": "example",
+   "caution": "桌面网页订单页，正文与代码多处不一致",
+   "captured_at": "2026-11-04"
+  },
+  "pages2:SRC-002": {
+   "title": "Vue.js订单管理UI设计与实现指南-CSDN博客",
+   "url": "https://blog.csdn.net/weixin_33883104/article/details/163255331",
+   "grade": "example",
+   "caution": "",
+   "captured_at": "2026-11-04"
+  },
+  "pages2:SRC-003": {
+   "title": "外卖系统拆解：从业务逻辑到订单状态机的完整设计指南-CSDN博客",
+   "url": "https://blog.csdn.net/weixin_35364187/article/details/164861920",
+   "grade": "example",
+   "caution": "单人设计口径，无数据",
+   "captured_at": "2026-11-04"
+  },
+  "pages2:SRC-004": {
+   "title": "美团App用户界面设计深度分析报告 - 今日头条",
+   "url": "https://www.toutiao.com/article/7503392888768758308/",
+   "grade": "example",
+   "caution": "二手评述，可信度低",
+   "captured_at": "2026-11-04"
+  },
+  "pages2:SRC-005": {
+   "title": "我从瑞幸咖啡小程序里，拆出了一套 22 个组件的开源 UI 库 - 技术栈",
+   "url": "https://jishuzhan.net/article/2044340015350743041",
+   "grade": "example",
+   "caution": "",
+   "captured_at": "2026-11-04"
+  },
+  "pages2:SRC-006": {
+   "title": "我从瑞幸咖啡小程序里，拆出了一套 22 个组件的开源 UI 库我从瑞幸咖啡小程序里，拆出了一套 22 个组件的开源 UI - 掘金",
+   "url": "https://juejin.cn/post/7628784778842898484",
+   "grade": "example",
+   "caution": "",
+   "captured_at": "2026-11-04"
+  },
+  "pages2:SRC-007": {
+   "title": "秒杀软件_拉新转化与复购增长工具 - 做生意，找有赞",
+   "url": "https://www.youzan.com/intro/ump/seckill",
+   "grade": "example",
+   "caution": "厂商营销页，只有能力描述",
+   "captured_at": "2026-11-04"
+  },
+  "pages2:SRC-008": {
+   "title": "8个优质小程序UI设计模板分享，一键套用 -即时设计",
+   "url": "https://js.design/special/article/applet-ui-design-templates.html",
+   "grade": "example",
+   "caution": "",
+   "captured_at": "2026-11-04"
+  },
+  "pages2:SRC-009": {
+   "title": "小程序原型设计工具｜在线设计微信小程序界面与交互 - 墨刀",
+   "url": "https://modao.cc/feature/miniapp.html",
+   "grade": "example",
+   "caution": "",
+   "captured_at": "2026-11-04"
+  },
+  "pages2:SRC-010": {
+   "title": "Mobile Navigation UX Best Practices, Patterns & Examples (2026)",
+   "url": "https://www.designstudiouiux.com/blog/mobile-navigation-ux/",
+   "grade": "example",
+   "caution": "通用 App 英文经验文章，3-5 项是惯例无研究出处",
+   "captured_at": "2026-11-04"
+  },
+  "pages2:SRC-011": {
+   "title": "Mobile Navigation Design: 8 Types, Examples & Best Practices (2026) | UXPin",
+   "url": "https://www.uxpin.com/studio/blog/mobile-navigation-examples/",
+   "grade": "example",
+   "caution": "工具厂商博客，无研究出处",
+   "captured_at": "2026-11-04"
+  },
+  "comp:SRC-001": {
+   "title": "微信开放文档 / 小程序-设计 / 微信小程序设计指南",
+   "url": "https://developers.weixin.qq.com/miniprogram/design/",
+   "grade": "rule",
+   "caution": "微信官方设计指南；部分小节只剩标题",
+   "captured_at": "2026-11-04"
+  },
+  "comp:SRC-002": {
+   "title": "微信开放文档 / 小程序-开发-组件 / 视图容器 / swiper",
+   "url": "https://developers.weixin.qq.com/miniprogram/dev/component/swiper.html",
+   "grade": "rule",
+   "caution": "",
+   "captured_at": "2026-11-04"
+  },
+  "comp:SRC-003": {
+   "title": "微信开放文档 / 小程序-开发-组件 / 视图容器 / scroll-view",
+   "url": "https://developers.weixin.qq.com/miniprogram/dev/component/scroll-view.html",
+   "grade": "rule",
+   "caution": "",
+   "captured_at": "2026-11-04"
+  },
+  "comp:SRC-004": {
+   "title": "微信开放文档 / 小程序-开发-组件 / Skyline / list-view",
+   "url": "https://developers.weixin.qq.com/miniprogram/dev/component/list-view.html",
+   "grade": "rule",
+   "caution": "",
+   "captured_at": "2026-11-04"
+  },
+  "comp:SRC-005": {
+   "title": "微信开放文档 / 小程序-开发-组件 / Skyline / sticky-header",
+   "url": "https://developers.weixin.qq.com/miniprogram/dev/component/sticky-header.html",
+   "grade": "rule",
+   "caution": "",
+   "captured_at": "2026-11-04"
+  },
+  "comp:SRC-006": {
+   "title": "Navigation bar – Material Design 3",
+   "url": "https://m3.material.io/components/navigation-bar/guidelines",
+   "grade": "rule",
+   "caution": "Material 3，非微信规范",
+   "captured_at": "2026-11-04"
+  },
+  "comp:SRC-007": {
+   "title": "Grid 宫格 - Vant Weapp",
+   "url": "https://vant-ui.github.io/vant-weapp/#/grid",
+   "grade": "rule",
+   "caution": "",
+   "captured_at": "2026-11-04"
+  },
+  "comp:SRC-008": {
+   "title": "Tabbar 标签栏 - Vant Weapp",
+   "url": "https://vant-ui.github.io/vant-weapp/#/tabbar",
+   "grade": "rule",
+   "caution": "",
+   "captured_at": "2026-11-04"
+  },
+  "comp:SRC-009": {
+   "title": "Sidebar 侧边导航 - Vant Weapp",
+   "url": "https://vant-ui.github.io/vant-weapp/#/sidebar",
+   "grade": "rule",
+   "caution": "",
+   "captured_at": "2026-11-04"
+  },
+  "comp:SRC-010": {
+   "title": "Tab 标签页 - Vant Weapp",
+   "url": "https://vant-ui.github.io/vant-weapp/#/tab",
+   "grade": "rule",
+   "caution": "",
+   "captured_at": "2026-11-04"
+  },
+  "comp:SRC-011": {
+   "title": "WeUI组件库简介 | wechat-miniprogram / weui",
+   "url": "https://wechat-miniprogram.github.io/weui/docs/",
+   "grade": "rule",
+   "caution": "WeUI 只有简介，无组件接口",
+   "captured_at": "2026-11-04"
+  },
+  "comp:SRC-012": {
+   "title": "Swipe 轮播 - Vant 4",
+   "url": "https://vant-ui.github.io/vant/#/zh-CN/swipe",
+   "grade": "rule",
+   "caution": "",
+   "captured_at": "2026-11-04"
+  },
+  "comp:SRC-013": {
+   "title": "Vant 4 - 轻量、可定制的移动端组件库",
+   "url": "https://vant-ui.github.io/vant/#/zh-CN",
+   "grade": "rule",
+   "caution": "",
+   "captured_at": "2026-11-04"
+  },
+  "comp:SRC-014": {
+   "title": "Card 商品卡片 - Vant 4",
+   "url": "https://vant-ui.github.io/vant/#/zh-CN/card",
+   "grade": "rule",
+   "caution": "",
+   "captured_at": "2026-11-04"
+  },
+  "comp:SRC-015": {
+   "title": "Search 搜索 - Vant 4",
+   "url": "https://vant-ui.github.io/vant/#/zh-CN/search",
+   "grade": "rule",
+   "caution": "",
+   "captured_at": "2026-11-04"
+  },
+  "comp:SRC-016": {
+   "title": "NoticeBar 通知栏 - Vant 4",
+   "url": "https://vant-ui.github.io/vant/#/zh-CN/notice-bar",
+   "grade": "rule",
+   "caution": "",
+   "captured_at": "2026-11-04"
+  },
+  "comp:SRC-017": {
+   "title": "SubmitBar 提交订单栏 - Vant 4",
+   "url": "https://vant-ui.github.io/vant/#/zh-CN/submit-bar",
+   "grade": "rule",
+   "caution": "",
+   "captured_at": "2026-11-04"
+  },
+  "comp:SRC-018": {
+   "title": "ActionBar 动作栏 - Vant 4",
+   "url": "https://vant-ui.github.io/vant/#/zh-CN/action-bar",
+   "grade": "rule",
+   "caution": "",
+   "captured_at": "2026-11-04"
+  },
+  "comp:SRC-019": {
+   "title": "Coupon 优惠券 - Vant 4",
+   "url": "https://vant-ui.github.io/vant/#/zh-CN/coupon-list",
+   "grade": "rule",
+   "caution": "",
+   "captured_at": "2026-11-04"
+  },
+  "comp:SRC-020": {
+   "title": "Skeleton 骨架屏 - Vant 4",
+   "url": "https://vant-ui.github.io/vant/#/zh-CN/skeleton",
+   "grade": "rule",
+   "caution": "",
+   "captured_at": "2026-11-04"
+  },
+  "comp:SRC-021": {
+   "title": "CountDown 倒计时 - Vant 4",
+   "url": "https://vant-ui.github.io/vant/#/zh-CN/count-down",
+   "grade": "rule",
+   "caution": "",
+   "captured_at": "2026-11-04"
+  },
+  "comp:SRC-022": {
+   "title": "PullRefresh 下拉刷新 - Vant 4",
+   "url": "https://vant-ui.github.io/vant/#/zh-CN/pull-refresh",
+   "grade": "rule",
+   "caution": "",
+   "captured_at": "2026-11-04"
+  },
+  "user:2026-11-04": {
+   "title": "用户 2026-11-04 提出的范式清单与精简要求",
+   "url": "",
+   "grade": "user",
+   "caution": "九种范式及补充四种、金刚区只放重要入口、门店配送放顶部、不重复不堆砌",
+   "captured_at": "2026-11-04"
+  },
+  "convention": {
+   "title": "行业惯例",
+   "url": "",
+   "grade": "convention",
+   "caution": "没有来源，资料未核对；用到的地方必须在 note 里写明",
+   "captured_at": ""
+  },
+  "system:ui-standards": {
+   "title": "Luz-System 界面通用规范 二、功能架构 入口与内容分层（功能类型的默认入口位置、一个业务只有一个入口）",
+   "url": "D:/Codes/Luz-System/references/ui-standards.html",
+   "grade": "skill",
+   "caution": "技能内部规则，不是外部资料",
+   "captured_at": "2026-11-04"
+  },
+  "design:visual-design": {
+   "title": "Luz-Design 视觉设计规范（金刚区与宫格入口、页面布局模式、导航与多级目录的数值、各端视觉参数）",
+   "url": "D:/Codes/Luz-Design/references/visual-design.html",
+   "grade": "skill",
+   "caution": "技能内部规则与公式",
+   "captured_at": "2026-11-04"
+  },
+  "design:layout-inference": {
+   "title": "Luz-Design 自适应界面视觉匹配协议",
+   "url": "D:/Codes/Luz-Design/references/layout-inference.md",
+   "grade": "skill",
+   "caution": "技能内部规则",
+   "captured_at": "2026-11-04"
+  },
+  "design:style_match": {
+   "title": "Luz-Design style_match.dock_grid 金刚区列数行数公式",
+   "url": "D:/Codes/Luz-Design/scripts/style_match.py",
+   "grade": "skill",
+   "caution": "公式",
+   "captured_at": "2026-11-04"
+  },
+  "design:ui-ownership": {
+   "title": "Luz-Design 界面职责划分",
+   "url": "D:/Codes/Luz-Design/references/ui-ownership.md",
+   "grade": "skill",
+   "caution": "技能内部规则",
+   "captured_at": "2026-11-04"
+  },
+  "design:ui-recipes": {
+   "title": "Luz-Design 界面实现参考",
+   "url": "D:/Codes/Luz-Design/references/ui-recipes.html",
+   "grade": "skill",
+   "caution": "技能内部规则",
+   "captured_at": "2026-11-04"
+  },
+  "skill:default": {
+   "title": "本技能取值",
+   "url": "",
+   "grade": "skill",
+   "caution": "本技能的默认取值，没有外部依据，按样板页调",
+   "captured_at": "2026-11-04"
+  }
+ },
+ "paradigms": [
+  {
+   "id": "dock-grid",
+   "name": "金刚栅格",
+   "aliases": [
+    "金刚区",
+    "宫格入口"
+   ],
+   "family": "entry-grid",
+   "role": "module",
+   "can_be_skeleton": false,
+   "summary": "首页上并列的高频核心业务入口，等宽格子，图标在上文字在下；是分发入口，不是装修位。",
+   "structure": "一块区域，列数 3–5，单屏至多 2 行，超过 2 行横向分页；每格是图标块加一行文字，整格可点。",
+   "params": [
+    {
+     "name": "列数与行数",
+     "value": "由入口数、最长文案字数、屏宽推导：每格最小宽 取大值（56，文案字数×14+8），最大列数 3–5；不套固定 5 列 2 行",
+     "strength": "must",
+     "evidence": [
+      {
+       "kind": "skill",
+       "ref": "design:visual-design#金刚区与宫格入口",
+       "note": "推导公式，由 style_match.dock_grid 实现"
+      },
+      {
+       "kind": "skill",
+       "ref": "design:layout-inference",
+       "note": "参考案例的数字排列属证据层，不自动固定"
+      }
+     ]
+    },
+    {
+     "name": "入口数",
+     "value": "多于 4 个才用宫格；本技能默认一页不超过 10 个（5 列×2 行）；超过两行才分页，最多 3 页，末页不足半页并入“全部”入口",
+     "strength": "default",
+     "evidence": [
+      {
+       "kind": "skill",
+       "ref": "design:visual-design#金刚区与宫格入口",
+       "note": "推导公式，由 style_match.dock_grid 实现"
+      },
+      {
+       "kind": "skill",
+       "ref": "skill:default",
+       "note": "本技能取值，按样板页调"
+      }
+     ]
+    },
+    {
+     "name": "格尺寸",
+     "value": "格宽=(屏宽-2×页边距)÷列数，格高 80，图标块 40，文案 14/22 单行居中；整格可点，不小于 44×44",
+     "strength": "must",
+     "evidence": [
+      {
+       "kind": "skill",
+       "ref": "design:visual-design#金刚区与宫格入口",
+       "note": "推导公式，由 style_match.dock_grid 实现"
+      }
+     ]
+    },
+    {
+     "name": "组件库默认列数",
+     "value": "Vant 4 与 Vant Weapp 宫格默认 4 列（column-num，不是 columns）；只是候选，不是固定模板",
+     "strength": "hint",
+     "evidence": [
+      {
+       "kind": "rule",
+       "ref": "home:SRC-016",
+       "note": "Vant 4 Grid column-num 默认 4"
+      },
+      {
+       "kind": "rule",
+       "ref": "comp:SRC-007",
+       "note": "Vant Weapp Grid column-num 默认 4"
+      },
+      {
+       "kind": "skill",
+       "ref": "design:visual-design#金刚区与宫格入口",
+       "note": "TDesign 默认 4 列、antd-mini 默认 5 列，见该节依据表"
+      }
+     ]
+    },
+    {
+     "name": "内容准入",
+     "value": "只放并列的高频核心业务；不放账户类、全局上下文类、订单类、搜索类，不放标签栏已有的目的地，不放本页已有模块承载的业务",
+     "strength": "must",
+     "evidence": [
+      {
+       "kind": "skill",
+       "ref": "system:ui-standards",
+       "note": "功能类型的默认入口位置；一个业务只有一个入口"
+      },
+      {
+       "kind": "user",
+       "ref": "user:2026-11-04",
+       "note": "金刚区的内容要放重要的，不能展示重复的或别的 tab 栏的内容"
+      }
+     ]
+    }
+   ],
+   "fits": [
+    "ecommerce",
+    "local-booking",
+    "course-education",
+    "membership-benefits",
+    "local-life-super-app",
+    "food-chain"
+   ],
+   "avoid": [
+    "入口少于 5 个时硬凑成宫格（改用入口大卡或单个主按钮）",
+    "放会员、收藏、优惠券、积分、地址、设置、客服（归我的）",
+    "放门店、配送方式、定位（归顶部上下文栏）",
+    "放全部订单或订单状态（首页只出进行中状态卡）",
+    "与标签栏同目的地",
+    "为了凑满一屏补低频入口",
+    "宫格内再套分类标签"
+   ],
+   "components": {
+    "vant4": [
+     "Grid / GridItem：column-num 默认 4、gutter 默认 0、border 默认 true、center 默认 true、square 默认 false、direction 默认 vertical、icon-size 默认 28px、clickable 默认 false；GridItem 有 text、icon、dot、badge、url、to（Vue 3 网页版）"
+    ],
+    "vant-weapp": [
+     "van-grid / van-grid-item：column-num 默认 4、border 默认 true、center 默认 true、square 默认 false、gutter 默认 0、clickable 默认 false、direction 默认 vertical、icon-size 默认 28px、use-slot 默认 false；item 有 text、icon、dot、badge、url、link-type（默认 navigateTo）"
+    ],
+    "tdesign-miniprogram": [
+     "资料未覆盖，样板页验证"
+    ],
+    "weui": [
+     "资料未覆盖，样板页验证"
+    ],
+    "wechat-native": [
+     "资料未覆盖原生栅格组件；Skyline 有 grid-builder（cross-axis-count、cross-axis-gap、main-axis-gap，须在 scroll-view type=custom 内，仅 Skyline，页面未抓全）"
+    ]
+   },
+   "perf": [
+    "入口图标用同一套，不混用风格；图片图标先占位同尺寸，避免加载时跳动"
+   ],
+   "combine_with": [
+    "status-card",
+    "banner-carousel",
+    "search-header",
+    "horizontal-scroller"
+   ],
+   "think": [
+    "这些入口是不是真的并列、高频、核心？一周内多数用户会点哪几个？",
+    "有没有哪一个其实已经是标签栏项，或属于账户、上下文、订单、搜索类？有就删，不是换个位置。",
+    "入口只有 3–4 个时，两张入口大卡或一个主按钮是不是比宫格更清楚？",
+    "最长文案几个字？按公式算出的列数放得下吗，放不下是缩短文案还是减少入口？",
+    "凑不满一屏的话，我是不是在为了好看补低频入口？"
+   ],
+   "innovation_room": "可以有个性：图标的风格（线性、双色块、生成插画）、格子底板、角标样式、分页指示点、入口顺序按频次排、不同用户状态下换一组。不能碰：目的地唯一、准入类型、列数行数由公式推导。",
+   "evidence": [
+    {
+     "kind": "rule",
+     "ref": "home:SRC-016",
+     "note": "Vant 4 Grid 默认 4 列、可承载图片宫格"
+    },
+    {
+     "kind": "rule",
+     "ref": "comp:SRC-007",
+     "note": "Vant Weapp Grid"
+    },
+    {
+     "kind": "skill",
+     "ref": "design:visual-design#金刚区与宫格入口",
+     "note": ""
+    },
+    {
+     "kind": "skill",
+     "ref": "system:ui-standards#入口与内容分层",
+     "note": ""
+    },
+    {
+     "kind": "user",
+     "ref": "user:2026-11-04",
+     "note": "金刚栅格是用户清单第一项"
+    }
+   ],
+   "confidence": "high",
+   "tagline": "并列高频业务的等宽图标格，3–5 列，至多两行再分页",
+   "watch": "不少于 5 个才用；列行由公式推导；不放账户、上下文、订单、标签栏项"
+  },
+  {
+   "id": "equal-grid",
+   "name": "均等网格",
+   "aliases": [],
+   "family": "entry-grid",
+   "role": "module",
+   "can_be_skeleton": false,
+   "summary": "所有格子同样大小的内容网格：每格承载一个同权重的内容单元（图、文或数字），没有主角。",
+   "structure": "列数固定（手机 2–3 列），格子等宽等高，统一间距与圆角；可用于专题缩略图、权益格、时段格。",
+   "params": [
+    {
+     "name": "列数",
+     "value": "手机 2–3 列；按最小格宽与屏宽推导，不固定死",
+     "strength": "default",
+     "evidence": [
+      {
+       "kind": "skill",
+       "ref": "design:layout-inference",
+       "note": "列数由对象数量、最小卡片宽度、间距和视口计算"
+      },
+      {
+       "kind": "skill",
+       "ref": "skill:default",
+       "note": "本技能取值，按样板页调"
+      }
+     ]
+    },
+    {
+     "name": "等高",
+     "value": "整行等高；微信 grid-view aligned 只保证行高取同行最高子节点，不会把卡片拉伸到同高，需卡片自己处理",
+     "strength": "must",
+     "evidence": [
+      {
+       "kind": "rule",
+       "ref": "home:SRC-014",
+       "note": "aligned：每行高度由同一行中最大高度子节点决定"
+      }
+     ]
+    },
+    {
+     "name": "间距",
+     "value": "grid-view 与 Vant 宫格的间距默认值都是 0，必须显式设置，取视觉规范间距令牌（4 的倍数）",
+     "strength": "must",
+     "evidence": [
+      {
+       "kind": "rule",
+       "ref": "home:SRC-014",
+       "note": "main-axis-gap、cross-axis-gap 默认 0"
+      },
+      {
+       "kind": "rule",
+       "ref": "home:SRC-016",
+       "note": "gutter 默认 0"
+      }
+     ]
+    }
+   ],
+   "fits": [
+    "membership-benefits",
+    "local-booking",
+    "course-education",
+    "brand-campaign",
+    "ecommerce"
+   ],
+   "avoid": [
+    "内容有主次却用均等格（改用主次布局或便当局部）",
+    "与金刚区混淆：金刚是图标入口，这里是内容单元",
+    "格内信息量不一致导致空洞"
+   ],
+   "components": {
+    "vant4": [
+     "Grid（custom 内容，3 列放图片示例）/ Layout；Card 做格内内容"
+    ],
+    "vant-weapp": [
+     "van-grid + use-slot 放自定义内容（示例 column-num=3、border=false）"
+    ],
+    "tdesign-miniprogram": [
+     "资料未覆盖，样板页验证"
+    ],
+    "weui": [
+     "资料未覆盖，样板页验证"
+    ],
+    "wechat-native": [
+     "grid-view type=aligned：cross-axis-count 默认 2、max-cross-axis-extent 默认 0、main-axis-gap 与 cross-axis-gap 默认 0、padding 默认 [0,0,0,0]（3.0.0 起）；基础库 2.29.0 起，Skyline，须为 scroll-view type=custom 的直接子节点"
+    ]
+   },
+   "perf": [
+    "图片预设同尺寸，格内文字限行，避免加载后撑高"
+   ],
+   "combine_with": [
+    "modular-sections",
+    "top-tabs"
+   ],
+   "think": [
+    "这些格子权重真的相同吗？有一个更重要的就不要均等。",
+    "每格放图、文还是数字？格内信息量是否一致？",
+    "和金刚区的差别讲得清吗：金刚分发入口，均等网格展示内容。"
+   ],
+   "innovation_room": "可以有个性：格内构图、底色分组、选中态、图文比例。不能碰：同权重才用、整行等高、显式间距。",
+   "evidence": [
+    {
+     "kind": "rule",
+     "ref": "home:SRC-014",
+     "note": ""
+    },
+    {
+     "kind": "rule",
+     "ref": "home:SRC-016",
+     "note": ""
+    },
+    {
+     "kind": "user",
+     "ref": "user:2026-11-04",
+     "note": "均等网格列入用户补充清单"
+    }
+   ],
+   "confidence": "medium",
+   "tagline": "同权重内容单元的等宽等高网格",
+   "watch": "有主次就不用；间距默认 0，要显式设；等高自己处理"
+  },
+  {
+   "id": "flex-grid",
+   "name": "弹性网格",
+   "aliases": [],
+   "family": "entry-grid",
+   "role": "module",
+   "can_be_skeleton": false,
+   "summary": "列数随容器宽度自适应的网格：先定最小卡宽，列数是算出来的；同一页面在手机、折叠屏、平板上列数不同。",
+   "structure": "列数 = 取整（（容器宽+间距）÷（最小卡宽+间距）），手机宽度不超过 3，上限另设；每次由输入推导。",
+   "params": [
+    {
+     "name": "列数公式",
+     "value": "取整（（容器宽+间距）÷（最小卡宽+间距）），手机宽（小于 600）不超过 3 列，且不超过对象数",
+     "strength": "default",
+     "evidence": [
+      {
+       "kind": "skill",
+       "ref": "design:layout-inference",
+       "note": "style_match 的自适应列数：最小卡宽、间距、视口"
+      },
+      {
+       "kind": "skill",
+       "ref": "skill:default",
+       "note": "本技能取值，按样板页调"
+      }
+     ]
+    },
+    {
+     "name": "grid-view 的两种定列方式",
+     "value": "cross-axis-count 定列数，max-cross-axis-extent 定单列最大宽度（默认 0，即不启用）",
+     "strength": "hint",
+     "evidence": [
+      {
+       "kind": "rule",
+       "ref": "home:SRC-014",
+       "note": "属性表"
+      }
+     ]
+    }
+   ],
+   "fits": [
+    "ecommerce",
+    "content-community",
+    "brand-campaign",
+    "course-education"
+   ],
+   "avoid": [
+    "把参考图里的列数当固定值",
+    "窄屏仍硬保留桌面列数"
+   ],
+   "components": {
+    "vant4": [
+     "Grid column-num 手动随断点设置（网页版）；资料未读到自适应属性"
+    ],
+    "vant-weapp": [
+     "资料未覆盖，样板页验证"
+    ],
+    "tdesign-miniprogram": [
+     "资料未覆盖，样板页验证"
+    ],
+    "weui": [
+     "资料未覆盖，样板页验证"
+    ],
+    "wechat-native": [
+     "grid-view：cross-axis-count 与 max-cross-axis-extent（Skyline；基础库 2.29.0 起，2.30.4 起有 WebView 兼容实现）"
+    ]
+   },
+   "perf": [
+    "屏宽变化时只重算列数，不重排数据"
+   ],
+   "combine_with": [
+    "modular-sections"
+   ],
+   "think": [
+    "最小卡宽是多少？在 320 到 430 宽下列数各是几？",
+    "列数变化时内容还成立吗（标题行数、图文比）？",
+    "需要适配折叠屏或平板吗？不需要就不要为它复杂化。"
+   ],
+   "innovation_room": "可以有个性：最小卡宽的取法、列数变化时的过渡。不能碰：列数由输入推导而非抄参考图。",
+   "evidence": [
+    {
+     "kind": "rule",
+     "ref": "home:SRC-014",
+     "note": ""
+    },
+    {
+     "kind": "skill",
+     "ref": "design:layout-inference",
+     "note": ""
+    },
+    {
+     "kind": "user",
+     "ref": "user:2026-11-04",
+     "note": "弹性网格列入用户补充清单"
+    }
+   ],
+   "confidence": "medium",
+   "tagline": "列数随容器宽度算出来的网格",
+   "watch": "列数由最小卡宽推导，不抄参考图"
+  },
+  {
+   "id": "entry-cards",
+   "name": "入口大卡",
+   "aliases": [],
+   "family": "entry-grid",
+   "role": "module",
+   "can_be_skeleton": false,
+   "summary": "入口只有 1–4 个时的承载方式：1 张通栏主入口卡，或 2 张并排大卡（也可一大两小）；图文并茂，比宫格更有指向性。",
+   "structure": "通栏一张，或两列并排；每卡一个目的地、一个标题、至多一行副文案；整卡可点，卡内不再放指向同一处的按钮。",
+   "params": [
+    {
+     "name": "适用数量",
+     "value": "1–4 个并列入口；5 个以上改用金刚栅格",
+     "strength": "default",
+     "evidence": [
+      {
+       "kind": "skill",
+       "ref": "design:visual-design#金刚区与宫格入口",
+       "note": "入口多于 4 个才使用宫格"
+      }
+     ]
+    },
+    {
+     "name": "整卡可点",
+     "value": "整张卡片可点时卡内不再放指向同一目的地的按钮",
+     "strength": "must",
+     "evidence": [
+      {
+       "kind": "skill",
+       "ref": "system:ui-standards",
+       "note": "一个业务只有一个入口"
+      }
+     ]
+    }
+   ],
+   "fits": [
+    "enterprise-internal",
+    "b2b-quote-ticket",
+    "local-booking",
+    "food-chain",
+    "membership-benefits"
+   ],
+   "avoid": [
+    "为凑宫格把 3 个入口拆成 5 个",
+    "卡片里既有整卡点击又有同目的地按钮"
+   ],
+   "components": {
+    "vant4": [
+     "无专用组件；可用 Grid + custom 内容或自拼卡片（资料未读到专用接口）"
+    ],
+    "vant-weapp": [
+     "无专用组件；van-grid use-slot 或自拼"
+    ],
+    "tdesign-miniprogram": [
+     "资料未覆盖，样板页验证"
+    ],
+    "weui": [
+     "资料未覆盖，样板页验证"
+    ],
+    "wechat-native": [
+     "资料未覆盖，样板页验证"
+    ]
+   },
+   "perf": [],
+   "combine_with": [
+    "status-card",
+    "notice-bar"
+   ],
+   "think": [
+    "这 1–4 个入口里，哪个是用户回来最先要做的？它是否该是唯一的大卡？",
+    "副文案是在解释入口，还是在复述标题？",
+    "这些入口有没有已经是标签栏项？"
+   ],
+   "innovation_room": "可以有个性：卡片构图、配图、一大两小的错落（仅营销区可错落，功能区边缘对齐）。不能碰：每卡一个目的地。",
+   "evidence": [
+    {
+     "kind": "skill",
+     "ref": "design:visual-design#金刚区与宫格入口",
+     "note": "入口多于 4 个才使用宫格"
+    },
+    {
+     "kind": "skill",
+     "ref": "design:ui-recipes",
+     "note": "一大两小：营销区可错落，功能区边缘对齐"
+    },
+    {
+     "kind": "convention",
+     "ref": "convention",
+     "note": "惯例，资料未核对。入口大卡作为宫格替代是本技能的归纳"
+    }
+   ],
+   "confidence": "medium",
+   "tagline": "1–4 个并列业务用的大卡，通栏或两列",
+   "watch": "整卡可点，卡内不再放同目的地按钮"
+  },
+  {
+   "id": "single-column-list",
+   "name": "单列纵向列表",
+   "aliases": [],
+   "family": "list",
+   "role": "module",
+   "can_be_skeleton": false,
+   "summary": "按行排列的内容集合，每行一个对象；有先后顺序、状态或需要逐条比较时的默认选择。",
+   "structure": "一列行，行内左图右文或纯文字；可分组标题吸顶；末尾有“到底了”或加载更多。",
+   "params": [
+    {
+     "name": "适用",
+     "value": "列表是最常见的布局形式；适合可整理为项列表的内容（订单、消息、通讯录、文件）",
+     "strength": "hint",
+     "evidence": [
+      {
+       "kind": "rule",
+       "ref": "home:SRC-011",
+       "note": "Android 常见布局：列表"
+      }
+     ]
+    },
+    {
+     "name": "恢复类列表每行信息",
+     "value": "标题、对象类型、进度、继续动作，让用户不用打开就知道停在哪",
+     "strength": "hint",
+     "evidence": [
+      {
+       "kind": "example",
+       "ref": "home:SRC-012",
+       "note": "海外 App 编辑性原则"
+      }
+     ]
+    },
+    {
+     "name": "最小行高",
+     "value": "资料未覆盖，取视觉规范的商品行/单元格取值",
+     "strength": "hint",
+     "evidence": [
+      {
+       "kind": "skill",
+       "ref": "design:visual-design#各端视觉参数",
+       "note": ""
+      }
+     ]
+    }
+   ],
+   "fits": [
+    "food-chain",
+    "ecommerce",
+    "local-booking",
+    "b2b-quote-ticket",
+    "content-community",
+    "brand-campaign",
+    "enterprise-internal",
+    "course-education",
+    "membership-benefits",
+    "local-life-super-app"
+   ],
+   "avoid": [
+    "内容需要图片主导浏览（改用双列卡片或瀑布流）",
+    "行内多个按钮抢主动作",
+    "没有分组却有几十条"
+   ],
+   "components": {
+    "vant4": [
+     "Card（商品卡，缩略图 88px）；List 仅名称，属性未读"
+    ],
+    "vant-weapp": [
+     "Card 仅名称，属性未读；目录未见 List"
+    ],
+    "tdesign-miniprogram": [
+     "资料未覆盖，样板页验证"
+    ],
+    "weui": [
+     "资料未覆盖，样板页验证"
+    ],
+    "wechat-native": [
+     "list-view（仅 Skyline，须为 scroll-view type=custom 或 sticky-section 的直接子节点，基础库 2.29.0 起）；scroll-view type=list（Skyline 2.25.2，只有一个直接子节点时性能会退化）；list-builder 列表项须等高"
+    ]
+   },
+   "perf": [
+    "长列表用 Skyline 按需渲染或分页；scroll-view 内滚动会让页面级下拉刷新失效（comp:SRC-003）"
+   ],
+   "combine_with": [
+    "top-tabs",
+    "filter-bar",
+    "order-card",
+    "status-card"
+   ],
+   "think": [
+    "用户在这一行里要比较的是什么：时间、状态还是价格？它在最显眼处吗？",
+    "整行可点吗？行内有没有第二个指向同一目的地的按钮？",
+    "有没有天然的分组（今天、本周）需要分组标题？",
+    "数据量大吗？加载、空、错误三种状态各是什么？"
+   ],
+   "innovation_room": "可以有个性：行的构图、分组标题样式、状态标记的形态、左滑操作（须有可见替代）。不能碰：整行一个目的地、三态齐全。",
+   "evidence": [
+    {
+     "kind": "rule",
+     "ref": "home:SRC-011",
+     "note": ""
+    },
+    {
+     "kind": "example",
+     "ref": "home:SRC-012",
+     "note": ""
+    },
+    {
+     "kind": "rule",
+     "ref": "comp:SRC-003",
+     "note": ""
+    },
+    {
+     "kind": "rule",
+     "ref": "comp:SRC-004",
+     "note": ""
+    }
+   ],
+   "confidence": "high",
+   "tagline": "一行一个对象的纵向列表",
+   "watch": "整行一个目的地；三态齐全；分组可吸顶"
+  },
+  {
+   "id": "two-column-card-grid",
+   "name": "双列网格卡片",
+   "aliases": [],
+   "family": "feed-grid",
+   "role": "module",
+   "can_be_skeleton": false,
+   "summary": "两列等宽卡片，图片主导、信息简短；商品与内容的浏览型列表。",
+   "structure": "两列，列间与行间显式间距；卡片上图下文，标题固定行数，价格或标签一行；同行等高。",
+   "params": [
+    {
+     "name": "列数",
+     "value": "grid-view cross-axis-count 默认 2",
+     "strength": "hint",
+     "evidence": [
+      {
+       "kind": "rule",
+       "ref": "home:SRC-014",
+       "note": ""
+      }
+     ]
+    },
+    {
+     "name": "等高",
+     "value": "aligned 只保证行高取同行最高子节点，视觉等高要卡片自己处理（固定标题行数、图片同比例）",
+     "strength": "must",
+     "evidence": [
+      {
+       "kind": "rule",
+       "ref": "home:SRC-014",
+       "note": ""
+      }
+     ]
+    },
+    {
+     "name": "间距",
+     "value": "默认值是 0，必须显式设置",
+     "strength": "must",
+     "evidence": [
+      {
+       "kind": "rule",
+       "ref": "home:SRC-014",
+       "note": ""
+      }
+     ]
+    },
+    {
+     "name": "严格与交错",
+     "value": "网格可严格排列也可交错排列，两者都应在间距和逻辑上保持一致",
+     "strength": "hint",
+     "evidence": [
+      {
+       "kind": "rule",
+       "ref": "home:SRC-011",
+       "note": ""
+      }
+     ]
+    },
+    {
+     "name": "卡内营销层数",
+     "value": "图片角标一个、名称下标签至多两个、价格下活动行一条",
+     "strength": "default",
+     "evidence": [
+      {
+       "kind": "skill",
+       "ref": "design:visual-design#各端视觉参数",
+       "note": "交易与营销界面：商品卡的营销信息最多三层"
+      }
+     ]
+    },
+    {
+     "name": "两列在小屏的可行性",
+     "value": "两列的移动端网格在卡片为小屏设计时可行",
+     "strength": "hint",
+     "evidence": [
+      {
+       "kind": "example",
+       "ref": "home:SRC-007",
+       "note": "来自便当网格的移动端适配"
+      }
+     ]
+    }
+   ],
+   "fits": [
+    "ecommerce",
+    "food-chain",
+    "course-education",
+    "content-community",
+    "membership-benefits",
+    "local-life-super-app"
+   ],
+   "avoid": [
+    "卡片高度参差却硬做等高留大块空白",
+    "每张卡塞满标签和角标",
+    "卡片内再放一个指向同一处的按钮"
+   ],
+   "components": {
+    "vant4": [
+     "Card 做卡内容；网格用 Layout/Grid 自排；目录里没有瀑布流组件"
+    ],
+    "vant-weapp": [
+     "Card 仅名称；van-grid use-slot 可自排"
+    ],
+    "tdesign-miniprogram": [
+     "资料未覆盖，样板页验证"
+    ],
+    "weui": [
+     "资料未覆盖，样板页验证"
+    ],
+    "wechat-native": [
+     "grid-view type=aligned（cross-axis-count 默认 2；Skyline；基础库 2.29.0 起；2.30.4 起提供 WebView 兼容实现）"
+    ]
+   },
+   "perf": [
+    "图片懒加载并预留尺寸，骨架屏防止加载时跳动（home:SRC-007、home:SRC-013）"
+   ],
+   "combine_with": [
+    "search-header",
+    "filter-bar",
+    "banner-carousel"
+   ],
+   "think": [
+    "用户靠图片还是靠文字做决定？图文比例怎么定？",
+    "卡里最多放几项信息？哪项没有就删？",
+    "同行卡片高度差大吗？大的话是瀑布流，小的话等高双列。",
+    "375 宽下一张卡多宽？标题两行截断后还能认出商品吗？"
+   ],
+   "innovation_room": "可以有个性：卡片圆角与底色、图片比例（1:1 或 4:5）、加购按钮位置、角标形态。不能碰：同行等高、显式间距、营销层数上限。",
+   "evidence": [
+    {
+     "kind": "rule",
+     "ref": "home:SRC-014",
+     "note": ""
+    },
+    {
+     "kind": "rule",
+     "ref": "home:SRC-011",
+     "note": ""
+    },
+    {
+     "kind": "example",
+     "ref": "home:SRC-007",
+     "note": ""
+    }
+   ],
+   "confidence": "medium",
+   "tagline": "两列等宽卡片，图片主导",
+   "watch": "同行等高要自己处理；间距显式；卡内信息少"
+  },
+  {
+   "id": "masonry",
+   "name": "瀑布流",
+   "aliases": [
+    "流式不等高",
+    "waterfall"
+   ],
+   "family": "feed-grid",
+   "role": "module",
+   "can_be_skeleton": false,
+   "summary": "多列等宽、卡片高度由内容决定，后一张补到最矮的一列；适合图片比例各异的发现型内容。别名流式不等高。",
+   "structure": "两列（可调），卡片高度不等，列间自动补位；必须是 scroll-view type=custom 的直接子节点。",
+   "params": [
+    {
+     "name": "官方组件",
+     "value": "grid-view type=masonry，cross-axis-count 默认 2，max-cross-axis-extent 默认 0，间距默认 0",
+     "strength": "must",
+     "evidence": [
+      {
+       "kind": "rule",
+       "ref": "home:SRC-014",
+       "note": ""
+      }
+     ]
+    },
+    {
+     "name": "渲染与基础库",
+     "value": "Skyline 容器基础库 2.29.0 起；2.30.4 起有 WebView 兼容实现；Skyline 版按需渲染性能更好",
+     "strength": "must",
+     "evidence": [
+      {
+       "kind": "rule",
+       "ref": "home:SRC-014",
+       "note": ""
+      }
+     ]
+    },
+    {
+     "name": "WebView 限制",
+     "value": "子元素需有可见宽高；image 须手动指定高度或 mode=widthFix；盒模型样式要同时设 box-sizing；只优化末尾增删，避免中间插入；子节点过多仍影响性能",
+     "strength": "must",
+     "evidence": [
+      {
+       "kind": "rule",
+       "ref": "home:SRC-014",
+       "note": "box-sizing 的写法抓取原文疑似缩写，落地前核官方原文"
+      }
+     ]
+    },
+    {
+     "name": "CSS 原生",
+     "value": "display: grid-lanes 为实验性、非 Baseline，小程序 WebView 是否支持资料未覆盖",
+     "strength": "hint",
+     "evidence": [
+      {
+       "kind": "rule",
+       "ref": "home:SRC-008",
+       "note": ""
+      }
+     ]
+    }
+   ],
+   "fits": [
+    "content-community",
+    "ecommerce",
+    "brand-campaign"
+   ],
+   "avoid": [
+    "需要横向比较价格与规格的商品（用等高双列）",
+    "频繁在列表中间插入或删除卡片",
+    "图片无预设宽高",
+    "基础库与渲染框架未确认就上线"
+   ],
+   "components": {
+    "vant4": [
+     "目录里没有瀑布流组件"
+    ],
+    "vant-weapp": [
+     "目录里没有瀑布流组件，用原生 grid-view"
+    ],
+    "tdesign-miniprogram": [
+     "资料未覆盖，样板页验证"
+    ],
+    "weui": [
+     "资料未覆盖，样板页验证"
+    ],
+    "wechat-native": [
+     "grid-view type=masonry（见上；仅作为 scroll-view type=custom 的直接子节点）"
+    ]
+   },
+   "perf": [
+    "Skyline 优先；WebView 兼容实现在子节点多时仍有性能压力，性能敏感场景用 Skyline 对应组件"
+   ],
+   "combine_with": [
+    "search-header",
+    "top-tabs"
+   ],
+   "think": [
+    "卡片高度差异是内容本身带来的（图片比例各异）吗？不是就用等高双列。",
+    "目标用户的基础库和渲染框架满足吗：Skyline，或基础库不低于 2.30.4？",
+    "用户是在浏览发现，还是需要逐个比较？比较类别用瀑布流。",
+    "图片有预设宽高或 widthFix 吗？会不会在列表中间插入卡片？"
+   ],
+   "innovation_room": "可以有个性：卡片信息层次、图片圆角、点赞与作者区的构图。不能碰：直接子节点限制、图片尺寸预设、基础库与框架确认。",
+   "evidence": [
+    {
+     "kind": "rule",
+     "ref": "home:SRC-014",
+     "note": ""
+    },
+    {
+     "kind": "rule",
+     "ref": "home:SRC-008",
+     "note": ""
+    },
+    {
+     "kind": "user",
+     "ref": "user:2026-11-04",
+     "note": "瀑布流与流式不等高列入用户清单"
+    }
+   ],
+   "confidence": "medium",
+   "tagline": "多列等宽、高度不等，补到最矮列；即流式不等高",
+   "watch": "需 Skyline 或基础库不低于 2.30.4；图片预设宽高"
+  },
+  {
+   "id": "feed",
+   "name": "信息流",
+   "aliases": [
+    "feed 流"
+   ],
+   "family": "feed-grid",
+   "role": "module",
+   "can_be_skeleton": false,
+   "summary": "持续加载的内容流：等效内容元素排成列表或网格，让用户快速浏览大量内容；可以是单列或双列、严格或交错。",
+   "structure": "一条纵向流，卡片同构，滚动加载；每张卡有“为什么出现”的线索，流上方有搜索、分类或话题切换作为逃生口。",
+   "params": [
+    {
+     "name": "定义",
+     "value": "以可配置网格排列等效的内容元素；可基于列表或网格；紧凑屏上通常是卡片或平铺；内容可来自外部动态数据",
+     "strength": "hint",
+     "evidence": [
+      {
+       "kind": "rule",
+       "ref": "home:SRC-011",
+       "note": ""
+      }
+     ]
+    },
+    {
+     "name": "可见理由",
+     "value": "为什么出现要有可见线索；要给用户离开信息流、主动搜索或纠偏的途径",
+     "strength": "default",
+     "evidence": [
+      {
+       "kind": "example",
+       "ref": "home:SRC-012",
+       "note": "Product Hunt 明示推荐信号"
+      }
+     ]
+    },
+    {
+     "name": "稀疏时先给分类",
+     "value": "个性化数据稀疏时可先给分类，而不是空推荐",
+     "strength": "hint",
+     "evidence": [
+      {
+       "kind": "example",
+       "ref": "home:SRC-012",
+       "note": ""
+      }
+     ]
+    },
+    {
+     "name": "加载",
+     "value": "below-fold 卡片懒加载，骨架屏防止加载时布局跳动",
+     "strength": "default",
+     "evidence": [
+      {
+       "kind": "example",
+       "ref": "home:SRC-007",
+       "note": ""
+      },
+      {
+       "kind": "example",
+       "ref": "home:SRC-013",
+       "note": ""
+      }
+     ]
+    }
+   ],
+   "fits": [
+    "content-community",
+    "ecommerce",
+    "course-education",
+    "food-chain",
+    "local-life-super-app"
+   ],
+   "avoid": [
+    "让信息流成为整个信息架构（须有持久导航与搜索）",
+    "流里重复首页上方已出现的活动或入口",
+    "没有骨架与空态"
+   ],
+   "components": {
+    "vant4": [
+     "PullRefresh（head-height 默认 50，需父级滚动在顶部）、Skeleton、Lazyload；List 仅名称"
+    ],
+    "vant-weapp": [
+     "Skeleton 仅名称；目录未见 PullRefresh 与 List"
+    ],
+    "tdesign-miniprogram": [
+     "资料未覆盖，样板页验证"
+    ],
+    "weui": [
+     "资料未覆盖，样板页验证"
+    ],
+    "wechat-native": [
+     "scroll-view（lower-threshold 默认 50 配 bind:scrolltolower 触底加载；refresher-enabled 自定义下拉刷新，基础库 2.10.1）；页面级下拉刷新用 onPullDownRefresh（scroll-view 内滚动会让它失效）"
+    ]
+   },
+   "perf": [
+    "下拉刷新与触底加载二选一的实现要先确认滚动容器；图片懒加载"
+   ],
+   "combine_with": [
+    "top-tabs",
+    "search-header",
+    "two-column-card-grid",
+    "masonry"
+   ],
+   "think": [
+    "这条流存在的理由是什么：发现、回访，还是只是填满首页？",
+    "每张卡为什么出现，用户能看到理由吗？",
+    "用户怎么逃出这条流：搜索、分类还是话题？",
+    "新用户没有个性化数据时先给什么？",
+    "流里的商品或活动，和上方金刚、营销位的目的地重复吗？"
+   ],
+   "innovation_room": "可以有个性：卡片同构方案、推荐理由的措辞与位置、分段标题、卡片密度。不能碰：可见逃生口、骨架与空态、不与上方模块重复目的地。",
+   "evidence": [
+    {
+     "kind": "rule",
+     "ref": "home:SRC-011",
+     "note": ""
+    },
+    {
+     "kind": "example",
+     "ref": "home:SRC-012",
+     "note": ""
+    },
+    {
+     "kind": "example",
+     "ref": "home:SRC-007",
+     "note": ""
+    },
+    {
+     "kind": "example",
+     "ref": "home:SRC-013",
+     "note": ""
+    }
+   ],
+   "confidence": "medium",
+   "tagline": "持续加载的内容流，与双列、瀑布流同一族",
+   "watch": "要有出现理由与逃生口；不重复上方模块"
+  },
+  {
+   "id": "bento",
+   "name": "便当网格",
+   "aliases": [],
+   "family": "dashboard",
+   "role": "module",
+   "can_be_skeleton": false,
+   "summary": "大小不一的模块化 tile 拼成的网格，有一个明显更大的主角；资料全部来自网站与 SaaS 营销页，只作小程序里运营卡片区或看板型的局部，不作首页常规骨架。",
+   "structure": "底层网格对齐，tile 有意不对称（有的跨列、有的跨行），统一间距与较大圆角；手机上降为单列或两列。",
+   "params": [
+    {
+     "name": "适用面",
+     "value": "只作运营卡片区或看板型局部；不是小程序首页的常规范式",
+     "strength": "must",
+     "evidence": [
+      {
+       "kind": "user",
+       "ref": "user:2026-11-04",
+       "note": "便当网格不能当小程序首页常规范式，只作运营卡片区/看板型局部，移动端降单列或双列"
+      },
+      {
+       "kind": "example",
+       "ref": "home:SRC-006",
+       "note": "资料对象是网站与 SaaS 营销页"
+      }
+     ]
+    },
+    {
+     "name": "必须有主角",
+     "value": "每个网格要有一个明显更大的主导 tile，所有 tile 同样大小等于普通圆角网格",
+     "strength": "default",
+     "evidence": [
+      {
+       "kind": "example",
+       "ref": "home:SRC-006",
+       "note": ""
+      },
+      {
+       "kind": "example",
+       "ref": "home:SRC-007",
+       "note": ""
+      }
+     ]
+    },
+    {
+     "name": "移动端",
+     "value": "桌面多列在手机上降为单列，或小屏专用设计的两列；降级后保持比例关系，不要缩得过小",
+     "strength": "must",
+     "evidence": [
+      {
+       "kind": "example",
+       "ref": "home:SRC-007",
+       "note": ""
+      },
+      {
+       "kind": "user",
+       "ref": "user:2026-11-04",
+       "note": "移动端降单列或双列"
+      }
+     ]
+    },
+    {
+     "name": "数量",
+     "value": "网站实例称一次最多 12–15 块，超过后组织收益消失；小程序局部使用的上限是本技能取值：不超过 6 块",
+     "strength": "default",
+     "evidence": [
+      {
+       "kind": "example",
+       "ref": "home:SRC-006",
+       "note": "实例，不是规则"
+      },
+      {
+       "kind": "skill",
+       "ref": "skill:default",
+       "note": "本技能取值，按样板页调"
+      }
+     ]
+    },
+    {
+     "name": "每块一条信息",
+     "value": "每块只放一条信息：小图或图标、粗体标题、一行描述，内容多的放进展开的弹层",
+     "strength": "hint",
+     "evidence": [
+      {
+       "kind": "example",
+       "ref": "home:SRC-006",
+       "note": ""
+      }
+     ]
+    }
+   ],
+   "fits": [
+    "brand-campaign",
+    "membership-benefits",
+    "enterprise-internal"
+   ],
+   "avoid": [
+    "做小程序首页整体骨架",
+    "有先后顺序的内容（教程流程、结账、长文）",
+    "表单与数据录入",
+    "所有 tile 同样大小",
+    "移动端仍保留桌面多列"
+   ],
+   "components": {
+    "vant4": [
+     "资料未覆盖，样板页验证"
+    ],
+    "vant-weapp": [
+     "资料未覆盖，样板页验证"
+    ],
+    "tdesign-miniprogram": [
+     "资料未覆盖，样板页验证"
+    ],
+    "weui": [
+     "资料未覆盖，样板页验证"
+    ],
+    "wechat-native": [
+     "资料未覆盖（grid-view 文档未提到跨列跨行；CSS grid-lanes 为实验性）；小程序内需自排，样板页验证"
+    ]
+   },
+   "perf": [
+    "懒加载加骨架，防止图片加载抖动"
+   ],
+   "combine_with": [
+    "modular-sections"
+   ],
+   "think": [
+    "这块为什么不是一列普通卡片？有没有一个真正的主角？",
+    "手机上降成一列还是两列？降级后大小层级还在吗？",
+    "内容有先后顺序或要录入吗？有就不适合。",
+    "它是首页骨架还是运营卡片区？只有后者才用。"
+   ],
+   "innovation_room": "可以有个性：主角 tile 的构图、tile 底色分组、圆角档位。不能碰：不作首页骨架、移动端降级、主角必须存在。",
+   "evidence": [
+    {
+     "kind": "example",
+     "ref": "home:SRC-006",
+     "note": ""
+    },
+    {
+     "kind": "example",
+     "ref": "home:SRC-007",
+     "note": ""
+    },
+    {
+     "kind": "user",
+     "ref": "user:2026-11-04",
+     "note": "便当网格修正"
+    }
+   ],
+   "confidence": "low",
+   "tagline": "大小不一、有主角的模块化拼块",
+   "watch": "只作运营卡片区局部；手机降单列或双列"
+  },
+  {
+   "id": "top-tabs",
+   "name": "顶部标签切换",
+   "aliases": [],
+   "family": "navigation",
+   "role": "module",
+   "can_be_skeleton": true,
+   "summary": "页内顶部的标签切换：同一数据集的不同视图（关注/推荐、订单状态、时段），不是一级导航。",
+   "structure": "一条标签栏在标题下方，内容区随之切换；标签短而有意义，数量不多，可吸顶。",
+   "params": [
+    {
+     "name": "数量",
+     "value": "标签分页 2–5 个，建议不超过 4 项；一个页面不应出现一组以上的标签分页栏（页内内容标签与一级标签栏是否算两组，资料未核对）",
+     "strength": "default",
+     "evidence": [
+      {
+       "kind": "rule",
+       "ref": "comp:SRC-001",
+       "note": "微信小程序设计指南；一页多组的含义资料未核对，见规则说明"
+      }
+     ]
+    },
+    {
+     "name": "分段控件",
+     "value": "分段控件保持三个以内",
+     "strength": "hint",
+     "evidence": [
+      {
+       "kind": "example",
+       "ref": "pages2:SRC-010",
+       "note": "通用 App 经验，惯例无研究出处"
+      }
+     ]
+    },
+    {
+     "name": "可滚动标签",
+     "value": "可滚动标签只在标签短而有意义时用",
+     "strength": "hint",
+     "evidence": [
+      {
+       "kind": "example",
+       "ref": "pages2:SRC-010",
+       "note": ""
+      }
+     ]
+    },
+    {
+     "name": "Vant Weapp Tabs 默认",
+     "value": "active 0、type line、sticky false、swipeable false、lazy-render true、swipe-threshold 5（超过阈值横向滚动）、line-width 40px、line-height 3px",
+     "strength": "hint",
+     "evidence": [
+      {
+       "kind": "rule",
+       "ref": "comp:SRC-010",
+       "note": ""
+      }
+     ]
+    },
+    {
+     "name": "一级导航不同",
+     "value": "苹果标签栏规则管一级导航，不管页内内容标签，两者要分开看",
+     "strength": "hint",
+     "evidence": [
+      {
+       "kind": "rule",
+       "ref": "home:SRC-017",
+       "note": ""
+      }
+     ]
+    }
+   ],
+   "fits": [
+    "content-community",
+    "ecommerce",
+    "local-booking",
+    "course-education",
+    "food-chain",
+    "enterprise-internal"
+   ],
+   "avoid": [
+    "把页面级目的地做成顶部标签（该是标签栏或二级页）",
+    "标签过多且文字长",
+    "同页再放第二组性质相同的标签",
+    "初始隐藏的容器里直接渲染（底部条宽度为 0）"
+   ],
+   "components": {
+    "vant4": [
+     "Tab 仅名称，属性未读"
+    ],
+    "vant-weapp": [
+     "van-tabs / van-tab：active、type(line|card)、color、sticky、swipeable、animated、lazy-render、ellipsis、swipe-threshold、line-width、line-height；事件 change、click、disabled、before-change、scroll；隐藏容器内用 wx:if 或 resize()"
+    ],
+    "tdesign-miniprogram": [
+     "资料未覆盖，样板页验证"
+    ],
+    "weui": [
+     "资料未覆盖，样板页验证"
+    ],
+    "wechat-native": [
+     "资料未覆盖原生 Tab；推断可用 scroll-view scroll-x 自组（推断，资料未直接说明）"
+    ]
+   },
+   "perf": [
+    "标签内容 lazy-render；嵌套在弹层等初始隐藏容器时需 wx:if 重新渲染或调 resize()"
+   ],
+   "combine_with": [
+    "feed",
+    "single-column-list",
+    "order-card"
+   ],
+   "think": [
+    "切换的是同一数据集的不同视图，还是不同页面？不同页面就不该是顶部标签。",
+    "标签几个、每个几字？超过 4–5 个还是不是同一层概念？",
+    "切换后滚动位置与已加载内容要保留吗？",
+    "吸顶后与自定义导航栏、胶囊会冲突吗？"
+   ],
+   "innovation_room": "可以有个性：下划线或胶囊式、选中字重与颜色、吸顶后的缩略态。不能碰：数量上限、同一层概念、不与底部标签栏争同一职责。",
+   "evidence": [
+    {
+     "kind": "rule",
+     "ref": "comp:SRC-001",
+     "note": ""
+    },
+    {
+     "kind": "rule",
+     "ref": "comp:SRC-010",
+     "note": ""
+    },
+    {
+     "kind": "rule",
+     "ref": "home:SRC-017",
+     "note": ""
+    },
+    {
+     "kind": "example",
+     "ref": "pages2:SRC-010",
+     "note": ""
+    }
+   ],
+   "confidence": "medium",
+   "tagline": "页内顶部标签，切同一数据集的视图",
+   "watch": "2–5 个，建议不超过 4；不是一级导航"
+  },
+  {
+   "id": "side-category",
+   "name": "侧边分类左右分栏",
+   "aliases": [],
+   "family": "navigation",
+   "role": "module",
+   "can_be_skeleton": true,
+   "summary": "左窄右宽的分类导航：左栏一级分类，右栏对应内容；通常是独立的分类页或点单页，不是首页。",
+   "structure": "左栏垂直导航，当前项高亮，可带小红点或徽标；右栏为二级标签条加商品列表，两者联动。",
+   "params": [
+    {
+     "name": "位置",
+     "value": "资料把它放在菜单页或分类页，电商指南把分类做成独立标签；不在首页",
+     "strength": "default",
+     "evidence": [
+      {
+       "kind": "example",
+       "ref": "home:SRC-003",
+       "note": "瑞幸菜单页 CategorySidebar"
+      },
+      {
+       "kind": "example",
+       "ref": "home:SRC-013",
+       "note": ""
+      }
+     ]
+    },
+    {
+     "name": "左栏数值（小程序分类）",
+     "value": "宽 88（约屏宽四分之一）、项高 52、14/22、当前项 600、左侧 2 像素主色强调线；二级标签条高 32",
+     "strength": "default",
+     "evidence": [
+      {
+       "kind": "skill",
+       "ref": "design:visual-design#导航与多级目录的数值",
+       "note": "小程序分类（左右联动）一节"
+      }
+     ]
+    },
+    {
+     "name": "Vant Sidebar",
+     "value": "宽度变量 80px，选中条 4×16，选中项加粗；联动要页面自己用 change 事件切内容",
+     "strength": "hint",
+     "evidence": [
+      {
+       "kind": "rule",
+       "ref": "pages:SRC-010",
+       "note": "Vant 4 网页版"
+      }
+     ]
+    },
+    {
+     "name": "联动方式",
+     "value": "点击切换还是滚动联动、层级上限：资料未覆盖",
+     "strength": "hint",
+     "evidence": [
+      {
+       "kind": "convention",
+       "ref": "convention",
+       "note": "惯例，资料未核对。联动做法见 ui-recipes 的分类联动：scroll-view 的 scroll-into-view"
+      }
+     ]
+    }
+   ],
+   "fits": [
+    "ecommerce",
+    "food-chain",
+    "course-education",
+    "local-life-super-app"
+   ],
+   "avoid": [
+    "分类很少（用顶部标签或宫格）",
+    "当首页放而没有理由",
+    "三层以上目录塞进左栏",
+    "左栏徽标没有真实含义"
+   ],
+   "components": {
+    "vant4": [
+     "Sidebar / SidebarItem：v-model 默认 0、title、dot、badge、badge-props、disabled、url、to；TreeSelect 仅名称"
+    ],
+    "vant-weapp": [
+     "van-sidebar / van-sidebar-item：activeKey 默认 0、item 有 title、dot、badge（1.5.0 起，info 已废弃）、disabled；事件 change（detail 为索引）、click；联动内容区无示例"
+    ],
+    "tdesign-miniprogram": [
+     "t-side-bar / t-side-bar-item（0.25.0 上线，WebView；示例：锚点用法、切页用法、带图标、自定义样式；属性表未读到）"
+    ],
+    "weui": [
+     "资料未覆盖，样板页验证"
+    ],
+    "wechat-native": [
+     "资料未覆盖；推断可用 scroll-view scroll-y（须固定高度）加 scroll-into-view 自组（推断）"
+    ]
+   },
+   "perf": [
+    "右栏商品多时用 Skyline 按需渲染；左右联动避免每次滚动 setData"
+   ],
+   "combine_with": [
+    "single-column-list",
+    "two-column-card-grid",
+    "action-bar",
+    "filter-bar"
+   ],
+   "think": [
+    "分类够多吗：一级少于 6–7 个且无二级时，顶部标签是不是更轻？",
+    "联动是点击切换还是滚动联动？数据量下各自的性能如何？",
+    "右栏商品单列还是双列？左栏占宽后右侧够用吗？",
+    "这是独立分类页，还是点单页就是首页？后者要写偏离说明。"
+   ],
+   "innovation_room": "可以有个性：左栏选中样式、分类图标、右栏二级条与吸顶标题、商品行构图。不能碰：不在普通首页放、左栏徽标要有真实含义。",
+   "evidence": [
+    {
+     "kind": "example",
+     "ref": "home:SRC-003",
+     "note": ""
+    },
+    {
+     "kind": "example",
+     "ref": "home:SRC-013",
+     "note": ""
+    },
+    {
+     "kind": "rule",
+     "ref": "pages:SRC-010",
+     "note": ""
+    },
+    {
+     "kind": "rule",
+     "ref": "comp:SRC-009",
+     "note": ""
+    },
+    {
+     "kind": "rule",
+     "ref": "pages:SRC-012",
+     "note": ""
+    },
+    {
+     "kind": "skill",
+     "ref": "design:visual-design#导航与多级目录的数值",
+     "note": ""
+    }
+   ],
+   "confidence": "medium",
+   "tagline": "左窄右宽的分类联动",
+   "watch": "通常是分类页或点单页，不在普通首页"
+  },
+  {
+   "id": "immersive-hero",
+   "name": "全屏大图沉浸式",
+   "aliases": [],
+   "family": "hero",
+   "role": "module",
+   "can_be_skeleton": true,
+   "summary": "首屏被大图或主视觉占据，用氛围说服而不是列功能；适合品牌展示与活动落地，办事类首页不用。",
+   "structure": "大图或视频铺满首屏（品牌主视觉约占首屏 40% 以上，视觉规范对首页与点单页给的是约 40%），一个明确的行动按钮；下滑进入后续模块。",
+   "params": [
+    {
+     "name": "主视觉占比",
+     "value": "品牌或联名主视觉约占首屏 40%（视觉规范对首页与点单页的取值）；全屏沉浸的占比资料未覆盖",
+     "strength": "hint",
+     "evidence": [
+      {
+       "kind": "skill",
+       "ref": "design:visual-design#各端视觉参数",
+       "note": "交易与营销界面：首页与点单页"
+      }
+     ]
+    },
+    {
+     "name": "胶囊避让",
+     "value": "右上角官方菜单（胶囊）固定存在，内容不可自定义，设计时预留该区域；自有导航样式与之保持一定差异",
+     "strength": "must",
+     "evidence": [
+      {
+       "kind": "rule",
+       "ref": "comp:SRC-001",
+       "note": "微信小程序设计指南"
+      }
+     ]
+    },
+    {
+     "name": "自定义导航",
+     "value": "app.json 的 navigationStyle: custom 涉及状态栏兼容取舍；来源可信度很低",
+     "strength": "hint",
+     "evidence": [
+      {
+       "kind": "example",
+       "ref": "home:SRC-004",
+       "note": "低可信，仅作线索"
+      }
+     ]
+    },
+    {
+     "name": "全屏沉浸式范式",
+     "value": "资料未覆盖，其余按通行做法并经样板页验证",
+     "strength": "hint",
+     "evidence": [
+      {
+       "kind": "convention",
+       "ref": "convention",
+       "note": "惯例，资料未核对。"
+      }
+     ]
+    }
+   ],
+   "fits": [
+    "brand-campaign",
+    "membership-benefits"
+   ],
+   "avoid": [
+    "办事类首页（点单、预约、报价）用大图占满首屏",
+    "大图里写必须读的文字",
+    "大图加载失败时首屏空白",
+    "与胶囊重叠"
+   ],
+   "components": {
+    "vant4": [
+     "资料未覆盖，样板页验证"
+    ],
+    "vant-weapp": [
+     "资料未覆盖，样板页验证"
+    ],
+    "tdesign-miniprogram": [
+     "资料未覆盖，样板页验证"
+    ],
+    "weui": [
+     "资料未覆盖，样板页验证"
+    ],
+    "wechat-native": [
+     "swiper 做全屏轮播（见 banner-carousel）；navigationStyle custom（低可信线索）；其余资料未覆盖"
+    ]
+   },
+   "perf": [
+    "首屏大图要预设宽高与同尺寸占位，避免加载跳动；视频需有封面"
+   ],
+   "combine_with": [
+    "modular-sections",
+    "banner-carousel"
+   ],
+   "think": [
+    "用户来这里是被说服（品牌、活动），还是要办事？办事就不要沉浸。",
+    "大图下面那一屏有没有明确的行动？",
+    "自定义导航后，状态栏、胶囊区和返回怎么处理？",
+    "图片慢或失败时，首屏看到什么？"
+   ],
+   "innovation_room": "可以有个性：这是最能放开手脚的范式：构图、动效、配图风格、色彩气质。不能碰：胶囊避让、行动按钮存在、占位尺寸稳定。",
+   "evidence": [
+    {
+     "kind": "rule",
+     "ref": "comp:SRC-001",
+     "note": ""
+    },
+    {
+     "kind": "example",
+     "ref": "home:SRC-004",
+     "note": ""
+    },
+    {
+     "kind": "skill",
+     "ref": "design:visual-design#各端视觉参数",
+     "note": ""
+    },
+    {
+     "kind": "user",
+     "ref": "user:2026-11-04",
+     "note": "全屏大图/沉浸式海报列入用户清单"
+    }
+   ],
+   "confidence": "low",
+   "tagline": "大图占满首屏，用氛围说服",
+   "watch": "只给品牌与活动；避让胶囊；资料未覆盖"
+  },
+  {
+   "id": "modular-sections",
+   "name": "分段模块化",
+   "aliases": [],
+   "family": "skeleton",
+   "role": "page-skeleton",
+   "can_be_skeleton": true,
+   "summary": "首页的页面骨架：一页由若干相互独立的模块自上而下组成，每个模块自带数据、三态，可由后台开关与排序。",
+   "structure": "模块自上而下，模块之间用留白分隔；顶部栏（上下文加搜索）之后，第一个模块回答用户最可能回来做的事。",
+   "params": [
+    {
+     "name": "首页是路由决策",
+     "value": "首页不是产品的完整清单：识别用户当前状态，突出最有用的动作，其余目的地保持可达但不互相竞争",
+     "strength": "default",
+     "evidence": [
+      {
+       "kind": "example",
+       "ref": "home:SRC-012",
+       "note": "编辑性原则"
+      }
+     ]
+    },
+    {
+     "name": "第一个模块",
+     "value": "第一个有意义的模块应回答用户最可能回来要做的事，进度、推荐、导航、账户工具起支撑作用",
+     "strength": "default",
+     "evidence": [
+      {
+       "kind": "example",
+       "ref": "home:SRC-012",
+       "note": ""
+      }
+     ]
+    },
+    {
+     "name": "随状态变化",
+     "value": "同一布局不能服务所有状态：新用户的教学卡在有真实内容后移除；用新用户、未完成、已完成、空、过载、被阻塞六种状态评审同一首页",
+     "strength": "default",
+     "evidence": [
+      {
+       "kind": "example",
+       "ref": "home:SRC-012",
+       "note": ""
+      }
+     ]
+    },
+    {
+     "name": "可后台开关",
+     "value": "模块顺序、显示隐藏由后端下发，前端只写版面",
+     "strength": "default",
+     "evidence": [
+      {
+       "kind": "skill",
+       "ref": "system:ui-standards#内容来源与维护闭环",
+       "note": ""
+      }
+     ]
+    },
+    {
+     "name": "模块数量",
+     "value": "首屏不超过 4 个、整页不超过 8 个（含顶部栏，不含标签栏）：本技能取值，资料只有便当网格的 12–15 块一条实例",
+     "strength": "default",
+     "evidence": [
+      {
+       "kind": "skill",
+       "ref": "skill:default",
+       "note": "本技能取值，按样板页调"
+      },
+      {
+       "kind": "example",
+       "ref": "home:SRC-006",
+       "note": "实例，不是规则"
+      }
+     ]
+    }
+   ],
+   "fits": [
+    "food-chain",
+    "ecommerce",
+    "local-booking",
+    "b2b-quote-ticket",
+    "content-community",
+    "brand-campaign",
+    "enterprise-internal",
+    "course-education",
+    "membership-benefits",
+    "local-life-super-app"
+   ],
+   "avoid": [
+    "每个东西都是同样重的卡片（没有东西在解释什么重要）",
+    "把标签栏、我的页的内容再做成模块",
+    "模块为凑满而存在"
+   ],
+   "components": {
+    "vant4": [
+     "各模块自选组件"
+    ],
+    "vant-weapp": [
+     "各模块自选组件"
+    ],
+    "tdesign-miniprogram": [
+     "资料未覆盖，样板页验证"
+    ],
+    "weui": [
+     "资料未覆盖，样板页验证"
+    ],
+    "wechat-native": [
+     "scroll-view 或页面滚动作容器；各模块用各自范式的组件"
+    ]
+   },
+   "perf": [
+    "各模块独立加载与失败，一个模块失败不拖垮整页；分模块 setData"
+   ],
+   "combine_with": [
+    "search-header",
+    "status-card",
+    "banner-carousel",
+    "dock-grid",
+    "horizontal-scroller",
+    "feed"
+   ],
+   "think": [
+    "在新用户、回访用户、空数据、过载这几种状态下，第一个模块各是什么？",
+    "每个模块能被后台关掉吗？关掉后版面还成立吗？",
+    "有没有两个模块在回答同一个问题？删一个。",
+    "整页模块数超过本技能默认了吗？超了就写偏离说明。"
+   ],
+   "innovation_room": "可以有个性：模块的次序、间距节奏、分隔方式（留白、细线、底色）、每个模块的构图。不能碰：第一个模块回答回来要做的事、模块可开关、不堆等重要的卡。",
+   "evidence": [
+    {
+     "kind": "example",
+     "ref": "home:SRC-012",
+     "note": ""
+    },
+    {
+     "kind": "example",
+     "ref": "home:SRC-004",
+     "note": ""
+    },
+    {
+     "kind": "example",
+     "ref": "home:SRC-013",
+     "note": ""
+    },
+    {
+     "kind": "example",
+     "ref": "home:SRC-001",
+     "note": ""
+    },
+    {
+     "kind": "skill",
+     "ref": "system:ui-standards#内容来源与维护闭环",
+     "note": ""
+    },
+    {
+     "kind": "user",
+     "ref": "user:2026-11-04",
+     "note": "分段模块化列入用户补充清单"
+    }
+   ],
+   "confidence": "medium",
+   "tagline": "首页骨架：独立模块自上而下，可后台开关",
+   "watch": "首屏第一个模块回答回来要做的事"
+  },
+  {
+   "id": "banner-carousel",
+   "name": "轮播图",
+   "aliases": [],
+   "family": "hero",
+   "role": "module",
+   "can_be_skeleton": false,
+   "summary": "首页顶部或模块内的主视觉轮播，承载一个到三个主要活动；每一帧一个目的地。",
+   "structure": "通栏图片，指示点，自动轮播可暂停；每帧一张图加一个整图点击目的地。",
+   "params": [
+    {
+     "name": "帧数",
+     "value": "有赞平台推荐轮播 3 张以内（买家在这个位置不会停留太久）；多张图宽高必须一致，否则出现白边",
+     "strength": "default",
+     "evidence": [
+      {
+       "kind": "rule",
+       "ref": "pages:SRC-004",
+       "note": "有赞平台口径"
+      },
+      {
+       "kind": "skill",
+       "ref": "system:ui-standards",
+       "note": "不用轮播堆叠多个活动，第三帧之后几乎没有人看"
+      }
+     ]
+    },
+    {
+     "name": "自动播放",
+     "value": "自动播放的轮播须能暂停；响应减少动态效果",
+     "strength": "must",
+     "evidence": [
+      {
+       "kind": "skill",
+       "ref": "design:visual-design#各端视觉参数",
+       "note": "横幅轮播：自动播放的轮播须能暂停"
+      }
+     ]
+    },
+    {
+     "name": "微信 swiper 默认",
+     "value": "indicator-dots false、autoplay false、interval 5000、duration 500、circular false；只可放 swiper-item",
+     "strength": "hint",
+     "evidence": [
+      {
+       "kind": "rule",
+       "ref": "comp:SRC-002",
+       "note": ""
+      }
+     ]
+    },
+    {
+     "name": "事件注意",
+     "value": "change 回调里用 setData 改 current 前先检查 source 是否由用户触摸引起，避免 setData 不停被调用",
+     "strength": "hint",
+     "evidence": [
+      {
+       "kind": "rule",
+       "ref": "comp:SRC-002",
+       "note": ""
+      }
+     ]
+    }
+   ],
+   "fits": [
+    "ecommerce",
+    "food-chain",
+    "local-booking",
+    "course-education",
+    "membership-benefits",
+    "brand-campaign",
+    "local-life-super-app"
+   ],
+   "avoid": [
+    "用轮播堆多个活动",
+    "同一活动同时出现在轮播和宫格或公告",
+    "企业内部工具里放营销轮播",
+    "每帧目的地与金刚区重复"
+   ],
+   "components": {
+    "vant4": [
+     "Swipe / SwipeItem：autoplay（毫秒，无默认）、duration 500、loop 默认 true、show-indicators 默认 true、indicator-color #1989fa、lazy-render；loop 模式下不支持自定义滑块大小"
+    ],
+    "vant-weapp": [
+     "目录未见 Swipe 条目，用原生 swiper"
+    ],
+    "tdesign-miniprogram": [
+     "资料未覆盖，样板页验证"
+    ],
+    "weui": [
+     "资料未覆盖，样板页验证"
+    ],
+    "wechat-native": [
+     "swiper + swiper-item：indicator-dots、autoplay、interval、duration、circular、current、indicator-color、indicator-active-color；change 事件 detail.source；基础库 1.0.0；Skyline 与 WebView 均支持"
+    ]
+   },
+   "perf": [
+    "lazy-render 只渲染当前与下一页；图片同尺寸预设"
+   ],
+   "combine_with": [
+    "search-header",
+    "dock-grid",
+    "notice-bar"
+   ],
+   "think": [
+    "这个位置需要轮播，还是一张固定主视觉就够了？",
+    "几帧？每帧是不是不同活动、目的地互不重复？",
+    "自动播放能暂停吗？减少动态效果下是什么样？",
+    "每张图的比例统一吗？图上的文字放得下、读得清吗？"
+   ],
+   "innovation_room": "可以有个性：图片风格、圆角、指示点形态、与下方模块的叠压关系。不能碰：帧数克制、每帧唯一目的地、可暂停。",
+   "evidence": [
+    {
+     "kind": "rule",
+     "ref": "pages:SRC-004",
+     "note": ""
+    },
+    {
+     "kind": "rule",
+     "ref": "comp:SRC-002",
+     "note": ""
+    },
+    {
+     "kind": "rule",
+     "ref": "comp:SRC-012",
+     "note": ""
+    },
+    {
+     "kind": "skill",
+     "ref": "design:visual-design#各端视觉参数",
+     "note": ""
+    },
+    {
+     "kind": "skill",
+     "ref": "system:ui-standards",
+     "note": ""
+    }
+   ],
+   "confidence": "high",
+   "tagline": "通栏主视觉轮播，每帧一个目的地",
+   "watch": "不超过 3 帧；可暂停；不与金刚指向同一活动"
+  },
+  {
+   "id": "horizontal-scroller",
+   "name": "横向滑动专场",
+   "aliases": [],
+   "family": "strip",
+   "role": "module",
+   "can_be_skeleton": false,
+   "summary": "同构卡片的横向滑动条：券、专场、秒杀商品、名师；露出下一张提示可以继续滑。",
+   "structure": "一行同构卡片，可横向滚动，吸附到卡片起点；末尾可有“全部”入口。",
+   "params": [
+    {
+     "name": "原生写法",
+     "value": "scroll-view scroll-x 须开 enable-flex 兼容 WebView；或 swiper 用 display-multiple-items 加 previous-margin 与 next-margin 露出下一张",
+     "strength": "must",
+     "evidence": [
+      {
+       "kind": "rule",
+       "ref": "comp:SRC-003",
+       "note": ""
+      },
+      {
+       "kind": "rule",
+       "ref": "comp:SRC-002",
+       "note": ""
+      }
+     ]
+    },
+    {
+     "name": "Vant 4 写法",
+     "value": "Swipe 自定义滑块宽度时必须 loop 设为 false",
+     "strength": "must",
+     "evidence": [
+      {
+       "kind": "rule",
+       "ref": "comp:SRC-012",
+       "note": ""
+      }
+     ]
+    },
+    {
+     "name": "无手势替代",
+     "value": "手势必须有可见替代：末尾放“全部”入口或换页按钮",
+     "strength": "default",
+     "evidence": [
+      {
+       "kind": "example",
+       "ref": "pages2:SRC-010",
+       "note": ""
+      },
+      {
+       "kind": "example",
+       "ref": "pages2:SRC-011",
+       "note": ""
+      }
+     ]
+    }
+   ],
+   "fits": [
+    "ecommerce",
+    "food-chain",
+    "course-education",
+    "membership-benefits",
+    "local-booking",
+    "brand-campaign"
+   ],
+   "avoid": [
+    "把互不相关的入口串成一条",
+    "一屏露不出下一张",
+    "横滑里的项目在别处又出现一次"
+   ],
+   "components": {
+    "vant4": [
+     "Swipe :loop=\"false\" :width（自定义滑块宽）"
+    ],
+    "vant-weapp": [
+     "资料未覆盖（目录无 Swipe；Tabs 只有标签栏横滚）"
+    ],
+    "tdesign-miniprogram": [
+     "资料未覆盖，样板页验证"
+    ],
+    "weui": [
+     "资料未覆盖，样板页验证"
+    ],
+    "wechat-native": [
+     "scroll-view scroll-x enable-flex（基础库 enable-flex 2.7.3）；swiper display-multiple-items（1.9.0）加 previous-margin/next-margin"
+    ]
+   },
+   "perf": [
+    "横向 scroll-view 须 enable-flex；内容懒加载"
+   ],
+   "combine_with": [
+    "banner-carousel",
+    "countdown-block",
+    "coupon-card"
+   ],
+   "think": [
+    "横滑的卡片同构吗？不同构就拆成两个模块。",
+    "用户看得出还能滑吗？露出下一张的比例够吗？",
+    "这些项目的目的地和其他模块重复吗？",
+    "不会滑的用户怎么到达全部内容？"
+   ],
+   "innovation_room": "可以有个性：卡片构图、吸附点、露出比例、卡内倒计时与进度。不能碰：同构、可见替代、不与其他模块重复目的地。",
+   "evidence": [
+    {
+     "kind": "rule",
+     "ref": "comp:SRC-003",
+     "note": ""
+    },
+    {
+     "kind": "rule",
+     "ref": "comp:SRC-002",
+     "note": ""
+    },
+    {
+     "kind": "rule",
+     "ref": "comp:SRC-012",
+     "note": ""
+    },
+    {
+     "kind": "example",
+     "ref": "home:SRC-003",
+     "note": "CouponScroll、PromoCard"
+    }
+   ],
+   "confidence": "medium",
+   "tagline": "同构卡片横滑，露出下一张",
+   "watch": "要有无手势的替代；不重复其他模块"
+  },
+  {
+   "id": "search-header",
+   "name": "搜索头（上下文栏加搜索）",
+   "aliases": [],
+   "family": "navigation",
+   "role": "module",
+   "can_be_skeleton": false,
+   "summary": "首页顶部：第一行全局上下文（当前门店、配送方式、定位），第二行搜索框；二级页的搜索沿用同一做法。",
+   "structure": "上下文栏一行（至多三项）+ 搜索框；避让右上角胶囊；搜索可是假输入（点击进搜索页）或真输入。",
+   "params": [
+    {
+     "name": "上下文归属",
+     "value": "全局上下文（门店或自提点、配送方式切换、定位、城市）只放这一行，其他页沿用，不另设入口",
+     "strength": "must",
+     "evidence": [
+      {
+       "kind": "skill",
+       "ref": "system:ui-standards",
+       "note": "功能类型的默认入口位置：全局上下文"
+      },
+      {
+       "kind": "user",
+       "ref": "user:2026-11-04",
+       "note": "门店、同城配送应该在顶部"
+      }
+     ]
+    },
+    {
+     "name": "搜索归属",
+     "value": "搜索放顶部搜索框或所属列表页内，不占金刚区",
+     "strength": "must",
+     "evidence": [
+      {
+       "kind": "skill",
+       "ref": "system:ui-standards",
+       "note": ""
+      },
+      {
+       "kind": "example",
+       "ref": "home:SRC-012",
+       "note": "Hypelist、Vimeo、Product Hunt 都把搜索放在最前或持久"
+      }
+     ]
+    },
+    {
+     "name": "搜索历史",
+     "value": "搜索时提供搜索历史快捷选项，减少输入",
+     "strength": "default",
+     "evidence": [
+      {
+       "kind": "rule",
+       "ref": "comp:SRC-001",
+       "note": "微信小程序设计指南 3.1"
+      }
+     ]
+    },
+    {
+     "name": "胶囊避让",
+     "value": "右上角官方菜单固定存在，设计时预留该区域，附近的可交互元素注意事件冲突",
+     "strength": "must",
+     "evidence": [
+      {
+       "kind": "rule",
+       "ref": "comp:SRC-001",
+       "note": ""
+      }
+     ]
+    },
+    {
+     "name": "Vant 4 Search 默认",
+     "value": "shape square（可 round）、background #f2f2f2、show-action false、action-text 取消、left-icon search；用 action 插槽后 cancel 不再触发",
+     "strength": "hint",
+     "evidence": [
+      {
+       "kind": "rule",
+       "ref": "comp:SRC-015",
+       "note": ""
+      }
+     ]
+    }
+   ],
+   "fits": [
+    "ecommerce",
+    "food-chain",
+    "local-booking",
+    "course-education",
+    "content-community",
+    "local-life-super-app"
+   ],
+   "avoid": [
+    "把门店、配送方式放进金刚区",
+    "上下文栏塞满四项以上",
+    "搜索框与胶囊重叠",
+    "搜索框之外再放一个搜索图标按钮"
+   ],
+   "components": {
+    "vant4": [
+     "Search：shape、background、placeholder、show-action、action-text、input-align、left-icon、clearable；事件 search、cancel、click-input；点击搜索框跳转的假输入只有 disabled/readonly/click-input 可用，资料未说明用法；iOS 要外层 form action 才显示搜索键"
+    ],
+    "vant-weapp": [
+     "Search 仅名称，属性未读"
+    ],
+    "tdesign-miniprogram": [
+     "资料未覆盖，样板页验证"
+    ],
+    "weui": [
+     "资料未覆盖，样板页验证"
+    ],
+    "wechat-native": [
+     "资料未覆盖（没抓 input 与 navigation-bar）"
+    ]
+   },
+   "perf": [],
+   "combine_with": [
+    "banner-carousel",
+    "dock-grid",
+    "filter-bar"
+   ],
+   "think": [
+    "上下文栏现在有几项？每项都是用户真的要在首页切换的吗？",
+    "搜索是真输入还是点击跳搜索页？占位文案用热词还是品类，由后台配置吗？",
+    "与胶囊怎么避让？",
+    "首次进入、没授权定位、没选门店时，这一栏显示什么？"
+   ],
+   "innovation_room": "可以有个性：搜索框的形态（圆角、描边、底色）、上下文栏的图标与展开方式、占位文案轮换。不能碰：上下文只在此、搜索不进金刚、胶囊避让。",
+   "evidence": [
+    {
+     "kind": "skill",
+     "ref": "system:ui-standards",
+     "note": ""
+    },
+    {
+     "kind": "user",
+     "ref": "user:2026-11-04",
+     "note": ""
+    },
+    {
+     "kind": "rule",
+     "ref": "comp:SRC-001",
+     "note": ""
+    },
+    {
+     "kind": "rule",
+     "ref": "comp:SRC-015",
+     "note": ""
+    },
+    {
+     "kind": "example",
+     "ref": "home:SRC-012",
+     "note": ""
+    },
+    {
+     "kind": "example",
+     "ref": "pages2:SRC-011",
+     "note": "顶栏负责定位、标题、情境操作（间接）"
+    }
+   ],
+   "confidence": "medium",
+   "tagline": "上下文栏加搜索框，避让胶囊",
+   "watch": "门店、配送、定位只在这里；搜索不进金刚"
+  },
+  {
+   "id": "notice-bar",
+   "name": "公告栏",
+   "aliases": [],
+   "family": "strip",
+   "role": "module",
+   "can_be_skeleton": false,
+   "summary": "一行（或多行）运营消息：营业时间、发货时间、系统通知；不复述页面上已有的营销。",
+   "structure": "一条通栏，图标加文字，可滚动或静止，可关闭；没有公告时整块不出现。",
+   "params": [
+    {
+     "name": "内容边界",
+     "value": "公告栏只写运营消息，不复述页面上已有的营销活动",
+     "strength": "default",
+     "evidence": [
+      {
+       "kind": "skill",
+       "ref": "system:ui-standards",
+       "note": "不重复表达"
+      }
+     ]
+    },
+    {
+     "name": "有赞公告",
+     "value": "同步店铺通用信息，如客服在线时间、发货时间；内容过长在手机上滚动显示",
+     "strength": "hint",
+     "evidence": [
+      {
+       "kind": "rule",
+       "ref": "pages:SRC-004",
+       "note": "有赞平台口径"
+      }
+     ]
+    },
+    {
+     "name": "Vant 4 NoticeBar 默认",
+     "value": "color #ed6a0c、background #fffbe8、delay 1 秒、speed 60px/s、高度变量 40px；文字短但想滚动要设 scrollable，文字长要关滚动",
+     "strength": "hint",
+     "evidence": [
+      {
+       "kind": "rule",
+       "ref": "comp:SRC-016",
+       "note": ""
+      }
+     ]
+    }
+   ],
+   "fits": [
+    "enterprise-internal",
+    "food-chain",
+    "ecommerce",
+    "local-booking",
+    "b2b-quote-ticket"
+   ],
+   "avoid": [
+    "复述轮播里的活动",
+    "没有内容时留空条",
+    "滚动过快读不完"
+   ],
+   "components": {
+    "vant4": [
+     "NoticeBar：mode(closeable|link)、text、left-icon、color、background、delay、speed、scrollable、wrapable；垂直滚动是 scrollable=false 里嵌 Swipe vertical"
+    ],
+    "vant-weapp": [
+     "NoticeBar 仅名称，属性未读"
+    ],
+    "tdesign-miniprogram": [
+     "资料未覆盖，样板页验证"
+    ],
+    "weui": [
+     "资料未覆盖，样板页验证"
+    ],
+    "wechat-native": [
+     "资料未覆盖"
+    ]
+   },
+   "perf": [],
+   "combine_with": [
+    "search-header",
+    "status-card"
+   ],
+   "think": [
+    "这条公告是运营消息，还是在重复页面上的活动？",
+    "滚动还是静止多行？过长怎么办？",
+    "没有公告时这个位置会塌陷吗？"
+   ],
+   "innovation_room": "可以有个性：图标、底色层级、滚动方式。不能碰：不复述其他模块、无内容即消失。",
+   "evidence": [
+    {
+     "kind": "skill",
+     "ref": "system:ui-standards",
+     "note": ""
+    },
+    {
+     "kind": "rule",
+     "ref": "pages:SRC-004",
+     "note": ""
+    },
+    {
+     "kind": "rule",
+     "ref": "comp:SRC-016",
+     "note": ""
+    }
+   ],
+   "confidence": "medium",
+   "tagline": "一条运营消息，可滚动可关闭",
+   "watch": "不复述活动；没有内容就消失"
+  },
+  {
+   "id": "ranking-list",
+   "name": "榜单",
+   "aliases": [],
+   "family": "list",
+   "role": "module",
+   "can_be_skeleton": false,
+   "summary": "按某个可信依据排序的有限条目（热销榜、新品榜、人气榜），常用横滑或纵向短列表。",
+   "structure": "标题加榜名，前几名带序号，每项图加名加一个指标；末尾“查看完整榜单”。",
+   "params": [
+    {
+     "name": "榜单依据",
+     "value": "排序依据须可信且可解释：资料未覆盖榜单版式，只有 Product Hunt 排序显示点赞数、LKCN 示例数据里“人气Top”是分类名",
+     "strength": "hint",
+     "evidence": [
+      {
+       "kind": "convention",
+       "ref": "convention",
+       "note": "惯例，资料未核对。无榜单版式资料；本条只是提醒依据要可解释"
+      },
+      {
+       "kind": "example",
+       "ref": "home:SRC-012",
+       "note": ""
+      }
+     ]
+    },
+    {
+     "name": "条数",
+     "value": "展示条数是本技能取值：横滑 4–6 项、纵向 3–5 项",
+     "strength": "default",
+     "evidence": [
+      {
+       "kind": "skill",
+       "ref": "skill:default",
+       "note": "本技能取值，按样板页调"
+      }
+     ]
+    }
+   ],
+   "fits": [
+    "ecommerce",
+    "food-chain",
+    "content-community",
+    "course-education"
+   ],
+   "avoid": [
+    "榜单与下方信息流是同一批商品（重复）",
+    "没有依据的榜单名",
+    "条目过多变成长列表"
+   ],
+   "components": {
+    "vant4": [
+     "资料未覆盖，样板页验证"
+    ],
+    "vant-weapp": [
+     "资料未覆盖，样板页验证"
+    ],
+    "tdesign-miniprogram": [
+     "资料未覆盖，样板页验证"
+    ],
+    "weui": [
+     "资料未覆盖，样板页验证"
+    ],
+    "wechat-native": [
+     "资料未覆盖，样板页验证"
+    ]
+   },
+   "perf": [],
+   "combine_with": [
+    "horizontal-scroller",
+    "feed"
+   ],
+   "think": [
+    "榜单靠什么排序？用户信不信？",
+    "和下方信息流、营销位是同一批商品吗？",
+    "要不要时间标注（本周、今日）？"
+   ],
+   "innovation_room": "可以有个性：序号样式、前三名的特殊构图。不能碰：依据可解释、不与其他模块重复。",
+   "evidence": [
+    {
+     "kind": "convention",
+     "ref": "convention",
+     "note": "惯例，资料未核对。资料未覆盖榜单版式"
+    },
+    {
+     "kind": "example",
+     "ref": "home:SRC-012",
+     "note": ""
+    }
+   ],
+   "confidence": "low",
+   "tagline": "有依据的有限榜单",
+   "watch": "资料未覆盖；依据要可解释"
+  },
+  {
+   "id": "member-card-hero",
+   "name": "会员卡主卡",
+   "aliases": [],
+   "family": "hero",
+   "role": "module",
+   "can_be_skeleton": false,
+   "summary": "会员型首页的状态主卡：当前等级、余量或到期、成长进度中最重要的一两项；它是状态摘要，不另设入口。",
+   "structure": "一张通栏卡，等级加一两个事实加进度；点整卡去具体会员卡详情页，不去标签页本身。",
+   "params": [
+    {
+     "name": "身份",
+     "value": "首页对账户类只允许一条状态摘要且不另设入口",
+     "strength": "must",
+     "evidence": [
+      {
+       "kind": "skill",
+       "ref": "system:ui-standards",
+       "note": "账户与个人资产：首页最多一条状态摘要"
+      }
+     ]
+    },
+    {
+     "name": "点击目的地",
+     "value": "整卡点击指向会员卡详情等具体页面；不得与标签栏“我的”同目的地",
+     "strength": "must",
+     "evidence": [
+      {
+       "kind": "skill",
+       "ref": "system:ui-standards",
+       "note": "一个业务只有一个入口"
+      }
+     ]
+    },
+    {
+     "name": "组件线索",
+     "value": "LKCN 有 LevelCard（会员等级）与 MembershipPlan（方案选择、订阅按钮、协议勾选）；首页主卡的位置与尺寸资料未覆盖",
+     "strength": "hint",
+     "evidence": [
+      {
+       "kind": "example",
+       "ref": "home:SRC-003",
+       "note": "个人开源项目，非官方"
+      }
+     ]
+    },
+    {
+     "name": "未解锁权益",
+     "value": "灰色带锁",
+     "strength": "default",
+     "evidence": [
+      {
+       "kind": "skill",
+       "ref": "design:visual-design#各端视觉参数",
+       "note": ""
+      }
+     ]
+    }
+   ],
+   "fits": [
+    "membership-benefits",
+    "local-booking",
+    "food-chain"
+   ],
+   "avoid": [
+    "把会员、积分、储值做成三个宫格入口",
+    "主卡之外再放一个“我的会员”入口",
+    "状态词与会员页不一致"
+   ],
+   "components": {
+    "vant4": [
+     "资料未覆盖，样板页验证"
+    ],
+    "vant-weapp": [
+     "资料未覆盖，样板页验证"
+    ],
+    "tdesign-miniprogram": [
+     "资料未覆盖，样板页验证"
+    ],
+    "weui": [
+     "资料未覆盖，样板页验证"
+    ],
+    "wechat-native": [
+     "资料未覆盖，样板页验证"
+    ]
+   },
+   "perf": [],
+   "combine_with": [
+    "status-card",
+    "dock-grid"
+   ],
+   "think": [
+    "这张卡上最重要的一两个事实是什么：余量、到期、等级进度？",
+    "点它去哪？是不是和“我的”标签重复？",
+    "未开通、未登录时它变成什么（开通引导）？",
+    "状态词与会员页是否一致？"
+   ],
+   "innovation_room": "可以有个性：卡面构图、等级材质感、进度图形。不能碰：只做状态摘要、点击去具体页、状态词一致。",
+   "evidence": [
+    {
+     "kind": "skill",
+     "ref": "system:ui-standards",
+     "note": ""
+    },
+    {
+     "kind": "example",
+     "ref": "home:SRC-003",
+     "note": ""
+    },
+    {
+     "kind": "skill",
+     "ref": "design:visual-design#各端视觉参数",
+     "note": ""
+    }
+   ],
+   "confidence": "low",
+   "tagline": "会员状态主卡，只做摘要",
+   "watch": "不另设入口；点去具体页，不去标签页"
+  },
+  {
+   "id": "workbench",
+   "name": "工作台",
+   "aliases": [],
+   "family": "dashboard",
+   "role": "module",
+   "can_be_skeleton": false,
+   "summary": "企业内部与商家端首页：待办、指标、快捷操作三段，按“需要行动”与“已观察到”分开。",
+   "structure": "顶部待办（需要我处理的，零也显示），中部关键指标（绑定周期、目标、单位与下一步），下部快捷操作（至多 8 个，且不与标签栏重复）。",
+   "params": [
+    {
+     "name": "分组",
+     "value": "把“需要行动”与“已观察到的活动”分开；零计数也显示，用以区分“已清空”与“无数据”",
+     "strength": "default",
+     "evidence": [
+      {
+       "kind": "example",
+       "ref": "home:SRC-012",
+       "note": "ClickUp、Airbnb 房东首页、DocuSign"
+      }
+     ]
+    },
+    {
+     "name": "进度数字",
+     "value": "进度数字绑定周期、目标、单位与下一步动作，零进度也给起点",
+     "strength": "default",
+     "evidence": [
+      {
+       "kind": "example",
+       "ref": "home:SRC-012",
+       "note": ""
+      }
+     ]
+    },
+    {
+     "name": "小程序工作台",
+     "value": "资料未覆盖；上述是海外任务型 App 的类比",
+     "strength": "hint",
+     "evidence": [
+      {
+       "kind": "convention",
+       "ref": "convention",
+       "note": "惯例，资料未核对。小程序工作台资料未覆盖"
+      }
+     ]
+    }
+   ],
+   "fits": [
+    "enterprise-internal",
+    "b2b-quote-ticket"
+   ],
+   "avoid": [
+    "在工作台放营销轮播与信息流",
+    "指标不绑定周期",
+    "待办为零时整块消失（分不清清空还是缺数据）",
+    "快捷操作与标签栏重复"
+   ],
+   "components": {
+    "vant4": [
+     "Grid 做快捷操作；其余自拼"
+    ],
+    "vant-weapp": [
+     "van-grid 做快捷操作；其余自拼"
+    ],
+    "tdesign-miniprogram": [
+     "资料未覆盖，样板页验证"
+    ],
+    "weui": [
+     "资料未覆盖，样板页验证"
+    ],
+    "wechat-native": [
+     "资料未覆盖，样板页验证"
+    ]
+   },
+   "perf": [],
+   "combine_with": [
+    "status-card",
+    "entry-cards",
+    "single-column-list"
+   ],
+   "think": [
+    "用户一天打开几次、先做什么：处理待办、看指标，还是点快捷操作？",
+    "待办为零时显示什么？怎么与无数据区分？",
+    "不同角色（员工、管理员、核销员）看到的工作台一样吗？",
+    "快捷操作里有没有标签栏已有的？"
+   ],
+   "innovation_room": "可以有个性：指标的图形化、待办的优先级标记、角色皮肤。不能碰：待办在最前、零计数可见、不与标签栏重复。",
+   "evidence": [
+    {
+     "kind": "example",
+     "ref": "home:SRC-012",
+     "note": ""
+    },
+    {
+     "kind": "convention",
+     "ref": "convention",
+     "note": "惯例，资料未核对。小程序工作台版式资料未覆盖"
+    }
+   ],
+   "confidence": "low",
+   "tagline": "待办、指标、快捷操作三段",
+   "watch": "待办在最前；零计数也显示；资料未覆盖"
+  },
+  {
+   "id": "status-card",
+   "name": "状态卡",
+   "aliases": [],
+   "family": "dashboard",
+   "role": "module",
+   "can_be_skeleton": false,
+   "summary": "首页上“此刻进行中的那一件事”：进行中订单、取餐码、预约、待处理工单、会员卡余量；只展示一条，点进具体详情。",
+   "structure": "一张卡：状态词加一句话加至多一个下一步动作；无进行中事项时不出现。",
+   "params": [
+    {
+     "name": "只展示进行中的那一条",
+     "value": "多条进行中时显示最紧急的一条，其余在所属列表页",
+     "strength": "must",
+     "evidence": [
+      {
+       "kind": "skill",
+       "ref": "system:ui-standards",
+       "note": "状态与待办：首页状态卡只展示进行中的那一条"
+      }
+     ]
+    },
+    {
+     "name": "订单的首页形态",
+     "value": "订单类首页只出进行中订单状态卡，不出全部订单入口",
+     "strength": "must",
+     "evidence": [
+      {
+       "kind": "skill",
+       "ref": "system:ui-standards",
+       "note": ""
+      }
+     ]
+    },
+    {
+     "name": "继续卡",
+     "value": "一张“继续”卡显示对象、当前单元、进度和动作",
+     "strength": "hint",
+     "evidence": [
+      {
+       "kind": "example",
+       "ref": "home:SRC-012",
+       "note": "Brilliant 的继续上次的课"
+      }
+     ]
+    },
+    {
+     "name": "状态词一致",
+     "value": "同一状态在全系统同名同外观",
+     "strength": "default",
+     "evidence": [
+      {
+       "kind": "skill",
+       "ref": "system:ui-standards",
+       "note": "状态体系"
+      }
+     ]
+    }
+   ],
+   "fits": [
+    "food-chain",
+    "ecommerce",
+    "local-booking",
+    "b2b-quote-ticket",
+    "content-community",
+    "brand-campaign",
+    "enterprise-internal",
+    "course-education",
+    "membership-benefits",
+    "local-life-super-app"
+   ],
+   "avoid": [
+    "没有进行中事项时放空卡或“暂无”",
+    "一张卡里放三个按钮",
+    "点击进入标签页本身（与标签栏重复）"
+   ],
+   "components": {
+    "vant4": [
+     "无专用组件，用 Card 或自拼；CountDown 可显示截止倒计时"
+    ],
+    "vant-weapp": [
+     "无专用组件；CountDown 仅名称"
+    ],
+    "tdesign-miniprogram": [
+     "资料未覆盖，样板页验证"
+    ],
+    "weui": [
+     "资料未覆盖，样板页验证"
+    ],
+    "wechat-native": [
+     "资料未覆盖，样板页验证"
+    ]
+   },
+   "perf": [],
+   "combine_with": [
+    "notice-bar",
+    "member-card-hero",
+    "workbench"
+   ],
+   "think": [
+    "此刻用户有没有一件“进行中”的事？没有就不出现。",
+    "卡上有没有且只有一个下一步动作？",
+    "多件进行中时显示哪一件，其余去哪？",
+    "状态词和订单页、详情页一致吗？"
+   ],
+   "innovation_room": "可以有个性：卡的构图、进度形态、状态色的用法。不能碰：只显示进行中的一条、有则出现无则消失、点进具体详情。",
+   "evidence": [
+    {
+     "kind": "skill",
+     "ref": "system:ui-standards",
+     "note": ""
+    },
+    {
+     "kind": "example",
+     "ref": "home:SRC-012",
+     "note": ""
+    }
+   ],
+   "confidence": "medium",
+   "tagline": "此刻进行中的那一件事",
+   "watch": "只显示一条；没有就不出现"
+  },
+  {
+   "id": "cell-list",
+   "name": "分组单元格列表",
+   "aliases": [],
+   "family": "list",
+   "role": "module",
+   "can_be_skeleton": false,
+   "summary": "“我的”页与设置页的主体：一行一个目的地，左图标、中文字、右箭头，按组分块。",
+   "structure": "分组卡，组间留白；行内左图标、名称、可选右侧说明与箭头；整行可点。",
+   "params": [
+    {
+     "name": "一行一个目的地",
+     "value": "头像区与“基本信息”行不得指向同一页；已登录的“退出”不出现两次",
+     "strength": "must",
+     "evidence": [
+      {
+       "kind": "example",
+       "ref": "pages:SRC-002",
+       "note": "读码观察：头像栏与基本信息行都跳资料页"
+      },
+      {
+       "kind": "example",
+       "ref": "pages:SRC-003",
+       "note": "读码观察：退出出现两次"
+      },
+      {
+       "kind": "skill",
+       "ref": "system:ui-standards",
+       "note": ""
+      }
+     ]
+    },
+    {
+     "name": "可配置",
+     "value": "“我的”页功能列表要做成可配置",
+     "strength": "default",
+     "evidence": [
+      {
+       "kind": "example",
+       "ref": "pages:SRC-002",
+       "note": "页内推荐文章摘要，未读正文"
+      }
+     ]
+    }
+   ],
+   "fits": [
+    "food-chain",
+    "ecommerce",
+    "local-booking",
+    "b2b-quote-ticket",
+    "content-community",
+    "brand-campaign",
+    "enterprise-internal",
+    "course-education",
+    "membership-benefits",
+    "local-life-super-app"
+   ],
+   "avoid": [
+    "同一目的地一行一格各放一次",
+    "行里放营销大图",
+    "把订单状态格再列成行"
+   ],
+   "components": {
+    "vant4": [
+     "Cell 仅名称，属性未读"
+    ],
+    "vant-weapp": [
+     "Cell 仅名称，属性未读"
+    ],
+    "tdesign-miniprogram": [
+     "资料未覆盖，样板页验证"
+    ],
+    "weui": [
+     "资料未覆盖，样板页验证"
+    ],
+    "wechat-native": [
+     "资料未覆盖"
+    ]
+   },
+   "perf": [],
+   "combine_with": [
+    "status-card",
+    "order-card"
+   ],
+   "think": [
+    "每一行是否真的低频或属于账户？高频核心的不该藏在这里。",
+    "有没有两行去同一页？",
+    "哪些行需要右侧状态说明（如手机号已绑定）？"
+   ],
+   "innovation_room": "可以有个性：分组方式、图标风格、行高节奏。不能碰：一行一个目的地、账户与低频归这里。",
+   "evidence": [
+    {
+     "kind": "example",
+     "ref": "pages:SRC-002",
+     "note": ""
+    },
+    {
+     "kind": "example",
+     "ref": "pages:SRC-003",
+     "note": ""
+    },
+    {
+     "kind": "skill",
+     "ref": "system:ui-standards",
+     "note": ""
+    }
+   ],
+   "confidence": "medium",
+   "tagline": "分组单元格，一行一个目的地",
+   "watch": "我的页主体；同目的地只留一行"
+  },
+  {
+   "id": "action-bar",
+   "name": "底部操作栏",
+   "aliases": [],
+   "family": "feedback",
+   "role": "module",
+   "can_be_skeleton": false,
+   "summary": "页面底部固定的主动作区：商品详情的客服/购物车/加购/购买，结算页的合计加提交，预约页的确认。",
+   "structure": "固定在底部，处理安全区；左侧至多三个图标入口，右侧一至两个按钮；一个主按钮。",
+   "params": [
+    {
+     "name": "Vant 4 ActionBar",
+     "value": "safe-area-inset-bottom 默认 true，placeholder 默认 false；示例左侧 3 个图标（客服、购物车、店铺）右侧 2 个按钮",
+     "strength": "hint",
+     "evidence": [
+      {
+       "kind": "rule",
+       "ref": "comp:SRC-018",
+       "note": ""
+      }
+     ]
+    },
+    {
+     "name": "SubmitBar",
+     "value": "price 单位为分；禁用和加载状态下都不触发 submit；高度变量 50px",
+     "strength": "hint",
+     "evidence": [
+      {
+       "kind": "rule",
+       "ref": "comp:SRC-017",
+       "note": ""
+      }
+     ]
+    },
+    {
+     "name": "占位",
+     "value": "placeholder 默认 false：固定在底部时不会自动占位，页面底部内容可能被遮挡，需自己留白或开启",
+     "strength": "must",
+     "evidence": [
+      {
+       "kind": "rule",
+       "ref": "comp:SRC-017",
+       "note": ""
+      },
+      {
+       "kind": "rule",
+       "ref": "comp:SRC-018",
+       "note": ""
+      }
+     ]
+    },
+    {
+     "name": "主动作",
+     "value": "这页的主动作是哪个归 System，画成实色主按钮归 Design；几个同样醒目的按钮并排视为廉价做法",
+     "strength": "must",
+     "evidence": [
+      {
+       "kind": "skill",
+       "ref": "design:ui-ownership",
+       "note": ""
+      }
+     ]
+    }
+   ],
+   "fits": [
+    "ecommerce",
+    "local-booking",
+    "food-chain",
+    "course-education",
+    "membership-benefits"
+   ],
+   "avoid": [
+    "底部栏与标签栏同时出现且职责重叠",
+    "多个同样醒目的按钮并排",
+    "遮挡内容"
+   ],
+   "components": {
+    "vant4": [
+     "ActionBar / ActionBarIcon / ActionBarButton；SubmitBar（price 分、decimal-length、button-text、button-type 默认 danger、tip、loading、disabled）"
+    ],
+    "vant-weapp": [
+     "GoodsAction、SubmitBar 仅名称，属性未读"
+    ],
+    "tdesign-miniprogram": [
+     "资料未覆盖，样板页验证"
+    ],
+    "weui": [
+     "资料未覆盖，样板页验证"
+    ],
+    "wechat-native": [
+     "资料未覆盖"
+    ]
+   },
+   "perf": [
+    "固定栏要留底部安全区"
+   ],
+   "combine_with": [
+    "single-column-list",
+    "countdown-block"
+   ],
+   "think": [
+    "这页的主动作是哪一个？它是否唯一突出？",
+    "左侧图标入口里有没有和标签栏或页内其他位置重复的？",
+    "禁用时按钮写什么原因？"
+   ],
+   "innovation_room": "可以有个性：栏的形态（通栏或悬浮胶囊）、按钮渐变。不能碰：一个主动作、安全区与占位。",
+   "evidence": [
+    {
+     "kind": "rule",
+     "ref": "comp:SRC-017",
+     "note": ""
+    },
+    {
+     "kind": "rule",
+     "ref": "comp:SRC-018",
+     "note": ""
+    },
+    {
+     "kind": "skill",
+     "ref": "design:ui-recipes",
+     "note": "悬浮购物车栏"
+    }
+   ],
+   "confidence": "medium",
+   "tagline": "底部固定主动作区",
+   "watch": "一个主按钮；留安全区与占位"
+  },
+  {
+   "id": "order-card",
+   "name": "订单卡",
+   "aliases": [],
+   "family": "list",
+   "role": "module",
+   "can_be_skeleton": false,
+   "summary": "订单列表里的一张卡：头（订单号、时间、状态）、商品行（图、名、规格×数量、单价）、脚（共 N 件合计金额、随状态变化的按钮）。",
+   "structure": "三段：头、商品行（多商品可多行）、脚；整卡进详情，脚部按钮随状态变化。",
+   "params": [
+    {
+     "name": "三段结构",
+     "value": "头 / 商品行 / 脚；信息层级：订单状态 > 商品名称 > 实付金额 > 订单编号 > 单价数量",
+     "strength": "hint",
+     "evidence": [
+      {
+       "kind": "example",
+       "ref": "pages:SRC-003",
+       "note": ""
+      },
+      {
+       "kind": "example",
+       "ref": "pages2:SRC-001",
+       "note": "作者自述层级"
+      }
+     ]
+    },
+    {
+     "name": "按钮随状态变",
+     "value": "待付款再多一个主按钮“立即付款”；消费者侧完整的状态→按钮映射资料未覆盖，以 System 动作表为准",
+     "strength": "default",
+     "evidence": [
+      {
+       "kind": "example",
+       "ref": "pages:SRC-003",
+       "note": ""
+      },
+      {
+       "kind": "example",
+       "ref": "pages2:SRC-002",
+       "note": "后台口径的状态映射，仅作结构参考"
+      }
+     ]
+    },
+    {
+     "name": "状态词一致",
+     "value": "Tab 名与卡片状态词必须同名（反例：Tab 叫待收货而卡片写已发货）",
+     "strength": "must",
+     "evidence": [
+      {
+       "kind": "example",
+       "ref": "pages2:SRC-001",
+       "note": "读码观察"
+      }
+     ]
+    }
+   ],
+   "fits": [
+    "ecommerce",
+    "food-chain",
+    "local-booking",
+    "course-education",
+    "enterprise-internal"
+   ],
+   "avoid": [
+    "所有状态都只有“查看详情”",
+    "按钮文字与行为对不上",
+    "Tab 与状态词不一致",
+    "只做账号级空态而没有分类空态"
+   ],
+   "components": {
+    "vant4": [
+     "Card（slots：footer 可放 mini 按钮）"
+    ],
+    "vant-weapp": [
+     "Card 仅名称"
+    ],
+    "tdesign-miniprogram": [
+     "资料未覆盖，样板页验证"
+    ],
+    "weui": [
+     "资料未覆盖，样板页验证"
+    ],
+    "wechat-native": [
+     "资料未覆盖，样板页验证"
+    ]
+   },
+   "perf": [],
+   "combine_with": [
+    "top-tabs",
+    "single-column-list"
+   ],
+   "think": [
+    "用户在订单卡上最想知道什么：状态、取餐码还是金额？",
+    "每种状态的主按钮是什么（来自 System 动作表）？",
+    "多商品订单怎么折叠？"
+   ],
+   "innovation_room": "可以有个性：卡的层次、状态标记形态、多商品折叠方式。不能碰：状态词一致、按钮随状态、整卡一个目的地。",
+   "evidence": [
+    {
+     "kind": "example",
+     "ref": "pages:SRC-003",
+     "note": ""
+    },
+    {
+     "kind": "example",
+     "ref": "pages2:SRC-001",
+     "note": ""
+    },
+    {
+     "kind": "example",
+     "ref": "pages2:SRC-002",
+     "note": ""
+    }
+   ],
+   "confidence": "medium",
+   "tagline": "订单卡：头、商品行、脚",
+   "watch": "状态词一致；按钮随状态变"
+  },
+  {
+   "id": "progress-steps",
+   "name": "进度步骤",
+   "aliases": [],
+   "family": "feedback",
+   "role": "module",
+   "can_be_skeleton": false,
+   "summary": "订单、预约、售后的进度表达：已完成、进行中、接下来三态的步骤条或时间线。",
+   "structure": "横向步骤条（步骤少）或纵向时间线（带最新更新）；当前步骤醒目，异常单独说明。",
+   "params": [
+    {
+     "name": "三态",
+     "value": "进度要显示已完成、正在进行、接下来是什么",
+     "strength": "default",
+     "evidence": [
+      {
+       "kind": "example",
+       "ref": "pages:SRC-008",
+       "note": "Forix 订单追踪，网页场景"
+      }
+     ]
+    },
+    {
+     "name": "主线与旁路",
+     "value": "主线节点之外，取消、售后、异常是旁路；这是由状态机推演，资料没画进度条",
+     "strength": "hint",
+     "evidence": [
+      {
+       "kind": "example",
+       "ref": "pages2:SRC-003",
+       "note": "作者口径的 11 个状态"
+      }
+     ]
+    },
+    {
+     "name": "版式",
+     "value": "外卖进度的步骤条、地图、骑手位置版式资料未覆盖",
+     "strength": "hint",
+     "evidence": [
+      {
+       "kind": "convention",
+       "ref": "convention",
+       "note": "惯例，资料未核对。待样板页验证"
+      }
+     ]
+    }
+   ],
+   "fits": [
+    "food-chain",
+    "ecommerce",
+    "local-booking",
+    "b2b-quote-ticket"
+   ],
+   "avoid": [
+    "用内部状态词",
+    "只给运单号没有轨迹",
+    "异常不解释"
+   ],
+   "components": {
+    "vant4": [
+     "Steps、Progress 仅名称，属性未读"
+    ],
+    "vant-weapp": [
+     "资料未覆盖"
+    ],
+    "tdesign-miniprogram": [
+     "资料未覆盖，样板页验证"
+    ],
+    "weui": [
+     "资料未覆盖，样板页验证"
+    ],
+    "wechat-native": [
+     "资料未覆盖，样板页验证"
+    ]
+   },
+   "perf": [],
+   "combine_with": [
+    "status-card",
+    "action-bar"
+   ],
+   "think": [
+    "这条进度有几个主线节点？异常旁路怎么表达？",
+    "用户看的是“到哪了”还是“还要多久”？",
+    "状态词和通知、客服口径一致吗？"
+   ],
+   "innovation_room": "可以有个性：节点图形、进度动效（尊重减少动态效果）、异常的表达方式。不能碰：三态可辨、异常要解释。",
+   "evidence": [
+    {
+     "kind": "example",
+     "ref": "pages:SRC-008",
+     "note": ""
+    },
+    {
+     "kind": "example",
+     "ref": "pages2:SRC-003",
+     "note": ""
+    },
+    {
+     "kind": "convention",
+     "ref": "convention",
+     "note": "惯例，资料未核对。版式推演自状态机"
+    }
+   ],
+   "confidence": "low",
+   "tagline": "已完成、进行中、接下来的进度",
+   "watch": "异常要解释；版式待验证"
+  },
+  {
+   "id": "countdown-block",
+   "name": "倒计时与进度区",
+   "aliases": [],
+   "family": "feedback",
+   "role": "module",
+   "can_be_skeleton": false,
+   "summary": "秒杀、限时折扣、预约截止处的倒计时加库存进度；有未开始、进行中、已结束、已抢光四态。",
+   "structure": "场次标题、倒计时（HH:mm:ss）、进度条（已抢百分比）、状态按钮；结束后换成结束状态。",
+   "params": [
+    {
+     "name": "有赞限时折扣",
+     "value": "活动专区可展示活动倒计时和抢购进度条，还可配秒杀、拼团、砍价专区",
+     "strength": "hint",
+     "evidence": [
+      {
+       "kind": "rule",
+       "ref": "pages:SRC-004",
+       "note": "有赞平台口径"
+      }
+     ]
+    },
+    {
+     "name": "Vant 4 CountDown",
+     "value": "time 单位毫秒，format 默认 HH:mm:ss，millisecond 默认 false；iOS 日期要写 2020/01/01 而不是 2020-01-01",
+     "strength": "must",
+     "evidence": [
+      {
+       "kind": "rule",
+       "ref": "comp:SRC-021",
+       "note": ""
+      }
+     ]
+    },
+    {
+     "name": "四态界面",
+     "value": "倒计时怎么显示、库存进度条、秒杀价与原价怎么呈现：资料未覆盖",
+     "strength": "hint",
+     "evidence": [
+      {
+       "kind": "convention",
+       "ref": "convention",
+       "note": "惯例，资料未核对。待样板页验证"
+      }
+     ]
+    }
+   ],
+   "fits": [
+    "ecommerce",
+    "food-chain",
+    "course-education"
+   ],
+   "avoid": [
+    "倒计时无结束状态",
+    "同屏多个倒计时抢注意力",
+    "iOS 日期格式写错"
+   ],
+   "components": {
+    "vant4": [
+     "CountDown：time、format、auto-start、millisecond；事件 finish、change；Progress 仅名称"
+    ],
+    "vant-weapp": [
+     "CountDown 仅名称，属性未读"
+    ],
+    "tdesign-miniprogram": [
+     "资料未覆盖，样板页验证"
+    ],
+    "weui": [
+     "资料未覆盖，样板页验证"
+    ],
+    "wechat-native": [
+     "资料未覆盖，样板页验证"
+    ]
+   },
+   "perf": [
+    "毫秒级渲染只在需要时开"
+   ],
+   "combine_with": [
+    "horizontal-scroller",
+    "action-bar"
+   ],
+   "think": [
+    "时间到了之后这个区域变成什么？",
+    "库存进度是真实数据还是氛围？",
+    "同屏有几个倒计时？"
+   ],
+   "innovation_room": "可以有个性：数字块样式、进度条形态、紧张氛围的节制程度。不能碰：四态齐全、真实数据、iOS 兼容。",
+   "evidence": [
+    {
+     "kind": "rule",
+     "ref": "pages:SRC-004",
+     "note": ""
+    },
+    {
+     "kind": "rule",
+     "ref": "comp:SRC-021",
+     "note": ""
+    },
+    {
+     "kind": "example",
+     "ref": "pages2:SRC-007",
+     "note": "营造紧张气氛是明确设计目的"
+    }
+   ],
+   "confidence": "low",
+   "tagline": "倒计时加库存进度",
+   "watch": "四态齐全；苹果系统日期写斜杠格式"
+  },
+  {
+   "id": "coupon-card",
+   "name": "券卡",
+   "aliases": [],
+   "family": "feedback",
+   "role": "module",
+   "can_be_skeleton": false,
+   "summary": "优惠券的卡片形态：面额、门槛、有效期、状态与按钮；领取态和使用态不同。",
+   "structure": "左价值区右内容区，中间虚线与缺口；不可用的灰化并写原因。",
+   "params": [
+    {
+     "name": "Vant 4 Coupon",
+     "value": "CouponCell 默认 title 为优惠券；CouponList 的 chosen-coupon 支持多选；CouponInfo：condition、startAt/endAt 单位秒、value 单位分、reason 为不可用原因",
+     "strength": "must",
+     "evidence": [
+      {
+       "kind": "rule",
+       "ref": "comp:SRC-019",
+       "note": ""
+      }
+     ]
+    },
+    {
+     "name": "有赞优惠券组件",
+     "value": "系统固定样式与颜色可选；要自定义展示样式建议改用魔方或图片广告",
+     "strength": "hint",
+     "evidence": [
+      {
+       "kind": "rule",
+       "ref": "pages:SRC-004",
+       "note": "有赞平台口径"
+      }
+     ]
+    },
+    {
+     "name": "券面样式",
+     "value": "按视觉规范的券面规格",
+     "strength": "default",
+     "evidence": [
+      {
+       "kind": "skill",
+       "ref": "design:visual-design#各端视觉参数",
+       "note": "交易与营销界面：优惠券"
+      }
+     ]
+    }
+   ],
+   "fits": [
+    "ecommerce",
+    "food-chain",
+    "membership-benefits",
+    "local-booking"
+   ],
+   "avoid": [
+    "已领取的券还显示领取按钮",
+    "不可用券不写原因",
+    "领券入口在多处重复"
+   ],
+   "components": {
+    "vant4": [
+     "CouponCell + CouponList（常置于 Popup position=bottom）"
+    ],
+    "vant-weapp": [
+     "目录未见 Coupon 条目"
+    ],
+    "tdesign-miniprogram": [
+     "资料未覆盖，样板页验证"
+    ],
+    "weui": [
+     "资料未覆盖，样板页验证"
+    ],
+    "wechat-native": [
+     "资料未覆盖，样板页验证"
+    ]
+   },
+   "perf": [],
+   "combine_with": [
+    "horizontal-scroller",
+    "action-bar"
+   ],
+   "think": [
+    "这张券有几种状态（可领取、已领取、可使用、已使用、已过期）？每种的按钮是什么？",
+    "券的入口在页面上只有一个吗？",
+    "不可用的券，用户知道为什么不可用吗？"
+   ],
+   "innovation_room": "可以有个性：券面构图与插画、缺口形态。不能碰：状态与按钮对应、不可用要写原因。",
+   "evidence": [
+    {
+     "kind": "rule",
+     "ref": "comp:SRC-019",
+     "note": ""
+    },
+    {
+     "kind": "rule",
+     "ref": "pages:SRC-004",
+     "note": ""
+    },
+    {
+     "kind": "skill",
+     "ref": "design:visual-design#各端视觉参数",
+     "note": ""
+    }
+   ],
+   "confidence": "medium",
+   "tagline": "券卡：面额、门槛、有效期、按钮",
+   "watch": "不可用写原因；领取入口只有一个"
+  },
+  {
+   "id": "result-panel",
+   "name": "结果、空与错误面板",
+   "aliases": [],
+   "family": "feedback",
+   "role": "module",
+   "can_be_skeleton": false,
+   "summary": "流程终结的结果页，以及列表为空、请求失败时的面板：说清发生了什么，给出下一步。",
+   "structure": "插画或图标 + 一句结论 + 一句原因 + 一个主行动（+ 次行动）。",
+   "params": [
+    {
+     "name": "结果反馈分级",
+     "value": "局部操作在原处反馈；页面级结果用弹出提示、模态对话框或结果页；结果页用于流程终结并给下一步指引",
+     "strength": "must",
+     "evidence": [
+      {
+       "kind": "rule",
+       "ref": "comp:SRC-001",
+       "note": ""
+      }
+     ]
+    },
+    {
+     "name": "轻提示时长",
+     "value": "图标型与文字型弹出提示 1.5 秒后自动消失；图标型不适用于错误提示",
+     "strength": "must",
+     "evidence": [
+      {
+       "kind": "rule",
+       "ref": "comp:SRC-001",
+       "note": ""
+      }
+     ]
+    },
+    {
+     "name": "异常",
+     "value": "要给状态提示和解决方案，不能让用户停滞无路可退",
+     "strength": "must",
+     "evidence": [
+      {
+       "kind": "rule",
+       "ref": "comp:SRC-001",
+       "note": ""
+      }
+     ]
+    },
+    {
+     "name": "空状态写法",
+     "value": "写对象和一个行动，例如“还没有订单 · 去点餐”，不只写暂无数据",
+     "strength": "default",
+     "evidence": [
+      {
+       "kind": "skill",
+       "ref": "system:ui-standards",
+       "note": "状态体系"
+      }
+     ]
+    }
+   ],
+   "fits": [
+    "food-chain",
+    "ecommerce",
+    "local-booking",
+    "b2b-quote-ticket",
+    "content-community",
+    "brand-campaign",
+    "enterprise-internal",
+    "course-education",
+    "membership-benefits",
+    "local-life-super-app"
+   ],
+   "avoid": [
+    "只写“出错了”",
+    "空态没有行动",
+    "错误页没有返回路径",
+    "同页多个加载动画"
+   ],
+   "components": {
+    "vant4": [
+     "Empty 仅名称，属性未读"
+    ],
+    "vant-weapp": [
+     "Empty 仅名称，属性未读"
+    ],
+    "tdesign-miniprogram": [
+     "资料未覆盖，样板页验证"
+    ],
+    "weui": [
+     "资料未覆盖，样板页验证"
+    ],
+    "wechat-native": [
+     "结果页与弹出提示、模态对话框见设计指南；wx.showToast 等接口资料未覆盖"
+    ]
+   },
+   "perf": [],
+   "combine_with": [
+    "action-bar"
+   ],
+   "think": [
+    "这是一个终点（结果页）还是一个局部状态？",
+    "用户下一步该做什么，我给了吗？",
+    "失败时数据和输入保留了吗？"
+   ],
+   "innovation_room": "可以有个性：插画风格与语气。不能碰：下一步行动、错误要给原因与恢复入口。",
+   "evidence": [
+    {
+     "kind": "rule",
+     "ref": "comp:SRC-001",
+     "note": ""
+    },
+    {
+     "kind": "skill",
+     "ref": "system:ui-standards#状态体系",
+     "note": ""
+    }
+   ],
+   "confidence": "high",
+   "tagline": "结果、空态、错误面板",
+   "watch": "必须给下一步；错误给原因"
+  },
+  {
+   "id": "filter-bar",
+   "name": "筛选与排序条",
+   "aliases": [],
+   "family": "navigation",
+   "role": "module",
+   "can_be_skeleton": false,
+   "summary": "商品或内容列表上的筛选、排序、视图切换：把列表呈现、筛选、排序三者一起设计。",
+   "structure": "吸顶的一行：排序、筛选入口、可选的视图（网格或列表）切换；已选条件以标签显示。",
+   "params": [
+    {
+     "name": "一起设计",
+     "value": "列表呈现、筛选、排序一起做，链条不比最弱一环更强",
+     "strength": "must",
+     "evidence": [
+      {
+       "kind": "rule",
+       "ref": "pages:SRC-007",
+       "note": "Baymard 概览页，细则付费未抓到"
+      }
+     ]
+    },
+    {
+     "name": "十个主题",
+     "value": "列表布局、商品加载、列表项信息、列表项点击区域、个性化、可用筛选项、筛选范围与逻辑、筛选界面与布局、排序、对比工具",
+     "strength": "hint",
+     "evidence": [
+      {
+       "kind": "rule",
+       "ref": "pages:SRC-007",
+       "note": ""
+      }
+     ]
+    },
+    {
+     "name": "手机上的取值",
+     "value": "手机或小程序上的列数、每屏数量、筛选用抽屉还是下拉、默认排序：资料未覆盖",
+     "strength": "hint",
+     "evidence": [
+      {
+       "kind": "convention",
+       "ref": "convention",
+       "note": "惯例，资料未核对。待样板页验证"
+      }
+     ]
+    }
+   ],
+   "fits": [
+    "ecommerce",
+    "food-chain",
+    "course-education",
+    "local-booking"
+   ],
+   "avoid": [
+    "筛选项做成分类范围",
+    "同类型筛选值不允许多选",
+    "排序默认用字母序"
+   ],
+   "components": {
+    "vant4": [
+     "DropdownMenu 仅名称"
+    ],
+    "vant-weapp": [
+     "DropdownMenu 仅名称"
+    ],
+    "tdesign-miniprogram": [
+     "资料未覆盖，样板页验证"
+    ],
+    "weui": [
+     "资料未覆盖，样板页验证"
+    ],
+    "wechat-native": [
+     "资料未覆盖，样板页验证"
+    ]
+   },
+   "perf": [],
+   "combine_with": [
+    "search-header",
+    "single-column-list",
+    "two-column-card-grid"
+   ],
+   "think": [
+    "用户筛选最常用的是哪两三项？",
+    "已选条件在哪里看、怎么清除？",
+    "默认排序服务于谁的目的？"
+   ],
+   "innovation_room": "可以有个性：筛选交互（抽屉、下拉、胶囊）、已选标签样式。不能碰：同时设计排序与筛选、已选可见可清除。",
+   "evidence": [
+    {
+     "kind": "rule",
+     "ref": "pages:SRC-007",
+     "note": ""
+    }
+   ],
+   "confidence": "low",
+   "tagline": "筛选与排序条",
+   "watch": "排序与筛选一起设计；已选可清除"
+  }
+ ],
+ "app_types": [
+  {
+   "id": "food-chain",
+   "name": "点餐与连锁门店",
+   "examples": "咖啡茶饮、快餐、烘焙连锁、外卖自营小程序",
+   "tab_bar": {
+    "count_hint": "3–5（常见 4）",
+    "typical": [
+     "首页",
+     "点单",
+     "订单",
+     "我的"
+    ],
+    "note": ""
+   },
+   "home": {
+    "skeleton": "modular-sections",
+    "modules": [
+     "search-header",
+     "status-card",
+     "banner-carousel",
+     "horizontal-scroller",
+     "feed"
+    ],
+    "optional": [
+     "status-card",
+     "horizontal-scroller",
+     "feed"
+    ],
+    "first_screen_max": 4,
+    "dock_policy": "optional",
+    "notes": "顶部上下文栏放门店、自提或外卖切换、定位；点单是标签时首页不再放点单入口，由进行中订单状态卡承接回访，营销用轮播加横滑专场（同屏不超过 2 个模块），推荐商品放信息流。入口只有 1–4 个并列业务时用入口大卡而不是宫格。"
+   },
+   "avoid": [
+    "金刚区放会员、券、门店切换",
+    "首页再做一个“去点单”入口（它已是标签）",
+    "瀑布流（商品需要比较价格）",
+    "便当网格作首页骨架"
+   ],
+   "variations": [
+    "首页就是点单页（品牌小店、单一品类）：首页换成侧边分类加商品列表，标签栏少一项，写偏离说明",
+    "外卖为主：上下文栏的配送信息更突出，先回答送得到吗、多久、起送价、配送费（作者经验口径，无数据）",
+    "多品牌或团餐场景：入口多于 4 个且并列时才用金刚栅格"
+   ],
+   "evidence": [
+    {
+     "kind": "example",
+     "ref": "home:SRC-003",
+     "note": "瑞幸三方还原的模块清单：定位栏、搜索栏、轮播、宫格、券横滑、活动卡、公告栏"
+    },
+    {
+     "kind": "example",
+     "ref": "home:SRC-004",
+     "note": "星巴克工程贴，低可信，仅作模块顺序线索"
+    },
+    {
+     "kind": "example",
+     "ref": "pages2:SRC-003",
+     "note": "外卖首屏先答送得到吗、多久到、起送价、配送费，单人口径无数据"
+    },
+    {
+     "kind": "skill",
+     "ref": "system:ui-standards",
+     "note": ""
+    }
+   ],
+   "confidence": "medium",
+   "short_name": "点餐"
+  },
+  {
+   "id": "ecommerce",
+   "name": "电商商城",
+   "examples": "综合商城、品牌自营商城、社区团购、跨店铺商城",
+   "tab_bar": {
+    "count_hint": "4–5（常见 4）",
+    "typical": [
+     "首页",
+     "分类",
+     "购物车",
+     "我的"
+    ],
+    "note": ""
+   },
+   "home": {
+    "skeleton": "modular-sections",
+    "modules": [
+     "search-header",
+     "banner-carousel",
+     "dock-grid",
+     "horizontal-scroller",
+     "two-column-card-grid"
+    ],
+    "optional": [
+     "dock-grid",
+     "horizontal-scroller"
+    ],
+    "first_screen_max": 4,
+    "dock_policy": "optional",
+    "notes": "搜索常驻顶部；轮播给大促与品牌；金刚区放品类或频道快捷入口，目的地是带参数的列表页，不是“分类”标签本身；秒杀等活动用横滑专场；信息流用双列卡片（卡片高度差异大再用瀑布流）。订单、收藏、券、地址全部归我的。"
+   },
+   "avoid": [
+    "把分类标签再做成金刚入口",
+    "金刚区放全部订单、优惠券、收藏",
+    "轮播与金刚指向同一活动",
+    "营销模块超过 2 个"
+   ],
+   "variations": [
+    "以内容种草为主：改用顶部标签加瀑布流，金刚区缩减",
+    "单品牌店铺：金刚区常不到 5 个，用入口大卡",
+    "大促期：营销模块由后台开关，仍不超过 2 个"
+   ],
+   "evidence": [
+    {
+     "kind": "example",
+     "ref": "home:SRC-013",
+     "note": "电商指南：标签栏首页、分类、购物车、个人中心；首页 swiper 加商品列表，低可信"
+    },
+    {
+     "kind": "example",
+     "ref": "pages2:SRC-010",
+     "note": "电商行：底部标签加醒目搜索，大促时会拥挤"
+    },
+    {
+     "kind": "skill",
+     "ref": "system:ui-standards",
+     "note": ""
+    }
+   ],
+   "confidence": "medium",
+   "short_name": "电商"
+  },
+  {
+   "id": "local-booking",
+   "name": "到店服务与预约",
+   "examples": "美容美发、健身房、洗车、家政、体检、教培到店",
+   "tab_bar": {
+    "count_hint": "3–4",
+    "typical": [
+     "首页",
+     "预约",
+     "订单",
+     "我的"
+    ],
+    "note": ""
+   },
+   "home": {
+    "skeleton": "modular-sections",
+    "modules": [
+     "search-header",
+     "status-card",
+     "banner-carousel",
+     "dock-grid",
+     "horizontal-scroller"
+    ],
+    "optional": [
+     "status-card",
+     "dock-grid",
+     "horizontal-scroller"
+    ],
+    "first_screen_max": 4,
+    "dock_policy": "optional",
+    "notes": "上下文栏放门店；状态卡承接“我的预约、下一次到店、会员卡剩余次数”；服务项目并列且多于 4 个时用金刚栅格，否则用入口大卡；技师与案例用横滑；预约是标签时首页不重复预约入口。"
+   },
+   "avoid": [
+    "预约入口既是标签又是金刚",
+    "把会员卡、权益做成宫格入口",
+    "营销占满首屏"
+   ],
+   "variations": [
+    "单门店：没有上下文栏，门店信息做成汇总卡加一行“门店详情”",
+    "多门店连锁：上下文栏必有，状态卡显示最近一次预约的门店",
+    "预约类资料未覆盖，样板页验证"
+   ],
+   "evidence": [
+    {
+     "kind": "skill",
+     "ref": "system:ui-standards",
+     "note": "核心功能例子：健身房购卡与续卡、刷脸入场、门店卡；门店卡只做汇总"
+    },
+    {
+     "kind": "example",
+     "ref": "pages2:SRC-009",
+     "note": "预约详情页突出一个下一步操作，主次拉开层级"
+    },
+    {
+     "kind": "convention",
+     "ref": "convention",
+     "note": "惯例，资料未核对。预约类首页组合无外部资料"
+    }
+   ],
+   "confidence": "low",
+   "short_name": "预约"
+  },
+  {
+   "id": "b2b-quote-ticket",
+   "name": "工具与报价工单（B 端服务）",
+   "examples": "报价、报修、工单、订货、对账、巡检等面向企业客户或服务人员的工具",
+   "tab_bar": {
+    "count_hint": "3–4",
+    "typical": [
+     "工作台",
+     "工单",
+     "消息",
+     "我的"
+    ],
+    "note": ""
+   },
+   "home": {
+    "skeleton": "modular-sections",
+    "modules": [
+     "notice-bar",
+     "workbench",
+     "status-card",
+     "single-column-list"
+    ],
+    "optional": [
+     "notice-bar",
+     "status-card"
+    ],
+    "first_screen_max": 3,
+    "dock_policy": "avoid",
+    "notes": "首页就是工作台：待办在最前，其后是进行中工单状态卡与关键指标，快捷操作不超过 8 个且不含标签栏已有项；没有营销与信息流；公告只写运营消息。"
+   },
+   "avoid": [
+    "营销轮播与信息流",
+    "金刚区凑满",
+    "指标不绑定周期与下一步",
+    "把我的里的账号与设置做成快捷操作"
+   ],
+   "variations": [
+    "客户侧小程序（下单报价）：首页一个主入口加进行中工单状态卡",
+    "服务人员侧：待办按优先级排序，零待办显示已清空",
+    "角色不同时工作台模块不同"
+   ],
+   "evidence": [
+    {
+     "kind": "example",
+     "ref": "home:SRC-012",
+     "note": "任务型 App：按时间或优先级分组、需要行动与已观察分开、零计数也显示"
+    },
+    {
+     "kind": "convention",
+     "ref": "convention",
+     "note": "惯例，资料未核对。小程序工作台版式资料未覆盖"
+    }
+   ],
+   "confidence": "low",
+   "short_name": "工单"
+  },
+  {
+   "id": "content-community",
+   "name": "内容与社区",
+   "examples": "资讯、种草、社区、短视频、阅读",
+   "tab_bar": {
+    "count_hint": "4–5",
+    "typical": [
+     "首页",
+     "发现",
+     "发布",
+     "消息",
+     "我的"
+    ],
+    "note": ""
+   },
+   "home": {
+    "skeleton": "modular-sections",
+    "modules": [
+     "search-header",
+     "top-tabs",
+     "masonry"
+    ],
+    "optional": [],
+    "first_screen_max": 3,
+    "dock_policy": "avoid",
+    "notes": "首页就是信息流：顶部搜索，标题下用顶部标签切换（关注、推荐、同城等同一数据集的视图），主体是双列卡片或瀑布流；要有搜索、话题或分类作为逃出信息流的途径；不放金刚区和营销轮播，除非是运营位。"
+   },
+   "avoid": [
+    "金刚区",
+    "大量营销位",
+    "让信息流成为整个信息架构（缺搜索与持久导航）",
+    "瀑布流不确认基础库与渲染框架"
+   ],
+   "variations": [
+    "图片比例统一：改用等高双列卡片",
+    "文章与资讯为主：单列纵向列表加图文卡",
+    "中央发布按钮是否计入标签栏项数文章未说清，按 5 项上限保守计入"
+   ],
+   "evidence": [
+    {
+     "kind": "rule",
+     "ref": "home:SRC-011",
+     "note": "Feed 布局"
+    },
+    {
+     "kind": "example",
+     "ref": "home:SRC-012",
+     "note": "发现类首页：个性化标签加明示信号、搜索、分类"
+    },
+    {
+     "kind": "rule",
+     "ref": "home:SRC-014",
+     "note": "瀑布流约束"
+    },
+    {
+     "kind": "example",
+     "ref": "pages2:SRC-010",
+     "note": "底部标签对应一级目的地，标题下顶部标签对应同一应用的内容分类"
+    }
+   ],
+   "confidence": "medium",
+   "short_name": "内容"
+  },
+  {
+   "id": "brand-campaign",
+   "name": "品牌展示与活动落地",
+   "examples": "品牌宣传、新品发布、展会、节日活动、招商",
+   "tab_bar": {
+    "count_hint": "0–3（多为 1–2）",
+    "typical": [
+     "首页",
+     "活动",
+     "我的"
+    ],
+    "note": ""
+   },
+   "home": {
+    "skeleton": "modular-sections",
+    "modules": [
+     "immersive-hero",
+     "modular-sections",
+     "horizontal-scroller"
+    ],
+    "optional": [
+     "horizontal-scroller"
+    ],
+    "first_screen_max": 4,
+    "dock_policy": "avoid",
+    "notes": "首屏用沉浸式大图或主视觉，给一个明确行动；之后按故事线排段：品牌理念、产品或活动、门店或联系、再次行动；不做金刚栅格；便当网格可作产品卡片区的局部（手机降单列或双列）。"
+   },
+   "avoid": [
+    "金刚区",
+    "信息流",
+    "便当网格作整体骨架",
+    "大图里写必须读的文字"
+   ],
+   "variations": [
+    "活动落地单页：没有标签栏，顶部只有胶囊",
+    "常驻品牌号：标签栏 2–3 项即可"
+   ],
+   "evidence": [
+    {
+     "kind": "rule",
+     "ref": "comp:SRC-001",
+     "note": "胶囊避让"
+    },
+    {
+     "kind": "rule",
+     "ref": "pages:SRC-004",
+     "note": "有赞微页面可拼装的模块清单，有赞平台口径"
+    },
+    {
+     "kind": "user",
+     "ref": "user:2026-11-04",
+     "note": "全屏大图与沉浸式海报"
+    },
+    {
+     "kind": "convention",
+     "ref": "convention",
+     "note": "惯例，资料未核对。品牌类首页组合资料未覆盖，沉浸式资料未覆盖"
+    }
+   ],
+   "confidence": "low",
+   "short_name": "品牌"
+  },
+  {
+   "id": "enterprise-internal",
+   "name": "企业内部（报餐、审批类）",
+   "examples": "员工报餐、审批、考勤、报修、访客、会议室",
+   "tab_bar": {
+    "count_hint": "2–4",
+    "typical": [
+     "首页",
+     "订单",
+     "我的"
+    ],
+    "note": ""
+   },
+   "home": {
+    "skeleton": "modular-sections",
+    "modules": [
+     "notice-bar",
+     "status-card",
+     "entry-cards",
+     "single-column-list"
+    ],
+    "optional": [
+     "notice-bar",
+     "single-column-list"
+    ],
+    "first_screen_max": 3,
+    "dock_policy": "avoid",
+    "notes": "首页就是今天要办的事：状态卡承接今日已办或待办与截止倒计时；核心入口只有 1–4 个，用入口大卡，不用宫格；最近记录用单列列表；公告只写通知；没有营销轮播、信息流与金刚区。"
+   },
+   "avoid": [
+    "营销位",
+    "信息流",
+    "金刚栅格",
+    "把订单标签再做一个首页入口",
+    "装饰性大图"
+   ],
+   "variations": [
+    "多角色（员工、企业管理员、核销员）：按角色换首页模块，不把后台功能塞进小程序首页",
+    "截止前后换内容：截止后状态卡由“去报餐”变为“已截止”"
+   ],
+   "evidence": [
+    {
+     "kind": "example",
+     "ref": "home:SRC-012",
+     "note": "首页是路由决策：第一个模块回答最可能要做的事；首次使用的教学卡有真实内容后移除"
+    },
+    {
+     "kind": "skill",
+     "ref": "system:ui-standards",
+     "note": ""
+    },
+    {
+     "kind": "convention",
+     "ref": "convention",
+     "note": "惯例，资料未核对。企业内部类首页资料未覆盖"
+    }
+   ],
+   "confidence": "low",
+   "short_name": "内部"
+  },
+  {
+   "id": "course-education",
+   "name": "课程与教育",
+   "examples": "网课、培训机构、早教、学习打卡",
+   "tab_bar": {
+    "count_hint": "4（常见）",
+    "typical": [
+     "首页",
+     "课程",
+     "学习",
+     "我的"
+    ],
+    "note": ""
+   },
+   "home": {
+    "skeleton": "modular-sections",
+    "modules": [
+     "search-header",
+     "banner-carousel",
+     "status-card",
+     "dock-grid",
+     "horizontal-scroller",
+     "two-column-card-grid"
+    ],
+    "optional": [
+     "status-card",
+     "dock-grid"
+    ],
+    "first_screen_max": 4,
+    "dock_policy": "optional",
+    "notes": "回访用户首屏是“继续学习”状态卡（对象、当前单元、进度、继续动作）；新用户首屏是分类或学科入口；名师与班型用横滑；课程信息流用双列卡片；报名表单放在课程详情页内而不是首页。"
+   },
+   "avoid": [
+    "金刚区放我的课程、学习记录（它们是标签或我的）",
+    "营销占满首屏",
+    "先放推荐再放继续学习（回访用户）"
+   ],
+   "variations": [
+    "新用户与回访用户首屏不同：状态卡有内容才出现",
+    "教培机构展示型：改用品牌展示与课程卡片加报名表单"
+   ],
+   "evidence": [
+    {
+     "kind": "example",
+     "ref": "home:SRC-012",
+     "note": "Brilliant 首页中央是继续上次的课卡，推荐在其下"
+    },
+    {
+     "kind": "rule",
+     "ref": "pages:SRC-004",
+     "note": "有赞教育组件：课程、老师、报名表单；有赞平台口径"
+    }
+   ],
+   "confidence": "medium",
+   "short_name": "教育"
+  },
+  {
+   "id": "membership-benefits",
+   "name": "会员与权益型",
+   "examples": "会员制零售、健身房、美容院、连锁会员卡、积分商城",
+   "tab_bar": {
+    "count_hint": "3–4",
+    "typical": [
+     "首页",
+     "权益",
+     "订单",
+     "我的"
+    ],
+    "note": ""
+   },
+   "home": {
+    "skeleton": "modular-sections",
+    "modules": [
+     "member-card-hero",
+     "dock-grid",
+     "banner-carousel",
+     "horizontal-scroller"
+    ],
+    "optional": [
+     "dock-grid",
+     "horizontal-scroller"
+    ],
+    "first_screen_max": 4,
+    "dock_policy": "optional",
+    "notes": "首屏是会员卡主卡（状态摘要，不另设入口：等级、余量、到期、成长进度挑最重要的一两项），其下才是并列的核心业务（购卡、续卡、预约、核销，多于 4 个时用金刚栅格）；权益详情、积分、储值、券的入口归我的或权益标签；会员日活动用轮播或横滑，一个位置。"
+   },
+   "avoid": [
+    "会员、积分、储值、券各做一个金刚入口",
+    "主卡之外再放“我的会员”入口",
+    "把权益列表平铺在首页"
+   ],
+   "variations": [
+    "会员体系是核心功能（健身房类）：购卡与续卡属于核心任务，可进首页核心位",
+    "没有开通会员的用户：主卡变为开通引导",
+    "权益多的品牌：权益作为标签页，首页只留主卡与会员日"
+   ],
+   "evidence": [
+    {
+     "kind": "skill",
+     "ref": "system:ui-standards",
+     "note": "账户与个人资产归我的、首页最多一条状态摘要；核心功能例子含购卡与续卡"
+    },
+    {
+     "kind": "example",
+     "ref": "home:SRC-003",
+     "note": "LevelCard 与 MembershipPlan"
+    },
+    {
+     "kind": "convention",
+     "ref": "convention",
+     "note": "惯例，资料未核对。会员型首页组合资料未覆盖"
+    }
+   ],
+   "confidence": "low",
+   "short_name": "会员"
+  },
+  {
+   "id": "local-life-super-app",
+   "name": "本地生活超级应用",
+   "examples": "美团、饿了么一类聚合多业务的平台",
+   "tab_bar": {
+    "count_hint": "资料未覆盖",
+    "typical": [
+     "首页",
+     "资料未覆盖",
+     "订单",
+     "我的"
+    ],
+    "note": ""
+   },
+   "home": {
+    "skeleton": "modular-sections",
+    "modules": [
+     "search-header",
+     "dock-grid",
+     "banner-carousel",
+     "horizontal-scroller",
+     "feed"
+    ],
+    "optional": [
+     "horizontal-scroller"
+    ],
+    "first_screen_max": 4,
+    "dock_policy": "optional",
+    "notes": "资料只有二手评述：顶部搜索醒目，首页长期固定的功能入口用网格，更新频繁的内容页用线性布局；用户反馈的痛点是广告过多、功能过于密集、界面复杂，建议可自定义首页或精简导航。标签栏项数、名称与首页区块顺序资料未覆盖。"
+   },
+   "avoid": [
+    "为了容纳多业务把所有入口堆进一屏",
+    "营销与广告占满首屏",
+    "同一业务在宫格、标签、卡片各出现一次"
+   ],
+   "variations": [
+    "入口很多时优先让用户自定义或按使用频次排序；金刚栅格最多 3 页，且每页满格",
+    "标签栏项数与区块顺序待样板页验证"
+   ],
+   "evidence": [
+    {
+     "kind": "example",
+     "ref": "pages2:SRC-004",
+     "note": "二手评述，低可信：网格放固定入口、线性放频繁更新内容；用户抱怨广告多、功能密集"
+    },
+    {
+     "kind": "example",
+     "ref": "pages2:SRC-003",
+     "note": "外卖首屏先答送得到吗、多久到"
+    },
+    {
+     "kind": "convention",
+     "ref": "convention",
+     "note": "惯例，资料未核对。超级应用结构资料未覆盖"
+    }
+   ],
+   "confidence": "low",
+   "short_name": "聚合"
+  }
+ ],
+ "entry_zones": [
+  {
+   "id": "header-context",
+   "name": "顶部上下文栏",
+   "allowed_function_types": [
+    "context"
+   ],
+   "caps": {
+    "items_max": 3,
+    "rows": 1
+   },
+   "rules": [
+    "context-in-header-only"
+   ],
+   "notes": "一行：当前门店或自提点、配送方式切换、定位；避让右上角胶囊。上限 3 项是本技能取值。"
+  },
+  {
+   "id": "search",
+   "name": "搜索",
+   "allowed_function_types": [
+    "search"
+   ],
+   "caps": {
+    "count": 1
+   },
+   "rules": [
+    "search-top-not-dock"
+   ],
+   "notes": "顶部搜索框，或所属列表页内；不占金刚区。"
+  },
+  {
+   "id": "banner",
+   "name": "轮播与主视觉",
+   "allowed_function_types": [
+    "marketing",
+    "content"
+   ],
+   "caps": {
+    "modules": 1,
+    "frames_max": 3
+   },
+   "rules": [
+    "carousel-frames-and-pause",
+    "one-activity-one-place",
+    "marketing-max-two"
+   ],
+   "notes": "每帧一个目的地；不用轮播堆叠多个活动。"
+  },
+  {
+   "id": "dock",
+   "name": "金刚区",
+   "allowed_function_types": [
+    "task"
+   ],
+   "caps": {
+    "items_min": 5,
+    "items_max": 10,
+    "pages_max": 3
+   },
+   "rules": [
+    "dock-core-parallel-only",
+    "dock-no-tabbar-dup",
+    "dock-layout-by-formula",
+    "dock-count-cap",
+    "no-fill-dock"
+   ],
+   "notes": "只放并列的高频核心业务；列数行数由 dock_grid 推导。"
+  },
+  {
+   "id": "status-card",
+   "name": "状态卡",
+   "allowed_function_types": [
+    "status",
+    "order",
+    "account"
+   ],
+   "caps": {
+    "cards_max": 2,
+    "account_summary_max": 1
+   },
+   "rules": [
+    "order-home-state-card-only",
+    "account-in-mine-only",
+    "status-card-latest-only"
+   ],
+   "notes": "订单只以“进行中状态卡”出现；账户类至多一条状态摘要且不另设入口；只显示进行中的一条。"
+  },
+  {
+   "id": "marketing",
+   "name": "营销位",
+   "allowed_function_types": [
+    "marketing"
+   ],
+   "caps": {
+    "modules_with_banner_max": 2,
+    "scroller_items_max": 6
+   },
+   "rules": [
+    "marketing-max-two",
+    "one-activity-one-place",
+    "horizontal-scroller-visible-alt"
+   ],
+   "notes": "券、专场、秒杀的横滑或卡片；同屏与轮播合计不超过 2 个模块。"
+  },
+  {
+   "id": "feed",
+   "name": "内容与公告区",
+   "allowed_function_types": [
+    "content"
+   ],
+   "caps": {
+    "feed_modules": 1,
+    "notice_bar_max": 1
+   },
+   "rules": [
+    "notice-bar-ops-only",
+    "feed-visible-reason-and-escape"
+   ],
+   "notes": "公告栏与信息流；信息流放最后。"
+  },
+  {
+   "id": "tabbar",
+   "name": "底部标签栏",
+   "allowed_function_types": [
+    "task",
+    "order",
+    "content",
+    "account"
+   ],
+   "caps": {
+    "items_min": 2,
+    "items_max": 5,
+    "items_suggest_max": 4
+   },
+   "rules": [
+    "tabbar-count-2-to-5",
+    "tabbar-prefer-4",
+    "tabs-one-group-per-page"
+   ],
+   "notes": "标签栏项数与名称由 System 决定；其目的地首页与金刚区不再重复。account 指“我的”标签本身。"
+  },
+  {
+   "id": "mine-list",
+   "name": "我的页列表",
+   "allowed_function_types": [
+    "account",
+    "tool",
+    "order"
+   ],
+   "caps": {},
+   "rules": [
+    "account-in-mine-only",
+    "tool-in-mine-or-inpage",
+    "order-entries-same-page-with-param"
+   ],
+   "notes": "账户、个人资产、低频工具与合规的唯一家；订单可有订单卡。"
+  },
+  {
+   "id": "in-page",
+   "name": "页内入口",
+   "allowed_function_types": [
+    "task",
+    "tool",
+    "status",
+    "order"
+   ],
+   "caps": {},
+   "rules": [
+    "one-destination-once"
+   ],
+   "notes": "所属页面里的入口，如详情页底栏、列表行操作；列表每行的逐行操作不算重复。"
+  }
+ ],
+ "function_types": [
+  {
+   "id": "context",
+   "name": "全局上下文",
+   "examples": "选择门店、同城配送与到店自提切换、当前位置、城市",
+   "default_zone": "header-context",
+   "home": "只在顶部上下文栏",
+   "dock_allowed": false,
+   "note": "其他页沿用，不另设入口",
+   "evidence": [
+    {
+     "kind": "skill",
+     "ref": "system:ui-standards#功能类型的默认入口位置",
+     "note": "Luz-System 默认入口位置表的一行"
+    }
+   ]
+  },
+  {
+   "id": "search",
+   "name": "搜索",
+   "examples": "搜索商品、搜索课程",
+   "default_zone": "search",
+   "home": "顶部搜索框，或所属列表页内",
+   "dock_allowed": false,
+   "note": "",
+   "evidence": [
+    {
+     "kind": "skill",
+     "ref": "system:ui-standards#功能类型的默认入口位置",
+     "note": "Luz-System 默认入口位置表的一行"
+    }
+   ]
+  },
+  {
+   "id": "task",
+   "name": "核心任务",
+   "examples": "点餐、预约、购卡、报价、报修",
+   "default_zone": "tabbar",
+   "home": "底部标签，或首页核心位；已是底部标签的首页不再重复",
+   "dock_allowed": true,
+   "note": "多个并列的高频业务才用宫格",
+   "evidence": [
+    {
+     "kind": "skill",
+     "ref": "system:ui-standards#功能类型的默认入口位置",
+     "note": "Luz-System 默认入口位置表的一行"
+    }
+   ]
+  },
+  {
+   "id": "status",
+   "name": "状态与待办",
+   "examples": "进行中订单、取餐码、会员卡剩余次数、待处理工单",
+   "default_zone": "status-card",
+   "home": "首页状态卡或所属标签；只展示进行中的那一条",
+   "dock_allowed": false,
+   "note": "点进具体详情",
+   "evidence": [
+    {
+     "kind": "skill",
+     "ref": "system:ui-standards#功能类型的默认入口位置",
+     "note": "Luz-System 默认入口位置表的一行"
+    }
+   ]
+  },
+  {
+   "id": "account",
+   "name": "账户与个人资产",
+   "examples": "会员与等级权益、收藏、优惠券钱包、积分、储值、地址、发票、设置、协议、联系客服",
+   "default_zone": "mine-list",
+   "home": "不进首页宫格；首页最多一条状态摘要且不另设入口",
+   "dock_allowed": false,
+   "note": "",
+   "evidence": [
+    {
+     "kind": "skill",
+     "ref": "system:ui-standards#功能类型的默认入口位置",
+     "note": "Luz-System 默认入口位置表的一行"
+    }
+   ]
+  },
+  {
+   "id": "order",
+   "name": "订单",
+   "examples": "全部订单、待付款、待收货、售后",
+   "default_zone": "tabbar",
+   "home": "订单标签，或我的里的订单卡；首页只出进行中订单的状态卡",
+   "dock_allowed": false,
+   "note": "",
+   "evidence": [
+    {
+     "kind": "skill",
+     "ref": "system:ui-standards#功能类型的默认入口位置",
+     "note": "Luz-System 默认入口位置表的一行"
+    }
+   ]
+  },
+  {
+   "id": "marketing",
+   "name": "营销",
+   "examples": "新人礼券、限时折扣、拼团、抽奖、领券中心",
+   "default_zone": "marketing",
+   "home": "首页营销位，同一活动只占一个位置，同屏不超过 2 个模块；用轮播、专场或卡片承载",
+   "dock_allowed": false,
+   "note": "",
+   "evidence": [
+    {
+     "kind": "skill",
+     "ref": "system:ui-standards#功能类型的默认入口位置",
+     "note": "Luz-System 默认入口位置表的一行"
+    }
+   ]
+  },
+  {
+   "id": "content",
+   "name": "内容与公告",
+   "examples": "门店公告、上新、攻略",
+   "default_zone": "feed",
+   "home": "首页公告栏、信息流，或内容标签",
+   "dock_allowed": false,
+   "note": "",
+   "evidence": [
+    {
+     "kind": "skill",
+     "ref": "system:ui-standards#功能类型的默认入口位置",
+     "note": "Luz-System 默认入口位置表的一行"
+    }
+   ]
+  },
+  {
+   "id": "tool",
+   "name": "低频工具与合规",
+   "examples": "发票抬头、隐私设置、意见反馈",
+   "default_zone": "mine-list",
+   "home": "我的里的列表行或二级页",
+   "dock_allowed": false,
+   "note": "",
+   "evidence": [
+    {
+     "kind": "skill",
+     "ref": "system:ui-standards#功能类型的默认入口位置",
+     "note": "Luz-System 默认入口位置表的一行"
+    }
+   ]
+  }
+ ],
+ "pages": [
+  {
+   "id": "home",
+   "name": "首页",
+   "applies_to": [
+    "food-chain",
+    "ecommerce",
+    "local-booking",
+    "b2b-quote-ticket",
+    "content-community",
+    "brand-campaign",
+    "enterprise-internal",
+    "course-education",
+    "membership-benefits",
+    "local-life-super-app"
+   ],
+   "purpose": "回答“用户此刻回来最可能做的事”，并让其余目的地保持可达但不互相竞争；是路由决策，不是功能清单。",
+   "blocks": [
+    {
+     "id": "header",
+     "paradigm": "search-header",
+     "required": true,
+     "order": 1,
+     "components": {},
+     "notes": "上下文栏（门店、配送方式、定位）加搜索；没有这两类功能就不出现这一块；避让胶囊。"
+    },
+    {
+     "id": "notice",
+     "paradigm": "notice-bar",
+     "required": false,
+     "order": 2,
+     "components": {},
+     "notes": "只有运营消息时才出现；不复述下方活动。"
+    },
+    {
+     "id": "status",
+     "paradigm": "status-card",
+     "required": false,
+     "order": 3,
+     "components": {},
+     "notes": "有进行中的订单、取餐码、预约、待办时才出现；只显示最紧急的一条；有它时它排在轮播之前，因为它回答回访用户要做的事。"
+    },
+    {
+     "id": "banner",
+     "paradigm": "banner-carousel",
+     "required": false,
+     "order": 4,
+     "components": {},
+     "notes": "主活动或品牌主视觉，不超过 3 帧，每帧目的地唯一。"
+    },
+    {
+     "id": "entries",
+     "paradigm": "dock-grid",
+     "required": false,
+     "order": 5,
+     "components": {
+      "vant4": "Grid / GridItem",
+      "vant-weapp": "van-grid / van-grid-item"
+     },
+     "notes": "并列高频核心业务不少于 5 个才用金刚栅格；1–4 个用入口大卡；标签栏已有的不重复。"
+    },
+    {
+     "id": "marketing",
+     "paradigm": "horizontal-scroller",
+     "required": false,
+     "order": 6,
+     "components": {},
+     "notes": "券、专场、秒杀的横滑；与轮播合计同屏不超过 2 个营销模块。"
+    },
+    {
+     "id": "content",
+     "paradigm": "feed",
+     "required": false,
+     "order": 7,
+     "components": {},
+     "notes": "推荐或内容流，放最后；双列卡片或瀑布流视内容而定。"
+    }
+   ],
+   "choose_rules": [
+    {
+     "when": "核心任务已经是底部标签",
+     "then": "首页不再放它的入口，用状态卡、营销与推荐承接",
+     "strength": "must"
+    },
+    {
+     "when": "并列高频核心业务不少于 5 个",
+     "then": "金刚栅格，列数行数由 dock_grid 推导",
+     "strength": "default"
+    },
+    {
+     "when": "并列高频核心业务 1–4 个",
+     "then": "入口大卡，不硬凑宫格",
+     "strength": "default"
+    },
+    {
+     "when": "用户有进行中的事",
+     "then": "状态卡排到轮播之前",
+     "strength": "default"
+    },
+    {
+     "when": "商品或内容很多且要浏览",
+     "then": "信息流（图片比例各异用瀑布流，要比较价格用等高双列）",
+     "strength": "default"
+    },
+    {
+     "when": "页面是品牌或活动展示",
+     "then": "沉浸式大图加分段模块，不做金刚区",
+     "strength": "default"
+    },
+    {
+     "when": "内容型产品",
+     "then": "标题下顶部标签加信息流，不做金刚区",
+     "strength": "default"
+    }
+   ],
+   "dedup_rules": [
+    "同一目的地一页只出现一次，含轮播、金刚、卡片、悬浮按钮、标签栏",
+    "门店、配送方式、定位只在上下文栏",
+    "会员、收藏、券、积分、地址、设置、客服只在我的，首页最多一条状态摘要且不另设入口",
+    "订单只出进行中状态卡",
+    "营销同屏不超过 2 个模块，同一活动一个位置"
+   ],
+   "states": {
+    "loading": "各模块独立骨架，形状与真实内容一致；顶部栏先出",
+    "empty": "无进行中事项则状态卡不出现；无活动则营销模块不出现；整页无内容才出现空态面板",
+    "error": "模块级失败原位显示重试，不拖垮整页",
+    "other": "新用户、回访、空数据、过载、被阻塞六种账号状态各评审一次，记录第一个可操作模块与原因"
+   },
+   "adaptive": [
+    "375 宽首屏模块不超过 4 个（本技能取值）",
+    "宽屏或折叠屏：金刚列数按公式重算，信息流列数用弹性网格",
+    "用户字号放大时金刚文案不折行、不缩字，减少入口或改写文案"
+   ],
+   "antipatterns": [
+    "首页放标签栏已有目的地的入口",
+    "金刚区放会员、收藏、门店切换",
+    "每个模块都是同样大的卡片",
+    "为凑满首屏堆营销",
+    "新用户教学卡长期不撤"
+   ],
+   "needs_from_system": [
+    "页面清单与入口表：每个功能的类别与唯一入口归属、标签栏项数与名称、目的地编号",
+    "哪些模块可由后台开关与排序",
+    "进行中事项的状态集合与状态词",
+    "营销活动的清单与优先级"
+   ],
+   "think": [
+    "用户打开首页最可能做的第一件事是什么？它在首屏第一个模块里吗？",
+    "新用户、回访、空数据三种状态下首页各是什么样？",
+    "把每个模块盖住一次：用户还能完成想做的事吗？盖得住的模块是不是该删？",
+    "我是在按入口表分配，还是在凭感觉堆？"
+   ],
+   "innovation_room": "可以有个性：模块的次序（在规则允许范围内）、间距节奏、配图风格、各模块构图、状态卡的叙事、季节与节日换肤。不能碰：入口归属、目的地唯一、营销同屏上限、第一个模块回答回来要做的事。",
+   "evidence": [
+    {
+     "kind": "example",
+     "ref": "home:SRC-012",
+     "note": "首页是路由决策"
+    },
+    {
+     "kind": "example",
+     "ref": "home:SRC-003",
+     "note": ""
+    },
+    {
+     "kind": "example",
+     "ref": "home:SRC-013",
+     "note": ""
+    },
+    {
+     "kind": "skill",
+     "ref": "system:ui-standards",
+     "note": ""
+    },
+    {
+     "kind": "user",
+     "ref": "user:2026-11-04",
+     "note": ""
+    }
+   ],
+   "confidence": "medium",
+   "order_basis": "",
+   "tagline": "回答回来要做的事，其余保持可达",
+   "watch": "上下文只在顶部；账户归我的；订单只出状态卡；营销同屏不超过 2 个",
+   "mistakes": "重复入口、堆营销、模块等重",
+   "play": "模块节奏、配图、状态卡叙事、节日换肤"
+  },
+  {
+   "id": "category",
+   "name": "分类页",
+   "applies_to": [
+    "ecommerce",
+    "food-chain",
+    "course-education",
+    "local-life-super-app"
+   ],
+   "purpose": "按分类浏览商品或服务：左侧一级分类，右侧对应内容；点单页是它的变体，带加购与购物车栏。",
+   "blocks": [
+    {
+     "id": "header",
+     "paradigm": "search-header",
+     "required": true,
+     "order": 1,
+     "components": {},
+     "notes": "搜索框；多门店时沿用顶部上下文栏，不另设入口。"
+    },
+    {
+     "id": "rail",
+     "paradigm": "side-category",
+     "required": true,
+     "order": 2,
+     "components": {
+      "vant4": "Sidebar / SidebarItem",
+      "vant-weapp": "van-sidebar",
+      "tdesign-miniprogram": "t-side-bar"
+     },
+     "notes": "左栏一级分类，当前项高亮；徽标须有真实含义。"
+    },
+    {
+     "id": "chips",
+     "paradigm": "filter-bar",
+     "required": false,
+     "order": 3,
+     "components": {},
+     "notes": "右栏顶部二级标签条，整条横滑。"
+    },
+    {
+     "id": "list",
+     "paradigm": "single-column-list",
+     "required": true,
+     "order": 4,
+     "components": {},
+     "notes": "右栏商品，分组标题吸顶；商品图多时用双列。"
+    },
+    {
+     "id": "cart",
+     "paradigm": "action-bar",
+     "required": false,
+     "order": 5,
+     "components": {},
+     "notes": "点单类变体：悬浮购物车栏，避开安全区。"
+    }
+   ],
+   "choose_rules": [
+    {
+     "when": "一级分类不足 6–7 个且无二级",
+     "then": "改用顶部标签或金刚入口，不做侧边分类",
+     "strength": "default"
+    },
+    {
+     "when": "点单页就是首页",
+     "then": "首页换成本页结构并写偏离说明",
+     "strength": "default"
+    },
+    {
+     "when": "右栏商品图是主要决策依据",
+     "then": "右栏双列卡片，否则单列行",
+     "strength": "default"
+    }
+   ],
+   "dedup_rules": [
+    "分类标签与首页金刚不指向同一目的地",
+    "购物车栏与标签栏的购物车只留一处承接"
+   ],
+   "states": {
+    "loading": "左栏先出，右栏骨架",
+    "empty": "某分类无商品：写对象加一个行动",
+    "error": "右栏原位重试，保持左栏选中",
+    "other": "售罄整行灰化"
+   },
+   "adaptive": [
+    "左栏宽取视觉规范的小程序分类取值",
+    "右栏单双列由右栏实际宽度决定"
+   ],
+   "antipatterns": [
+    "三层目录塞进左栏",
+    "左栏徽标全是装饰",
+    "点击后右栏跳回顶部丢失位置",
+    "同一商品在多个分类各出现一次且目的地相同却无区分"
+   ],
+   "needs_from_system": [
+    "分类树层级与名称",
+    "分类与商品的归属关系",
+    "加购规则与购物车栏是否常驻"
+   ],
+   "think": [
+    "分类够不够多、够不够深？不多的话为什么还要侧栏？",
+    "联动用点击还是滚动？数据量大时各自的代价？",
+    "右栏第一屏要不要放二级标签条？"
+   ],
+   "innovation_room": "可以有个性：左栏选中的样式、分类图标、右栏构图、商品行与加购的形态。不能碰：左栏徽标真实、联动不丢位置。",
+   "evidence": [
+    {
+     "kind": "example",
+     "ref": "home:SRC-003",
+     "note": "瑞幸菜单页 CategorySidebar"
+    },
+    {
+     "kind": "example",
+     "ref": "home:SRC-013",
+     "note": "电商指南：分类单独成标签"
+    },
+    {
+     "kind": "rule",
+     "ref": "pages:SRC-010",
+     "note": ""
+    },
+    {
+     "kind": "rule",
+     "ref": "pages:SRC-012",
+     "note": ""
+    },
+    {
+     "kind": "skill",
+     "ref": "design:visual-design#导航与多级目录的数值",
+     "note": ""
+    },
+    {
+     "kind": "convention",
+     "ref": "convention",
+     "note": "惯例，资料未核对。分类页的区块顺序资料未覆盖，B 站教程只有标题"
+    }
+   ],
+   "confidence": "low",
+   "order_basis": "区块顺序推演自组件与视觉规范，资料未覆盖，待样板页验证",
+   "tagline": "左侧分类、右侧内容联动",
+   "watch": "左栏徽标要真实；分类很少改顶部标签",
+   "mistakes": "三层目录塞进左栏、联动丢位置",
+   "play": "左栏样式、商品行构图"
+  },
+  {
+   "id": "product-list-search",
+   "name": "商品列表与搜索结果",
+   "applies_to": [
+    "ecommerce",
+    "food-chain",
+    "course-education",
+    "local-booking",
+    "local-life-super-app"
+   ],
+   "purpose": "分类页与搜索结果共用的页面：列表呈现、筛选、排序三者一起设计。",
+   "blocks": [
+    {
+     "id": "search",
+     "paradigm": "search-header",
+     "required": true,
+     "order": 1,
+     "components": {},
+     "notes": "真输入：历史与热词在输入前，结果在输入后。"
+    },
+    {
+     "id": "filters",
+     "paradigm": "filter-bar",
+     "required": true,
+     "order": 2,
+     "components": {},
+     "notes": "排序加筛选入口，已选条件以标签显示并可清除。"
+    },
+    {
+     "id": "list",
+     "paradigm": "two-column-card-grid",
+     "required": true,
+     "order": 3,
+     "components": {},
+     "notes": "图片主导用双列；规格与价格要逐条比较用单列行。"
+    },
+    {
+     "id": "end",
+     "paradigm": "result-panel",
+     "required": false,
+     "order": 4,
+     "components": {},
+     "notes": "无结果时放宽条件的建议；到底提示。"
+    }
+   ],
+   "choose_rules": [
+    {
+     "when": "商品要靠图片决策",
+     "then": "双列卡片",
+     "strength": "default"
+    },
+    {
+     "when": "要逐条比较规格与价格",
+     "then": "单列行",
+     "strength": "default"
+    },
+    {
+     "when": "筛选项很多",
+     "then": "筛选放抽屉，常用的二至三项露出",
+     "strength": "hint"
+    }
+   ],
+   "dedup_rules": [
+    "搜索框只此一个",
+    "已选筛选条件只出现一次（标签），不在筛选面板再复述成按钮"
+   ],
+   "states": {
+    "loading": "骨架，保持排序栏不动",
+    "empty": "没有结果：说明条件，给放宽建议，不只写暂无数据",
+    "error": "原位重试，保留已选条件",
+    "other": "触底加载中与已到底两态"
+   },
+   "adaptive": [
+    "手机与小程序的列数、每屏数量、筛选抽屉还是下拉、默认排序资料未覆盖，样板页验证"
+   ],
+   "antipatterns": [
+    "筛选项做成分类范围",
+    "同类型筛选值不能多选",
+    "排序默认用字母序",
+    "搜索后失去已选条件"
+   ],
+   "needs_from_system": [
+    "可搜索与可筛选的字段",
+    "默认排序",
+    "是否有对比功能"
+   ],
+   "think": [
+    "这个列表里用户最常用的两三个筛选是什么？",
+    "默认排序服务谁的目的？",
+    "没有结果时，用户的下一步是什么？"
+   ],
+   "innovation_room": "可以有个性：筛选的交互形态、卡片构图、排序标签的措辞。不能碰：呈现、筛选、排序一起设计；无结果有下一步。",
+   "evidence": [
+    {
+     "kind": "rule",
+     "ref": "pages:SRC-007",
+     "note": "Baymard 十个主题，细则付费未抓到"
+    },
+    {
+     "kind": "rule",
+     "ref": "comp:SRC-001",
+     "note": "搜索历史快捷选项"
+    },
+    {
+     "kind": "rule",
+     "ref": "comp:SRC-015",
+     "note": ""
+    }
+   ],
+   "confidence": "low",
+   "order_basis": "区块顺序来自研究主题名与惯例，手机取值资料未覆盖，待样板页验证",
+   "tagline": "列表、筛选、排序一起设计",
+   "watch": "无结果给放宽建议；已选条件可清除",
+   "mistakes": "筛选做成分类范围、排序默认字母序",
+   "play": "筛选形态、卡片构图"
+  },
+  {
+   "id": "product-detail",
+   "name": "商品详情页",
+   "applies_to": [
+    "ecommerce",
+    "food-chain",
+    "course-education",
+    "local-booking",
+    "membership-benefits"
+   ],
+   "purpose": "让用户决定买不买、买哪个规格；一个主动作，其余操作退到次要位置。",
+   "blocks": [
+    {
+     "id": "media",
+     "paradigm": "banner-carousel",
+     "required": true,
+     "order": 1,
+     "components": {},
+     "notes": "主图轮播或单图；页码式指示。"
+    },
+    {
+     "id": "price",
+     "paradigm": "countdown-block",
+     "required": false,
+     "order": 2,
+     "components": {},
+     "notes": "价格行；限时活动才出现倒计时。"
+    },
+    {
+     "id": "title",
+     "paradigm": "modular-sections",
+     "required": true,
+     "order": 3,
+     "components": {},
+     "notes": "标题、卖点标签（营销最多三层）。"
+    },
+    {
+     "id": "spec",
+     "paradigm": "cell-list",
+     "required": false,
+     "order": 4,
+     "components": {},
+     "notes": "规格选择行，点开底部弹层，不另起页面。"
+    },
+    {
+     "id": "info",
+     "paradigm": "modular-sections",
+     "required": true,
+     "order": 5,
+     "components": {},
+     "notes": "图文详情、评价摘要、服务说明，按需折叠。"
+    },
+    {
+     "id": "actions",
+     "paradigm": "action-bar",
+     "required": true,
+     "order": 6,
+     "components": {
+      "vant4": "ActionBar / ActionBarIcon / ActionBarButton",
+      "vant-weapp": "GoodsAction 仅名称"
+     },
+     "notes": "客服、购物车、加购、购买；一个主按钮。"
+    }
+   ],
+   "choose_rules": [
+    {
+     "when": "商品只有一个规格或固定套餐",
+     "then": "省去规格弹层，直接加购",
+     "strength": "default"
+    },
+    {
+     "when": "正在参加拼团或秒杀",
+     "then": "活动价与普通价并列，单独购买与去拼团跳转按拼团规则",
+     "strength": "default"
+    }
+   ],
+   "dedup_rules": [
+    "底部栏的购物车图标与标签栏购物车只留一处（详情页作为二级页通常不显示标签栏）",
+    "卡片整张可点时不再放同目的地按钮"
+   ],
+   "states": {
+    "loading": "主图占位同尺寸，价格与标题骨架",
+    "empty": "无评价写“还没有评价”加一个行动",
+    "error": "商品下架或不存在：结果页给相似商品或返回",
+    "other": "售罄：规格灰化、主按钮禁用并写原因"
+   },
+   "adaptive": [
+    "主图比例统一预设，避免加载后撑高"
+   ],
+   "antipatterns": [
+    "同时有两个同样醒目的按钮",
+    "规格选完没有价格反馈",
+    "详情长页把主按钮滚出视区却没有吸底"
+   ],
+   "needs_from_system": [
+    "规格与库存规则",
+    "按钮动作与禁用条件",
+    "是否有活动价",
+    "客服入口"
+   ],
+   "think": [
+    "用户在这页最想知道的三件事是什么？",
+    "主按钮是哪一个？禁用时写什么原因？",
+    "活动价与单买价同时存在时，用户能一眼看懂吗？"
+   ],
+   "innovation_room": "可以有个性：主图构图、价格层级、卖点标签形态、详情分段的叙事。不能碰：一个主动作、规格反馈、营销层数。",
+   "evidence": [
+    {
+     "kind": "rule",
+     "ref": "comp:SRC-018",
+     "note": "ActionBar 示例：左三个图标加右两个按钮"
+    },
+    {
+     "kind": "example",
+     "ref": "pages:SRC-005",
+     "note": "拼团详情页与普通详情页是两个页面，互相跳转"
+    },
+    {
+     "kind": "skill",
+     "ref": "design:visual-design#各端视觉参数",
+     "note": ""
+    }
+   ],
+   "confidence": "low",
+   "order_basis": "区块顺序推演自组件示例与惯例，待样板页验证",
+   "tagline": "决定买不买、买哪个",
+   "watch": "一个主动作；规格选完要有价格反馈",
+   "mistakes": "两个同样醒目的按钮、主按钮滚走",
+   "play": "主图构图、价格层级、详情叙事"
+  },
+  {
+   "id": "cart-checkout",
+   "name": "购物车与结算",
+   "applies_to": [
+    "ecommerce",
+    "food-chain",
+    "course-education",
+    "local-booking"
+   ],
+   "purpose": "购物车编辑数量与选择，结算页确认地址、配送、优惠与金额并提交；费用汇总常驻可见。",
+   "blocks": [
+    {
+     "id": "lines",
+     "paradigm": "single-column-list",
+     "required": true,
+     "order": 1,
+     "components": {},
+     "notes": "购物车商品行：就地改数量与规格，删除用图标。"
+    },
+    {
+     "id": "address",
+     "paradigm": "cell-list",
+     "required": true,
+     "order": 2,
+     "components": {},
+     "notes": "结算页：地址或自提点（来自上下文栏的选择），配送方式。"
+    },
+    {
+     "id": "coupon",
+     "paradigm": "coupon-card",
+     "required": false,
+     "order": 3,
+     "components": {
+      "vant4": "CouponCell + CouponList"
+     },
+     "notes": "优惠券一个入口，选择放底部弹层；不前置到最显眼处。"
+    },
+    {
+     "id": "fees",
+     "paradigm": "cell-list",
+     "required": true,
+     "order": 4,
+     "components": {},
+     "notes": "金额明细：商品小计、运费、优惠、合计，常驻可见。"
+    },
+    {
+     "id": "submit",
+     "paradigm": "action-bar",
+     "required": true,
+     "order": 5,
+     "components": {
+      "vant4": "SubmitBar（price 单位分）"
+     },
+     "notes": "合计加提交；禁用与加载状态不触发提交。"
+    }
+   ],
+   "choose_rules": [
+    {
+     "when": "多步或多门店结算",
+     "then": "分步加进度，可回到前面步骤且不清空已填",
+     "strength": "hint"
+    },
+    {
+     "when": "商品少且标准运输",
+     "then": "一页式结算",
+     "strength": "hint"
+    }
+   ],
+   "dedup_rules": [
+    "结算页地址与配送方式不再设第二个入口（来自上下文栏的选择）",
+    "继续购物与提交按钮不并排抢主动作",
+    "优惠券只有一个入口"
+   ],
+   "states": {
+    "loading": "金额区骨架，提交按钮禁用并写“计算中”",
+    "empty": "购物车为空：写对象加一个行动（去逛逛）",
+    "error": "下单失败、库存不足、券不可用：原位写原因与恢复入口，保留已填内容",
+    "other": "提交中防重复点击；超时先查结果再允许重试"
+   },
+   "adaptive": [
+    "提交栏留底部安全区并开启占位",
+    "拼团商品从购物车进入结算一律按单买价（资料）"
+   ],
+   "antipatterns": [
+    "隐藏运费到最后一步",
+    "报错含糊",
+    "强制注册后才能结算",
+    "主按钮没有吸底",
+    "优惠码框抢了主按钮的注意力"
+   ],
+   "needs_from_system": [
+    "地址、配送、优惠、备注字段与规则",
+    "状态词与错误文案键",
+    "拼团与普通订单的取价规则"
+   ],
+   "think": [
+    "用户在提交前最担心什么：运费、优惠、送达时间？它们都可见吗？",
+    "出错时已填内容保留吗？",
+    "这页有没有两个按钮做同一件事？"
+   ],
+   "innovation_room": "可以有个性：金额区的视觉层级、地址卡的构图、优惠的表达。不能碰：费用常驻可见、一个主按钮、错误保留输入。",
+   "evidence": [
+    {
+     "kind": "example",
+     "ref": "pages:SRC-009",
+     "note": "网页结算经验，数字不采信"
+    },
+    {
+     "kind": "rule",
+     "ref": "comp:SRC-017",
+     "note": ""
+    },
+    {
+     "kind": "rule",
+     "ref": "comp:SRC-019",
+     "note": ""
+    },
+    {
+     "kind": "example",
+     "ref": "pages:SRC-005",
+     "note": "拼团取价规则"
+    },
+    {
+     "kind": "convention",
+     "ref": "convention",
+     "note": "惯例，资料未核对。小程序结算页的区块顺序资料未覆盖"
+    }
+   ],
+   "confidence": "low",
+   "order_basis": "区块顺序推演自网页结算经验与组件，微信支付环境资料未覆盖，待样板页验证",
+   "tagline": "确认地址、优惠、金额并提交",
+   "watch": "费用常驻可见；错误保留输入；优惠券一个入口",
+   "mistakes": "隐藏运费、报错含糊、强制注册",
+   "play": "金额区层次、地址卡构图"
+  },
+  {
+   "id": "order-list",
+   "name": "订单列表",
+   "applies_to": [
+    "ecommerce",
+    "food-chain",
+    "local-booking",
+    "course-education",
+    "enterprise-internal",
+    "membership-benefits"
+   ],
+   "purpose": "按状态查看自己的订单；入口归订单标签或我的里的订单卡，复用同一页加参数。",
+   "blocks": [
+    {
+     "id": "tabs",
+     "paradigm": "top-tabs",
+     "required": true,
+     "order": 1,
+     "components": {},
+     "notes": "状态标签 3–5 项，等分；名称与卡片状态词一致。"
+    },
+    {
+     "id": "list",
+     "paradigm": "order-card",
+     "required": true,
+     "order": 2,
+     "components": {},
+     "notes": "订单卡列表，整卡进详情，脚部按钮随状态变化。"
+    },
+    {
+     "id": "empty",
+     "paradigm": "result-panel",
+     "required": false,
+     "order": 3,
+     "components": {},
+     "notes": "分类无订单与账号无订单两种空态要区分。"
+    }
+   ],
+   "choose_rules": [
+    {
+     "when": "状态不超过 4–5 种",
+     "then": "顶部等分标签",
+     "strength": "default"
+    },
+    {
+     "when": "状态更多",
+     "then": "标签横滑或把低频状态收进筛选",
+     "strength": "hint"
+    },
+    {
+     "when": "订单是标签栏项",
+     "then": "我的里不再放订单大入口，只保留状态角标快捷",
+     "strength": "default"
+    }
+   ],
+   "dedup_rules": [
+    "我的页各个订单状态入口都指向本页并以参数高亮标签，不为每种状态另做页面",
+    "首页不放全部订单入口"
+   ],
+   "states": {
+    "loading": "卡片骨架，标签不动",
+    "empty": "某状态没有订单与一单也没有要区分，后者给去下单行动",
+    "error": "原位重试",
+    "other": "触底加载与已到底；状态同步冲突提示刷新"
+   },
+   "adaptive": [
+    "状态标签数量随屏宽与文字长度决定，放不下时才横滑"
+   ],
+   "antipatterns": [
+    "入口有“待评价”而标签没有这一项（点进去落在无高亮的空列表）",
+    "标签叫待收货而卡片写已发货",
+    "所有状态都只有“查看详情”",
+    "按钮文字与行为不符"
+   ],
+   "needs_from_system": [
+    "订单状态集合与状态词",
+    "每种状态的按钮与确认",
+    "标签顺序与是否带角标"
+   ],
+   "think": [
+    "用户最常查的是哪两种状态？默认落在哪个标签？",
+    "每个状态的主按钮是什么？",
+    "空态怎么区分“没有这类订单”和“还没下过单”？"
+   ],
+   "innovation_room": "可以有个性：标签样式、卡片层次、状态标记形态、多商品折叠方式。不能碰：状态词一致、一个页面加参数、入口与标签对应。",
+   "evidence": [
+    {
+     "kind": "example",
+     "ref": "pages:SRC-003",
+     "note": "uni-app 四标签订单页与订单入口约定"
+    },
+    {
+     "kind": "example",
+     "ref": "pages2:SRC-001",
+     "note": "三标签实例与读码观察"
+    },
+    {
+     "kind": "example",
+     "ref": "pages2:SRC-002",
+     "note": ""
+    },
+    {
+     "kind": "example",
+     "ref": "pages2:SRC-010",
+     "note": "分段控件三个以内、可滚动标签只在标签短时用"
+    },
+    {
+     "kind": "convention",
+     "ref": "convention",
+     "note": "惯例，资料未核对。订单列表的规则依据资料未覆盖"
+    }
+   ],
+   "confidence": "medium",
+   "order_basis": "结构来自两个实例，规则依据资料未覆盖",
+   "tagline": "按状态查订单，复用同一页加参数",
+   "watch": "标签名与卡片状态词一致；空态分两种",
+   "mistakes": "入口与标签对不上、按钮与行为不符",
+   "play": "标签样式、状态标记"
+  },
+  {
+   "id": "order-detail",
+   "name": "订单详情",
+   "applies_to": [
+    "ecommerce",
+    "food-chain",
+    "local-booking",
+    "course-education",
+    "enterprise-internal"
+   ],
+   "purpose": "让用户一眼知道订单现在到哪了、下一步是什么、出问题找谁。",
+   "blocks": [
+    {
+     "id": "status",
+     "paradigm": "status-card",
+     "required": true,
+     "order": 1,
+     "components": {},
+     "notes": "状态词加一句话加一个主动作（付款、取餐码、确认收货）；最先让当前状态一眼可见。"
+    },
+    {
+     "id": "progress",
+     "paradigm": "progress-steps",
+     "required": false,
+     "order": 2,
+     "components": {},
+     "notes": "有履约过程（配送、预约）才出现；已完成、进行中、接下来；异常要解释。"
+    },
+    {
+     "id": "pickup",
+     "paradigm": "status-card",
+     "required": false,
+     "order": 3,
+     "components": {},
+     "notes": "取餐码、预计送达或到店时间，按场景出现。"
+    },
+    {
+     "id": "where",
+     "paradigm": "cell-list",
+     "required": true,
+     "order": 4,
+     "components": {},
+     "notes": "地址或门店、联系人；电话可点。"
+    },
+    {
+     "id": "items",
+     "paradigm": "order-card",
+     "required": true,
+     "order": 5,
+     "components": {},
+     "notes": "商品行（图、名、规格×数量、单价）。"
+    },
+    {
+     "id": "amount",
+     "paradigm": "cell-list",
+     "required": true,
+     "order": 6,
+     "components": {},
+     "notes": "金额明细：原价、加料、配送费、优惠、实付。"
+    },
+    {
+     "id": "meta",
+     "paradigm": "cell-list",
+     "required": true,
+     "order": 7,
+     "components": {},
+     "notes": "订单号、下单与支付时间、备注。"
+    },
+    {
+     "id": "actions",
+     "paradigm": "action-bar",
+     "required": true,
+     "order": 8,
+     "components": {},
+     "notes": "按状态变化的底部操作栏；客服入口放在延误与异常附近。"
+    }
+   ],
+   "choose_rules": [
+    {
+     "when": "订单无履约过程（虚拟商品、到店核销）",
+     "then": "省去进度块，状态块直接给取码或核销结果",
+     "strength": "default"
+    },
+    {
+     "when": "订单异常（延误、缺货、拆单）",
+     "then": "进度块里说明原因与下一步",
+     "strength": "default"
+    }
+   ],
+   "dedup_rules": [
+    "底部操作栏的按钮与页内其他按钮不指向同一动作",
+    "客服入口只有一个"
+   ],
+   "states": {
+    "loading": "状态块与金额块骨架",
+    "empty": "订单不存在：结果页返回订单列表",
+    "error": "原位重试",
+    "other": "各状态的主动作与禁用；从分享或历史直接进入要补返回与首页入口"
+   },
+   "adaptive": [
+    "外卖进度的步骤条、地图、骑手位置版式资料未覆盖，样板页验证"
+   ],
+   "antipatterns": [
+    "用内部状态词",
+    "只给运单号不给轨迹",
+    "异常不解释",
+    "多个同样醒目的按钮"
+   ],
+   "needs_from_system": [
+    "订单状态机与状态词",
+    "各状态的按钮、确认与撤销",
+    "金额明细的构成项",
+    "客服入口位置"
+   ],
+   "think": [
+    "用户进来最急着知道的是什么：到了没、怎么取、能不能退？",
+    "这个订单有几种异常，每种页面怎么说？",
+    "退款与售后的进度放在哪？"
+   ],
+   "innovation_room": "可以有个性：状态块的构图与插画、进度的图形、金额区的层次。不能碰：当前状态最先可见、异常要解释、一个主动作。",
+   "evidence": [
+    {
+     "kind": "example",
+     "ref": "pages:SRC-008",
+     "note": "订单追踪内容清单与顺序约束，网页场景"
+    },
+    {
+     "kind": "example",
+     "ref": "pages2:SRC-003",
+     "note": "11 态状态机，单人口径"
+    },
+    {
+     "kind": "example",
+     "ref": "pages2:SRC-009",
+     "note": "详情页突出一个下一步，补返回与首页入口"
+    },
+    {
+     "kind": "convention",
+     "ref": "convention",
+     "note": "惯例，资料未核对。订单详情区块顺序资料未覆盖"
+    }
+   ],
+   "confidence": "low",
+   "order_basis": "推演自状态机或惯例，待样板页验证",
+   "tagline": "当前状态最先可见，下一步明确",
+   "watch": "异常要解释；一个主动作；客服放异常附近",
+   "mistakes": "内部状态词、只给运单号",
+   "play": "状态块构图、进度图形"
+  },
+  {
+   "id": "mine",
+   "name": "我的",
+   "applies_to": [
+    "food-chain",
+    "ecommerce",
+    "local-booking",
+    "b2b-quote-ticket",
+    "content-community",
+    "brand-campaign",
+    "enterprise-internal",
+    "course-education",
+    "membership-benefits",
+    "local-life-super-app"
+   ],
+   "purpose": "账户、个人资产与低频工具的家：会员、收藏、券、积分、储值、地址、发票、设置、协议、客服只在这里有入口。",
+   "blocks": [
+    {
+     "id": "profile",
+     "paradigm": "cell-list",
+     "required": true,
+     "order": 1,
+     "components": {},
+     "notes": "头像、昵称、未登录时的登录引导；头像区与资料行不指向同一页。"
+    },
+    {
+     "id": "assets",
+     "paradigm": "equal-grid",
+     "required": false,
+     "order": 2,
+     "components": {},
+     "notes": "余额、积分、券数等资产摘要格（数字加名称）；与下方列表不重复同一目的地。"
+    },
+    {
+     "id": "orders",
+     "paradigm": "equal-grid",
+     "required": false,
+     "order": 3,
+     "components": {},
+     "notes": "订单卡：标题“全部订单”一个入口加按状态入口；角标数量为 0 不显示。"
+    },
+    {
+     "id": "member",
+     "paradigm": "member-card-hero",
+     "required": false,
+     "order": 4,
+     "components": {},
+     "notes": "会员型产品的主卡；非会员型不出现。"
+    },
+    {
+     "id": "menu",
+     "paradigm": "cell-list",
+     "required": true,
+     "order": 5,
+     "components": {
+      "vant4": "Cell 仅名称",
+      "vant-weapp": "Cell 仅名称"
+     },
+     "notes": "分组菜单：地址、券、收藏、设置、客服、协议。"
+    },
+    {
+     "id": "logout",
+     "paradigm": "cell-list",
+     "required": false,
+     "order": 6,
+     "components": {},
+     "notes": "退出登录：已登录才出现，只出现一次，二次确认。"
+    }
+   ],
+   "choose_rules": [
+    {
+     "when": "订单是标签栏项",
+     "then": "订单卡只保留状态角标快捷，不再放“全部订单”第二个入口",
+     "strength": "default"
+    },
+    {
+     "when": "功能很多",
+     "then": "分组加可配置，常用的在前",
+     "strength": "default"
+    },
+    {
+     "when": "未登录",
+     "then": "头像区变成登录引导，菜单隐藏需要登录的行或保留并在点击时引导",
+     "strength": "default"
+    }
+   ],
+   "dedup_rules": [
+    "头像栏与“基本信息”行只留一个进资料页",
+    "“退出”只出现一次",
+    "资产摘要格与菜单行不指向同一目的地（券、积分只留一处）",
+    "订单状态入口复用同一订单页加参数"
+   ],
+   "states": {
+    "loading": "头像与数字骨架",
+    "empty": "无订单角标时不显示数字",
+    "error": "资产数字取不到时原位显示占位并可重试",
+    "other": "未登录与已登录两种头部；角标数量在页面显示时刷新并与标签栏角标同步"
+   },
+   "adaptive": [
+    "页面底部给标签栏留出安全区"
+   ],
+   "antipatterns": [
+    "同一目的地一行一格各放一次",
+    "头部登录按钮与底部退出重复",
+    "把营销大图放进我的",
+    "菜单行用按钮元素不处理默认边框"
+   ],
+   "needs_from_system": [
+    "我的页功能清单与分组",
+    "哪些行带角标或状态说明",
+    "登录与未登录的差异",
+    "资料页字段"
+   ],
+   "think": [
+    "这一页的每一行是不是真的属于账户或低频？高频核心的该上首页或标签。",
+    "资产摘要与菜单行有没有去同一页的？",
+    "未登录用户看到什么？"
+   ],
+   "innovation_room": "可以有个性：头部构图、资产区形态、分组方式、图标风格、会员主卡的材质感。不能碰：账户类只在这里、一个目的地一行。",
+   "evidence": [
+    {
+     "kind": "example",
+     "ref": "pages:SRC-002",
+     "note": "微信原生匿名信业务实例"
+    },
+    {
+     "kind": "example",
+     "ref": "pages:SRC-003",
+     "note": "uni-app 商城实例；退出重复的读码观察"
+    },
+    {
+     "kind": "skill",
+     "ref": "system:ui-standards",
+     "note": ""
+    },
+    {
+     "kind": "convention",
+     "ref": "convention",
+     "note": "惯例，资料未核对。我的页的规范依据资料未覆盖"
+    }
+   ],
+   "confidence": "medium",
+   "order_basis": "区块顺序来自两个实例",
+   "tagline": "账户、资产、低频工具的唯一家",
+   "watch": "一个目的地一行；退出只一次；订单卡复用订单页",
+   "mistakes": "头像与资料行重复、营销大图进来",
+   "play": "头部构图、资产区、图标风格"
+  },
+  {
+   "id": "store-select",
+   "name": "门店选择",
+   "applies_to": [
+    "food-chain",
+    "local-booking",
+    "membership-benefits",
+    "local-life-super-app"
+   ],
+   "purpose": "全局上下文的落点：选当前门店或自提点、切换配送方式与城市；是顶部上下文栏的目的地，不另设其他入口。",
+   "blocks": [
+    {
+     "id": "search",
+     "paradigm": "search-header",
+     "required": true,
+     "order": 1,
+     "components": {},
+     "notes": "搜索门店或地址，当前定位与切换城市。"
+    },
+    {
+     "id": "map",
+     "paradigm": "modular-sections",
+     "required": false,
+     "order": 2,
+     "components": {},
+     "notes": "地图铺满加底部面板（视觉规范：门店与地点用全幅画布加底部面板）。"
+    },
+    {
+     "id": "list",
+     "paradigm": "single-column-list",
+     "required": true,
+     "order": 3,
+     "components": {},
+     "notes": "门店卡：名称、距离、营业状态、配送范围；休息中显示“休息中”或“可预约明天”，不消失。"
+    },
+    {
+     "id": "confirm",
+     "paradigm": "action-bar",
+     "required": false,
+     "order": 4,
+     "components": {},
+     "notes": "确认选择后回到来源页；选择沿用到其他页。"
+    }
+   ],
+   "choose_rules": [
+    {
+     "when": "单门店",
+     "then": "不需要这一页",
+     "strength": "default"
+    },
+    {
+     "when": "同时有自提与配送",
+     "then": "配送方式切换放顶部上下文栏，本页只选门店与地址",
+     "strength": "must"
+    }
+   ],
+   "dedup_rules": [
+    "本页是上下文栏的目的地，首页其他位置不再放门店入口"
+   ],
+   "states": {
+    "loading": "列表骨架，定位中显示提示",
+    "empty": "附近没有门店：写对象并给更换城市或手动输入地址的行动",
+    "error": "定位被拒：说明原因，给手动选择入口",
+    "other": "休息中与暂停接单的门店仍显示，写恢复时间"
+   },
+   "adaptive": [
+    "地图与列表在窄屏上下堆叠，面板变底部弹层"
+   ],
+   "antipatterns": [
+    "把选门店做进金刚区",
+    "休息的门店从列表消失",
+    "确认后不回到来源页"
+   ],
+   "needs_from_system": [
+    "门店字段与营业状态集合",
+    "是否支持配送与自提切换",
+    "定位授权失败的流程"
+   ],
+   "think": [
+    "用户进这一页是来换门店还是换配送方式？",
+    "定位被拒时能走通吗？",
+    "地图是必要的吗，还是列表就够？"
+   ],
+   "innovation_room": "可以有个性：地图与面板的叠压、门店卡构图、营业状态标记。不能碰：休息的门店不消失、选择沿用到其他页。",
+   "evidence": [
+    {
+     "kind": "skill",
+     "ref": "design:visual-design#页面布局模式",
+     "note": "小程序按同一思路选：门店与地点用全幅画布加底部面板"
+    },
+    {
+     "kind": "example",
+     "ref": "pages2:SRC-003",
+     "note": "营业状态：休息中或可预约明天，而不是消失"
+    },
+    {
+     "kind": "example",
+     "ref": "home:SRC-003",
+     "note": "LKCN LocationBar"
+    },
+    {
+     "kind": "convention",
+     "ref": "convention",
+     "note": "惯例，资料未核对。门店选择页区块顺序资料未覆盖"
+    }
+   ],
+   "confidence": "low",
+   "order_basis": "推演自状态机或惯例，待样板页验证",
+   "tagline": "全局上下文的落点",
+   "watch": "休息的门店不消失；选择沿用到各页",
+   "mistakes": "选门店做进金刚区",
+   "play": "地图与面板叠压、门店卡"
+  },
+  {
+   "id": "booking",
+   "name": "预约",
+   "applies_to": [
+    "local-booking",
+    "course-education",
+    "membership-benefits",
+    "enterprise-internal"
+   ],
+   "purpose": "选对象、日期与时段并确认；详情页突出一个下一步操作，确认页写“确认预约”。",
+   "blocks": [
+    {
+     "id": "subject",
+     "paradigm": "single-column-list",
+     "required": true,
+     "order": 1,
+     "components": {},
+     "notes": "预约对象摘要：服务、门店、时长、价格。"
+    },
+    {
+     "id": "date",
+     "paradigm": "horizontal-scroller",
+     "required": true,
+     "order": 2,
+     "components": {},
+     "notes": "横向日期条。"
+    },
+    {
+     "id": "slots",
+     "paradigm": "equal-grid",
+     "required": true,
+     "order": 3,
+     "components": {},
+     "notes": "时段格：可约、已满、已过期、选中四态。"
+    },
+    {
+     "id": "staff",
+     "paradigm": "horizontal-scroller",
+     "required": false,
+     "order": 4,
+     "components": {},
+     "notes": "技师或教练选择，可选。"
+    },
+    {
+     "id": "contact",
+     "paradigm": "cell-list",
+     "required": false,
+     "order": 5,
+     "components": {},
+     "notes": "联系人与备注。"
+    },
+    {
+     "id": "submit",
+     "paradigm": "action-bar",
+     "required": true,
+     "order": 6,
+     "components": {},
+     "notes": "确认预约；写清费用或押金。"
+    }
+   ],
+   "choose_rules": [
+    {
+     "when": "有多位技师且用户在意",
+     "then": "技师选择放在时段前",
+     "strength": "hint"
+    },
+    {
+     "when": "单一资源",
+     "then": "省去技师块",
+     "strength": "default"
+    }
+   ],
+   "dedup_rules": [
+    "预约是标签时，首页不放预约入口",
+    "时段格与日期条各只出现一次"
+   ],
+   "states": {
+    "loading": "时段骨架",
+    "empty": "所选日期无可约时段：给相邻日期建议",
+    "error": "提交冲突（已被约）：回到时段并刷新",
+    "other": "已约、已满、已过期、选中的时段态；从分享进入要补返回与首页入口"
+   },
+   "adaptive": [
+    "日期条横滑要有无手势的替代（上一周、下一周）"
+   ],
+   "antipatterns": [
+    "时段态只靠颜色区分",
+    "确认页与详情页主按钮写法不一致",
+    "改约入口散落多处"
+   ],
+   "needs_from_system": [
+    "预约规则（提前量、取消与改约）",
+    "状态集合：待确认、已确认、已到店、已完成、已取消、已过号",
+    "资源与时段数据"
+   ],
+   "think": [
+    "用户预约时最在意的是什么：时间、人还是价格？",
+    "时段已满时怎么引导？",
+    "怎么改约与取消？"
+   ],
+   "innovation_room": "可以有个性：日期条与时段格形态、技师卡构图。不能碰：时段四态可辨、主按钮唯一、冲突有恢复路径。",
+   "evidence": [
+    {
+     "kind": "example",
+     "ref": "pages2:SRC-009",
+     "note": "详情页突出一个下一步操作，确认页写确认预约；分享进入要补返回"
+    },
+    {
+     "kind": "skill",
+     "ref": "system:ui-standards",
+     "note": "预约状态集合"
+    },
+    {
+     "kind": "convention",
+     "ref": "convention",
+     "note": "惯例，资料未核对。预约页区块顺序资料未覆盖"
+    }
+   ],
+   "confidence": "low",
+   "order_basis": "推演自状态机或惯例，待样板页验证",
+   "tagline": "选对象、日期、时段并确认",
+   "watch": "时段四态可辨；冲突有恢复路径",
+   "mistakes": "状态只靠颜色、改约入口散落",
+   "play": "日期条与时段格形态"
+  },
+  {
+   "id": "activity-seckill",
+   "name": "秒杀与限时抢购",
+   "applies_to": [
+    "ecommerce",
+    "food-chain",
+    "course-education"
+   ],
+   "purpose": "营造紧张但真实的抢购：场次、倒计时、库存进度与抢购按钮四态。",
+   "blocks": [
+    {
+     "id": "hero",
+     "paradigm": "banner-carousel",
+     "required": false,
+     "order": 1,
+     "components": {},
+     "notes": "活动主视觉，规则入口。"
+    },
+    {
+     "id": "session",
+     "paradigm": "top-tabs",
+     "required": true,
+     "order": 2,
+     "components": {},
+     "notes": "场次标签（正在抢购、即将开始）。"
+    },
+    {
+     "id": "timer",
+     "paradigm": "countdown-block",
+     "required": true,
+     "order": 3,
+     "components": {},
+     "notes": "当前场次倒计时。"
+    },
+    {
+     "id": "list",
+     "paradigm": "single-column-list",
+     "required": true,
+     "order": 4,
+     "components": {},
+     "notes": "商品行：秒杀价、原价、已抢进度、抢购按钮。"
+    },
+    {
+     "id": "after",
+     "paradigm": "feed",
+     "required": false,
+     "order": 5,
+     "components": {},
+     "notes": "结束后关联推荐，不浪费流量。"
+    }
+   ],
+   "choose_rules": [
+    {
+     "when": "同一场次商品少",
+     "then": "单列行，不用双列",
+     "strength": "hint"
+    }
+   ],
+   "dedup_rules": [
+    "首页上同一活动只占一个位置（轮播、横滑或卡片之一）",
+    "场次标签与首页倒计时不重复表达"
+   ],
+   "states": {
+    "loading": "场次与列表骨架",
+    "empty": "无场次：写下一场时间并提供开抢提醒",
+    "error": "库存实时数据取不到时原位占位",
+    "other": "未开始、进行中、已结束、已抢光四态；iOS 日期格式"
+   },
+   "adaptive": [
+    "资料没有界面级内容，全页版式待样板页验证"
+   ],
+   "antipatterns": [
+    "倒计时没有结束状态",
+    "进度条是假的",
+    "同屏多个倒计时",
+    "秒杀价与原价的呈现含糊"
+   ],
+   "needs_from_system": [
+    "活动规则、场次、限购、库存口径",
+    "提醒功能是否存在",
+    "入口在首页的唯一位置"
+   ],
+   "think": [
+    "用户在这页最想做的是抢还是看？",
+    "四态的按钮各是什么？",
+    "活动结束后这页还能为用户做什么？"
+   ],
+   "innovation_room": "可以有个性：这一页可以更有气氛：色彩、字体层级、进度的图形。不能碰：四态齐全、真实库存、同屏倒计时克制。",
+   "evidence": [
+    {
+     "kind": "rule",
+     "ref": "pages:SRC-004",
+     "note": "有赞限时折扣组件"
+    },
+    {
+     "kind": "example",
+     "ref": "pages2:SRC-007",
+     "note": "有赞秒杀产品页：提醒、预约秒杀、限购、结束后关联推荐，只有能力描述"
+    },
+    {
+     "kind": "rule",
+     "ref": "comp:SRC-021",
+     "note": ""
+    },
+    {
+     "kind": "convention",
+     "ref": "convention",
+     "note": "惯例，资料未核对。秒杀页区块顺序与界面资料未覆盖"
+    }
+   ],
+   "confidence": "low",
+   "order_basis": "推演自状态机或惯例，待样板页验证",
+   "tagline": "真实的紧张：场次、倒计时、进度",
+   "watch": "四态齐全；同屏倒计时克制",
+   "mistakes": "倒计时无结束态、进度是假的",
+   "play": "气氛：色彩、字体、进度图形"
+  },
+  {
+   "id": "activity-group-buy",
+   "name": "拼团",
+   "applies_to": [
+    "ecommerce",
+    "food-chain",
+    "course-education"
+   ],
+   "purpose": "开团与参团：拼团详情页与普通详情页是两个页面；我的拼团有拼团中、拼团成功、拼团失败三态。",
+   "blocks": [
+    {
+     "id": "hero",
+     "paradigm": "banner-carousel",
+     "required": true,
+     "order": 1,
+     "components": {},
+     "notes": "商品主图；拼团价与单买价并列。"
+    },
+    {
+     "id": "groups",
+     "paradigm": "single-column-list",
+     "required": false,
+     "order": 2,
+     "components": {
+      "vant4": "CountDown"
+     },
+     "notes": "正在进行的团，可参团；倒计时与差几人。"
+    },
+    {
+     "id": "rules",
+     "paradigm": "modular-sections",
+     "required": false,
+     "order": 3,
+     "components": {},
+     "notes": "玩法说明，折叠。"
+    },
+    {
+     "id": "actions",
+     "paradigm": "action-bar",
+     "required": true,
+     "order": 4,
+     "components": {},
+     "notes": "单独购买与我要开团；参团邀请进入时是我要参团。"
+    }
+   ],
+   "choose_rules": [
+    {
+     "when": "商品参与拼团且活动预热或进行中",
+     "then": "普通详情页出现“去拼团”，拼团详情页出现“单独购买”，互相跳转",
+     "strength": "default"
+    }
+   ],
+   "dedup_rules": [
+    "拼团入口只占首页一个位置（轮播、专场、活动列表之一）"
+   ],
+   "states": {
+    "loading": "骨架",
+    "empty": "暂无团：只留我要开团",
+    "error": "成团超时失败：说明并自动退款",
+    "other": "拼团中、拼团成功、拼团失败；待成团归入待发货并可邀请好友"
+   },
+   "adaptive": [
+    "区块顺序资料未覆盖，倒计时、参团头像、成团进度、规则区待样板页验证"
+   ],
+   "antipatterns": [
+    "普通订单与拼团订单混在一起不标记",
+    "拼团详情页展示全部规格",
+    "从购物车进入却按拼团价"
+   ],
+   "needs_from_system": [
+    "拼团规则、成团人数、有效期、失败退款",
+    "订单类型标记",
+    "取价规则"
+   ],
+   "think": [
+    "用户来拼团是想省钱还是想凑团？",
+    "团进行中时，页面最重要的信息是什么？",
+    "失败后用户去哪？"
+   ],
+   "innovation_room": "可以有个性：团进度的图形、头像堆叠、邀请的表达。不能碰：取价规则、两页互跳、三态。",
+   "evidence": [
+    {
+     "kind": "example",
+     "ref": "pages:SRC-005",
+     "note": "页面分层、状态流、取价规则；配图缺失"
+    },
+    {
+     "kind": "convention",
+     "ref": "convention",
+     "note": "惯例，资料未核对。拼团页区块顺序资料未覆盖"
+    }
+   ],
+   "confidence": "low",
+   "order_basis": "页面分层有来源，区块顺序推演",
+   "tagline": "开团与参团，三态清楚",
+   "watch": "两个详情页互跳；取价规则明确",
+   "mistakes": "拼团与普通订单混在一起",
+   "play": "团进度、头像堆叠"
+  },
+  {
+   "id": "activity-lottery",
+   "name": "抽奖",
+   "applies_to": [
+    "ecommerce",
+    "food-chain",
+    "membership-benefits",
+    "brand-campaign"
+   ],
+   "purpose": "每日抽奖等营销玩法：只写剩余次数与最高奖，不写口号，也不把奖品再列成一排标签。",
+   "blocks": [
+    {
+     "id": "hero",
+     "paradigm": "immersive-hero",
+     "required": false,
+     "order": 1,
+     "components": {},
+     "notes": "活动主视觉，规则入口。"
+    },
+    {
+     "id": "game",
+     "paradigm": "equal-grid",
+     "required": true,
+     "order": 2,
+     "components": {},
+     "notes": "抽奖区（转盘、九宫格或刮刮卡）。"
+    },
+    {
+     "id": "chance",
+     "paradigm": "status-card",
+     "required": true,
+     "order": 3,
+     "components": {},
+     "notes": "剩余次数与最高奖一句话。"
+    },
+    {
+     "id": "records",
+     "paradigm": "single-column-list",
+     "required": false,
+     "order": 4,
+     "components": {},
+     "notes": "中奖记录，滚动展示。"
+    },
+    {
+     "id": "rules",
+     "paradigm": "modular-sections",
+     "required": false,
+     "order": 5,
+     "components": {},
+     "notes": "规则弹层，不占首屏。"
+    }
+   ],
+   "choose_rules": [
+    {
+     "when": "奖品已在抽奖区呈现",
+     "then": "不再另列奖品标签行",
+     "strength": "must"
+    }
+   ],
+   "dedup_rules": [
+    "首页只占一个位置，同一活动不在轮播、横滑、公告里再出现"
+   ],
+   "states": {
+    "loading": "抽奖区骨架",
+    "empty": "次数用完：显示下次时间与获取途径",
+    "error": "抽奖失败不扣次数并重试",
+    "other": "中奖、未中奖、领取奖品；活动结束与不在目标人群自动收起"
+   },
+   "adaptive": [
+    "资料未覆盖，全页版式待样板页验证"
+   ],
+   "antipatterns": [
+    "副文案写口号",
+    "奖品重复列出",
+    "结果页没有下一步"
+   ],
+   "needs_from_system": [
+    "奖项与概率口径、次数规则、领奖流程"
+   ],
+   "think": [
+    "这个玩法的目的是什么：拉新、促活还是清库存？",
+    "结果页下一步是什么？",
+    "用户不在目标人群时怎么处理？"
+   ],
+   "innovation_room": "可以有个性：这是最能表达气氛的页面之一：动效、插画、色彩。不能碰：不写口号、不重复奖品、有下一步。",
+   "evidence": [
+    {
+     "kind": "skill",
+     "ref": "system:ui-standards",
+     "note": "标题叫每日抽奖，副文案只写剩余次数与最高奖"
+    },
+    {
+     "kind": "convention",
+     "ref": "convention",
+     "note": "惯例，资料未核对。抽奖页资料未覆盖"
+    }
+   ],
+   "confidence": "low",
+   "order_basis": "没有外部资料，推演自 System 文字与惯例，待样板页验证",
+   "tagline": "每日抽奖：次数与最高奖",
+   "watch": "副文案不写口号；奖品不重复列出",
+   "mistakes": "结果页没有下一步",
+   "play": "动效、插画、色彩"
+  },
+  {
+   "id": "activity-coupon-center",
+   "name": "领券中心",
+   "applies_to": [
+    "ecommerce",
+    "food-chain",
+    "membership-benefits",
+    "local-booking"
+   ],
+   "purpose": "领取优惠券的集中页：券卡、状态与规则；使用场景在结算页选择，不在这里。",
+   "blocks": [
+    {
+     "id": "tip",
+     "paradigm": "notice-bar",
+     "required": false,
+     "order": 1,
+     "components": {},
+     "notes": "规则一句话。"
+    },
+    {
+     "id": "tabs",
+     "paradigm": "top-tabs",
+     "required": false,
+     "order": 2,
+     "components": {},
+     "notes": "券类型标签，可选。"
+    },
+    {
+     "id": "list",
+     "paradigm": "coupon-card",
+     "required": true,
+     "order": 3,
+     "components": {
+      "vant4": "CouponList / CouponCell"
+     },
+     "notes": "券卡列表：面额、门槛、有效期、领取按钮四态。"
+    },
+    {
+     "id": "exchange",
+     "paradigm": "cell-list",
+     "required": false,
+     "order": 4,
+     "components": {},
+     "notes": "兑换码输入，放底部或顶部一处。"
+    }
+   ],
+   "choose_rules": [
+    {
+     "when": "券很少",
+     "then": "首页用横滑专场承载，不单独做页面",
+     "strength": "default"
+    }
+   ],
+   "dedup_rules": [
+    "领券入口在首页只占一个位置",
+    "已领取的券不再显示领取入口"
+   ],
+   "states": {
+    "loading": "券卡骨架",
+    "empty": "暂无可领的券：写下次时间",
+    "error": "领取失败（已抢光、不在人群）：原位写原因",
+    "other": "立即领取、已领取、已抢光、不可用并写原因"
+   },
+   "adaptive": [
+    "券面的缺口与虚线随宽度重算"
+   ],
+   "antipatterns": [
+    "不可用券不写原因",
+    "已领取的券还有领取按钮",
+    "领券入口多处重复"
+   ],
+   "needs_from_system": [
+    "券的规则、人群、库存、有效期",
+    "领取与使用的状态集合"
+   ],
+   "think": [
+    "用户来这里是找券还是顺便看看？",
+    "领完以后他的下一步是什么：去使用、回购？",
+    "不可用券写了原因吗？"
+   ],
+   "innovation_room": "可以有个性：券面设计与插画、缺口形态。不能碰：四态按钮对应、不可用写原因。",
+   "evidence": [
+    {
+     "kind": "rule",
+     "ref": "comp:SRC-019",
+     "note": ""
+    },
+    {
+     "kind": "rule",
+     "ref": "pages:SRC-004",
+     "note": "有赞优惠券组件"
+    },
+    {
+     "kind": "skill",
+     "ref": "design:visual-design#各端视觉参数",
+     "note": ""
+    },
+    {
+     "kind": "convention",
+     "ref": "convention",
+     "note": "惯例，资料未核对。领券页区块顺序资料未覆盖"
+    }
+   ],
+   "confidence": "low",
+   "order_basis": "推演自状态机或惯例，待样板页验证",
+   "tagline": "领券的集中页",
+   "watch": "已领取不再有领取按钮；不可用写原因",
+   "mistakes": "领券入口多处重复",
+   "play": "券面与缺口形态"
+  },
+  {
+   "id": "member-benefits",
+   "name": "会员权益页",
+   "applies_to": [
+    "membership-benefits",
+    "food-chain",
+    "local-booking",
+    "ecommerce"
+   ],
+   "purpose": "会员的等级、权益与升级条件；权益详情的家，不在首页平铺。",
+   "blocks": [
+    {
+     "id": "card",
+     "paradigm": "member-card-hero",
+     "required": true,
+     "order": 1,
+     "components": {},
+     "notes": "等级、成长值或余量。"
+    },
+    {
+     "id": "benefits",
+     "paradigm": "equal-grid",
+     "required": true,
+     "order": 2,
+     "components": {},
+     "notes": "权益格，未解锁灰色带锁。"
+    },
+    {
+     "id": "upgrade",
+     "paradigm": "progress-steps",
+     "required": false,
+     "order": 3,
+     "components": {},
+     "notes": "升级条件与进度。"
+    },
+    {
+     "id": "exclusive",
+     "paradigm": "horizontal-scroller",
+     "required": false,
+     "order": 4,
+     "components": {},
+     "notes": "会员专享活动。"
+    },
+    {
+     "id": "plan",
+     "paradigm": "action-bar",
+     "required": false,
+     "order": 5,
+     "components": {},
+     "notes": "开通或续费方案选择、订阅按钮、协议勾选。"
+    }
+   ],
+   "choose_rules": [
+    {
+     "when": "未开通",
+     "then": "主卡变为开通引导，权益格全部带锁预览",
+     "strength": "default"
+    }
+   ],
+   "dedup_rules": [
+    "首页只有一条会员状态摘要，权益详情只在本页",
+    "开通入口只有一个"
+   ],
+   "states": {
+    "loading": "主卡与权益格骨架",
+    "empty": "无权益：不应出现，应隐藏本页入口",
+    "error": "原位重试",
+    "other": "未开通、已开通、已过期、即将到期"
+   },
+   "adaptive": [
+    "权益格列数按最小格宽推导"
+   ],
+   "antipatterns": [
+    "把权益列表平铺在首页",
+    "状态词与首页摘要不一致",
+    "协议默认勾选"
+   ],
+   "needs_from_system": [
+    "会员等级体系、权益清单、升级规则、开通方案"
+   ],
+   "think": [
+    "用户最想知道的是我有什么、还差什么、划不划算？",
+    "未开通用户看到的是预览还是说服？",
+    "首页那一条会员状态摘要与本页的说法一致吗？"
+   ],
+   "innovation_room": "可以有个性：等级材质与主卡构图、权益图标。不能碰：权益详情只在本页、状态词一致、协议不预勾选。",
+   "evidence": [
+    {
+     "kind": "example",
+     "ref": "home:SRC-003",
+     "note": "LevelCard 与 MembershipPlan：方案选择、订阅按钮、协议勾选"
+    },
+    {
+     "kind": "skill",
+     "ref": "design:visual-design#各端视觉参数",
+     "note": "未解锁的会员权益灰色带锁"
+    },
+    {
+     "kind": "convention",
+     "ref": "convention",
+     "note": "惯例，资料未核对。会员页区块顺序资料未覆盖"
+    }
+   ],
+   "confidence": "low",
+   "order_basis": "推演自状态机或惯例，待样板页验证",
+   "tagline": "等级、权益、升级条件",
+   "watch": "权益详情只在本页；协议不预勾选",
+   "mistakes": "把权益平铺在首页",
+   "play": "主卡材质、权益图标"
+  },
+  {
+   "id": "message-center",
+   "name": "消息中心",
+   "applies_to": [
+    "food-chain",
+    "ecommerce",
+    "local-booking",
+    "b2b-quote-ticket",
+    "content-community",
+    "brand-campaign",
+    "enterprise-internal",
+    "course-education",
+    "membership-benefits",
+    "local-life-super-app"
+   ],
+   "purpose": "通知与互动消息的集中页；未读可见，可全部已读。",
+   "blocks": [
+    {
+     "id": "tabs",
+     "paradigm": "top-tabs",
+     "required": false,
+     "order": 1,
+     "components": {},
+     "notes": "消息类型分段，不超过三类。"
+    },
+    {
+     "id": "list",
+     "paradigm": "single-column-list",
+     "required": true,
+     "order": 2,
+     "components": {},
+     "notes": "消息行：图标、标题、摘要、时间、未读点。"
+    },
+    {
+     "id": "empty",
+     "paradigm": "result-panel",
+     "required": false,
+     "order": 3,
+     "components": {},
+     "notes": "没有消息时写对象。"
+    }
+   ],
+   "choose_rules": [
+    {
+     "when": "只有系统通知一类",
+     "then": "不做分段，直接列表",
+     "strength": "default"
+    }
+   ],
+   "dedup_rules": [
+    "未读角标在标签栏或我的只放一处"
+   ],
+   "states": {
+    "loading": "行骨架",
+    "empty": "还没有消息",
+    "error": "原位重试",
+    "other": "未读、已读；全部已读"
+   },
+   "adaptive": [
+    "资料未覆盖，全页版式待样板页验证"
+   ],
+   "antipatterns": [
+    "角标常亮不消",
+    "标题与摘要复述"
+   ],
+   "needs_from_system": [
+    "消息类型与触发规则",
+    "未读与已读规则"
+   ],
+   "think": [
+    "哪些消息真的需要用户行动？不需要的是否该不推？",
+    "未读数是否会被无意义消息稀释？",
+    "消息类型超过三类时，是分段还是分组？"
+   ],
+   "innovation_room": "可以有个性：行的构图、图标、时间显示。不能碰：未读可见、角标不稀释。",
+   "evidence": [
+    {
+     "kind": "convention",
+     "ref": "convention",
+     "note": "惯例，资料未核对。消息中心资料未覆盖"
+    },
+    {
+     "kind": "rule",
+     "ref": "home:SRC-017",
+     "note": "徽标只留给关键信息，避免稀释"
+    }
+   ],
+   "confidence": "low",
+   "order_basis": "全部推演，待样板页验证",
+   "tagline": "通知与互动的集中页",
+   "watch": "未读可见；角标只放一处",
+   "mistakes": "角标常亮不消",
+   "play": "行构图、图标"
+  },
+  {
+   "id": "login-auth",
+   "name": "登录与授权",
+   "applies_to": [
+    "food-chain",
+    "ecommerce",
+    "local-booking",
+    "b2b-quote-ticket",
+    "content-community",
+    "brand-campaign",
+    "enterprise-internal",
+    "course-education",
+    "membership-benefits",
+    "local-life-super-app"
+   ],
+   "purpose": "在用户需要时才请求授权：一个明确的主按钮、协议在显眼处，不预勾选、不捆绑多项授权。",
+   "blocks": [
+    {
+     "id": "brand",
+     "paradigm": "immersive-hero",
+     "required": false,
+     "order": 1,
+     "components": {},
+     "notes": "品牌标识与一句话，不占满屏。"
+    },
+    {
+     "id": "login",
+     "paradigm": "action-bar",
+     "required": true,
+     "order": 2,
+     "components": {},
+     "notes": "微信一键登录主按钮。"
+    },
+    {
+     "id": "agree",
+     "paradigm": "cell-list",
+     "required": true,
+     "order": 3,
+     "components": {},
+     "notes": "协议与隐私政策，用户自己勾选。"
+    },
+    {
+     "id": "other",
+     "paradigm": "cell-list",
+     "required": false,
+     "order": 4,
+     "components": {},
+     "notes": "其他登录方式，可选。"
+    }
+   ],
+   "choose_rules": [
+    {
+     "when": "用户只是浏览",
+     "then": "不拦截，用到需要登录的功能时才引导",
+     "strength": "default"
+    }
+   ],
+   "dedup_rules": [
+    "隐私政策入口常驻，登录页与我的各一处不算重复（不同页面）"
+   ],
+   "states": {
+    "loading": "按钮加载态，防重复点击",
+    "empty": "无",
+    "error": "授权被拒：说明影响，给再次授权与继续浏览",
+    "other": "已登录不再显示登录页"
+   },
+   "adaptive": [
+    "资料很少，全页版式待样板页验证"
+   ],
+   "antipatterns": [
+    "启动时一次性申请多项权限",
+    "协议预勾选",
+    "把多项授权捆成一个同意",
+    "反复追问"
+   ],
+   "needs_from_system": [
+    "登录方式、授权项与用途、协议文本入口"
+   ],
+   "think": [
+    "用户在没登录时能做什么？不登录就拦住是必须的吗？",
+    "每个授权项的用途一句话写清了吗？",
+    "用户拒绝授权后，哪些功能仍然可用？"
+   ],
+   "innovation_room": "可以有个性：品牌氛围与插画。不能碰：用户主动授权、不预勾选、不捆绑、拒绝后不堵死。",
+   "evidence": [
+    {
+     "kind": "skill",
+     "ref": "system:ui-standards",
+     "note": "个人信息与隐私：用户主动、敏感信息单独同意、告知清楚"
+    },
+    {
+     "kind": "example",
+     "ref": "home:SRC-003",
+     "note": "MembershipPlan 的协议勾选"
+    },
+    {
+     "kind": "convention",
+     "ref": "convention",
+     "note": "惯例，资料未核对。登录页版式资料未覆盖"
+    }
+   ],
+   "confidence": "low",
+   "order_basis": "规则来自 System，版式推演",
+   "tagline": "用到时才授权",
+   "watch": "不预勾选、不捆绑、拒绝后不堵死",
+   "mistakes": "启动时申请多项权限",
+   "play": "品牌氛围"
+  },
+  {
+   "id": "result-empty-error",
+   "name": "结果、空态与错误页",
+   "applies_to": [
+    "food-chain",
+    "ecommerce",
+    "local-booking",
+    "b2b-quote-ticket",
+    "content-community",
+    "brand-campaign",
+    "enterprise-internal",
+    "course-education",
+    "membership-benefits",
+    "local-life-super-app"
+   ],
+   "purpose": "流程终结或列表为空、请求失败时的页面：说清结果与原因，给下一步。",
+   "blocks": [
+    {
+     "id": "visual",
+     "paradigm": "result-panel",
+     "required": true,
+     "order": 1,
+     "components": {},
+     "notes": "图标或插画。"
+    },
+    {
+     "id": "title",
+     "paradigm": "result-panel",
+     "required": true,
+     "order": 2,
+     "components": {},
+     "notes": "一句结论，写对象与结果。"
+    },
+    {
+     "id": "reason",
+     "paradigm": "result-panel",
+     "required": false,
+     "order": 3,
+     "components": {},
+     "notes": "一句原因，失败时必有。"
+    },
+    {
+     "id": "primary",
+     "paradigm": "action-bar",
+     "required": true,
+     "order": 4,
+     "components": {},
+     "notes": "一个主行动；次行动可选（返回、联系客服）。"
+    }
+   ],
+   "choose_rules": [
+    {
+     "when": "流程终结（支付、预约、提交）",
+     "then": "结果页，写结果与下一步",
+     "strength": "must"
+    },
+    {
+     "when": "局部操作成功",
+     "then": "原处反馈或 1.5 秒轻提示",
+     "strength": "must"
+    },
+    {
+     "when": "需要用户明确知晓的状态",
+     "then": "模态对话框并附下一步",
+     "strength": "default"
+    }
+   ],
+   "dedup_rules": [
+    "主行动只有一个，不重复“返回首页”与“完成”"
+   ],
+   "states": {
+    "loading": "同一页面不使用超过一个加载动画",
+    "empty": "写对象加一个行动，不只写暂无数据",
+    "error": "原因加恢复入口，保留用户输入",
+    "other": "无权限写清缺什么、找谁开通"
+   },
+   "adaptive": [
+    "错误页同样避让胶囊与安全区"
+   ],
+   "antipatterns": [
+    "只写“出错了”",
+    "没有返回路径",
+    "成功页写“恭喜您”等空话",
+    "图标型提示用于错误"
+   ],
+   "needs_from_system": [
+    "错误与空态的文案键、恢复动作、无权限的开通方式"
+   ],
+   "think": [
+    "用户看完这一页下一步该做什么？",
+    "失败原因能告诉用户到什么程度而不泄露内部信息？",
+    "这是终点（结果页）还是局部状态（原位面板）？"
+   ],
+   "innovation_room": "可以有个性：插画与语气。不能碰：必须给下一步、错误必有原因与恢复。",
+   "evidence": [
+    {
+     "kind": "rule",
+     "ref": "comp:SRC-001",
+     "note": "结果页、弹出提示、模态对话框、异常处理"
+    },
+    {
+     "kind": "skill",
+     "ref": "system:ui-standards#状态体系",
+     "note": ""
+    }
+   ],
+   "confidence": "high",
+   "order_basis": "",
+   "tagline": "终点、空态、错误面板",
+   "watch": "必须有下一步；错误有原因与恢复",
+   "mistakes": "只写出错了、没有返回",
+   "play": "插画与语气"
+  }
+ ],
+ "rules": [
+  {
+   "id": "context-in-header-only",
+   "scope": "home",
+   "text": "全局上下文（门店或自提点、配送方式、定位、城市）只能在顶部上下文栏；不进金刚区、轮播、信息流或页内第二个入口。",
+   "strength": "must",
+   "check": "script",
+   "evidence": [
+    {
+     "kind": "user",
+     "ref": "user:2026-11-04",
+     "note": "门店、同城配送这种，应该在顶部"
+    },
+    {
+     "kind": "skill",
+     "ref": "system:ui-standards#入口与内容分层",
+     "note": "全局上下文类的默认入口位置"
+    },
+    {
+     "kind": "example",
+     "ref": "pages2:SRC-011",
+     "note": "顶栏负责定位、标题、情境操作（间接）"
+    },
+    {
+     "kind": "example",
+     "ref": "pages2:SRC-003",
+     "note": "外卖首屏先答送得到吗、多久、起送价、配送费（单人口径）"
+    }
+   ],
+   "confidence": "low"
+  },
+  {
+   "id": "search-top-not-dock",
+   "scope": "home",
+   "text": "搜索放顶部搜索框或所属列表页内，不占金刚区、不另设搜索图标按钮。",
+   "strength": "must",
+   "check": "script",
+   "evidence": [
+    {
+     "kind": "skill",
+     "ref": "system:ui-standards#入口与内容分层",
+     "note": "搜索类"
+    },
+    {
+     "kind": "example",
+     "ref": "home:SRC-012",
+     "note": "搜索作为最前或持久目的地"
+    },
+    {
+     "kind": "example",
+     "ref": "pages2:SRC-010",
+     "note": "电商行：底部标签加醒目搜索"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": "account-in-mine-only",
+   "scope": "global",
+   "text": "账户与个人资产类（会员与等级权益、收藏、优惠券钱包、积分、储值、地址、发票、设置、协议、客服）只能在我的列表；首页最多一条状态摘要且不另设入口。",
+   "strength": "must",
+   "check": "script",
+   "evidence": [
+    {
+     "kind": "user",
+     "ref": "user:2026-11-04",
+     "note": "收藏、会员应该在我的"
+    },
+    {
+     "kind": "skill",
+     "ref": "system:ui-standards#入口与内容分层",
+     "note": "账户与个人资产类"
+    },
+    {
+     "kind": "example",
+     "ref": "pages2:SRC-010",
+     "note": "设置放在 Profile 内的案例；也有账户级入口放抽屉的做法"
+    }
+   ],
+   "confidence": "low",
+   "check_also": [
+    "rendered"
+   ]
+  },
+  {
+   "id": "order-home-state-card-only",
+   "scope": "home",
+   "text": "订单类不进金刚区；首页只出进行中订单的状态卡，不出全部订单入口。",
+   "strength": "must",
+   "check": "script",
+   "evidence": [
+    {
+     "kind": "skill",
+     "ref": "system:ui-standards#入口与内容分层",
+     "note": "订单类"
+    },
+    {
+     "kind": "example",
+     "ref": "pages2:SRC-010",
+     "note": "没有规则说订单必须是标签或必须放在个人中心里；电商示例把订单放标签"
+    }
+   ],
+   "confidence": "low"
+  },
+  {
+   "id": "tool-in-mine-or-inpage",
+   "scope": "home",
+   "text": "低频工具与合规（发票抬头、隐私设置、意见反馈）放我的列表行或二级页，不上首页。",
+   "strength": "must",
+   "check": "script",
+   "evidence": [
+    {
+     "kind": "skill",
+     "ref": "system:ui-standards#入口与内容分层",
+     "note": "低频工具与合规类"
+    }
+   ],
+   "confidence": "low"
+  },
+  {
+   "id": "dock-core-parallel-only",
+   "scope": "home",
+   "text": "金刚区只放并列的高频核心业务；不放账户类、上下文类、订单类、搜索类，不放本页其他模块已承载的业务。",
+   "strength": "must",
+   "check": "script",
+   "evidence": [
+    {
+     "kind": "user",
+     "ref": "user:2026-11-04",
+     "note": "金刚区的内容要放重要的，不能展示重复的或别的 tab 栏的内容"
+    },
+    {
+     "kind": "skill",
+     "ref": "system:ui-standards#入口与内容分层",
+     "note": "宫格只用来分发多个并列的高频核心业务"
+    },
+    {
+     "kind": "example",
+     "ref": "home:SRC-012",
+     "note": "持久导航只放稳定且用途各异的目的地"
+    }
+   ],
+   "confidence": "medium",
+   "check_also": [
+    "rendered"
+   ]
+  },
+  {
+   "id": "dock-no-tabbar-dup",
+   "scope": "home",
+   "text": "金刚区的入口不与标签栏任何一项同目的地、同名称。",
+   "strength": "must",
+   "check": "script",
+   "evidence": [
+    {
+     "kind": "user",
+     "ref": "user:2026-11-04",
+     "note": "不能展示别的 tab 栏的内容"
+    },
+    {
+     "kind": "skill",
+     "ref": "system:ui-standards#入口与内容分层",
+     "note": "核心任务已有固定入口时，其他位置不再放它的入口"
+    },
+    {
+     "kind": "example",
+     "ref": "pages2:SRC-011",
+     "note": "多种导航模式并用时每种必须有不同用途"
+    },
+    {
+     "kind": "example",
+     "ref": "pages2:SRC-010",
+     "note": "不要把同一个动作放在多个地方"
+    }
+   ],
+   "confidence": "low",
+   "check_also": [
+    "rendered"
+   ]
+  },
+  {
+   "id": "one-destination-once",
+   "scope": "page",
+   "text": "同一目的地（同一页面加同一参数）在一个页面上只出现一次，含轮播、金刚、卡片、悬浮按钮、标签栏；列表每行的逐行操作除外。",
+   "strength": "must",
+   "check": "script",
+   "evidence": [
+    {
+     "kind": "skill",
+     "ref": "system:ui-standards#入口与内容分层",
+     "note": "一个业务只有一个入口；System 的依据里引了尼尔森诺曼集团“同一链接在同一页出现两次”，本技能未复核"
+    },
+    {
+     "kind": "example",
+     "ref": "pages2:SRC-010",
+     "note": "混合模式：不要把同一动作放在多处"
+    },
+    {
+     "kind": "example",
+     "ref": "pages2:SRC-011",
+     "note": "每种导航模式必须有不同用途"
+    },
+    {
+     "kind": "example",
+     "ref": "pages:SRC-002",
+     "note": "我的页头像栏与基本信息行都跳资料页（读码观察，反例）"
+    },
+    {
+     "kind": "example",
+     "ref": "pages:SRC-003",
+     "note": "退出出现两次（读码观察，反例）"
+    }
+   ],
+   "confidence": "low",
+   "check_also": [
+    "rendered"
+   ],
+   "exceptions": [
+    "手势必须有可见替代（pages2:SRC-010、pages2:SRC-011）",
+    "从分享或历史直接进入的详情页要补返回与首页入口（pages2:SRC-009）",
+    "吸顶栏承接首要入口时，同一时刻只出现一个",
+    "面包屑是导航路径，不是入口：后台详情页的面包屑与侧栏指向同一目的地（如“全部客户”）不算重复，check-page 不把面包屑计入入口；侧栏项与页内按钮、卡片同目的地仍然重复，照常报"
+   ]
+  },
+  {
+   "id": "marketing-max-two",
+   "scope": "home",
+   "text": "营销同屏不超过 2 个模块；同一活动只占一个位置。",
+   "strength": "must",
+   "check": "script",
+   "evidence": [
+    {
+     "kind": "skill",
+     "ref": "system:ui-standards#入口与内容分层",
+     "note": "营销类：首屏同时不超过 2 个营销模块"
+    },
+    {
+     "kind": "skill",
+     "ref": "design:visual-design#各端视觉参数",
+     "note": "同屏强调色不超过两个"
+    }
+   ],
+   "confidence": "low"
+  },
+  {
+   "id": "one-activity-one-place",
+   "scope": "home",
+   "text": "同一个活动不同时出现在轮播、宫格、活动卡片、公告栏；选定一种载体后其余不再提它。",
+   "strength": "must",
+   "check": "manual",
+   "evidence": [
+    {
+     "kind": "skill",
+     "ref": "system:ui-standards#入口与内容分层",
+     "note": "营销活动只占一个位置"
+    }
+   ],
+   "confidence": "low"
+  },
+  {
+   "id": "status-card-latest-only",
+   "scope": "home",
+   "text": "状态卡只展示进行中的那一条，点进具体详情；没有进行中事项时整块不出现。",
+   "strength": "must",
+   "check": "manual",
+   "evidence": [
+    {
+     "kind": "skill",
+     "ref": "system:ui-standards#入口与内容分层",
+     "note": "状态与待办类"
+    },
+    {
+     "kind": "example",
+     "ref": "home:SRC-012",
+     "note": "继续卡、零计数的区分"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": "notice-bar-ops-only",
+   "scope": "home",
+   "text": "公告栏只写运营消息，不复述页面上已有的营销活动或入口；没有公告时整块不出现。",
+   "strength": "default",
+   "check": "manual",
+   "evidence": [
+    {
+     "kind": "skill",
+     "ref": "system:ui-standards#入口与内容分层",
+     "note": "不重复表达：公告不复述下方模块"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": "no-fill-dock",
+   "scope": "home",
+   "text": "金刚区凑不满一屏就不凑，入口少而重要；入口不足 5 个时用入口大卡，不为好看补低频入口。",
+   "strength": "default",
+   "check": "script",
+   "evidence": [
+    {
+     "kind": "user",
+     "ref": "user:2026-11-04",
+     "note": "不要为了堆内容而堆内容，尽可能精简入口，提高页面的信息密度"
+    },
+    {
+     "kind": "skill",
+     "ref": "system:ui-standards#入口与内容分层",
+     "note": "入口少而重要，凑不满一屏就不凑"
+    },
+    {
+     "kind": "skill",
+     "ref": "design:visual-design#金刚区与宫格入口",
+     "note": "入口多于 4 个才使用宫格"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": "dock-count-cap",
+   "scope": "home",
+   "text": "金刚区一页不超过 10 个入口（5 列×2 行）；超过两行才分页，最多 3 页，末页不足半页并入“全部”。",
+   "strength": "default",
+   "check": "script",
+   "evidence": [
+    {
+     "kind": "skill",
+     "ref": "design:visual-design#金刚区与宫格入口",
+     "note": "dock_grid 公式"
+    },
+    {
+     "kind": "skill",
+     "ref": "skill:default",
+     "note": "本技能取值，按样板页调"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": "dock-layout-by-formula",
+   "scope": "home",
+   "text": "金刚区的列数、行数、分页由入口数、最长文案字数、屏宽用 dock_grid 推导，不套固定 5 列 2 行。",
+   "strength": "must",
+   "check": "script",
+   "evidence": [
+    {
+     "kind": "skill",
+     "ref": "design:style_match",
+     "note": "dock_grid"
+    },
+    {
+     "kind": "skill",
+     "ref": "design:layout-inference",
+     "note": "数字排列默认属证据层，不自动固定"
+    },
+    {
+     "kind": "skill",
+     "ref": "design:visual-design#金刚区与宫格入口",
+     "note": "质量门禁：宫格失衡"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": "first-module-answers-return-task",
+   "scope": "home",
+   "text": "首屏第一个模块回答“用户最可能回来做的事”；进度、推荐、导航、账户工具起支撑作用。",
+   "strength": "default",
+   "check": "manual",
+   "evidence": [
+    {
+     "kind": "example",
+     "ref": "home:SRC-012",
+     "note": "第一个有意义的卡片应回答用户最可能回来要做的事"
+    },
+    {
+     "kind": "skill",
+     "ref": "system:ui-standards#入口与内容分层",
+     "note": "核心在前"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": "five-questions",
+   "scope": "global",
+   "text": "每个模块必须通过精简五问：删了它首屏决策受影响吗；它的类型允许在此吗；目的地在本页或标签栏出现过吗；它高频、并列、核心吗；它在这个用户状态下是第一时间要做的事吗。",
+   "strength": "default",
+   "check": "manual",
+   "evidence": [
+    {
+     "kind": "user",
+     "ref": "user:2026-11-04",
+     "note": "尽可能精简入口，提高页面的信息密度"
+    },
+    {
+     "kind": "skill",
+     "ref": "system:ui-standards#入口与内容分层",
+     "note": "删除测试：对每个可见元素做删除测试"
+    },
+    {
+     "kind": "example",
+     "ref": "home:SRC-012",
+     "note": "如果每个东西都是仪表盘卡片，就没有东西在解释什么重要"
+    }
+   ],
+   "confidence": "medium",
+   "think": [
+    "删掉它，用户在首屏的决策会受影响吗？（删除测试）",
+    "它的功能类型允许出现在这里吗？（九类到区域表）",
+    "它的目的地在本页或标签栏已经出现过吗？（去重）",
+    "它是并列、高频、核心的吗？还是为了凑满或好看？（频次与重要性）",
+    "在这个用户状态下，它是第一时间要做的事吗？能不能由状态决定显隐？（状态）"
+   ]
+  },
+  {
+   "id": "first-screen-modules-max",
+   "scope": "home",
+   "text": "首屏模块（含顶部栏，不含标签栏）不超过 4 个。",
+   "strength": "default",
+   "check": "script",
+   "evidence": [
+    {
+     "kind": "skill",
+     "ref": "skill:default",
+     "note": "没有外部依据"
+    }
+   ],
+   "confidence": "low"
+  },
+  {
+   "id": "page-modules-max",
+   "scope": "home",
+   "text": "首页整页模块不超过 8 个（含顶部栏，不含标签栏）。",
+   "strength": "default",
+   "check": "script",
+   "evidence": [
+    {
+     "kind": "skill",
+     "ref": "skill:default",
+     "note": "没有外部依据"
+    },
+    {
+     "kind": "example",
+     "ref": "home:SRC-006",
+     "note": "网站便当网格实例称一次最多 12–15 块，不是规则"
+    }
+   ],
+   "confidence": "low"
+  },
+  {
+   "id": "modules-backend-switchable",
+   "scope": "home",
+   "text": "每个模块可由后台开关与排序，关掉后版面仍成立；前端只写版面。",
+   "strength": "default",
+   "check": "manual",
+   "evidence": [
+    {
+     "kind": "skill",
+     "ref": "system:ui-standards#内容来源与维护闭环",
+     "note": "模块顺序、显示隐藏由后端下发"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": "state-driven-home",
+   "scope": "home",
+   "text": "首页随用户状态变化：用新用户、未完成、已完成、空、过载、被阻塞六种账号状态各评审一次，记录第一个可操作模块与原因；教学卡有真实内容后撤掉。",
+   "strength": "default",
+   "check": "manual",
+   "evidence": [
+    {
+     "kind": "example",
+     "ref": "home:SRC-012",
+     "note": "六种账号状态评审与十条检查清单"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": "no-repeat-expression",
+   "scope": "page",
+   "text": "一张卡里每条信息只说一次，状态只用一种表达；副标题、标签、角标、按钮之间不互相复述。",
+   "strength": "default",
+   "check": "manual",
+   "evidence": [
+    {
+     "kind": "skill",
+     "ref": "system:ui-standards#入口与内容分层",
+     "note": "不重复表达"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": "tabbar-count-2-to-5",
+   "scope": "global",
+   "text": "标签栏不少于 2 项、不超过 5 项；项数由 System 决定，超出退回 System。",
+   "strength": "must",
+   "check": "script",
+   "evidence": [
+    {
+     "kind": "rule",
+     "ref": "comp:SRC-001",
+     "note": "微信小程序设计指南：不得少于 2 个，最多不得超过 5 个"
+    },
+    {
+     "kind": "rule",
+     "ref": "comp:SRC-006",
+     "note": "Material 3 参考：3 到 5 个，非微信规范"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": "tabbar-prefer-4",
+   "scope": "global",
+   "text": "为确保点击区域，标签栏建议不超过 4 项；5 项要有理由。",
+   "strength": "hint",
+   "check": "script",
+   "evidence": [
+    {
+     "kind": "rule",
+     "ref": "comp:SRC-001",
+     "note": "建议不超过 4 项"
+    },
+    {
+     "kind": "example",
+     "ref": "pages2:SRC-010",
+     "note": "3–5 项是惯例无研究"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": "tabs-one-group-per-page",
+   "scope": "page",
+   "text": "页内顶部标签与底部标签栏职责分开；同页不并存两组职责相同的标签。",
+   "strength": "hint",
+   "check": "manual",
+   "evidence": [
+    {
+     "kind": "rule",
+     "ref": "comp:SRC-001",
+     "note": "一个页面不应出现一组以上的标签分页栏；页内内容标签与一级标签栏是否算两组，资料未核对"
+    },
+    {
+     "kind": "rule",
+     "ref": "home:SRC-017",
+     "note": "苹果标签栏规则管一级导航，不管页内标签"
+    }
+   ],
+   "confidence": "low"
+  },
+  {
+   "id": "capsule-reserve",
+   "scope": "global",
+   "text": "右上角官方菜单（胶囊）固定存在，设计时预留该区域；自有导航样式与之保持差异；附近的可交互元素注意事件冲突。",
+   "strength": "must",
+   "check": "manual",
+   "evidence": [
+    {
+     "kind": "rule",
+     "ref": "comp:SRC-001",
+     "note": "微信小程序设计指南：小程序菜单"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": "touch-target-44",
+   "scope": "global",
+   "text": "点击区域整格可点，不小于 44×44；金刚区格宽不小于 56。",
+   "strength": "must",
+   "check": "manual",
+   "evidence": [
+    {
+     "kind": "skill",
+     "ref": "design:visual-design#金刚区与宫格入口",
+     "note": "WCAG 增强级 44×44；微信指南热区约 7–9 毫米"
+    },
+    {
+     "kind": "rule",
+     "ref": "comp:SRC-001",
+     "note": "热区够大、不要过密"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": "bento-local-only",
+   "scope": "home",
+   "text": "便当网格只作运营卡片区或看板型局部，不作小程序首页骨架；移动端降为单列或两列，必须有主角 tile。",
+   "strength": "must",
+   "check": "manual",
+   "evidence": [
+    {
+     "kind": "user",
+     "ref": "user:2026-11-04",
+     "note": "便当网格不能当小程序首页常规范式"
+    },
+    {
+     "kind": "example",
+     "ref": "home:SRC-006",
+     "note": "资料全是网站与 SaaS 营销页"
+    },
+    {
+     "kind": "example",
+     "ref": "home:SRC-007",
+     "note": "移动端通常单列堆叠；不适合有先后顺序的内容与表单"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": "side-category-not-home",
+   "scope": "home",
+   "text": "侧边分类通常是独立分类页或点单页，不放在普通首页；首页就是点单页时写偏离说明。",
+   "strength": "default",
+   "check": "manual",
+   "evidence": [
+    {
+     "kind": "example",
+     "ref": "home:SRC-003",
+     "note": "瑞幸菜单页 CategorySidebar"
+    },
+    {
+     "kind": "example",
+     "ref": "home:SRC-013",
+     "note": "电商指南把分类做成独立标签"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": "masonry-needs-skyline-or-compat",
+   "scope": "page",
+   "text": "瀑布流只用于 Skyline 或基础库不低于 2.30.4 的 WebView 兼容实现，且必须是 scroll-view type=custom 的直接子节点；WebView 下图片须预设宽高或 widthFix。",
+   "strength": "must",
+   "check": "manual",
+   "evidence": [
+    {
+     "kind": "rule",
+     "ref": "home:SRC-014",
+     "note": "grid-view masonry 的兼容与限制"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": "two-column-equal-height-self-handled",
+   "scope": "page",
+   "text": "grid-view aligned 只保证行高取同行最高子节点，双列视觉等高要卡片自己处理（固定标题行数、图片同比例）。",
+   "strength": "must",
+   "check": "manual",
+   "evidence": [
+    {
+     "kind": "rule",
+     "ref": "home:SRC-014",
+     "note": ""
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": "grid-gap-explicit",
+   "scope": "page",
+   "text": "grid-view 与宫格的间距默认值是 0，必须显式设置，取视觉规范的间距令牌。",
+   "strength": "must",
+   "check": "manual",
+   "evidence": [
+    {
+     "kind": "rule",
+     "ref": "home:SRC-014",
+     "note": ""
+    },
+    {
+     "kind": "rule",
+     "ref": "home:SRC-016",
+     "note": "Vant gutter 默认 0"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": "carousel-frames-and-pause",
+   "scope": "home",
+   "text": "轮播不超过 3 帧，每帧一个目的地；多张图宽高一致；自动播放须能暂停。",
+   "strength": "default",
+   "check": "script",
+   "evidence": [
+    {
+     "kind": "rule",
+     "ref": "pages:SRC-004",
+     "note": "有赞平台口径：3 张以内、宽高一致"
+    },
+    {
+     "kind": "skill",
+     "ref": "system:ui-standards#入口与内容分层",
+     "note": "轮播第三帧之后几乎没有人看"
+    },
+    {
+     "kind": "skill",
+     "ref": "design:visual-design#各端视觉参数",
+     "note": "自动播放的轮播须能暂停"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": "horizontal-scroller-visible-alt",
+   "scope": "home",
+   "text": "横滑内容露出下一张作提示，并有无手势的替代（末尾“全部”入口）。",
+   "strength": "default",
+   "check": "manual",
+   "evidence": [
+    {
+     "kind": "example",
+     "ref": "pages2:SRC-010",
+     "note": "手势必须有可见替代"
+    },
+    {
+     "kind": "example",
+     "ref": "pages2:SRC-011",
+     "note": ""
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": "feed-visible-reason-and-escape",
+   "scope": "home",
+   "text": "信息流每张卡要有“为什么出现”的可见线索，并给用户离开信息流、主动搜索或纠偏的途径。",
+   "strength": "default",
+   "check": "manual",
+   "evidence": [
+    {
+     "kind": "example",
+     "ref": "home:SRC-012",
+     "note": "海外 App 编辑性原则，不是小程序"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": "bottom-bar-safe-area-placeholder",
+   "scope": "page",
+   "text": "底部固定栏要处理安全区并留占位：组件库的占位默认关闭，页面底部内容可能被遮挡。",
+   "strength": "must",
+   "check": "manual",
+   "evidence": [
+    {
+     "kind": "rule",
+     "ref": "comp:SRC-017",
+     "note": "SubmitBar placeholder 默认 false"
+    },
+    {
+     "kind": "rule",
+     "ref": "comp:SRC-018",
+     "note": "ActionBar placeholder 默认 false"
+    },
+    {
+     "kind": "rule",
+     "ref": "comp:SRC-008",
+     "note": "Vant Weapp Tabbar placeholder 默认 false"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": "three-states-per-module",
+   "scope": "page",
+   "text": "每个模块有加载（骨架）、空、错误三种状态；骨架形状与真实内容一致。",
+   "strength": "default",
+   "check": "manual",
+   "evidence": [
+    {
+     "kind": "skill",
+     "ref": "design:visual-design#页面布局模式",
+     "note": "每个模块都有加载、空和错误三种状态"
+    },
+    {
+     "kind": "skill",
+     "ref": "system:ui-standards#入口与内容分层",
+     "note": "状态体系"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": "one-loading-animation-per-page",
+   "scope": "page",
+   "text": "同一页面不同时使用超过 1 个加载动画；局部加载反馈优先于整页模态加载。",
+   "strength": "default",
+   "check": "manual",
+   "evidence": [
+    {
+     "kind": "rule",
+     "ref": "comp:SRC-001",
+     "note": "微信小程序设计指南：加载"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": "result-next-step",
+   "scope": "page",
+   "text": "结果页、空态与错误面板必须给下一步行动；异常要给状态提示和解决方案，不让用户无路可退。",
+   "strength": "must",
+   "check": "manual",
+   "evidence": [
+    {
+     "kind": "rule",
+     "ref": "comp:SRC-001",
+     "note": "结果与异常处理"
+    },
+    {
+     "kind": "skill",
+     "ref": "system:ui-standards#入口与内容分层",
+     "note": "状态体系：空写对象和一个行动"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": "order-entries-same-page-with-param",
+   "scope": "mine",
+   "text": "我的页的订单状态入口都进同一订单列表页并以参数高亮标签，不为每种状态另做页面；入口与标签一一对应。",
+   "strength": "default",
+   "check": "manual",
+   "evidence": [
+    {
+     "kind": "example",
+     "ref": "pages:SRC-003",
+     "note": "订单入口约定；读码观察：待评价入口没有对应标签"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": "status-words-consistent",
+   "scope": "page",
+   "text": "同一状态在标签、卡片、详情、通知里同名同外观（反例：标签叫待收货，卡片写已发货）。",
+   "strength": "default",
+   "check": "manual",
+   "evidence": [
+    {
+     "kind": "example",
+     "ref": "pages2:SRC-001",
+     "note": "读码观察"
+    },
+    {
+     "kind": "skill",
+     "ref": "system:ui-standards#入口与内容分层",
+     "note": "状态体系：同一状态在全系统用同一名称"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": "immersive-not-for-tasks",
+   "scope": "home",
+   "text": "办事类首页（点单、预约、报价、报修）不用沉浸式大图占满首屏；沉浸式留给品牌与活动落地。",
+   "strength": "default",
+   "check": "manual",
+   "evidence": [
+    {
+     "kind": "convention",
+     "ref": "convention",
+     "note": "惯例，资料未核对。沉浸式范式资料未覆盖"
+    },
+    {
+     "kind": "user",
+     "ref": "user:2026-11-04",
+     "note": "全屏大图/沉浸式海报列入清单"
+    }
+   ],
+   "confidence": "low"
+  },
+  {
+   "id": "ranking-basis-explainable",
+   "scope": "home",
+   "text": "榜单的排序依据要可解释，且不与下方信息流是同一批商品。",
+   "strength": "hint",
+   "check": "manual",
+   "evidence": [
+    {
+     "kind": "convention",
+     "ref": "convention",
+     "note": "惯例，资料未核对。榜单版式资料未覆盖"
+    }
+   ],
+   "confidence": "low"
+  },
+  {
+   "id": "deviation-note-required",
+   "scope": "global",
+   "text": "偏离 default 强度的规则必须在 BRIEF 与方案里写偏离说明：偏离哪条、为什么（业务依据）、风险、怎么验证；must 规则不许偏离，只能退回 System。",
+   "strength": "must",
+   "check": "manual",
+   "evidence": [
+    {
+     "kind": "skill",
+     "ref": "design:ui-ownership",
+     "note": "Design 不改功能；冲突时功能先于外观"
+    },
+    {
+     "kind": "skill",
+     "ref": "skill:default",
+     "note": "规则强度三档是本技能的约定"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": "ownership-no-add-remove",
+   "scope": "global",
+   "text": "不增删 System 已批准的页面、入口、标签栏项数、组件与按钮动作；排不下时退回 System，不自行增删。",
+   "strength": "must",
+   "check": "manual",
+   "evidence": [
+    {
+     "kind": "skill",
+     "ref": "design:ui-ownership",
+     "note": "两条不许越过的线"
+    }
+   ],
+   "confidence": "high"
+  }
+ ],
+ "density": {
+  "home": {
+   "first_screen_modules_max": {
+    "value": 4,
+    "strength": "default",
+    "basis": "本技能取值，按样板页调；含顶部栏，不含标签栏",
+    "evidence": [
+     {
+      "kind": "skill",
+      "ref": "skill:default",
+      "note": "没有外部依据"
+     }
+    ]
+   },
+   "page_modules_max": {
+    "value": 8,
+    "strength": "default",
+    "basis": "本技能取值，按样板页调",
+    "evidence": [
+     {
+      "kind": "skill",
+      "ref": "skill:default",
+      "note": "没有外部依据"
+     }
+    ]
+   },
+   "dock_items_min": {
+    "value": 5,
+    "strength": "default",
+    "basis": "入口多于 4 个才使用宫格（视觉设计规范依据表）",
+    "evidence": [
+     {
+      "kind": "skill",
+      "ref": "design:visual-design#金刚区与宫格入口",
+      "note": ""
+     }
+    ]
+   },
+   "dock_items_max": {
+    "value": 10,
+    "strength": "default",
+    "basis": "公式：屏宽 375、4 字文案时最大 5 列、单屏 2 行；超过才分页",
+    "evidence": [
+     {
+      "kind": "skill",
+      "ref": "design:visual-design#金刚区与宫格入口",
+      "note": "dock_grid 公式"
+     }
+    ]
+   },
+   "dock_pages_max": {
+    "value": 3,
+    "strength": "must",
+    "basis": "公式：最多 3 页",
+    "evidence": [
+     {
+      "kind": "skill",
+      "ref": "design:visual-design#金刚区与宫格入口",
+      "note": "dock_grid 公式"
+     }
+    ]
+   },
+   "marketing_modules_max": {
+    "value": 2,
+    "strength": "must",
+    "basis": "System 规则：同屏营销不超过 2 个模块",
+    "evidence": [
+     {
+      "kind": "skill",
+      "ref": "system:ui-standards#入口与内容分层",
+      "note": ""
+     }
+    ]
+   },
+   "banner_frames_max": {
+    "value": 3,
+    "strength": "default",
+    "basis": "有赞平台推荐 3 张以内；System：第三帧之后几乎没有人看",
+    "evidence": [
+     {
+      "kind": "rule",
+      "ref": "pages:SRC-004",
+      "note": "有赞平台口径"
+     },
+     {
+      "kind": "skill",
+      "ref": "system:ui-standards#入口与内容分层",
+      "note": ""
+     }
+    ]
+   },
+   "status_cards_max": {
+    "value": 2,
+    "strength": "default",
+    "basis": "本技能取值：状态卡只显示进行中的一条，保守允许两张不同类型",
+    "evidence": [
+     {
+      "kind": "skill",
+      "ref": "skill:default",
+      "note": "本技能取值，按样板页调"
+     }
+    ]
+   },
+   "header_context_items_max": {
+    "value": 3,
+    "strength": "default",
+    "basis": "本技能取值：门店、配送方式、定位",
+    "evidence": [
+     {
+      "kind": "skill",
+      "ref": "skill:default",
+      "note": "本技能取值，按样板页调"
+     }
+    ]
+   },
+   "scroller_items_max": {
+    "value": 6,
+    "strength": "default",
+    "basis": "本技能取值，按样板页调",
+    "evidence": [
+     {
+      "kind": "skill",
+      "ref": "skill:default",
+      "note": "本技能取值，按样板页调"
+     }
+    ]
+   },
+   "notice_bar_max": {
+    "value": 1,
+    "strength": "default",
+    "basis": "本技能取值",
+    "evidence": [
+     {
+      "kind": "skill",
+      "ref": "skill:default",
+      "note": "本技能取值，按样板页调"
+     }
+    ]
+   },
+   "workbench_quick_max": {
+    "value": 8,
+    "strength": "default",
+    "basis": "本技能取值：工作台快捷操作",
+    "evidence": [
+     {
+      "kind": "skill",
+      "ref": "skill:default",
+      "note": "本技能取值，按样板页调"
+     }
+    ]
+   },
+   "feed_modules_max": {
+    "value": 1,
+    "strength": "default",
+    "basis": "本技能取值：信息流放最后，一个就够",
+    "evidence": [
+     {
+      "kind": "skill",
+      "ref": "skill:default",
+      "note": "本技能取值，按样板页调"
+     }
+    ]
+   },
+   "bento_blocks_local_max": {
+    "value": 6,
+    "strength": "default",
+    "basis": "本技能取值；网站实例的 12–15 块不是小程序依据",
+    "evidence": [
+     {
+      "kind": "skill",
+      "ref": "skill:default",
+      "note": "本技能取值，按样板页调"
+     },
+     {
+      "kind": "example",
+      "ref": "home:SRC-006",
+      "note": "实例"
+     }
+    ]
+   }
+  },
+  "tabbar": {
+   "items_min": {
+    "value": 2,
+    "strength": "must",
+    "basis": "微信小程序设计指南",
+    "evidence": [
+     {
+      "kind": "rule",
+      "ref": "comp:SRC-001",
+      "note": ""
+     }
+    ]
+   },
+   "items_max": {
+    "value": 5,
+    "strength": "must",
+    "basis": "微信小程序设计指南",
+    "evidence": [
+     {
+      "kind": "rule",
+      "ref": "comp:SRC-001",
+      "note": ""
+     }
+    ]
+   },
+   "items_suggest_max": {
+    "value": 4,
+    "strength": "hint",
+    "basis": "微信小程序设计指南：为确保点击区域建议不超过 4 项",
+    "evidence": [
+     {
+      "kind": "rule",
+      "ref": "comp:SRC-001",
+      "note": ""
+     }
+    ]
+   }
+  },
+  "note": "dock_grid 的 3–5 列、最多 3 页与格尺寸是 Luz-Design 视觉规范的公式，不是微信官方数字；iPhone 标签栏项数硬上限、金刚区行数与总数上限、材料设计 3–5 个的出处资料未覆盖（comp:SRC-006 读到的是 Material 3 的 3–5 个，非微信规范）。"
+ },
+ "entrances_schema": {
+  "description": "System 交给 Design 的入口表：每个功能一行，说明它的类型、类别、归属、目的地与频次；Design 据此分配首页区域并去重，不增删入口。",
+  "file": "entrances.json：{\"entrances\": [...], \"tabbar\": [...]}；tabbar 可省略，省略时由 entry 为 tab 的行推出。",
+  "fields": {
+   "fn": "功能编号，对应功能清单的 id，如 FN-006（必填）",
+   "name": "界面上的入口名称（必填）",
+   "type": "功能类型，九类之一：context、search、task、status、account、order、marketing、content、tool（必填）",
+   "category": "System 的类别：core 核心、info 信息、marketing 营销、aux 辅助（必填）",
+   "entry": "System 给的唯一入口归属：tab 标签栏、home 首页、mine 我的、context 上下文栏、in-page 页内（必填）",
+   "destination": "目的地：页面编号或路由加参数，如 P03 或 /pages/order/index?type=unpay（必填）",
+   "freq": "使用频次：high、mid、low（必填）",
+   "image": "可选，true 表示有主视觉图（营销用）",
+   "limited": "可选，true 表示有时间、库存或人群限制（营销用）",
+   "summary": "可选，true 表示这条账户类入口需要首页状态摘要（至多一条，不另设入口）"
+  },
+  "tabbar_item": {
+   "name": "标签名称",
+   "destination": "目的地，与入口表的 destination 同一写法；首页标签写 home"
+  },
+  "enums": {
+   "type": [
+    "context",
+    "search",
+    "task",
+    "status",
+    "account",
+    "order",
+    "marketing",
+    "content",
+    "tool"
+   ],
+   "category": [
+    "core",
+    "info",
+    "marketing",
+    "aux"
+   ],
+   "entry": [
+    "tab",
+    "home",
+    "mine",
+    "context",
+    "in-page"
+   ],
+   "freq": [
+    "high",
+    "mid",
+    "low"
+   ]
+  },
+  "example": {
+   "entrances": [
+    {
+     "fn": "FN-020",
+     "name": "选择门店",
+     "type": "context",
+     "category": "info",
+     "entry": "context",
+     "destination": "P20",
+     "freq": "high"
+    },
+    {
+     "fn": "FN-021",
+     "name": "搜索商品",
+     "type": "search",
+     "category": "core",
+     "entry": "home",
+     "destination": "P21",
+     "freq": "high"
+    },
+    {
+     "fn": "FN-006",
+     "name": "去点单",
+     "type": "task",
+     "category": "core",
+     "entry": "tab",
+     "destination": "P03",
+     "freq": "high"
+    },
+    {
+     "fn": "FN-030",
+     "name": "我的订单",
+     "type": "order",
+     "category": "core",
+     "entry": "tab",
+     "destination": "P04",
+     "freq": "high"
+    },
+    {
+     "fn": "FN-031",
+     "name": "进行中订单",
+     "type": "status",
+     "category": "info",
+     "entry": "home",
+     "destination": "P05",
+     "freq": "high"
+    },
+    {
+     "fn": "FN-040",
+     "name": "新人礼券",
+     "type": "marketing",
+     "category": "marketing",
+     "entry": "home",
+     "destination": "P40",
+     "freq": "mid",
+     "image": true,
+     "limited": true
+    },
+    {
+     "fn": "FN-050",
+     "name": "我的会员",
+     "type": "account",
+     "category": "info",
+     "entry": "mine",
+     "destination": "P50",
+     "freq": "mid"
+    }
+   ],
+   "tabbar": [
+    {
+     "name": "首页",
+     "destination": "home"
+    },
+    {
+     "name": "点单",
+     "destination": "P03"
+    },
+    {
+     "name": "订单",
+     "destination": "P04"
+    },
+    {
+     "name": "我的",
+     "destination": "P10"
+    }
+   ]
+  }
+ }
+}

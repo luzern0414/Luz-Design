@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>页面范式库</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23E6F0F7'/%3E%3Cg fill='none' stroke='%23205B88' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='8' y='8' width='16' height='16' rx='2'/%3E%3Cpath d='M8 14h16M14 14v10'/%3E%3C/g%3E%3C/svg%3E">
+  <link rel="stylesheet" href="guidelines.css">
+</head>
+<body>
+<main id="main" aria-label="页面范式库">
+    <h1>页面范式库</h1>
+<!-- SECTION:scope:START id=scope data-rule-id=patterns-scope -->
+<section id="scope" data-rule-id="patterns-scope" aria-labelledby="scope-heading">
+<h2 id="scope-heading" class="section-heading"><svg class="icon-linear section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3"/><circle cx="12" cy="12" r="3"/></svg><span>适用范围</span></h2>
+<p>小程序与应用首页的布局范式、模块划分与顺序，分类、订单、我的、活动与营销等常见页面的区块顺序，以及功能怎样归位到首页的各个区域、怎样去重与精简。界面有哪些页面、每个功能的类别与唯一归属、标签栏几项、用哪些组件由系统技能决定（划线见 <code>references/ui-ownership.md</code>），本页只决定首页怎么排，不增删。数据在 <code>references/page-patterns.json</code>，查询与检查用 <code>scripts/page_pattern.py</code>。范式是词汇不是句子：本页给名词、参数和理由，句子由你按这个产品、这批用户、这次内容来写。</p>
+</section>
+<!-- SECTION:scope:END -->
+
+<!-- SECTION:workflow:START id=workflow data-rule-id=patterns-workflow -->
+<section id="workflow" data-rule-id="patterns-workflow" aria-labelledby="workflow-heading">
+<h2 id="workflow-heading" class="section-heading"><svg class="icon-linear section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="6" cy="6" r="2"/><circle cx="18" cy="18" r="2"/><path d="M8 6h5a3 3 0 0 1 3 3v1M16 18h-5a3 3 0 0 1-3-3v-1"/><path d="m13 8 3 2 3-2M11 16l-3-2-3 2"/></svg><span>工作流程</span></h2>
+<ol>
+<li>先问用户：写出这一页用户回来做的第一件事，以及新用户、回访、空数据三种状态下它各是什么。</li>
+<li>分类归位：按系统技能的入口表把每个功能对到九类和区域（见“二、入口归属与精简”）；先 <code>show method</code>，再 <code>recommend</code>。</li>
+<li>去重：按目的地归并，标签栏已有的丢弃，同目的地只留一个载体，记下每个被拒功能的去处与原因。</li>
+<li>选骨架与模块：从应用类型的推荐组合出发，按内容量与频次调整；选每个范式前先答它的“选它前要问的问题”（<code>show &lt;范式&gt;</code>）。</li>
+<li>过精简五问：不过的模块删掉或合并，不是缩小。</li>
+<li>写方案与偏离说明：<code>brief</code>、<code>plan</code> 生成首页方案，偏离默认规则要写偏离说明，必须规则不偏离。</li>
+<li>检查与渲染验证：<code>check</code> 查方案；做成页面后 <code>check-page</code> 查重复入口，在手机宽度截图核对，再用六种账号状态走一遍。</li>
+</ol>
+</section>
+<!-- SECTION:workflow:END -->
+
+<!-- SECTION:rules:START id=rules data-rule-id=patterns-rules -->
+<section id="rules" data-rule-id="patterns-rules" aria-labelledby="rules-heading">
+<h2 id="rules-heading" class="section-heading"><svg class="icon-linear section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3 5 6v5c0 4.5 2.8 7.8 7 10 4.2-2.2 7-5.5 7-10V6l-7-3Z"/><path d="m9 12 2 2 4-5"/></svg><span>核心规则</span></h2>
+<h3>一、先分清功能和视觉</h3>
+<p>系统技能决定功能：有哪些页面、每个功能的类别与唯一入口归属、标签栏几项、组件清单、按钮动作。本技能决定视觉与布局：首页用什么范式、分哪些模块、哪个功能露在哪个模块、先后顺序、怎么精简去重、入口怎么排与什么样子。排不下就退回系统技能提变更，不自行增删；冲突时功能先于外观。</p>
+<p>证据分五类，用在哪一类写在 <code>evidence</code> 里：规则（官方文档、研究机构）、实例（博客、工程贴、示例，数值不当规则）、用户要求、惯例（没有来源，资料未核对）、技能内部规则（含系统的默认入口位置表与视觉规范公式）。资料没覆盖的地方库里写“资料未覆盖，样板页验证”，不编来源与数值。</p>
+<h3>二、入口归属与精简</h3>
+<h4>功能类型到区域</h4>
+<p>每个功能只有一个家，其余位置不放它的入口。先按类型定位置，再谈首页怎么排；首页只能在下表允许出现的类型里选。区域与上限在数据文件的 <code>entry_zones</code>。</p>
+<div class="table-wrap"><table><thead><tr><th>功能类型</th><th>默认位置</th><th>首页怎么出现</th><th>进金刚区</th></tr></thead><tbody>
+<tr><td>全局上下文</td><td>顶部上下文栏一行，其他页沿用</td><td>只在顶部</td><td>不能</td></tr>
+<tr><td>搜索</td><td>顶部搜索框，或所属列表页内</td><td>只在顶部</td><td>不能</td></tr>
+<tr><td>核心任务</td><td>底部标签，或首页核心位；已是标签的首页不重复</td><td>多个并列高频才用宫格；1–4 个用入口大卡</td><td>可以</td></tr>
+<tr><td>状态与待办</td><td>首页状态卡或所属标签，只显示进行中的一条</td><td>状态卡</td><td>不能</td></tr>
+<tr><td>账户与个人资产</td><td>我的</td><td>至多一条状态摘要，不另设入口</td><td>不能</td></tr>
+<tr><td>订单</td><td>订单标签，或我的里的订单卡</td><td>只出进行中订单状态卡</td><td>不能</td></tr>
+<tr><td>营销</td><td>首页营销位，同一活动一个位置</td><td>轮播、横滑或卡片，同屏不超过 2 个模块</td><td>不能</td></tr>
+<tr><td>内容与公告</td><td>公告栏、信息流或内容标签</td><td>公告栏、信息流</td><td>不能</td></tr>
+<tr><td>低频工具与合规</td><td>我的列表行或二级页</td><td>不上首页</td><td>不能</td></tr>
+</tbody></table></div>
+<h4>去重与精简的规则</h4>
+<p>必须规则违反即退回（强度三档见“五、怎么用这个库”）。外部资料只有“混合模式不要把同一动作放多处、多种导航模式各有不同用途”这类窄依据，“入口不重复”与“门店配送放顶部”主要来自用户要求与系统的默认入口位置表，需要样板页验证。</p>
+<div class="table-wrap"><table><thead><tr><th>规则</th><th>要求</th><th>检查</th></tr></thead><tbody>
+<tr><td><code>context-in-header-only</code></td><td>门店、配送方式、定位、城市只在顶部上下文栏</td><td>脚本</td></tr>
+<tr><td><code>search-top-not-dock</code></td><td>搜索在顶部，不占金刚区</td><td>脚本</td></tr>
+<tr><td><code>account-in-mine-only</code></td><td>会员、收藏、券、积分、储值、地址、发票、设置、客服只在我的；首页至多一条摘要且不另设入口</td><td>脚本、渲染</td></tr>
+<tr><td><code>order-home-state-card-only</code></td><td>订单类不进金刚区；首页只出进行中状态卡</td><td>脚本</td></tr>
+<tr><td><code>tool-in-mine-or-inpage</code></td><td>低频工具与合规不上首页</td><td>脚本</td></tr>
+<tr><td><code>dock-core-parallel-only</code></td><td>金刚区只放并列的高频核心业务</td><td>脚本、渲染</td></tr>
+<tr><td><code>dock-no-tabbar-dup</code></td><td>金刚区不与标签栏任何一项同目的地、同名称</td><td>脚本、渲染</td></tr>
+<tr><td><code>one-destination-once</code></td><td>同一目的地一页只出现一次，含轮播、金刚、卡片、悬浮按钮、标签栏；列表逐行操作除外；面包屑是导航路径不算入口（与侧栏同名不报），侧栏项与页内按钮、卡片同名仍报</td><td>脚本、渲染</td></tr>
+<tr><td><code>marketing-max-two</code></td><td>营销同屏不超过 2 个模块</td><td>脚本</td></tr>
+<tr><td><code>one-activity-one-place</code></td><td>同一活动只占一个位置</td><td>人工</td></tr>
+<tr><td><code>status-card-latest-only</code></td><td>状态卡只显示进行中的一条，没有就不出现</td><td>人工</td></tr>
+<tr><td><code>dock-layout-by-formula</code></td><td>金刚区列数行数由公式推导，不套固定 5 列 2 行</td><td>脚本</td></tr>
+<tr><td><code>tabbar-count-2-to-5</code></td><td>标签栏 2–5 项，超出退回系统技能</td><td>脚本</td></tr>
+<tr><td><code>capsule-reserve</code></td><td>右上角胶囊区域预留</td><td>人工</td></tr>
+<tr><td><code>touch-target-44</code></td><td>点击区域不小于 44×44</td><td>人工</td></tr>
+<tr><td><code>bento-local-only</code></td><td>便当网格只作运营卡片局部，手机降单列或双列</td><td>人工</td></tr>
+<tr><td><code>masonry-needs-skyline-or-compat</code></td><td>瀑布流须 <code>Skyline</code> 或基础库不低于 2.30.4，且是自定义滚动容器的直接子节点</td><td>人工</td></tr>
+<tr><td><code>two-column-equal-height-self-handled</code></td><td>双列等高要卡片自己处理</td><td>人工</td></tr>
+<tr><td><code>grid-gap-explicit</code></td><td>网格间距默认 0，必须显式设</td><td>人工</td></tr>
+<tr><td><code>bottom-bar-safe-area-placeholder</code></td><td>底部固定栏留安全区与占位</td><td>人工</td></tr>
+<tr><td><code>result-next-step</code></td><td>结果、空态、错误必须给下一步</td><td>人工</td></tr>
+<tr><td><code>deviation-note-required</code></td><td>偏离默认规则必须写偏离说明；必须规则不许偏离</td><td>人工</td></tr>
+<tr><td><code>ownership-no-add-remove</code></td><td>不增删系统已批准的页面、入口、标签栏项数、组件与按钮动作</td><td>人工</td></tr>
+</tbody></table></div>
+<p>默认与建议规则（可偏离，要写偏离说明）：<code>notice-bar-ops-only</code>：公告栏只写运营消息；<code>no-fill-dock</code>：凑不满就不凑，不足 5 个用入口大卡；<code>dock-count-cap</code>：金刚区一页不超过 10 个，超过再分页，最多 3 页；<code>first-module-answers-return-task</code>：首屏第一个模块回答回来要做的事；<code>five-questions</code>：每个模块过精简五问；<code>first-screen-modules-max</code>：首屏模块不超过 4 个；<code>page-modules-max</code>：整页模块不超过 8 个；<code>modules-backend-switchable</code>：模块可由后台开关与排序；<code>state-driven-home</code>：随用户状态变化，六种账号状态各评审一次；<code>no-repeat-expression</code>：一张卡里每条信息只说一次；<code>tabbar-prefer-4</code>：标签栏建议不超过 4 项（建议）；<code>tabs-one-group-per-page</code>：页内标签与底部标签栏职责分开（建议）；<code>side-category-not-home</code>：侧边分类通常是分类页或点单页，不放普通首页；<code>carousel-frames-and-pause</code>：轮播不超过 3 帧，可暂停；<code>horizontal-scroller-visible-alt</code>：横滑要有无手势的替代；<code>feed-visible-reason-and-escape</code>：信息流要有出现理由与逃生口；<code>three-states-per-module</code>：每个模块加载、空、错误三态；<code>one-loading-animation-per-page</code>：同页不同时用超过 1 个加载动画；<code>order-entries-same-page-with-param</code>：订单状态入口复用同一页加参数；<code>status-words-consistent</code>：同一状态全系统同名；<code>immersive-not-for-tasks</code>：办事类首页不用沉浸式大图占满首屏；<code>ranking-basis-explainable</code>：榜单依据要可解释（建议）。</p>
+<h4>精简五问</h4>
+<ol>
+<li>删掉它，用户在首屏的决策会受影响吗？（删除测试）</li>
+<li>它的功能类型允许出现在这里吗？（九类到区域表）</li>
+<li>它的目的地在本页或标签栏已经出现过吗？（去重）</li>
+<li>它是并列、高频、核心的吗？还是为了凑满或好看？（频次与重要性）</li>
+<li>在这个用户状态下，它是第一时间要做的事吗？能不能由状态决定显隐？（状态）</li>
+</ol>
+<p>金刚区只放重要、并列、高频的入口，凑不满一屏就不凑；不为堆内容而堆内容，信息密度靠删出来，不靠缩小塞进去。</p>
+<h3>三、首页布局范式</h3>
+<h4>范式表</h4>
+<p>范式是词汇表：每个范式在 <code>show</code> 里还有参数与证据、五个组件库的对应、选它前要问的问题和给创新留的空间。页面内的小模块：<code>cell-list</code> 分组单元格列表（分组单元格，一行一个目的地）；<code>action-bar</code> 底部操作栏（底部固定主动作区）；<code>order-card</code> 订单卡（订单卡：头、商品行、脚）；<code>progress-steps</code> 进度步骤（已完成、进行中、接下来的进度）；<code>countdown-block</code> 倒计时与进度区（倒计时加库存进度）；<code>coupon-card</code> 券卡（券卡：面额、门槛、有效期、按钮）；<code>result-panel</code> 结果、空与错误面板（结果、空态、错误面板）；<code>filter-bar</code> 筛选与排序条（筛选与排序条）。</p>
+<div class="table-wrap"><table><thead><tr><th>范式</th><th>版式</th><th>适合</th><th>注意</th><th>置信</th></tr></thead><tbody>
+<tr><td><code>dock-grid</code><br>金刚栅格</td><td>并列高频业务的等宽图标格，3–5 列，至多两行再分页</td><td>电商、预约、教育、会员、聚合、点餐</td><td>不少于 5 个才用；列行由公式推导；不放账户、上下文、订单、标签栏项</td><td>高</td></tr>
+<tr><td><code>entry-cards</code><br>入口大卡</td><td>1–4 个并列业务用的大卡，通栏或两列</td><td>内部、工单、预约、点餐、会员</td><td>整卡可点，卡内不再放同目的地按钮</td><td>中</td></tr>
+<tr><td><code>equal-grid</code><br>均等网格</td><td>同权重内容单元的等宽等高网格</td><td>会员、预约、教育、品牌、电商</td><td>有主次就不用；间距默认 0，要显式设；等高自己处理</td><td>中</td></tr>
+<tr><td><code>flex-grid</code><br>弹性网格</td><td>列数随容器宽度算出来的网格</td><td>电商、内容、品牌、教育</td><td>列数由最小卡宽推导，不抄参考图</td><td>中</td></tr>
+<tr><td><code>single-column-list</code><br>单列纵向列表</td><td>一行一个对象的纵向列表</td><td>各类</td><td>整行一个目的地；三态齐全；分组可吸顶</td><td>高</td></tr>
+<tr><td><code>two-column-card-grid</code><br>双列网格卡片</td><td>两列等宽卡片，图片主导</td><td>电商、点餐、教育、内容、会员、聚合</td><td>同行等高要自己处理；间距显式；卡内信息少</td><td>中</td></tr>
+<tr><td><code>masonry</code><br>瀑布流</td><td>多列等宽、高度不等，补到最矮列；即流式不等高</td><td>内容、电商、品牌</td><td>需 <code>Skyline</code> 或基础库不低于 2.30.4；图片预设宽高</td><td>中</td></tr>
+<tr><td><code>feed</code><br>信息流</td><td>持续加载的内容流，与双列、瀑布流同一族</td><td>内容、电商、教育、点餐、聚合</td><td>要有出现理由与逃生口；不重复上方模块</td><td>中</td></tr>
+<tr><td><code>bento</code><br>便当网格</td><td>大小不一、有主角的模块化拼块</td><td>品牌、会员、内部</td><td>只作运营卡片区局部；手机降单列或双列</td><td>低</td></tr>
+<tr><td><code>top-tabs</code><br>顶部标签切换</td><td>页内顶部标签，切同一数据集的视图</td><td>内容、电商、预约、教育、点餐、内部</td><td>2–5 个，建议不超过 4；不是一级导航</td><td>中</td></tr>
+<tr><td><code>side-category</code><br>侧边分类左右分栏</td><td>左窄右宽的分类联动</td><td>电商、点餐、教育、聚合</td><td>通常是分类页或点单页，不在普通首页</td><td>中</td></tr>
+<tr><td><code>immersive-hero</code><br>全屏大图沉浸式</td><td>大图占满首屏，用氛围说服</td><td>品牌、会员</td><td>只给品牌与活动；避让胶囊；资料未覆盖</td><td>低</td></tr>
+<tr><td><code>modular-sections</code><br>分段模块化</td><td>首页骨架：独立模块自上而下，可后台开关</td><td>各类</td><td>首屏第一个模块回答回来要做的事</td><td>中</td></tr>
+<tr><td><code>banner-carousel</code><br>轮播图</td><td>通栏主视觉轮播，每帧一个目的地</td><td>电商、点餐、预约、教育、会员、品牌、聚合</td><td>不超过 3 帧；可暂停；不与金刚指向同一活动</td><td>高</td></tr>
+<tr><td><code>horizontal-scroller</code><br>横向滑动专场</td><td>同构卡片横滑，露出下一张</td><td>电商、点餐、教育、会员、预约、品牌</td><td>要有无手势的替代；不重复其他模块</td><td>中</td></tr>
+<tr><td><code>search-header</code><br>搜索头（上下文栏加搜索）</td><td>上下文栏加搜索框，避让胶囊</td><td>电商、点餐、预约、教育、内容、聚合</td><td>门店、配送、定位只在这里；搜索不进金刚</td><td>中</td></tr>
+<tr><td><code>notice-bar</code><br>公告栏</td><td>一条运营消息，可滚动可关闭</td><td>内部、点餐、电商、预约、工单</td><td>不复述活动；没有内容就消失</td><td>中</td></tr>
+<tr><td><code>ranking-list</code><br>榜单</td><td>有依据的有限榜单</td><td>电商、点餐、内容、教育</td><td>资料未覆盖；依据要可解释</td><td>低</td></tr>
+<tr><td><code>member-card-hero</code><br>会员卡主卡</td><td>会员状态主卡，只做摘要</td><td>会员、预约、点餐</td><td>不另设入口；点去具体页，不去标签页</td><td>低</td></tr>
+<tr><td><code>workbench</code><br>工作台</td><td>待办、指标、快捷操作三段</td><td>内部、工单</td><td>待办在最前；零计数也显示；资料未覆盖</td><td>低</td></tr>
+<tr><td><code>status-card</code><br>状态卡</td><td>此刻进行中的那一件事</td><td>各类</td><td>只显示一条；没有就不出现</td><td>中</td></tr>
+</tbody></table></div>
+<p>用户清单与资料的修正：便当网格不是首页常规范式；信息流、双列与瀑布流同属一族；双列等高要自己处理；瀑布流要看基础库与渲染框架；侧边分类通常是独立分类页；全屏沉浸式资料未覆盖；“流式不等高”并入瀑布流、均等网格与弹性网格另列。</p>
+<h4>应用类型到首页组合</h4>
+<div class="table-wrap"><table><thead><tr><th>应用类型</th><th>首页推荐模块顺序</th><th>标签栏</th><th>首要禁忌</th><th>置信</th></tr></thead><tbody>
+<tr><td>点餐与连锁门店<br><code>food-chain</code></td><td><code>search-header→status-card→banner-carousel→horizontal-scroller→feed</code></td><td>3–5（常见 4）</td><td>金刚区放会员、券、门店切换</td><td>中</td></tr>
+<tr><td>电商商城<br><code>ecommerce</code></td><td><code>search-header→banner-carousel→dock-grid→horizontal-scroller→two-column-card-grid</code></td><td>4–5（常见 4）</td><td>把分类标签再做成金刚入口</td><td>中</td></tr>
+<tr><td>到店服务与预约<br><code>local-booking</code></td><td><code>search-header→status-card→banner-carousel→dock-grid→horizontal-scroller</code></td><td>3–4</td><td>预约入口既是标签又是金刚</td><td>低</td></tr>
+<tr><td>工具与报价工单（企业服务）<br><code>b2b-quote-ticket</code></td><td><code>notice-bar→workbench→status-card→single-column-list</code></td><td>3–4</td><td>营销轮播与信息流</td><td>低</td></tr>
+<tr><td>内容与社区<br><code>content-community</code></td><td><code>search-header→top-tabs→masonry</code></td><td>4–5</td><td>金刚区</td><td>中</td></tr>
+<tr><td>品牌展示与活动落地<br><code>brand-campaign</code></td><td><code>immersive-hero→modular-sections→horizontal-scroller</code></td><td>0–3（多为 1–2）</td><td>金刚区</td><td>低</td></tr>
+<tr><td>企业内部（报餐、审批类）<br><code>enterprise-internal</code></td><td><code>notice-bar→status-card→entry-cards→single-column-list</code></td><td>2–4</td><td>营销位</td><td>低</td></tr>
+<tr><td>课程与教育<br><code>course-education</code></td><td><code>search-header→banner-carousel→status-card→dock-grid→horizontal-scroller→two-column-card-grid</code></td><td>4（常见）</td><td>金刚区放我的课程、学习记录（它们是标签或我的）</td><td>中</td></tr>
+<tr><td>会员与权益型<br><code>membership-benefits</code></td><td><code>member-card-hero→dock-grid→banner-carousel→horizontal-scroller</code></td><td>3–4</td><td>会员、积分、储值、券各做一个金刚入口</td><td>低</td></tr>
+<tr><td>本地生活超级应用<br><code>local-life-super-app</code></td><td><code>search-header→dock-grid→banner-carousel→horizontal-scroller→feed</code></td><td>资料未覆盖</td><td>为了容纳多业务把所有入口堆进一屏</td><td>低</td></tr>
+</tbody></table></div>
+<p>表里的顺序是起点：带数据才出现的模块（状态卡、金刚区、横滑专场等）没有内容就不占位；入口不足 5 个用 <code>entry-cards</code>。美团类聚合应用、品牌展示、企业内部、会员型、预约型的首页组合缺外部资料，置信为低，要靠样板页验证。</p>
+<h4>怎么选</h4>
+<ul>
+<li>先定骨架：普通首页用 <code>modular-sections</code>；内容型用 <code>top-tabs</code> 加 <code>feed</code>；品牌与活动落地才用 <code>immersive-hero</code>；点单页就是首页时才把 <code>side-category</code> 放首页，并写偏离说明。</li>
+<li>再定入口承载：并列高频核心业务不少于 5 个用 <code>dock-grid</code>（<code>python scripts/page_pattern.py recommend</code> 或 <code>dock_grid</code> 推导列行），1–4 个用 <code>entry-cards</code>，企业与工单类用 <code>workbench</code>。</li>
+<li>回访优先：有进行中的事就让 <code>status-card</code> 排到轮播之前；新用户没有数据时它不出现。</li>
+<li>再定内容流：图片比例各异的发现型用 <code>masonry</code>（先确认基础库与框架），要横向比较价格与规格用等高 <code>two-column-card-grid</code>，要逐条比较用 <code>single-column-list</code>。</li>
+<li>最后过精简五问和规则表，不过就删。</li>
+</ul>
+<h3>四、常见页面范式</h3>
+<p>每页一行；区块顺序里的名字是范式，组件与状态、自适应、需要系统提供什么、设计前要问的问题与创新空间用 <code>show &lt;页面&gt;</code> 看。分类页、商品详情、结算、订单详情、预约、秒杀、拼团、抽奖、领券、会员、消息、登录页的区块顺序缺外部资料，写“推演自状态机或惯例，待样板页验证”，不要当规则用。</p>
+<div class="table-wrap"><table><thead><tr><th>页面</th><th>职责与区块顺序</th><th>去重与状态要点</th><th>常见错误</th><th>可有个性处</th></tr></thead><tbody>
+<tr><td><code>home</code><br>首页<br>置信中</td><td>回答回来要做的事，其余保持可达<br><code>search-header→notice-bar→status-card→banner-carousel→dock-grid→horizontal-scroller→feed</code></td><td>上下文只在顶部；账户归我的；订单只出状态卡；营销同屏不超过 2 个</td><td>重复入口、堆营销、模块等重</td><td>模块节奏、配图、状态卡叙事、节日换肤</td></tr>
+<tr><td><code>category</code><br>分类页<br>置信低</td><td>左侧分类、右侧内容联动<br><code>search-header→side-category→filter-bar→single-column-list→action-bar</code>（推演，待样板页验证）</td><td>左栏徽标要真实；分类很少改顶部标签</td><td>三层目录塞进左栏、联动丢位置</td><td>左栏样式、商品行构图</td></tr>
+<tr><td><code>product-list-search</code><br>商品列表与搜索结果<br>置信低</td><td>列表、筛选、排序一起设计<br><code>search-header→filter-bar→two-column-card-grid→result-panel</code>（推演，待样板页验证）</td><td>无结果给放宽建议；已选条件可清除</td><td>筛选做成分类范围、排序默认字母序</td><td>筛选形态、卡片构图</td></tr>
+<tr><td><code>product-detail</code><br>商品详情页<br>置信低</td><td>决定买不买、买哪个<br><code>banner-carousel→countdown-block→modular-sections→cell-list→modular-sections→action-bar</code>（推演，待样板页验证）</td><td>一个主动作；规格选完要有价格反馈</td><td>两个同样醒目的按钮、主按钮滚走</td><td>主图构图、价格层级、详情叙事</td></tr>
+<tr><td><code>cart-checkout</code><br>购物车与结算<br>置信低</td><td>确认地址、优惠、金额并提交<br><code>single-column-list→cell-list→coupon-card→cell-list→action-bar</code>（推演，待样板页验证）</td><td>费用常驻可见；错误保留输入；优惠券一个入口</td><td>隐藏运费、报错含糊、强制注册</td><td>金额区层次、地址卡构图</td></tr>
+<tr><td><code>order-list</code><br>订单列表<br>置信中</td><td>按状态查订单，复用同一页加参数<br><code>top-tabs→order-card→result-panel</code></td><td>标签名与卡片状态词一致；空态分两种</td><td>入口与标签对不上、按钮与行为不符</td><td>标签样式、状态标记</td></tr>
+<tr><td><code>order-detail</code><br>订单详情<br>置信低</td><td>当前状态最先可见，下一步明确<br><code>status-card→progress-steps→status-card→cell-list→order-card→cell-list→cell-list→action-bar</code>（推演，待样板页验证）</td><td>异常要解释；一个主动作；客服放异常附近</td><td>内部状态词、只给运单号</td><td>状态块构图、进度图形</td></tr>
+<tr><td><code>mine</code><br>我的<br>置信中</td><td>账户、资产、低频工具的唯一家<br><code>cell-list→equal-grid→equal-grid→member-card-hero→cell-list→cell-list</code></td><td>一个目的地一行；退出只一次；订单卡复用订单页</td><td>头像与资料行重复、营销大图进来</td><td>头部构图、资产区、图标风格</td></tr>
+<tr><td><code>store-select</code><br>门店选择<br>置信低</td><td>全局上下文的落点<br><code>search-header→modular-sections→single-column-list→action-bar</code>（推演，待样板页验证）</td><td>休息的门店不消失；选择沿用到各页</td><td>选门店做进金刚区</td><td>地图与面板叠压、门店卡</td></tr>
+<tr><td><code>booking</code><br>预约<br>置信低</td><td>选对象、日期、时段并确认<br><code>single-column-list→horizontal-scroller→equal-grid→horizontal-scroller→cell-list→action-bar</code>（推演，待样板页验证）</td><td>时段四态可辨；冲突有恢复路径</td><td>状态只靠颜色、改约入口散落</td><td>日期条与时段格形态</td></tr>
+<tr><td><code>activity-seckill</code><br>秒杀与限时抢购<br>置信低</td><td>真实的紧张：场次、倒计时、进度<br><code>banner-carousel→top-tabs→countdown-block→single-column-list→feed</code>（推演，待样板页验证）</td><td>四态齐全；同屏倒计时克制</td><td>倒计时无结束态、进度是假的</td><td>气氛：色彩、字体、进度图形</td></tr>
+<tr><td><code>activity-group-buy</code><br>拼团<br>置信低</td><td>开团与参团，三态清楚<br><code>banner-carousel→single-column-list→modular-sections→action-bar</code>（推演，待样板页验证）</td><td>两个详情页互跳；取价规则明确</td><td>拼团与普通订单混在一起</td><td>团进度、头像堆叠</td></tr>
+<tr><td><code>activity-lottery</code><br>抽奖<br>置信低</td><td>每日抽奖：次数与最高奖<br><code>immersive-hero→equal-grid→status-card→single-column-list→modular-sections</code>（推演，待样板页验证）</td><td>副文案不写口号；奖品不重复列出</td><td>结果页没有下一步</td><td>动效、插画、色彩</td></tr>
+<tr><td><code>activity-coupon-center</code><br>领券中心<br>置信低</td><td>领券的集中页<br><code>notice-bar→top-tabs→coupon-card→cell-list</code>（推演，待样板页验证）</td><td>已领取不再有领取按钮；不可用写原因</td><td>领券入口多处重复</td><td>券面与缺口形态</td></tr>
+<tr><td><code>member-benefits</code><br>会员权益页<br>置信低</td><td>等级、权益、升级条件<br><code>member-card-hero→equal-grid→progress-steps→horizontal-scroller→action-bar</code>（推演，待样板页验证）</td><td>权益详情只在本页；协议不预勾选</td><td>把权益平铺在首页</td><td>主卡材质、权益图标</td></tr>
+<tr><td><code>message-center</code><br>消息中心<br>置信低</td><td>通知与互动的集中页<br><code>top-tabs→single-column-list→result-panel</code>（推演，待样板页验证）</td><td>未读可见；角标只放一处</td><td>角标常亮不消</td><td>行构图、图标</td></tr>
+<tr><td><code>login-auth</code><br>登录与授权<br>置信低</td><td>用到时才授权<br><code>immersive-hero→action-bar→cell-list→cell-list</code>（推演，待样板页验证）</td><td>不预勾选、不捆绑、拒绝后不堵死</td><td>启动时申请多项权限</td><td>品牌氛围</td></tr>
+<tr><td><code>result-empty-error</code><br>结果、空态与错误页<br>置信高</td><td>终点、空态、错误面板<br><code>result-panel→result-panel→result-panel→action-bar</code></td><td>必须有下一步；错误有原因与恢复</td><td>只写出错了、没有返回</td><td>插画与语气</td></tr>
+</tbody></table></div>
+<p>每个页面都要有加载、空、错误三态，空态写对象和一个行动；订单状态词、标签名、卡片状态要一致；底部固定栏留安全区与占位；右上角胶囊区域预留。</p>
+<h3>五、怎么用这个库</h3>
+<ul>
+<li>规则强度三档：必须（违反即退回）、默认（可偏离，要写偏离说明）、建议（按情境取舍）。<code>check</code> 对必须规则报错，对默认规则报错但认偏离说明。</li>
+<li>偏离说明写四项：偏离哪条规则、业务依据、风险、怎么验证。写进 <code>BRIEF</code> 与方案里的 <code>deviations</code> 数组，缺项仍报错。</li>
+<li>范式是词汇不是句子：先问用户再选范式，答完“选它前要问的问题”再用；组合、顺序、构图、图标、配图、动效、节日换肤都是你的创新空间，不能碰的只有归属、去重与上限。每个范式与页面的 <code>innovation_room</code> 写了哪里可以放手、哪里是硬约束。</li>
+<li>遇到库里没有的情形：先找最接近的范式，答它的“选它前要问的问题”，再问三件事：这样排的依据是什么（用户、数据、规则）；换一种排法会损失什么；这个产品独有的东西是什么，有没有被模板冲淡。有依据的新做法写进 <code>BRIEF</code>，并用 <code>experience.py add</code> 沉淀。</li>
+<li>数值只用公式（<code>dock_grid</code>、弹性网格列数）、官方文档默认值或标明的本技能取值；博客实例里的像素数不当规则。</li>
+<li>证据薄的地方先照库里的推演做，再用样板页验证：订单详情、秒杀、抽奖、领券、预约、结算、会员页、消息页、美团类聚合应用、外卖进度、全屏沉浸式、榜单、工作台。</li>
+</ul>
+</section>
+<!-- SECTION:rules:END -->
+
+<!-- SECTION:platform-matrix:START id=platform-matrix data-rule-id=patterns-platform-matrix -->
+<section id="platform-matrix" data-rule-id="patterns-platform-matrix" aria-labelledby="platform-matrix-heading">
+<h2 id="platform-matrix-heading" class="section-heading"><svg class="icon-linear section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="4" width="7" height="6" rx="1"/><rect x="14" y="4" width="7" height="6" rx="1"/><rect x="3" y="14" width="7" height="6" rx="1"/><rect x="14" y="14" width="7" height="6" rx="1"/></svg><span>平台矩阵</span></h2>
+<div class="table-wrap"><table><thead><tr><th>范式</th><th>微信原生</th><th><code>Vant 4</code>（网页版）</th><th><code>Vant Weapp</code></th><th><code>TDesign</code> 小程序</th><th><code>WeUI</code></th></tr></thead><tbody>
+<tr><td><code>search-header</code><br>搜索头</td><td>资料未覆盖</td><td><code>Search</code>（<code>shape</code>、<code>background</code>、<code>show-action</code>）</td><td>仅名称</td><td>资料未覆盖</td><td>资料未覆盖</td></tr>
+<tr><td><code>banner-carousel</code><br>轮播</td><td><code>swiper</code>（<code>autoplay</code> 默认关、<code>interval</code> 默认 5000）</td><td><code>Swipe</code>（<code>loop</code> 默认开）</td><td>目录无，用原生</td><td>资料未覆盖</td><td>资料未覆盖</td></tr>
+<tr><td><code>dock-grid</code><br>金刚栅格</td><td><code>grid-builder</code>（仅 <code>Skyline</code>）</td><td><code>Grid</code>（<code>column-num</code> 默认 4）</td><td><code>van-grid</code>（<code>column-num</code> 默认 4）</td><td>资料未覆盖</td><td>资料未覆盖</td></tr>
+<tr><td><code>horizontal-scroller</code><br>横滑</td><td><code>scroll-view</code> 横向须开 <code>enable-flex</code></td><td><code>Swipe</code> 关 <code>loop</code> 设 <code>width</code></td><td>资料未覆盖</td><td>资料未覆盖</td><td>资料未覆盖</td></tr>
+<tr><td><code>notice-bar</code><br>公告栏</td><td>资料未覆盖</td><td><code>NoticeBar</code></td><td>仅名称</td><td>资料未覆盖</td><td>资料未覆盖</td></tr>
+<tr><td><code>top-tabs</code><br>顶部标签</td><td>资料未覆盖</td><td>仅名称</td><td><code>van-tabs</code>（<code>swipe-threshold</code> 默认 5）</td><td>资料未覆盖</td><td>资料未覆盖</td></tr>
+<tr><td><code>side-category</code><br>侧边分类</td><td>资料未覆盖</td><td><code>Sidebar</code></td><td><code>van-sidebar</code>（<code>activeKey</code> 默认 0）</td><td>资料未覆盖（<code>t-side-bar</code> 仅示例名）</td><td>资料未覆盖</td></tr>
+<tr><td><code>two-column-card-grid</code><br>双列与瀑布流</td><td><code>grid-view</code>（<code>aligned</code>、<code>masonry</code>）</td><td>无瀑布流组件</td><td>目录无</td><td>资料未覆盖</td><td>资料未覆盖</td></tr>
+<tr><td><code>feed</code><br>刷新与加载</td><td><code>scroll-view refresher</code>；页面级 <code>onPullDownRefresh</code></td><td><code>PullRefresh</code></td><td>目录无</td><td>资料未覆盖</td><td>资料未覆盖</td></tr>
+<tr><td><code>action-bar</code><br>底部操作栏</td><td>资料未覆盖</td><td><code>ActionBar</code>、<code>SubmitBar</code></td><td>仅名称（<code>GoodsAction</code>、<code>SubmitBar</code>）</td><td>资料未覆盖</td><td>资料未覆盖</td></tr>
+<tr><td><code>coupon-card</code><br>券卡</td><td>资料未覆盖</td><td><code>CouponCell</code>、<code>CouponList</code></td><td>目录无</td><td>资料未覆盖</td><td>资料未覆盖</td></tr>
+<tr><td><code>countdown-block</code><br>倒计时</td><td>资料未覆盖</td><td><code>CountDown</code>（<code>time</code> 单位毫秒）</td><td>仅名称</td><td>资料未覆盖</td><td>资料未覆盖</td></tr>
+<tr><td><code>result-panel</code><br>骨架与空态</td><td>设计指南：结果页与异常处理</td><td><code>Skeleton</code>、<code>Empty</code>（仅名称）</td><td>仅名称</td><td>资料未覆盖</td><td>资料未覆盖</td></tr>
+<tr><td><code>tabbar</code><br>底部标签栏</td><td>设计指南 2–5 项，建议不超过 4；<code>app.json</code> 配置未覆盖</td><td>仅名称</td><td><code>van-tabbar</code>（<code>placeholder</code> 默认关）</td><td>资料未覆盖</td><td>资料未覆盖</td></tr>
+</tbody></table></div>
+<p>“仅名称”是只在导航目录里见到组件名，属性未读。细节与默认值在各范式的 <code>components</code>，运行 <code>show &lt;范式&gt;</code> 查看；格子写“资料未覆盖”的，选型前先在样板页验证。</p>
+<div class="table-wrap"><table><thead><tr><th>端与框架</th><th>差异</th></tr></thead><tbody>
+<tr><td>小程序</td><td>渲染框架分 <code>Skyline</code> 与 <code>WebView</code>：<code>list-view</code>、<code>sticky-header</code> 只在 <code>Skyline</code>，<code>grid-view</code> 瀑布流 <code>WebView</code> 需基础库不低于 2.30.4；<code>scroll-view</code> 内滚动会让页面级下拉刷新失效</td></tr>
+<tr><td>手机网页与原型</td><td><code>Vant 4</code> 是 <code>Vue 3</code> 网页版，不是 <code>Vant Weapp</code>；属性名、默认值、组件是否齐全以各自文档为准（例如宫格列数属性是 <code>column-num</code>）</td></tr>
+<tr><td>后台</td><td>不用首页范式；列表、筛选、工作台按后台规范与视觉设计规范</td></tr>
+</tbody></table></div>
+</section>
+<!-- SECTION:platform-matrix:END -->
+
+<!-- SECTION:examples:START id=examples data-rule-id=patterns-examples -->
+<section id="examples" data-rule-id="patterns-examples" aria-labelledby="examples-heading">
+<h2 id="examples-heading" class="section-heading"><svg class="icon-linear section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m4 17 5-5 3 3 2-2 6 6"/></svg><span>案例样本</span></h2>
+<p>报餐小程序（企业内部类，功能清单取自项目示例）：入口表里 7 行，标签栏三项（首页、订单、我的）。运行 <code>plan</code> 得到的方案如下，再用 <code>check</code> 检查，零违反。</p>
+<div class="table-wrap"><table><thead><tr><th>顺序</th><th>模块</th><th>功能</th><th>位置</th></tr></thead><tbody>
+<tr><td>1</td><td><code>notice-bar</code></td><td>企业公告</td><td>首屏</td></tr>
+<tr><td>2</td><td><code>status-card</code></td><td>取餐码</td><td>首屏</td></tr>
+<tr><td>3</td><td><code>entry-cards</code></td><td>今日菜单、去报餐</td><td>首屏</td></tr>
+<tr><td>—</td><td>没有上首页</td><td>我的订单（<code>tab-duplicate</code>）</td><td>标签栏</td></tr>
+<tr><td>—</td><td>没有上首页</td><td>个人中心（<code>tab-duplicate</code>）</td><td>标签栏</td></tr>
+<tr><td>—</td><td>没有上首页</td><td>修改部门（<code>account</code>）</td><td><code>mine-list</code></td></tr>
+</tbody></table></div>
+<p>要点：订单与个人中心是标签栏项，修改部门归我的，三者都没有上首页，不是被删；今日菜单与去报餐各一个入口大卡，不硬凑金刚区；状态卡只在有进行中的取餐码时出现。</p>
+</section>
+<!-- SECTION:examples:END -->
+
+<!-- SECTION:output-contract:START id=output-contract data-rule-id=patterns-output-contract -->
+<section id="output-contract" data-rule-id="patterns-output-contract" aria-labelledby="output-contract-heading">
+<h2 id="output-contract-heading" class="section-heading"><svg class="icon-linear section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v5h5M9 12h6M9 16h6"/></svg><span>输出契约</span></h2>
+<ul>
+<li>入口表 <code>entrances.json</code>：每个功能一行，字段 <code>fn</code>、<code>name</code>、<code>type</code>（九类之一）、<code>category</code>、<code>entry</code>（标签栏、首页、我的、上下文、页内）、<code>destination</code>、<code>freq</code>，可选 <code>image</code>、<code>limited</code>、<code>summary</code>；另有 <code>tabbar</code>。格式与示例见 <code>show entrances</code>。</li>
+<li>首页方案 <code>spec.json</code>：有序的 <code>modules</code>（每个模块的 <code>items</code>、<code>first_screen</code>，金刚区带 <code>layout</code>）、<code>rejected</code>（被拒功能的原因与去处）、<code>warnings</code>、<code>deviations</code>（偏离说明）。</li>
+<li><code>BRIEF</code> 写明采用的规则（规则 <code>id</code>）、被偏离的规则与偏离说明、本次沉淀；方案与简报一并保存。</li>
+<li>做成页面后，<code>check-page</code> 靠真实元素识别：链接、按钮、标签页、单元格按“可访问名称加目标”归并；底部固定的容器或类名带 <code>tabbar</code> 的是标签栏；四个以上带图标、文字不超过 8 字、同行排列的兄弟是宫格。列表每行里的同名操作（嵌在重复的同构行里、行内还有别的文字）不算重复。面包屑（容器的无障碍名称、类名或 <code>id</code> 带 <code>breadcrumb</code>、<code>crumb</code>、面包屑，或标了 <code>BreadcrumbList</code>）是导航路径，不是入口，不计入重复：详情页的面包屑与侧栏指向同一处（如“全部客户”）不报；侧栏项与页内按钮、卡片同目的地仍然要报。</li>
+</ul>
+</section>
+<!-- SECTION:output-contract:END -->
+
+<!-- SECTION:quality-gates:START id=quality-gates data-rule-id=patterns-quality-gates -->
+<section id="quality-gates" data-rule-id="patterns-quality-gates" aria-labelledby="quality-gates-heading">
+<h2 id="quality-gates-heading" class="section-heading"><svg class="icon-linear section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 7h5M15 7h5M9 7a3 3 0 1 0 6 0 3 3 0 0 0-6 0ZM4 17h10M18 17h2M14 14a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z"/></svg><span>质量门禁</span></h2>
+<ul>
+<li>必须规则违反：门店或配送进了金刚区，会员、收藏、券、积分进了首页入口，订单类进了金刚区，金刚区与标签栏同目的地，同一目的地一页出现两次，营销同屏超过 2 个模块：退回修改。</li>
+<li>金刚区列数行数不是由 <code>dock_grid</code> 推导，或入口不足 5 个仍硬凑：退回修改。</li>
+<li>增删了系统已批准的页面、入口、标签栏项数、组件或按钮动作：退回修改，画不下的退回系统技能。</li>
+<li>默认规则被偏离却没有写偏离说明，或偏离说明缺项：退回修改。</li>
+<li>没有跑 <code>check</code> 与 <code>check-page</code>，或首页没有用六种账号状态评审：不得交付。</li>
+<li>证据薄的页面按推演做了却没有标明待样板页验证：退回修改。</li>
+</ul>
+<p>命令：<code>py -X utf8 scripts/page_pattern.py check spec.json</code>；<code>py -X utf8 scripts/page_pattern.py check-page 页面.html --hash &quot;#/home&quot; --width 390</code>；规则页自检 <code>py -X utf8 scripts/check_document.py references/page-patterns.html</code>。</p>
+</section>
+<!-- SECTION:quality-gates:END -->
+
+<!-- SECTION:handoff:START id=handoff data-rule-id=patterns-handoff -->
+<section id="handoff" data-rule-id="patterns-handoff" aria-labelledby="handoff-heading">
+<h2 id="handoff-heading" class="section-heading"><svg class="icon-linear section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 7h12M13 4l3 3-3 3M20 17H8M11 14l-3 3 3 3"/></svg><span>交接规则</span></h2>
+<p>首页方案交给前端实现时，随附方案文件与简报；系统技能收到的是退回清单（排不下、不足以支撑的入口、标签栏项数越界）。被偏离的默认规则、证据薄的页面与待验证的数值，写进 <code>BRIEF</code> 的待样板页验证清单。结束前把有效或失败的做法、新的偏好与调研来源用 <code>experience.py note</code> 沉淀，并写进 <code>BRIEF</code> 的“本次沉淀”。</p>
+</section>
+<!-- SECTION:handoff:END -->
+
+</main>
+</body>
+</html>

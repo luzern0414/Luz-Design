@@ -288,5 +288,57 @@ class ExportHeaderTest(unittest.TestCase):
         self.assertFalse(self.sheet(["客户", "金额（元）", "SKU", "GMV（元）"]))
 
 
+class TextFieldFocusFrameTest(unittest.TestCase):
+    """A focused text field only deepens its 1px border to ink2: no blue or primary frame, glow, thick outline or default outline."""
+
+    FIELDS = "<label for='a'>姓名</label><input id='a' class='input' type='text'>"
+
+    def errors(self, css: str, allow: tuple[str, ...] = ("interface",)) -> list[str]:
+        return [e for e in run(self.FIELDS, css, allow)[0] if "focus frame" in e]
+
+    def warnings(self, css: str) -> list[str]:
+        return [w for w in run(self.FIELDS, css)[1] if "keyboard focus" in w]
+
+    def test_a_primary_or_blue_frame_on_a_text_field_is_an_error(self) -> None:
+        for css in (".input:focus { box-shadow: 0 0 0 2px #2563eb; }",
+                    "input:focus { outline: 2px solid #2563eb; }",
+                    "input:focus { outline: none; box-shadow: 0 0 0 3px rgba(37,99,235,.25); }",
+                    ":root { --brand: oklch(0.48 0.085 165); } .input:focus { box-shadow: 0 0 0 2px var(--brand), 0 0 0 5px color-mix(in oklch, var(--brand), transparent 82%); }",
+                    ".el-input__wrapper.is-focus { box-shadow: 0 0 0 1px var(--el-color-primary) inset; }",
+                    ".field:focus-within { border-color: #2563eb; }",
+                    "select:focus-visible { border: 1px solid var(--primary); }",
+                    "textarea:focus { outline: auto; }"):
+            with self.subTest(css=css):
+                self.assertTrue(self.errors(css), css)
+
+    def test_a_thick_ring_a_thick_border_or_an_offset_outline_is_an_error_too(self) -> None:
+        for css in ("input:focus { box-shadow: 0 0 0 3px #555; }", "input:focus { border: 2px solid #3f4a5a; }",
+                    "input:focus { outline: 2px solid #1d2129; outline-offset: 2px; }", "input:focus { box-shadow: 0 0 8px rgba(0,0,0,.4); }"):
+            with self.subTest(css=css):
+                self.assertTrue(self.errors(css), css)
+
+    def test_reading_pages_are_checked_like_interfaces(self) -> None:
+        self.assertTrue(self.errors("input:focus { outline: 2px solid #2563eb; }", allow=()))
+
+    def test_the_one_pixel_neutral_border_passes(self) -> None:
+        for css in ("input { outline: none; } input:focus { border-color: #3f4a5a; }",
+                    ":root { --text-2: oklch(0.40 0.02 255); } .input:focus { outline: none; box-shadow: 0 0 0 1px var(--text-2); }",
+                    "input:focus-visible { outline: 1px solid #3f4a5a; outline-offset: -1px; }",
+                    ".el-input__wrapper.is-focus { box-shadow: 0 0 0 1px #3f4a5a inset; }",
+                    "input { border: 1px solid #9aa0a6; } input:focus { border: 1px solid #3f4a5a; }"):
+            with self.subTest(css=css):
+                self.assertEqual(self.errors(css), [], css)
+
+    def test_other_controls_keep_a_dark_keyboard_outline_and_a_blue_one_only_warns(self) -> None:
+        self.assertEqual(self.warnings("button:focus-visible { outline: 2px solid #1d2129; outline-offset: 2px; } a:focus-visible { outline: 2px solid var(--ink); }"), [])
+        self.assertTrue(self.warnings("a:focus-visible { outline: 2px solid #2563eb; }"))
+        self.assertTrue(self.warnings("button:focus-visible { box-shadow: 0 0 0 3px var(--brand); }"))
+        self.assertEqual(self.errors("a:focus-visible { outline: 2px solid #2563eb; } input[type=checkbox]:focus-visible { outline: 2px solid #2563eb; }"), [])
+        self.assertEqual(self.errors("input:focus-visible + .icon { outline: 3px solid #9cc3e5; }"), [])
+
+    def test_a_rule_without_a_focus_state_is_not_a_focus_frame(self) -> None:
+        self.assertEqual(self.errors(".input { box-shadow: 0 0 0 2px #2563eb; } input:not(:focus) { outline: 2px solid #2563eb; }"), [])
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -255,8 +255,8 @@ def theme_palette() -> set[tuple[int, int, int]]:
         data = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, ValueError):
         return set()
-    text = json.dumps({"shared": data.get("shared", {}),
-                       "themes": {k: {x: y for x, y in v.items() if x != "dark"} for k, v in data.get("themes", {}).items()}})
+    # The dark mapping (themes.<id>.dark and shared.dark) is part of the theme: a product front-end has both.
+    text = json.dumps({"shared": data.get("shared", {}), "themes": data.get("themes", {})})
     colours = {hex_rgb(h) for h in re.findall(r"#([0-9a-fA-F]{6})\b", text)}
     for column in ANT_COLUMNS.values():
         steps = {hex_rgb(h) for h in re.findall(r"#([0-9A-F]{6})", column)}
@@ -300,8 +300,12 @@ def parse_colors(value: str) -> list[tuple[int, int, int]]:
     return colors
 
 
+WEB_ADDRESS = re.compile(r"https?://\S+")
+
+
 def check_text(text: str, where: str, errors: list[str], *, heading: bool = False, meta_line: bool = False,
                terms: bool = True) -> None:
+    text = WEB_ADDRESS.sub(" ", text)           # a web address names a source; "generated" inside it is not page metadata
     for pattern, family, short_only in FAMILY_PATTERNS:
         if family in ALLOWED or (short_only and len(text) > 80):
             continue
@@ -486,6 +490,79 @@ def tab_icon_findings(source: str) -> tuple[list[str], list[str]]:
     return [], warnings
 
 
+# ---------------------------------------------------------------- Dark theme blocks
+# visual-design.html 深色与浅色两套主题: a product front-end (--allow interface or website) carries a light and a dark theme. The rules of the dark theme sit in
+# a dark block: @media (prefers-color-scheme: dark), or a selector that applies only under a dark switch ([data-theme="dark"], html.dark, :root.dark, .dark,
+# [data-scheme=dark]). Dark fills and color-scheme: dark are the point of those blocks; the same fill in the default (light) theme is still a dark block on a
+# light page. Reading pages are documents and stay light: nothing is exempt there.
+
+DARK_ATTR = re.compile(r"\[\s*data-(?:theme|scheme|mode|color-scheme|color-mode|bs-theme|appearance)\s*[~|^$*]?=\s*[\"']?dark[\"']?\s*(?:i\s*)?\]", re.I)
+DARK_CLASS = re.compile(r"^(?:html|:root|body|\*)?\.(?:dark|dark-mode|dark-theme|theme-dark)(?![\w-])", re.I)
+DARK_SHADOW_MAX_ALPHA = 0.5     # a black shadow on a dark ground is barely visible; levels there lean on lighter surfaces (check_contrast.MAX_DARK_LAYER_ALPHA)
+DARK_GROUND_VARIABLES = ("--bg", "--canvas", "--page", "--background", "--app-bg", "--bg-page", "--surface")
+NO_DARK_BLOCK = ("product front-end has no dark theme block: a product front-end needs a light and a dark theme (visual-design.html 深色与浅色两套主题): "
+                 "add the dark tokens under @media (prefers-color-scheme: dark) and :root[data-theme=\"dark\"] with the follow-system / light / dark switch. "
+                 "A built prototype whose styles come from scripts may not show them here: audit_rendered.py --scheme dark checks the page in the browser")
+DARK_SCHEME_IN_LIGHT = ("color-scheme: dark declared in the default (light) theme in {selector!r}: the default is light; declare it inside "
+                        "@media (prefers-color-scheme: dark) or :root[data-theme=\"dark\"] (visual-design.html 深色与浅色两套主题)")
+
+
+def dark_selector(selector: str) -> bool:
+    """True when every selector of the group applies only under a dark switch: an attribute such as [data-theme="dark"], or .dark / html.dark / :root.dark
+    as the first compound (the ancestor that switches the theme). :not(...) is dropped first, so :root:not([data-theme="dark"]) is the light theme."""
+    selector = re.sub(r"/\*.*?\*/", "", selector, flags=re.S)
+    selector = re.sub(r":not\((?:[^()]|\([^()]*\))*\)", "", selector)
+    parts = [part.strip() for part in selector.split(",") if part.strip()]
+    return bool(parts) and all(DARK_ATTR.search(part) or DARK_CLASS.match(part.split()[0]) for part in parts)
+
+
+def dark_media_spans(css: str) -> list[tuple[int, int]]:
+    """Character ranges of the bodies of @media (prefers-color-scheme: dark) blocks (not "not ..." queries)."""
+    spans = []
+    for m in re.finditer(r"@media([^{]*)\{", css, re.I):
+        prelude = m.group(1)
+        if not re.search(r"prefers-color-scheme\s*:\s*dark", prelude, re.I) or re.search(r"\bnot\b", prelude, re.I):
+            continue
+        depth, i = 1, m.end()
+        while i < len(css) and depth:
+            depth += (css[i] == "{") - (css[i] == "}")
+            i += 1
+        spans.append((m.end(), i))
+    return spans
+
+
+def dark_rule(rule: re.Match, spans: list[tuple[int, int]]) -> bool:
+    """A rule match (selector group 1, body group 2) that belongs to the dark theme: inside a dark @media block, or a dark selector."""
+    return any(a <= rule.start(2) < b for a, b in spans) or dark_selector(rule.group(1)) \
+        or bool(re.search(r"prefers-color-scheme\s*:\s*dark", rule.group(1), re.I) and not re.search(r"\bnot\b", rule.group(1), re.I))
+
+
+def linked_dark_block(source: str, path: Path) -> bool:
+    """True when a style sheet the page links from a local file (a shared ui.css next to the page) carries a dark block: such a page has its dark theme there."""
+    for tag in re.finditer(r"<link\b[^>]*>", source, re.I):
+        attrs = tag.group(0)
+        href = re.search(r"href\s*=\s*[\"']([^\"']+)[\"']", attrs, re.I)
+        if not href or not re.search(r"rel\s*=\s*[\"']?stylesheet", attrs, re.I) or re.match(r"[a-z][a-z0-9+.-]*:", href.group(1), re.I):
+            continue
+        target = (path.parent / href.group(1).split("?")[0].split("#")[0]).resolve()
+        try:
+            css = re.sub(r"/\*.*?\*/", "", target.read_text(encoding="utf-8"), flags=re.S)
+        except OSError:
+            continue
+        spans = dark_media_spans(css)
+        if any(dark_rule(m, spans) for m in re.finditer(r"([^{}]*)\{([^{}]*)\}", css)):
+            return True
+    return False
+
+
+def resolve_in(variables: dict[str, str], name: str, depth: int = 0) -> str:
+    """The value of one custom property with its own var() references followed inside the same dict."""
+    value = variables.get(name, "")
+    if depth > 8:
+        return value
+    return re.sub(r"var\((--[\w-]+)(?:\s*,\s*([^)]+))?\)", lambda m: resolve_in(variables, m.group(1), depth + 1) or (m.group(2) or ""), value)
+
+
 def check_html(path: Path, errors: list[str], warnings: list[str]) -> None:
     source = path.read_text(encoding="utf-8")
     icon_errors, icon_warnings = tab_icon_findings(source)
@@ -507,7 +584,7 @@ def check_html(path: Path, errors: list[str], warnings: list[str]) -> None:
         after = tags.index("h1") + 1
         while after < len(tags) and tags[after] == "h1":
             after += 1
-        if after < len(tags) and "h2" in tags and tags[after] != "h2":
+        if after < len(tags) and "h2" in tags and tags[after] != "h2" and "showcase" not in ALLOWED:
             errors.append(f"text between the h1 and the first h2: {blocks[after][1][:40]!r}")
 
     shell_reported: set[str] = set()
@@ -532,13 +609,32 @@ def check_html(path: Path, errors: list[str], warnings: list[str]) -> None:
             warnings.append(f"possible explanatory line under heading {text[:20]!r}: {nxt_text!r}")
 
     css = "\n".join(outline.styles)
-    variables = dict(re.findall(r"(--[\w-]+)\s*:\s*([^;{}]+)", css))
+    # Rules of the dark theme (visual-design.html 深色与浅色两套主题) are told apart first: they redefine the tokens, so the variables of the light theme
+    # and of the dark theme are kept apart and a dark rule is read with the dark values.
+    dark_spans = dark_media_spans(css)
+    rule_list = [(m, dark_rule(m, dark_spans)) for m in re.finditer(r"([^{}]*)\{([^{}]*)\}", css)]
+    variables: dict[str, str] = {}
+    dark_only: dict[str, str] = {}
+    for m, is_dark in rule_list:
+        for name, value in re.findall(r"(--[\w-]+)\s*:\s*([^;{}]+)", m.group(2)):
+            (dark_only if is_dark else variables)[name] = value
+    dark_variables = {**variables, **dark_only}
+    scope = {"vars": variables}
 
     def resolve(value: str, depth: int = 0) -> str:
         if depth > 8:
             return value
         return re.sub(r"var\((--[\w-]+)(?:\s*,\s*([^)]+))?\)",
-                      lambda m: resolve(variables.get(m.group(1), m.group(2) or ""), depth + 1), value)
+                      lambda m: resolve(scope["vars"].get(m.group(1), m.group(2) or ""), depth + 1), value)
+
+    # The ground of a dark rule that sets no background of its own: the dark page colour when a token names it, else near-black.
+    dark_ground = (18, 18, 18)
+    for name in DARK_GROUND_VARIABLES:
+        if name in dark_only:
+            found = parse_colors(resolve_in(dark_only, name))
+            if found:
+                dark_ground = found[0]
+                break
 
     tree = TreeBuilder()
     tree.feed(source)
@@ -553,20 +649,35 @@ def check_html(path: Path, errors: list[str], warnings: list[str]) -> None:
             key = size_key(part.strip())
             old_h, old_w = size_index.get(key, (None, None))
             size_index[key] = (h if h is not None else old_h, w if w is not None else old_w)
-    if re.search(r"color-scheme\s*:\s*dark|prefers-color-scheme\s*:\s*dark", css, re.I) and "dark" not in ALLOWED:
-        errors.append("dark color scheme declared")
+    if "interface" not in ALLOWED:
+        # A reading page is a document and stays light: neither the declaration nor the media query is accepted.
+        if re.search(r"color-scheme\s*:\s*dark|prefers-color-scheme\s*:\s*dark", css, re.I) and "dark" not in ALLOWED:
+            errors.append("dark color scheme declared")
+    elif "dark" not in ALLOWED:
+        # A product front-end has a dark theme: the declaration belongs in a dark block, not in the default theme.
+        for m, is_dark in rule_list:
+            if not is_dark and re.search(r"(?:^|;)\s*color-scheme\s*:\s*dark\b", m.group(2), re.I):
+                errors.append(DARK_SCHEME_IN_LIGHT.format(selector=m.group(1).strip()[:40]))
+        if not any(is_dark for _, is_dark in rule_list) and not linked_dark_block(source, path):
+            warnings.append(NO_DARK_BLOCK)
     families: set[str] = set()
     icon_strokes: set[str] = set()
     bold_rules: list[tuple[str, str]] = []
     # Brand cards (visual-design.html 配色, 品牌主卡): their fill is the backdrop for text in descendant rules.
     brand_fills: list[tuple[int, int, int]] = []
-    for rule in re.finditer(r"([^{}]*)\{([^{}]*)\}", css):
+    dark_brand_fills: list[tuple[int, int, int]] = []
+    for rule, rule_dark in rule_list:
         sel, bod = rule.group(1).strip(), rule.group(2)
+        scope["vars"] = dark_variables if rule_dark else variables
         if any(BRAND_CARD.search(part.split()[-1]) for part in sel.split(",") if part.split()):
-            brand_fills += [c for m in re.finditer(r"(?:^|;)\s*background(?:-color)?\s*:\s*([^;]+)", bod, re.I)
-                            for c in parse_colors(resolve(m.group(1))) if luminance(c) < 0.6]
-    for rule in re.finditer(r"([^{}]*)\{([^{}]*)\}", css):
+            (dark_brand_fills if rule_dark else brand_fills).extend(
+                c for m in re.finditer(r"(?:^|;)\s*background(?:-color)?\s*:\s*([^;]+)", bod, re.I)
+                for c in parse_colors(resolve(m.group(1))) if luminance(c) < 0.6)
+    for rule, rule_dark in rule_list:
         selector, body = rule.group(1).strip(), rule.group(2)
+        # Inside a dark block of a product front-end the dark fills, the dark shadows and the dark ground are the theme itself.
+        in_dark = rule_dark and "interface" in ALLOWED
+        scope["vars"] = dark_variables if rule_dark else variables
         parts = [part.split() for part in selector.split(",") if part.split()]
         brand_self = bool(parts) and all(BRAND_CARD.search(part[-1]) for part in parts)
         brand_inside = bool(parts) and not brand_self and all(any(BRAND_CARD.search(x) for x in part[:-1]) for part in parts)
@@ -643,10 +754,10 @@ def check_html(path: Path, errors: list[str], warnings: list[str]) -> None:
                     elif ratio < BRAND_CARD_MIN_CONTRAST:
                         errors.append(f"brand card {selector[:40]!r}: text on {decl.group(1).strip()[:30]} is {ratio:.1f}:1, "
                                       f"needs {BRAND_CARD_MIN_CONTRAST:g}:1 (use the step where white text reaches 4.5:1)")
-                elif lum < 0.6 and not small and "dark" not in ALLOWED and \
+                elif lum < 0.6 and not small and "dark" not in ALLOWED and not in_dark and \
                         not control_rules.setdefault(selector, styles_controls(selector, tree.root)):
                     errors.append(f"dark or saturated fill in {selector[:40]!r}: {decl.group(1).strip()[:30]} (luminance {lum:.2f})")
-                elif ("interface" in ALLOWED and 0.3 < lum < 0.7 and ACTIVE_CONTROL_SELECTOR.search(selector)
+                elif ("interface" in ALLOWED and not in_dark and 0.3 < lum < 0.7 and ACTIVE_CONTROL_SELECTOR.search(selector)
                       and not re.search(r"::?(?:before|after)|-thumb|:disabled|:hover", selector)
                       and (1.05 / (lum + 0.05)) < 3.0):
                     # A coloured control fill that is neither a pale container nor a solid step fails WCAG 1.4.11 (3:1)
@@ -658,15 +769,17 @@ def check_html(path: Path, errors: list[str], warnings: list[str]) -> None:
                 errors.append(f"gradient on control in {selector[:40]!r}: use one flat palette step")
         own_bg = [c for m in re.finditer(r"(?:^|;)\s*background(?:-color)?\s*:\s*([^;]+)", body, re.I) for c in parse_colors(resolve(m.group(1)))]
         # Text inside a brand card sits on the card's solid fill, not on white.
-        inside_card = brand_inside and brand_fills and "interface" in ALLOWED
-        backdrop = own_bg[0] if own_bg else (brand_fills[0] if inside_card else (255, 255, 255))
+        card_fills = (dark_brand_fills or brand_fills) if in_dark else brand_fills
+        inside_card = brand_inside and card_fills and "interface" in ALLOWED
+        backdrop = own_bg[0] if own_bg else (card_fills[0] if inside_card else (dark_ground if in_dark else (255, 255, 255)))
         # Text on a transparent layer sits over imagery or a parent surface we cannot see here; skip it.
         transparent_layer = bool(re.search(r"background(?:-color)?\s*:\s*(?:transparent|none)\b", body, re.I))
         # Text needs 4.5:1; graphics (icons, frames, illustrations) and disabled controls need 3:1.
         minimum = 3.0 if GRAPHIC_SELECTOR.search(selector) or ":disabled" in selector else 4.5
         for decl in (() if transparent_layer else re.finditer(r"(?:^|;)\s*color\s*:\s*([^;]+)", body, re.I)):
             for color, alpha in parse_colors_alpha(resolve(decl.group(1))):
-                if alpha < 0.5 and not inside_card:
+                # A faded colour is measured on a disabled control too: 38% opacity text falls under 3:1.
+                if alpha < 0.5 and not inside_card and ":disabled" not in selector:
                     continue
                 shown = blend(color, alpha, backdrop) if alpha < 1 else color
                 contrast = contrast_ratio(shown, backdrop)
@@ -706,7 +819,7 @@ def check_html(path: Path, errors: list[str], warnings: list[str]) -> None:
                         continue  # a 1–2px edge line, such as a button's pressed-step bottom edge
                     elif blur == 0 and x == 0 and y == 0:
                         continue  # a solid ring (focus ring, halo around a round control)
-                    elif x == 0 and y == 0 and blur >= 8 and (bright or tinted or alpha > SHADOW_MAX_ALPHA):
+                    elif x == 0 and y == 0 and blur >= 8 and (bright or tinted or alpha > (DARK_SHADOW_MAX_ALPHA if in_dark else SHADOW_MAX_ALPHA)):
                         errors.append(f"glow in {selector[:40]!r}: {text}")
                     elif (bright or tinted) and alpha >= 0.1 and blur >= 4:
                         errors.append(f"coloured shadow in {selector[:40]!r}: {text} (shadows are neutral or a dark theme tint)")
@@ -716,7 +829,7 @@ def check_html(path: Path, errors: list[str], warnings: list[str]) -> None:
                     elif blur > (OVERLAY_MAX_BLUR if overlay else CARD_MAX_BLUR):
                         warnings.append(f"shadow beyond the elevation levels in {selector[:40]!r}: {text} "
                                         f"(cards use levels 1–2, far blur up to {CARD_MAX_BLUR:g}; overlays up to {OVERLAY_MAX_BLUR:g})")
-                    elif alpha > SHADOW_MAX_ALPHA and blur >= 4:
+                    elif alpha > (DARK_SHADOW_MAX_ALPHA if in_dark else SHADOW_MAX_ALPHA) and blur >= 4:
                         warnings.append(f"dark shadow in {selector[:40]!r}: {text} (layer alpha up to {SHADOW_MAX_ALPHA:g})")
             if re.search(r"(?:^|;)\s*(?:-webkit-)?backdrop-filter\s*:\s*[^;]*blur", body, re.I):
                 errors.append(f"glass blur in {selector[:40]!r}: flat surfaces are opaque")
@@ -725,6 +838,7 @@ def check_html(path: Path, errors: list[str], warnings: list[str]) -> None:
             if ICON_SELECTOR.search(selector) and not re.search(r"chart|check|box|avatar|art\b", selector):
                 for decl in re.finditer(r"(?:^|;)\s*stroke-width\s*:\s*([\d.]+)", body, re.I):
                     icon_strokes.add(decl.group(1))
+    scope["vars"] = variables
     if len(families) > 1:
         errors.append(f"more than one font family: {sorted(families)}")
     # One typeface everywhere (visual-design.html 字体与字号): the canonical stack is
@@ -738,6 +852,18 @@ def check_html(path: Path, errors: list[str], warnings: list[str]) -> None:
         if float(number) < FLOOR_PX() and f"font-size:{number}" not in style_text:
             errors.append(f"font size {number}{unit or ''} below {FLOOR_PX():g}px in an inline style, SVG attribute or script")
             break
+    # Reading pages carry the Markdown type block (references/md-type.css): 18px body text on a desktop, 16px on a phone,
+    # headings and tables in the steps of file-design.html 网页文件 › 排版参数. A page that sets its own body size below 18px
+    # and has no desktop override keeps the old small type (visual-design.html 字阶, 阅读型网页文件).
+    if not ({"interface", "website", "showcase"} & ALLOWED) and "luz-md-type:start" not in css:
+        declared = None
+        for rule in re.finditer(r"(?:^|[},\s])(?:html\s+)?body\s*\{([^{}]*)\}", css):
+            for decl in re.finditer(r"(?:^|;)\s*(?:font-size\s*:\s*|font\s*:\s*(?:[\w-]+\s+)*)(\d+(?:\.\d+)?)px", rule.group(1)):
+                declared = float(decl.group(1))
+        desktop_override = re.search(r"@media[^{]*min-width\s*:\s*(?:7[0-9]{2}|[89]\d{2}|\d{4})px", css)
+        if declared is not None and declared < 18 and not desktop_override:
+            warnings.append(f"reading page body text is {declared:g}px with no desktop size: use references/md-type.css "
+                            "(18px on a desktop from 768px wide, 16px on a phone; file-design.html 网页文件 › 排版参数)")
     for family in sorted({f.strip().strip("'\"").lower() for f in re.findall(r"font-family\s*=\s*[\"']([^\"',]+)", source, re.I)} - allowed_first):
         errors.append(f"SVG font-family {family!r} differs from the shared stack")
     # One object, one icon (visual-design.html 图形：一套线性图标): the same pictogram must not label two
@@ -799,7 +925,7 @@ def check_html(path: Path, errors: list[str], warnings: list[str]) -> None:
         for width in sorted(widths - ICON_STROKES):
             warnings.append(f"icon stroke width {width:g}: line icons use 2 on the 24 grid, 1.75 at the least for 16px icons (图形：一套线性图标)")
         # Duotone icons and layered illustrations fill with theme steps or light neutral grey (visual-design.html 插画).
-        palette = theme_palette() | {c for v in variables.values() for c in parse_colors(resolve(v))}
+        palette = theme_palette() | {c for v in dark_variables.values() for c in parse_colors(resolve(v))}
         off_theme: list[str] = []
         fills = re.findall(r"<(?:svg|g|path|rect|circle|ellipse|polygon|polyline|line)\b[^>]*?\bfill=[\"']([^\"']+)[\"']", source, re.I)
         fills += [m.group(1) for r in re.finditer(r"([^{}]*)\{([^{}]*)\}", css) if re.search(r"svg|ill|icon|duo|cover|art|\bi\b", r.group(1), re.I)
@@ -831,10 +957,139 @@ def check_html(path: Path, errors: list[str], warnings: list[str]) -> None:
         for m in re.finditer(r"avatar[^\n]{0,80}?(?:\[0\]|charAt\(0\)|slice\(0,\s*[12]\)|substr(?:ing)?\(0,\s*[12]\)|\.(?:name|nick\w*|user\w*)\b[^\n]{0,6}?(?:\[0\]|\.slice))", source, re.I):
             errors.append(f"initials or text used as avatar: {m.group(0)[:60]!r}")
         check_interface_layout(source, resolve, errors, warnings, bold_rules)
+        check_motion(css, warnings)
+    check_focus_frames(css, resolve, errors, warnings)
     if not re.search(r"<html[^>]+lang=", source, re.I):
         warnings.append("missing lang attribute")
     if not re.search(r"name=[\"']viewport", source, re.I):
         warnings.append("missing viewport meta")
+    else:
+        check_viewport(source, errors, warnings)
+
+
+# ---------------------------------------------------------------- Viewport and motion
+# visual-design.html 视口、安全区与自适应写法 and 动效细则 › 减少动态效果.
+
+def check_viewport(source: str, errors: list[str], warnings: list[str]) -> None:
+    """Pinch zoom stays on (WCAG 1.4.4; MDN: WCAG asks for at least 2x, best practice 5x); edge-to-edge pages use the safe-area insets."""
+    meta = re.search(r"<meta\b[^>]*name=[\"']viewport[\"'][^>]*>", source, re.I)
+    content = re.search(r"content=[\"']([^\"']*)[\"']", meta.group(0), re.I) if meta else None
+    if not content:
+        return
+    settings = {key.strip().lower(): value.strip().lower()
+                for key, _, value in (part.partition("=") for part in re.split(r"[,;]", content.group(1)) if "=" in part)}
+    if settings.get("user-scalable") in {"no", "0"}:
+        errors.append("viewport sets user-scalable=no: people with low vision cannot zoom (WCAG 1.4.4)")
+    try:
+        maximum = float(settings["maximum-scale"]) if "maximum-scale" in settings else None
+    except ValueError:
+        maximum = None
+    if maximum is not None and maximum < 2:
+        errors.append(f"viewport maximum-scale={settings['maximum-scale']}: zoom must reach at least 2x (WCAG 1.4.4)")
+    elif maximum is not None and maximum < 5:
+        warnings.append(f"viewport maximum-scale={settings['maximum-scale']}: best practice is to allow 5x zoom")
+    if settings.get("viewport-fit") == "cover" and "safe-area-inset" not in source:
+        warnings.append("viewport-fit=cover without env(safe-area-inset-*): notches and home indicators will cover content")
+
+
+MOTION = re.compile(r"(?<![\w-])(?:transition|animation)(?:-[a-z-]+)?\s*:\s*(?!none\b|0s?\b|0ms\b|initial\b|inherit\b)[^;}]+|scroll-behavior\s*:\s*smooth", re.I)
+
+
+def check_motion(css: str, warnings: list[str]) -> None:
+    """Every page with motion answers prefers-reduced-motion; transition: all animates properties nobody chose."""
+    if MOTION.search(css) and not re.search(r"prefers-reduced-motion", css, re.I):
+        warnings.append("transitions, animations or smooth scrolling without a prefers-reduced-motion branch (WCAG 2.3.3)")
+    if re.search(r"transition\s*:\s*all\b", css, re.I):
+        warnings.append("transition: all animates every property; name the properties (transform, opacity, colours)")
+
+
+# ---------------------------------------------------------------- Focus frames
+# visual-design.html 层级与立体感 › 边缘线条: a focused text field only deepens its 1px border to ink2 (no blue or primary frame, glow, thick outline
+# or browser default outline); other controls show a 2px dark outline for keyboard focus only (:focus-visible), never the primary colour.
+# audit_rendered.py focuses every field in a real browser and reads the computed styles; this reads the CSS text for the common writings.
+
+FOCUS_STATE = re.compile(r":focus(?:-within|-visible)?(?![\w-])|\.(?:[\w-]*-)?focus(?:ed)?(?![\w-])|--focus(?:ed)?(?![\w-])|\[(?:data-)?focus(?:ed)?(?![\w-])", re.I)
+TEXT_FIELD_SUBJECT = re.compile(r"^(?:input|textarea|select)(?![\w-])|[.#\[][\w-]*(?:input|select|textarea|field|search|picker|editor|cascader|autocomplete|combobox|textbox)", re.I)
+NOT_A_TEXT_FIELD = re.compile(r"\[type\s*=\s*[\"']?(?:checkbox|radio|range|file|button|submit|reset|image|color)|checkbox|radio|switch|btn|button|tab\b|menu|link|card|toggle|slider|label|icon", re.I)
+PRIMARY_NAME = re.compile(r"var\(\s*--[\w-]*(?:brand|primary|accent|action|blue|info|theme|highlight)[\w-]*", re.I)
+MODERN_COLOUR = re.compile(r"(?:oklch|oklab|lch|lab|color-mix|color)\((?:[^()]|\([^()]*\))*\)", re.I)
+
+
+def tinted_colour(value: str) -> bool:
+    """A colour with a visible hue (hex, rgb, hsl or oklch): neutral greys and the tinted inks of the themes stay below the line."""
+    if any(max(c) - min(c) > 40 for c, a in parse_colors_alpha(value) if a > 0):
+        return True
+    if any(float(m.group(1)) >= 0.04 for m in re.finditer(r"oklch\(\s*[\d.]+%?\s+([\d.]+)", value, re.I)):
+        return True
+    return any(float(m.group(1)) >= 30 for m in re.finditer(r"hsla?\(\s*[\d.]+(?:deg)?[ ,]+([\d.]+)%", value, re.I))
+
+
+def focus_frame_problems(body: str, resolve) -> list[str]:
+    """What a focus rule draws that a text field must not have."""
+    found: list[str] = []
+    for decl in re.finditer(r"(?:^|;)\s*outline(?:-color)?\s*:\s*([^;]+)", body, re.I):
+        raw = decl.group(1).strip()
+        value = resolve(raw)
+        if re.match(r"(?:none|0|0px|transparent|hidden)\b", raw, re.I):
+            continue
+        width = re.search(r"(\d+(?:\.\d+)?)px", value)
+        offset = re.search(r"(?:^|;)\s*outline-offset\s*:\s*(-?\d+(?:\.\d+)?)px", body, re.I)
+        if re.search(r"\bauto\b", value, re.I):
+            found.append(f"browser default outline {raw[:30]!r}")
+        elif PRIMARY_NAME.search(raw) or tinted_colour(value):
+            found.append(f"coloured outline {raw[:30]!r}")
+        elif (width and float(width.group(1)) >= 2) or (offset and float(offset.group(1)) > 0):
+            found.append(f"thick or offset outline {raw[:30]!r}")
+    for decl in re.finditer(r"(?:^|;)\s*box-shadow\s*:\s*([^;]+)", body, re.I):
+        raw = decl.group(1).strip()
+        if PRIMARY_NAME.search(raw):
+            found.append(f"primary-coloured shadow {raw[:34]!r}")
+            continue
+        for segment in re.split(r",(?![^(]*\))", resolve(raw)):
+            for layer in shadow_layers(MODERN_COLOUR.sub(" ", segment)):
+                if layer["alpha"] == 0:
+                    continue
+                ring = layer["x"] == 0 and layer["y"] == 0
+                if tinted_colour(segment) and (layer["blur"] or layer["spread"] or not ring):
+                    found.append(f"coloured frame or glow {segment.strip()[:40]!r}")
+                elif ring and (layer["spread"] > 1 or layer["blur"] >= 4):
+                    found.append(f"thick ring or glow {segment.strip()[:40]!r}")
+    for decl in re.finditer(r"(?:^|;)\s*(border(?:-color)?)\s*:\s*([^;]+)", body, re.I):
+        raw = decl.group(2).strip()
+        value = resolve(raw)
+        if PRIMARY_NAME.search(raw) or tinted_colour(value):
+            found.append(f"coloured border {raw[:30]!r}")
+        elif decl.group(1).lower() == "border" and re.search(r"(?:^|\s)(?:[2-9]|\d{2,})(?:\.\d+)?px\b", value):
+            found.append(f"thicker border {raw[:30]!r}")
+    for decl in re.finditer(r"(?:^|;)\s*border-width\s*:\s*([^;]+)", body, re.I):
+        if re.search(r"(?:^|\s)(?:[2-9]|\d{2,})(?:\.\d+)?px\b", decl.group(1)):
+            found.append(f"thicker border {decl.group(1).strip()[:20]!r}")
+    return found
+
+
+def check_focus_frames(css: str, resolve, errors: list[str], warnings: list[str]) -> None:
+    for rule in re.finditer(r"([^{}]*)\{([^{}]*)\}", css):
+        selector, body = rule.group(1).strip(), rule.group(2)
+        problems: list[str] | None = None
+        done_field = done_other = False
+        for part in (p.strip() for p in selector.split(",") if p.strip()):
+            plain = re.sub(r":not\([^)]*\)", "", part)
+            if not FOCUS_STATE.search(plain):
+                continue
+            if problems is None:
+                problems = focus_frame_problems(body, resolve)
+            if not problems:
+                break
+            subject = re.split(r"\s*[>+~]\s*|\s+", plain)[-1]
+            if TEXT_FIELD_SUBJECT.search(subject) and "::" not in subject and not NOT_A_TEXT_FIELD.search(subject):
+                if not done_field:
+                    done_field = True
+                    errors.append(f"focus frame on a text field in {part[:50]!r}: {problems[0]}; a focused text field only deepens its 1px border to ink2 "
+                                  "(no blue or primary frame, glow, thick outline or default outline; visual-design.html 边缘线条)")
+            elif not done_other and re.search(r"coloured|primary", problems[0]) and re.search(r":focus(?:-visible)?(?![\w-])", plain):
+                done_other = True
+                warnings.append(f"keyboard focus drawn in the primary or another hue in {part[:50]!r}: {problems[0]}; use a 2px outline in the body ink or ink2, "
+                                "offset 2px, only on :focus-visible (visual-design.html 边缘线条)")
 
 
 # ---------------------------------------------------------------- Interface layout (--allow interface)
@@ -1430,6 +1685,131 @@ def check_pagination_and_brand(root: Node, warnings: list[str]) -> None:
 
 # ---------------------------------------------------------------- XLSX
 
+ATTRIBUTE_HEADERS = {"类型", "级别", "必填", "来源", "确认人"}                    # whole headers: a tag of a row, not a group of rows
+ATTRIBUTE_ENDINGS = ("结果", "状态", "优先级", "级别", "必填")                  # 审核结果, 验收结果, 处理状态, 风险级别, 是否必填 … (file-design.html: 类型、状态、优先级、必填、结果 are not grouping columns)
+
+
+def _is_row_attribute(header) -> bool:
+    """A column that describes one row (类型、状态、优先级、必填、结果 and their compounds such as 审核结果) is never a grouping column."""
+    text = str(header or "").strip()
+    return text in ATTRIBUTE_HEADERS or text.endswith(ATTRIBUTE_ENDINGS)
+
+
+def _check_group_order(sheet, where: str, header_row: int, first_col: int, last_col: int, errors: list[str]) -> None:
+    """Grouping columns lead, from the biggest group to the smallest, and are merged; identifying columns (编号, 名称 …) follow.
+
+    A *grouping column* is a short text column whose values form a few contiguous runs (the table is sorted by it); an
+    *identifying column* has a different value on every row. A grouping column to the right of an identifying column, or a
+    smaller group (more distinct values) to the left of a bigger one, means the table was not arranged big-to-small.
+    """
+    if str(sheet.cell(header_row, first_col).value or "").strip() == "变更编号":
+        return   # a change ledger lists records in time order: type, category and requester repeat in runs because changes arrive in batches, not because rows are grouped
+    rows_idx = list(range(header_row + 1, sheet.max_row + 1))
+    summary = next((r for r in rows_idx if isinstance(sheet.cell(r, first_col).value, str) and re.search(r"合计|总计|小计", sheet.cell(r, first_col).value)), None)
+    if summary is not None:
+        rows_idx = [r for r in rows_idx if r < summary]
+    if len(rows_idx) < 8:
+        return
+    root_of = {}
+    for rng in sheet.merged_cells.ranges:
+        for rr in range(rng.min_row, rng.max_row + 1):
+            for cc in range(rng.min_col, rng.max_col + 1):
+                root_of[(rr, cc)] = (rng.min_row, rng.min_col)
+
+    def value(rr: int, cc: int):
+        rr, cc = root_of.get((rr, cc), (rr, cc))
+        return sheet.cell(rr, cc).value
+
+    keys, groups = [], []   # groups: (col, values by row)
+    for col in range(first_col, last_col + 1):
+        if _is_row_attribute(sheet.cell(header_row, col).value):
+            continue
+        vals = [value(r, col) for r in rows_idx]
+        if any(v in (None, "") for v in vals) or not all(isinstance(v, str) for v in vals):
+            continue
+        distinct = list(dict.fromkeys(vals))
+        if len(distinct) == len(vals):
+            keys.append(col)
+            continue
+        runs = sum(1 for i, v in enumerate(vals) if i == 0 or v != vals[i - 1])
+        if 2 <= len(distinct) <= len(vals) // 2 and runs == len(distinct) and max(len(str(v)) for v in distinct) <= 24:
+            groups.append((col, vals))
+        elif 2 <= len(distinct) <= len(vals) // 2 and max(len(str(v)) for v in distinct) <= 24:
+            # a value that comes back later (e.g. 通用 under several parents) is fine only if a bigger group to its left separates the runs
+            parent = [g for g, _ in groups]
+            keyed = [tuple(value(r, g) for g in parent) + (v,) for r, v in zip(rows_idx, vals)]
+            if parent and len(set(keyed)) == sum(1 for i, k in enumerate(keyed) if i == 0 or k != keyed[i - 1]):
+                groups.append((col, vals))
+    name = lambda col: sheet.cell(header_row, col).value
+    for col, _ in groups:
+        left_keys = [k for k in keys if k < col]
+        if left_keys:
+            errors.append(f"{where} grouping column {name(col)!r} sits after the identifying column {name(left_keys[0])!r}: put grouping columns first, biggest group to smallest, and merge them")
+    for i, (a_col, a_vals) in enumerate(groups):
+        for b_col, b_vals in groups[i + 1:]:
+            # A lies wholly inside B when every run of A carries one B value; with B having fewer distinct values, B is the bigger group
+            inside = {}
+            nested = True
+            for av, bv in zip(a_vals, b_vals):
+                if inside.setdefault(av, bv) != bv:
+                    nested = False
+                    break
+            if nested and len(set(b_vals)) < len(set(a_vals)):
+                errors.append(f"{where} grouping column {name(a_col)!r} comes before {name(b_col)!r} but lies inside it: order groups from the biggest to the smallest")
+
+
+def _check_xlsx_layout(sheet, where: str, header_index: int, rows, errors: list[str]) -> None:
+    """Clipped text, mixed fonts and mixed alignment inside one column: what a person sees first when the file is ugly."""
+    import xlsx_metrics as M
+    from openpyxl.utils import get_column_letter
+
+    header = rows[header_index]
+    first_col, last_col = min(c.column for c in header), max(c.column for c in header)
+    header_row = header[0].row
+    last_row = max(r[0].row for r in rows if r)
+    merged_at = {}
+    for m in sheet.merged_cells.ranges:
+        for r in range(m.min_row, m.max_row + 1):
+            for col in range(m.min_col, m.max_col + 1):
+                merged_at[(r, col)] = m
+    def col_width(col: int) -> float:
+        return sheet.column_dimensions[get_column_letter(col)].width or 8.43
+    def row_pt(row: int) -> float:
+        return sheet.row_dimensions[row].height or 15.0
+    alignment: dict[int, set[str]] = {}
+    for row in sheet.iter_rows(min_row=header_row, max_row=last_row, min_col=first_col, max_col=last_col):
+        for cell in row:
+            if type(cell).__name__ == "MergedCell":
+                continue
+            name = (cell.font.name or "").lower()
+            if name not in XLSX_FAMILIES:
+                errors.append(f"{where}{cell.coordinate} font {cell.font.name!r}: every cell, filled or empty, uses one business family (宋体 or Microsoft YaHei)")
+                break
+            value = cell.value
+            if value in (None, "") or not isinstance(value, str) or value.startswith("="):
+                continue
+            rng = merged_at.get((cell.row, cell.column))
+            width = sum(col_width(c) for c in range(rng.min_col, rng.max_col + 1)) if rng else col_width(cell.column)
+            height = sum(row_pt(r) for r in range(rng.min_row, rng.max_row + 1)) if rng else row_pt(cell.row)
+            if cell.row > header_row and not rng:
+                alignment.setdefault(cell.column, set()).add(cell.alignment.horizontal or "general")
+            if not cell.alignment.wrap_text and M.display_width(value) > width - M.PADDING_UNITS:
+                errors.append(f"{where}{cell.coordinate} text is wider than its column and does not wrap: it will be cut off or covered by the next cell")
+                continue
+            need = M.row_height(M.wrapped_lines(value, width, int(cell.alignment.indent or 0)), float(cell.font.sz or 12))
+            if cell.alignment.wrap_text and need > height + 2:
+                errors.append(f"{where}{cell.coordinate} needs about {need:.0f} pt but the row is {height:.0f} pt: the last lines will be clipped")
+    for col, kinds in alignment.items():
+        if len(kinds) > 1:
+            errors.append(f"{where} column {get_column_letter(col)} mixes alignments {sorted(kinds)}: one column, one alignment")
+    normal = sheet.parent._named_styles["Normal"].font if "Normal" in sheet.parent._named_styles else None
+    if normal is not None and (normal.name or "").lower() not in XLSX_FAMILIES:
+        errors.append(f"{where} the workbook's default font is {normal.name!r}: set Normal to the family of the cells (宋体 or Microsoft YaHei) so cells typed in later match")
+
+
+XLSX_FAMILIES = {"宋体", "simsun", "微软雅黑", "microsoft yahei"}       # one of them per workbook; the check for a second family is below
+
+
 def check_xlsx(path: Path, errors: list[str], warnings: list[str]) -> None:
     try:
         import openpyxl
@@ -1439,7 +1819,9 @@ def check_xlsx(path: Path, errors: list[str], warnings: list[str]) -> None:
     book = openpyxl.load_workbook(path)
     sheets = book.worksheets
     if len(sheets) > 1 and "multi-sheet" not in ALLOWED:
-        errors.append(f"{len(sheets)} worksheets; only one is allowed unless the user asked for more ({', '.join(s.title for s in sheets)})")
+        errors.append(f"{len(sheets)} worksheets; only one is allowed unless the user asked for more or the document standard prescribes them "
+                      f"(Luz-Project client documents 04 功能清单 and 05 业务逻辑确认表 are two-sheet workbooks): re-run with --allow-multi-sheet "
+                      f"if so ({', '.join(s.title for s in sheets)})")
     fonts: set[str] = set()
     sizes: set[float] = set()
     for sheet in sheets:
@@ -1464,7 +1846,8 @@ def check_xlsx(path: Path, errors: list[str], warnings: list[str]) -> None:
             errors.append(f"{where} no header row found")
             continue
         for i in range(1, header_index):
-            if rows[i]:
+            subtitle = i == 1 and len(rows[i]) == 1 and rows[i][0].column == 1 and isinstance(rows[i][0].value, str) and len(rows[i][0].value) <= 80
+            if rows[i] and not subtitle:           # row 2 may be one grey subtitle line (who it is for, version, date)
                 errors.append(f"{where} row {i + 1} sits between the title and the header: {str(rows[i][0].value)[:30]!r}")
         header = rows[header_index]
         header_values = [str(c.value).strip() for c in header]
@@ -1499,8 +1882,10 @@ def check_xlsx(path: Path, errors: list[str], warnings: list[str]) -> None:
                 fonts.add((cell.font.name or "").lower())
                 size = float(cell.font.sz or 11)
                 sizes.add(size)
-                if size < 12:
-                    errors.append(f"{where}{cell.coordinate} font {size:g}pt is below 12pt")
+                if size < 10:
+                    errors.append(f"{where}{cell.coordinate} font {size:g}pt is below 10pt")
+                if size > 14 and cell.row != rows[0][0].row:
+                    errors.append(f"{where}{cell.coordinate} font {size:g}pt is above 14pt: a table body stays within 10-14pt so nothing outgrows its cell")
                 if size > title_size:
                     errors.append(f"{where}{cell.coordinate} is larger than the title")
                 fill = cell.fill
@@ -1513,6 +1898,8 @@ def check_xlsx(path: Path, errors: list[str], warnings: list[str]) -> None:
                     contrast = 1.05 / (luminance(hex_rgb(color)) + 0.05)
                     if contrast < 4.5:
                         errors.append(f"{where}{cell.coordinate} font color too light #{color[2:]}")
+        _check_xlsx_layout(sheet, where, header_index, rows, errors)
+        _check_group_order(sheet, where, header[0].row, min(c.column for c in header), max(c.column for c in header), errors)
         if not header[0].font.b:
             warnings.append(f"{where} header row is not bold")
         data_rows = len(rows) - header_index - 1
@@ -1532,8 +1919,8 @@ def check_xlsx(path: Path, errors: list[str], warnings: list[str]) -> None:
             for r in range(merged.min_row, merged.max_row + 1):
                 for c in range(merged.min_col, merged.max_col + 1):
                     merged_cover.add((r, c))
-            if merged.min_row == 1:
-                continue
+            if merged.min_row == 1 or (merged.min_row == 2 and merged.max_row == 2 and merged.min_col == 1 and merged.min_row < header_row):
+                continue                                   # the title, and the subtitle line under it
             if merged.min_col != merged.max_col and merged.min_row == merged.max_row and merged.min_row > header_row:
                 label = sheet.cell(merged.min_row, merged.min_col).value
                 # The row's first-column label may itself be a vertical merge (合计 over two summary rows).
@@ -1556,6 +1943,22 @@ def check_xlsx(path: Path, errors: list[str], warnings: list[str]) -> None:
             errors.append(f"{where} first column is a running number; remove the sequence column")
         # Same text repeated down a grouping column must be merged, not written on every row.
         grouping = True
+        root_of = {}
+        for rng in sheet.merged_cells.ranges:
+            for rr in range(rng.min_row, rng.max_row + 1):
+                for cc in range(rng.min_col, rng.max_col + 1):
+                    root_of[(rr, cc)] = (rng.min_row, rng.min_col)
+
+        def effective(rr: int, cc: int):
+            rr, cc = root_of.get((rr, cc), (rr, cc))
+            return sheet.cell(rr, cc).value
+
+        left_groups: list[int] = []
+
+        def same_parent(rr: int) -> bool:
+            """A column nested under a bigger group only merges inside that group: equal text across a parent boundary is fine."""
+            return all(effective(rr, g) == effective(rr + 1, g) for g in left_groups)
+
         for col in range(first_col, last_col + 1):
             values = [(r, sheet.cell(r, col).value) for r in range(header_row + 1, sheet.max_row + 1)]
             filled = [v for _, v in values if v not in (None, "")]
@@ -1564,9 +1967,12 @@ def check_xlsx(path: Path, errors: list[str], warnings: list[str]) -> None:
             run_found = any(
                 isinstance(v, str) and v.strip() not in ("", "—", "-") and v == values[i + 1][1]
                 and (r, col) not in merged_cover and (values[i + 1][0], col) not in merged_cover
+                and same_parent(r)
                 for i, (r, v) in enumerate(values[:-1])
             )
             is_group_col = any((r, col) in merged_cover for r, _ in values) or run_found
+            if is_group_col:
+                left_groups.append(col)
             if run_found and grouping:
                 errors.append(f"{where} column {sheet.cell(header_row, col).value!r} repeats the same text on consecutive rows; merge those cells vertically")
             if not is_group_col:
@@ -1623,11 +2029,13 @@ def check_docx(path: Path, errors: list[str], warnings: list[str]) -> None:
         body = [r.font.size.pt for p in paragraphs[1:6] for r in p.runs if r.font.size]
         if not sizes or (body and max(sizes) <= max(body)):
             errors.append(f"first paragraph is not a title: {first.text[:40]!r}")
-    if len(paragraphs) > 1 and not re.search(r"合同|协议", first.text) and not is_heading(paragraphs[1]) and not all(r.bold for r in paragraphs[1].runs if r.text.strip()):
+    if len(paragraphs) > 1 and "cover" not in ALLOWED and not re.search(r"合同|协议", first.text) and not is_heading(paragraphs[1]) and not all(r.bold for r in paragraphs[1].runs if r.text.strip()):
         errors.append(f"text between the title and the first heading: {paragraphs[1].text[:40]!r}")
     families: set[str] = set()
-    for paragraph in paragraphs:
-        check_text(paragraph.text, "paragraph", errors, heading=paragraph is first or is_heading(paragraph))
+    cover_end = next((i for i, p in enumerate(paragraphs) if is_heading(p)), 0) if "cover" in ALLOWED else 0   # a requested cover page: name, version, date lines
+    for index, paragraph in enumerate(paragraphs):
+        if index >= cover_end:
+            check_text(paragraph.text, "paragraph", errors, heading=paragraph is first or is_heading(paragraph))
         if is_heading(paragraph):
             check_heading(paragraph.text, "heading", errors)
         for run in paragraph.runs:
@@ -1686,6 +2094,41 @@ def is_title_shape(shape) -> bool:
         return False
 
 
+PPTX_MARGIN = 0.05                 # file-design.html 演示文稿: margins of at least 5% of the slide width
+PPTX_SIZES = {18.0, 20.0, 28.0, 40.0}
+PAGE_NUMBER = re.compile(r"^[\s\d/第页共]+$")
+
+
+def check_pptx_shape(shape, deck, where: str, margin: float, errors: list[str], warnings: list[str]) -> None:
+    """Margins, alternate text and table headers of one slide shape (file-design.html 演示文稿; Microsoft accessible presentations)."""
+    try:
+        left, top, width, height = shape.left, shape.top, shape.width, shape.height
+    except AttributeError:
+        return
+    if None in (left, top, width, height):
+        return
+    background = width >= deck.slide_width * 0.95 and height >= deck.slide_height * 0.95
+    text = shape.text_frame.text if shape.has_text_frame else ""
+    page_number = bool(text.strip()) and bool(PAGE_NUMBER.match(text))
+    if not background and not page_number:
+        slack = deck.slide_width * 0.005
+        if left < margin - slack or top < margin - slack or deck.slide_width - (left + width) < margin - slack \
+                or deck.slide_height - (top + height) < margin - slack:
+            label = text.strip()[:20] or shape.name
+            errors.append(f"{where}: {label!r} reaches into the 5% page margin (keep margins of at least {margin / 914400:.2f} in)")
+    try:
+        from pptx.enum.shapes import MSO_SHAPE_TYPE
+        if shape.shape_type == MSO_SHAPE_TYPE.PICTURE:
+            props = shape._element.xpath(".//p:cNvPr")
+            alt = (props[0].get("descr") or "").strip() if props else ""
+            if not alt or re.search(r"\.(?:png|jpe?g|gif|bmp|svg|emf|wmf|webp)$", alt, re.I):
+                warnings.append(f"{where}: picture {shape.name!r} has no alternate text, or only its file name (Microsoft: every visual gets alternative text)")
+        if getattr(shape, "has_table", False) and shape.has_table and not shape.table.first_row:
+            warnings.append(f"{where}: table {shape.name!r} has no header row flag, so screen readers read the first row as data")
+    except (AttributeError, ImportError, NotImplementedError):
+        pass
+
+
 def check_pptx(path: Path, errors: list[str], warnings: list[str]) -> None:
     try:
         from pptx import Presentation
@@ -1696,6 +2139,11 @@ def check_pptx(path: Path, errors: list[str], warnings: list[str]) -> None:
     deck = Presentation(str(path))
     slide_area = deck.slide_width * deck.slide_height
     families: set[str] = set()
+    titles: dict[str, int] = {}
+    if deck.slide_height and abs(deck.slide_width / deck.slide_height - 16 / 9) > 0.01 and "ratio" not in ALLOWED:
+        errors.append(f"slide size {Emu(deck.slide_width).inches:.2f} x {Emu(deck.slide_height).inches:.2f} in is not 16:9 "
+                      "(Widescreen is 13.333 x 7.5 in; pass --allow ratio if the user asked for another size)")
+    margin = deck.slide_width * PPTX_MARGIN
     for number, slide in enumerate(deck.slides, 1):
         where = f"slide {number}"
         fill = slide.background.fill if slide.background is not None else None
@@ -1711,6 +2159,7 @@ def check_pptx(path: Path, errors: list[str], warnings: list[str]) -> None:
                     errors.append(f"{where}: large dark shape #{shape.fill.fore_color.rgb}")
             except (AttributeError, TypeError, ValueError):
                 pass
+            check_pptx_shape(shape, deck, where, margin, errors, warnings)
             if not shape.has_text_frame:
                 continue
             for paragraph in shape.text_frame.paragraphs:
@@ -1720,14 +2169,23 @@ def check_pptx(path: Path, errors: list[str], warnings: list[str]) -> None:
                 texts.append(text)
                 check_text(text, where, errors, heading=is_title_shape(shape))
                 for run in paragraph.runs:
-                    if run.font.size is not None and Emu(run.font.size).pt < 16:
-                        errors.append(f"{where}: font {Emu(run.font.size).pt:g}pt below 16pt: {run.text[:20]!r}")
+                    if run.font.size is not None and Emu(run.font.size).pt < 18:
+                        errors.append(f"{where}: font {Emu(run.font.size).pt:g}pt below 18pt: {run.text[:20]!r}")
+                    elif run.font.size is not None and Emu(run.font.size).pt not in PPTX_SIZES:
+                        warnings.append(f"{where}: font {Emu(run.font.size).pt:g}pt is off the scale 18/20/28/40: {run.text[:20]!r}")
                     if run.font.name:
                         families.add(run.font.name.lower())
         if not texts:
             errors.append(f"{where}: slide carries no text conclusion")
             continue
-        title = slide.shapes.title.text_frame.text.strip() if slide.shapes.title is not None and slide.shapes.title.has_text_frame else texts[0]
+        has_title = slide.shapes.title is not None and slide.shapes.title.has_text_frame
+        title = slide.shapes.title.text_frame.text.strip() if has_title else texts[0]
+        if not has_title:
+            warnings.append(f"{where}: no title placeholder, so the outline and screen readers cannot name the slide (use a layout with a title)")
+        elif title in titles:
+            warnings.append(f"{where}: the title repeats slide {titles[title]}: {title[:30]!r} (every slide gets its own title)")
+        if title:
+            titles.setdefault(title, number)
         if number == 1 and title != texts[0]:
             errors.append(f"{where}: the first line of the cover is not the title: {texts[0][:30]!r}")
         if "accessory" not in ALLOWED and FILLER_SLIDE.match(title):
@@ -1769,8 +2227,8 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("files", nargs="+", type=Path)
     parser.add_argument("--allow", action="append", default=[], metavar="KIND",
-                        help="interface (interface pages: product type scale and the application shell nav, aside, header), website (a website or landing page: implies interface, 14px floor and 40/48 first-screen titles), or only for items the user explicitly asked for: multi-sheet, chart, accessory, cover, header, "
-                             "shell, dark, note, emoji, paper (Word 论文版式 fonts: 宋体, 黑体, Times New Roman), official (Word 公文格式 fonts), or a text family (" + ", ".join(FAMILIES) + ")")
+                        help="interface (interface pages: product type scale and the application shell nav, aside, header), website (a website or landing page: implies interface, 14px floor and 40/48 first-screen titles), showcase (系统架构图册 PDF 的展示页；见 file-design.html 系统架构图册), or only for items the user explicitly asked for: multi-sheet, chart, accessory, cover, header, "
+                             "shell, dark, note, emoji, ratio (a deck that is not 16:9), paper (Word 论文版式 fonts: 宋体, 黑体, Times New Roman), official (Word 公文格式 fonts), or a text family (" + ", ".join(FAMILIES) + ")")
     parser.add_argument("--allow-multi-sheet", action="store_true", help="same as --allow multi-sheet")
     args = parser.parse_args(argv)
     ALLOWED.clear()

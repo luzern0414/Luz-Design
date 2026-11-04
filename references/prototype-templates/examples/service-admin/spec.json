@@ -1,0 +1,1379 @@
+{
+ "$schema": "../../schema/prototype.schema.json",
+ "schema": "luz-prototype/1",
+ "kind": "admin",
+ "meta": {
+  "title": "到店服务运营后台",
+  "subtitle": "预约、排班、核销：同一套后台机制长出的另一种后台",
+  "brand": "暖光到店台",
+  "version": "0.1",
+  "mark": "<circle cx='16' cy='16' r='9'/><path d='M16 10.5V16l3.5 2'/>"
+ },
+ "theme": {
+  "id": "blue",
+  "appearance": "auto",
+  "sidebar": "dark",
+  "density": "standard",
+  "iconStyle": "line"
+ },
+ "nav": [
+  {
+   "id": "today",
+   "name": "今日台",
+   "icon": "home",
+   "page": "today"
+  },
+  {
+   "id": "g-book",
+   "name": "预约与排班",
+   "children": [
+    {
+     "id": "calendar",
+     "name": "预约日历",
+     "icon": "calendar",
+     "page": "calendar"
+    },
+    {
+     "id": "roster",
+     "name": "员工排班",
+     "icon": "users",
+     "page": "roster"
+    }
+   ]
+  },
+  {
+   "id": "g-client",
+   "name": "客户与服务",
+   "children": [
+    {
+     "id": "clients",
+     "name": "客户档案",
+     "icon": "user",
+     "page": "clients"
+    },
+    {
+     "id": "services",
+     "name": "服务项目",
+     "icon": "layers",
+     "page": "services"
+    },
+    {
+     "id": "redeem",
+     "name": "核销记录",
+     "icon": "qr",
+     "page": "redeem"
+    }
+   ]
+  },
+  {
+   "id": "shop-settings",
+   "name": "门店设置",
+   "icon": "gear",
+   "page": "shop-settings"
+  }
+ ],
+ "roles": [
+  {
+   "id": "manager",
+   "name": "店长",
+   "note": "全部页面，可读可写"
+  },
+  {
+   "id": "front",
+   "name": "前台",
+   "note": "不能改门店设置",
+   "deniedGo": "res-lock",
+   "deniedLabel": "查看说明"
+  }
+ ],
+ "shell": {
+  "today": "2026-11-04",
+  "now": "10:30",
+  "version": "0.9.3",
+  "account": {
+   "name": "周店长",
+   "av": 4,
+   "store": "中心店"
+  },
+  "versionInfo": [
+   [
+    "前端版本",
+    "0.9.3"
+   ],
+   [
+    "后端版本",
+    "1.2.0"
+   ],
+   [
+    "发布时间",
+    "2026-11-02 20:00"
+   ]
+  ],
+  "notices": [
+   {
+    "id": "n1",
+    "title": "今天 14:00 有 2 个预约尚未确认",
+    "time": "10:05",
+    "go": "today"
+   }
+  ]
+ },
+ "data": {
+  "maps": {
+   "bookingStatus": {
+    "booked": {
+     "label": "已预约",
+     "tone": "in"
+    },
+    "arrived": {
+     "label": "已到店",
+     "tone": "ok"
+    },
+    "done": {
+     "label": "已完成",
+     "tone": "ok"
+    },
+    "noshow": {
+     "label": "未到店",
+     "tone": "dg"
+    },
+    "cancelled": {
+     "label": "已取消",
+     "tone": "mu"
+    }
+   },
+   "clientStatus": {
+    "active": {
+     "label": "活跃",
+     "tone": "ok"
+    },
+    "new": {
+     "label": "新客",
+     "tone": "in"
+    },
+    "sleep": {
+     "label": "沉睡",
+     "tone": "wn"
+    }
+   },
+   "redeemStatus": {
+    "done": {
+     "label": "已核销",
+     "tone": "ok"
+    },
+    "revoked": {
+     "label": "已撤销",
+     "tone": "mu"
+    }
+   },
+   "redeemWay": {
+    "scan": {
+     "label": "扫码",
+     "tone": "mu"
+    },
+    "code": {
+     "label": "输码",
+     "tone": "mu"
+    }
+   },
+   "serviceOn": {
+    "true": {
+     "label": "上架中",
+     "tone": "ok"
+    },
+    "false": {
+     "label": "已下架",
+     "tone": "mu"
+    }
+   }
+  },
+  "options": {
+   "cat": [
+    {
+     "v": "体验",
+     "label": "体验"
+    },
+    {
+     "v": "标准",
+     "label": "标准"
+    },
+    {
+     "v": "深度",
+     "label": "深度"
+    },
+    {
+     "v": "套餐",
+     "label": "套餐"
+    },
+    {
+     "v": "次卡",
+     "label": "次卡"
+    }
+   ],
+   "card": [
+    {
+     "v": "次卡",
+     "label": "次卡"
+    },
+    {
+     "v": "月卡",
+     "label": "月卡"
+    },
+    {
+     "v": "体验卡",
+     "label": "体验卡"
+    }
+   ],
+   "way": [
+    {
+     "v": "scan",
+     "label": "扫码"
+    },
+    {
+     "v": "code",
+     "label": "输码"
+    }
+   ]
+  },
+  "settings": {
+   "ahead": 7,
+   "cancelHours": 2,
+   "noshow": "keep",
+   "revokeMin": 30,
+   "sms": true
+  },
+  "settings_src": {}
+ },
+ "scenes": [
+  {
+   "id": "switch",
+   "label": "行内开关结果",
+   "pages": [
+    "services"
+   ],
+   "default": "ok",
+   "options": [
+    {
+     "v": "ok",
+     "label": "成功",
+     "kind": "ok"
+    },
+    {
+     "v": "processing",
+     "label": "处理中",
+     "kind": "busy"
+    },
+    {
+     "v": "fail-busy",
+     "label": "失败：服务繁忙",
+     "kind": "fail"
+    },
+    {
+     "v": "fail-changed",
+     "label": "失败：数据已被他人修改",
+     "kind": "fail"
+    }
+   ]
+  },
+  {
+   "id": "submit",
+   "label": "保存与操作结果",
+   "pages": [
+    "clients",
+    "services",
+    "service-edit",
+    "redeem",
+    "redeem-do",
+    "shop-settings"
+   ],
+   "default": "ok",
+   "options": [
+    {
+     "v": "ok",
+     "label": "成功",
+     "kind": "ok"
+    },
+    {
+     "v": "processing",
+     "label": "处理中",
+     "kind": "busy"
+    },
+    {
+     "v": "fail-busy",
+     "label": "失败：服务繁忙",
+     "kind": "fail"
+    },
+    {
+     "v": "fail-expired",
+     "label": "失败：核销码已失效",
+     "kind": "fail"
+    }
+   ]
+  }
+ ],
+ "rules": [
+  {
+   "title": "预约与核销",
+   "items": [
+    "预约按时间排成日程；已到店的客户在当天核销，核销写进记录和操作日志",
+    "撤销核销、改爽约规则这类影响客户次数的操作先二次确认",
+    "没有商品、购物车和订单：这是到店服务类后台的一种组成"
+   ]
+  }
+ ],
+ "directory": [
+  {
+   "group": "概览",
+   "pages": [
+    "today"
+   ]
+  },
+  {
+   "group": "预约与排班",
+   "pages": [
+    "calendar",
+    "roster"
+   ]
+  },
+  {
+   "group": "客户与服务",
+   "pages": [
+    "clients",
+    "client-detail",
+    "services",
+    "service-edit",
+    "redeem",
+    "redeem-do"
+   ]
+  },
+  {
+   "group": "门店",
+   "pages": [
+    "shop-settings",
+    "res-lock"
+   ]
+  }
+ ],
+ "pages": [
+  {
+   "id": "today",
+   "name": "今日台",
+   "type": "tab",
+   "tab": "today",
+   "actions": [
+    {
+     "label": "新增核销",
+     "icon": "qr",
+     "kind": "primary",
+     "sheet": "redeem-do",
+     "write": true
+    }
+   ],
+   "dashboard": {
+    "range": {
+     "options": [
+      {
+       "v": 7,
+       "label": "近 7 天"
+      },
+      {
+       "v": 14,
+       "label": "近 14 天"
+      }
+     ],
+     "default": 7
+    },
+    "kpis": [
+     {
+      "id": "bookings",
+      "label": "预约数",
+      "icon": "calendar",
+      "unit": "个",
+      "format": "int",
+      "calc": {
+       "op": "sum",
+       "src": "stats.daily",
+       "field": "bookings"
+      }
+     },
+     {
+      "id": "rate",
+      "label": "到店率",
+      "icon": "check",
+      "format": "pct",
+      "calc": {
+       "op": "ratio",
+       "src": "stats.daily",
+       "num": "arrived",
+       "den": "bookings"
+      }
+     },
+     {
+      "id": "verified",
+      "label": "核销次数",
+      "icon": "qr",
+      "unit": "次",
+      "format": "int",
+      "calc": {
+       "op": "sum",
+       "src": "stats.daily",
+       "field": "verified"
+      }
+     },
+     {
+      "id": "revenue",
+      "label": "核销金额",
+      "icon": "receipt",
+      "unit": "元",
+      "format": "money",
+      "calc": {
+       "op": "sum",
+       "src": "stats.daily",
+       "field": "revenue"
+      }
+     }
+    ],
+    "sections": [
+     {
+      "kind": "agenda",
+      "id": "agenda",
+      "title": "今天的预约",
+      "src": "bookings",
+      "where": {
+       "date": "@today"
+      },
+      "time": "time",
+      "row": "{customer} · {service}",
+      "sub": "{staff}",
+      "status": "status",
+      "map": "bookingStatus",
+      "w": 8,
+      "limit": 8
+     },
+     {
+      "kind": "todo",
+      "id": "todo",
+      "title": "待办",
+      "w": 4,
+      "items": [
+       {
+        "label": "已到店待核销",
+        "icon": "qr",
+        "count": {
+         "data": "bookings",
+         "where": {
+          "date": "2026-11-04",
+          "status": "arrived"
+         }
+        },
+        "tab": "redeem"
+       },
+       {
+        "label": "今天未到店",
+        "icon": "alert",
+        "count": {
+         "data": "bookings",
+         "where": {
+          "date": "2026-11-04",
+          "status": "noshow"
+         }
+        },
+        "tab": "clients"
+       },
+       {
+        "label": "沉睡客户",
+        "icon": "clock",
+        "count": {
+         "data": "clients",
+         "where": {
+          "status": "sleep"
+         }
+        },
+        "tab": "clients",
+        "preset": {
+         "tab": "sleep"
+        }
+       }
+      ]
+     },
+     {
+      "kind": "rank",
+      "id": "heat",
+      "title": "服务项目热度（核销次数）",
+      "src": "breakdown.service",
+      "w": 6,
+      "top": 5,
+      "unit": " 次"
+     },
+     {
+      "kind": "donut",
+      "id": "source",
+      "title": "预约来源",
+      "src": "breakdown.source",
+      "w": 6,
+      "unit": " 个"
+     }
+    ]
+   },
+   "logic": {
+    "from": "侧栏第一项",
+    "back": "无（一级页）",
+    "done": "无",
+    "primary": "处理今天的待办",
+    "rules": [
+     "这个后台没有商品和订单：第一屏是“今天的预约与核销”",
+     "时间范围由页面统一控制；今天的预约按时间排成日程",
+     "待办点一下直达已筛选好的列表"
+    ],
+    "states": [
+     "空：今天没有安排时给一句话"
+    ],
+    "backend": [
+     "预约、核销数据来自小程序与前台核销"
+    ]
+   }
+  },
+  {
+   "id": "calendar",
+   "name": "预约日历",
+   "type": "tab",
+   "tab": "calendar",
+   "blocks": [
+    {
+     "cid": "AD-FLOW-005",
+     "id": "week-calendar",
+     "name": "日程周视图"
+    }
+   ],
+   "logic": {
+    "from": "侧栏「预约日历」",
+    "back": "无（一级页）",
+    "done": "无",
+    "primary": "点空白格新建预约",
+    "rules": [
+     "周视图：点空白格新建，点日程块看详情；同一时段的日程并排显示"
+    ],
+    "backend": [
+     "预约时段与可约人数由门店设置维护"
+    ]
+   }
+  },
+  {
+   "id": "roster",
+   "name": "员工排班",
+   "type": "tab",
+   "tab": "roster",
+   "blocks": [
+    {
+     "cid": "AD-FLOW-006",
+     "id": "shift-table",
+     "name": "员工排班表"
+    }
+   ],
+   "logic": {
+    "from": "侧栏「员工排班」",
+    "back": "无（一级页）",
+    "done": "无",
+    "primary": "点格子选班次",
+    "rules": [
+     "点格子选早班 / 晚班 / 休息，底部实时统计每天在岗人数，右侧统计工时并标出超时"
+    ],
+    "backend": [
+     "班次种类与工时上限由门店设置维护"
+    ]
+   }
+  },
+  {
+   "id": "clients",
+   "name": "客户档案",
+   "type": "tab",
+   "tab": "clients",
+   "list": {
+    "data": "clients",
+    "noun": "客户",
+    "nameTpl": "{name}",
+    "export": {
+     "file": "客户档案"
+    },
+    "columns": [
+     {
+      "key": "name",
+      "label": "客户",
+      "type": "person",
+      "sub": "{phone}",
+      "sort": true,
+      "width": 180
+     },
+     {
+      "key": "card",
+      "label": "会员卡",
+      "type": "text"
+     },
+     {
+      "key": "left",
+      "label": "剩余次数",
+      "type": "num",
+      "unit": "次",
+      "sort": true
+     },
+     {
+      "key": "spent",
+      "label": "累计消费（元）",
+      "type": "money",
+      "sort": true
+     },
+     {
+      "key": "lastVisit",
+      "label": "最近到店",
+      "type": "date",
+      "sort": true
+     },
+     {
+      "key": "status",
+      "label": "状态",
+      "type": "status",
+      "map": "clientStatus"
+     }
+    ],
+    "tabs": {
+     "key": "status",
+     "map": "clientStatus",
+     "order": [
+      "active",
+      "new",
+      "sleep"
+     ],
+     "default": "active"
+    },
+    "defaultSort": {
+     "key": "lastVisit",
+     "dir": "desc"
+    },
+    "filters": {
+     "search": {
+      "keys": [
+       "name",
+       "phone"
+      ],
+      "placeholder": "客户名、手机号"
+     },
+     "primary": [
+      {
+       "key": "card",
+       "label": "会员卡",
+       "options": "card"
+      }
+     ],
+     "more": [
+      {
+       "key": "spent",
+       "label": "累计消费",
+       "type": "num",
+       "unit": "元"
+      }
+     ]
+    },
+    "rowActions": [
+     {
+      "id": "view",
+      "label": "档案",
+      "sheet": "client-detail",
+      "write": false
+     },
+     {
+      "id": "visit",
+      "label": "补登到店",
+      "patch": {
+       "lastVisit": "@today",
+       "status": "active"
+      },
+      "toast": "已为「{name}」补登今天到店",
+      "log": "补登客户「{name}」到店"
+     }
+    ]
+   },
+   "logic": {
+    "from": "侧栏「客户档案」；今日台待办",
+    "back": "无（一级页）",
+    "done": "无",
+    "primary": "查看档案",
+    "rules": [
+     "默认只看活跃客户，最近到店的在前；沉睡客户在标签里单独一个",
+     "手机号默认脱敏，头像用默认卡通动物",
+     "第一列是客户名加手机号，不是内部编号"
+    ],
+    "states": [
+     "空：没有符合条件的客户给“清除筛选”"
+    ],
+    "backend": [
+     "客户资料由前台和小程序登记产生"
+    ]
+   }
+  },
+  {
+   "id": "client-detail",
+   "name": "客户档案详情",
+   "type": "sheet",
+   "tab": "clients",
+   "title": "客户档案 · {name}",
+   "layout": "center",
+   "detail": {
+    "data": "clients",
+    "list": "clients",
+    "head": {
+     "status": "status",
+     "map": "clientStatus",
+     "big": {
+      "key": "left",
+      "type": "num"
+     },
+     "sub": "剩余次数 · {card}"
+    },
+    "sections": [
+     {
+      "title": "基本信息",
+      "kv": [
+       {
+        "label": "客户",
+        "key": "name",
+        "type": "person"
+       },
+       {
+        "label": "手机号",
+        "key": "phone"
+       },
+       {
+        "label": "会员卡",
+        "key": "card"
+       },
+       {
+        "label": "累计消费",
+        "key": "spent",
+        "type": "money"
+       },
+       {
+        "label": "最近到店",
+        "key": "lastVisit"
+       },
+       {
+        "label": "备注",
+        "key": "note",
+        "wide": true
+       }
+      ]
+     }
+    ],
+    "actions": [
+     {
+      "id": "visit",
+      "label": "补登到店",
+      "kind": "primary",
+      "patch": {
+       "lastVisit": "@today",
+       "status": "active"
+      },
+      "toast": "已为「{name}」补登今天到店",
+      "log": "补登客户「{name}」到店",
+      "close": true
+     }
+    ]
+   },
+   "logic": {
+    "from": "客户档案的“档案”",
+    "back": "关闭面板，回到列表原位置",
+    "done": "无",
+    "primary": "补登到店",
+    "rules": [
+     "居中悬浮面板；手机号只显示脱敏后的号码"
+    ],
+    "backend": [
+     "备注由前台维护"
+    ]
+   }
+  },
+  {
+   "id": "services",
+   "name": "服务项目",
+   "type": "tab",
+   "tab": "services",
+   "actions": [
+    {
+     "label": "新建服务",
+     "icon": "plus",
+     "kind": "primary",
+     "sheet": "service-edit",
+     "write": true
+    }
+   ],
+   "list": {
+    "data": "services",
+    "noun": "服务",
+    "nameTpl": "{name}",
+    "select": false,
+    "columns": [
+     {
+      "key": "name",
+      "label": "服务",
+      "type": "two",
+      "sub": "{mins} 分钟",
+      "align": "l",
+      "sort": true,
+      "width": 180
+     },
+     {
+      "key": "cat",
+      "label": "类别",
+      "type": "text"
+     },
+     {
+      "key": "price",
+      "label": "价格（元）",
+      "type": "money",
+      "sort": true
+     },
+     {
+      "key": "sales",
+      "label": "核销次数",
+      "type": "num",
+      "sort": true
+     },
+     {
+      "key": "on",
+      "label": "上架",
+      "type": "switch",
+      "on": "上架",
+      "off": "下架",
+      "name": "{name}",
+      "scene": "switch",
+      "onToast": "「{name}」已上架",
+      "offToast": "「{name}」已下架"
+     }
+    ],
+    "tabs": {
+     "key": "on",
+     "map": "serviceOn",
+     "order": [
+      "true",
+      "false"
+     ],
+     "default": "true"
+    },
+    "defaultSort": {
+     "key": "sales",
+     "dir": "desc"
+    },
+    "filters": {
+     "search": {
+      "keys": [
+       "name"
+      ],
+      "placeholder": "服务名"
+     },
+     "primary": [
+      {
+       "key": "cat",
+       "label": "类别",
+       "options": "cat"
+      }
+     ]
+    },
+    "rowActions": [
+     {
+      "id": "edit",
+      "label": "编辑",
+      "sheet": "service-edit"
+     }
+    ]
+   },
+   "logic": {
+    "from": "侧栏「服务项目」",
+    "back": "无（一级页）",
+    "done": "无",
+    "primary": "新建服务",
+    "rules": [
+     "上架状态放在行内开关，点一下生效；失败回滚并写原因",
+     "编辑在居中面板里完成，保存后对应行闪一次",
+     "价格为 0 的服务（到店咨询）也能上架"
+    ],
+    "states": [
+     "保存失败：保留输入，在面板顶部写原因"
+    ],
+    "backend": [
+     "小程序里的服务列表取自这里，同一服务只有一份数据"
+    ]
+   }
+  },
+  {
+   "id": "service-edit",
+   "name": "服务配置",
+   "type": "sheet",
+   "tab": "services",
+   "title": "服务配置",
+   "layout": "center",
+   "maskClose": false,
+   "form": {
+    "record": {
+     "data": "services",
+     "list": "services",
+     "defaults": {
+      "sales": 0,
+      "on": true
+     }
+    },
+    "idPrefix": "S",
+    "log": "保存服务「{name}」",
+    "sections": [
+     {
+      "fields": [
+       {
+        "key": "name",
+        "label": "服务名称",
+        "type": "text",
+        "required": true,
+        "max": 20
+       },
+       {
+        "key": "cat",
+        "label": "类别",
+        "type": "select",
+        "options": "cat",
+        "required": true
+       },
+       {
+        "key": "mins",
+        "label": "时长",
+        "type": "number",
+        "unit": "分钟",
+        "min": 15,
+        "max": 240,
+        "step": 15,
+        "required": true,
+        "default": 60
+       },
+       {
+        "key": "price",
+        "label": "价格",
+        "type": "money",
+        "min": 0,
+        "required": true
+       },
+       {
+        "key": "intro",
+        "label": "简介",
+        "type": "textarea",
+        "max": 100,
+        "rows": 3
+       },
+       {
+        "key": "on",
+        "label": "上架",
+        "type": "switch",
+        "on": "上架",
+        "off": "下架",
+        "default": true
+       }
+      ]
+     }
+    ],
+    "submit": {
+     "label": "保存",
+     "toast": "服务「{name}」已保存",
+     "then": "close"
+    }
+   },
+   "logic": {
+    "from": "服务项目的“新建服务”或行内“编辑”",
+    "back": "取消或 Esc：关闭面板，已填内容保留",
+    "done": "保存后关闭面板，回到列表原位置",
+    "primary": "保存",
+    "rules": [
+     "单列表单，必填标红星，失焦校验；点遮罩不关闭"
+    ],
+    "backend": [
+     "服务由门店维护，小程序只读取"
+    ]
+   }
+  },
+  {
+   "id": "redeem",
+   "name": "核销记录",
+   "type": "tab",
+   "tab": "redeem",
+   "actions": [
+    {
+     "label": "新增核销",
+     "icon": "qr",
+     "kind": "primary",
+     "sheet": "redeem-do",
+     "write": true
+    }
+   ],
+   "list": {
+    "data": "redeems",
+    "noun": "核销记录",
+    "nameTpl": "{id}",
+    "select": false,
+    "export": {
+     "file": "核销记录"
+    },
+    "columns": [
+     {
+      "key": "time",
+      "label": "核销时间",
+      "type": "datetime",
+      "sort": true
+     },
+     {
+      "key": "customer",
+      "label": "客户",
+      "type": "person",
+      "sort": true
+     },
+     {
+      "key": "service",
+      "label": "服务",
+      "type": "text",
+      "width": 130
+     },
+     {
+      "key": "by",
+      "label": "核销人",
+      "type": "text"
+     },
+     {
+      "key": "way",
+      "label": "方式",
+      "type": "status",
+      "map": "redeemWay"
+     },
+     {
+      "key": "amount",
+      "label": "金额（元）",
+      "type": "money",
+      "sort": true
+     },
+     {
+      "key": "status",
+      "label": "状态",
+      "type": "status",
+      "map": "redeemStatus"
+     }
+    ],
+    "tabs": {
+     "key": "status",
+     "map": "redeemStatus",
+     "order": [
+      "done",
+      "revoked"
+     ],
+     "default": "done"
+    },
+    "defaultSort": {
+     "key": "time",
+     "dir": "desc"
+    },
+    "filters": {
+     "search": {
+      "keys": [
+       "customer",
+       "service"
+      ],
+      "placeholder": "客户、服务"
+     },
+     "primary": [
+      {
+       "key": "way",
+       "label": "方式",
+       "options": "way"
+      },
+      {
+       "key": "time",
+       "label": "时间",
+       "type": "range"
+      }
+     ]
+    },
+    "rowActions": [
+     {
+      "id": "revoke",
+      "label": "撤销核销",
+      "danger": true,
+      "when": {
+       "status": "done"
+      },
+      "whyNot": "这条核销已经撤销",
+      "patch": {
+       "status": "revoked"
+      },
+      "confirm": {
+       "title": "撤销核销 {id}",
+       "text": "撤销后会把 1 次剩余次数退还给「{customer}」，不能恢复。",
+       "ok": "撤销核销"
+      },
+      "toast": "核销 {id} 已撤销",
+      "log": "撤销核销 {id}"
+     }
+    ]
+   },
+   "logic": {
+    "from": "侧栏「核销记录」；今日台待办",
+    "back": "无（一级页）",
+    "done": "无",
+    "primary": "新增核销",
+    "rules": [
+     "默认只看已核销，最近的在前；已撤销在标签里单独一个",
+     "撤销核销影响客户剩余次数，先二次确认",
+     "核销写进操作日志，导出用中文表头"
+    ],
+    "states": [
+     "空：没有核销记录时给“新增核销”"
+    ],
+    "backend": [
+     "核销记录由前台核销产生，不可编辑，只能撤销"
+    ]
+   }
+  },
+  {
+   "id": "redeem-do",
+   "name": "新增核销",
+   "type": "sheet",
+   "tab": "redeem",
+   "title": "新增核销",
+   "layout": "center",
+   "maskClose": false,
+   "form": {
+    "record": {
+     "data": "redeems",
+     "list": "redeems",
+     "defaults": {
+      "status": "done",
+      "way": "code",
+      "by": "前台",
+      "av": 3
+     }
+    },
+    "idPrefix": "V",
+    "stamp": "time",
+    "log": "核销「{service}」（{customer}）",
+    "sections": [
+     {
+      "fields": [
+       {
+        "key": "code",
+        "label": "核销码",
+        "type": "text",
+        "required": true,
+        "pattern": "^\\d{6}$",
+        "msg": "核销码是 6 位数字",
+        "placeholder": "6 位数字",
+        "max": 6
+       },
+       {
+        "key": "customer",
+        "label": "客户",
+        "type": "text",
+        "required": true,
+        "max": 12
+       },
+       {
+        "key": "service",
+        "label": "服务",
+        "type": "select",
+        "options": [
+         {
+          "v": "体验课",
+          "label": "体验课"
+         },
+         {
+          "v": "标准服务",
+          "label": "标准服务"
+         },
+         {
+          "v": "深度服务",
+          "label": "深度服务"
+         }
+        ],
+        "required": true
+       },
+       {
+        "key": "amount",
+        "label": "金额",
+        "type": "money",
+        "min": 0,
+        "default": 0
+       }
+      ]
+     }
+    ],
+    "submit": {
+     "label": "核销",
+     "toast": "已核销：{service}",
+     "then": "close"
+    }
+   },
+   "logic": {
+    "from": "核销记录或今日台的“新增核销”",
+    "back": "取消或 Esc：关闭面板，已填内容保留",
+    "done": "核销成功后关闭面板，列表新增一行并闪一次",
+    "primary": "核销",
+    "rules": [
+     "核销码是 6 位数字，输错在字段下写原因",
+     "核销成功写进核销记录和操作日志"
+    ],
+    "backend": [
+     "核销码由小程序生成"
+    ]
+   }
+  },
+  {
+   "id": "shop-settings",
+   "name": "门店设置",
+   "type": "tab",
+   "tab": "shop-settings",
+   "roles": [
+    "manager"
+   ],
+   "settings": {
+    "data": "settings",
+    "groups": [
+     {
+      "id": "book",
+      "label": "预约",
+      "sections": [
+       {
+        "title": "预约规则",
+        "items": [
+         {
+          "key": "ahead",
+          "label": "可提前预约",
+          "impact": "客户最多可以提前多少天预约",
+          "type": "number",
+          "unit": "天",
+          "min": 1,
+          "max": 30,
+          "step": 1,
+          "default": 7
+         },
+         {
+          "key": "cancelHours",
+          "label": "取消需提前",
+          "impact": "预约开始前多少小时内不能自助取消",
+          "type": "number",
+          "unit": "小时",
+          "min": 0,
+          "max": 48,
+          "step": 1,
+          "default": 2
+         },
+         {
+          "key": "noshow",
+          "label": "爽约是否扣次数",
+          "impact": "客户爽约时是否扣 1 次剩余次数，只影响之后的预约",
+          "type": "radio",
+          "options": [
+           {
+            "v": "deduct",
+            "label": "扣 1 次"
+           },
+           {
+            "v": "keep",
+            "label": "不扣"
+           }
+          ],
+          "default": "keep",
+          "money": true
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "id": "redeem",
+      "label": "核销",
+      "sections": [
+       {
+        "title": "核销规则",
+        "items": [
+         {
+          "key": "revokeMin",
+          "label": "撤销时限",
+          "impact": "核销后多少分钟内可以撤销",
+          "type": "number",
+          "unit": "分钟",
+          "min": 5,
+          "max": 1440,
+          "step": 5,
+          "default": 30
+         },
+         {
+          "key": "sms",
+          "label": "核销短信提醒",
+          "impact": "核销成功后给客户发提醒短信",
+          "type": "switch",
+          "on": "开启",
+          "off": "关闭"
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   "logic": {
+    "from": "侧栏「门店设置」",
+    "back": "无（一级页）",
+    "done": "无",
+    "primary": "行内修改某一项",
+    "rules": [
+     "预约与核销规则由门店日常调整：行内修改，保存即生效，并提示“只影响之后的业务”",
+     "影响客户次数的项先验证身份，必填原因，修改记录进操作日志",
+     "只有店长能进入；前台角色看到无权限页"
+    ],
+    "states": [
+     "无权限：写明缺哪个角色，并给去处"
+    ],
+    "backend": [
+     "规则由门店维护，运行参数存放在配置文件"
+    ]
+   }
+  },
+  {
+   "id": "res-lock",
+   "name": "无权限",
+   "type": "result",
+   "tab": "today",
+   "result": {
+    "tone": "denied",
+    "title": "门店设置只对店长开放",
+    "text": "前台角色可以看今日台、预约、客户和核销，但不能改门店规则。需要修改请联系店长。",
+    "facts": [
+     [
+      "需要的角色",
+      "店长"
+     ]
+    ],
+    "actions": [
+     {
+      "label": "返回今日台",
+      "icon": "home",
+      "kind": "primary",
+      "tab": "today"
+     }
+    ]
+   },
+   "logic": {
+    "from": "前台角色进入没有权限的页面后的“查看说明”",
+    "back": "面包屑「今日台」",
+    "done": "回到今日台",
+    "primary": "返回今日台",
+    "rules": [
+     "写清缺哪个角色、谁能开通"
+    ],
+    "backend": [
+     "角色由店长维护"
+    ]
+   }
+  }
+ ],
+ "content": "content.js"
+}

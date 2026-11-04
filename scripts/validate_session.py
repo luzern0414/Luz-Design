@@ -697,6 +697,16 @@ def validate(session: Path, strict: bool = False) -> list[str]:
     if not session.is_dir():
         return [f"session folder does not exist: {session}"]
     folder = session
+    if strict or final_html(folder).is_file():
+        from crawl_gate import crawl_errors
+        from style_match import session_style_errors
+        errors.extend(crawl_errors(folder, caller="luz-design"))
+        manifest_file = folder / "raw" / "99-delivery" / "MANIFEST.json"
+        try:
+            allowed = json.loads(manifest_file.read_text(encoding="utf-8")).get("final", {}).get("allowed", [])
+        except (OSError, ValueError, AttributeError):
+            allowed = []
+        errors.extend(session_style_errors(folder, required=bool(set(allowed) & {"interface", "website"})))
     session = work_dir(folder)
     validate_session_root(folder, errors)
     if not session.is_dir():
@@ -783,7 +793,7 @@ def validate(session: Path, strict: bool = False) -> list[str]:
         if unknown:
             errors.append("unknown modes: " + ", ".join(sorted(unknown)))
         if "visual" in modes and not poster_session:
-            errors.append(f"visual mode is standalone visual work and needs session kind standalone_poster; product visuals belong to {OTHER_SKILL}")
+            errors.append("visual mode is standalone visual work and needs session kind standalone_poster; the functional structure of a product interface belongs to Luz-System and its look is worked from the interface rule cards (context.py interface-visual) in a document session")
 
         stages = manifest.get("stages", {})
         if not isinstance(stages, dict):
@@ -907,7 +917,7 @@ def validate(session: Path, strict: bool = False) -> list[str]:
         if (session / DOCUMENT_PATH).is_file():
             validate_stage_artifact(session / DOCUMENT_PATH, "document", errors)
         if (session / "02-visual").exists() and not poster_session:
-            errors.append(f"visual artifacts belong to a standalone poster session; product visuals belong to {OTHER_SKILL}")
+            errors.append("visual artifacts belong to a standalone poster session; the functional structure of a product interface belongs to Luz-System and its look is worked from the interface rule cards (context.py interface-visual) in a document session")
         if poster_session and not poster_brief_has_evidence(session):
             errors.append("standalone poster BRIEF must record an explicit user poster task")
         for mode, mode_dir in MODE_DIRS.items():

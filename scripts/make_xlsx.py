@@ -6,7 +6,14 @@ Build a styled single-sheet spreadsheet that follows file-design.html (表格文
 
 spec.json:
 {
-  "title": "门店月度销售",                 # row 1, the only text outside the table
+  "title": "门店月度销售",                 # row 1, the only text outside the table: black, bold, centred on the header colour, body + 4 pt (16 pt)
+  "subtitle": "致：某某公司　·　V1.0　·　2026-10-20",   # optional row 2, one black body-size line (who it is for, version, date, what the colours mean)
+  "theme": "coffee",                       # accepted for compatibility; every sheet uses the standard look (宋体, black text, pale fills, thin black borders)
+  "font": "宋体",                          # optional: 宋体 (default) or 微软雅黑; one family for the whole workbook
+  "font_size": 12,                         # optional body size, 10-14 pt (default 12); the title is body + 4 pt
+  "tint_by": "功能模块",                   # optional: every value of this column gets one of six pale fills, in order of first appearance, over the whole row
+  "highlight": {"column": "类型", "values": ["可选"]},   # optional: rows whose value is listed get the amber highlight on their data cells
+  "group_by": ["区域", "门店"],            # optional: grouping columns, biggest group first; moved to the front, rows sorted, cells merged
   "sheet": "月度销售",                     # optional, defaults to the title (max 12 chars)
   "columns": [
     {"name": "区域", "merge": true},       # merge: equal consecutive values merge vertically
@@ -14,15 +21,20 @@ spec.json:
     {"name": "月份", "type": "text"},
     {"name": "销售额（元）", "type": "money"},
     {"name": "环比", "type": "percent"},
-    {"name": "备注", "type": "longtext"}
+    {"name": "备注", "type": "longtext"},
+    {"name": "类型", "tags": ["基础", "可选"]}   # tags: these values are shown bold; their colour is the row fill (tint_by, highlight), text stays black
   ],
   "rows": [["华南", "科技园店", "9 月", 128000, 0.052, ""], ...],
   "total": {"label": "合计", "sum": ["销售额（元）"]}   # optional, formulas
+  "footer": [{"label": "基础功能小计", "values": {"工时（人天）": 20, "报价（元）": 10000}}]   # optional summary rows under the table: the label
+                                             # (it must say 合计, 小计 or 总计) spans the columns left of the first value
   "freeze": 3                                # optional: columns to freeze; default = leading group-name columns
 }
 
-Column types: text (default, centred), longtext (left with one indent, wraps), money (#,##0.00, right with one
-indent so amounts line up by digit), number (#,##0), decimal (#,##0.00), percent (0.0%), date (yyyy-mm-dd); the
+Column types: text (default; the first one that names the row is bold and left, other short columns are centred; a column whose
+longest value is over 16 units, 8 Chinese characters, is treated as longtext so one column never mixes centred and left-aligned text),
+longtext (left with one indent, wraps), money (#,##0.00, right), days (0.0, right), number (#,##0), decimal (#,##0.00), percent (0.0%),
+date (yyyy-mm-dd); numbers sit right with one indent so they line up by digit; the
 header is always centred (file-design.html 表格文件 › 列宽、对齐与格式). Leading text columns that repeat are merged
 automatically when "merge" is not given. No sequence-number column is ever added.
 """
@@ -32,24 +44,29 @@ import json
 import sys
 from datetime import date, datetime
 from pathlib import Path
+from document_palette import table_tint
+import xlsx_metrics as M
 
-FONT = "微软雅黑"
-INK = "262626"
-LINE = "E8E8E8"
-HEADER_FILL = "E6F4FF"          # 拂晓蓝第 1 阶：表头浅底
-TOTAL_FILL = "F5F5F5"           # 中性灰第 2 阶：合计行
-BAND_FILL = "FAFAFA"            # 中性灰第 1 阶：相邻分组交替底色
-GROUP_FILLS = ["E6F4FF", "F6FFED", "FFF7E6", "F9F0FF", "E6FFFB", "FFF0F6"]  # 官方色板各色第 1 阶，分组单元格轮换
-SIZES = {"title": 18, "header": 12, "body": 12}
-FORMATS = {"money": "#,##0.00", "number": "#,##0", "decimal": "#,##0.00", "percent": "0.0%", "date": "yyyy-mm-dd"}
-# Long text reads from the left, amounts compare by digit from the right, short values centre (visual-design.html 表格对齐).
-HORIZONTAL = {"longtext": "left", "money": "right"}
-INDENTED = {"longtext", "money"}
+FONTS = ("宋体", "微软雅黑")
+FONT = FONTS[0]
+# The look: 宋体, every text black, colour only as pale fills, thin black borders.
+INK = "000000"
+LINE = "000000"
+HEAD_FILL = "ECF0F6"            # title and header rows: a clear blue-grey
+BAND_FILL = "F4F7FA"            # section bands, sub-totals and groups that span several categories
+GRAND_FILL = "ECF0F6"           # the grand total row
+HIGHLIGHT_FILL = "FFE699"       # what needs a second look: optional or new items
+TINTS = ("EEF4FB", "EFF8F1", "FEF7EC", "F4F0FA", "FDF1F0", "F8F8F8")      # blue, green, orange, purple, pink, grey: one per category, in turn
+SIZES = {"title": 16, "subtitle": 12, "header": 12, "body": 12}
+FORMATS = {"money": "#,##0.00", "number": "#,##0", "decimal": "#,##0.00", "days": "0.0", "percent": "0.0%", "date": "yyyy-mm-dd"}
+# Names and long text read from the left, numbers compare by digit from the right, short values centre (visual-design.html 表格对齐).
+HORIZONTAL = {"longtext": "left", "money": "right", "decimal": "right", "days": "right", "number": "right", "percent": "right"}
+INDENTED = {"longtext", "money", "decimal", "days", "number", "percent"}
 SEQ_NAMES = {"序号", "编号序号", "行号", "#", "no", "no.", "序"}
 
 
 # Width of a formula cell is the width of what it shows, not of the formula text.
-FORMULA_SAMPLE = {"percent": "100.0%", "money": 999999.99, "decimal": 9999.99, "number": "99,999", "date": "2026-10-29", "text": "—"}
+FORMULA_SAMPLE = {"percent": "100.0%", "money": 999999.99, "decimal": 9999.99, "days": 999.9, "number": "99,999", "date": "2026-10-29", "text": "—"}
 
 
 def display_width(value) -> int:
@@ -71,10 +88,60 @@ def merge_runs(rows: list[list], col: int, parent_bounds: list[tuple[int, int]])
     return runs
 
 
+def arrange_groups(spec: dict) -> dict:
+    """``"group_by": ["使用端", "使用角色", "功能模块"]``: those columns move to the front in that order (biggest group first), rows are
+    sorted so every group is one contiguous block (groups keep the order in which they first appear), and the columns are merged."""
+    names = list(spec.get("group_by") or [])
+    if not names:
+        return spec
+    cols = spec["columns"]
+    index = {c["name"]: i for i, c in enumerate(cols)}
+    missing = [n for n in names if n not in index]
+    if missing:
+        raise ValueError(f"group_by names columns that do not exist: {missing}")
+    order = [index[n] for n in names] + [i for i in range(len(cols)) if i not in {index[n] for n in names}]
+    ranks = []
+    for n in names:
+        first: dict = {}
+        for row in spec["rows"]:
+            first.setdefault(row[index[n]], len(first))
+        ranks.append(first)
+    keyed = sorted(range(len(spec["rows"])), key=lambda r: tuple(ranks[k][spec["rows"][r][index[n]]] for k, n in enumerate(names)))
+    out = dict(spec)
+    out["columns"] = [dict(cols[i], **({"merge": True} if i in {index[n] for n in names} else {})) for i in order]
+    out["rows"] = [[spec["rows"][r][i] if i < len(spec["rows"][r]) else None for i in order] for r in keyed]
+    out.pop("group_by", None)
+    return out
+
+
 def build(spec: dict, out: Path) -> Path:
+    """One sheet from ``spec``; or several when ``spec["sheets"]`` lists them (each sheet spec adds to the shared title, theme,
+    font_size). Several sheets are only for content the user asked to split by purpose; each one is a complete table."""
     from openpyxl import Workbook
+
+    wb = Workbook()
+    if spec.get("sheets"):
+        shared = {k: v for k, v in spec.items() if k != "sheets"}
+        for k, sheet in enumerate(spec["sheets"]):
+            _build_one({**shared, **sheet}, wb, k == 0)
+    else:
+        _build_one(spec, wb, True)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    wb.save(out)
+    return out
+
+
+def _build_one(spec: dict, wb, first: bool) -> None:
     from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
     from openpyxl.utils import get_column_letter
+    spec = arrange_groups(spec)
+    body_pt = float(spec.get("font_size", SIZES["body"]))
+    if not 10 <= body_pt <= 14:
+        raise ValueError("font_size must be 10-14 pt")
+    family = spec.get("font", FONT)
+    if family not in FONTS:
+        raise ValueError(f"font must be one of {FONTS}")
+    sizes = {"title": body_pt + 4, "subtitle": body_pt, "header": body_pt, "body": body_pt}
 
     columns = [c for c in spec["columns"] if str(c["name"]).strip().lower() not in SEQ_NAMES]
     keep = [i for i, c in enumerate(spec["columns"]) if str(c["name"]).strip().lower() not in SEQ_NAMES]
@@ -94,30 +161,52 @@ def build(spec: dict, out: Path) -> Path:
                 break
         flags += [False] * (n - len(flags))
     merge_cols = [k for k in range(n) if flags[k]]
+    for k in range(n):  # one alignment per column: long values anywhere make the whole column long text
+        if types[k] == "text" and k not in merge_cols and max([M.display_width(r[k]) for r in rows if k < len(r) and not str(r[k] or "").startswith("=")] + [0]) > 16:
+            types[k] = "longtext"
 
-    wb = Workbook()
-    ws = wb.active
+    wb._named_styles["Normal"].font = Font(name=family, size=sizes["body"], color=INK)
+    ws = wb.active if first else wb.create_sheet()
     ws.title = (spec.get("sheet") or spec["title"])[:12]
     thin = Side(style="thin", color=LINE)
     border = Border(left=thin, right=thin, top=thin, bottom=thin)
 
-    def font(size, bold=False):
-        return Font(name=FONT, size=size, bold=bold, color=INK)
+    def font(size, bold=False, color=INK):
+        return Font(name=family, size=size, bold=bold, color=color)
 
-    ws.cell(1, 1, spec["title"]).font = font(SIZES["title"], True)
-    ws.cell(1, 1).alignment = Alignment(horizontal="left", vertical="center")
+    def fill(color):
+        return PatternFill("solid", fgColor=color)
+
+    ws.cell(1, 1, spec["title"]).font = font(sizes["title"], True)
+    ws.cell(1, 1).alignment = Alignment(horizontal="center", vertical="center")
+    ws.cell(1, 1).fill = fill(HEAD_FILL)
     ws.merge_cells(start_row=1, start_column=1, end_row=1, end_column=n)
-    ws.row_dimensions[1].height = 36
-    ws.row_dimensions[2].height = 10
+    ws.row_dimensions[1].height = round(sizes["title"] * 2.4)
+    if spec.get("subtitle"):                                    # one line: who it is for, version, date, what the colours mean
+        ws.cell(2, 1, spec["subtitle"]).font = font(sizes["subtitle"])
+        ws.cell(2, 1).alignment = Alignment(horizontal="left", vertical="top", wrap_text=True)
+        ws.merge_cells(start_row=2, start_column=1, end_row=2, end_column=n)
+        ws.row_dimensions[2].height = 20
+    else:
+        ws.row_dimensions[2].height = 8
     hr = 3
     for k, c in enumerate(columns, 1):
         cell = ws.cell(hr, k, c["name"])
-        cell.font = font(SIZES["header"], True)
-        cell.fill = PatternFill("solid", fgColor=HEADER_FILL)
+        cell.font = font(sizes["header"], True)
+        cell.fill = fill(HEAD_FILL)
         cell.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
         cell.border = border
-    ws.row_dimensions[hr].height = 30
+    ws.row_dimensions[hr].height = 24
 
+    name_col = next((k for k in range(n) if k not in merge_cols and types[k] in ("text", "longtext")), None)     # the column that names the row reads from the left
+    names_all = [c["name"] for c in columns]
+    tint_col = names_all.index(spec["tint_by"]) if spec.get("tint_by") in names_all else None
+    tints: dict = {}
+    if tint_col is not None:
+        for r in rows:
+            tints.setdefault(r[tint_col], TINTS[len(tints) % len(TINTS)])       # each category its own pale colour, in turn
+    light = spec.get("highlight") or {}
+    light_col = names_all.index(light["column"]) if light.get("column") in names_all else None
     first = hr + 1
     for i, r in enumerate(rows):
         for k, v in enumerate(r):
@@ -127,13 +216,19 @@ def build(spec: dict, out: Path) -> Path:
                 except ValueError:
                     pass
             cell = ws.cell(first + i, k + 1, v)
-            cell.font = font(SIZES["body"])
+            tag = isinstance(v, str) and v in (columns[k].get("tags") or ())                    # a tag value reads bold; its colour is the row fill
+            cell.font = font(sizes["body"], bool(tag))
             cell.border = border
+            if tint_col is not None:
+                cell.fill = fill(tints[r[tint_col]])
+            if light_col is not None and r[light_col] in (light.get("values") or ()) and k not in merge_cols:
+                cell.fill = fill(HIGHLIGHT_FILL)
             if types[k] in FORMATS:
                 cell.number_format = FORMATS[types[k]]
-            long = types[k] == "longtext"
-            cell.alignment = Alignment(horizontal=HORIZONTAL.get(types[k], "center"), vertical="center", wrap_text=long,
-                                       indent=1 if types[k] in INDENTED else 0)
+            wraps = not M.is_numeric_type(types[k])
+            left = k == name_col                                                         # the name column reads from the left like the long text
+            cell.alignment = Alignment(horizontal="left" if left else HORIZONTAL.get(types[k], "center"), vertical="center", wrap_text=wraps,
+                                       indent=1 if (left or types[k] in INDENTED) else 0)
 
     # Vertical merges, hierarchical: a child column merges only inside its parent's run.
     bounds = [(0, len(rows) - 1)] if rows else []
@@ -144,21 +239,16 @@ def build(spec: dict, out: Path) -> Path:
             top_groups = runs
         for g, (a, b) in enumerate(runs):
             cell = ws.cell(first + a, k + 1)
-            if depth == 0:
-                cell.fill = PatternFill("solid", fgColor=GROUP_FILLS[g % len(GROUP_FILLS)])
-            cell.font = font(SIZES["body"], depth == 0)
-            cell.alignment = Alignment(horizontal="right" if types[k] == "money" else "center", vertical="center", wrap_text=True,
-                                       indent=1 if types[k] == "money" else 0)
+            span = {tints[r[tint_col]] for r in rows[a:b + 1]} if tint_col is not None else set()
+            color = next(iter(span)) if len(span) == 1 else BAND_FILL        # a group inside one category takes its colour, a bigger group the band colour
+            for rr in range(first + a, first + b + 1):
+                ws.cell(rr, k + 1).fill = fill(color)
+                ws.cell(rr, k + 1).border = border
+            cell.font = font(sizes["body"], depth == 0)                      # the biggest group reads bold, centred, merged down its rows
+            cell.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
             if b > a:
                 ws.merge_cells(start_row=first + a, start_column=k + 1, end_row=first + b, end_column=k + 1)
         bounds = runs
-    # Light banding by top-level group so each group reads as one block.
-    for g, (a, b) in enumerate(top_groups):
-        if g % 2:
-            for i in range(a, b + 1):
-                for k in range(n):
-                    if k not in merge_cols[:1]:
-                        ws.cell(first + i, k + 1).fill = PatternFill("solid", fgColor=BAND_FILL)
 
     last = first + len(rows) - 1
     total = spec.get("total")
@@ -172,29 +262,72 @@ def build(spec: dict, out: Path) -> Path:
             ws.cell(tr, k, f"=SUM({letter}{first}:{letter}{last})").number_format = FORMATS.get(types[k - 1], "#,##0.00")
         for k in range(1, n + 1):
             cell = ws.cell(tr, k)
-            cell.font = font(SIZES["body"], True)
-            cell.fill = PatternFill("solid", fgColor=TOTAL_FILL)
+            cell.font = font(sizes["body"], True)
+            cell.fill = fill(GRAND_FILL)
             cell.border = border
-            money = k - 1 < len(types) and types[k - 1] == "money" and k > len(merge_cols)
-            cell.alignment = Alignment(horizontal="right" if money else "center", vertical="center", indent=1 if money else 0)
+            numeric = k - 1 < len(types) and M.is_numeric_type(types[k - 1]) and k > len(merge_cols)
+            cell.alignment = Alignment(horizontal="right" if numeric else "left", vertical="center", indent=1)
         if merge_cols:
             ws.merge_cells(start_row=tr, start_column=1, end_row=tr, end_column=len(merge_cols))
         last = tr
 
-    # Column widths from content (CJK counts double), row heights for wrapped text.
+    names = [c["name"] for c in columns]
+    for item in spec.get("footer", []):
+        if not any(word in item["label"] for word in ("合计", "小计", "总计")):
+            raise ValueError(f"footer label must say 合计, 小计 or 总计: {item['label']!r}")
+        tr = last + 1
+        values = {names.index(name): v for name, v in item["values"].items()}
+        span = min(values) if values else n          # the label runs across every column left of the first value
+        ws.cell(tr, 1, item["label"])
+        for k, v in values.items():
+            cell = ws.cell(tr, k + 1, v)
+            if types[k] in FORMATS:
+                cell.number_format = FORMATS[types[k]]
+        grand = any(word in item["label"] for word in ("合计", "总计"))        # 小计 sits on the band colour, the grand total on the header colour
+        for k in range(n):
+            cell = ws.cell(tr, k + 1)
+            cell.font = font(sizes["body"], True)
+            cell.fill = fill(GRAND_FILL if grand else BAND_FILL)
+            cell.border = border
+            if k == 0 or types[k] not in HORIZONTAL:
+                cell.alignment = Alignment(horizontal="left", vertical="center", indent=1)
+            else:
+                cell.alignment = Alignment(horizontal=HORIZONTAL[types[k]], vertical="center", indent=1)
+        if span > 1:
+            ws.merge_cells(start_row=tr, start_column=1, end_row=tr, end_column=span)
+        ws.row_dimensions[tr].height = M.row_height(1, sizes["body"])
+        last = tr
+
+    # Column widths from content (CJK counts double); row heights from the same metrics the checker uses.
     for k in range(n):
         values = [columns[k]["name"]] + [FORMULA_SAMPLE.get(types[k], "99,999") if isinstance(v, str) and v.startswith("=") else v for v in (r[k] for r in rows)]
-        width = max(display_width(v if types[k] not in ("money", "decimal") else f"{v:,.2f}" if isinstance(v, (int, float)) else v) for v in values) + 4
-        width += 2 if types[k] in INDENTED else 0  # one indent level
-        cap = 40 if types[k] == "longtext" else 30
+        widest = max(M.display_width(v if types[k] not in ("money", "decimal") else f"{v:,.2f}" if isinstance(v, (int, float)) else v) for v in (str(x).split("\n")[0] if isinstance(x, str) else x for x in values))
+        longest_line = max((max(M.display_width(part) for part in str(v).split("\n")) for v in values if v not in (None, "")), default=0)
+        width = max(widest, longest_line) + 4
+        width += 2 if (types[k] in INDENTED or k == name_col) else 0  # one indent level
+        cap = 54 if types[k] == "longtext" else 30
         ws.column_dimensions[get_column_letter(k + 1)].width = max(10, min(cap, width))
+    widths = [ws.column_dimensions[get_column_letter(k + 1)].width for k in range(n)]
+    header_lines = max(M.wrapped_lines(c["name"], widths[k]) for k, c in enumerate(columns))
+    ws.row_dimensions[hr].height = M.row_height(header_lines, sizes["header"])
+    spanned = {(rng.min_row, rng.min_col) for rng in ws.merged_cells.ranges if rng.max_row > rng.min_row}      # group cells merged down several rows
+    inside = {(r, rng.min_col) for rng in ws.merged_cells.ranges if rng.max_row > rng.min_row for r in range(rng.min_row, rng.max_row + 1)}
     for i, r in enumerate(rows):
         lines = 1
         for k, v in enumerate(r):
-            if types[k] == "longtext" and v:
-                cap = ws.column_dimensions[get_column_letter(k + 1)].width - 4  # padding and indent
-                lines = max(lines, -(-display_width(v) // max(cap, 1)))
-        ws.row_dimensions[first + i].height = max(24, 18 * lines + 6)
+            if k in merge_cols and (first + i, k + 1) in inside:
+                continue   # a group name merged over several rows is sized by the whole span below, not by each row
+            if v and not M.is_numeric_type(types[k]) and not (isinstance(v, str) and v.startswith("=")):
+                lines = max(lines, M.wrapped_lines(v, widths[k], 1 if (types[k] in INDENTED or k == name_col or k in merge_cols) else 0))
+        ws.row_dimensions[first + i].height = M.row_height(lines, sizes["body"])
+    # A vertically merged group cell must fit in the rows it spans.
+    for rng in list(ws.merged_cells.ranges):
+        if rng.max_row > rng.min_row and rng.min_row >= first and rng.min_col == rng.max_col:
+            text = ws.cell(rng.min_row, rng.min_col).value
+            need = M.row_height(M.wrapped_lines(text, widths[rng.min_col - 1], 1), sizes["body"])
+            have = sum(ws.row_dimensions[r].height or 0 for r in range(rng.min_row, rng.max_row + 1))
+            if have < need:
+                ws.row_dimensions[rng.max_row].height = (ws.row_dimensions[rng.max_row].height or 0) + (need - have)
 
     ws.sheet_view.showGridLines = False
     freeze = spec.get("freeze")
@@ -207,20 +340,24 @@ def build(spec: dict, out: Path) -> Path:
         ws.auto_filter.ref = f"A{hr}:{get_column_letter(n)}{first + len(rows) - 1}"
     ws.print_area = f"A1:{get_column_letter(n)}{last}"
     ws.print_title_rows = f"{hr}:{hr}"
-    ws.page_setup.orientation = "landscape" if n > 8 else "portrait"
+    total_width = sum(ws.column_dimensions[get_column_letter(k + 1)].width or 10 for k in range(n))
+    ws.page_setup.orientation = "landscape" if total_width > 100 else "portrait"      # the reference prints landscape: wide tables stay readable at 12 pt
+    ws.page_setup.paperSize = 9                                      # A4
     ws.page_setup.fitToWidth = 1
     ws.page_setup.fitToHeight = 0
     ws.sheet_properties.pageSetUpPr.fitToPage = True
-    out.parent.mkdir(parents=True, exist_ok=True)
-    wb.save(out)
-    return out
+    ws.print_options.horizontalCentered = True
+    ws.page_margins.left = ws.page_margins.right = 0.4
+    ws.page_margins.top = ws.page_margins.bottom = 0.6
+    ws.oddFooter.center.text = "第 &P 页 / 共 &N 页"
+    ws.oddFooter.center.size = 9
 
 
-def verify_output(out: Path, kind: str) -> int:
+def verify_output(out: Path, kind: str, multi: bool = False) -> int:
     """Run the document checker on what was just written; a builder never hands over a file that fails it."""
     import check_document
     print(f"rule card for this file: py -X utf8 scripts/context.py {kind}  (read it before writing the spec)", file=sys.stderr)
-    code = check_document.main([str(out)])
+    code = check_document.main([str(out), "--allow", "multi-sheet"] if multi else [str(out)])
     if code:
         print(f"FAIL: {out.name} does not meet the {kind} rules above; fix the spec and build again", file=sys.stderr)
     return code
@@ -234,7 +371,7 @@ def main(argv: list[str] | None = None) -> int:
     spec = json.loads(Path(argv[0]).read_text(encoding="utf-8"))
     out = build(spec, Path(argv[1]))
     print("wrote", out)
-    return verify_output(out, "xlsx")
+    return verify_output(out, "xlsx", bool(spec.get("sheets")))
 
 
 if __name__ == "__main__":

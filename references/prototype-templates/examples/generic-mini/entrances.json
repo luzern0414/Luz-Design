@@ -1,0 +1,187 @@
+{
+ "entrances": [
+  {
+   "fn": "FN-001",
+   "name": "配送门店与时效",
+   "type": "context",
+   "category": "info",
+   "entry": "context",
+   "destination": "list-store",
+   "freq": "high"
+  },
+  {
+   "fn": "FN-002",
+   "name": "搜索商品",
+   "type": "search",
+   "category": "core",
+   "entry": "home",
+   "destination": "list",
+   "freq": "high"
+  },
+  {
+   "fn": "FN-003",
+   "name": "新品",
+   "type": "task",
+   "category": "core",
+   "entry": "home",
+   "destination": "list?kw=new",
+   "freq": "high"
+  },
+  {
+   "fn": "FN-004",
+   "name": "热销",
+   "type": "task",
+   "category": "core",
+   "entry": "home",
+   "destination": "list?kw=hot",
+   "freq": "high"
+  },
+  {
+   "fn": "FN-005",
+   "name": "礼品",
+   "type": "task",
+   "category": "core",
+   "entry": "home",
+   "destination": "list?kw=gift",
+   "freq": "high"
+  },
+  {
+   "fn": "FN-006",
+   "name": "极速达",
+   "type": "task",
+   "category": "core",
+   "entry": "home",
+   "destination": "list?kw=fast",
+   "freq": "high"
+  },
+  {
+   "fn": "FN-007",
+   "name": "同城",
+   "type": "task",
+   "category": "core",
+   "entry": "home",
+   "destination": "list?kw=city",
+   "freq": "mid"
+  },
+  {
+   "fn": "FN-008",
+   "name": "礼卡",
+   "type": "task",
+   "category": "core",
+   "entry": "home",
+   "destination": "list?kw=card",
+   "freq": "mid"
+  },
+  {
+   "fn": "FN-009",
+   "name": "限时秒杀",
+   "type": "marketing",
+   "category": "marketing",
+   "entry": "home",
+   "destination": "list?kw=flash",
+   "freq": "mid",
+   "image": true,
+   "limited": true
+  },
+  {
+   "fn": "FN-010",
+   "name": "活动轮播",
+   "type": "marketing",
+   "category": "marketing",
+   "entry": "home",
+   "destination": "detail?act=1",
+   "freq": "mid",
+   "image": true
+  },
+  {
+   "fn": "FN-011",
+   "name": "分类",
+   "type": "task",
+   "category": "core",
+   "entry": "tab",
+   "destination": "cat",
+   "freq": "high"
+  },
+  {
+   "fn": "FN-012",
+   "name": "购物车",
+   "type": "task",
+   "category": "core",
+   "entry": "tab",
+   "destination": "cart",
+   "freq": "high"
+  },
+  {
+   "fn": "FN-013",
+   "name": "我的",
+   "type": "account",
+   "category": "aux",
+   "entry": "tab",
+   "destination": "me",
+   "freq": "high"
+  },
+  {
+   "fn": "FN-014",
+   "name": "我的订单",
+   "type": "order",
+   "category": "core",
+   "entry": "mine",
+   "destination": "orders",
+   "freq": "high"
+  },
+  {
+   "fn": "FN-015",
+   "name": "收货地址",
+   "type": "account",
+   "category": "aux",
+   "entry": "mine",
+   "destination": "addresses",
+   "freq": "mid"
+  },
+  {
+   "fn": "FN-016",
+   "name": "我的优惠券",
+   "type": "account",
+   "category": "aux",
+   "entry": "mine",
+   "destination": "coupons",
+   "freq": "mid"
+  },
+  {
+   "fn": "FN-017",
+   "name": "消息通知",
+   "type": "status",
+   "category": "aux",
+   "entry": "mine",
+   "destination": "messages",
+   "freq": "low"
+  },
+  {
+   "fn": "FN-018",
+   "name": "设置",
+   "type": "account",
+   "category": "aux",
+   "entry": "mine",
+   "destination": "settings",
+   "freq": "low"
+  }
+ ],
+ "tabbar": [
+  {
+   "name": "首页",
+   "destination": "home"
+  },
+  {
+   "name": "分类",
+   "destination": "cat"
+  },
+  {
+   "name": "购物车",
+   "destination": "cart"
+  },
+  {
+   "name": "我的",
+   "destination": "me"
+  }
+ ]
+}

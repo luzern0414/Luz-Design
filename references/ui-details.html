@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>界面细节规范</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23E6F0F7'/%3E%3Cg fill='none' stroke='%23205B88' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='9' cy='9' r='2.5'/%3E%3Ccircle cx='23' cy='25' r='2.5'/%3E%3Cpath d='M11.5 9H18a4 4 0 0 1 0 8h-4a4 4 0 0 0 0 8h6.5'/%3E%3C/g%3E%3C/svg%3E">
+  <link rel="stylesheet" href="guidelines.css">
+</head>
+<body>
+<main id="main" aria-label="界面细节规范">
+    <h1>界面细节规范</h1>
+<!-- SECTION:scope:START id=scope data-rule-id=details-scope -->
+<section id="scope" data-rule-id="details-scope" aria-labelledby="scope-heading">
+<h2 id="scope-heading" class="section-heading"><svg class="icon-linear section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3"/><circle cx="12" cy="12" r="3"/></svg><span>适用范围</span></h2>
+<p>产品前端（小程序、网页后台、网站、智能体界面）及其原型里，图标（含生成的色块图标与饱和度上限）、背景（页面底、卡面、浮起面的分层）、卡片家族的外观与构图细则。承接设计路径的 <code>P6</code> 阶段，填它留下的三处“细则待补”；功能、内容与点击去向归系统技能，页面怎么排归页面范式库，具体数值回到视觉设计规范；数据在 <code>references/ui-details.json</code>，检查用 <code>scripts/check_icon_image.py</code> 与 <code>scripts/ui_details.py</code>。</p>
+</section>
+<!-- SECTION:scope:END -->
+
+<!-- SECTION:workflow:START id=workflow data-rule-id=details-workflow -->
+<section id="workflow" data-rule-id="details-workflow" aria-labelledby="workflow-heading">
+<h2 id="workflow-heading" class="section-heading"><svg class="icon-linear section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="6" cy="6" r="2"/><circle cx="18" cy="18" r="2"/><path d="M8 6h5a3 3 0 0 1 3 3v1M16 18h-5a3 3 0 0 1-3-3v-1"/><path d="m13 8 3 2 3-2M11 16l-3-2-3 2"/></svg><span>工作流程</span></h2>
+<ol><li>接力：<code>P4</code> 定令牌，<code>P5</code> 定组件库，本页用在 <code>P6</code>，与 <code>P7</code> 可并行。</li><li>做的次序：背景（三层令牌与分层检查）、卡片家族（几种、谁是主角、整卡去哪）、图标（哪些对象要哪一类）、生成图标并验收；下面阅读次序是图标、背景、卡片。</li><li>每一类先答“选用前要问的问题”，<code>BRIEF</code> 留一行理由，再查表；表是词汇，句子由你按产品写。</li><li>检查：<code>check_icon_image.py</code> 查图标颜色，<code>ui_details.py layers</code> 查分层、<code>grid</code> 算列数，<code>audit_rendered.py</code> 查渲染；浅深各一遍。</li><li>结束前写偏离说明，用 <code>experience.py note</code> 沉淀，写进 <code>BRIEF</code> 的“本次沉淀”。</li></ol>
+</section>
+<!-- SECTION:workflow:END -->
+
+<!-- SECTION:rules:START id=rules data-rule-id=details-rules -->
+<section id="rules" data-rule-id="details-rules" aria-labelledby="rules-heading">
+<h2 id="rules-heading" class="section-heading"><svg class="icon-linear section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3 5 6v5c0 4.5 2.8 7.8 7 10 4.2-2.2 7-5.5 7-10V6l-7-3Z"/><path d="m9 12 2 2 4-5"/></svg><span>核心规则</span></h2>
+<h3>一、先分清功能和视觉</h3>
+<p>边界见 <code>references/ui-ownership.md</code>：系统技能决定有什么、做什么，本技能决定长什么样。图标：哪个功能需要图标归系统，画法、颜色与饱和度归本技能；卡片：承载什么内容、整卡去哪、卡里有哪些操作归系统，构图、圆角与阴影归本技能；背景：外观设置放哪一页归系统，分层与浅深两套归本技能；配图：哪些对象要图归系统，风格与比例归本技能。排不下就退回，不自行增删；冲突时功能先于外观。</p>
+<h3>二、图标</h3>
+<h4>图标体系：三类各有各的规则</h4>
+<div class="table-wrap"><table><thead><tr><th>类别</th><th>规则</th><th>选用前要问的问题</th><th>可以有个性的地方</th></tr></thead><tbody>
+<tr><td>控件图标<br><code>icon-control</code></td><td>用在：标签栏、菜单、返回关闭、按钮内、表格表单、标题前。尺寸：24 画布，显示 16、20、24；线宽 2（16 像素 1.75），圆端点。颜色：单色 <code>currentColor</code>：文字色，当前项主色，禁用灰实色；只取令牌，不看饱和度。数量：不设上限；一物一图；只选一个库。得到：<code>SVG</code>，取库或自制。</td><td>1. 这个对象真的需要图标吗？没有合适图形，宁可只放文字。<br>2. 删掉图标，用户还认得出这个按钮吗？认不出就补可见文字。</td><td>图形语言的性格：圆润或利落、笔画节奏、隐喻的选择。不动：线宽、端点、颜色来源。</td></tr>
+<tr><td>入口图标块<br><code>icon-entry-block</code></td><td>用在：金刚区、服务宫格、权益、卡头、指标卡。尺寸：块 40（卡头 32），圆角 8，图标 22–24。颜色：底块 <code>actionTint</code>、<code>accentTint</code> 或模块 <code>tint</code>；矢量主要面第 2 阶实色、描边按下阶；生成图用色板；双色，同组一种做法。数量：一页不超过 10 个；一屏色相不超过 3 个（本技能取值）。得到：矢量双色，或 <code>Imagegen</code> 出 4×4 拼板，<code>cut_element_sheet.py</code> 切 <code>WebP</code>。</td><td>1. 这些入口靠图形就能分开吗？不要靠一张一个色相去区分。<br>2. 这一组用矢量双色还是生成图？选定后整组只用一种。</td><td>底块形状（在圆角档内）、图形细节量、一两个品牌物件。不动：色板饱和度上限、块尺寸。</td></tr>
+<tr><td>装饰与生成插画<br><code>icon-gen-deco</code></td><td>用在：空状态、结果页、登录引导、品牌主卡主视觉。尺寸：约 160×120 与 200×140，出图 2 倍，留边约 12%。颜色：2–4 个主题面加至多一个强调（不超一成）；无渐变光影。数量：每屏一张；同对象同图。得到：实拍优先，否则 <code>Imagegen</code>（风格已批准）或矢量。</td><td>1. 这张图在说明什么状态？只想填空白就删。<br>2. 深色主题下它重画了吗？原样放上去通常会发光。</td><td>画法、场景叙事、角色与品牌符号可以最有个性。不动：风格块、主题阶颜色、无文字、透明底。</td></tr>
+</tbody></table></div>
+<h4>颜色与饱和度阈值</h4>
+<p>用 <code>HSB</code>（即 <code>HSV</code>）的饱和度 <code>S</code>，0 到 1：设计师在取色器里说的饱和度就是它；不用 <code>HSL</code> 的 <code>S</code>（近白近黑处会虚高）。统计范围：只统计不透明（透明度 ≥ 128）、非近白（<code>V</code> ≥ 0.97 且 <code>S</code> ≤ 0.05）、非近黑（<code>V</code> ≤ 0.12）的像素，按面积加权。指标四个：均值 <code>S</code>、第 90 百分位 <code>S</code>、<code>S</code> 大于 0.80 的像素占比、主色相个数（<code>S</code> 不低于 0.15 的像素按 10 度分箱，峰值正负 20 度并为一个，不足 5% 的不计）。</p>
+<div class="table-wrap"><table><thead><tr><th>指标</th><th>起始上限（本技能取值）</th><th>命令行参数</th><th>超限怎么修</th></tr></thead><tbody>
+<tr><td>均值 <code>S</code></td><td>不超过 0.45</td><td><code>--max-mean</code></td><td>图形色换成更浅的一阶</td></tr>
+<tr><td>第 90 百分位 <code>S</code></td><td>不超过 0.65</td><td><code>--p90</code></td><td>降低大片深色的饱和度或缩小面积</td></tr>
+<tr><td><code>S</code> 大于 0.80 的像素占比</td><td>不超过 3%</td><td><code>--hot-share</code>，临界值 <code>--hot-s</code></td><td>去掉纯色高光与荧光色</td></tr>
+<tr><td>主色相个数</td><td>不超过 2</td><td><code>--max-hues</code></td><td>只留主色相和一个邻近色</td></tr>
+</tbody></table></div>
+<p>只管图标；商品、门店、环境照片等配图不受限。检查切开后的单个图标，不是 4×4 拼板。本技能取值，待样板图校准：16 份资料没有一份给出饱和度数值，只有“饱和度较低的邻近色系，不要太过扎眼”这句定性话。</p>
+<p>控件图标不看饱和度，只看是不是令牌色。矢量色块图标里令牌色不计饱和度（视觉规范的双色描边取按下阶），自造色才判；位图分不出令牌，一律判，所以生成图的图形色要比品牌阶浅。深色版按彩度 <code>C</code>（<code>V</code> 乘 <code>S</code>）度量，与浅色版比 <code>P90</code>。</p>
+<h4>图标色板与提示词</h4>
+<p>品牌阶的 <code>S</code> 在 25 个主题里中位数 0.78、最高 1.0，直接画图形会超“<code>S</code> 大于 0.80 占 3%”。色板由主题推导，写进提示词：</p>
+<div class="table-wrap"><table><thead><tr><th>色板</th><th>浅色</th><th>深色</th></tr></thead><tbody>
+<tr><td>底块</td><td>令牌 <code>actionTint</code></td><td>令牌 <code>dark.actionTint</code></td></tr>
+<tr><td>次层</td><td>品牌阶色相，<code>S</code> 0.28，<code>V</code> 0.98（相当于主色 15%–30% 浓度，交付为实色）</td><td>底块与图形按 65% 比 35% 混合</td></tr>
+<tr><td>图形</td><td>品牌阶色相，<code>S</code> 0.58，<code>V</code> 0.88</td><td>令牌 <code>dark.actionText</code></td></tr>
+<tr><td>线稿</td><td>品牌阶色相，<code>S</code> 0.62，<code>V</code> 从 0.60 往下取到对底块 3:1</td><td>令牌 <code>dark.actionText</code></td></tr>
+</tbody></table></div>
+<p><code>S</code> 不超过品牌阶自己的 <code>S</code>。命令：<code>check_icon_image.py</code> <code>--palette</code> 主题 <code>id</code>。本技能取值，待样板图校准。</p>
+<p>可粘进 <code>Imagegen</code> 提示词（接在共用风格块后，十六进制色用 <code>--palette</code> 输出替换）：</p>
+<pre><code>Colour constraints for this icon set. Use a soft, low-saturation pastel palette built from ONE hue: a light tint base, a slightly deeper second layer and one figure colour of the same hue, plus neutral off-white or grey only. Use only these colours: base {base}, second layer {mid}, figure {figure}, outline {line}. Keep every colour at or below 65% HSB saturation; nothing neon, fluorescent or candy-glossy; no second accent hue. Flat two-layer shading: no gradient highlights, no specular white spots, no glow, no hard drop shadow. No text, letters or numbers. Transparent background, clean anti-aliased edges, no halo, centred with about 12% padding.</code></pre>
+<p>风格块选了软陶或 <code>2.5D</code> 时，把“无渐变高光”改成“高光只用同色相更浅一阶”，上限不变。提示词只能引导，出图后必须用脚本验收；商品与门店照片不套这一段。</p>
+<h4>校准：用户说还是太艳或太淡时改哪个数</h4>
+<ol><li>取样：认可的 3 张、被嫌太艳的 3 张，都是切开后的单个图标，分放两个目录各跑 <code>check_icon_image.py</code> <code>--json</code>。</li><li>定线：让认可的全过、太艳的至少拦住 2 张，先看 <code>P90</code> 与均值，线下留 0.03。</li><li>三处同步：脚本、数据文件、本页；<code>experience.py</code> <code>note</code> 更新 <code>icon-saturation-threshold-skill-value</code>。</li><li>一次只动一个数，改完再跑这 6 张。</li></ol>
+<div class="table-wrap"><table><thead><tr><th>症状</th><th>先动哪个数</th><th>再看</th></tr></thead><tbody>
+<tr><td>整体还是太艳</td><td>均值上限下调 0.05</td><td><code>P90</code> 是否同步下降</td></tr>
+<tr><td>个别深色块刺眼</td><td><code>P90</code> 下调 0.05，或热点占比下调 1 个百分点</td><td>线稿仍 3:1</td></tr>
+<tr><td>太淡发灰</td><td>均值与 <code>P90</code> 各上调 0.05，色板图形 <code>S</code> 上调 0.05</td><td>深色版不比浅色版艳</td></tr>
+</tbody></table></div>
+<p>分布参考（未经用户标注）：某项目 16 张已有入口图，均值 <code>S</code> 中位数 0.40、<code>P90</code> 中位数 0.74，起始值只放过 2 张；另一项目的拼板 <code>P90</code> 为 0.85 与 0.89、高饱和占 14%–21%。起始值是否偏紧，要靠标注定。</p>
+<h4>图标常见失误</h4>
+<div class="table-wrap"><table><thead><tr><th>症状</th><th>原因</th><th>怎么修</th></tr></thead><tbody>
+<tr><td>入口图标一张一个色相</td><td>想靠颜色区分</td><td>同组同色靠图形区分</td></tr>
+<tr><td>生成图标比主色还艳</td><td>出图时没写色板</td><td>用 <code>--palette</code> 的色，出图后跑脚本</td></tr>
+<tr><td>深色主题里图标发荧光</td><td>浅色版原样放上去</td><td>取 <code>dark</code> 映射重出，<code>--dark</code> <code>--light</code> 对照</td></tr>
+</tbody></table></div>
+<h4>图标规则</h4>
+<div class="table-wrap"><table><thead><tr><th>规则与强度</th><th>要求</th><th>检查</th></tr></thead><tbody>
+<tr><td><code>icon-control-svg-token</code><br><code>must</code></td><td>控件图标一律线性 <code>SVG</code>：24 栅格、线宽 2（16 像素 1.75）、圆端点；颜色只取令牌（默认 <code>currentColor</code>）；不生成、不用位图、不自造色；<code>--kind control --theme</code> 核对。</td><td>脚本</td></tr>
+<tr><td><code>icon-entry-one-method</code><br><code>must</code></td><td>同一组入口图标块只用一种做法（矢量双色，或同一风格块的生成图）；块 40（卡头 32），圆角 8。</td><td>人工</td></tr>
+<tr><td><code>icon-vector-duo-solid</code><br><code>must</code></td><td>矢量双色：底块取 <code>actionTint</code> 或模块 <code>tint</code>，只填一个主要面（第 2 阶实色），描边取按下阶；不用透明度叠色。</td><td>人工</td></tr>
+<tr><td><code>icon-gen-saturation</code><br><code>default</code></td><td>生成的色块图标按 <code>HSB</code> 饱和度验收（对切开的单个图标）：均值 <code>S</code> ≤ 0.45，<code>P90</code> ≤ 0.65，<code>S</code> 大于 0.80 的像素 ≤ 3%，主色相 ≤ 2 个；起始值待校准，配图不受限。</td><td>脚本</td></tr>
+<tr><td><code>icon-gen-palette</code><br><code>default</code></td><td>生成图标只用色板四色（<code>--palette</code> 取）：底块 <code>actionTint</code>，次层与图形取品牌阶色相、<code>S</code> ≤ 0.58，线稿对底块 ≥ 3:1；十六进制色写进提示词。</td><td>脚本</td></tr>
+<tr><td><code>icon-gen-clean</code><br><code>default</code></td><td>生成图标透明底、边缘干净、无文字、无渐变高光与发光投影；浅深底各合成一遍再判；拼板先切开。</td><td>渲染</td></tr>
+<tr><td><code>icon-dark-own-version</code><br><code>default</code></td><td>深色版取 <code>dark</code> 映射（<code>dark.actionTint</code>、<code>dark.actionText</code>），不是浅色取反；<code>P90</code> 彩度不高于浅色版加 0.03。</td><td>脚本</td></tr>
+<tr><td><code>icon-hues-per-view</code><br><code>default</code></td><td>一屏图标块色相不超过 3 个（主色系加至多 2 个点缀色），默认同组同色、靠图形区分。</td><td>人工</td></tr>
+<tr><td><code>icon-one-object-one-icon</code><br><code>must</code></td><td>一物一图、一图一物，通用控件图标除外，没有合适图形宁可不放；按所画对象小写短横线命名，维护对象到图标的映射表，登记来源与许可证。</td><td>人工</td></tr>
+<tr><td><code>icon-label-visible</code><br><code>must</code></td><td>图标不替代文字：入口、导航、功能按钮配可见文字；纯图标按钮带无障碍名称与悬停提示。</td><td>人工</td></tr>
+<tr><td><code>icon-set-consistency</code><br><code>must</code></td><td>同一套图标同一 <code>viewBox</code>、线宽、端点与视觉重量，控件图标只选一个库；视觉平衡优先于数学尺寸。</td><td>渲染</td></tr>
+<tr><td><code>icon-four-state-test</code><br><code>default</code></td><td>控件图标测四态：浅色、深色、彩底、禁用（灰实色对底 ≥ 3:1）；小于 20 像素按 4.5:1 设计。</td><td>渲染</td></tr>
+<tr><td><code>icon-recalibrate</code><br><code>default</code></td><td>阈值是起始值：用户说太艳或太淡，用 3 张认可、3 张太艳的图标定线，一次改一个数，三处同步。</td><td>人工</td></tr>
+<tr><td><code>icon-illustration-same-metric</code><br><code>hint</code></td><td>空状态与结果页的位图插画用同一套度量检查，起点同入口图标块；色面取主题阶，通常自然通过。</td><td>脚本</td></tr>
+</tbody></table></div>
+<h3>三、背景</h3>
+<h4>三层分层，全取令牌</h4>
+<div class="table-wrap"><table><thead><tr><th>层</th><th>用在哪里</th><th>浅色</th><th>深色</th></tr></thead><tbody>
+<tr><td>页面底 <code>canvas</code></td><td>最底层、卡片间隙；层级 0，无阴影</td><td>中性浅灰或主色极浅底（亮度 ≥ 0.85）</td><td><code>dark.canvas</code>，最暗，不用纯黑</td></tr>
+<tr><td>卡面 <code>surface</code></td><td>卡片、列表组、输入区；层级 1，发丝线加第 1 级阴影</td><td>白（<code>shared.surface</code>）</td><td><code>dark.surface</code>，比页面底亮</td></tr>
+<tr><td>浮起面</td><td>悬停（第 2 级）、下拉与吸顶（第 3 级）、对话框（第 4 级加遮罩）</td><td>仍是白，靠阴影与 <code>scrim</code></td><td>卡面混入白 5%、8%、11%（<code>surfaceMix</code>），配白发丝线</td></tr>
+<tr><td>浅底块与品牌主卡底</td><td>卡内分区、选中项、状态条、图标块的底；品牌主卡每屏一张</td><td><code>actionTint</code>、<code>accentTint</code>、状态 <code>Tint</code>；品牌主卡 <code>action</code> 实色白字</td><td><code>dark.actionTint</code> 等；主卡 <code>dark.action</code> 配 <code>onAction</code></td></tr>
+</tbody></table></div>
+<h4>分层检查量</h4>
+<p>量页面底与卡面的明度差 Δ<code>L</code>*（<code>CIE</code> <code>L</code>*，卡面减页面底）。浅色不低于 1.5，深色不低于 4，小于 3 时卡面必须带发丝线承担分层。25 个主题实测：浅色 1.7–4.4（石墨最低，靠发丝线），深色 5.5–6.1。本技能取值；资料没给过页面底与卡面的对比度与层数。命令：<code>ui_details.py</code> <code>layers</code> <code>--all</code>；再眯眼看一屏，三层仍分得出。</p>
+<h4>五类用法</h4>
+<div class="table-wrap"><table><thead><tr><th>用法</th><th>要点与做法</th><th>选用前要问的问题</th><th>可以有个性的地方</th></tr></thead><tbody>
+<tr><td>页面分层与安全区<br><code>bg-layers</code><br><code>must</code></td><td>取三层令牌，分层按序：间距、色差、发丝线、阴影。静止同屏不超过三级；底色延伸到屏幕边缘，底栏不透明并加安全区。</td><td>1. 这一块在哪一层？靠什么与相邻层分开？<br>2. 我是在分层，还是只想加个底色？</td><td>页面底在浅灰与主色极浅底间选。不动：三层、令牌。</td></tr>
+<tr><td>区块背景<br><code>bg-blocks</code><br><code>default</code></td><td>分组靠间距，品牌主卡与营销区各有固定底色。同组卡片共用间距，不加底；区块之间用间距不用线；营销浅底 <code>accentTint</code> 配 <code>accent</code> 文字，同屏不超过 2 个营销模块；状态条用状态 <code>Tint</code> 加图标。</td><td>1. 这几块是同类还是不同类？同类用间距，不同类才换底。<br>2. 这块底色在说明什么含义？说不出就不换底。</td><td>间距节奏、营销浅底出框、图形化标题。不动：主卡每屏一张。</td></tr>
+<tr><td>空状态、结果页与加载<br><code>bg-states</code><br><code>default</code></td><td>沿用 <code>canvas</code>，不另设背景。整页沿用 <code>canvas</code>，卡内沿用 <code>surface</code>；插画居中，下面一句话和一个操作；加载骨架用 <code>surface</code> 上的同形灰块（<code>line</code> 或 <code>photo</code>），与真实内容同高。</td><td>1. 用户下一步该做什么？插画是陪衬，操作才是主角。<br>2. 骨架和真实内容同形吗？</td><td>插画叙事与角色、一句话的语气。不动：沿用 <code>canvas</code>、有下一步。</td></tr>
+<tr><td>背景图、遮罩与渐变纹理<br><code>bg-image</code><br><code>must</code></td><td>背景图只给沉浸式首屏与营销头图；压图文字必须有遮罩。同屏至多一张，功能页不铺图；遮罩起点：黑色透明度 20%–45% 或白色实底；背景不用渐变与纹理。</td><td>1. 这张图帮用户认出什么或决定什么？只是装饰就不放。<br>2. 压图文字最亮的那一处，对比度量过吗？</td><td>取景与调色、承载块形状、头图出框。不动：遮罩加对比度、无渐变纹理。</td></tr>
+<tr><td>深色背景<br><code>bg-dark</code><br><code>must</code></td><td>取 <code>dark</code> 映射，另一套色板，不是浅色取反。页面底最暗，卡面更亮，浮起面逐级更亮；阴影只作辅助；白底图略压暗；浅深各验收一遍。</td><td>1. 这一层在深色里取哪个令牌？<br>2. 图标与插画换成 <code>dark</code> 映射的色了吗？</td><td>底色相偏冷或偏暖、品牌色亮度。不动：映射令牌、对比度、层级顺序。</td></tr>
+</tbody></table></div>
+<h4>背景规则</h4>
+<div class="table-wrap"><table><thead><tr><th>规则与强度</th><th>要求</th><th>检查</th></tr></thead><tbody>
+<tr><td><code>bg-three-layers</code><br><code>must</code></td><td>背景三层，全取令牌：页面底 <code>canvas</code>、卡面 <code>surface</code>、浮起面（第 2–4 级与 <code>scrim</code>；深色靠 <code>surfaceMix</code>）；不自造；分层按序用间距、色差、发丝线、阴影。</td><td>脚本</td></tr>
+<tr><td><code>bg-canvas-vs-surface</code><br><code>default</code></td><td>页面底与卡面明度差 Δ<code>L</code>*：浅色 ≥ 1.5，深色 ≥ 4；小于 3 时卡面必须带发丝线。</td><td>脚本</td></tr>
+<tr><td><code>bg-no-gradient-texture</code><br><code>must</code></td><td>页面底、卡面、导航底不用渐变与纹理，不生成背景纹理；内容层不用毛玻璃；按钮不用渐变。</td><td>渲染</td></tr>
+<tr><td><code>bg-tint-one-meaning</code><br><code>default</code></td><td>浅底块（<code>actionTint</code>、<code>accentTint</code>、状态 <code>Tint</code>、模块 <code>tint</code>）每种只承载一种含义，同屏不超过 3 种。</td><td>人工</td></tr>
+<tr><td><code>bg-brand-card-one</code><br><code>must</code></td><td>品牌主卡 <code>action</code> 或 <code>actionPress</code> 实色加白字（≥ 4.5:1），每屏至多一张。</td><td>渲染</td></tr>
+<tr><td><code>bg-alternate-site-only</code><br><code>hint</code></td><td>区块交替底色只用于网站长页；小程序与后台靠卡片分层。</td><td>人工</td></tr>
+<tr><td><code>bg-scrim-on-image</code><br><code>must</code></td><td>文字压图必须有遮罩或承载块，按遮罩后最亮处量对比度 ≥ 4.5:1；起点：黑色透明度 20%–45% 或白色实底。</td><td>渲染</td></tr>
+<tr><td><code>bg-photo-immersive-only</code><br><code>default</code></td><td>背景图只给沉浸式首屏与营销头图，同屏至多一张；功能页不铺图。</td><td>人工</td></tr>
+<tr><td><code>bg-safe-area</code><br><code>must</code></td><td>底色延伸到屏幕边缘；固定底栏不透明、高度加安全区，内容区底部同样预留。</td><td>渲染</td></tr>
+<tr><td><code>bg-dark-own-palette</code><br><code>must</code></td><td>深色背景取 <code>dark</code> 映射，不是浅色取反：<code>canvas</code> 最暗、<code>surface</code> 更亮、浮起面逐级更亮；不用纯黑与纯白字。</td><td>脚本</td></tr>
+<tr><td><code>bg-no-card-in-card</code><br><code>must</code></td><td>卡里不再放卡，卡内分区用浅底或内缩细线；静止同屏层级不超过三级。</td><td>渲染</td></tr>
+</tbody></table></div>
+<h3>四、卡片家族</h3>
+<h4>先判断该不该用卡片</h4>
+<p>适合：用户在浏览而不是搜索、内容异质、每条可独立阅读并有指向详情的摘要。不适合：同质内容要逐项比较（用列表或表格）、同类图片集合（用图片网格）、要快速扫标题。代价：卡片弱化排序、不易扫读、占空间，一屏条目更少。整卡可点、点击区与悬停的行为见系统技能规则卡 <code>interaction-patterns</code>。</p>
+<h4>九个家族</h4>
+<div class="table-wrap"><table><thead><tr><th>家族</th><th>字段、图、点击、状态</th><th>选用前要问的问题</th><th>可以有个性的地方</th></tr></thead><tbody>
+<tr><td>商品卡<br><code>card-product</code><br>主角：图是主角，价格第二<br>范式：<code>two-column-card-grid</code>、<code>single-column-list</code>、<code>horizontal-scroller</code>、<code>feed</code><br>最小宽：网页 160，小程序 136</td><td>字段：图 → 名称（2 行） → 卖点（可选） → 价格 → 标签（至多 2 个） → 加购。去重：卖点不进名称，价格只一次。<br>图：1:1 满铺在上；商品行用方形 72–88 在左。<br>点击：整卡进详情；加购是唯一独立按钮。<br>状态：已加购（数量角标）；售罄（灰化，写原因）。<br>不要：每张卡塞满标签和角标。</td><td>1. 用户靠图还是靠文字做决定？<br>2. 最长的标题会撑高同行吗？</td><td>图的裁切与底板、价格字重、角标形状。不动：营销至多三层、等高、价格色。</td></tr>
+<tr><td>门店卡<br><code>card-store</code><br>主角：门店名与此刻能不能用<br>范式：<code>single-column-list</code>、<code>cell-list</code>、<code>horizontal-scroller</code><br>最小宽：网页 280，小程序 通栏</td><td>字段：门头图（可选） → 门店名 → 营业状态 → 距离与营业时间 → 地址 → 能力标签（至多 2 个）。去重：距离只一次，状态词与门店页同名。<br>图：方形 72–88 在左，同列表同比例。<br>点击：整卡选择门店，当前门店用选中态；导航与电话是独立图标按钮。<br>状态：休息中（写恢复时间）；已闭店（中性灰）；不可配送（写原因）。<br>不要：用红色表示停业。</td><td>1. 选店先看距离，还是先看能不能点？<br>2. 当前门店在顶部栏已有，还重复吗？</td><td>门头图取景、状态标签的位置。不动：营业状态词与色。</td></tr>
+<tr><td>会员卡<br><code>card-member</code><br>主角：最重要的一两个事实<br>范式：<code>member-card-hero</code>、<code>status-card</code><br>最小宽：网页 280，小程序 通栏</td><td>字段：等级名 → 余量或到期 → 成长进度（可选）。去重：等级名只一次，不再写“我的会员”。<br>图：无图标块，实色白字，圆角 16；装饰用 10%–16% 白色形。<br>点击：整卡进会员卡详情，不去“我的”标签本身。<br>状态：未开通（一句话加主按钮）；已过期（置灰）；权益未解锁（带锁）。<br>不要：会员、积分、储值做成三个宫格入口。</td><td>1. 最重要的一两个事实是什么？<br>2. 本屏已有另一张品牌主卡吗？</td><td>卡面构图、等级隐喻（徽章、进度环）。不动：主卡每屏一张、白字对比。</td></tr>
+<tr><td>券卡<br><code>card-coupon</code><br>主角：面额<br>范式：<code>coupon-card</code><br>最小宽：网页 280，小程序 通栏</td><td>字段：面额（28–32，价格色）与门槛 → 券名 → 适用范围 → 有效期 → 按钮。去重：面额只一次，状态用按钮或盖章之一。<br>图：无图；价值区宽 96–100，虚线加半圆缺口。<br>点击：领取态只有按钮可点；选券态整卡单选，带对勾。<br>状态：已领取（换成去使用）；已使用；已过期；不可用（写原因）。<br>不要：已领取还显示领取按钮。</td><td>1. 券有几种状态，各自的按钮是什么？<br>2. 不可用时用户知道为什么吗？</td><td>缺口与虚线的形状、面额字阶、印章画法。不动：状态词、价格色、券入口唯一。</td></tr>
+<tr><td>订单卡<br><code>card-order</code><br>主角：订单状态<br>范式：<code>order-card</code>、<code>status-card</code><br>最小宽：网页 280，小程序 通栏</td><td>字段：头：状态词、订单号 → 商品行：图、名称、规格 → 脚：合计金额、一个主按钮。去重：状态只在头，金额只在脚；层级：状态、商品名、实付、订单号。<br>图：商品图方形 72–88，圆角 12；头无图。<br>点击：整卡进详情；按钮来自系统的动作表，主按钮一个。<br>状态：待付款；进行中；已完成；已取消（与标签页同名）。<br>不要：所有状态都只有“查看详情”。</td><td>1. 用户最想知道什么：状态还是金额？<br>2. 每种状态的主按钮是什么？</td><td>状态标签样式、取餐码的放大方式。不动：状态词全系统同名、一个主按钮。</td></tr>
+<tr><td>指标卡<br><code>card-metric</code><br>主角：数字<br>范式：<code>workbench</code>、<code>bento</code><br>最小宽：网页 180，小程序 136</td><td>字段：32 图标块与指标名 → 数值（大号，等宽） → 对比（涨跌与周期） → 迷你趋势（可选）。去重：周期与单位各写一次，指标绑定周期、目标与下一步。<br>图：无图；迷你趋势高不超过 64，单色。<br>点击：可点则整卡进明细；卡内不放按钮。<br>状态：零（显示 0）；无数据（“—”写原因）；异常。<br>不要：指标不绑定周期。</td><td>1. 这个数字回答了哪个决定？<br>2. 零和无数据怎么区分？</td><td>数字字阶、迷你趋势画法、图标块的点缀色。不动：数字等宽、同行等高。</td></tr>
+<tr><td>内容与信息流卡<br><code>card-content</code><br>主角：标题与图<br>范式：<code>feed</code>、<code>masonry</code>、<code>two-column-card-grid</code><br>最小宽：网页 280，小程序 136</td><td>字段：图（可选） → 标题（2 行） → 摘要（2 行） → 元信息（一行） → 收藏分享。去重：摘要不复述标题，话题不与分类同词。<br>图：3:2 或 16:9 通栏在上，同组同比例；营销区可错落。<br>点击：整卡进详情；收藏分享是独立图标按钮，用线与内容隔开。<br>状态：已读（标题次要灰）；广告（带标识）。<br>不要：流里重复首页其他模块的活动。</td><td>1. 这条流存在的理由是什么？<br>2. 每张卡为什么出现，用户看得见吗？</td><td>图文比、已读样式、瀑布流错落。不动：整卡一个目的地、能逃生。</td></tr>
+<tr><td>活动卡<br><code>card-campaign</code><br>主角：活动价值，一句话加一张视觉<br>范式：<code>banner-carousel</code>、<code>horizontal-scroller</code>、<code>countdown-block</code><br>最小宽：网页 280，小程序 240</td><td>字段：主视觉 → 价值句（一句） → 倒计时或已抢百分比（选一个）。去重：同一活动全页一个位置，同屏倒计时至多 1 个。<br>图：通栏 2:1，圆角 16；压图文字用遮罩。<br>点击：整卡目的地唯一；自动播放可暂停。<br>状态：未开始；进行中；已结束；已抢光。<br>不要：用轮播堆多个活动。</td><td>1. 这个位置要轮播，还是一张固定主视觉？<br>2. 结束后这块变成什么？</td><td>营销区最可有个性：错落、出框、图形化标题、季节换肤。不动：同屏营销至多 2 个、令牌。</td></tr>
+<tr><td>入口大卡<br><code>card-entry</code><br>主角：一个目的地的指向性<br>范式：<code>entry-cards</code>、<code>dock-grid</code>、<code>status-card</code><br>最小宽：网页 280，小程序 160</td><td>字段：图标块或插画 → 标题（入口名） → 至多一行副文案。去重：副文案不复述标题，不与标签栏同目的地。<br>图：通栏一张，或两列并排，或一大两小。<br>点击：整卡可点，卡内无同目的地按钮。<br>状态：暂停开放（写原因）。<br>不要：为凑宫格把 3 个入口拆成 5 个。</td><td>1. 哪个入口最先要做？<br>2. 副文案在解释入口，还是复述标题？</td><td>卡面构图、插画语言、一大两小的比例。不动：1–4 个才用大卡、整卡一个点击。</td></tr>
+</tbody></table></div>
+<h4>栅格怎么排</h4>
+<p>推导见视觉设计规范“前端排布的推导”：列数 = 向下取整（（容器宽 + 间距）÷（最小卡宽 + 间距））；写成 <code>repeat(auto-fill, minmax(最小宽, 1fr))</code>，不写死列数；卡数固定要铺满时用 <code>auto-fit</code>。小程序双列商品卡最小宽由 320 屏推出：（320 − 2×12 − 8）÷ 2 = 144，取 136，使 320–430 宽恒为两列；取 160 时 320 屏掉成一列。命令：<code>ui_details.py grid --min 160 --gap 12 --width 375</code>。</p>
+<div class="table-wrap"><table><thead><tr><th>例</th><th>容器宽</th><th>间距</th><th>最小宽</th><th>列数</th></tr></thead><tbody>
+<tr><td>小程序商品卡 320 宽</td><td>296</td><td>8</td><td>136</td><td>2</td></tr>
+<tr><td>同上，最小宽取 160</td><td>296</td><td>8</td><td>160</td><td>1</td></tr>
+<tr><td>后台指标卡 1440 宽，侧栏 240</td><td>1152</td><td>16</td><td>180</td><td>5</td></tr>
+<tr><td>网站方案卡 1200 内容宽</td><td>1200</td><td>24</td><td>280</td><td>4</td></tr>
+</tbody></table></div>
+<h4>卡片规则</h4>
+<div class="table-wrap"><table><thead><tr><th>规则与强度</th><th>要求</th><th>检查</th></tr></thead><tbody>
+<tr><td><code>card-fit-browse</code><br><code>default</code></td><td>卡片用于浏览、异质、可独立阅读的并列条目，只放少量信息与指向详情的摘要；同质内容逐项比较用列表或表格。</td><td>人工</td></tr>
+<tr><td><code>card-one-primary-action</code><br><code>must</code></td><td>一卡至多一个主按钮，其余收进更多；整卡可点时卡内不再放同目的地按钮。</td><td>人工</td></tr>
+<tr><td><code>card-whole-link</code><br><code>must</code></td><td>整卡可点：链接放标题并铺满整卡，卡内独立按钮层级更高，不嵌套链接；不可点的卡无悬停与按压；悬停才有的内容必有触屏替代。</td><td>渲染</td></tr>
+<tr><td><code>card-no-repeat-fact</code><br><code>default</code></td><td>同一事实一卡只说一次：标题不复述图，摘要不复述标题，状态、价格、距离不出现两遍。</td><td>人工</td></tr>
+<tr><td><code>card-field-order</code><br><code>default</code></td><td>卡内次序：图、标题（1 行）、说明（≤ 2 行）、数据与标签、操作；缺字段保留位置。</td><td>渲染</td></tr>
+<tr><td><code>card-radius-shadow-padding</code><br><code>must</code></td><td>圆角 12，大卡 16，内层块 8，标签 4（全产品不超过 4 种）；发丝线加第 1 级阴影，悬停第 2 级；内边距 16（小程序 12–16），卡间距 16（小程序 12）。</td><td>渲染</td></tr>
+<tr><td><code>card-equal-height</code><br><code>must</code></td><td>同一行卡片等高：标题固定行数，图同比例；底部空白不超过卡高两成。</td><td>渲染</td></tr>
+<tr><td><code>card-columns-by-min-width</code><br><code>must</code></td><td>列数不写死：写最小卡宽，用 <code>auto-fill</code> 加 <code>minmax</code>；列数 = <code>floor</code>（（容器宽 + 间距）÷（最小宽 + 间距））；网页商品卡 160、指标卡 180、方案卡 280，小程序双列商品卡 136。</td><td>渲染</td></tr>
+<tr><td><code>card-states-complete</code><br><code>default</code></td><td>按需画齐状态：悬停（仅可点）、按压、选中（主色描边加对勾，不位移）、禁用与过期（写原因）、加载（骨架同形）。</td><td>渲染</td></tr>
+<tr><td><code>card-family-limit</code><br><code>default</code></td><td>家族成员数随产品；区别在主角与构图，不靠换圆角与阴影；商品卡营销信息至多三层；品牌主卡每屏一张。</td><td>人工</td></tr>
+<tr><td><code>card-price-status-colour</code><br><code>must</code></td><td>价格与券面金额用 <code>price</code>，不用主色；状态用状态色加文字，同一状态全系统同名同色。</td><td>渲染</td></tr>
+<tr><td><code>card-paradigm-vocabulary</code><br><code>hint</code></td><td>家族对应页面范式库的范式 <code>id</code>，但范式是词汇不是句子：先答该家族的“选用前要问的问题”，再决定。</td><td>人工</td></tr>
+</tbody></table></div>
+<h3>五、怎么用</h3>
+<ul><li>强度三档：<code>must</code> 违反即退回；<code>default</code> 可偏离，须写偏离说明（规则 <code>id</code>、为什么、风险、怎么验证），用 <code>py -X utf8 scripts/ui_details.py deviation &lt;规则 id&gt; --why … --risk … --verify …</code> 生成；<code>hint</code> 按情境取舍。</li><li>证据分五类：规则（官方、研究机构）、实例（博客，数值不当规则）、用户要求、惯例（无来源）、技能内部（含视觉规范既有数值与本技能取值）；资料没覆盖的写出来，不编来源。</li></ul>
+<div class="table-wrap"><table><thead><tr><th>思考链</th><th>按这个次序问</th></tr></thead><tbody>
+<tr><td>图标</td><td>1. 需要图标吗？系统技能定，没有合适图形宁可不放<br>2. 属于哪一类：控件、入口图标块还是装饰？<br>3. 颜色从哪来：控件取令牌，入口块取 <code>tint</code> 加色板，装饰取插画面<br>4. 产品里已有它的图标吗？沿用并登记<br>5. 先过脚本，再看四态与深色；超限改提示词</td></tr>
+<tr><td>背景</td><td>1. 这一块在哪一层？<br>2. 和相邻层靠什么分开：间距、色差、发丝线、阴影？<br>3. 压着文字或图吗？压图要有遮罩<br>4. 深色里它是哪个令牌？<br>5. 删掉它，用户少认出什么？少不了才加</td></tr>
+<tr><td>卡片</td><td>1. 该不该用卡片：浏览、异质？要比较就用列表<br>2. 哪个家族？谁是主角？<br>3. 字段来自系统技能的清单；同一事实只说一次<br>4. 整卡去哪？一卡一个主按钮<br>5. 状态画齐了吗？<br>6. 列数由最小卡宽算出，不写死<br>7. 个性放在哪一点？计入记忆点预算</td></tr>
+</tbody></table></div>
+<h4>方法规则</h4>
+<div class="table-wrap"><table><thead><tr><th>规则与强度</th><th>要求</th><th>检查</th></tr></thead><tbody>
+<tr><td><code>details-ownership</code><br><code>must</code></td><td>只管长什么样：哪个功能要图标、卡片放什么与整卡去哪由系统技能定；排不下就退回，不增删。</td><td>人工</td></tr>
+<tr><td><code>details-tiers-deviation</code><br><code>must</code></td><td><code>must</code> 不偏离；<code>default</code> 偏离要写偏离说明（<code>rule</code>、<code>why</code>、<code>risk</code>、<code>verify</code>），用 <code>ui_details.py</code> <code>deviation</code> 生成；<code>hint</code> 按情境取舍。</td><td>人工</td></tr>
+<tr><td><code>details-think-first</code><br><code>default</code></td><td>选图标做法、背景处理、卡片家族前，先答“选用前要问的问题”，<code>BRIEF</code> 留一行理由，再查表。</td><td>人工</td></tr>
+<tr><td><code>details-innovate-in-budget</code><br><code>default</code></td><td>个性落在卡片造型、图形语言、插画或动效上，计入记忆点预算（1–3 个，后台 0–1 个）。</td><td>人工</td></tr>
+</tbody></table></div>
+<h4>依据与资料没覆盖的地方</h4>
+<div class="table-wrap"><table><thead><tr><th>条目</th><th>性质</th><th>备注</th></tr></thead><tbody>
+<tr><td>图标饱和度四项上限与度量</td><td>本技能取值或内部规则</td><td>16 份资料没有一份给出数值，只有“饱和度较低的邻近色系，不要太过扎眼”；数值是本技能取值，待校准。</td></tr>
+<tr><td>图标色板推导、明度差下限（浅色 1.5、深色 4）、小程序双列最小宽 136、一屏色相 3 个、遮罩起点 20%–45%</td><td>本技能取值或内部规则</td><td>本技能取值；明度差下限按 25 个主题实测定，其余待样板页校准。“次层同色相 15%–30%”出自素材站博客，交付为实色，不违背视觉规范“双色不用透明度叠色”。</td></tr>
+<tr><td>24 网格、线宽 1.5 或 2、16–24 像素单色靠 <code>currentColor</code>、小于 20 像素按 4.5:1</td><td>实例证据</td><td>素材站与配色站博客，作者建议，无研究出处；线宽取视觉规范既有的 2。</td></tr>
+<tr><td>卡片的定义、适用与不适用、整卡可点；渐进披露</td><td>规则证据</td><td><code>NN/g</code> 机构文章（2016、2006），年代较早，原则稳定。</td></tr>
+<tr><td>卡片圆角、内边距、阴影、间距、列数，页面底与卡面的对比度与分层</td><td>资料未覆盖</td><td>16 份资料均未覆盖；取视觉规范已有令牌与规则。商品卡与店铺卡的字段排布同样未覆盖，待样板页验证。</td></tr>
+</tbody></table></div>
+</section>
+<!-- SECTION:rules:END -->
+
+<!-- SECTION:platform-matrix:START id=platform-matrix data-rule-id=details-platform-matrix -->
+<section id="platform-matrix" data-rule-id="details-platform-matrix" aria-labelledby="platform-matrix-heading">
+<h2 id="platform-matrix-heading" class="section-heading"><svg class="icon-linear section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="4" width="7" height="6" rx="1"/><rect x="14" y="4" width="7" height="6" rx="1"/><rect x="3" y="14" width="7" height="6" rx="1"/><rect x="14" y="14" width="7" height="6" rx="1"/></svg><span>平台矩阵</span></h2>
+<div class="table-wrap"><table><thead><tr><th>端</th><th>图标</th><th>背景</th><th>卡片</th></tr></thead><tbody>
+<tr><td>小程序</td><td>标签栏 22–24，入口块 40，同组一种做法</td><td>页面底极浅灰，卡面白；底栏不透明加安全区</td><td>商品卡双列（136）、门店、会员、券、订单、活动、入口大卡</td></tr>
+<tr><td>网页后台</td><td>菜单 20，按钮 16；指标卡 32 双色块</td><td>极浅灰，卡面白，不交替</td><td>指标卡（180）、图表卡（320）</td></tr>
+<tr><td>网站</td><td>导航 20，特性区块 24 双色块</td><td>白底，区块可交替 <code>canvas</code></td><td>活动卡、内容卡、方案卡（280）</td></tr>
+<tr><td>智能体</td><td>工具卡 16–20；能力清单双色块</td><td>消息区无阴影，工具卡第 1 级</td><td>工具卡、审批卡</td></tr>
+</tbody></table></div>
+</section>
+<!-- SECTION:platform-matrix:END -->
+
+<!-- SECTION:examples:START id=examples data-rule-id=details-examples -->
+<section id="examples" data-rule-id="details-examples" aria-labelledby="examples-heading">
+<h2 id="examples-heading" class="section-heading"><svg class="icon-linear section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m4 17 5-5 3 3 2-2 6 6"/></svg><span>案例样本</span></h2>
+<div class="table-wrap"><table><thead><tr><th>样本</th><th>怎么做</th><th>得到什么</th></tr></thead><tbody>
+<tr><td>图标太艳：从投诉到阈值<br>问：用户说入口图标饱和度过深</td><td>取认可的 3 张与被嫌的 3 张，切开后各跑 <code>check_icon_image.py --json</code>，线定在中间留 0.03；再用 <code>--palette</code> 取色板写进提示词重生成、复检。</td><td>拼板整张只作参考，验收看切开的单个图标；起始值是否偏紧，要靠标注定。</td></tr>
+<tr><td>卡片浮不起来<br>问：是阴影不够吗</td><td>先量 Δ<code>L</code>*：<code>ui_details.py layers --theme &lt;id&gt;</code>，浅色 ≥ 1.5 就够，石墨主题 1.7，靠发丝线承担。</td><td>25 个主题都过；问题多出在自造了白色页面底。</td></tr>
+<tr><td>花店小程序首页的卡片家族（推演）<br>问：要哪些卡，怎么像一家人</td><td>进行中订单用订单卡（一条）；核心业务 2 个用入口大卡；节日专场用活动卡横滑；推荐商品用双列商品卡。共用圆角 12、内边距 12–16。</td><td>个性只放一处：商品图统一底板色与机位。</td></tr>
+</tbody></table></div>
+</section>
+<!-- SECTION:examples:END -->
+
+<!-- SECTION:output-contract:START id=output-contract data-rule-id=details-output-contract -->
+<section id="output-contract" data-rule-id="details-output-contract" aria-labelledby="output-contract-heading">
+<h2 id="output-contract-heading" class="section-heading"><svg class="icon-linear section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v5h5M9 12h6M9 16h6"/></svg><span>输出契约</span></h2>
+<ul><li><code>detail-system.md</code>（会话视觉目录下，<code>P6</code> 的产出）写四张表：图标表（对象、图标名、类别、来源与许可、检查结果）、图标色板（浅深十六进制与 <code>S</code> 值）、背景分层表（三层令牌与 Δ<code>L</code>*）、卡片家族表（家族、范式、字段顺序、点击、状态、最小卡宽）。</li><li>生成图标另存提示词文件、色板、出图尺寸、<code>check_icon_image.py</code> 的输出；偏离说明与“采用的规则”（规则 <code>id</code>）写进 <code>BRIEF</code>。</li></ul>
+</section>
+<!-- SECTION:output-contract:END -->
+
+<!-- SECTION:quality-gates:START id=quality-gates data-rule-id=details-quality-gates -->
+<section id="quality-gates" data-rule-id="details-quality-gates" aria-labelledby="quality-gates-heading">
+<h2 id="quality-gates-heading" class="section-heading"><svg class="icon-linear section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 7h5M15 7h5M9 7a3 3 0 1 0 6 0 3 3 0 0 0-6 0ZM4 17h10M18 17h2M14 14a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z"/></svg><span>质量门禁</span></h2>
+<ul><li>退回修改：控件图标用了位图或令牌以外的颜色；生成图标没过 <code>check_icon_image.py</code>（含深色对照）；页面底与卡面 Δ<code>L</code>* 不达标且无发丝线；卡里套卡，或整卡可点又放同目的地按钮；卡片圆角超过 4 种；偏离 <code>must</code>；<code>default</code> 被偏离却没有偏离说明。</li><li>不得交付：没有 <code>detail-system.md</code>；浅深没各检一遍；图标没有映射表；资料没覆盖的数值被写成有外部来源。</li></ul>
+<p>命令：<code>py -X utf8 scripts/test_check_icon_image.py</code>；<code>test_ui_details.py</code>；<code>check_icon_image.py &lt;图标目录&gt; --theme &lt;主题 id&gt;</code>；<code>ui_details.py layers --all</code>；<code>check_document.py references/ui-details.html</code>。</p>
+</section>
+<!-- SECTION:quality-gates:END -->
+
+<!-- SECTION:handoff:START id=handoff data-rule-id=details-handoff -->
+<section id="handoff" data-rule-id="details-handoff" aria-labelledby="handoff-heading">
+<h2 id="handoff-heading" class="section-heading"><svg class="icon-linear section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 7h12M13 4l3 3-3 3M20 17H8M11 14l-3 3 3 3"/></svg><span>交接规则</span></h2>
+<ul><li>交给开发技能：图标资产清单（文件、尺寸、色板、来源与许可）、对象到图标名的映射表、卡片家族表与最小卡宽、状态清单；数值只取令牌文件，本页不新增令牌。</li><li>交回系统技能：卡里内容放不下、需要更多操作、缺状态词的退回清单；项目模式走需求变更台账。与页面范式库、设计路径冲突的，写进 <code>BRIEF</code> 待裁定清单，不自行改它们。</li><li>结束前用 <code>experience.py note</code> 沉淀新偏好、规则纠正、阈值校准结果（<code>key</code> <code>icon-saturation-threshold-skill-value</code>）。</li></ul>
+</section>
+<!-- SECTION:handoff:END -->
+
+</main>
+</body>
+</html>

@@ -45,5 +45,36 @@ class RulePageLatinTest(unittest.TestCase):
         self.assertTrue(latin_errors('<p><span aria-label="icon">图标</span></p>'))
 
 
+class UiOwnershipTest(unittest.TestCase):
+    """references/ui-ownership.md is the one statement of what Luz-System decides and what Luz-Design decides."""
+
+    ROOT = Path(__file__).resolve().parents[1]
+
+    def test_the_page_exists_is_registered_and_linked_from_skill_md(self) -> None:
+        self.assertTrue((self.ROOT / "references" / "ui-ownership.md").is_file())
+        self.assertIn("references/ui-ownership.md", vs.REQUIRED)
+        skill = (self.ROOT / "SKILL.md").read_text(encoding="utf-8")
+        self.assertIn("](references/ui-ownership.md)", skill)
+
+    def test_the_sections_other_skills_point_to_exist_in_the_visual_rules(self) -> None:
+        page = (self.ROOT / "references" / "visual-design.html").read_text(encoding="utf-8")
+        for name in ("界面组件的外观", "同类元素外观一致", "界面配图与丰富度", "前端排布的推导", "各端视觉参数"):
+            with self.subTest(section=name):
+                self.assertEqual(page.count(f"<h4>{name}</h4>"), 1)
+        for name in ("列表变更的动效", "卡片与切换控件的动效"):
+            with self.subTest(section=name):
+                self.assertEqual(page.count(f"<h5>{name}</h5>"), 1)
+
+    def test_every_interface_card_states_the_line_design_does_not_cross(self) -> None:
+        import json
+        cards = json.loads((self.ROOT / "references" / "cards.json").read_text(encoding="utf-8"))["cards"]
+        for kind in ("interface-visual", "interface-components", "interface-layout", "interface-pattern",
+                     "interface-motion", "interface-icons", "interface-recipes", "design-direction", "design-path", "page-patterns",
+                     "prototype-reference"):
+            with self.subTest(card=kind):
+                lines = cards[kind]["tools"] + cards[kind]["checks"]
+                self.assertTrue(any("ui-ownership.md" in line for line in lines))
+
+
 if __name__ == "__main__":
     unittest.main()

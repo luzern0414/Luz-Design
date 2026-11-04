@@ -1,5 +1,7 @@
 The image service makes photographs, posters, and entry icons, illustrations and decorative elements in the style the user picked on the visual board. Control icons (navigation, tab bars, menus, buttons, toolbars, tables, forms) and interface screens are drawn as line vectors in HTML, never generated (visual-design.html, 图像生成). Write one prompt file per image under raw/02-visual/prompts/, dry-run first, then generate one at a time.
 
+For interface work, build the prompt from the approved `style_match.py` result. Use `semantic.relationships` and the adaptive `layout.regions` as composition intent, use `evidence` only as reference signals, and carry the approved `scope` exactly. Do not copy a reference count, grid, background or material into the prompt unless it appears in `layout.hard_constraints` or the user approved it. The prompt describes the asset role and its placement; it does not prescribe the page's CSS grid.
+
 === Store, product and environment photo ===
 A realistic photograph of [subject: store interior, product, training area, dish] for [brand] in [industry].
 Shared style block (identical for every image in the session): bright natural light, clean uncluttered composition, light background, [primary colour] and [accent colour] appearing only as small accents in real objects, no text, no letters, no logos, no watermarks, no identifiable faces (people only from behind or as silhouettes).
@@ -12,12 +14,54 @@ Audience and context: [who sees it, placement, viewing distance].
 Communication goal: [one business outcome].
 Primary headline: [exact copy]. Supporting proposition: [exact copy]. Required details: [exact copy]. Call to action: [copy and QR/link destination].
 Composition: one dominant focal point (a real photograph or a flat graphic shape), clear copy hierarchy of at most four levels, generous safe margins of about 5%, strong thumbnail recognition. Leave a protected [size] quiet zone for the QR code and keep the lower [px or percent] clear of platform overlays.
+Channel: [screen | print]. For print, give the trim size and let the background run to the edge of the canvas so a 3 mm bleed can be added on every side; keep headline, logo and QR code at least 5 mm inside the trim; request the largest pixel size the service returns and compute the effective resolution (pixel width / trim width in inches) before using it, since 300 ppi is the print target.
 Art direction: light background, flat solid colours from the theme palette, [photography direction], one typeface family. No textures, gradients, 3D objects, glows or glass effects.
 Do not render unverified price, address, legal text, logo, testimonial, or QR destination. Do not add tiny microcopy, unrelated promotions, device frames, or fake seals. Do not imitate a named living artist; when a reference is supplied, borrow only the stated structural attribute and replace its brand, copy, imagery and identity.
 
 === Entry icon, illustration or decorative element ===
 One [object, e.g. membership card, gift box, meeting microphone] as a [entry icon | spot illustration | hero element] for [brand] in [industry], used in [placement: entry grid, capability list, empty state, result page, brand card hero].
-Shared style block (identical for every icon and illustration of the product; the style the user picked on the visual board): [chosen style, e.g. 3D toy, soft clay, soft 3D, layered flat, hand-drawn line], [primary colour] and [accent colour] from the theme steps as the main colours, soft even light from the upper left, [view, e.g. front three-quarter], one object centred with about 12% padding.
+Approved match context: [semantic relationship this asset supports], [region role from layout.regions], [responsive placement], [selected style and approved scope]. The reference case contributes only these visual signals: [evidence.style_signals]; never write its sample count or grid as a required arrangement unless it is an approved hard constraint.
+Shared style block (identical for every icon and illustration of the product after approval; the style the user picked on the visual board): [chosen style, e.g. layered flat, soft clay, 2.5D, hand-drawn line], [primary colour] and [accent colour] from the theme steps as the main colours, soft even light from the upper left, [view, e.g. front three-quarter], one object centred with about 12% padding.
 Output: transparent background (PNG); icons square at twice the display size (e.g. 192x192 for a 96 px tile), illustrations at [ratio]. No text, letters, numbers, logos, watermarks or identifiable faces; no background scene; no shadow outside the object unless the style block asks for a contact shadow.
 Candidates on the visual board: 2–3 styles chosen from the industry's mood and the scene, one sample of the same object per style. Each object gets its own image and reuses it everywhere.
 Element sheet (preferred for icons and illustrations): one request for a 4x4 grid of 16 objects in the shared style block, each centred in its own cell with even gutters and nothing crossing cell borders, transparent background; list the 16 objects in reading order. Cut the sheet with scripts/cut_element_sheet.py: it drops faint specks and pieces of neighbouring cells, trims with 6% padding and saves each object as a 240 px WebP.
+
+=== Eight-slot anatomy (every request; method and examples in references/imagegen-playbook.md) ===
+1 Purpose and placement: where the image sits and who sees it.
+2 Subject: one subject with concrete attributes (count, material, state).
+3 Composition and lens: aspect ratio, subject share of the frame, margin, camera height, lens feel, depth of field.
+4 Light: direction, softness, shadow.
+5 Material and texture: what the surface is (true-to-life petal texture, frosted glass at about 35% translucency, matte clay).
+6 Colour: theme hex values and the sentence "only these colours are saturated".
+7 Background and output: a hex backdrop or "transparent background", clean edges, no halo.
+8 Negative constraints, always last: no text, letters, numbers, logos, watermarks, hands, faces, glitter, neon, lens flare, plus task-specific ones.
+Write what is observable (material, light, lens), never "premium", "luxurious" or "beautiful". Reuse the shared style block word for word across a set. A transparent image is judged only after compositing it on a light and a dark background.
+
+=== Studio product photograph (verified 2026-11-04, 1024x1024, quality high) ===
+Product photograph for a [brand type] mini-program home banner.
+Subject: one [product with count, material and wrapping], standing upright and centred.
+Composition: square 1:1, the product fills about 65% of the frame with an even 12% margin, eye-level camera, 85 mm lens look, shallow depth of field with the key surface tack sharp.
+Light: soft diffused window light from the upper left, one gentle soft shadow falling to the lower right, no hard highlights, no flash.
+Surface and background: seamless warm light-grey backdrop ([canvas hex]) with a barely visible floor line; nothing else in the frame.
+Palette: [action colour family] and [one natural secondary] are the only saturated colours; everything else warm neutral.
+Style: editorial still life, true-to-life texture, natural colour, no retouching glow.
+Do not include any text, letters, numbers, logos, watermarks, hands, people, faces, price tags, extra props, glitter, bokeh orbs, neon or lens flare.
+
+=== Decorative hero element, frosted glass or clay (verified 2026-11-04, 3:4, transparent png) ===
+Decorative hero element for a mobile-app brand card (one object, not a scene).
+Subject: a single [object] [holding / showing what].
+Material: [frosted borosilicate glass with about 35% translucency, the contents faintly visible through it, a thin bright rim highlight along the left edge, soft edge refraction | soft matte clay with gently rounded forms]; other parts matte.
+Composition: vertical 3:4, object centred with about 12% padding, front view from slightly above.
+Light: soft studio light from the upper left, only a faint contact shadow directly under the object.
+Palette: [action hex], [tint hex], [secondary hex], cool neutral white glass.
+Output: transparent background, clean edges with no halo or fringe, nothing behind the object.
+Do not include any text, letters, logos, hands, faces, sparkles, neon glow, lens flare, floor, table or backdrop.
+Check: composite on a light and a dark background; the empty pixels of such a file may carry hidden colour that a viewer shows as a glow.
+
+=== Entry icon element sheet (verified 2026-11-04, 2048x2048, transparent png, 16 objects) ===
+A 4x4 sheet of 16 [soft matte clay-style 3D | layered flat] icons for the home entry grid of a [industry] mini-program.
+Layout: sixteen objects in a strict 4x4 grid, each centred in its own square cell with even gutters, nothing crossing a cell border, all objects at the same scale (each fills about 70% of its cell), transparent background, no grid lines or cell borders drawn.
+Shared style block (identical for every object): [the approved style block of the style board, theme hex values substituted]; each object uses at most three colours.
+Objects in reading order: 1 ... 16 ... (concrete nouns with simple silhouettes; no object that carries text or numbers, such as a calendar, a price tag or a clock).
+Do not include any text, letters, numbers, logos, watermarks, hands, faces, background scene, glitter or neon glow.
+Cut with scripts/cut_element_sheet.py; one object, one image; the same object everywhere uses the same image.

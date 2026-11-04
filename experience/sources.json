@@ -20,15 +20,8 @@
       ],
       "captured_at": "2026-10-26",
       "http_status": "200",
-      "luzcrawl_task": "luzcrawl-3b83b53a-58ca-40e6-9b59-db9993a14af1",
       "luzcrawl_status": "成功",
-      "method": "LuzCrawl",
-      "snapshot": {
-        "session": "001-健身房小程序和后台系统",
-        "ref": "REF-018",
-        "path": "01-system/crawl-snapshots/REF-018.json",
-        "sha256": "832379fa54edea0bef8302e1996d2fc0208922734d1f4045bbd21bdfaae726a5"
-      }
+      "method": "LuzCrawl"
     },
     {
       "url": "https://ant.design/docs/spec/font-cn",
@@ -46,13 +39,6 @@
       ],
       "captured_at": "2026-10-27",
       "method": "LuzCrawl",
-      "luzcrawl_task": "luzcrawl-4be84fdb-3cce-43e1-a156-112011dbab4c",
-      "snapshot": {
-        "session": "001-健身房小程序和后台系统",
-        "ref": "REF-027",
-        "path": "01-system/crawl-snapshots/REF-027.json",
-        "sha256": "48abfcf1873fa88809a811904fa1ed1e73a0e29f1db3e2aa86f3f7c4889da1b6"
-      },
       "id": "SRC-013",
       "page_title": "字体 - Ant Design",
       "supports": "三端统一字体家族与字阶、表格数字等宽",
@@ -75,8 +61,6 @@
       ],
       "captured_at": "2026-10-26",
       "method": "WebFetch",
-      "luzcrawl_task": null,
-      "snapshot": null,
       "id": "SRC-014"
     },
     {
@@ -95,8 +79,6 @@
       ],
       "captured_at": "2026-10-26",
       "method": "WebFetch",
-      "luzcrawl_task": null,
-      "snapshot": null,
       "id": "SRC-015"
     },
     {
@@ -115,8 +97,6 @@
       ],
       "captured_at": "2026-10-26",
       "method": "WebFetch",
-      "luzcrawl_task": null,
-      "snapshot": null,
       "id": "SRC-016"
     },
     {
@@ -136,8 +116,6 @@
       ],
       "captured_at": "2026-10-26",
       "method": "WebFetch，数值来自模型对公开规范的转述，使用前复核",
-      "luzcrawl_task": null,
-      "snapshot": null,
       "id": "SRC-017"
     },
     {
@@ -159,15 +137,8 @@
       ],
       "captured_at": "2026-10-26",
       "http_status": "200",
-      "luzcrawl_task": "luzcrawl-b609bd22-3445-4c2c-a9d3-c70bfb5f7723",
       "luzcrawl_status": "成功",
-      "method": "LuzCrawl",
-      "snapshot": {
-        "session": "001-健身房小程序和后台系统",
-        "ref": "REF-015",
-        "path": "01-system/crawl-snapshots/REF-015.json",
-        "sha256": "1a6806bc0cbf532f03fb0abe5b1b41e78f40a37c5f7d02bce45473cf7779bd84"
-      }
+      "method": "LuzCrawl"
     },
     {
       "id": "SRC-021",
@@ -188,15 +159,8 @@
       ],
       "captured_at": "2026-10-26",
       "http_status": "200",
-      "luzcrawl_task": "luzcrawl-97a7421a-0e3b-4e0c-aed7-3d56dc4ae205",
       "luzcrawl_status": "成功",
-      "method": "LuzCrawl",
-      "snapshot": {
-        "session": "001-健身房小程序和后台系统",
-        "ref": "REF-016",
-        "path": "01-system/crawl-snapshots/REF-016.json",
-        "sha256": "a3d10bbeb90c755a3837ebc3d089b23fd80c6d98188791cbdffc2e8668660260"
-      }
+      "method": "LuzCrawl"
     },
     {
       "id": "SRC-022",
@@ -217,15 +181,8 @@
       ],
       "captured_at": "2026-10-26",
       "http_status": "200",
-      "luzcrawl_task": "luzcrawl-0eb1249f-beec-4947-8a0a-632cee5b16c0",
       "luzcrawl_status": "成功",
-      "method": "LuzCrawl",
-      "snapshot": {
-        "session": "001-健身房小程序和后台系统",
-        "ref": "REF-017",
-        "path": "01-system/crawl-snapshots/REF-017.json",
-        "sha256": "cde6d8ee9873337d20e9a7c670bc23f16bface26232f50ce02a566cbff25ca01"
-      }
+      "method": "LuzCrawl"
     },
     {
       "id": "SRC-031",
@@ -246,15 +203,8 @@
       ],
       "captured_at": "2026-10-27",
       "http_status": "200",
-      "luzcrawl_task": "luzcrawl-7d9b2843-4130-41dd-891b-66db3a8f2b29",
       "luzcrawl_status": "成功",
-      "method": "LuzCrawl",
-      "snapshot": {
-        "session": "001-健身房小程序和后台系统",
-        "ref": "REF-028",
-        "path": "01-system/crawl-snapshots/REF-028.json",
-        "sha256": "052d751deabdbfb392e151d315abe20f6287c56413c958b984393872b7311034"
-      }
+      "method": "LuzCrawl"
     },
     {
       "id": "SRC-032",
@@ -275,15 +225,8 @@
       ],
       "captured_at": "2026-10-27",
       "http_status": "200",
-      "luzcrawl_task": "luzcrawl-e223506c-7ac9-4222-a27b-2e275377547b",
       "luzcrawl_status": "部分",
-      "method": "LuzCrawl",
-      "snapshot": {
-        "session": "001-健身房小程序和后台系统",
-        "ref": "REF-029",
-        "path": "01-system/crawl-snapshots/REF-029.json",
-        "sha256": "744a7c7e66fb63bf64f455fb18ec4c2c935cc71cb3d47ba66947f2dd32315012"
-      }
+      "method": "LuzCrawl"
     },
     {
       "id": "SRC-039",
@@ -306,15 +249,8 @@
       ],
       "captured_at": "2026-10-27",
       "http_status": "200",
-      "luzcrawl_task": "luzcrawl-74d44dda-23fd-4f24-a30e-209f1502d87c",
       "luzcrawl_status": "部分",
-      "method": "LuzCrawl",
-      "snapshot": {
-        "session": "001-健身房小程序和后台系统",
-        "ref": "REF-036",
-        "path": "01-system/crawl-snapshots/REF-036.json",
-        "sha256": "b338e45aa1ae4b774d0b1bece139e4ded12e908e72e27694adb5faca3a88abb6"
-      }
+      "method": "LuzCrawl"
     },
     {
       "id": "SRC-046",
@@ -335,15 +271,8 @@
       ],
       "captured_at": "2026-10-27",
       "http_status": "200",
-      "luzcrawl_task": "luzcrawl-75fca614-6d35-4cb4-9781-91505822c161",
       "luzcrawl_status": "成功",
-      "method": "LuzCrawl",
-      "snapshot": {
-        "session": "001-健身房小程序和后台系统",
-        "ref": "REF-043",
-        "path": "01-system/crawl-snapshots/REF-043.json",
-        "sha256": "f41fddba7f289dba587b68df3156adb9d521cc9c8dd2c2b606cd6b6fb46094c0"
-      }
+      "method": "LuzCrawl"
     },
     {
       "id": "SRC-047",
@@ -364,15 +293,8 @@
       ],
       "captured_at": "2026-10-27",
       "http_status": "200",
-      "luzcrawl_task": "luzcrawl-d817fa4b-b700-4154-8970-525b507977c9",
       "luzcrawl_status": "成功",
-      "method": "LuzCrawl",
-      "snapshot": {
-        "session": "001-健身房小程序和后台系统",
-        "ref": "REF-044",
-        "path": "01-system/crawl-snapshots/REF-044.json",
-        "sha256": "46d9d22aafa5b16969fca10897db886d49b7eccd599dfc2aa867884f8218ebe9"
-      }
+      "method": "LuzCrawl"
     },
     {
       "id": "SRC-048",
@@ -393,15 +315,8 @@
       ],
       "captured_at": "2026-10-27",
       "http_status": "200",
-      "luzcrawl_task": "luzcrawl-0ecdce48-bd62-4f7f-8b1d-67e4731b1a41",
       "luzcrawl_status": "部分",
-      "method": "LuzCrawl",
-      "snapshot": {
-        "session": "001-健身房小程序和后台系统",
-        "ref": "REF-045",
-        "path": "01-system/crawl-snapshots/REF-045.json",
-        "sha256": "830614b8148171c2563dd28783cec64337d4a53ff901516bf3aaa69a89715e8f"
-      }
+      "method": "LuzCrawl"
     },
     {
       "id": "SRC-049",
@@ -422,15 +337,8 @@
       ],
       "captured_at": "2026-10-27",
       "http_status": "200",
-      "luzcrawl_task": "luzcrawl-e8011c68-d3ac-4336-b102-79704406f4b5",
       "luzcrawl_status": "部分",
-      "method": "LuzCrawl",
-      "snapshot": {
-        "session": "001-健身房小程序和后台系统",
-        "ref": "REF-046",
-        "path": "01-system/crawl-snapshots/REF-046.json",
-        "sha256": "317f5f7b2f751ef038b41904df0c99c9e44959a161aaa9ccf954962eb02c8cee"
-      }
+      "method": "LuzCrawl"
     },
     {
       "id": "SRC-050",
@@ -451,15 +359,8 @@
       ],
       "captured_at": "2026-10-27",
       "http_status": "200",
-      "luzcrawl_task": "luzcrawl-ca7654bd-25d7-4753-9594-921268a80c35",
       "luzcrawl_status": "部分",
-      "method": "LuzCrawl",
-      "snapshot": {
-        "session": "001-健身房小程序和后台系统",
-        "ref": "REF-047",
-        "path": "01-system/crawl-snapshots/REF-047.json",
-        "sha256": "d6bd86b960102b1d73b7fa5d300c1eb674dd3d9c86433c8b36025ef23262b7c5"
-      }
+      "method": "LuzCrawl"
     },
     {
       "id": "SRC-051",
@@ -480,15 +381,8 @@
       ],
       "captured_at": "2026-10-27",
       "http_status": "200",
-      "luzcrawl_task": "luzcrawl-98264120-9e74-49a7-ae9d-5419c49de2b2",
       "luzcrawl_status": "部分",
-      "method": "LuzCrawl",
-      "snapshot": {
-        "session": "001-健身房小程序和后台系统",
-        "ref": "REF-048",
-        "path": "01-system/crawl-snapshots/REF-048.json",
-        "sha256": "f348b4d3b2ebeffe5e3f2316f5eb263f505d50c2b2c5b41c857c8e8eab5b5b07"
-      }
+      "method": "LuzCrawl"
     },
     {
       "id": "SRC-052",
@@ -509,15 +403,8 @@
       ],
       "captured_at": "2026-10-27",
       "http_status": "200",
-      "luzcrawl_task": "luzcrawl-193c3bb2-287c-4483-bb80-63ea7b03980c",
       "luzcrawl_status": "部分",
-      "method": "LuzCrawl",
-      "snapshot": {
-        "session": "001-健身房小程序和后台系统",
-        "ref": "REF-049",
-        "path": "01-system/crawl-snapshots/REF-049.json",
-        "sha256": "f3ffe305028eff38adc4ee28ee2a4d6b032b69ae3b63af8d5485cb26deaa0414"
-      }
+      "method": "LuzCrawl"
     },
     {
       "id": "SRC-053",
@@ -538,15 +425,8 @@
       ],
       "captured_at": "2026-10-27",
       "http_status": "200",
-      "luzcrawl_task": "luzcrawl-b1f4eedd-1c09-4451-9325-bb9aaff09741",
       "luzcrawl_status": "部分",
-      "method": "LuzCrawl",
-      "snapshot": {
-        "session": "001-健身房小程序和后台系统",
-        "ref": "REF-050",
-        "path": "01-system/crawl-snapshots/REF-050.json",
-        "sha256": "15b3afb474e7a12bd0ca3977b4fe1ecf3a59d4f9f0c8184e47689da74b67da1f"
-      }
+      "method": "LuzCrawl"
     },
     {
       "id": "SRC-054",
@@ -567,15 +447,8 @@
       ],
       "captured_at": "2026-10-27",
       "http_status": "200",
-      "luzcrawl_task": "luzcrawl-d685ce00-e0fb-48b1-b97a-0c44af67a89f",
       "luzcrawl_status": "成功",
-      "method": "LuzCrawl",
-      "snapshot": {
-        "session": "001-健身房小程序和后台系统",
-        "ref": "REF-051",
-        "path": "01-system/crawl-snapshots/REF-051.json",
-        "sha256": "24ee78e284dff1146b053ecb9ef4302e96fad340b7dbc711d3d791f04ba397e0"
-      }
+      "method": "LuzCrawl"
     },
     {
       "id": "SRC-055",
@@ -596,15 +469,8 @@
       ],
       "captured_at": "2026-10-27",
       "http_status": "200",
-      "luzcrawl_task": "luzcrawl-c332a3cd-cd2e-4693-ac9c-5b10e51713f2",
       "luzcrawl_status": "成功",
-      "method": "LuzCrawl",
-      "snapshot": {
-        "session": "001-健身房小程序和后台系统",
-        "ref": "REF-052",
-        "path": "01-system/crawl-snapshots/REF-052.json",
-        "sha256": "e40556edabed49f17d28a57c328949f0c170e253fc05e06c104eb3a6a1ce4909"
-      }
+      "method": "LuzCrawl"
     },
     {
       "id": "SRC-056",
@@ -625,15 +491,8 @@
       ],
       "captured_at": "2026-10-27",
       "http_status": "403",
-      "luzcrawl_task": "luzcrawl-21bebd8e-d289-4ab5-ab97-75b00c1369a7",
       "luzcrawl_status": "成功",
-      "method": "LuzCrawl",
-      "snapshot": {
-        "session": "001-健身房小程序和后台系统",
-        "ref": "REF-053",
-        "path": "01-system/crawl-snapshots/REF-053.json",
-        "sha256": "269a1aef9cff55bddb42a4ff1f0186f1173437a250089a25bfa664f48dad9e83"
-      }
+      "method": "LuzCrawl"
     },
     {
       "id": "SRC-057",
@@ -654,15 +513,8 @@
       ],
       "captured_at": "2026-10-27",
       "http_status": "200",
-      "luzcrawl_task": "luzcrawl-65feb35c-4be4-4e8e-aa0e-63e1a8e51cd5",
       "luzcrawl_status": "成功",
-      "method": "LuzCrawl",
-      "snapshot": {
-        "session": "001-健身房小程序和后台系统",
-        "ref": "REF-054",
-        "path": "01-system/crawl-snapshots/REF-054.json",
-        "sha256": "27600048b57376fb168a36d3ad9854bb1fbdc43f0d51e96d17b05b815a43dd53"
-      }
+      "method": "LuzCrawl"
     },
     {
       "id": "SRC-058",
@@ -683,15 +535,8 @@
       ],
       "captured_at": "2026-10-27",
       "http_status": "200",
-      "luzcrawl_task": "luzcrawl-43ea66c6-bf36-497c-b173-e6092873d5a0",
       "luzcrawl_status": "部分",
-      "method": "LuzCrawl",
-      "snapshot": {
-        "session": "001-健身房小程序和后台系统",
-        "ref": "REF-055",
-        "path": "01-system/crawl-snapshots/REF-055.json",
-        "sha256": "b4f3083fc7224034c806c2a31b030500ea3d38b9dcc52a23bb8777cec11574c6"
-      }
+      "method": "LuzCrawl"
     },
     {
       "id": "SRC-059",
@@ -712,15 +557,8 @@
       ],
       "captured_at": "2026-10-27",
       "http_status": "200",
-      "luzcrawl_task": "luzcrawl-679e4578-6bc4-488d-9583-5c1cd7d3e812",
       "luzcrawl_status": "部分",
-      "method": "LuzCrawl",
-      "snapshot": {
-        "session": "001-健身房小程序和后台系统",
-        "ref": "REF-056",
-        "path": "01-system/crawl-snapshots/REF-056.json",
-        "sha256": "7ee2ae5d7e6bd0b6927e8a1530107636dddf82a47d239d848b68aa797a830266"
-      }
+      "method": "LuzCrawl"
     },
     {
       "id": "SRC-060",
@@ -741,15 +579,8 @@
       ],
       "captured_at": "2026-10-28",
       "http_status": "200",
-      "luzcrawl_task": "luzcrawl-e42dbff7-5355-4640-918b-5cf9bb66afca",
       "luzcrawl_status": "部分",
-      "method": "LuzCrawl",
-      "snapshot": {
-        "session": "001-健身房小程序和后台系统",
-        "ref": "REF-057",
-        "path": "01-system/crawl-snapshots/REF-057.json",
-        "sha256": "9144ae6c836192dcdadfd14d5c03828d03a37c08b78858e71b411ef8e2b0741e"
-      }
+      "method": "LuzCrawl"
     },
     {
       "id": "SRC-061",
@@ -770,15 +601,8 @@
       ],
       "captured_at": "2026-10-28",
       "http_status": "200",
-      "luzcrawl_task": "luzcrawl-94fab90a-c6cd-485b-acb0-235512ee17a1",
       "luzcrawl_status": "成功",
-      "method": "LuzCrawl",
-      "snapshot": {
-        "session": "001-健身房小程序和后台系统",
-        "ref": "REF-058",
-        "path": "01-system/crawl-snapshots/REF-058.json",
-        "sha256": "409f9333774444595f759911437cc9660815e55a970b182e0109d9d01a65ff38"
-      }
+      "method": "LuzCrawl"
     },
     {
       "id": "SRC-062",
@@ -799,15 +623,8 @@
       ],
       "captured_at": "2026-10-28",
       "http_status": "200",
-      "luzcrawl_task": "luzcrawl-270734d2-7627-4bfc-a576-eee3f57bf86b",
       "luzcrawl_status": "成功",
-      "method": "LuzCrawl",
-      "snapshot": {
-        "session": "001-健身房小程序和后台系统",
-        "ref": "REF-059",
-        "path": "01-system/crawl-snapshots/REF-059.json",
-        "sha256": "eca422aaa7c27792d71e87457b87849703aff67472c1e1b29dc0471ae13bd7b2"
-      }
+      "method": "LuzCrawl"
     },
     {
       "id": "SRC-063",
@@ -828,15 +645,8 @@
       ],
       "captured_at": "2026-10-28",
       "http_status": "200",
-      "luzcrawl_task": "luzcrawl-bd8d9104-811a-40cd-a390-27fe7ba2049b",
       "luzcrawl_status": "成功",
-      "method": "LuzCrawl",
-      "snapshot": {
-        "session": "001-健身房小程序和后台系统",
-        "ref": "REF-060",
-        "path": "01-system/crawl-snapshots/REF-060.json",
-        "sha256": "fea70ef02c86ed26209078b871405f56b39b55d3eb4a0da179e11518e0977882"
-      }
+      "method": "LuzCrawl"
     },
     {
       "id": "SRC-064",
@@ -857,15 +667,8 @@
       ],
       "captured_at": "2026-10-28",
       "http_status": "200",
-      "luzcrawl_task": "luzcrawl-735db960-4f6f-4958-abb0-a6e2c5726101",
       "luzcrawl_status": "部分",
-      "method": "LuzCrawl",
-      "snapshot": {
-        "session": "001-健身房小程序和后台系统",
-        "ref": "REF-061",
-        "path": "01-system/crawl-snapshots/REF-061.json",
-        "sha256": "758326276c721e2bb97776409b6798706e42622667ace55705c1cd5a216c81f5"
-      }
+      "method": "LuzCrawl"
     },
     {
       "id": "SRC-065",
@@ -886,15 +689,8 @@
       ],
       "captured_at": "2026-10-28",
       "http_status": "200",
-      "luzcrawl_task": "luzcrawl-05042183-243c-4dc8-ac14-fc15daa7733f",
       "luzcrawl_status": "部分",
-      "method": "LuzCrawl",
-      "snapshot": {
-        "session": "001-健身房小程序和后台系统",
-        "ref": "REF-062",
-        "path": "01-system/crawl-snapshots/REF-062.json",
-        "sha256": "5e3fb3187f5a237e67fe86743ae8be4039b508252f5c3feae657005fdbebdfc6"
-      }
+      "method": "LuzCrawl"
     },
     {
       "id": "SRC-066",
@@ -915,15 +711,8 @@
       ],
       "captured_at": "2026-10-28",
       "http_status": "200",
-      "luzcrawl_task": "luzcrawl-40151db3-349e-4fa2-bc2e-8b077285de24",
       "luzcrawl_status": "成功",
-      "method": "LuzCrawl",
-      "snapshot": {
-        "session": "001-健身房小程序和后台系统",
-        "ref": "REF-063",
-        "path": "01-system/crawl-snapshots/REF-063.json",
-        "sha256": "bd19728e3ecf944a566f01fdcb43b269f586afdd033deff997b2f7ffd5b798b2"
-      }
+      "method": "LuzCrawl"
     },
     {
       "id": "SRC-067",
@@ -944,15 +733,8 @@
       ],
       "captured_at": "2026-10-28",
       "http_status": "200",
-      "luzcrawl_task": "luzcrawl-294369fc-e139-45e3-be83-4ccf460c5d16",
       "luzcrawl_status": "成功",
-      "method": "LuzCrawl",
-      "snapshot": {
-        "session": "001-健身房小程序和后台系统",
-        "ref": "REF-064",
-        "path": "01-system/crawl-snapshots/REF-064.json",
-        "sha256": "78657f44c64a75f7c41047ce60412a4fd4c2dcb39645256caf4c6525dc873178"
-      }
+      "method": "LuzCrawl"
     },
     {
       "id": "SRC-068",
@@ -973,15 +755,8 @@
       ],
       "captured_at": "2026-10-28",
       "http_status": "200",
-      "luzcrawl_task": "luzcrawl-a429e8d4-56d6-44aa-9d86-478b9b3e901c",
       "luzcrawl_status": "部分",
-      "method": "LuzCrawl",
-      "snapshot": {
-        "session": "001-健身房小程序和后台系统",
-        "ref": "REF-065",
-        "path": "01-system/crawl-snapshots/REF-065.json",
-        "sha256": "d9d66f28a920644af7a00328824812f51bd54443ac6b845e52871a8ceae48e30"
-      }
+      "method": "LuzCrawl"
     },
     {
       "id": "SRC-069",
@@ -1002,15 +777,8 @@
       ],
       "captured_at": "2026-10-28",
       "http_status": "200",
-      "luzcrawl_task": "luzcrawl-18ea6f46-6539-47f2-a30e-1970fad0c495",
       "luzcrawl_status": "成功",
-      "method": "LuzCrawl",
-      "snapshot": {
-        "session": "001-健身房小程序和后台系统",
-        "ref": "REF-066",
-        "path": "01-system/crawl-snapshots/REF-066.json",
-        "sha256": "3c19bc4ed7a168b19dc89cf9f58fd0e12f4722ae3085b1ca054eca0168c51d91"
-      }
+      "method": "LuzCrawl"
     },
     {
       "id": "SRC-070",
@@ -1031,15 +799,8 @@
       ],
       "captured_at": "2026-10-28",
       "http_status": "200",
-      "luzcrawl_task": "luzcrawl-891208f6-2312-4976-b678-3cb8b241f347",
       "luzcrawl_status": "成功",
-      "method": "LuzCrawl",
-      "snapshot": {
-        "session": "001-健身房小程序和后台系统",
-        "ref": "REF-067",
-        "path": "01-system/crawl-snapshots/REF-067.json",
-        "sha256": "a565e6d2ba7c52d40a7b006d728276face4e48a36d99bbcfa8b6954fa2a3059e"
-      }
+      "method": "LuzCrawl"
     },
     {
       "url": "https://www.w3.org/WAI/standards-guidelines/wcag/glance",
@@ -1060,9 +821,6 @@
       "captured_at": "2026-10-28",
       "luzcrawl_status": "成功",
       "method": "LuzCrawl",
-      "snapshot": {
-        "path": "D:/Codes/skill输出/Luz-Crawl/raw/001_Luz-Design 健身房小程序与后台设计规范调研/raw/419_WCAG 2 at a Glance Web Accessibility Initiative (WAI) W3C"
-      },
       "id": "SRC-080"
     },
     {
@@ -1084,9 +842,6 @@
       "captured_at": "2026-10-28",
       "luzcrawl_status": "成功",
       "method": "LuzCrawl",
-      "snapshot": {
-        "path": "D:/Codes/skill输出/Luz-Crawl/raw/001_Luz-Design 健身房小程序与后台设计规范调研/raw/525_Merge and unmerge cells in Excel Microsoft Support"
-      },
       "id": "SRC-081"
     },
     {
@@ -1108,9 +863,6 @@
       "captured_at": "2026-10-28",
       "luzcrawl_status": "部分",
       "method": "LuzCrawl",
-      "snapshot": {
-        "path": "D:/Codes/skill输出/Luz-Crawl/raw/001_Luz-Design 健身房小程序与后台设计规范调研/raw/532_Accessibility best practices with Excel spreadsheets Microsoft S"
-      },
       "id": "SRC-082"
     },
     {
@@ -1132,9 +884,6 @@
       "captured_at": "2026-10-28",
       "luzcrawl_status": "部分",
       "method": "LuzCrawl",
-      "snapshot": {
-        "path": "D:/Codes/skill输出/Luz-Crawl/raw/001_Luz-Design 健身房小程序与后台设计规范调研/raw/524_Data Tables Four Major User Tasks - NN G"
-      },
       "id": "SRC-083"
     },
     {
@@ -1156,9 +905,6 @@
       "captured_at": "2026-10-28",
       "luzcrawl_status": "成功",
       "method": "LuzCrawl",
-      "snapshot": {
-        "path": "D:/Codes/skill输出/Luz-Crawl/raw/001_Luz-Design 健身房小程序与后台设计规范调研/raw/530_Colors - Ant Design"
-      },
       "id": "SRC-084"
     },
     {
@@ -1180,9 +926,6 @@
       "captured_at": "2026-10-28",
       "luzcrawl_status": "成功",
       "method": "LuzCrawl",
-      "snapshot": {
-        "path": "D:/Codes/skill输出/Luz-Crawl/raw/001_Luz-Design 健身房小程序与后台设计规范调研/raw/545_党政机关公文处理工作条例"
-      },
       "id": "SRC-085"
     },
     {
@@ -1204,9 +947,6 @@
       "captured_at": "2026-10-28",
       "luzcrawl_status": "部分",
       "method": "LuzCrawl",
-      "snapshot": {
-        "path": "D:/Codes/skill输出/Luz-Crawl/raw/001_Luz-Design 健身房小程序与后台设计规范调研/raw/546_党政机关公文格式_百度百科"
-      },
       "id": "SRC-086"
     },
     {
@@ -1228,9 +968,6 @@
       "captured_at": "2026-10-28",
       "luzcrawl_status": "部分",
       "method": "LuzCrawl",
-      "snapshot": {
-        "path": "D:/Codes/skill输出/Luz-Crawl/raw/001_Luz-Design 健身房小程序与后台设计规范调研/raw/551_合同示范文本_百度百科"
-      },
       "id": "SRC-087"
     },
     {
@@ -1252,9 +989,6 @@
       "captured_at": "2026-10-29",
       "luzcrawl_status": "成功",
       "method": "LuzCrawl",
-      "snapshot": {
-        "path": "D:/Codes/skill输出/Luz-Crawl/raw/016_Demo一键生成助手 UI升级与闭环审计/raw/1221_Elevation - Fluent 2 Design System"
-      },
       "id": "SRC-088"
     },
     {
@@ -1276,9 +1010,6 @@
       "captured_at": "2026-10-29",
       "luzcrawl_status": "部分",
       "method": "LuzCrawl",
-      "snapshot": {
-        "path": "D:/Codes/skill输出/Luz-Crawl/raw/016_Demo一键生成助手 UI升级与闭环审计/raw/1219_Elevation – Material Design 3"
-      },
       "id": "SRC-089"
     },
     {
@@ -1300,9 +1031,6 @@
       "captured_at": "2026-10-29",
       "luzcrawl_status": "部分",
       "method": "LuzCrawl",
-      "snapshot": {
-        "path": "D:/Codes/skill输出/Luz-Crawl/raw/019_Luz-Design 层级与阴影依据补采（Polaris、Ant Design 遮罩）/raw/1297_Elevation – Material Design 3"
-      },
       "id": "SRC-090"
     },
     {
@@ -1324,9 +1052,6 @@
       "captured_at": "2026-10-29",
       "luzcrawl_status": "成功",
       "method": "LuzCrawl",
-      "snapshot": {
-        "path": "D:/Codes/skill输出/Luz-Crawl/raw/019_Luz-Design 层级与阴影依据补采（Polaris、Ant Design 遮罩）/raw/1299_ant-design components theme themes shared genColorMapToken.ts at"
-      },
       "id": "SRC-091"
     },
     {
@@ -1348,9 +1073,6 @@
       "captured_at": "2026-10-29",
       "luzcrawl_status": "成功",
       "method": "LuzCrawl",
-      "snapshot": {
-        "path": "D:/Codes/skill输出/Luz-Crawl/raw/019_Luz-Design 层级与阴影依据补采（Polaris、Ant Design 遮罩）/raw/1296_polaris-react-archive polaris-tokens src themes base shadow.ts a"
-      },
       "id": "SRC-092"
     },
     {
@@ -1372,9 +1094,6 @@
       "captured_at": "2026-10-29",
       "luzcrawl_status": "成功",
       "method": "LuzCrawl",
-      "snapshot": {
-        "path": "D:/Codes/skill输出/Luz-Crawl/raw/019_Luz-Design 层级与阴影依据补采（Polaris、Ant Design 遮罩）/raw/1298_Color Carbon Design System"
-      },
       "id": "SRC-093"
     },
     {
@@ -1396,9 +1115,6 @@
       "captured_at": "2026-10-29",
       "luzcrawl_status": "成功",
       "method": "LuzCrawl",
-      "snapshot": {
-        "path": "D:/Codes/skill输出/Luz-Crawl/raw/016_Demo一键生成助手 UI升级与闭环审计/raw/1220_Materials Apple Developer Documentation"
-      },
       "id": "SRC-094"
     },
     {
@@ -1420,9 +1136,6 @@
       "captured_at": "2026-10-29",
       "luzcrawl_status": "成功",
       "method": "LuzCrawl",
-      "snapshot": {
-        "path": "D:/Codes/skill输出/Luz-Crawl/raw/016_Demo一键生成助手 UI升级与闭环审计/raw/1231_Designing Beautiful Shadows in CSS  Josh W. Comeau"
-      },
       "id": "SRC-095"
     },
     {
@@ -1444,9 +1157,6 @@
       "captured_at": "2026-10-29",
       "luzcrawl_status": "成功",
       "method": "LuzCrawl",
-      "snapshot": {
-        "path": "D:/Codes/skill输出/Luz-Crawl/raw/016_Demo一键生成助手 UI升级与闭环审计/raw/1232_Cards UI-Component Definition - NN G"
-      },
       "id": "SRC-096"
     },
     {
@@ -1468,9 +1178,6 @@
       "captured_at": "2026-10-29",
       "luzcrawl_status": "成功",
       "method": "LuzCrawl",
-      "snapshot": {
-        "path": "D:/Codes/skill输出/Luz-Crawl/raw/016_Demo一键生成助手 UI升级与闭环审计/raw/1215_Visual Hierarchy in UX Definition - NN G"
-      },
       "id": "SRC-097"
     },
     {
@@ -1492,9 +1199,6 @@
       "captured_at": "2026-10-29",
       "luzcrawl_status": "成功",
       "method": "LuzCrawl",
-      "snapshot": {
-        "path": "D:/Codes/skill输出/Luz-Crawl/raw/016_Demo一键生成助手 UI升级与闭环审计/raw/1210_Typography Carbon Design System"
-      },
       "id": "SRC-098"
     },
     {
@@ -1516,9 +1220,6 @@
       "captured_at": "2026-10-29",
       "luzcrawl_status": "部分",
       "method": "LuzCrawl",
-      "snapshot": {
-        "path": "D:/Codes/skill输出/Luz-Crawl/raw/016_Demo一键生成助手 UI升级与闭环审计/raw/1207_Typography – Material Design 3"
-      },
       "id": "SRC-099"
     },
     {
@@ -1540,9 +1241,6 @@
       "captured_at": "2026-10-29",
       "luzcrawl_status": "成功",
       "method": "LuzCrawl",
-      "snapshot": {
-        "path": "D:/Codes/skill输出/Luz-Crawl/raw/016_Demo一键生成助手 UI升级与闭环审计/raw/1212_Phosphor Icons"
-      },
       "id": "SRC-100"
     },
     {
@@ -1564,9 +1262,6 @@
       "captured_at": "2026-10-29",
       "luzcrawl_status": "成功",
       "method": "LuzCrawl",
-      "snapshot": {
-        "path": "D:/Codes/skill输出/Luz-Crawl/raw/016_Demo一键生成助手 UI升级与闭环审计/raw/1218_unDraw - Open source illustrations for any idea"
-      },
       "id": "SRC-101"
     },
     {
@@ -1588,9 +1283,6 @@
       "captured_at": "2026-10-29",
       "luzcrawl_status": "部分",
       "method": "LuzCrawl",
-      "snapshot": {
-        "path": "D:/Codes/skill输出/Luz-Crawl/raw/016_Demo一键生成助手 UI升级与闭环审计/raw/1216_Storyset Customize, animate and download illustration for free"
-      },
       "id": "SRC-102"
     },
     {
@@ -1612,9 +1304,6 @@
       "captured_at": "2026-10-29",
       "luzcrawl_status": "成功",
       "method": "LuzCrawl",
-      "snapshot": {
-        "path": "D:/Codes/skill输出/Luz-Crawl/raw/022_学术论文排版标准与字体字号/raw/1334_中国科学院大学研究生学位论文撰写规范指导意见--中国科学院文献情报中心"
-      },
       "id": "SRC-103"
     },
     {
@@ -1636,10 +1325,1960 @@
       "captured_at": "2026-10-29",
       "luzcrawl_status": "成功",
       "method": "LuzCrawl",
-      "snapshot": {
-        "path": "D:/Codes/skill输出/Luz-Crawl/raw/022_学术论文排版标准与字体字号/raw/1331_国家标准 GB T 7713.2-2022"
-      },
       "id": "SRC-104"
+    },
+    {
+      "url": "https://www.w3.org/TR/WCAG22/",
+      "title": "万维网联盟无障碍指南 2.2",
+      "page_title": "万维网联盟无障碍指南 2.2",
+      "domain": "www.w3.org",
+      "category": "视觉规范",
+      "evidence": "2024-12-12 正式推荐标准；1.4.3 正文 4.5:1、1.4.11 非文本 3:1、1.4.4 缩放 200%、1.4.10 重排 320、1.4.12 文本间距 1.5/2/0.12/0.16、2.2.2、2.3.1；相对亮度阈值 0.04045（2021-05 起，原 0.03928，无实际影响）",
+      "borrowable": "成功准则的数值与例外",
+      "not_copyable": "原文",
+      "supports": "对比度、缩放、文本间距",
+      "surfaces": [
+        "通用"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-02",
+      "http_status": "200",
+      "method": "WebFetch 或 curl 读取原文",
+      "luzcrawl_status": "未经 Luz-Crawl（技能维护时直接读取）",
+      "id": "SRC-105"
+    },
+    {
+      "url": "https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html",
+      "title": "理解 1.4.3 最低对比度",
+      "page_title": "理解 1.4.3 最低对比度",
+      "domain": "www.w3.org",
+      "category": "视觉规范",
+      "evidence": "大字指 18 磅或加粗 14 磅（约 24 与 18.5 像素）；比值不得四舍五入；停用组件与徽标文字不要求对比度；背景图按实际渲染处量",
+      "borrowable": "大字定义、不进位、豁免对象",
+      "not_copyable": "原文",
+      "supports": "对比度算法与等级",
+      "surfaces": [
+        "通用"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-02",
+      "http_status": "200",
+      "method": "WebFetch 或 curl 读取原文",
+      "luzcrawl_status": "未经 Luz-Crawl（技能维护时直接读取）",
+      "id": "SRC-106"
+    },
+    {
+      "url": "https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html",
+      "title": "理解 2.5.8 目标尺寸（最小）",
+      "page_title": "理解 2.5.8 目标尺寸（最小）",
+      "domain": "www.w3.org",
+      "category": "视觉规范",
+      "evidence": "AA 级；指针目标至少 24×24 CSS 像素；五项例外：间距（24 直径圆不相交）、等价控件、句内、浏览器决定、必须呈现",
+      "borrowable": "24 像素与间距例外",
+      "not_copyable": "原文",
+      "supports": "点击区域与触控目标",
+      "surfaces": [
+        "通用"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-02",
+      "http_status": "200",
+      "method": "WebFetch 或 curl 读取原文",
+      "luzcrawl_status": "未经 Luz-Crawl（技能维护时直接读取）",
+      "id": "SRC-107"
+    },
+    {
+      "url": "https://www.w3.org/WAI/WCAG22/Understanding/target-size-enhanced.html",
+      "title": "理解 2.5.5 目标尺寸（增强）",
+      "page_title": "理解 2.5.5 目标尺寸（增强）",
+      "domain": "www.w3.org",
+      "category": "视觉规范",
+      "evidence": "AAA 级；指针目标至少 44×44 CSS 像素；四项例外",
+      "borrowable": "44 像素",
+      "not_copyable": "原文",
+      "supports": "点击区域与触控目标",
+      "surfaces": [
+        "通用"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-02",
+      "http_status": "200",
+      "method": "WebFetch 或 curl 读取原文",
+      "luzcrawl_status": "未经 Luz-Crawl（技能维护时直接读取）",
+      "id": "SRC-108"
+    },
+    {
+      "url": "https://www.w3.org/WAI/WCAG22/Understanding/animation-from-interactions.html",
+      "title": "理解 2.3.3 交互触发的动画",
+      "page_title": "理解 2.3.3 交互触发的动画",
+      "domain": "www.w3.org",
+      "category": "视觉规范",
+      "evidence": "AAA 级；交互触发的运动动画可被关闭；颜色与不透明度变化不算运动，勘误把模糊也算运动；推荐 prefers-reduced-motion（C39、SCR40）",
+      "borrowable": "减少动态效果的降级对象",
+      "not_copyable": "原文",
+      "supports": "动效降级",
+      "surfaces": [
+        "通用"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-02",
+      "http_status": "200",
+      "method": "WebFetch 或 curl 读取原文",
+      "luzcrawl_status": "未经 Luz-Crawl（技能维护时直接读取）",
+      "id": "SRC-109"
+    },
+    {
+      "url": "https://www.w3.org/TR/wcag-3.0/",
+      "title": "无障碍指南 3.0 工作草稿",
+      "page_title": "无障碍指南 3.0 工作草稿",
+      "domain": "www.w3.org",
+      "category": "视觉规范",
+      "evidence": "2026-09-10 工作草稿，页面声明不宜作为进行中工作之外引用；文字对比度一节写明“采用的对比度算法尚待确定”，且需含字号字重因素",
+      "borrowable": "APCA 不是现行标准的证据",
+      "not_copyable": "原文",
+      "supports": "对比度算法",
+      "surfaces": [
+        "通用"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-02",
+      "http_status": "200",
+      "method": "WebFetch 或 curl 读取原文",
+      "luzcrawl_status": "未经 Luz-Crawl（技能维护时直接读取）",
+      "id": "SRC-110"
+    },
+    {
+      "url": "https://www.w3.org/WAI/standards-guidelines/wcag/wcag3-intro/",
+      "title": "无障碍指南 3 简介",
+      "page_title": "无障碍指南 3 简介",
+      "domain": "www.w3.org",
+      "category": "视觉规范",
+      "evidence": "WCAG 3 是不完整的草稿，数年内不会成为标准；WCAG 2 仍是现行标准且在 WCAG 3 定稿后数年内不弃用；建议先满足 2.2",
+      "borrowable": "WCAG 3 的状态",
+      "not_copyable": "原文",
+      "supports": "对比度算法",
+      "surfaces": [
+        "通用"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-02",
+      "http_status": "200",
+      "method": "WebFetch 或 curl 读取原文",
+      "luzcrawl_status": "未经 Luz-Crawl（技能维护时直接读取）",
+      "id": "SRC-111"
+    },
+    {
+      "url": "https://www.w3.org/WAI/WCAG22/Techniques/pdf/PDF16",
+      "title": "无障碍指南技术 PDF16 默认语言",
+      "page_title": "无障碍指南技术 PDF16 默认语言",
+      "domain": "www.w3.org",
+      "category": "文件规范",
+      "evidence": "在文档目录设置 /Lang；适用于标签化 PDF；对应 3.1.1",
+      "borrowable": "PDF 语言",
+      "not_copyable": "原文",
+      "supports": "便携式文档可访问性",
+      "surfaces": [
+        "通用"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-02",
+      "http_status": "200",
+      "method": "WebFetch 或 curl 读取原文",
+      "luzcrawl_status": "未经 Luz-Crawl（技能维护时直接读取）",
+      "id": "SRC-112"
+    },
+    {
+      "url": "https://www.w3.org/WAI/WCAG22/Techniques/pdf/PDF18",
+      "title": "无障碍指南技术 PDF18 文档标题",
+      "page_title": "无障碍指南技术 PDF18 文档标题",
+      "domain": "www.w3.org",
+      "category": "文件规范",
+      "evidence": "信息字典 /Title 加视图偏好 DisplayDocTitle 为真；对应 2.4.2",
+      "borrowable": "PDF 标题",
+      "not_copyable": "原文",
+      "supports": "便携式文档可访问性",
+      "surfaces": [
+        "通用"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-02",
+      "http_status": "200",
+      "method": "WebFetch 或 curl 读取原文",
+      "luzcrawl_status": "未经 Luz-Crawl（技能维护时直接读取）",
+      "id": "SRC-113"
+    },
+    {
+      "url": "https://taggedpdfschool.pdfa.org/matterhorn",
+      "title": "马特洪峰协议 1.1（标签化 PDF 学校）",
+      "page_title": "马特洪峰协议 1.1（标签化 PDF 学校）",
+      "domain": "taggedpdfschool.pdfa.org",
+      "category": "文件规范",
+      "evidence": "适用于 PDF 1.7 与 PDF/UA-1，不适用于 PDF 2.0；31 个检查点、136 个失败条件，87 个机器可判定、47 个人工，2 个无检测办法；06-003 dc:title、07-001/002 DisplayDocTitle、11-001 语言、13-004 图形替代文字、15-001 表头、09-001 阅读顺序",
+      "borrowable": "失败条件编号与机器/人工划分",
+      "not_copyable": "原文",
+      "supports": "便携式文档可访问性",
+      "surfaces": [
+        "通用"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-02",
+      "http_status": "200",
+      "method": "WebFetch 或 curl 读取原文",
+      "luzcrawl_status": "未经 Luz-Crawl（技能维护时直接读取）",
+      "id": "SRC-114"
+    },
+    {
+      "url": "https://www.pdflib.com/pdf-knowledge-base/pdfua/matterhorn-protocol",
+      "title": "PDFlib：马特洪峰协议",
+      "page_title": "PDFlib：马特洪峰协议",
+      "domain": "www.pdflib.com",
+      "category": "文件规范",
+      "evidence": "PDF/UA-1 的参考；136 个失败条件、31 个检查点；多数可由软件判定，少数需人判断；校验器有 PAC 与 veraPDF",
+      "borrowable": "校验器名称",
+      "not_copyable": "原文",
+      "supports": "便携式文档可访问性",
+      "surfaces": [
+        "通用"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-02",
+      "http_status": "200",
+      "method": "WebFetch 或 curl 读取原文",
+      "luzcrawl_status": "未经 Luz-Crawl（技能维护时直接读取）",
+      "id": "SRC-115"
+    },
+    {
+      "url": "https://prnewswire.com/news-releases/the-pdf-associations-specification-for-reuse-and-accessibility-is-now-an-iso-standard-302104750.html",
+      "title": "PDF 协会发布 PDF/UA-2（ISO 14289-2）",
+      "page_title": "PDF 协会发布 PDF/UA-2（ISO 14289-2）",
+      "domain": "prnewswire.com",
+      "category": "文件规范",
+      "evidence": "2024-04-02 公布；基于 PDF 2.0；符合它不必然保证内容可访问；颜色与对比度不在范围内",
+      "borrowable": "PDF/UA-2 的状态与范围",
+      "not_copyable": "原文",
+      "supports": "便携式文档可访问性",
+      "surfaces": [
+        "通用"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-02",
+      "http_status": "200",
+      "method": "WebFetch 或 curl 读取原文",
+      "luzcrawl_status": "未经 Luz-Crawl（技能维护时直接读取）",
+      "id": "SRC-116"
+    },
+    {
+      "url": "https://developer.apple.com/design/human-interface-guidelines/accessibility",
+      "title": "苹果人机界面指南：辅助功能",
+      "page_title": "苹果人机界面指南：辅助功能",
+      "domain": "developer.apple.com",
+      "category": "视觉规范",
+      "evidence": "读取方式：developer.apple.com/tutorials/data/design/human-interface-guidelines/accessibility.json。控件默认/最小：苹果手机与平板 44/28 点，macOS 28/20，visionOS 60/28；有边框元素周围约 12 点、无边框约 24 点；文字放大至少 200%；对比度表（17 点以内 4.5:1，18 点 3:1，加粗 3:1）；减少动态效果的七条做法",
+      "borrowable": "控件尺寸、留白、减少动态效果做法",
+      "not_copyable": "原文",
+      "supports": "点击区域与动效降级",
+      "surfaces": [
+        "通用"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-02",
+      "http_status": "200",
+      "method": "WebFetch 或 curl 读取原文",
+      "luzcrawl_status": "未经 Luz-Crawl（技能维护时直接读取）",
+      "id": "SRC-117"
+    },
+    {
+      "url": "https://developer.apple.com/design/human-interface-guidelines/dark-mode",
+      "title": "苹果人机界面指南：深色模式",
+      "page_title": "苹果人机界面指南：深色模式",
+      "domain": "developer.apple.com",
+      "category": "视觉规范",
+      "evidence": "深色色板是更暗的背景加更亮的前景，不是简单反相；对比度不低于 4.5:1，自定义前景背景争取 7:1；增加对比度与降低透明度下复测；基础色与升起色（升起的界面更亮）；白底图片略压暗",
+      "borrowable": "深色映射的做法",
+      "not_copyable": "原文",
+      "supports": "用户明确要求深色时",
+      "surfaces": [
+        "通用"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-02",
+      "http_status": "200",
+      "method": "WebFetch 或 curl 读取原文",
+      "luzcrawl_status": "未经 Luz-Crawl（技能维护时直接读取）",
+      "id": "SRC-118"
+    },
+    {
+      "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/env",
+      "title": "MDN：env()",
+      "page_title": "MDN：env()",
+      "domain": "developer.mozilla.org",
+      "category": "视觉规范",
+      "evidence": "四个 safe-area-inset 变量与回退值；矩形显示区为 0；广泛可用，2020 年 1 月起",
+      "borrowable": "安全区写法",
+      "not_copyable": "原文",
+      "supports": "视口与安全区",
+      "surfaces": [
+        "通用"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-02",
+      "http_status": "200",
+      "method": "WebFetch 或 curl 读取原文",
+      "luzcrawl_status": "未经 Luz-Crawl（技能维护时直接读取）",
+      "id": "SRC-119"
+    },
+    {
+      "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Guides/Viewport_meta_element",
+      "title": "MDN：视口元标签",
+      "page_title": "MDN：视口元标签",
+      "domain": "developer.mozilla.org",
+      "category": "视觉规范",
+      "evidence": "viewport-fit 取 auto/contain/cover；interactive-widget 三值；禁用缩放妨碍低视力用户，WCAG 要求至少 2 倍、最佳做法 5 倍",
+      "borrowable": "视口声明",
+      "not_copyable": "原文",
+      "supports": "视口与安全区",
+      "surfaces": [
+        "通用"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-02",
+      "http_status": "200",
+      "method": "WebFetch 或 curl 读取原文",
+      "luzcrawl_status": "未经 Luz-Crawl（技能维护时直接读取）",
+      "id": "SRC-120"
+    },
+    {
+      "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/length",
+      "title": "MDN：长度单位",
+      "page_title": "MDN：长度单位",
+      "domain": "developer.mozilla.org",
+      "category": "视觉规范",
+      "evidence": "svh/lvh/dvh 含义；vh 等于 lvh；动态视口单位不稳定，滚动时可能重排",
+      "borrowable": "视口高度单位",
+      "not_copyable": "原文",
+      "supports": "视口与安全区",
+      "surfaces": [
+        "通用"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-02",
+      "http_status": "200",
+      "method": "WebFetch 或 curl 读取原文",
+      "luzcrawl_status": "未经 Luz-Crawl（技能维护时直接读取）",
+      "id": "SRC-121"
+    },
+    {
+      "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/@container",
+      "title": "MDN：@container",
+      "page_title": "MDN：@container",
+      "domain": "developer.mozilla.org",
+      "category": "视觉规范",
+      "evidence": "广泛可用，2023 年 2 月起",
+      "borrowable": "容器查询兼容状态",
+      "not_copyable": "原文",
+      "supports": "现代样式特性",
+      "surfaces": [
+        "通用"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-02",
+      "http_status": "200",
+      "method": "WebFetch 或 curl 读取原文",
+      "luzcrawl_status": "未经 Luz-Crawl（技能维护时直接读取）",
+      "id": "SRC-122"
+    },
+    {
+      "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_containment/Container_queries",
+      "title": "MDN：容器查询指南",
+      "page_title": "MDN：容器查询指南",
+      "domain": "developer.mozilla.org",
+      "category": "视觉规范",
+      "evidence": "container-type/container-name、cqi 单位、无容器时退回小视口单位、回退用网格加媒体查询",
+      "borrowable": "容器查询写法",
+      "not_copyable": "原文",
+      "supports": "现代样式特性",
+      "surfaces": [
+        "通用"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-02",
+      "http_status": "200",
+      "method": "WebFetch 或 curl 读取原文",
+      "luzcrawl_status": "未经 Luz-Crawl（技能维护时直接读取）",
+      "id": "SRC-123"
+    },
+    {
+      "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/:has",
+      "title": "MDN：:has()",
+      "page_title": "MDN：:has()",
+      "domain": "developer.mozilla.org",
+      "category": "视觉规范",
+      "evidence": "广泛可用，2023 年 12 月起；不嵌套、不含伪元素；不支持时整条选择器失效；锚点不宜是 body 或根元素",
+      "borrowable": "使用限制",
+      "not_copyable": "原文",
+      "supports": "现代样式特性",
+      "surfaces": [
+        "通用"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-02",
+      "http_status": "200",
+      "method": "WebFetch 或 curl 读取原文",
+      "luzcrawl_status": "未经 Luz-Crawl（技能维护时直接读取）",
+      "id": "SRC-124"
+    },
+    {
+      "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/oklch",
+      "title": "MDN：oklch()",
+      "page_title": "MDN：oklch()",
+      "domain": "developer.mozilla.org",
+      "category": "视觉规范",
+      "evidence": "广泛可用，2023 年 5 月起；L 为感知亮度 0 到 1；相对颜色语法",
+      "borrowable": "兼容状态",
+      "not_copyable": "原文",
+      "supports": "现代样式特性",
+      "surfaces": [
+        "通用"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-02",
+      "http_status": "200",
+      "method": "WebFetch 或 curl 读取原文",
+      "luzcrawl_status": "未经 Luz-Crawl（技能维护时直接读取）",
+      "id": "SRC-125"
+    },
+    {
+      "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/light-dark",
+      "title": "MDN：light-dark()",
+      "page_title": "MDN：light-dark()",
+      "domain": "developer.mozilla.org",
+      "category": "视觉规范",
+      "evidence": "新近可用，2024 年 5 月起；需先把 color-scheme 设为 light dark",
+      "borrowable": "兼容状态",
+      "not_copyable": "原文",
+      "supports": "现代样式特性",
+      "surfaces": [
+        "通用"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-02",
+      "http_status": "200",
+      "method": "WebFetch 或 curl 读取原文",
+      "luzcrawl_status": "未经 Luz-Crawl（技能维护时直接读取）",
+      "id": "SRC-126"
+    },
+    {
+      "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/text-wrap-style",
+      "title": "MDN：text-wrap-style",
+      "page_title": "MDN：text-wrap-style",
+      "domain": "developer.mozilla.org",
+      "category": "视觉规范",
+      "evidence": "新近可用，2024 年 10 月起；balance 只作用于六行以内（Chromium）或十行以内（Firefox）",
+      "borrowable": "兼容状态",
+      "not_copyable": "原文",
+      "supports": "现代样式特性",
+      "surfaces": [
+        "通用"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-02",
+      "http_status": "200",
+      "method": "WebFetch 或 curl 读取原文",
+      "luzcrawl_status": "未经 Luz-Crawl（技能维护时直接读取）",
+      "id": "SRC-127"
+    },
+    {
+      "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/text-autospace",
+      "title": "MDN：text-autospace",
+      "page_title": "MDN：text-autospace",
+      "domain": "developer.mozilla.org",
+      "category": "视觉规范",
+      "evidence": "新近可用，2025 年 11 月起；默认 normal 在排版引擎层给中日韩与西文、数字之间加间距",
+      "borrowable": "中西文间距",
+      "not_copyable": "原文",
+      "supports": "中文排版",
+      "surfaces": [
+        "通用"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-02",
+      "http_status": "200",
+      "method": "WebFetch 或 curl 读取原文",
+      "luzcrawl_status": "未经 Luz-Crawl（技能维护时直接读取）",
+      "id": "SRC-128"
+    },
+    {
+      "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/text-spacing-trim",
+      "title": "MDN：text-spacing-trim",
+      "page_title": "MDN：text-spacing-trim",
+      "domain": "developer.mozilla.org",
+      "category": "视觉规范",
+      "evidence": "有限可用、实验性；字体需有 halt 或 chws 特性，否则失效",
+      "borrowable": "不依赖",
+      "not_copyable": "原文",
+      "supports": "中文排版",
+      "surfaces": [
+        "通用"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-02",
+      "http_status": "200",
+      "method": "WebFetch 或 curl 读取原文",
+      "luzcrawl_status": "未经 Luz-Crawl（技能维护时直接读取）",
+      "id": "SRC-129"
+    },
+    {
+      "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion",
+      "title": "MDN：prefers-reduced-motion",
+      "page_title": "MDN：prefers-reduced-motion",
+      "domain": "developer.mozilla.org",
+      "category": "视觉规范",
+      "evidence": "广泛可用，2020 年 1 月起；reduce 表示最小化非必要动效；缩放与平移大对象是前庭触发；同优先级后写的规则生效",
+      "borrowable": "降级写法",
+      "not_copyable": "原文",
+      "supports": "动效降级",
+      "surfaces": [
+        "通用"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-02",
+      "http_status": "200",
+      "method": "WebFetch 或 curl 读取原文",
+      "luzcrawl_status": "未经 Luz-Crawl（技能维护时直接读取）",
+      "id": "SRC-130"
+    },
+    {
+      "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-contrast",
+      "title": "MDN：prefers-contrast",
+      "page_title": "MDN：prefers-contrast",
+      "domain": "developer.mozilla.org",
+      "category": "视觉规范",
+      "evidence": "广泛可用，2022 年 5 月起；取值 no-preference/more/less/custom",
+      "borrowable": "更高对比度偏好",
+      "not_copyable": "原文",
+      "supports": "对比度",
+      "surfaces": [
+        "通用"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-02",
+      "http_status": "200",
+      "method": "WebFetch 或 curl 读取原文",
+      "luzcrawl_status": "未经 Luz-Crawl（技能维护时直接读取）",
+      "id": "SRC-131"
+    },
+    {
+      "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/color-scheme",
+      "title": "MDN：color-scheme",
+      "page_title": "MDN：color-scheme",
+      "domain": "developer.mozilla.org",
+      "category": "视觉规范",
+      "evidence": "广泛可用，2022 年 1 月起；影响表单控件、滚动条与系统色；only light 可关闭自动深色主题改写",
+      "borrowable": "声明写法",
+      "not_copyable": "原文",
+      "supports": "深色与浅色声明",
+      "surfaces": [
+        "通用"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-02",
+      "http_status": "200",
+      "method": "WebFetch 或 curl 读取原文",
+      "luzcrawl_status": "未经 Luz-Crawl（技能维护时直接读取）",
+      "id": "SRC-132"
+    },
+    {
+      "url": "https://developers.weixin.qq.com/miniprogram/dev/api/base/system/wx.getWindowInfo.html",
+      "title": "小程序接口 wx.getWindowInfo",
+      "page_title": "小程序接口 wx.getWindowInfo",
+      "domain": "developers.weixin.qq.com",
+      "category": "视觉规范",
+      "evidence": "返回 pixelRatio、screenWidth/Height、windowWidth/Height、statusBarHeight、safeArea（竖屏正方向安全区，部分机型不返回）、screenTop",
+      "borrowable": "安全区取值",
+      "not_copyable": "原文",
+      "supports": "小程序安全区",
+      "surfaces": [
+        "小程序"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-02",
+      "http_status": "200",
+      "method": "WebFetch 或 curl 读取原文",
+      "luzcrawl_status": "未经 Luz-Crawl（技能维护时直接读取）",
+      "id": "SRC-133"
+    },
+    {
+      "url": "https://developers.weixin.qq.com/miniprogram/dev/api/ui/menu/wx.getMenuButtonBoundingClientRect.html",
+      "title": "小程序接口 wx.getMenuButtonBoundingClientRect",
+      "page_title": "小程序接口 wx.getMenuButtonBoundingClientRect",
+      "domain": "developers.weixin.qq.com",
+      "category": "视觉规范",
+      "evidence": "返回右上角胶囊按钮的布局位置，以屏幕左上角为原点，单位像素",
+      "borrowable": "自定义导航栏高度",
+      "not_copyable": "原文",
+      "supports": "小程序导航栏",
+      "surfaces": [
+        "小程序"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-02",
+      "http_status": "200",
+      "method": "WebFetch 或 curl 读取原文",
+      "luzcrawl_status": "未经 Luz-Crawl（技能维护时直接读取）",
+      "id": "SRC-134"
+    },
+    {
+      "url": "https://developers.weixin.qq.com/miniprogram/design/elderly.html",
+      "title": "小程序适老化设计指南",
+      "page_title": "小程序适老化设计指南",
+      "domain": "developers.weixin.qq.com",
+      "category": "视觉规范",
+      "evidence": "fontSizeSetting 与 fontSizeScaleFactor（wx.getAppBaseInfo）；iOS 7 档、安卓 8 档；标准字号 iOS 17、安卓 16；关怀模式等比放大 1.4 倍、间距固定；热区外加 12 点、特殊小元素至少 40×40 点；对比度 4.5:1",
+      "borrowable": "字号档位与热区",
+      "not_copyable": "原文",
+      "supports": "小程序适老化",
+      "surfaces": [
+        "小程序"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-02",
+      "http_status": "200",
+      "method": "WebFetch 或 curl 读取原文",
+      "luzcrawl_status": "未经 Luz-Crawl（技能维护时直接读取）",
+      "id": "SRC-135"
+    },
+    {
+      "url": "https://developers.weixin.qq.com/miniprogram/design/adapt.html",
+      "title": "小程序大屏适配指南",
+      "page_title": "小程序大屏适配指南",
+      "domain": "developers.weixin.qq.com",
+      "category": "视觉规范",
+      "evidence": "未适配的小程序在电脑端竖屏固定 414×736、横屏 768×1024；栅格加响应策略；七种动态布局；导航栏与标签栏高度不变；弹窗、悬浮工具栏、下拉刷新的转译",
+      "borrowable": "电脑端微信适配",
+      "not_copyable": "原文",
+      "supports": "小程序大屏",
+      "surfaces": [
+        "小程序"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-02",
+      "http_status": "200",
+      "method": "WebFetch 或 curl 读取原文",
+      "luzcrawl_status": "未经 Luz-Crawl（技能维护时直接读取）",
+      "id": "SRC-136"
+    },
+    {
+      "url": "https://developers.weixin.qq.com/miniprogram/design/accessibility.html",
+      "title": "小程序无障碍设计指南",
+      "page_title": "小程序无障碍设计指南",
+      "domain": "developers.weixin.qq.com",
+      "category": "视觉规范",
+      "evidence": "微信绘制的接口组件内置无障碍特性；非原生界面添加无障碍标签（aria-component）",
+      "borrowable": "无障碍标签",
+      "not_copyable": "原文",
+      "supports": "小程序无障碍",
+      "surfaces": [
+        "小程序"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-02",
+      "http_status": "200",
+      "method": "WebFetch 或 curl 读取原文",
+      "luzcrawl_status": "未经 Luz-Crawl（技能维护时直接读取）",
+      "id": "SRC-137"
+    },
+    {
+      "url": "https://developer.android.com/develop/ui/compose/layouts/adaptive/use-window-size-classes",
+      "title": "安卓窗口尺寸分类",
+      "page_title": "安卓窗口尺寸分类",
+      "domain": "developer.android.com",
+      "category": "视觉规范",
+      "evidence": "宽度小于 600、600 至 839、840 至 1199、1200 至 1599、1600 以上；高度小于 480、480 至 899、900 以上",
+      "borrowable": "断点",
+      "not_copyable": "原文",
+      "supports": "响应式断点",
+      "surfaces": [
+        "通用"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-02",
+      "http_status": "200",
+      "method": "WebFetch 或 curl 读取原文",
+      "luzcrawl_status": "未经 Luz-Crawl（技能维护时直接读取）",
+      "id": "SRC-138"
+    },
+    {
+      "url": "https://rdswxb.hainanu.edu.cn/fileRDSWXB/cms/news/info/2026/01/2cf0bffa33554b6eab11970541de10c4/GBT%2015834%E2%80%942011%E6%A0%87%E7%82%B9%E7%AC%A6%E5%8F%B7%E7%94%A8%E6%B3%95.docx",
+      "title": "国家标准 GB/T 15834-2011 标点符号用法（高校转载全文）",
+      "page_title": "国家标准 GB/T 15834-2011 标点符号用法（高校转载全文）",
+      "domain": "rdswxb.hainanu.edu.cn",
+      "category": "文件规范",
+      "evidence": "5.1.1 至 5.1.11 横排标点位置与宽度；4.11 省略号；4.12 着重号；4.13 连接号；A.1 图表说明末尾不用句号；A.9 省略号；A.10 着重号；转载全文，国家标准全文公开系统为权威",
+      "borrowable": "标点位置与宽度",
+      "not_copyable": "原文",
+      "supports": "中文排版",
+      "surfaces": [
+        "通用"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-02",
+      "http_status": "200",
+      "method": "WebFetch 或 curl 读取原文",
+      "luzcrawl_status": "未经 Luz-Crawl（技能维护时直接读取）",
+      "id": "SRC-139"
+    },
+    {
+      "url": "https://www.designtokens.org/tr/2025.10/format/",
+      "title": "设计令牌格式模块 2025.10",
+      "page_title": "设计令牌格式模块 2025.10",
+      "domain": "www.designtokens.org",
+      "category": "视觉规范",
+      "evidence": "2025-10-28 社区组最终报告，自称稳定；.tokens.json、application/design-tokens+json；$value/$type/$description；dimension、duration、fontFamily、fontWeight、cubicBezier、shadow、typography；引用 {group.token}",
+      "borrowable": "令牌文件结构",
+      "not_copyable": "原文",
+      "supports": "设计令牌",
+      "surfaces": [
+        "通用"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-02",
+      "http_status": "200",
+      "method": "WebFetch 或 curl 读取原文",
+      "luzcrawl_status": "未经 Luz-Crawl（技能维护时直接读取）",
+      "id": "SRC-140"
+    },
+    {
+      "url": "https://www.designtokens.org/tr/2025.10/color/",
+      "title": "设计令牌颜色模块 2025.10",
+      "page_title": "设计令牌颜色模块 2025.10",
+      "domain": "www.designtokens.org",
+      "category": "视觉规范",
+      "evidence": "颜色值 {colorSpace, components, alpha, hex}；sRGB 分量 0 到 1；hex 为六位回退",
+      "borrowable": "颜色令牌",
+      "not_copyable": "原文",
+      "supports": "设计令牌",
+      "surfaces": [
+        "通用"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-02",
+      "http_status": "200",
+      "method": "WebFetch 或 curl 读取原文",
+      "luzcrawl_status": "未经 Luz-Crawl（技能维护时直接读取）",
+      "id": "SRC-141"
+    },
+    {
+      "url": "https://support.microsoft.com/en-us/office/make-your-powerpoint-presentations-accessible-to-people-with-disabilities-6f7772b2-2f33-4bd2-8ca7-dae3b2b3ef25",
+      "title": "微软：让演示文稿无障碍",
+      "page_title": "微软：让演示文稿无障碍",
+      "domain": "support.microsoft.com",
+      "category": "文件规范",
+      "evidence": "每页唯一标题、阅读顺序、替代文字、字号 18 磅或更大且用无衬线字体、表头、链接文字写明去向、内置版式",
+      "borrowable": "演示文稿无障碍清单",
+      "not_copyable": "原文",
+      "supports": "演示文稿",
+      "surfaces": [
+        "通用"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-02",
+      "http_status": "200",
+      "method": "WebFetch 或 curl 读取原文",
+      "luzcrawl_status": "未经 Luz-Crawl（技能维护时直接读取）",
+      "id": "SRC-142"
+    },
+    {
+      "url": "https://support.microsoft.com/en-us/office/change-the-size-of-your-slides-040a811c-be43-40b9-8d04-0de5ed79987e",
+      "title": "微软：更改幻灯片大小",
+      "page_title": "微软：更改幻灯片大小",
+      "domain": "support.microsoft.com",
+      "category": "文件规范",
+      "evidence": "宽屏 16:9 为 13.333×7.5 英寸（33.867×19.05 厘米），是新建演示文稿的默认值",
+      "borrowable": "幻灯片尺寸",
+      "not_copyable": "原文",
+      "supports": "演示文稿",
+      "surfaces": [
+        "通用"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-02",
+      "http_status": "200",
+      "method": "WebFetch 或 curl 读取原文",
+      "luzcrawl_status": "未经 Luz-Crawl（技能维护时直接读取）",
+      "id": "SRC-143"
+    },
+    {
+      "url": "https://mapp.4over4.com/guide/bleeds-cut-line-and-safety-the-print-ready-checklist",
+      "title": "印刷厂指南：出血、裁切线与安全距离",
+      "page_title": "印刷厂指南：出血、裁切线与安全距离",
+      "domain": "mapp.4over4.com",
+      "category": "文件规范",
+      "evidence": "出血 0.125 英寸；文字距成品边至少 0.125 英寸、0.25 英寸更稳妥；成品尺寸 300 像素每英寸；青品黄黑；字体嵌入或转曲",
+      "borrowable": "印刷默认值",
+      "not_copyable": "原文",
+      "supports": "海报印刷",
+      "surfaces": [
+        "通用"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-02",
+      "http_status": "200",
+      "method": "WebFetch 或 curl 读取原文",
+      "luzcrawl_status": "未经 Luz-Crawl（技能维护时直接读取）",
+      "id": "SRC-144"
+    },
+    {
+      "url": "https://www.qinprinting.com/blog/how-to-prepare-print-ready-files-using-adobe-photoshop/",
+      "title": "印刷厂指南：准备印刷文件",
+      "page_title": "印刷厂指南：准备印刷文件",
+      "domain": "www.qinprinting.com",
+      "category": "文件规范",
+      "evidence": "出血 3 毫米、安全区 3 毫米、至少 300 像素每英寸、青品黄黑、转换不当会色偏",
+      "borrowable": "印刷默认值",
+      "not_copyable": "原文",
+      "supports": "海报印刷",
+      "surfaces": [
+        "通用"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-02",
+      "http_status": "200",
+      "method": "WebFetch 或 curl 读取原文",
+      "luzcrawl_status": "未经 Luz-Crawl（技能维护时直接读取）",
+      "id": "SRC-145"
+    },
+    {
+      "url": "https://lucide.dev/guide/react/basics/stroke-width",
+      "title": "Lucide：线宽",
+      "page_title": "Lucide：线宽",
+      "domain": "lucide.dev",
+      "category": "组件库",
+      "evidence": "线宽恒定的选项叫 nonScalingStroke",
+      "borrowable": "选项名",
+      "not_copyable": "原文",
+      "supports": "图标线宽",
+      "surfaces": [
+        "通用"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-02",
+      "http_status": "200",
+      "method": "WebFetch 或 curl 读取原文",
+      "luzcrawl_status": "未经 Luz-Crawl（技能维护时直接读取）",
+      "id": "SRC-146"
+    },
+    {
+      "url": "https://developers.weixin.qq.com/miniprogram/dev/component/swiper.html",
+      "title": "微信开放文档 / 小程序-开发-组件 / 视图容器 / swiper",
+      "page_title": "微信开放文档 / 小程序-开发-组件 / 视图容器 / swiper",
+      "domain": "developers.weixin.qq.com",
+      "category": "组件库",
+      "evidence": "swiper 属性表：indicator-dots、autoplay 默认关，interval 默认 5000，duration 默认 500，circular 默认关；只可放 swiper-item；change 事件的 source 与 setData 注意；Skyline 特有的布局与指示点类型",
+      "borrowable": "轮播与横滑的原生写法与默认值",
+      "not_copyable": "官方文档原文与示例",
+      "supports": "页面范式库（page-patterns.json）",
+      "surfaces": [
+        "小程序"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-04",
+      "luzcrawl_status": "成功",
+      "method": "LuzCrawl",
+      "id": "SRC-147"
+    },
+    {
+      "url": "https://developers.weixin.qq.com/miniprogram/dev/component/scroll-view.html",
+      "title": "微信开放文档 / 小程序-开发-组件 / 视图容器 / scroll-view",
+      "page_title": "微信开放文档 / 小程序-开发-组件 / 视图容器 / scroll-view",
+      "domain": "developers.weixin.qq.com",
+      "category": "组件库",
+      "evidence": "scroll-view 属性表：竖向须固定高度，横向须开 enable-flex；自定义下拉刷新 refresher-*；Skyline 的 type=list、custom、nested；list-builder 项须等高；scroll-view 内滚动让页面级下拉刷新失效",
+      "borrowable": "列表、横滑与刷新的原生写法与限制",
+      "not_copyable": "官方文档原文",
+      "supports": "页面范式库（page-patterns.json）",
+      "surfaces": [
+        "小程序"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-04",
+      "luzcrawl_status": "成功",
+      "method": "LuzCrawl",
+      "id": "SRC-148"
+    },
+    {
+      "url": "https://developers.weixin.qq.com/miniprogram/dev/component/list-view.html",
+      "title": "微信开放文档 / 小程序-开发-组件 / Skyline / list-view",
+      "page_title": "微信开放文档 / 小程序-开发-组件 / Skyline / list-view",
+      "domain": "developers.weixin.qq.com",
+      "category": "组件库",
+      "evidence": "list-view 仅 Skyline，基础库 2.29.0 起，只能作为 scroll-view type=custom 或 sticky-section 的直接子节点",
+      "borrowable": "Skyline 列表容器的使用条件",
+      "not_copyable": "官方文档原文",
+      "supports": "页面范式库（page-patterns.json）",
+      "surfaces": [
+        "小程序"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-04",
+      "luzcrawl_status": "成功",
+      "method": "LuzCrawl",
+      "id": "SRC-149"
+    },
+    {
+      "url": "https://m3.material.io/components/navigation-bar/guidelines",
+      "title": "Navigation bar – Material Design 3",
+      "page_title": "Navigation bar – Material Design 3",
+      "domain": "m3.material.io",
+      "category": "视觉规范",
+      "evidence": "Material 3 导航栏：3 到 5 个目的地，图标加 1–2 个词的标签，激活项实心图标与唯一指示器，再次点击回顶，不靠左右滑动切换，FAB 在栏上方",
+      "borrowable": "标签栏项数与标签的通用做法（非微信规范，引用时标 Material 3 参考）",
+      "not_copyable": "Material 的尺寸与动效取值",
+      "supports": "页面范式库（page-patterns.json）",
+      "surfaces": [
+        "小程序"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-04",
+      "luzcrawl_status": "成功",
+      "method": "LuzCrawl",
+      "id": "SRC-150"
+    },
+    {
+      "url": "https://vant-ui.github.io/vant-weapp/#/grid",
+      "title": "Grid 宫格 - Vant Weapp",
+      "page_title": "Grid 宫格 - Vant Weapp",
+      "domain": "vant-ui.github.io",
+      "category": "组件库",
+      "evidence": "Vant Weapp 宫格：column-num 默认 4，border、center 默认开，square、clickable 默认关，gutter 默认 0，icon-size 28px，link-type 默认 navigateTo，use-slot 放自定义内容",
+      "borrowable": "金刚栅格的组件与默认值",
+      "not_copyable": "组件库样式",
+      "supports": "页面范式库（page-patterns.json）",
+      "surfaces": [
+        "小程序"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-04",
+      "luzcrawl_status": "成功",
+      "method": "LuzCrawl",
+      "id": "SRC-151"
+    },
+    {
+      "url": "https://vant-ui.github.io/vant-weapp/#/tabbar",
+      "title": "Tabbar 标签栏 - Vant Weapp",
+      "page_title": "Tabbar 标签栏 - Vant Weapp",
+      "domain": "vant-ui.github.io",
+      "category": "组件库",
+      "evidence": "Vant Weapp 标签栏：fixed 默认开，placeholder 默认关，safe-area-inset-bottom 默认开，item 的 url 与 link-type（默认 redirectTo）自 1.10.13",
+      "borrowable": "底部标签栏的组件与占位、安全区默认值",
+      "not_copyable": "组件库样式",
+      "supports": "页面范式库（page-patterns.json）",
+      "surfaces": [
+        "小程序"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-04",
+      "luzcrawl_status": "成功",
+      "method": "LuzCrawl",
+      "id": "SRC-152"
+    },
+    {
+      "url": "https://vant-ui.github.io/vant-weapp/#/sidebar",
+      "title": "Sidebar 侧边导航 - Vant Weapp",
+      "page_title": "Sidebar 侧边导航 - Vant Weapp",
+      "domain": "vant-ui.github.io",
+      "category": "组件库",
+      "evidence": "Vant Weapp 侧边导航：activeKey 默认 0，item 有 title、dot、badge（1.5.0 起，info 已废弃）、disabled；事件 change；内容区联动无示例",
+      "borrowable": "侧边分类的组件与属性",
+      "not_copyable": "组件库样式",
+      "supports": "页面范式库（page-patterns.json）",
+      "surfaces": [
+        "小程序"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-04",
+      "luzcrawl_status": "成功",
+      "method": "LuzCrawl",
+      "id": "SRC-153"
+    },
+    {
+      "url": "https://vant-ui.github.io/vant-weapp/#/tab",
+      "title": "Tab 标签页 - Vant Weapp",
+      "page_title": "Tab 标签页 - Vant Weapp",
+      "domain": "vant-ui.github.io",
+      "category": "组件库",
+      "evidence": "Vant Weapp 标签页：active 0、type line、sticky、swipeable、lazy-render、swipe-threshold 默认 5；初始隐藏容器内须 wx:if 或 resize()",
+      "borrowable": "顶部标签的组件与限制",
+      "not_copyable": "组件库样式",
+      "supports": "页面范式库（page-patterns.json）",
+      "surfaces": [
+        "小程序"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-04",
+      "luzcrawl_status": "成功",
+      "method": "LuzCrawl",
+      "id": "SRC-154"
+    },
+    {
+      "url": "https://vant-ui.github.io/vant/#/zh-CN/swipe",
+      "title": "Swipe 轮播 - Vant 4",
+      "page_title": "Swipe 轮播 - Vant 4",
+      "domain": "vant-ui.github.io",
+      "category": "组件库",
+      "evidence": "Vant 4 轮播：autoplay 为毫秒无默认、loop 默认开、show-indicators 默认开；自定义滑块宽度须关 loop；初始隐藏须 v-if 或 resize()",
+      "borrowable": "轮播与横滑的网页版写法",
+      "not_copyable": "组件库样式",
+      "supports": "页面范式库（page-patterns.json）",
+      "surfaces": [
+        "小程序"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-04",
+      "luzcrawl_status": "成功",
+      "method": "LuzCrawl",
+      "id": "SRC-155"
+    },
+    {
+      "url": "https://vant-ui.github.io/vant/#/zh-CN/search",
+      "title": "Search 搜索 - Vant 4",
+      "page_title": "Search 搜索 - Vant 4",
+      "domain": "vant-ui.github.io",
+      "category": "组件库",
+      "evidence": "Vant 4 搜索：shape square、background #f2f2f2、show-action 默认关、action 插槽会让 cancel 失效；iOS 要外层 form action 才显示搜索键",
+      "borrowable": "搜索框的组件与坑",
+      "not_copyable": "组件库样式",
+      "supports": "页面范式库（page-patterns.json）",
+      "surfaces": [
+        "小程序"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-04",
+      "luzcrawl_status": "成功",
+      "method": "LuzCrawl",
+      "id": "SRC-156"
+    },
+    {
+      "url": "https://vant-ui.github.io/vant/#/zh-CN/submit-bar",
+      "title": "SubmitBar 提交订单栏 - Vant 4",
+      "page_title": "SubmitBar 提交订单栏 - Vant 4",
+      "domain": "vant-ui.github.io",
+      "category": "组件库",
+      "evidence": "Vant 4 提交订单栏：price 单位为分，禁用与加载时不触发 submit，safe-area-inset-bottom 默认开、placeholder 默认关，高度变量 50px",
+      "borrowable": "结算底栏的组件与占位",
+      "not_copyable": "组件库样式",
+      "supports": "页面范式库（page-patterns.json）",
+      "surfaces": [
+        "小程序"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-04",
+      "luzcrawl_status": "成功",
+      "method": "LuzCrawl",
+      "id": "SRC-157"
+    },
+    {
+      "url": "https://vant-ui.github.io/vant/#/zh-CN/coupon-list",
+      "title": "Coupon 优惠券 - Vant 4",
+      "page_title": "Coupon 优惠券 - Vant 4",
+      "domain": "vant-ui.github.io",
+      "category": "组件库",
+      "evidence": "Vant 4 优惠券：CouponCell 加 CouponList，chosen-coupon 可多选，CouponInfo 的 value 单位分、时间戳单位秒、reason 为不可用原因",
+      "borrowable": "券的选择与不可用原因的数据结构",
+      "not_copyable": "组件库样式",
+      "supports": "页面范式库（page-patterns.json）",
+      "surfaces": [
+        "小程序"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-04",
+      "luzcrawl_status": "成功",
+      "method": "LuzCrawl",
+      "id": "SRC-158"
+    },
+    {
+      "url": "https://vant-ui.github.io/vant/#/zh-CN/count-down",
+      "title": "CountDown 倒计时 - Vant 4",
+      "page_title": "CountDown 倒计时 - Vant 4",
+      "domain": "vant-ui.github.io",
+      "category": "组件库",
+      "evidence": "Vant 4 倒计时：time 单位毫秒，format 默认 HH:mm:ss，iOS 日期须写 2020/01/01 否则不生效",
+      "borrowable": "倒计时的组件与兼容",
+      "not_copyable": "组件库样式",
+      "supports": "页面范式库（page-patterns.json）",
+      "surfaces": [
+        "小程序"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-04",
+      "luzcrawl_status": "成功",
+      "method": "LuzCrawl",
+      "id": "SRC-159"
+    },
+    {
+      "url": "https://blog.csdn.net/2301_76988707/article/details/133882748",
+      "title": "微信小程序首页-----布局（详细教程赶快收藏吧）_微信小程序页面-CSDN博客",
+      "page_title": "微信小程序首页-----布局（详细教程赶快收藏吧）_微信小程序页面-CSDN博客",
+      "domain": "blog.csdn.net",
+      "category": "调研经验",
+      "evidence": "会议 OA 小程序首页教程：轮播加区块标题加纵向列表加到底提示，4 项标签栏；初学者博客，部分文字与代码方向有误",
+      "borrowable": "首页的区块结构实例",
+      "not_copyable": "博客里的像素尺寸与文字解说",
+      "supports": "页面范式库（page-patterns.json）",
+      "surfaces": [
+        "小程序"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-04",
+      "luzcrawl_status": "成功",
+      "method": "LuzCrawl",
+      "id": "SRC-160"
+    },
+    {
+      "url": "https://juejin.cn/post/7628784778842898484",
+      "title": "我从瑞幸咖啡小程序里，拆出了一套 22 个组件的开源 UI 库我从瑞幸咖啡小程序里，拆出了一套 22 个组件的开源 UI - 掘金",
+      "page_title": "我从瑞幸咖啡小程序里，拆出了一套 22 个组件的开源 UI 库我从瑞幸咖啡小程序里，拆出了一套 22 个组件的开源 UI - 掘金",
+      "domain": "juejin.cn",
+      "category": "调研经验",
+      "evidence": "瑞幸三方还原的 22 个组件清单：定位栏、搜索栏、轮播、宫格、券横滑、活动卡、公告栏、侧边分类、等级卡、会员方案；个人开源项目，非官方",
+      "borrowable": "点餐类首页的模块清单与组件名",
+      "not_copyable": "色值、尺寸与代码",
+      "supports": "页面范式库（page-patterns.json）",
+      "surfaces": [
+        "小程序"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-04",
+      "luzcrawl_status": "成功",
+      "method": "LuzCrawl",
+      "id": "SRC-161"
+    },
+    {
+      "url": "https://blog.csdn.net/plant/article/details/161557667",
+      "title": "星巴克中国版微信小程序前端工程全量代码（含页面、样式、工具函数及配置）-CSDN博客",
+      "page_title": "星巴克中国版微信小程序前端工程全量代码（含页面、样式、工具函数及配置）-CSDN博客",
+      "domain": "blog.csdn.net",
+      "category": "调研经验",
+      "evidence": "星巴克小程序工程贴：首页有轮播、新品卡、限时活动入口、附近门店列表；自相矛盾，可信度很低",
+      "borrowable": "仅作模块顺序线索，不采数值",
+      "not_copyable": "全部数值与代码",
+      "supports": "页面范式库（page-patterns.json）",
+      "surfaces": [
+        "小程序"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-04",
+      "luzcrawl_status": "成功",
+      "method": "LuzCrawl",
+      "id": "SRC-162"
+    },
+    {
+      "url": "https://sotasync.com/reader/2026-05-18-bento-grid-saas-design/",
+      "title": "Bento Grid 崛起：2026 年 SaaS 产品展示的主导布局模式 | SOTA Sync",
+      "page_title": "Bento Grid 崛起：2026 年 SaaS 产品展示的主导布局模式 | SOTA Sync",
+      "domain": "sotasync.com",
+      "category": "调研经验",
+      "evidence": "便当网格综述（网站与 SaaS 营销页）：tile 大小不一、必须有主角、移动端降单列、不适合顺序性内容",
+      "borrowable": "便当网格的定义与适用边界",
+      "not_copyable": "统计数字与桌面栅格数值",
+      "supports": "页面范式库（page-patterns.json）",
+      "surfaces": [
+        "小程序"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-04",
+      "luzcrawl_status": "成功",
+      "method": "LuzCrawl",
+      "id": "SRC-163"
+    },
+    {
+      "url": "https://landdding.com/blog/blog-bento-grid-design-guide",
+      "title": "Bento Grid Design: How to Create Modern Modular Layouts in 2026 - Landdding",
+      "page_title": "Bento Grid Design: How to Create Modern Modular Layouts in 2026 - Landdding",
+      "domain": "landdding.com",
+      "category": "调研经验",
+      "evidence": "便当网格设计指南：移动端通常单列堆叠，两列在卡片为小屏设计时可行，保持比例关系，超过 12–15 块失去收益",
+      "borrowable": "便当网格移动端降级做法",
+      "not_copyable": "统计数字",
+      "supports": "页面范式库（page-patterns.json）",
+      "surfaces": [
+        "小程序"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-04",
+      "luzcrawl_status": "成功",
+      "method": "LuzCrawl",
+      "id": "SRC-164"
+    },
+    {
+      "url": "https://developer.mozilla.org/zh-CN/docs/Web/CSS/Guides/Grid_layout/Grid_lanes",
+      "title": "网格车道布局 - CSS：层叠样式表 | MDN",
+      "page_title": "网格车道布局 - CSS：层叠样式表 | MDN",
+      "domain": "developer.mozilla.org",
+      "category": "视觉规范",
+      "evidence": "MDN 网格车道布局 grid-lanes：瀑布流的 CSS 原生方案，实验性、非 Baseline",
+      "borrowable": "瀑布流的原生写法与兼容提醒",
+      "not_copyable": "小程序是否支持（资料未覆盖）",
+      "supports": "页面范式库（page-patterns.json）",
+      "surfaces": [
+        "小程序"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-04",
+      "luzcrawl_status": "成功",
+      "method": "LuzCrawl",
+      "id": "SRC-165"
+    },
+    {
+      "url": "https://developer.android.com/design/ui/mobile/guides/layout-and-content/common-layouts?hl=zh-cn",
+      "title": "常见布局  |  Mobile  |  Android Developers",
+      "page_title": "常见布局  |  Mobile  |  Android Developers",
+      "domain": "developer.android.com",
+      "category": "视觉规范",
+      "evidence": "Android 常见布局：列表是最常见布局；Feed 布局是等效内容元素的列表或网格，严格或交错都要在间距与逻辑上一致",
+      "borrowable": "信息流、双列、瀑布流同属一族的分类依据",
+      "not_copyable": "Android 组件实现",
+      "supports": "页面范式库（page-patterns.json）",
+      "surfaces": [
+        "小程序"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-04",
+      "luzcrawl_status": "成功",
+      "method": "LuzCrawl",
+      "id": "SRC-166"
+    },
+    {
+      "url": "https://screensdesign.com/articles/mobile-app-home-screen-design/",
+      "title": "14 Mobile App Home Screen Design Examples | ScreensDesign",
+      "page_title": "14 Mobile App Home Screen Design Examples | ScreensDesign",
+      "domain": "screensdesign.com",
+      "category": "调研经验",
+      "evidence": "14 个移动应用首页示例的编辑性原则：首页是路由决策，第一个模块回答最可能回来要做的事，六种账号状态评审，需要行动与已观察分开",
+      "borrowable": "首页取舍与评审方法",
+      "not_copyable": "海外 App 的具体版式",
+      "supports": "页面范式库（page-patterns.json）",
+      "surfaces": [
+        "小程序"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-04",
+      "luzcrawl_status": "成功",
+      "method": "LuzCrawl",
+      "id": "SRC-167"
+    },
+    {
+      "url": "https://blog.csdn.net/weixin_42590539/article/details/150541524",
+      "title": "微信小程序电商应用完整开发指南-CSDN博客",
+      "page_title": "微信小程序电商应用完整开发指南-CSDN博客",
+      "domain": "blog.csdn.net",
+      "category": "调研经验",
+      "evidence": "电商小程序开发指南：标签栏首页、分类、购物车、个人中心；首页轮播加商品列表；分类单独成标签；低可信，代码有错误",
+      "borrowable": "电商标签栏与首页结构线索",
+      "not_copyable": "代码与数值",
+      "supports": "页面范式库（page-patterns.json）",
+      "surfaces": [
+        "小程序"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-04",
+      "luzcrawl_status": "成功",
+      "method": "LuzCrawl",
+      "id": "SRC-168"
+    },
+    {
+      "url": "https://developers.weixin.qq.com/miniprogram/dev/component/grid-view.html",
+      "title": "微信开放文档 / 小程序-开发-组件 / Skyline / grid-view",
+      "page_title": "微信开放文档 / 小程序-开发-组件 / Skyline / grid-view",
+      "domain": "developers.weixin.qq.com",
+      "category": "组件库",
+      "evidence": "微信 grid-view：type aligned 与 masonry，cross-axis-count 默认 2，间距默认 0；Skyline 基础库 2.29.0 起，2.30.4 起有 WebView 兼容实现；须为 scroll-view type=custom 的直接子节点；aligned 行高取同行最高子节点",
+      "borrowable": "双列与瀑布流的官方写法与限制",
+      "not_copyable": "官方文档原文",
+      "supports": "页面范式库（page-patterns.json）",
+      "surfaces": [
+        "小程序"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-04",
+      "luzcrawl_status": "成功",
+      "method": "LuzCrawl",
+      "id": "SRC-169"
+    },
+    {
+      "url": "https://developer.apple.com/design/human-interface-guidelines/tab-bars",
+      "title": "Tab bars | Apple Developer Documentation",
+      "page_title": "Tab bars | Apple Developer Documentation",
+      "domain": "developer.apple.com",
+      "category": "视觉规范",
+      "evidence": "苹果标签栏：用于一级导航不放操作，数量恰好够用，避免溢出为更多，不禁用或隐藏标签；规则管一级导航不管页内标签",
+      "borrowable": "标签栏数量与职责的通用原则",
+      "not_copyable": "Liquid Glass 等系统层行为",
+      "supports": "页面范式库（page-patterns.json）",
+      "surfaces": [
+        "小程序"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-04",
+      "luzcrawl_status": "成功",
+      "method": "LuzCrawl",
+      "id": "SRC-170"
+    },
+    {
+      "url": "https://blog.csdn.net/weixin_42602526/article/details/134399333",
+      "title": "微信小程序个人中心、我的界面_微信小程序我的页面设计-CSDN博客",
+      "page_title": "微信小程序个人中心、我的界面_微信小程序我的页面设计-CSDN博客",
+      "domain": "blog.csdn.net",
+      "category": "调研经验",
+      "evidence": "微信原生匿名信业务的个人中心：自定义顶部栏、头像区、会员条、数据条、两组菜单；读码观察到头像栏与基本信息行都跳资料页",
+      "borrowable": "我的页区块顺序实例与重复入口反例",
+      "not_copyable": "业务代码",
+      "supports": "页面范式库（page-patterns.json）",
+      "surfaces": [
+        "小程序"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-04",
+      "luzcrawl_status": "成功",
+      "method": "LuzCrawl",
+      "id": "SRC-171"
+    },
+    {
+      "url": "https://blog.csdn.net/sen_shan/article/details/154015016",
+      "title": "《微信小程序》第八章：“我的“设计_微信小程序我的页面设计-CSDN博客",
+      "page_title": "《微信小程序》第八章：“我的“设计_微信小程序我的页面设计-CSDN博客",
+      "domain": "blog.csdn.net",
+      "category": "调研经验",
+      "evidence": "uni-app 商城我的页与订单页：订单卡四个状态入口复用同一订单页加 type 参数；订单卡三段；读码观察到退出出现两次、待评价入口无对应标签",
+      "borrowable": "订单入口约定与订单卡结构",
+      "not_copyable": "样式数值与写死的数据",
+      "supports": "页面范式库（page-patterns.json）",
+      "surfaces": [
+        "小程序"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-04",
+      "luzcrawl_status": "成功",
+      "method": "LuzCrawl",
+      "id": "SRC-172"
+    },
+    {
+      "url": "https://help.youzan.com/displaylist/detail_13_13-2-59408",
+      "title": "店铺装修常用组件合集 - 帮助中心 - 有赞",
+      "page_title": "店铺装修常用组件合集 - 帮助中心 - 有赞",
+      "domain": "help.youzan.com",
+      "category": "组件库",
+      "evidence": "有赞店铺装修常用组件：图片广告轮播 3 张以内且宽高一致，图文导航最多 10 个，魔方一行最多 4 个点击点，公告、优惠券、限时折扣与教育组件；有赞平台口径",
+      "borrowable": "营销与首页常用模块清单与数量限制",
+      "not_copyable": "有赞平台之外的通用化",
+      "supports": "页面范式库（page-patterns.json）",
+      "surfaces": [
+        "小程序"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-04",
+      "luzcrawl_status": "成功",
+      "method": "LuzCrawl",
+      "id": "SRC-173"
+    },
+    {
+      "url": "https://www.woshipm.com/pd/2974166.html",
+      "title": "拼团活动之小程序前端页面实例讲解 | 人人都是产品经理",
+      "page_title": "拼团活动之小程序前端页面实例讲解 | 人人都是产品经理",
+      "domain": "www.woshipm.com",
+      "category": "调研经验",
+      "evidence": "拼团小程序前端页面讲解：拼团详情与普通详情是两个页面互相跳转，我的拼团三态，从购物车进入一律按单买价；配图缺失",
+      "borrowable": "拼团的页面分层、状态与取价规则",
+      "not_copyable": "区块顺序（未抓到）",
+      "supports": "页面范式库（page-patterns.json）",
+      "surfaces": [
+        "小程序"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-04",
+      "luzcrawl_status": "成功",
+      "method": "LuzCrawl",
+      "id": "SRC-174"
+    },
+    {
+      "url": "https://baymard.com/research/ecommerce-product-lists",
+      "title": "E-Commerce Product Lists & Filtering UX – Baymard",
+      "page_title": "E-Commerce Product Lists & Filtering UX – Baymard",
+      "domain": "baymard.com",
+      "category": "调研经验",
+      "evidence": "Baymard 商品列表研究：把列表呈现、筛选、排序一起设计；十个主题；细则付费未抓到，页面数字自相矛盾",
+      "borrowable": "商品列表的设计主题清单",
+      "not_copyable": "统计数字与付费细则",
+      "supports": "页面范式库（page-patterns.json）",
+      "surfaces": [
+        "小程序"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-04",
+      "luzcrawl_status": "成功",
+      "method": "LuzCrawl",
+      "id": "SRC-175"
+    },
+    {
+      "url": "https://forixcommerce.com/order-tracking-page-ux/",
+      "title": "Order Tracking Page UX: Best Practices for a Clearer Post-Purchase Experience",
+      "page_title": "Order Tracking Page UX: Best Practices for a Clearer Post-Purchase Experience",
+      "domain": "forixcommerce.com",
+      "category": "调研经验",
+      "evidence": "订单追踪页经验：最先让当前状态一眼可见，配送信息先于次要内容，异常要解释，客服入口放在延误附近；网页场景",
+      "borrowable": "订单状态页的内容清单与顺序约束",
+      "not_copyable": "网页版式",
+      "supports": "页面范式库（page-patterns.json）",
+      "surfaces": [
+        "小程序"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-04",
+      "luzcrawl_status": "成功",
+      "method": "LuzCrawl",
+      "id": "SRC-176"
+    },
+    {
+      "url": "https://www.designstudiouiux.com/blog/ecommerce-checkout-ux-best-practices/",
+      "title": "15 Ecommerce Checkout UX Best Practices That Convert 2026",
+      "page_title": "15 Ecommerce Checkout UX Best Practices That Convert 2026",
+      "domain": "www.designstudiouiux.com",
+      "category": "调研经验",
+      "evidence": "网页购物车与结算经验：费用汇总常驻可见、主按钮吸底、优惠码不前置、访客结账；统计数字全是转引且自相矛盾",
+      "borrowable": "结算页的定性要点",
+      "not_copyable": "全部统计数字与网页专有做法",
+      "supports": "页面范式库（page-patterns.json）",
+      "surfaces": [
+        "小程序"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-04",
+      "luzcrawl_status": "成功",
+      "method": "LuzCrawl",
+      "id": "SRC-177"
+    },
+    {
+      "url": "https://vant-ui.github.io/vant/#/zh-CN/sidebar",
+      "title": "Sidebar 侧边导航 - Vant 4",
+      "page_title": "Sidebar 侧边导航 - Vant 4",
+      "domain": "vant-ui.github.io",
+      "category": "组件库",
+      "evidence": "Vant 4 侧边导航：v-model 默认 0，item 有 title、dot、badge、disabled、url、to；宽度变量 80px，选中条 4×16",
+      "borrowable": "侧边分类的网页版组件",
+      "not_copyable": "组件库样式",
+      "supports": "页面范式库（page-patterns.json）",
+      "surfaces": [
+        "小程序"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-04",
+      "luzcrawl_status": "成功",
+      "method": "LuzCrawl",
+      "id": "SRC-178"
+    },
+    {
+      "url": "https://tdesign.tencent.com/miniprogram/components/side-bar",
+      "title": "TDesign",
+      "page_title": "TDesign",
+      "domain": "tdesign.tencent.com",
+      "category": "组件库",
+      "evidence": "TDesign 小程序侧边栏 t-side-bar：0.25.0 上线，示例有锚点、切页、带图标、自定义样式；属性表未抓到",
+      "borrowable": "侧边栏的引入路径与示例名",
+      "not_copyable": "未读到的属性",
+      "supports": "页面范式库（page-patterns.json）",
+      "surfaces": [
+        "小程序"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-04",
+      "luzcrawl_status": "成功",
+      "method": "LuzCrawl",
+      "id": "SRC-179"
+    },
+    {
+      "url": "https://blog.csdn.net/zsh_1314520/article/details/163054895",
+      "title": "极简订单列表页设计与实现：清晰信息层级打造高效电商订单管理体验_订单网站 主题-CSDN博客",
+      "page_title": "极简订单列表页设计与实现：清晰信息层级打造高效电商订单管理体验_订单网站 主题-CSDN博客",
+      "domain": "blog.csdn.net",
+      "category": "调研经验",
+      "evidence": "桌面网页订单列表页：三个状态筛选、订单卡头商品行脚；读码观察到标签叫待收货而卡片写已发货、按钮与行为不符",
+      "borrowable": "订单卡结构与反例",
+      "not_copyable": "桌面网页数值（正文与代码多处不一致）",
+      "supports": "页面范式库（page-patterns.json）",
+      "surfaces": [
+        "小程序"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-04",
+      "luzcrawl_status": "成功",
+      "method": "LuzCrawl",
+      "id": "SRC-180"
+    },
+    {
+      "url": "https://blog.csdn.net/weixin_33883104/article/details/163255331",
+      "title": "Vue.js订单管理UI设计与实现指南-CSDN博客",
+      "page_title": "Vue.js订单管理UI设计与实现指南-CSDN博客",
+      "domain": "blog.csdn.net",
+      "category": "调研经验",
+      "evidence": "Vue 加 Element UI 订单管理后台：状态到文案与动作的映射、抽屉详情；大半离题",
+      "borrowable": "状态到按钮的数据化映射思路",
+      "not_copyable": "后台口径的发货退款动作",
+      "supports": "页面范式库（page-patterns.json）",
+      "surfaces": [
+        "小程序"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-04",
+      "luzcrawl_status": "成功",
+      "method": "LuzCrawl",
+      "id": "SRC-181"
+    },
+    {
+      "url": "https://blog.csdn.net/weixin_35364187/article/details/164861920",
+      "title": "外卖系统拆解：从业务逻辑到订单状态机的完整设计指南-CSDN博客",
+      "page_title": "外卖系统拆解：从业务逻辑到订单状态机的完整设计指南-CSDN博客",
+      "domain": "blog.csdn.net",
+      "category": "调研经验",
+      "evidence": "外卖系统拆解：11 态订单状态机、超时与异常分支、外卖首屏先答送得到吗与多久到；单人设计口径无数据",
+      "borrowable": "订单状态集合与外卖首屏取舍的线索",
+      "not_copyable": "各类经验数值",
+      "supports": "页面范式库（page-patterns.json）",
+      "surfaces": [
+        "小程序"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-04",
+      "luzcrawl_status": "成功",
+      "method": "LuzCrawl",
+      "id": "SRC-182"
+    },
+    {
+      "url": "https://www.toutiao.com/article/7503392888768758308/",
+      "title": "美团App用户界面设计深度分析报告 - 今日头条",
+      "page_title": "美团App用户界面设计深度分析报告 - 今日头条",
+      "domain": "www.toutiao.com",
+      "category": "调研经验",
+      "evidence": "美团 App 界面分析的二手评述：顶部搜索醒目、固定入口用网格、用户抱怨广告多与功能密集；可信度低",
+      "borrowable": "聚合应用首页的痛点线索",
+      "not_copyable": "品牌与设计体系说法",
+      "supports": "页面范式库（page-patterns.json）",
+      "surfaces": [
+        "小程序"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-04",
+      "luzcrawl_status": "成功",
+      "method": "LuzCrawl",
+      "id": "SRC-183"
+    },
+    {
+      "url": "https://www.youzan.com/intro/ump/seckill",
+      "title": "秒杀软件_拉新转化与复购增长工具 - 做生意，找有赞",
+      "page_title": "秒杀软件_拉新转化与复购增长工具 - 做生意，找有赞",
+      "domain": "www.youzan.com",
+      "category": "调研经验",
+      "evidence": "有赞秒杀产品页：提醒通知、预约秒杀、限购防超卖、结束后关联推荐；只有能力描述没有界面",
+      "borrowable": "秒杀的能力清单",
+      "not_copyable": "界面（未覆盖）与客户案例数字",
+      "supports": "页面范式库（page-patterns.json）",
+      "surfaces": [
+        "小程序"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-04",
+      "luzcrawl_status": "成功",
+      "method": "LuzCrawl",
+      "id": "SRC-184"
+    },
+    {
+      "url": "https://modao.cc/feature/miniapp.html",
+      "title": "小程序原型设计工具｜在线设计微信小程序界面与交互 - 墨刀",
+      "page_title": "小程序原型设计工具｜在线设计微信小程序界面与交互 - 墨刀",
+      "domain": "modao.cc",
+      "category": "调研经验",
+      "evidence": "墨刀小程序原型页的设计检查点：详情页突出一个下一步操作，分享或历史直接进入要补返回与首页入口",
+      "borrowable": "详情页主次与进入路径",
+      "not_copyable": "产品营销内容",
+      "supports": "页面范式库（page-patterns.json）",
+      "surfaces": [
+        "小程序"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-04",
+      "luzcrawl_status": "成功",
+      "method": "LuzCrawl",
+      "id": "SRC-185"
+    },
+    {
+      "url": "https://www.designstudiouiux.com/blog/mobile-navigation-ux/",
+      "title": "Mobile Navigation UX Best Practices, Patterns & Examples (2026)",
+      "page_title": "Mobile Navigation UX Best Practices, Patterns & Examples (2026)",
+      "domain": "www.designstudiouiux.com",
+      "category": "调研经验",
+      "evidence": "移动导航经验：一级导航 3–5 项、标题下顶部标签对应内容分类、分段控件三个以内、手势须有可见替代、不要把同一动作放在多处",
+      "borrowable": "标签栏与顶部标签的职责与重复入口的窄依据",
+      "not_copyable": "WCAG 版本说法与网页导航部分",
+      "supports": "页面范式库（page-patterns.json）",
+      "surfaces": [
+        "小程序"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-04",
+      "luzcrawl_status": "成功",
+      "method": "LuzCrawl",
+      "id": "SRC-186"
+    },
+    {
+      "url": "https://www.uxpin.com/studio/blog/mobile-navigation-examples/",
+      "title": "Mobile Navigation Design: 8 Types, Examples & Best Practices (2026) | UXPin",
+      "page_title": "Mobile Navigation Design: 8 Types, Examples & Best Practices (2026) | UXPin",
+      "domain": "www.uxpin.com",
+      "category": "调研经验",
+      "evidence": "移动导航八类：标签栏适合 3–5 个同等重要目的地，复杂应用组合多种导航时每种须有不同用途，次要入口放上层栏",
+      "borrowable": "导航模式各有不同用途的依据",
+      "not_copyable": "FAQ 与正文矛盾的部分",
+      "supports": "页面范式库（page-patterns.json）",
+      "surfaces": [
+        "小程序"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-04",
+      "luzcrawl_status": "成功",
+      "method": "LuzCrawl",
+      "id": "SRC-187"
+    },
+    {
+      "url": "https://flaticon.io/blog/icon-consistency-best-practices-for-design-systems",
+      "title": "Icon Consistency Best Practices for Design Systems - flaticon",
+      "page_title": "Icon Consistency Best Practices for Design Systems - flaticon",
+      "domain": "flaticon.io",
+      "category": "调研经验",
+      "evidence": "界面图标默认 24×24、轮廓线宽 1.5 或 2 整套一致、一套图标一种主风格；视觉平衡重于精确尺寸；不同图标包混用有风险",
+      "borrowable": "图标一致性清单：同一 viewBox、线宽、圆角、视觉重量",
+      "not_copyable": "无署名素材站博客，数值少，不当规则",
+      "supports": "界面细节规范（ui-details.json）",
+      "surfaces": [
+        "通用"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-04",
+      "luzcrawl_status": "成功",
+      "method": "LuzCrawl",
+      "id": "SRC-188"
+    },
+    {
+      "url": "https://colorarchive.org/guides/color-in-icon-design-guide/",
+      "title": "Color in Icon Design | ColorArchive",
+      "page_title": "Color in Icon Design | ColorArchive",
+      "domain": "colorarchive.org",
+      "category": "调研经验",
+      "evidence": "16–24 像素系统图标用单色、靠 currentColor 继承文字色，多色留给装饰；语义色全产品同值；小于 20 像素按 4.5:1 设计；单色图标测浅色、深色、彩底、禁用四态；没有饱和度数值",
+      "borrowable": "单色靠 currentColor、四态测试",
+      "not_copyable": "作者自己的工作建议，数字无出处",
+      "supports": "界面细节规范（ui-details.json）",
+      "surfaces": [
+        "通用"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-04",
+      "luzcrawl_status": "成功",
+      "method": "LuzCrawl",
+      "id": "SRC-189"
+    },
+    {
+      "url": "https://iconstash.com/learn/duotone-icons.html",
+      "title": "Duotone Icons: Two-Tone Icon Style Explained | IconStash",
+      "page_title": "Duotone Icons: Two-Tone Icon Style Explained | IconStash",
+      "domain": "iconstash.com",
+      "category": "调研经验",
+      "evidence": "双色图标是一个主色形状加同色相更浅或半透明的次色形状，是一个色相而不是彩虹；可主题化",
+      "borrowable": "双色的定义",
+      "not_copyable": "科普短页，没有数字",
+      "supports": "界面细节规范（ui-details.json）",
+      "surfaces": [
+        "通用"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-04",
+      "luzcrawl_status": "成功",
+      "method": "LuzCrawl",
+      "id": "SRC-190"
+    },
+    {
+      "url": "https://iconstash.io/Listicles/best-duotone-icon-packs/",
+      "title": "12 Best Free Duotone & Two-Tone Icon Packs for Modern UI (2026 Ranked) | IconStash",
+      "page_title": "12 Best Free Duotone & Two-Tone Icon Packs for Modern UI (2026 Ranked) | IconStash",
+      "domain": "iconstash.io",
+      "category": "调研经验",
+      "evidence": "双色图标库常见实现：主层 100% 不透明、次层 15%–30%（常见 20%）不透明；Phosphor 2 像素描边加 20% 填充；各库网格不统一",
+      "borrowable": "次层浓度作柔和色的参考",
+      "not_copyable": "页面自述参数，未核对；列表文排名不当依据",
+      "supports": "界面细节规范（ui-details.json）",
+      "surfaces": [
+        "通用"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-04",
+      "luzcrawl_status": "成功",
+      "method": "LuzCrawl",
+      "id": "SRC-191"
+    },
+    {
+      "url": "https://pixso.cn/designskills/jingangqutubiao/",
+      "title": "金刚区图标设计指南，纯干货！",
+      "page_title": "金刚区图标设计指南，纯干货！",
+      "domain": "pixso.cn",
+      "category": "调研经验",
+      "evidence": "金刚区图标用同色系或相近色系，不宜过多过艳，颜色差异大时要控制明度与饱和度；五个一致：类型、风格、透视、线条粗细、大小；这是资料里唯一的饱和度定性描述，没有数值",
+      "borrowable": "饱和度较低的邻近色系、五个一致",
+      "not_copyable": "无出处与数据，含工具推广",
+      "supports": "界面细节规范（ui-details.json）",
+      "surfaces": [
+        "小程序"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-04",
+      "luzcrawl_status": "成功",
+      "method": "LuzCrawl",
+      "id": "SRC-193"
+    },
+    {
+      "url": "https://pixso.cn/designskills/what-is-the-icon-of-the-diamond-zone/",
+      "title": "金刚区图标是什么？首页入口设计方法",
+      "page_title": "金刚区图标是什么？首页入口设计方法",
+      "domain": "pixso.cn",
+      "category": "调研经验",
+      "evidence": "入口数量由屏宽、标签长度与场景定，不机械凑数；按任务、频率、业务优先级取舍；核心入口固定，低频进更多；不为统一给不同功能几乎一样的图形；每个入口要有独立标签",
+      "borrowable": "入口取舍与图标区分的做法",
+      "not_copyable": "没有像素数值，没有数据支撑的排序结论",
+      "supports": "界面细节规范（ui-details.json）",
+      "surfaces": [
+        "小程序"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-04",
+      "luzcrawl_status": "成功",
+      "method": "LuzCrawl",
+      "id": "SRC-194"
+    },
+    {
+      "url": "https://www.nngroup.com/articles/progressive-disclosure/",
+      "title": "Progressive Disclosure - NN/G",
+      "page_title": "Progressive Disclosure - NN/G",
+      "domain": "www.nngroup.com",
+      "category": "视觉规范",
+      "evidence": "初始只放最重要的选项，次要的放二级；高频必须全在首层；超过两层可用性通常低；二级入口要显眼、标签要有信息气味",
+      "borrowable": "卡片放摘要、细节留详情页",
+      "not_copyable": "2006 年语境",
+      "supports": "界面细节规范（ui-details.json）",
+      "surfaces": [
+        "通用"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-04",
+      "luzcrawl_status": "成功",
+      "method": "LuzCrawl",
+      "id": "SRC-195"
+    },
+    {
+      "url": "https://www.eleken.co/blog-posts/card-ui-examples-and-best-practices-for-product-owners",
+      "title": "17 Card UI Design Examples and Best Practices for Your Inspiration",
+      "page_title": "17 Card UI Design Examples and Best Practices for Your Inspiration",
+      "domain": "www.eleken.co",
+      "category": "调研经验",
+      "evidence": "卡片分头、身、脚，操作放脚部；一张卡不要堆太多按钮与内容；空、加载、错误态要做；移动端列数更少；没有任何像素数值",
+      "borrowable": "卡片头身脚结构、状态清单",
+      "not_copyable": "营销博客，标题称 17 个示例正文只数得出约 12 个，无数值",
+      "supports": "界面细节规范（ui-details.json）",
+      "surfaces": [
+        "通用"
+      ],
+      "industries": [
+        "通用"
+      ],
+      "captured_at": "2026-11-04",
+      "luzcrawl_status": "成功",
+      "method": "LuzCrawl",
+      "id": "SRC-196"
     }
   ]
 }

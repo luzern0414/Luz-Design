@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="{{LANG}}" data-appearance="auto" data-theme="light" data-dark-mode="{{DARKMODE}}" data-reduce="0">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{TITLE}}</title>
+<link rel="icon" href="{{FAVICON}}">
+{{HEAD}}
+<style>
+/*__KIT_CSS__*/
+/*__IX_CSS__*/
+/*__ENGINE_CSS__*/
+/*__KIND_CSS__*/
+/*__CONTENT_CSS__*/
+</style>
+</head>
+<body>
+<div class="pt-app" id="root" data-kind="{{KIND}}">
+<header class="pt-top" data-shell>
+  <span class="mark" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">{{MARK}}</svg></span>
+  <h1>{{TITLE}}</h1><span class="sub">{{SUBTITLE}}</span>
+  <span class="pt-folds" data-shell><button type="button" data-shell data-fold="left" aria-pressed="false" aria-label="收起或展开左栏">左栏</button><button type="button" data-shell data-fold="right" aria-pressed="false" aria-label="收起或展开右栏">右栏</button></span><span class="ver">{{VERSION}}</span>
+</header>
+<div class="pt-layout">
+  <aside class="pt-panel pt-left" id="ptLeft" data-shell aria-label="页面目录、外观与场景"></aside>
+  <main class="pt-stage" id="ptStage">
+/*__STAGE_HTML__*/
+  </main>
+  <aside class="pt-panel pt-right" id="ptRight" data-shell aria-label="本页逻辑、业务规则与状态流转"></aside>
+</div>
+</div>
+<script>
+/*__LIB_JS__*/
+/*__ENGINE_JS__*/
+/*__KIND_JS__*/
+const SPEC = /*__SPEC_JSON__*/;
+/*__CONTENT_JS__*/
+K.boot(SPEC);
+</script>
+</body>
+</html>

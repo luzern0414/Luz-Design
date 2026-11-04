@@ -189,7 +189,7 @@ class AmountAlignmentTest(unittest.TestCase):
             self.assertEqual(ws.cell(3, 3).alignment.horizontal, "center")      # header
             self.assertEqual(ws.cell(4, 3).alignment.horizontal, "right")       # amount
             self.assertEqual(ws.cell(6, 3).alignment.horizontal, "right")       # total amount
-            self.assertEqual(ws.cell(4, 2).alignment.horizontal, "center")      # short value
+            self.assertEqual(ws.cell(4, 2).alignment.horizontal, "left")        # the column that names the row reads from the left
             self.assertEqual(ws.cell(4, 4).alignment.horizontal, "left")        # long text
 
     def test_docx(self) -> None:
@@ -318,7 +318,7 @@ class SiblingCardTest(unittest.TestCase):
             cards_dir = base / "Luz-System" / "references"
             cards_dir.mkdir(parents=True)
             spec = lambda *path: {"page": "visual-design.html", "root": str(refs), "path": ["核心规则", *path]}
-            cards = {"cards": {"admin": {"sections": [spec("一、视觉基础", "字体与字号", "小程序紧凑用法")]}}}
+            cards = {"cards": {"admin": {"sections": [spec("一、视觉基础", "字体与字号", "小程序字阶")]}}}
             (cards_dir / "cards.json").write_text(json.dumps(cards, ensure_ascii=False), encoding="utf-8")
             saved = validate_skill.ROOT
             validate_skill.ROOT = base / "Luz-Design"

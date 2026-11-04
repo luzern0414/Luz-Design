@@ -1,0 +1,106 @@
+{
+  "schema_version": "1.0",
+  "purpose": "把参考案例中的视觉语言保存为可解释的候选信号；这些条目不是页面结构或固定数量规范。",
+  "styles": [
+    {
+      "id": "isometric-2-5d",
+      "label": "2.5D 等距立体",
+      "aliases": ["2.5D", "2.5d", "等距立体", "isometric"],
+      "signals": ["轻空间感", "分层体块", "方向一致", "低复杂度立体"],
+      "suitable_roles": ["entry-icons", "metric-illustration", "hero-decoration"],
+      "avoid": ["control-icons", "dense-data-table", "需要逐字阅读的长文本"],
+      "accessibility_risks": ["小尺寸时层级细节可能合并", "透视关系不能承担唯一语义"],
+      "approval_scope": ["entryIcons", "metricIllustrations", "heroDecorations"]
+    },
+    {
+      "id": "inflated-3d",
+      "label": "膨胀卡通",
+      "aliases": ["膨胀卡通", "3D 充气", "充气泡泡", "inflated"],
+      "signals": ["圆润", "柔软体积", "亲和", "年轻"],
+      "suitable_roles": ["entry-icons", "empty-state", "onboarding"],
+      "avoid": ["control-icons", "严肃数据密度", "长时间阅读界面"],
+      "accessibility_risks": ["软边界可能降低小图标识别度", "高饱和填充需检查文字对比"],
+      "approval_scope": ["entryIcons", "emptyState", "heroDecorations"]
+    },
+    {
+      "id": "light-flat",
+      "label": "轻质感扁平",
+      "aliases": ["轻质感", "极简扁平", "无描边扁平", "light flat"],
+      "signals": ["留白", "单纯色面", "低装饰", "信息优先"],
+      "suitable_roles": ["entry-icons", "empty-state", "metric-illustration", "hero-decoration"],
+      "avoid": ["control-icons", "需要强情绪品牌主视觉的场景"],
+      "accessibility_risks": ["低对比浅色面不能承担状态语义"],
+      "approval_scope": ["entryIcons", "emptyState", "metricIllustrations", "heroDecorations"]
+    },
+    {
+      "id": "soft-skeuomorphic",
+      "label": "轻拟物",
+      "aliases": ["轻拟物", "圆润立体渐变", "soft skeuomorphic"],
+      "signals": ["柔和层次", "轻表面变化", "亲和实物联想"],
+      "suitable_roles": ["entry-icons", "hero-decoration", "campaign-visual"],
+      "avoid": ["control-icons", "需要严格扁平的企业后台", "高密度表格"],
+      "accessibility_risks": ["表面变化不能替代边框、文字或图标状态", "渐变需限定在已确认的装饰资产"],
+      "approval_scope": ["entryIcons", "heroDecorations"]
+    },
+    {
+      "id": "rounded-line",
+      "label": "圆角粗线",
+      "aliases": ["面线图标", "圆角粗断线", "粗线图标", "rounded line"],
+      "signals": ["可读", "线性", "快速识别", "系列统一"],
+      "suitable_roles": ["entry-icons", "metric-illustration"],
+      "avoid": ["control-icons", "需要真实材质的主视觉"],
+      "accessibility_risks": ["描边过粗会吞没小尺寸内腔", "控件图标仍按 2 像素线性矢量，不随此风格加粗"],
+      "approval_scope": ["entryIcons", "metricIllustrations"]
+    },
+    {
+      "id": "felt",
+      "label": "毛毡",
+      "aliases": ["毛毡风", "羊毛毡肌理", "felt"],
+      "signals": ["手作", "柔软材质", "温度", "亲子或生活方式"],
+      "suitable_roles": ["hero-decoration", "empty-state", "campaign-visual"],
+      "avoid": ["control-icons", "指标数字", "需要锐利边界的状态标识"],
+      "accessibility_risks": ["纹理不能降低轮廓和文字对比", "小尺寸纹理应删除"],
+      "approval_scope": ["heroDecorations", "emptyState"]
+    },
+    {
+      "id": "frosted-glass",
+      "label": "毛玻璃",
+      "aliases": ["毛玻璃", "磨砂半透", "玻璃拟态", "frosted glass"],
+      "signals": ["通透", "层叠", "背景关系", "轻盈"],
+      "suitable_roles": ["hero-decoration", "entry-icons", "campaign-visual"],
+      "avoid": ["control-icons", "默认页面底色", "控制器表面", "正文和表格底"],
+      "accessibility_risks": ["半透明层会降低文字与图形对比", "背景变化会影响识别"],
+      "approval_scope": ["heroDecorations", "entryIcons"]
+    },
+    {
+      "id": "clay",
+      "label": "黏土",
+      "aliases": ["黏土风", "手工黏土", "clay"],
+      "signals": ["手工", "可触感", "童趣", "有机轮廓"],
+      "suitable_roles": ["empty-state", "onboarding", "hero-decoration"],
+      "avoid": ["control-icons", "数据图表", "需要快速扫读的密集列表"],
+      "accessibility_risks": ["材质细节应服从轮廓和语义", "阴影不能成为唯一层级线索"],
+      "approval_scope": ["emptyState", "heroDecorations"]
+    },
+    {
+      "id": "flat-illustration",
+      "label": "扁平插画",
+      "aliases": ["扁平插画", "纯色平涂", "flat illustration"],
+      "signals": ["清爽", "品牌可控", "语义明确", "易于系列化"],
+      "suitable_roles": ["entry-icons", "empty-state", "metric-illustration", "hero-decoration"],
+      "avoid": ["control-icons", "需要真实材质或强空间感的宣传画面"],
+      "accessibility_risks": ["颜色不能单独表达状态", "面与背景需保持非文本对比"],
+      "approval_scope": ["entryIcons", "emptyState", "metricIllustrations", "heroDecorations"]
+    },
+    {
+      "id": "gummy",
+      "label": "软糖",
+      "aliases": ["软糖风", "果冻 Q 弹", "果冻", "gummy", "jelly"],
+      "signals": ["高亲和", "Q 弹", "透明感", "消费与娱乐"],
+      "suitable_roles": ["entry-icons", "empty-state", "campaign-visual"],
+      "avoid": ["control-icons", "严肃后台默认风格", "大量连续文字"],
+      "accessibility_risks": ["透明和高光会削弱轮廓", "必须提供无光泽的小尺寸版本"],
+      "approval_scope": ["entryIcons", "emptyState", "heroDecorations"]
+    }
+  ]
+}

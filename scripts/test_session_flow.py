@@ -90,6 +90,9 @@ def adopt_rules(session: Path, rule: str = "文件设计规范 › 核心规则 
     """Fill BRIEF 采用的规则 and 本次沉淀 the way an agent does after reading the rule card and writing a note."""
     import datetime
     import validate_session
+    sys.path.insert(0, str(ROOT.parent / "Luz-Crawl" / "scripts"))
+    from test_crawl_preflight import complete_fixture
+    complete_fixture(session, "luz-design")
     brief = session / "raw" / "BRIEF.md"
     text = brief.read_text(encoding="utf-8")
     head, tail = text.split("## 本次沉淀", 1)
@@ -234,14 +237,14 @@ class SessionFlowTests(unittest.TestCase):
             rows = [["序号", "子系统", "设备"], [1, "门禁通行", "人脸识别终端"], [2, "门禁通行", "门禁控制器"], [3, "客流统计", "客流相机"]]
             for r, row in enumerate(rows, 3):
                 for c, value in enumerate(row, 1):
-                    sheet.cell(r, c, value).font = Font(name="微软雅黑", size=11)
+                    sheet.cell(r, c, value).font = Font(name="微软雅黑", size=9)
             sheet["A1"].font = Font(name="微软雅黑", size=16, bold=True)
             bad = Path(temp) / "bad.xlsx"
             book.save(bad)
             errors = []
             check_xlsx(bad, errors, [])
             joined = "\n".join(errors)
-            self.assertIn("below 12pt", joined)
+            self.assertIn("below 10pt", joined)
             self.assertIn("sequence-number column", joined)
             self.assertIn("merge those cells vertically", joined)
 

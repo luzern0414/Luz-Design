@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>主区加右侧窄栏：商品管理</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232f6b4f'/%3E%3Crect x='8' y='8' width='7' height='7' rx='1.5' fill='none' stroke='%23fff' stroke-width='2'/%3E%3Crect x='17' y='8' width='7' height='7' rx='1.5' fill='none' stroke='%23fff' stroke-width='2'/%3E%3Crect x='8' y='17' width='16' height='7' rx='1.5' fill='none' stroke='%23fff' stroke-width='2'/%3E%3C/svg%3E">
+<script>(function(){var K='luz-theme',r=document.documentElement;function g(){try{var v=localStorage.getItem(K);return v==='light'||v==='dark'?v:'system'}catch(e){return'system'}}function a(m){if(m==='light'||m==='dark')r.setAttribute('data-theme',m);else r.removeAttribute('data-theme')}window.luzTheme={get:g,set:function(m){try{if(m==='light'||m==='dark')localStorage.setItem(K,m);else localStorage.removeItem(K)}catch(e){}a(m)}};a(g())})();</script>
+<link rel="stylesheet" href="../ui.css">
+<style>
+@layer project {
+.prod { display: grid; grid-template-columns: 72px 1fr auto; gap: var(--s-4); align-items: center; padding: var(--s-3); border-radius: var(--r-md); }
+.prod:hover { background: var(--surface-2); }
+.thumb { width: 72px; height: 54px; border-radius: var(--r-sm); background: var(--brand-soft); display: grid; place-items: center; color: var(--brand); }
+}
+</style>
+</head>
+<body>
+<h1 class="page-title">商品</h1>
+<section class="page">
+<h2 class="sr-only">页面内容</h2>
+<header class="page-head"><div><p class="muted">左侧三分之二是主列表；右侧窄栏 sticky，滚动主区时库存预警、待办和动态停在原处</p></div><div class="actions"><button class="btn">批量上下架</button><button class="btn btn--primary">新增商品</button></div></header>
+<div class="l-rail">
+  <div class="main">
+    <div class="card card--tight row wrap"><div class="tabs" role="tablist" style="border:0"><button role="tab" aria-selected="true">全部 <span class="count">32</span></button><button role="tab" aria-selected="false">在售 <span class="count">27</span></button><button role="tab" aria-selected="false">已下架 <span class="count">5</span></button></div><span class="grow"></span><input class="input input--search" placeholder="商品名称" aria-label="搜索商品" style="width:220px"></div>
+    <div class="card" style="padding:var(--s-2)"><div id="list" class="stack" style="gap:2px"></div></div>
+  </div>
+  <aside class="rail" aria-label="提醒与动态">
+    <section class="card card--tight"><div class="card-head"><h3>库存预警</h3><span class="badge badge--bad">4 项</span></div><div class="list" id="warn"></div></section>
+    <section class="card card--tight"><div class="card-head"><h3>今日待办</h3></div><div class="list"><div><span class="grow">3 单超过 15 分钟未出餐</span><button class="btn btn--soft btn--sm">去处理</button></div><div><span class="grow">2 条退款待审批</span><button class="btn btn--soft btn--sm">去处理</button></div><div><span class="grow">1 张月卡即将到期</span><button class="btn btn--soft btn--sm">查看</button></div></div></section>
+    <section class="card card--tight"><div class="card-head"><h3>最近动态</h3></div><div class="list" id="feed"></div></section>
+  </aside>
+</div>
+<div class="appearance-row"><span>外观</span><span id="appearance"></span></div>
+</section>
+<script src="../ui.js"></script>
+<script>
+UI.appearance(document.getElementById('appearance'));
+const names = ['招牌牛腩饭', '红烧鸡腿饭', '清蒸鲈鱼套餐', '田园素食套餐', '宫保鸡丁饭', '黑椒牛柳饭', '鱼香肉丝饭', '轻食鸡胸沙拉', '中式早餐', '粥品早餐', '西式早餐', '梅菜扣肉饭', '香煎三文鱼', '照烧鸡排饭', '咖喱牛肉饭', '番茄鸡蛋面'];
+document.getElementById('list').innerHTML = names.map((n, i) => `<div class="prod"><div class="thumb">${UI.icon('bag').outerHTML}</div><div><strong>${n}</strong><div class="muted">主食 · 库存 <span class="num">${[8, 42, 31, 6, 55, 20, 17, 64][i % 8]}</span></div></div><div class="row"><span class="num"><b>¥${(15 + (i * 3) % 12).toFixed(2)}</b></span><span class="badge ${i % 7 === 6 ? '' : 'badge--ok'}">${i % 7 === 6 ? '已下架' : '在售'}</span></div></div>`).join('');
+document.getElementById('warn').innerHTML = [['招牌牛腩饭', 8], ['田园素食套餐', 6], ['鱼香肉丝饭', 5], ['西式早餐', 3]].map(([n, s]) => `<div><span class="grow">${n}</span><span class="badge badge--bad num">剩 ${s}</span></div>`).join('');
+document.getElementById('feed').innerHTML = [['李哲 下单 招牌牛腩饭', '10:12'], ['王思远 申请退款 ¥18.00', '10:05'], ['月卡 C20260053 今日扣次', '09:48'], ['周敏 上架 轻食鸡胸沙拉', '09:30'], ['张雨婷 领取 满 30 减 3', '09:12']].map(([t, m]) => `<div><span class="grow">${t}</span><span class="muted num">${m}</span></div>`).join('');
+</script>
+</body>
+</html>

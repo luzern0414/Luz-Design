@@ -1,0 +1,911 @@
+{
+ "$schema": "../../schema/prototype.schema.json",
+ "schema": "luz-prototype/1",
+ "kind": "mini",
+ "meta": {
+  "title": "到店预约小程序",
+  "subtitle": "到店预约与会员",
+  "brand": "静安到店服务",
+  "version": "0.1",
+  "mark": "<rect x='6' y='8' width='20' height='18' rx='4'/><path d='M6 14h20M12 5v5M20 5v5'/>"
+ },
+ "theme": {
+  "id": "purple",
+  "appearance": "auto",
+  "iconStyle": "flat",
+  "iconTile": "ci"
+ },
+ "tabbar": [
+  {
+   "id": "home",
+   "name": "首页",
+   "icon": "home",
+   "page": "home"
+  },
+  {
+   "id": "bookings",
+   "name": "预约",
+   "icon": "calendar",
+   "page": "bookings"
+  },
+  {
+   "id": "me",
+   "name": "我的",
+   "icon": "user",
+   "page": "me"
+  }
+ ],
+ "data": {
+  "booking": {
+   "reason": "该时段已约满"
+  }
+ },
+ "scenes": [
+  {
+   "id": "booking",
+   "label": "预约结果",
+   "pages": [
+    "confirm",
+    "result",
+    "result-fail"
+   ],
+   "default": "ok",
+   "options": [
+    {
+     "v": "ok",
+     "label": "成功",
+     "kind": "ok"
+    },
+    {
+     "v": "fail-full",
+     "label": "失败：时段已约满",
+     "kind": "fail"
+    },
+    {
+     "v": "fail-closed",
+     "label": "失败：门店已休息",
+     "kind": "fail"
+    }
+   ]
+  }
+ ],
+ "actions": {
+  "confirmBooking": [
+   {
+    "validate": [
+     {
+      "sel": ".f3 input.in",
+      "pattern": "^1\\d{2} ?\\d{4} ?\\d{4}$",
+      "msg": "请填写 11 位手机号，门店用它通知你"
+     }
+    ]
+   },
+   {
+    "net": true
+   },
+   {
+    "branch": {
+     "scene": "booking",
+     "cases": {
+      "fail-full": [
+       {
+        "set": {
+         "path": "booking.reason",
+         "value": "该时段刚被约满，请换一个时间"
+        }
+       },
+       {
+        "replace": "result-fail"
+       }
+      ],
+      "fail-closed": [
+       {
+        "set": {
+         "path": "booking.reason",
+         "value": "门店当天休息，请换一天"
+        }
+       },
+       {
+        "replace": "result-fail"
+       }
+      ]
+     },
+     "default": [
+      {
+       "replace": "result"
+      }
+     ]
+    }
+   }
+  ],
+  "finish": [
+   {
+    "done": "book"
+   }
+  ],
+  "pickStore": [
+   {
+    "toast": "已切换门店"
+   },
+   {
+    "back": 1
+   }
+  ],
+  "checkin": [
+   {
+    "toast": "签到成功，积分 +10"
+   }
+  ]
+ },
+ "flows": [
+  {
+   "id": "book",
+   "name": "预约到店",
+   "start": "slot",
+   "steps": [
+    "home",
+    "slot",
+    "confirm",
+    "result"
+   ],
+   "done": "origin",
+   "note": "从首页选服务，选人员与时间，确认后回到发起处"
+  },
+  {
+   "id": "queue",
+   "name": "现场取号",
+   "start": "queue",
+   "steps": [
+    "home",
+    "queue"
+   ],
+   "done": "origin"
+  },
+  {
+   "id": "checkin",
+   "name": "会员签到",
+   "start": "checkin",
+   "steps": [
+    "me",
+    "checkin"
+   ],
+   "done": "origin"
+  }
+ ],
+ "rules": [
+  {
+   "title": "预约",
+   "items": [
+    "预约需要选服务、人员（可选“不指定”）、日期与时段，约满的时段置灰并写“约满”",
+    "预约成功后生成核销券码，到店出示二维码或券码",
+    "开始前 2 小时可免费改期或取消，之后取消扣一次爽约记录"
+   ]
+  },
+  {
+   "title": "取号",
+   "items": [
+    "现场取号只在营业时间内可用，取号后可看前面还有几桌与预计等待",
+    "取消排队后号码作废，需要重新取号"
+   ]
+  },
+  {
+   "title": "会员",
+   "items": [
+    "每日签到得积分，连续 7 天额外奖励；会员等级按成长值升级",
+    "爽约 3 次后 30 天内不能预约，需要联系门店"
+   ]
+  }
+ ],
+ "statuses": [
+  {
+   "id": "wait",
+   "name": "待到店",
+   "tone": "info",
+   "trigger": "预约成功",
+   "ops": "出示券码、改期、取消",
+   "to": "已核销（到店核销）、已取消、已过期"
+  },
+  {
+   "id": "used",
+   "name": "已核销",
+   "tone": "ok",
+   "trigger": "店员扫码核销",
+   "ops": "再次预约",
+   "to": "（终态）"
+  },
+  {
+   "id": "expired",
+   "name": "已过期",
+   "tone": "mute",
+   "trigger": "超过预约时间未到店",
+   "ops": "重新预约",
+   "to": "（终态，记一次爽约）"
+  },
+  {
+   "id": "cancel",
+   "name": "已取消",
+   "tone": "mute",
+   "trigger": "用户或门店取消",
+   "ops": "重新预约",
+   "to": "（终态）"
+  }
+ ],
+ "pages": [
+  {
+   "id": "home",
+   "name": "首页",
+   "type": "tab",
+   "tab": "home",
+   "nav": "space",
+   "blocks": [
+    {
+     "cid": "MP-SVC-001",
+     "hide": [
+      ".cd.closed"
+     ],
+     "go": {
+      ".cd.open .tp": "store"
+     },
+     "attrs": {
+      ".cd.open .tp": {
+       "data-toast": null
+      }
+     },
+     "text": {
+      ".cd.open h4": "静安寺旗舰店"
+     },
+     "name": "门店上下文栏"
+    },
+    {
+     "cid": "MP-ENT-003",
+     "text": {
+      ".c@0 b": "现场取号",
+      ".c@0 span": "不用等位",
+      ".c@1 b": "会员签到",
+      ".c@1 span": "签到领积分"
+     },
+     "go": {
+      ".c@0": "queue",
+      ".c@1": "checkin"
+     },
+     "name": "入口大卡"
+    },
+    {
+     "cid": "MP-SVC-005",
+     "text": {
+      ".hd b": "选择服务",
+      ".hd span": "点一项开始预约"
+     },
+     "hide": [
+      ".adh",
+      ".ads",
+      ".ft"
+     ],
+     "go": {
+      ".pk@0": "slot:basic",
+      ".pk@1": "slot:standard",
+      ".pk@2": "slot:premium"
+     },
+     "name": "预约服务列表"
+    }
+   ],
+   "logic": {
+    "from": "启动进入；点标签栏“首页”",
+    "back": "无（一级页）",
+    "done": "无",
+    "primary": "选择服务开始预约",
+    "rules": [
+     "首页顶部是门店上下文栏（当前门店、营业状态、距离），点它切换门店，只有这一个门店入口",
+     "首页没有搜索、没有金刚栅格：入口只有两张大卡（现场取号、会员签到）和一个单列服务列表",
+     "服务列表每项一个入口，点进去选人员与时间；价格与时长在行内写清",
+     "“我的预约”在标签栏，首页不重复；账户类入口只放“我的”",
+     "不放营销轮播，首屏模块不超过 3 个"
+    ],
+    "states": [
+     "加载：骨架屏",
+     "空：当前门店没有可约服务时显示空态并给“切换门店”",
+     "失败：整页失败态带重试"
+    ],
+    "backend": [
+     "门店信息、服务项目、价格与时长由后台“服务管理”维护",
+     "入口大卡的文案由后台“首页装修”维护"
+    ],
+    "actions": [
+     {
+      "id": "B-001",
+      "label": "门店上下文栏",
+      "when": "始终可用",
+      "result": "进入门店选择"
+     },
+     {
+      "id": "B-002",
+      "label": "服务列表项",
+      "when": "服务可约",
+      "result": "进入选人员与时间"
+     }
+    ]
+   },
+   "links": [
+    "store",
+    "queue",
+    "checkin",
+    "slot:standard"
+   ]
+  },
+  {
+   "id": "bookings",
+   "name": "预约",
+   "type": "tab",
+   "tab": "bookings",
+   "nav": "bar",
+   "title": "我的预约",
+   "blocks": [
+    {
+     "cid": "MP-SVC-004"
+    }
+   ],
+   "logic": {
+    "from": "点标签栏“预约”；预约成功后可从这里查看券码",
+    "back": "无（一级页）",
+    "done": "无",
+    "primary": "到店出示券码",
+    "rules": [
+     "按状态分类：待使用、已使用、已过期；待使用的券显示二维码与条形码，60 秒自动刷新",
+     "券码到店由店员扫码核销，核销后不可退回",
+     "开始前 2 小时可改期或取消"
+    ],
+    "states": [
+     "空：没有预约时引导去首页预约",
+     "失败：券码刷新失败可重试"
+    ],
+    "backend": [
+     "券码核销与预约状态由后台“预约管理”维护"
+    ],
+    "actions": [
+     {
+      "id": "B-010",
+      "label": "刷新券码",
+      "when": "待使用",
+      "result": "重新生成二维码"
+     }
+    ]
+   }
+  },
+  {
+   "id": "me",
+   "name": "我的",
+   "type": "tab",
+   "tab": "me",
+   "headerBg": true,
+   "blocks": [
+    {
+     "cid": "MP-MEM-001",
+     "hide": [
+      ".dm"
+     ]
+    },
+    {
+     "cid": "MP-MEM-002"
+    },
+    {
+     "cid": "MP-ENT-010",
+     "text": {
+      ".hd b": "常用服务",
+      ".rw@0 .tx b": "门店与地址",
+      ".rw@0 .tx small": "查看当前门店、营业时间与导航"
+     },
+     "hide": [
+      ".stt@*",
+      ".hd button",
+      ".rw@1",
+      ".rw@2",
+      ".rw@3"
+     ],
+     "go": {
+      ".rw@0": "store"
+     },
+     "attrs": {
+      ".rw@0": {
+       "data-why": "",
+       "class": "rw"
+      }
+     }
+    }
+   ],
+   "logic": {
+    "from": "点标签栏“我的”",
+    "back": "无（一级页）",
+    "done": "无",
+    "primary": "查看会员等级",
+    "rules": [
+     "账户类入口只放这里：会员等级、积分、门店与地址",
+     "“会员签到”已经是首页大卡，这里不再放同一目的地的入口",
+     "已登录显示昵称与等级，未登录显示登录引导"
+    ],
+    "states": [
+     "未登录：显示登录按钮",
+     "已登录：显示等级与成长值"
+    ],
+    "backend": [
+     "会员等级与成长值规则由后台“会员管理”维护"
+    ],
+    "actions": [
+     {
+      "id": "B-020",
+      "label": "门店与地址",
+      "when": "始终可用",
+      "result": "进入门店选择"
+     }
+    ]
+   },
+   "links": [
+    "store"
+   ]
+  },
+  {
+   "id": "store",
+   "name": "选择门店",
+   "type": "sub",
+   "tab": "home",
+   "title": "选择门店",
+   "blocks": [
+    {
+     "cid": "MP-SVC-001",
+     "act": {
+      ".cd.open .tp": "pickStore"
+     },
+     "attrs": {
+      ".cd.open .tp": {
+       "data-toast": null
+      }
+     }
+    }
+   ],
+   "logic": {
+    "from": {
+     "pages": [
+      "home",
+      "me"
+     ],
+     "text": "首页门店上下文栏、“我的”常用服务"
+    },
+    "back": {
+     "to": "origin",
+     "text": "返回来源页"
+    },
+    "done": "无",
+    "primary": "选定门店",
+    "rules": [
+     "列表按距离排序，休息中的门店置灰并写明下次营业时间",
+     "选定后回到来源页，首页的门店上下文栏同步更新",
+     "定位授权用到才请求，拒绝后可手动搜索门店"
+    ],
+    "states": [
+     "空：附近没有门店",
+     "失败：定位失败提示手动选择"
+    ],
+    "backend": [
+     "门店、营业时间、可预约状态由后台“门店管理”维护"
+    ],
+    "actions": [
+     {
+      "id": "B-030",
+      "label": "选定门店",
+      "when": "门店营业或可预约",
+      "result": "回到来源页并更新门店"
+     }
+    ]
+   }
+  },
+  {
+   "id": "slot",
+   "name": "选择人员与时间",
+   "type": "sub",
+   "tab": "home",
+   "title": "预约",
+   "blocks": [
+    {
+     "cid": "MP-SVC-006"
+    },
+    {
+     "cid": "MP-SVC-002"
+    }
+   ],
+   "footer": [
+    {
+     "cid": "MP-BTN-001",
+     "hide": [
+      ".row"
+     ],
+     "text": {
+      ".bt.lg": "下一步：确认预约"
+     },
+     "go": {
+      ".bt.lg": "confirm"
+     }
+    }
+   ],
+   "logic": {
+    "from": {
+     "pages": [
+      "home"
+     ],
+     "text": "首页服务列表点一项"
+    },
+    "back": {
+     "to": "origin",
+     "text": "返回来源页，已选内容保留"
+    },
+    "done": {
+     "to": "confirm",
+     "text": "点“下一步”进入确认预约"
+    },
+    "primary": "下一步：确认预约",
+    "rules": [
+     "先选服务人员（可选“不指定”，系统匹配最快可约），再选日期与时段",
+     "约满的日期和时段置灰并写“约满”，当天已过的时段不可选",
+     "未选时段时“下一步”禁用并写原因“请选择预约时段”"
+    ],
+    "states": [
+     "加载：时段骨架",
+     "禁用：时段已约满",
+     "失败：时段加载失败带重试"
+    ],
+    "backend": [
+     "排班与可约时段由后台“排班管理”维护"
+    ],
+    "actions": [
+     {
+      "id": "B-040",
+      "label": "下一步",
+      "when": "已选人员与时段",
+      "result": "进入确认预约"
+     }
+    ]
+   },
+   "scenes": [
+    "booking"
+   ],
+   "links": [
+    "confirm"
+   ]
+  },
+  {
+   "id": "confirm",
+   "name": "确认预约",
+   "type": "sub",
+   "tab": "home",
+   "title": "确认预约",
+   "blocks": [
+    {
+     "cid": "MP-FORM-003",
+     "text": {
+      "label@1": "到店备注"
+     },
+     "attrs": {
+      "[data-addr]": {
+       "placeholder": "选填，如皮肤敏感、需要提前准备的事项",
+       "class": "in"
+      },
+      ".em": {
+       "hidden": ""
+      }
+     }
+    },
+    {
+     "cid": "MP-FORM-010"
+    }
+   ],
+   "footer": [
+    {
+     "cid": "MP-BTN-001",
+     "hide": [
+      ".row"
+     ],
+     "text": {
+      ".bt.lg": "确认预约"
+     },
+     "act": {
+      ".bt.lg": "confirmBooking"
+     }
+    }
+   ],
+   "logic": {
+    "from": {
+     "pages": [
+      "slot"
+     ],
+     "text": "选择人员与时间的“下一步”"
+    },
+    "back": {
+     "to": "slot",
+     "text": "返回上一步改人员或时间"
+    },
+    "done": {
+     "to": "origin",
+     "text": "预约成功回到发起处（首页）"
+    },
+    "primary": "确认预约",
+    "rules": [
+     "手机号必填且 11 位，逐项校验并写明原因；备注选填",
+     "提醒开关默认开启：预约成功、开始前 2 小时",
+     "提交时再校验一次时段，被抢约或门店休息则进入失败页并写原因",
+     "断网时提示并保留已填内容"
+    ],
+    "states": [
+     "失败：时段已约满、门店已休息，每种原因文案不同",
+     "禁用：断网或时段失效"
+    ],
+    "backend": [
+     "提醒模板与提前量由后台“消息中心”维护"
+    ],
+    "actions": [
+     {
+      "id": "B-050",
+      "label": "确认预约",
+      "when": "手机号合法",
+      "result": "成功进入预约成功页，失败进入失败页"
+     }
+    ]
+   },
+   "scenes": [
+    "booking"
+   ],
+   "links": [
+    "result",
+    "result-fail"
+   ]
+  },
+  {
+   "id": "result",
+   "name": "预约成功",
+   "type": "result",
+   "tab": "home",
+   "title": "预约结果",
+   "blocks": [
+    {
+     "cid": "MP-STATE-005",
+     "hide": [
+      ".sg"
+     ],
+     "text": {
+      "[data-p=ok] h4": "预约成功",
+      "[data-p=ok] p": "已为你保留时段，到店出示券码即可",
+      ".smy div@0 span": "预约编号",
+      ".smy div@1 span": "服务",
+      ".smy div@1 b": "标准焕肤",
+      ".smy div@2 span": "到店时间",
+      ".smy div@2 .price!": "今天 15:00",
+      "[data-p=ok] .pb": "查看券码",
+      "[data-p=ok] .ln2": "回到首页"
+     },
+     "tab": {
+      "[data-p=ok] .pb": "bookings"
+     },
+     "act": {
+      "[data-p=ok] .ln2": "finish"
+     },
+     "attrs": {
+      "[data-p=ok] .pb": {
+       "data-toast": null
+      },
+      "[data-p=ok] .ln2": {
+       "data-toast": null
+      }
+     }
+    }
+   ],
+   "logic": {
+    "from": "确认预约成功",
+    "back": {
+     "to": "bookings",
+     "text": "返回键回到“预约”标签，不再回到确认页"
+    },
+    "done": {
+     "to": "origin",
+     "text": "“回到首页”结束预约流程，回到发起处"
+    },
+    "primary": "查看券码",
+    "rules": [
+     "成功页只出现一次，显示预约编号、服务、到店时间",
+     "同一时段重复提交不会生成第二个预约"
+    ],
+    "states": [
+     "成功：本页"
+    ],
+    "backend": [
+     "预约成功触达文案由后台“消息中心”维护"
+    ],
+    "actions": [
+     {
+      "id": "B-060",
+      "label": "查看券码",
+      "when": "始终可用",
+      "result": "切到“预约”标签"
+     },
+     {
+      "id": "B-061",
+      "label": "回到首页",
+      "when": "始终可用",
+      "result": "回到发起预约的页面"
+     }
+    ]
+   },
+   "scenes": [
+    "booking"
+   ],
+   "links": []
+  },
+  {
+   "id": "result-fail",
+   "name": "预约失败",
+   "type": "result",
+   "tab": "home",
+   "title": "预约结果",
+   "blocks": [
+    {
+     "cid": "MP-STATE-005",
+     "hide": [
+      ".sg",
+      "[data-p=no] .ln2"
+     ],
+     "text": {
+      "[data-p=no] h4": "预约失败",
+      "[data-p=no] p": "本次没有扣减任何次数，换个时间再试试",
+      ".why!": "失败原因：{{booking.reason}}",
+      "[data-p=no] .rp .lbl": "重新选择时间"
+     },
+     "attrs": {
+      "[data-p=ok]": {
+       "hidden": ""
+      },
+      "[data-p=no]": {
+       "hidden": null
+      },
+      "[data-p=no] .rp": {
+       "data-toast": null
+      }
+     },
+     "back": {
+      "[data-p=no] .rp": 1
+     }
+    }
+   ],
+   "logic": {
+    "from": "确认预约失败",
+    "back": {
+     "to": "slot",
+     "text": "返回选择人员与时间"
+    },
+    "done": {
+     "to": "slot",
+     "text": "重新选择时间后再次确认"
+    },
+    "primary": "重新选择时间",
+    "rules": [
+     "失败页写明具体原因：时段已约满、门店已休息，并给出下一步",
+     "失败不占用预约名额，也不记爽约"
+    ],
+    "states": [
+     "失败：本页，原因随预约结果场景变化"
+    ],
+    "backend": [
+     "失败原因文案由后台“文案管理”维护"
+    ],
+    "actions": [
+     {
+      "id": "B-070",
+      "label": "重新选择时间",
+      "when": "始终可用",
+      "result": "返回选择人员与时间"
+     }
+    ]
+   },
+   "scenes": [
+    "booking"
+   ],
+   "links": []
+  },
+  {
+   "id": "queue",
+   "name": "现场取号",
+   "type": "sub",
+   "tab": "home",
+   "title": "现场取号",
+   "blocks": [
+    {
+     "cid": "MP-SVC-003",
+     "text": {
+      ".nm": "静安寺旗舰店"
+     }
+    }
+   ],
+   "logic": {
+    "from": {
+     "pages": [
+      "home"
+     ],
+     "text": "首页大卡“现场取号”"
+    },
+    "back": {
+     "to": "origin",
+     "text": "返回首页，排队继续"
+    },
+    "done": "无",
+    "primary": "刷新进度",
+    "rules": [
+     "取号后显示号码、前面还有几桌、预计等待；叫号时提醒并保留 10 分钟",
+     "取消排队需要二次确认，号码作废",
+     "不在营业时间内不能取号"
+    ],
+    "states": [
+     "加载：进度骨架",
+     "失败：刷新失败带重试",
+     "禁用：门店休息时取号禁用并写下次营业时间"
+    ],
+    "backend": [
+     "叫号规则与保留时长由后台“排队设置”维护"
+    ],
+    "actions": [
+     {
+      "id": "B-080",
+      "label": "刷新进度",
+      "when": "排队中",
+      "result": "更新前面桌数与预计等待"
+     },
+     {
+      "id": "B-081",
+      "label": "取消排队",
+      "when": "排队中",
+      "result": "二次确认后号码作废"
+     }
+    ]
+   }
+  },
+  {
+   "id": "checkin",
+   "name": "会员签到",
+   "type": "sub",
+   "tab": "me",
+   "title": "会员签到",
+   "blocks": [
+    {
+     "cid": "MP-MEM-004"
+    }
+   ],
+   "logic": {
+    "from": {
+     "pages": [
+      "home"
+     ],
+     "text": "首页大卡“会员签到”"
+    },
+    "back": {
+     "to": "origin",
+     "text": "返回首页"
+    },
+    "done": "无",
+    "primary": "签到",
+    "rules": [
+     "每天一次，签到得积分，连续 7 天额外奖励",
+     "断签后连续天数归零，补签规则由后台设定",
+     "已签到的日期置灰并打勾"
+    ],
+    "states": [
+     "失败：签到失败回滚并提示"
+    ],
+    "backend": [
+     "签到积分与连续奖励由后台“会员管理”维护"
+    ],
+    "actions": [
+     {
+      "id": "B-090",
+      "label": "签到",
+      "when": "今天未签到",
+      "result": "积分加 10，连续天数加 1"
+     }
+    ]
+   }
+  }
+ ]
+}

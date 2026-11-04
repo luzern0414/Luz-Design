@@ -2,6 +2,8 @@
 elevation and shadows, icon stroke widths and fills, template defaults, one object one icon, and the elevation tokens."""
 from __future__ import annotations
 
+import contextlib
+import io
 import json
 import sys
 import tempfile
@@ -79,6 +81,12 @@ class WeightTest(unittest.TestCase):
             with self.subTest(content=content):
                 errors, _ = run(f"<p>{content}</p>")
                 self.assertFalse(having(errors, "production metadata"), errors)
+
+    def test_a_web_address_that_contains_a_metadata_word_is_a_source_not_metadata(self) -> None:
+        errors, _ = run("<table><tr><td>https://dev.mysql.com/doc/refman/8.4/en/create-table-generated-columns.html</td></tr></table>")
+        self.assertFalse(having(errors, "production metadata"), errors)
+        errors, _ = run("<table><tr><td>Generated 2026</td></tr></table>")
+        self.assertTrue(having(errors, "production metadata"), errors)
 
     def test_interface_pages_keep_their_application_shell(self) -> None:
         # The Luz-System prototype skeleton puts its menu in <nav>; documents still refuse a shell.
@@ -333,6 +341,53 @@ class ElevationTokenTest(unittest.TestCase):
         self.assertIn("scrim 深色 0.40–0.50", self.failing(scrim="rgba(16,24,40,.7)"))
         self.assertIn("hairline 深色 0.06–0.10", self.failing(hairline="rgba(16,24,40,.2)"))
         self.assertIn("buttonEdge 向下 1–2 像素无模糊", self.failing(buttonEdge="0 3px 0"))
+
+
+class ContrastAlgorithmTest(unittest.TestCase):
+    """visual-design.html 配色 › 对比度算法与等级: WCAG 2.2 relative luminance, unrounded ratios, level verdicts."""
+
+    def test_black_on_white_is_twenty_one(self) -> None:
+        self.assertAlmostEqual(cc.contrast("#000000", "#FFFFFF"), 21.0)
+        self.assertAlmostEqual(cc.contrast("#FFFFFF", "#FFFFFF"), 1.0)
+
+    def test_linearisation_threshold_is_0_04045_and_makes_no_difference_for_8_bit_colours(self) -> None:
+        def channel(v: int, threshold: float) -> float:
+            c = v / 255
+            return c / 12.92 if c <= threshold else ((c + 0.055) / 1.055) ** 2.4
+        self.assertTrue(all(channel(v, 0.04045) == channel(v, 0.03928) for v in range(256)))
+        self.assertAlmostEqual(cc.luminance("#0A0A0A"), channel(10, 0.04045) * (0.2126 + 0.7152 + 0.0722))
+
+    def test_grey_767676_passes_text_level_and_777777_does_not(self) -> None:
+        self.assertGreaterEqual(cc.contrast("#767676", "#FFFFFF"), 4.5)
+        self.assertLess(cc.contrast("#777777", "#FFFFFF"), 4.5)
+
+    def test_the_ratio_is_never_rounded_up(self) -> None:
+        # 4.499 is shown as 4.49 and fails 4.5 (WCAG Understanding 1.4.3).
+        ratio, verdicts = cc.describe_pair("#777777", "#FFFFFF")
+        self.assertFalse(verdicts[0][2])
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            cc.pair_main("#777777", "#FFFFFF")
+        self.assertEqual(out.getvalue().splitlines()[0], f"#777777 on #FFFFFF  {int(ratio * 100) / 100:.2f}:1")
+
+    def test_pair_levels_and_cli(self) -> None:
+        _, verdicts = cc.describe_pair("#595959", "#FFFFFF")
+        self.assertEqual([ok for _, _, ok in verdicts], [True, True, True])
+        with contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(cc.main(["--pair", "#fff", "#fff"]), 1)
+            self.assertEqual(cc.main(["--pair", "#000", "#fff"]), 0)
+            self.assertEqual(cc.main(["--pair", "nope", "#fff"]), 2)
+
+    def test_three_digit_hex_is_expanded(self) -> None:
+        self.assertEqual(cc.normalize_hex("#abc"), "#AABBCC")
+
+
+class RuleStylesheetTest(unittest.TestCase):
+    def test_smooth_scrolling_is_guarded_by_reduced_motion(self) -> None:
+        css = (ROOT / "references" / "guidelines.css").read_text(encoding="utf-8")
+        for match in __import__("re").finditer(r"scroll-behavior\s*:\s*smooth", css):
+            head = css[: match.start()]
+            self.assertIn("prefers-reduced-motion: no-preference", head[head.rfind("@media"):])
 
 
 if __name__ == "__main__":

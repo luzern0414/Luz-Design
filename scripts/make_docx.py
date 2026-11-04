@@ -8,6 +8,7 @@ spec.json (common keys):
 {
   "type": "contract" | "proposal" | "report" | "minutes" | "general",
   "title": "健身房智能门禁采购合同",
+  "theme": "fitness-gym",                        # choose the table tint for this topic; themes.json
   "sections": [                                   # body, in order
     {"heading": "合同标的", "paragraphs": ["..."], "items": ["...", "..."],
      "table": {"header": ["设备", "数量", "单价（元）"], "rows": [["人脸终端", 2, 1680]], "money_cols": [2]},
@@ -15,7 +16,7 @@ spec.json (common keys):
   ],
   "attachments": [{"title": "设备清单", "sections": [...]}],  # optional, each starts on a new page
   "style": "paper",                               # optional, only when the user asks for 论文版式 (not for contracts)
-  "number_format": "1、"                          # paper only: "1、" (default) or "1."
+  "number_format": "1、"                          # paper only: "1、" (default), "1." or "一、" (一、 → （一） → 1.; the default when "mono" is set)
 }
 contract only:
   "number": "DLKJ-2026-018",                      # 合同编号, right-aligned under the title
@@ -33,6 +34,17 @@ A table stays on the page of the paragraph that introduces it (short tables whol
 Table alignment: header centred; money_cols (0-based) show 1,234.00 and align right; a column whose text wraps or runs
 past 22 characters aligns left; other columns centre (file-design.html 文字文档 › 表格与图片).
 
+paper only, for documents sent to a client (proposal, report):
+  "mono": true,                                   # black text, black hairline table borders, no shading anywhere
+  "cover": {"subtitle": "建设方案", "info": [["项目名称", "…"], ["版本", "V1.0"], ["日期", "2026-11-02"]]},   # own page, no header or footer
+  "toc": true,                                    # own page after the cover: 目录 (Word TOC field, levels 1–2), Roman page numbers
+  "toc_pages": [1, 1, 2, ...],                    # page shown for each heading (computed from a rendering; Word updates them on demand)
+  "header_text": "…",                             # page header on contents and body pages, defaults to the title
+  a section may use "blocks" instead of paragraphs/items/table, in the order written:
+    {"p": "…"} · {"items": ["…"]} · {"sub": "二级标题"} · {"table": {"header": [...], "rows": [...], "caption": "标题", "breaks": [row index…]}}
+  Tables carry a caption above them (表 N　标题, Word SEQ field); a table that runs over a page break continues under "续表 N"
+  with its header row repeated (``breaks`` lists the data-row indexes where the continuation starts).
+
 "style": "paper" follows file-design.html 文字文档 › 论文版式: A4 with 2.54 / 3.17 cm margins, 宋体 body and 黑体 headings
 with Times New Roman for Latin text, title 18 pt and headings 14 / 12 pt without bold, body 12 pt at 1.5 lines,
 headings numbered by Word's own list numbering (1、 or 1. / 1.1 / 1.1.1) instead of typed numbers, black text;
@@ -44,16 +56,21 @@ import json
 import re
 import sys
 from pathlib import Path
+from document_palette import table_tint
 
 FONT = "微软雅黑"
 INK = "262626"
 LINE = "D9D9D9"
-HEADER_FILL = "F0F5FF"            # 极浅蓝：表头
 SIZES = {"title": 22, "h1": 16, "h2": 14, "h3": 12, "body": 12, "table": 10.5, "footer": 10.5}
 # 论文版式 (file-design.html 文字文档 › 论文版式). 黑体 and 宋体 have no real bold, so titles and headings stay regular.
 PAPER = {"body": "宋体", "head": "黑体", "latin": "Times New Roman", "ink": "000000", "margins_cm": (2.54, 3.17), "edge_cm": 1.5,
          "sizes": {"title": 18, "h1": 14, "h2": 12, "h3": 12, "body": 12, "table": 10.5, "footer": 10.5}}
-NUMBER_FORMATS = {"1、": ("%1、", "nothing"), "1.": ("%1.", "space")}   # level-1 text and what follows the number
+# Heading numbers by Word's own list numbering: (number format, level text, what follows the number) for levels 1–3.
+NUMBER_SCHEMES = {
+    "1、": [("decimal", "%1、", "nothing"), ("decimal", "%1.%2", "space"), ("decimal", "%1.%2.%3", "space")],
+    "1.": [("decimal", "%1.", "space"), ("decimal", "%1.%2", "space"), ("decimal", "%1.%2.%3", "space")],
+    "一、": [("chineseCountingThousand", "%1、", "nothing"), ("chineseCountingThousand", "（%2）", "nothing"), ("decimal", "%3.", "space")],
+}
 CN = "零一二三四五六七八九"
 
 
@@ -114,8 +131,9 @@ def money_text(match: re.Match) -> str:
 
 
 def build(spec: dict, out: Path) -> Path:
+    header_fill = table_tint(spec.get("theme"))
     import docx
-    from docx.enum.section import WD_ORIENT  # noqa: F401
+    from docx.enum.section import WD_ORIENT, WD_SECTION  # noqa: F401
     from docx.enum.table import WD_CELL_VERTICAL_ALIGNMENT, WD_TABLE_ALIGNMENT
     from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_BREAK
     from docx.oxml import OxmlElement
@@ -136,6 +154,11 @@ def build(spec: dict, out: Path) -> Path:
     if paper:
         sec.header_distance = sec.footer_distance = Cm(PAPER["edge_cm"])
     usable = sec.page_width - sec.left_margin - sec.right_margin
+    mono = bool(spec.get("mono")) and paper
+    numfmt = spec.get("number_format") or ("一、" if mono else "1、")
+    toc_seq = [0]
+    line_color = "000000" if mono else LINE
+    tcount = [0]
 
     def set_font(run, size, bold=False, east=None):
         run.font.name = latin
@@ -173,17 +196,37 @@ def build(spec: dict, out: Path) -> Path:
             e.set(qn(k), v)
         return e
 
+    def field(paragraph, code, cached="1", size=None, east=None):
+        for kind_, text in (("begin", None), (None, code), ("separate", None), (None, cached), ("end", None)):
+            r = paragraph.add_run()
+            set_font(r, size or sizes["footer"], east=east)
+            if kind_:
+                fc = OxmlElement("w:fldChar"); fc.set(qn("w:fldCharType"), kind_); r._r.append(fc)
+            elif text == code:
+                it = OxmlElement("w:instrText"); it.set(qn("xml:space"), "preserve"); it.text = f" {code} "; r._r.append(it)
+            else:
+                r.text = text
+
+    if paper:   # the built-in Caption style is blue, bold and small: make it plain black text
+        cap_style = doc.styles["Caption"]
+        cap_style.font.name = latin
+        cap_style.font.size = Pt(sizes["table"])
+        cap_style.font.bold = False
+        cap_style.font.italic = False
+        cap_style.font.color.rgb = RGBColor.from_string(ink)
+        cap_style.element.get_or_add_rPr().get_or_add_rFonts().set(qn("w:eastAsia"), head_font)
+
     # 论文版式: Word's own multilevel list numbers the three heading styles, so no number is typed into a heading.
     paper_num = None
     if paper:
-        level_text, level_suffix = NUMBER_FORMATS.get(spec.get("number_format", "1、"), NUMBER_FORMATS["1、"])
+        scheme = NUMBER_SCHEMES.get(numfmt, NUMBER_SCHEMES["1、"])
         numbering = doc.part.numbering_part.element
         abstract_id = max([int(a.get(qn("w:abstractNumId"))) for a in numbering.findall(qn("w:abstractNum"))], default=-1) + 1
         absn = element("w:abstractNum", **{"w:abstractNumId": str(abstract_id)})
         absn.append(element("w:multiLevelType", **{"w:val": "multilevel"}))
-        for ilvl, (text, suffix) in enumerate(((level_text, level_suffix), ("%1.%2", "space"), ("%1.%2.%3", "space"))):
+        for ilvl, (num_fmt, text, suffix) in enumerate(scheme):
             lvl = element("w:lvl", **{"w:ilvl": str(ilvl)})
-            for child in (element("w:start", **{"w:val": "1"}), element("w:numFmt", **{"w:val": "decimal"}),
+            for child in (element("w:start", **{"w:val": "1"}), element("w:numFmt", **{"w:val": num_fmt}),
                           element("w:pStyle", **{"w:val": doc.styles[f"Heading {ilvl + 1}"].style_id}),
                           element("w:suff", **{"w:val": suffix}), element("w:lvlText", **{"w:val": text}),
                           element("w:lvlJc", **{"w:val": "left"})):
@@ -235,17 +278,49 @@ def build(spec: dict, out: Path) -> Path:
         return p
 
     def heading(text, level, num_id=None):
+        if mono and re.search(r"[（(）)]", text):
+            raise ValueError(f"a heading carries no parenthesised explanation: {text!r} (put it in the text below)")
         p = doc.add_paragraph(style=f"Heading {level}")
-        set_font(p.add_run(text), sizes[f"h{level}"], head_bold, head_font)
+        run = set_font(p.add_run(text), sizes[f"h{level}"], head_bold, head_font) or p.runs[-1]
+        if spec.get("toc") and level <= 2:
+            toc_seq[0] += 1
+            mark = toc_seq[0]
+            run._r.addprevious(element("w:bookmarkStart", **{"w:id": str(mark), "w:name": f"_Toc{100000 + mark}"}))
+            run._r.addnext(element("w:bookmarkEnd", **{"w:id": str(mark)}))
         if num_id and num_id != paper_num:            # attachments restart their own numbering
             numpr = p._p.get_or_add_pPr().get_or_add_numPr()
             numpr.get_or_add_ilvl().val = level - 1
             numpr.get_or_add_numId().val = num_id
         return p
 
-    def table(t):
+    def table(t, continued=False, number=None):
         header, rows = t["header"], t["rows"]
         money = set(t.get("money_cols", []))
+        breaks = [b for b in sorted(t.get("breaks", [])) if 0 < b < len(rows)]
+        titled = bool(t.get("caption") and paper)       # only a titled table owns a SEQ field, so only it takes a number
+        if breaks and not continued:                    # a table over a page break: each piece repeats the header under 续表 N
+            cut = [0] + breaks + [len(rows)]
+            if titled:
+                tcount[0] += 1                          # one number for the whole table; its pieces share it
+                number = tcount[0]
+            for k in range(len(cut) - 1):
+                table({**t, "rows": rows[cut[k]:cut[k + 1]], "breaks": []}, continued=k > 0, number=number)
+            return
+        if titled:
+            if not continued and number is None:       # 续表 never takes a number (it has no SEQ field), and neither does the first piece again
+                tcount[0] += 1
+                number = tcount[0]
+            cap = doc.add_paragraph(style="Caption")
+            cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            cap.paragraph_format.keep_with_next = True
+            cap.paragraph_format.space_before, cap.paragraph_format.space_after = Pt(6), Pt(3)
+            cap.paragraph_format.line_spacing = 1.0
+            if continued:
+                set_font(cap.add_run(f"续表 {number}"), sizes["table"], east=head_font)
+            else:
+                set_font(cap.add_run("表 "), sizes["table"], east=head_font)
+                field(cap, "SEQ 表 \\* ARABIC", str(number), sizes["table"], head_font)
+                set_font(cap.add_run("　" + t["caption"]), sizes["table"], east=head_font)
         if doc.paragraphs:                             # the introducing paragraph stays with the table
             doc.paragraphs[-1].paragraph_format.keep_with_next = True
         kept = len(rows) if len(rows) <= 8 else 2      # short tables move whole; long ones keep the header and two rows
@@ -254,15 +329,18 @@ def build(spec: dict, out: Path) -> Path:
         borders = OxmlElement("w:tblBorders")
         for edge in ("top", "left", "bottom", "right", "insideH", "insideV"):
             e = OxmlElement(f"w:{edge}")
-            e.set(qn("w:val"), "single"); e.set(qn("w:sz"), "4"); e.set(qn("w:color"), LINE)
+            e.set(qn("w:val"), "single"); e.set(qn("w:sz"), "4"); e.set(qn("w:color"), line_color)
             borders.append(e)
         tb._tbl.tblPr.append(borders)
         # Column widths follow content (CJK counts double); cells centre vertically; a 合计 row is bold and shaded.
         def width(v):
             # 微软雅黑西文字母与数字约 0.6 个汉字宽（汉字记 2），按 1.2 估算，避免地址、编号等无空格长串被截断换行。
             return sum(2 if ord(ch) > 0x2E80 else 1.2 for ch in str(v if v is not None else ""))
-        weights = [min(max([width(header[c])] + [width(f"{r[c]:,.2f}" if c in money and isinstance(r[c], (int, float)) else r[c]) for r in rows]), 28) + 4
+        pad = 7 if paper else 4        # room for the cell margins, so a four-character name does not wrap in the first column
+        weights = [min(max([width(header[c])] + [width(f"{r[c]:,.2f}" if c in money and isinstance(r[c], (int, float)) else r[c]) for r in rows]), 28) + pad
                    for c in range(len(header))]
+        if t.get("widths"):                            # relative column widths written by the author (long text columns get the room)
+            weights = list(t["widths"])
         tb.autofit = False
         layout = OxmlElement("w:tblLayout")
         layout.set(qn("w:type"), "fixed")
@@ -297,9 +375,9 @@ def build(spec: dict, out: Path) -> Path:
                 cell.paragraphs[0].paragraph_format.line_spacing = 1.25
                 if paper:
                     cell.paragraphs[0].paragraph_format.space_before = cell.paragraphs[0].paragraph_format.space_after = Pt(3)
-                if r == 0 or total_row:
+                if (r == 0 or total_row) and not mono:
                     shd = OxmlElement("w:shd")
-                    shd.set(qn("w:val"), "clear"); shd.set(qn("w:color"), "auto"); shd.set(qn("w:fill"), HEADER_FILL if r == 0 else "F5F5F5")
+                    shd.set(qn("w:val"), "clear"); shd.set(qn("w:color"), "auto"); shd.set(qn("w:fill"), header_fill if r == 0 else "F5F5F5")
                     cell._tc.get_or_add_tcPr().append(shd)
         para("", indent=False, after=6)
 
@@ -316,24 +394,131 @@ def build(spec: dict, out: Path) -> Path:
                 child_prefix = ""
             if s.get("heading"):
                 heading(label + s["heading"], min(depth, 3), num_id)
+            def add_items(items):
+                for j, item in enumerate(items, 1):
+                    mark = f"{child_prefix}{j} " if kind == "contract" else f"{j}. "
+                    p = para(mark + re.sub(r"\{\{money:([\d.]+)\}\}", money_text, item), indent=False)
+                    p.paragraph_format.left_indent = Pt(sizes["body"] * 2)
+                    p.paragraph_format.first_line_indent = Pt(-sizes["body"] * (1.5 if kind != "contract" else 2))
+
             for text in s.get("paragraphs", []):
                 p = para(text)
                 if paper:
                     p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
-            for j, item in enumerate(s.get("items", []), 1):
-                mark = f"{child_prefix}{j} " if kind == "contract" else f"{j}. "
-                p = para(mark + re.sub(r"\{\{money:([\d.]+)\}\}", money_text, item), indent=False)
-                p.paragraph_format.left_indent = Pt(sizes["body"] * 2)
-                p.paragraph_format.first_line_indent = Pt(-sizes["body"] * (1.5 if kind != "contract" else 2))
+            add_items(s.get("items", []))
             if s.get("table"):
                 table(s["table"])
+            for b in s.get("blocks", []):                  # ordered content: paragraphs, lists, sub headings and tables as written
+                if "p" in b:
+                    p = para(b["p"])
+                    if paper:
+                        p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+                elif "items" in b:
+                    add_items(b["items"])
+                elif "sub" in b:
+                    heading(b["sub"], min(depth + 1, 3), num_id)
+                elif "table" in b:
+                    table(b["table"])
             if s.get("children"):
                 body(s["children"], depth + 1, child_prefix, num_id)
 
-    # Title (and contract number)
-    t = para(spec["title"], sizes["title"], head_bold, WD_ALIGN_PARAGRAPH.CENTER, indent=False,
-             after=6 if kind == "contract" else (18 if paper else 12), east=head_font)
-    t.paragraph_format.keep_with_next = True
+    # Cover page, contents page and the three page-number runs (cover: none, contents: I II III, body: 1 2 3)
+    cover = spec.get("cover") if paper else None
+    header_text = spec.get("header_text") or spec["title"]
+
+    def contents_entries():
+        entries, i = [], 0
+        for s in spec.get("sections", []):
+            if not s.get("heading"):
+                continue
+            i += 1
+            j = 0
+            if numfmt == "一、":
+                entries.append((1, f"{cn_num(i)}、{s['heading']}"))
+            else:
+                entries.append((1, (f"{i}、" if numfmt == "1、" else f"{i}. ") + s["heading"]))
+            for b in s.get("blocks", []):
+                if "sub" in b:
+                    j += 1
+                    entries.append((2, f"（{cn_num(j)}）{b['sub']}" if numfmt == "一、" else f"{i}.{j} {b['sub']}"))
+        return entries
+
+    def decorate(section, fmt):
+        """Header: the document title over a hairline; footer: the page number, centred; numbering restarts in this section."""
+        from docx.enum.text import WD_TAB_ALIGNMENT  # noqa: F401
+        section.header.is_linked_to_previous = False
+        section.footer.is_linked_to_previous = False
+        hp = section.header.paragraphs[0]
+        hp.text = ""
+        border = element("w:pBdr")
+        border.append(element("w:bottom", **{"w:val": "single", "w:sz": "4", "w:space": "1", "w:color": "000000"}))
+        hp._p.get_or_add_pPr().append(border)
+        hp.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        set_font(hp.add_run(header_text), sizes["footer"], east=body_font)
+        fp = section.footer.paragraphs[0]
+        fp.text = ""
+        fp.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        field(fp, "PAGE", "1", east=body_font)
+        for old in section._sectPr.findall(qn("w:pgNumType")):      # a new section copies the previous section's numbering
+            section._sectPr.remove(old)
+        section._sectPr.find(qn("w:pgMar")).addnext(element("w:pgNumType", **{"w:fmt": fmt, "w:start": "1"}))
+
+    def build_cover():
+        spacer = para("", indent=False)
+        spacer.paragraph_format.space_before = Pt(150)
+        title_size = 26 if len(spec["title"]) <= 15 else 22 if len(spec["title"]) <= 19 else 18      # 一号; 二号 and 小二 when a long title would break with one character on the second line
+        para(spec["title"], title_size, False, WD_ALIGN_PARAGRAPH.CENTER, indent=False, after=18, east=head_font)
+        if cover.get("subtitle"):
+            para(cover["subtitle"], 18, False, WD_ALIGN_PARAGRAPH.CENTER, indent=False, after=96, east=head_font)     # 小二
+        for label, value in cover.get("info", []):
+            para(f"{label}：{value}", 14, False, WD_ALIGN_PARAGRAPH.CENTER, indent=False, after=6)                    # 四号
+
+    def build_contents():
+        from docx.enum.style import WD_STYLE_TYPE
+        from docx.enum.text import WD_TAB_ALIGNMENT, WD_TAB_LEADER
+        para("目　录", 18, False, WD_ALIGN_PARAGRAPH.CENTER, indent=False, after=18, east=head_font)                    # 小二
+        for level in (1, 2):
+            st = doc.styles.add_style(f"toc {level}", WD_STYLE_TYPE.PARAGRAPH)
+            st.base_style = doc.styles["Normal"]
+            st.paragraph_format.left_indent = Pt(sizes["body"] * 2 * (level - 1))
+            st.paragraph_format.line_spacing = 1.5
+            st.paragraph_format.tab_stops.add_tab_stop(usable, WD_TAB_ALIGNMENT.RIGHT, WD_TAB_LEADER.DOTS)
+        pages = spec.get("toc_pages", [])
+        entries = contents_entries()
+        for k, (level, text) in enumerate(entries):
+            p = doc.add_paragraph(style=f"toc {level}")
+            if k == 0:
+                for kind_ in ("begin", "instr", "separate"):
+                    r = p.add_run()
+                    if kind_ == "instr":
+                        it = OxmlElement("w:instrText"); it.set(qn("xml:space"), "preserve"); it.text = ' TOC \\o "1-2" \\h \\z \\u '; r._r.append(it)
+                    else:
+                        fc = OxmlElement("w:fldChar"); fc.set(qn("w:fldCharType"), kind_); r._r.append(fc)
+            link = OxmlElement("w:hyperlink")                 # the whole entry jumps to its heading
+            link.set(qn("w:anchor"), f"_Toc{100000 + k + 1}")
+            link.set(qn("w:history"), "1")
+            runs = [p.add_run(text), p.add_run(), p.add_run(str(pages[k]) if k < len(pages) else "")]
+            set_font(runs[0], sizes["body"], east=head_font if level == 1 else body_font)
+            runs[1].add_tab()
+            set_font(runs[2], sizes["body"])
+            for r in runs:
+                link.append(r._r)
+            p._p.append(link)
+            if k == len(entries) - 1:
+                r = p.add_run()
+                fc = OxmlElement("w:fldChar"); fc.set(qn("w:fldCharType"), "end"); r._r.append(fc)
+
+    if cover:
+        build_cover()
+        if spec.get("toc"):
+            decorate(doc.add_section(WD_SECTION.NEW_PAGE), "lowerRoman")
+            build_contents()
+        decorate(doc.add_section(WD_SECTION.NEW_PAGE), "decimal")
+    else:
+        # Title (and contract number)
+        t = para(spec["title"], sizes["title"], head_bold, WD_ALIGN_PARAGRAPH.CENTER, indent=False,
+                 after=6 if kind == "contract" else (18 if paper else 12), east=head_font)
+        t.paragraph_format.keep_with_next = True
     if kind == "contract" and spec.get("number"):
         para(f"合同编号：{spec['number']}", align=WD_ALIGN_PARAGRAPH.RIGHT, indent=False, after=12)
     if kind == "contract":
@@ -369,26 +554,15 @@ def build(spec: dict, out: Path) -> Path:
              east=head_font)
         body(att.get("sections", []), num_id=new_num(restart=True) if paper else None)
 
-    # Footer: page numbers only (contracts: 第 X 页 共 Y 页)
-    fp = sec.footer.paragraphs[0]
-    fp.alignment = WD_ALIGN_PARAGRAPH.CENTER
-
-    def field(paragraph, code):
-        for kind_, text in (("begin", None), (None, code), ("separate", None), (None, "1"), ("end", None)):
-            r = paragraph.add_run()
-            set_font(r, sizes["footer"])
-            if kind_:
-                fc = OxmlElement("w:fldChar"); fc.set(qn("w:fldCharType"), kind_); r._r.append(fc)
-            elif text == code:
-                it = OxmlElement("w:instrText"); it.set(qn("xml:space"), "preserve"); it.text = f" {code} "; r._r.append(it)
-            else:
-                r.text = text
-
-    if kind == "contract":
-        set_font(fp.add_run("第 "), sizes["footer"]); field(fp, "PAGE"); set_font(fp.add_run(" 页 共 "), sizes["footer"])
-        field(fp, "NUMPAGES"); set_font(fp.add_run(" 页"), sizes["footer"])
-    else:
-        field(fp, "PAGE")
+    # Footer: page numbers only (contracts: 第 X 页 共 Y 页); a cover document has its own header and footer per section
+    if not cover:
+        fp = sec.footer.paragraphs[0]
+        fp.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        if kind == "contract":
+            set_font(fp.add_run("第 "), sizes["footer"]); field(fp, "PAGE"); set_font(fp.add_run(" 页 共 "), sizes["footer"])
+            field(fp, "NUMPAGES"); set_font(fp.add_run(" 页"), sizes["footer"])
+        else:
+            field(fp, "PAGE")
     out.parent.mkdir(parents=True, exist_ok=True)
     doc.save(out)
     return out

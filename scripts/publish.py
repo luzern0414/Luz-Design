@@ -69,6 +69,11 @@ def publish(folder: Path, stage: str, allow: list[str] | None = None) -> Path:
         raise FileNotFoundError(f"missing stage artifact: raw/{STAGE_PATHS[stage]}")
     errors: list[str] = []
     # Work starts from a current rule card and the BRIEF names the rules it applied (scripts/context.py).
+    from crawl_gate import crawl_errors
+    from style_match import session_style_errors
+    errors.extend(crawl_errors(folder, caller="luz-design"))
+    allowed = {kind.strip() for value in (allow or []) for kind in value.split(",") if kind.strip()}
+    errors.extend(session_style_errors(folder, required=bool(allowed & {"interface", "website"})))
     from validate_session import rule_card_errors, sediment_errors
     errors.extend(rule_card_errors(work, require_adopted=True, check_current=True))
     # Every call leaves experience behind (SKILL.md 每次调用后沉淀): notes written or confirmed for this session.
@@ -98,6 +103,7 @@ def publish(folder: Path, stage: str, allow: list[str] | None = None) -> Path:
         "source": STAGE_PATHS[stage],
         "sha256": sha256_file(target),
         "published_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "allowed": sorted(allowed),
     }
     manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     return target

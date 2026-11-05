@@ -39,6 +39,14 @@ TARGETS = [
     ("Luz-Crawl", "lib/formal-report.css", "block"),
     ("Luz-Writing", "assets/01-article-template.html", "block"),
     ("Luz-Project", "scripts/reading_style.py", "block"),
+    # 汇总页生成器：每个技能一份同样的脚本，样式块随母本同步
+    ("Luz-Design", "scripts/make_summary.py", "block"),
+    ("Luz-System", "scripts/make_summary.py", "block"),
+    ("Luz-Dev", "scripts/make_summary.py", "block"),
+    ("Luz-Crawl", "scripts/make_summary.py", "block"),
+    ("Luz-Writing", "scripts/make_summary.py", "block"),
+    ("Luz-Ops", "scripts/make_summary.py", "block"),
+    ("Luz-Project", "scripts/make_summary.py", "block"),
 ]
 
 

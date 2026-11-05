@@ -250,21 +250,25 @@ class PublishGateTest(unittest.TestCase):
 
 
 class DeliverableFormatTest(unittest.TestCase):
-    def test_slides_pdf_markdown_and_images_may_be_the_final_file(self) -> None:
-        from validate_session import validate_session_root
+    def test_slides_pdf_markdown_and_images_sit_in_the_root_when_the_summary_page_lists_them(self) -> None:
+        import make_summary
+        from validate_session import OUTPUT_STANDARD, validate_session_root
         with tempfile.TemporaryDirectory() as temp:
             folder = Path(temp) / "007-门店汇报"
             (folder / "raw").mkdir(parents=True)
+            manifest = {"output_standard": OUTPUT_STANDARD}
             for ext in (".pptx", ".pdf", ".md", ".png"):
-                final = folder / f"{folder.name}{ext}"
+                final = folder / f"门店汇报{ext}"
                 final.write_bytes(b"x")
+                spec = {"title": "门店汇报", "sections": [{"title": "成果", "table": {"columns": ["名称", "位置"], "rows": [[final.name, final.name]]}}]}
+                (folder / f"{folder.name}.html").write_text(make_summary.render(spec), encoding="utf-8")
                 errors: list[str] = []
-                validate_session_root(folder, errors)
+                validate_session_root(folder, errors, manifest=manifest)
                 self.assertEqual(errors, [], ext)
                 final.unlink()
-            (folder / "草稿.pptx").write_bytes(b"x")
+            (folder / "草稿.exe").write_bytes(b"x")
             errors = []
-            validate_session_root(folder, errors)
+            validate_session_root(folder, errors, manifest=manifest)
             self.assertTrue(errors)
 
 

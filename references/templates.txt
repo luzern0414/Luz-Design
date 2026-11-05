@@ -737,6 +737,8 @@ a.card,.services a,.entries a{color:inherit;text-decoration:none}
   "session_kind": "general",
   "status": "draft",
   "modes": [],
+  "output_standard": "2026-11-05",
+  "project": null,
   "approvals_file": "99-delivery/APPROVALS.json",
   "stages": {
     "visual": {
@@ -754,5 +756,17 @@ a.card,.services a,.entries a{color:inherit;text-decoration:none}
   "assumptions": [],
   "verification": [],
   "notes": []
+}
+=== end ===
+
+# 03-documents/summary.json：汇总页描述文件（成品不是网页时，用 scripts/make_summary.py 生成会话根的 NNN-主题.html；改完把“（填写）”全部换掉）
+=== template: summary.json ===
+{
+  "title": "<会话主题>",
+  "sections": [
+    {"title": "成果", "table": {"caption": "表 1 成果清单", "columns": ["名称", "用途", "位置"], "rows": [["（填写）", "（填写）", "（填写）"]]}},
+    {"title": "依据", "table": {"caption": "表 2 依据", "columns": ["来源或规则", "采用方式"], "rows": [["（填写）", "（填写）"]]}},
+    {"title": "过程文件", "table": {"caption": "表 3 过程文件", "columns": ["文件", "用途"], "rows": [["（填写）", "（填写）"]]}}
+  ]
 }
 === end ===

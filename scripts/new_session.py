@@ -1,9 +1,15 @@
 #!/usr/bin/env python3
-"""Create the next immutable-numbered Luz Design session workspace."""
+"""Create the next numbered Luz Design session: NNN-主题\\ with raw\\ for every source and working file.
+
+The root of a session holds only raw\\ and the summary page NNN-主题.html (publish.py or make_summary.py writes it);
+a task without a project may also keep its deliverables there (deliver.py), a task for a project (--project) keeps them
+in the project's docs. The layout check is check_output_layout.py session.
+"""
 from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import shutil
 import sys
@@ -11,10 +17,16 @@ import unicodedata
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
+from validate_session import OUTPUT_STANDARD
+
 SKILL_ROOT = Path(__file__).resolve().parents[1]
 # The skill holds rules, templates and scripts; every session it creates is an output and lives here.
 OUTPUT_ROOT = Path(r"D:\Codes\skill输出\Luz-Design")
+# A project's state root is the raw\ of its session in the Luz-Project output root (the project folder keeps results only).
+PROJECT_OUTPUT_ROOT = Path(os.environ.get("LUZ_PROJECT_OUTPUT") or r"D:\Codes\skill输出\Luz-Project")
 SESSION_RE = re.compile(r"^(\d{3,})-(.+)$")
+# Sessions made before the output layout used two-digit numbers or underscores; their numbers are never reused.
+LEGACY_SESSION_RE = re.compile(r"^(\d{2,})[-_].+$")
 INVALID = re.compile(r'[<>:"/\\|?*\x00-\x1f]')
 # Luz-Design owns standalone visual work (posters, brand key visuals, campaign images) and document layout.
 # System design, the functional structure of product UI, the behaviour of interactive prototypes and hardware belong to Luz-System (D:\Codes\Luz-System); the look of product UI is worked here from the interface rule cards.
@@ -172,6 +184,10 @@ def init_mode(skill_root: Path, session: Path, mode: str) -> None:
         (base / "outputs").mkdir(parents=True, exist_ok=True)
         document = fill_icon_slots(read_template(skill_root, "document.html"), session_subject(session), default="document")
         write_if_missing(base / "document.html", document)
+        # Spec of the summary page for a deliverable that is not a page (make_summary.py); a page deliverable is its own summary page.
+        spec = json.loads(read_template(skill_root, "summary.json"))
+        spec["title"] = session_subject(session)
+        write_if_missing(base / "summary.json", json.dumps(spec, ensure_ascii=False, indent=2) + "\n")
     elif mode in OTHER_SKILL_MODES:
         raise ValueError(f"{mode} belongs to {OTHER_SKILL_MODES[mode]}, not Luz-Design; use that skill")
     else:
@@ -201,6 +217,22 @@ def validate_creation(modes: list[str], session_kind: str) -> None:
         raise ValueError("visual mode is standalone visual work: pass --standalone-poster and name the task in the title; the functional structure of a product interface belongs to Luz-System and its look is worked from the interface rule cards (context.py interface-visual) in a document session")
 
 
+def resolve_project(value: str | Path) -> dict:
+    """The project a session is made for: its state root (where project.json is) and the folder that keeps the results.
+
+    A path with project.json is the state root; any other path is the project folder, whose state root is the raw\\ of its
+    session in the Luz-Project output root. deliver_root of project.json is the project folder; a project without it
+    (made before the split) keeps its results at the state root."""
+    path = Path(value).resolve()
+    state = path if (path / "project.json").is_file() else PROJECT_OUTPUT_ROOT / path.name / "raw"
+    try:
+        data = json.loads((state / "project.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        raise ValueError(f"no readable project.json for {value} (looked in {state})") from exc
+    deliver = Path(data["deliver_root"]) if isinstance(data, dict) and data.get("deliver_root") else state
+    return {"state_root": str(state), "deliver_root": str(deliver), "delivered": []}
+
+
 def create_session(
     root: Path,
     title: str,
@@ -209,8 +241,10 @@ def create_session(
     skill_root: Path = SKILL_ROOT,
     session_kind: str = "general",
     cards: list[str] | None = None,
+    project: str | Path | None = None,
 ) -> Path:
     validate_creation(modes, session_kind)
+    project_link = resolve_project(project) if project else None
     import context
     kinds = list(dict.fromkeys(cards or [DEFAULT_CARDS[m] for m in modes if m in DEFAULT_CARDS]))
     unknown_cards = sorted(set(kinds) - set(context.card_kinds()))
@@ -223,7 +257,7 @@ def create_session(
         raise ValueError("standalone poster session title must explicitly describe a poster task")
     sequences = []
     for item in root.iterdir():
-        match = SESSION_RE.match(item.name)
+        match = SESSION_RE.match(item.name) or LEGACY_SESSION_RE.match(item.name)
         if item.is_dir() and match:
             sequences.append(int(match.group(1)))
     next_sequence = max(sequences, default=0) + 1
@@ -261,6 +295,8 @@ def create_session(
             "created_at": created,
             "session_kind": session_kind,
             "modes": modes,
+            "output_standard": OUTPUT_STANDARD,
+            "project": project_link,
         })
         (delivery / "MANIFEST.json").write_text(
             json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
@@ -300,11 +336,12 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--standalone-poster", action="store_true", help="Standalone visual work (poster, brand key visual, campaign image); required for visual mode")
     parser.add_argument("--root", help="Output root override, primarily for tests")
     parser.add_argument("--card", action="append", help="Rule card kind for this task (repeatable); the kinds are listed by scripts/context.py list; default from the mode")
+    parser.add_argument("--project", help="The project this task is for (its project folder, or the state root that holds project.json): deliverables are written into the project's docs and the session root keeps only raw\\ and the summary page")
     args = parser.parse_args(argv)
     root = Path(args.root).resolve() if args.root else OUTPUT_ROOT
     kind = "standalone_poster" if args.standalone_poster else args.session_kind
     try:
-        folder = create_session(root, args.name, parse_modes(args.modes), session_kind=kind, cards=args.card)
+        folder = create_session(root, args.name, parse_modes(args.modes), session_kind=kind, cards=args.card, project=args.project)
     except Exception as exc:
         print(f"FAIL: {type(exc).__name__}: {exc}", file=sys.stderr)
         return 1
@@ -314,6 +351,9 @@ def main(argv: list[str] | None = None) -> int:
         print("NEXT: read the rule card(s) before producing anything, then fill BRIEF 采用的规则:", file=sys.stderr)
         for card in cards:
             print(f"  {card}", file=sys.stderr)
+    print("LAYOUT: root = raw\\ + summary page " + folder.name + ".html; " + (
+        "deliverables go to the project's docs (publish.py --as, deliver.py --to)" if args.project else
+        "a page deliverable is published as the summary page (publish.py), other files are placed with deliver.py and listed in a summary page made with make_summary.py"), file=sys.stderr)
     return 0
 
 

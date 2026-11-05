@@ -16,7 +16,7 @@
 ## 2 流程（照做，每步留证）
 
 1. **选站**：打开 `references/reference-sites.json`，按任务类别取 `status` 为 `ok` 的站点；`js-rendered` 的要等脚本渲染；`blocked`、`unreachable` 的不要硬取（Luz-Crawl 不破解验证码、不绕过权限）。站点状态是 2026-11-04 核验的，超过 30 天先重新核验，不能靠旧状态。
-2. **建任务**：`node D:\Codes\Luz-Crawl\scripts\luz-crawl.mjs doctor` → `begin "<主题>" --new` → `experience --query "<行业> 设计 参考"`；之后每条命令带 `--out <任务目录>`。任务目录是 `<输出根>\NNN_主题`，其下 `raw\` 存放爬取的全部内容（每页一份存档，快照在存档的 `snapshots\`），总结 html 与 `raw\` 同级。
+2. **建任务**：`node D:\Codes\Luz-Crawl\scripts\luz-crawl.mjs doctor` → `begin "<主题>" --new` → `experience --query "<行业> 设计 参考"`；之后每条命令带 `--out <任务目录>`。任务目录是 `<输出根>\NNN-主题`，其下 `raw\` 存放爬取的全部内容（每页一份存档，快照在存档的 `snapshots\`），总结 html 与 `raw\` 同级。
 3. **找同行产品**：用 `search bing`（或平台搜索）找 3–5 个同行业的线上产品，优先小程序截图文章、官方设计复盘、产品官网；关键词写“行业 + 页面类型 + 设计”，如“鲜花 小程序 首页 设计”“同城配送 商品详情 设计”。搜索卡片只是候选，正文确认后才算来源。
 4. **采集**：对每个候选页面 `capture <网址> --out <任务目录>`，保存 HTML 快照和截图；只采公开页面，批量读取前先 `robots`；每站点少量页面。
 5. **量化**：对 B 层页面逐个运行

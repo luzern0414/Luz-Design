@@ -34,22 +34,40 @@ input:focus-visible, textarea:focus-visible, select:focus-visible { outline: non
 /* ---------- 页头 ---------- */
 .pt-top { color: var(--sh-ink); display: flex; align-items: center; gap: 12px; height: 56px; padding: 0 20px; }
 .pt-top .mark { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 10px; background: var(--sh-panel); color: var(--p, #A85D79); box-shadow: 0 1px 3px rgba(31, 35, 41, .08); }
-.pt-top h1 { font-size: 18px; font-weight: 600; line-height: 1.3; }
-.pt-top .sub { font-size: 14px; color: var(--sh-ink2); }
-.pt-top .ver { font-size: 12px; color: var(--sh-ink3); }
+.pt-top h1 { font-size: 18px; font-weight: 600; line-height: 1.3; white-space: nowrap; flex: none; }
+/* 页头一行放下：标题不换行，副标题放不下时截成省略号，折叠按钮与版本不换行（嵌在约 1050 宽的文档里，标题和按钮不能折成两三行） */
+.pt-top .sub { font-size: 14px; color: var(--sh-ink2); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pt-top .ver { font-size: 12px; color: var(--sh-ink3); white-space: nowrap; flex: none; }
 
-/* ---------- 三栏 ---------- */
-.pt-layout { display: grid; grid-template-columns: var(--sh-left, minmax(280px, 320px)) minmax(0, 1fr) var(--sh-right, minmax(300px, 360px)); gap: 16px; padding: 0 16px 16px; align-items: start; }
+/* ---------- 三栏 ----------
+ * 舞台的最小宽度 --sh-stage-min 由 kind 的 stageMin 给出（手机框 = 设备宽度加边距，后台 = 完整侧栏所需的 964）；引擎按它决定每个侧栏是
+ * “并排”（data-dock-*=inline，占一列）还是“抽屉”（data-dock-*=float，浮在舞台上，默认收起）。放不下时先把右栏、再把左栏改成抽屉，
+ * 舞台保持设备框应有的宽度，不被两栏挤窄。折叠（data-fold-*=1）= 不占列也不显示；data-out-* 是引擎算出的“不占列”（折叠或抽屉）。
+ * 窄屏（≤910）整段不生效：三栏改成上下排（见文件末的 @media）。 */
+.pt-layout { --c-left: var(--sh-left, minmax(240px, 320px)); --c-right: var(--sh-right, minmax(260px, 360px)); --c-stage: minmax(var(--sh-stage-min, 0px), 1fr);
+  display: grid; grid-template-columns: var(--c-left) var(--c-stage) var(--c-right); gap: 16px; padding: 0 16px 16px; align-items: start; }
 .pt-panel { color: var(--sh-ink); background: var(--sh-panel); border-radius: 16px; padding: 12px 14px 16px; height: calc(100vh - 72px); overflow-y: auto; position: sticky; top: 8px; scrollbar-width: thin; box-shadow: 0 1px 2px rgba(31, 35, 41, .05); }
-/* 折叠左栏、右栏（页头的“左栏”“右栏”按钮）；kind 可用 layout: {left, right} 改两栏宽度（--sh-left、--sh-right） */
-:root[data-fold-left="1"] .pt-layout { grid-template-columns: 0 minmax(0, 1fr) var(--sh-right, minmax(300px, 360px)); }
-:root[data-fold-right="1"] .pt-layout { grid-template-columns: var(--sh-left, minmax(280px, 320px)) minmax(0, 1fr) 0; }
-:root[data-fold-left="1"][data-fold-right="1"] .pt-layout { grid-template-columns: 0 minmax(0, 1fr) 0; }
-:root[data-fold-left="1"] .pt-left, :root[data-fold-right="1"] .pt-right { visibility: hidden; padding: 0; overflow: hidden; }
 .pt-folds { margin-left: auto; display: flex; gap: 4px; }
-.pt-folds button { min-height: 36px; padding: 0 12px; border-radius: 10px; font-size: 14px; color: var(--sh-ink2); }
+.pt-folds button { min-height: 36px; padding: 0 12px; border-radius: 10px; font-size: 14px; color: var(--sh-ink2); white-space: nowrap; }
 .pt-folds button[aria-pressed="true"] { background: var(--sh-chip); color: var(--sh-ink); font-weight: 600; }
 .pt-top .ver { margin-left: 12px; }
+.pt-scrim { display: none; }
+@media (min-width: 911px) {
+  .pt-left { grid-area: 1 / 1; } .pt-stage { grid-area: 1 / 2; } .pt-right { grid-area: 1 / 3; }
+  :root[data-out-left="1"] .pt-layout { grid-template-columns: var(--c-stage) var(--c-right); }
+  :root[data-out-left="1"] .pt-stage { grid-area: 1 / 1; } :root[data-out-left="1"] .pt-right { grid-area: 1 / 2; }
+  :root[data-out-right="1"] .pt-layout { grid-template-columns: var(--c-left) var(--c-stage); }
+  :root[data-out-left="1"][data-out-right="1"] .pt-layout { grid-template-columns: var(--c-stage); }
+  :root[data-out-left="1"][data-out-right="1"] .pt-stage { grid-area: 1 / 1; }
+  :root[data-out-left="1"] .pt-left, :root[data-out-right="1"] .pt-right { display: none; }
+  /* 浮层：浮在舞台上，不占列；点遮罩、按 Esc 或再点页头的按钮收起 */
+  :root[data-dock-left="float"][data-fold-left="0"] .pt-left, :root[data-dock-right="float"][data-fold-right="0"] .pt-right {
+    display: block; position: fixed; top: 64px; bottom: 8px; height: auto; z-index: 50; width: 320px; max-width: calc(100vw - 24px);
+    box-shadow: 0 12px 40px rgba(31, 35, 41, .2); border: 1px solid var(--sh-line); animation: pt-fade var(--mo-150) var(--ease); }
+  :root[data-dock-left="float"][data-fold-left="0"] .pt-left { left: 12px; }
+  :root[data-dock-right="float"][data-fold-right="0"] .pt-right { right: 12px; width: 360px; }
+  :root[data-float-open="1"] .pt-scrim { display: block; position: fixed; inset: 56px 0 0 0; z-index: 49; background: var(--sh-mask); animation: pt-fade var(--mo-150) var(--ease); }
+}
 .pt-stage { min-width: 0; display: flex; justify-content: center; padding-top: 4px; }
 .pt-fit { position: relative; flex: none; }
 .pt-stage-in { position: absolute; left: 0; top: 0; transform-origin: 0 0; }

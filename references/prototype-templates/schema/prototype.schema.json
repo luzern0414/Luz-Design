@@ -81,7 +81,7 @@
     },
     "device": {
       "type": "object", "additionalProperties": false,
-      "properties": { "width": { "type": "integer", "minimum": 320 }, "height": { "type": "integer", "minimum": 560 }, "time": { "type": "string" }, "capsule": { "type": "boolean" } }
+      "properties": { "width": { "type": "integer", "minimum": 320 }, "height": { "type": "integer", "minimum": 560 }, "time": { "type": "string" }, "capsule": { "type": "boolean", "description": "是否画微信小程序右上角的菜单胶囊（默认 true）。只对小程序有意义；手机浏览器网页（H5）写 false" } }
     },
     "tabItem": {
       "type": "object", "required": ["id", "name", "icon", "page"], "additionalProperties": false,

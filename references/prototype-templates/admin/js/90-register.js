@@ -2,6 +2,7 @@
 K.kind({
   id: 'admin', tabsKey: 'nav', screen: '#adScreen', clip: '#adApp', toasts: '#ptToasts', darkMode: 'tokens', confirmCid: 'AD-FB-002',
   size: () => null,
+  stageMin: () => 964, /* 后台舞台 ≥ 960（应用框内宽）才是完整侧栏；外壳放不下时把右栏、左栏改成抽屉，保住这个宽度 */
   defaultGroups: ['appearance', 'theme', 'sidebar', 'density', 'iconStyle'],
   typeLabel: { tab: '一级页', sub: '二级页', sheet: '居中面板', result: '结果页' },
   config: [sidebarGroup, densityGroup],

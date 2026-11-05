@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import html as html_lib
 import json
 import os
 import re
@@ -21,11 +22,16 @@ from typing import Iterable
 from urllib.parse import unquote, urlparse
 
 SESSION_RE = re.compile(r"^(\d{3,})-(.+)$")
-# A session folder holds exactly one final deliverable named after the folder, plus raw/ with every working file: brief,
-# rule cards, prompts, references, generated images, document sources, approvals and manifest. HTML is published with
-# publish.py; spreadsheets, Word, slides, PDF, Markdown and poster images are copied there after their checks pass.
+# Output layout (check_output_layout.py session): the session root holds raw/ with every source and working file (brief,
+# rule cards, prompts, references, generated images, document sources, approvals, manifest, build trees) and the summary
+# page NNN-主题.html, which is the HTML deliverable itself when the deliverable is a page (publish.py) and otherwise lists
+# the deliverables (make_summary.py). A task without a project keeps its spreadsheet, Word, slides, PDF or image files in
+# the root (deliver.py), listed in the summary page; a task with a project keeps them in the project's docs and the root
+# holds only the summary page and raw/. A session created under this layout carries MANIFEST.json "output_standard"; an
+# older session is given notes only.
 RAW_DIR = "raw"
-FINAL_SUFFIXES = (".html", ".xlsx", ".docx", ".pptx", ".pdf", ".md", ".png", ".jpg", ".jpeg", ".webp")
+OUTPUT_STANDARD = "2026-11-05"
+SUMMARY_PLACEHOLDER = "（填写）"
 PUBLISHABLE_STAGES = ("visual", "document")
 
 
@@ -585,21 +591,54 @@ def validate_stage_artifact(path: Path, artifact: str, errors: list[str]) -> Non
         errors.append(f'{path.name} must declare data-artifact="{artifact}"')
 
 
-def validate_session_root(folder: Path, errors: list[str]) -> None:
-    finals = {f"{folder.name}{suffix}" for suffix in FINAL_SUFFIXES}
-    present = []
-    for item in folder.iterdir():
-        if item.name == RAW_DIR:
-            continue
-        if item.name in finals and item.is_file():
-            present.append(item.name)
-            continue
-        errors.append(
-            f"session folder may only contain one final deliverable ({folder.name} with one of "
-            f"{', '.join(FINAL_SUFFIXES)}) and {RAW_DIR}/; found {item.name}"
-        )
-    if len(present) > 1:
-        errors.append("session folder holds more than one final deliverable: " + ", ".join(sorted(present)))
+def read_manifest(folder: Path) -> dict:
+    try:
+        data = json.loads((work_dir(folder) / "99-delivery" / "MANIFEST.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+    return data if isinstance(data, dict) else {}
+
+
+def uses_output_standard(manifest: dict) -> bool:
+    return bool(manifest.get("output_standard"))
+
+
+def project_link(manifest: dict) -> dict | None:
+    """MANIFEST.json "project": {state_root, deliver_root, delivered: [{path, sha256, …}]} of a session made for a project."""
+    link = manifest.get("project")
+    return link if isinstance(link, dict) else None
+
+
+def validate_session_root(folder: Path, errors: list[str], notes: list[str] | None = None, manifest: dict | None = None) -> None:
+    """The root holds raw/ and the summary page (check_output_layout.py session). Findings are errors for a session created
+    under the output layout and notes for an older one, which stays as it is. The summary page lists every file kept in the root
+    (or, for a project task, every file written into the project) and keeps no template placeholder."""
+    import check_output_layout
+    manifest = read_manifest(folder) if manifest is None else manifest
+    link = project_link(manifest)
+    problems, hints = check_output_layout.check_session(folder, bool(link))
+    if not uses_output_standard(manifest):
+        if notes is not None:
+            notes.extend(f"旧会话布局: {message}" for message in problems + hints)
+        return
+    errors.extend(problems)
+    if notes is not None:
+        notes.extend(hints)
+    summary = final_html(folder)
+    if not summary.is_file():
+        return
+    validate_light_html(summary, errors)
+    try:
+        text = html_lib.unescape(summary.read_text(encoding="utf-8")).replace("\\", "/")
+    except UnicodeDecodeError:
+        return
+    if SUMMARY_PLACEHOLDER in text:
+        errors.append(f"{summary.name} still has the template placeholder {SUMMARY_PLACEHOLDER}: fill in raw/03-documents/summary.json and run make_summary.py again")
+    listed = [item.name for item in folder.iterdir() if item.is_file() and item != summary]
+    listed += [str(entry.get("path", "")) for entry in (link or {}).get("delivered", []) if isinstance(entry, dict)]
+    for name in listed:
+        if name and name.replace("\\", "/") not in text:
+            errors.append(f"{summary.name} does not list {name}: every deliverable (a file in the root, or a path in the project) is named in the summary page")
 
 
 RULES_HEADING = "## 采用的规则"
@@ -692,12 +731,18 @@ def rule_card_errors(work: Path, *, require_adopted: bool, check_current: bool) 
     return errors
 
 
-def validate(session: Path, strict: bool = False) -> list[str]:
+def validate(session: Path, strict: bool = False, notes: list[str] | None = None) -> list[str]:
+    """Errors of a session; findings that only advise (the layout of an older session, soft page findings) go to `notes` when given."""
     errors: list[str] = []
     if not session.is_dir():
         return [f"session folder does not exist: {session}"]
     folder = session
-    if strict or final_html(folder).is_file():
+    layout_manifest = read_manifest(folder)
+    new_layout = uses_output_standard(layout_manifest)
+    root_items = [item for item in folder.iterdir() if item.name != RAW_DIR]
+    project_delivered = bool((project_link(layout_manifest) or {}).get("delivered"))
+    delivered_root = final_html(folder).is_file() or (new_layout and bool(root_items)) or project_delivered
+    if strict or delivered_root:
         from crawl_gate import crawl_errors
         from style_match import session_style_errors
         errors.extend(crawl_errors(folder, caller="luz-design"))
@@ -708,12 +753,18 @@ def validate(session: Path, strict: bool = False) -> list[str]:
             allowed = []
         errors.extend(session_style_errors(folder, required=bool(set(allowed) & {"interface", "website"})))
     session = work_dir(folder)
-    validate_session_root(folder, errors)
+    if strict or root_items or (new_layout and project_delivered):
+        validate_session_root(folder, errors, notes, layout_manifest)
     if not session.is_dir():
         return errors + [f"missing {RAW_DIR}/ working folder"]
     match = SESSION_RE.match(folder.name)
     if not match:
-        errors.append("session folder must start with a zero-padded number and a title")
+        import check_output_layout
+        if check_output_layout.LEGACY_NAME.match(folder.name) and not new_layout:
+            if notes is not None:
+                notes.append("旧会话目录名（序号两位或用下划线）保留原样，新建会话用“三位序号-主题”")
+        else:
+            errors.append("session folder must start with a zero-padded number and a title")
     if not (session / "BRIEF.md").is_file():
         errors.append("missing BRIEF.md")
     if not (session / "99-delivery").is_dir():
@@ -745,25 +796,33 @@ def validate(session: Path, strict: bool = False) -> list[str]:
             errors.append("MANIFEST.json has an invalid session_kind")
         poster_session = session_kind == "standalone_poster"
         if not legacy:
-            delivered = any((folder / f"{folder.name}{ext}").is_file() for ext in FINAL_SUFFIXES)
-            errors.extend(rule_card_errors(session, require_adopted=delivered or strict, check_current=strict))
-            if delivered or strict:
+            errors.extend(rule_card_errors(session, require_adopted=delivered_root or strict, check_current=strict))
+            if delivered_root or strict:
                 errors.extend(sediment_errors(session, str(manifest.get("created_at", ""))[:10]))
         if manifest.get("folder") != folder.name:
             errors.append("MANIFEST.json folder does not match directory name")
         final = final_html(folder)
         record = manifest.get("final") or {}
-        if final.is_file():
+        if final.is_file() and record:
             source = session / str(record.get("source", ""))
             actual = sha256_file(final)
-            if not record:
-                errors.append(f"{final.name} exists but MANIFEST.json has no final record; publish it with scripts/publish.py")
-            elif record.get("sha256") != actual:
+            if record.get("sha256") != actual:
                 errors.append(f"{final.name} differs from its published hash; republish it with scripts/publish.py")
             elif not source.is_file() or sha256_file(source) != actual:
                 errors.append(f"{final.name} no longer matches its source {record.get('source')}; republish it")
-        elif record:
+        elif final.is_file() and not new_layout:
+            errors.append(f"{final.name} exists but MANIFEST.json has no final record; publish it with scripts/publish.py")
+        elif record and not final.is_file():
             errors.append(f"MANIFEST.json records a final HTML but {final.name} is missing")
+        link = project_link(manifest)
+        if link:
+            deliver = Path(str(link.get("deliver_root") or ""))
+            for entry in link.get("delivered", []):
+                target = deliver / str(entry.get("path", "")) if isinstance(entry, dict) else None
+                if target is None or not target.is_file():
+                    errors.append(f"project deliverable is missing: {entry.get('path') if isinstance(entry, dict) else entry}")
+                elif entry.get("sha256") and sha256_file(target) != entry["sha256"]:
+                    errors.append(f"project deliverable {entry['path']} differs from the hash recorded when it was written; write it again with scripts/publish.py or scripts/deliver.py")
         expected_title = folder.name.split("-", 1)[1] if "-" in folder.name else ""
         if expected_title and manifest.get("title") != expected_title:
             errors.append("MANIFEST.json title differs from the folder title")
@@ -948,12 +1007,13 @@ def validate(session: Path, strict: bool = False) -> list[str]:
                     if name in STAGE_PATHS and not approved(name):
                         errors.append(f"strict: approved session lacks {name} approval")
 
-    for path in session.rglob("*.html"):
-        if any(part in {".git", "__pycache__", ".pytest_cache"} for part in path.parts):
-            continue
-        validate_light_html(path, errors)
-    for path in session.rglob("*"):
-        if not path.is_file() or path.suffix.lower() not in {".md", ".html"}:
+    # raw/ is the working space (rule cards, crawl records, build trees, review pages): only the brief and the stage pages are contracts.
+    contracts = [session / "BRIEF.md", session / VISUAL_PATH, session / DOCUMENT_PATH]
+    for path in contracts:
+        if path.suffix == ".html" and path.is_file():
+            validate_light_html(path, errors)
+    for path in contracts:
+        if not path.is_file():
             continue
         try:
             text = path.read_text(encoding="utf-8")
@@ -965,12 +1025,11 @@ def validate(session: Path, strict: bool = False) -> list[str]:
                 errors.append(f"broken local link in {path.relative_to(session)}: {target}")
     if strict:
         brief = session / "BRIEF.md"
-        if brief.is_file() and len(brief.read_text(encoding="utf-8").strip()) < 200:
+        brief_text = brief.read_text(encoding="utf-8") if brief.is_file() else ""
+        if brief.is_file() and len(brief_text.strip()) < 200:
             errors.append("strict: BRIEF.md is not sufficiently completed")
-        for path in session.rglob("*.md"):
-            text = path.read_text(encoding="utf-8")
-            if re.search(r"\b(?:TODO|TBD|FIXME)\b", text):
-                errors.append(f"strict: unresolved marker in {path.relative_to(session)}")
+        if re.search(r"\b(?:TODO|TBD|FIXME)\b", brief_text):
+            errors.append("strict: unresolved marker in BRIEF.md")
     return list(dict.fromkeys(errors))
 
 
@@ -981,7 +1040,10 @@ def main(argv: list[str] | None = None) -> int:
                         help="Require a handed-off session: verification records, deliverables, approvals and hashes")
     args = parser.parse_args(argv)
     session = Path(args.session).resolve()
-    errors = validate(session, strict=args.strict)
+    notes: list[str] = []
+    errors = validate(session, strict=args.strict, notes=notes)
+    for note in notes:
+        print("NOTE", note)
     if errors:
         print(f"FAIL: {len(errors)} issue(s)")
         for error in errors:

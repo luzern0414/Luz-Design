@@ -14,6 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 SCRIPTS = ROOT / "scripts"
 sys.path.insert(0, str(SCRIPTS))
 
+import check_output_layout
 from add_mode import add_mode
 from new_session import OUTPUT_ROOT, create_session, main as new_session_main
 from publish import publish
@@ -361,6 +362,8 @@ class SessionFlowTests(unittest.TestCase):
             adopt_rules(session, "视觉设计规范 › 三、视觉产出", "安全区与四级文字层级")
             final = publish(session, "visual")
             self.assertEqual(final.name, f"{session.name}.html")
+            self.assertEqual(sorted(item.name for item in session.iterdir()), sorted(["raw", final.name]))
+            self.assertEqual(check_output_layout.check_session(session, False)[0], [])
             self.assertEqual(validate(session), [])
             # Any change after approval invalidates the hash.
             board = raw / "02-visual" / "visual-board.html"
@@ -401,20 +404,12 @@ class SessionFlowTests(unittest.TestCase):
             publish(session, "document")
             self.assertEqual(validate(session), [])
 
-            # A spreadsheet or Word file named after the folder is the single final deliverable; anything else is stray.
+            # A spreadsheet or Word file sits in the root next to the summary page that lists it (test_session_layout.py covers the flow).
             sheet_session = create_session(root, "门店销售表", ["document"], skill_root=ROOT, cards=["xlsx"])
             self.assertTrue((sheet_session / "raw" / "00-rules" / "xlsx.md").is_file())
-            (sheet_session / f"{sheet_session.name}.xlsx").write_bytes(b"xlsx")
-            self.assertTrue(any("采用的规则" in error for error in validate(sheet_session)))
-            adopt_rules(sheet_session, "文件设计规范 › 核心规则 › 表格文件", "无序号列，分组名纵向合并")
-            self.assertEqual(validate(sheet_session), [])
             (sheet_session / "门店销售表.xlsx").write_bytes(b"xlsx")
-            errors = validate(sheet_session)
-            self.assertEqual(len(errors), 1)
-            self.assertIn("found 门店销售表.xlsx", errors[0])
-            (sheet_session / "门店销售表.xlsx").unlink()
-            (sheet_session / f"{sheet_session.name}.docx").write_bytes(b"docx")
-            self.assertTrue(any("more than one final deliverable" in error for error in validate(sheet_session)))
+            self.assertTrue(any("采用的规则" in error for error in validate(sheet_session)))
+            self.assertTrue(any("汇总页" in error for error in validate(sheet_session)))
 
     def test_system_prototype_and_hardware_are_refused_and_name_luz_system(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
@@ -477,11 +472,12 @@ class SessionFlowTests(unittest.TestCase):
             self.assertIn("system sessions belong to Luz-System", joined)
 
     @unittest.skipUnless(next(OUTPUT_ROOT.glob("004-*"), None), "legacy 004 session is not on this machine")
-    def test_existing_legacy_004_session_has_only_its_stray_spreadsheet_error(self) -> None:
+    def test_existing_legacy_004_session_gets_its_layout_findings_as_notes_only(self) -> None:
         session = next(OUTPUT_ROOT.glob("004-*"))
-        errors = validate(session)
-        self.assertEqual(len(errors), 1, errors)
-        self.assertIn(".xlsx", errors[0])
+        notes: list[str] = []
+        errors = validate(session, notes=notes)
+        self.assertFalse([e for e in errors if "汇总页" in e or "根目录" in e or "found " in e], errors)
+        self.assertTrue(any("旧会话布局" in n for n in notes), notes)
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

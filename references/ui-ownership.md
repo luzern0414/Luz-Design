@@ -30,7 +30,7 @@ Luz-System 决定界面里**有什么、做什么、怎么走**；Luz-Design 决
 
 ## 交接物
 
-**System 交给 Design 的是“界面功能说明”**：页面清单与路由、入口、标签栏项数与名称、每页的组件清单与用途、动作表（动作编号、按钮文案、触发与禁用条件、结果与反馈、确认与撤销、权限）、状态、数据需求、文案键。项目模式里它是系统架构文档的前端页签；独立会话里它是架构与系统设计网页。里面不出现颜色、字号、圆角、阴影、图标图形、图片内容、动画时长和栅格数值。
+**System 交给 Design 的是“界面功能说明”**：页面清单与路由、入口、标签栏项数与名称、每页的组件清单与用途、动作表（动作编号、按钮文案、触发与禁用条件、结果与反馈、确认与撤销、权限）、状态、数据需求、文案键。项目模式里它是系统架构阶段登记的随附产物（`界面功能说明.html` 与 `frontend-spec.json`，受哈希保护，见 Luz-Project `references/dev-documents.md`），架构文档本身不设前端页签；独立会话里它是架构与系统设计网页。里面不出现颜色、字号、圆角、阴影、图标图形、图片内容、动画时长和栅格数值。
 
 **System 交给 Design 的还有“入口表”`entrances.json`**：每个前台功能一行，由 System 在架构阶段随功能说明一起交出，Design 据此决定首页的模块、顺序与去重，不增删入口。字段：`fn`（功能编号，对应功能清单）、`name`（界面上的入口名称）、`type`（功能类型：`context`、`search`、`task`、`status`、`account`、`order`、`marketing`、`content`、`tool` 九类之一）、`category`（`core`、`info`、`marketing`、`aux`）、`entry`（唯一入口归属：`tab`、`home`、`mine`、`context`、`in-page`）、`destination`（目的地，页面编号或路由加参数）、`freq`（`high`、`mid`、`low`）；可选 `image`、`limited`、`summary`，另可带 `tabbar`。格式细节以 `py -X utf8 scripts/page_pattern.py show entrances_schema` 为准；System 一侧用 `entrances_check.py` 检查。入口归属是功能，归 System；首页放哪个区域、同一目的地不重复出现，是版面，归 Design。Design 发现入口表有缺或有冲突时，写进 BRIEF 的退回清单交还 System，不自行补入口。
 

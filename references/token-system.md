@@ -110,7 +110,7 @@
 
 ## 8a 现状审计结果（2026-11-04，`audit_theme_discipline.py` 跑 25 套主题，themes.json 未改动）
 
-全库没有 FAIL；WARN 与 INFO 如下，**只报告，没有改任何主题**，改不改由用户裁定。完整明细在会话的 `theme-discipline.md`。
+全库没有 FAIL；WARN 与 INFO 如下，**只报告，没有改任何主题**，改不改由用户裁定。完整明细在会话 `raw` 下的 `theme-discipline.md`。
 
 | 发现 | 范围 | 含义 | 建议 |
 |---|---|---|---|

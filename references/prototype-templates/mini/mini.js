@@ -143,6 +143,7 @@ const bgImageGroup = {
 K.kind({
   id: 'mini', tabsKey: 'tabbar', screen: '#ptScreen', clip: '#ptPhone', toasts: '#ptToasts', darkMode: 'tokens', confirmCid: 'MP-FB-002',
   size: () => { const d = device(); return { w: d.width, h: d.height } },
+  stageMin: () => device().width + 16, /* 舞台至少一个设备框宽加两侧各 8：外壳放不下三栏时把左右栏改成抽屉，手机框不压到面板上 */
   defaultGroups: ['appearance', 'theme', 'header', 'bgImage', 'iconStyle', 'iconTile'],
   typeLabel: { tab: '一级页', sub: '二级页', sheet: '弹层', result: '结果页' },
   config: [headerGroup, bgImageGroup],

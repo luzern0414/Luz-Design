@@ -198,6 +198,27 @@ class FigureColourAndRoutingTests(unittest.TestCase):
         down, sideways = links[3], links[2]                                              # S2 -> database, S2 -> S4: both leave S2's bottom
         self.assertLess(down[0][0], sideways[0][0])                                      # the one going straight down leaves to the left of the one going right
 
+    def test_a_link_to_the_external_column_has_its_own_lane_and_does_not_run_along_another_link(self):
+        # Audit 014 (A-08): the lane of a link into the external column was counted with the lanes of the gap BELOW the layer, so after two links between the
+        # middle and the last layer it landed on the lane of a link between the first two layers and the two ran side by side.
+        t = showcase.tokens("cantonese-cafe")
+        data = {"layers": [
+            {"name": "使用端", "nodes": [{"id": "U1", "name": "手机浏览器", "role": "销售录入"}, {"id": "U2", "name": "电脑浏览器", "role": "主管与管理员"}]},
+            {"name": "业务模块", "nodes": [{"id": f"S{k}", "name": n, "role": "说明"} for k, n in enumerate(["账号权限", "洽谈录入", "客户追加", "客户档案", "主管汇总", "选项维护"], 1)]},
+            {"name": "基础保障", "nodes": [{"id": "B1", "name": "数据存储与备份", "role": "每天备份"}, {"id": "B2", "name": "安全访问", "role": "证书"}]}],
+            "external": {"name": "第三方服务", "nodes": [{"id": "X1", "name": "云端语音识别", "role": "转成文字"}]},
+            "flows": [{"from": "U1", "to": "S2", "n": 1}, {"from": "U1", "to": "S4", "n": 2}, {"from": "U2", "to": "S5", "n": 3}, {"from": "U2", "to": "S6", "n": 4},
+                      {"from": "S2", "to": "B1", "n": 5}, {"from": "S5", "to": "B1", "n": 6}, {"from": "S2", "to": "X1", "n": 7}]}
+        links = _links(F.arch_layers(data, t, 1012))
+        self.assertEqual(len(links), 7)
+        runs = [[((ax, ay), (bx, by)) for (ax, ay), (bx, by) in zip(pts, pts[1:]) if abs(ay - by) < 0.01 and abs(ax - bx) > 2] for pts in links]
+        for i in range(len(links)):
+            for j in range(i + 1, len(links)):
+                for (a1, a2) in runs[i]:
+                    for (b1, b2) in runs[j]:
+                        overlap = min(max(a1[0], a2[0]), max(b1[0], b2[0])) - max(min(a1[0], a2[0]), min(b1[0], b2[0]))
+                        self.assertFalse(abs(a1[1] - b1[1]) < 3 and overlap > 2, (i + 1, j + 1, a1, a2, b1, b2))      # two horizontal runs on one lane
+
     def test_a_swimlane_link_goes_around_a_box_in_its_way(self):
         t = showcase.tokens("cantonese-cafe")
         data = {"lanes": [{"name": "甲"}, {"name": "乙"}], "stages": ["一", "二", "三", "四"],

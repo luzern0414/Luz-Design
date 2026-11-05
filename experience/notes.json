@@ -493,9 +493,9 @@
       "kind": "lesson",
       "text": "后台模板的侧栏不按角色过滤：nav[].roles 没有代码读它，首页标签固定取 K.tabs[0]（不可关闭，关唯一标签还会抛错）。多角色后台要在内容模块里按角色改 K.spec.nav[].hidden 并把 K.tabs 重排成本角色在前，清 K.ad.state.open；直接改模板前先向引擎提请求。",
       "why": "后台原型主管与管理员共用一个壳，侧栏各 4 项",
-      "uses": 1,
+      "uses": 2,
       "first_seen": "2026-11-04",
-      "last_confirmed": "2026-11-04"
+      "last_confirmed": "2026-11-05"
     },
     {
       "key": "audit-claims-check-the-standard-first",
@@ -632,6 +632,15 @@
       "last_confirmed": "2026-10-29"
     },
     {
+      "key": "copy-table-generated-from-spec-and-key-scan",
+      "kind": "lesson",
+      "text": "原型的界面文案表不手抄：构建时从 System 的界面功能说明 JSON 的 copy 生成整张表，场景逐项测试里扫页面文字，出现任何文案键原文、undefined、NaN、[object 或没替换的 {变量} 就失败；System 改名或删键后用扫描找出内容模块里仍在用的旧键（本次是 recycle.ok、ov.err.load、denied.action 这类设计自起的名字）。",
+      "why": "System 一轮修订新增 31 个、改名 1 个、删除 20 个文案键，手抄表会漏",
+      "uses": 1,
+      "first_seen": "2026-11-05",
+      "last_confirmed": "2026-11-05"
+    },
+    {
       "key": "cover-title-long-name",
       "kind": "lesson",
       "text": "客户正式文档封面标题一号放不下时自动缩小：超过 15 个字用二号、超过 19 个字用小二，保证标题不在第二行只剩一个字；做完用真实导出的 PDF 渲染封面再看。",
@@ -668,13 +677,22 @@
       "last_confirmed": "2026-11-04"
     },
     {
+      "key": "device-capsule-miniprogram-only",
+      "kind": "lesson",
+      "text": "mini 模板 device.capsule 默认 true，画的是微信小程序右上角的菜单胶囊，只对小程序有意义；做手机浏览器网页（销售在手机上用的 H5）一律写 device.capsule=false，规格校验不会提醒，写进 ENGINE.md、规格 schema 与 prototype-reference 规则页。",
+      "why": "项目把手机网页原型默认画上了小程序胶囊，审计才发现",
+      "uses": 1,
+      "first_seen": "2026-11-05",
+      "last_confirmed": "2026-11-05"
+    },
+    {
       "key": "dialog-focus-return-after-rerender",
       "kind": "lesson",
       "text": "居中面板与确认框关闭后焦点回不到触发元素：引擎先 opener.focus() 再 K.render() 整页重画，原元素已被替换。做法：触发元素带 data-fk，点击（捕获阶段）记下，对 dialog 的 close 事件（捕获阶段）置标记，渲染后按 data-fk 找回；外壳里的触发（版本行、账号菜单项）同样补 data-fk。Playwright 里断言 document.activeElement.dataset.fk。",
       "why": "后台原型验收：对话框焦点陷阱、Esc、焦点回到触发元素",
-      "uses": 1,
+      "uses": 2,
       "first_seen": "2026-11-04",
-      "last_confirmed": "2026-11-04"
+      "last_confirmed": "2026-11-05"
     },
     {
       "key": "docx-check-cue-brackets",
@@ -773,6 +791,15 @@
       "uses": 4,
       "first_seen": "2026-10-29",
       "last_confirmed": "2026-11-04"
+    },
+    {
+      "key": "figure-external-lane-own-counter",
+      "kind": "lesson",
+      "text": "分层架构图里连向外部系统的线，车道要用自己的计数（层上方的空隙），不能与层下方空隙的车道计数共用，否则会与层间连线落在同一条水平线上重叠；改动后用测试比较各连线水平段是否同车道重叠，并渲染出图逐页看",
+      "why": "审计 014 A-08：第 7 条数据流与第 3 条并行重叠；modified showcase_figures.py 并加回归测试",
+      "uses": 1,
+      "first_seen": "2026-11-05",
+      "last_confirmed": "2026-11-05"
     },
     {
       "key": "figure-hue-per-layer-neutral-links",
@@ -939,9 +966,9 @@
       "kind": "lesson",
       "text": "组件库的 .btn-p 主按钮是渐变加彩色投影，与不用渐变按钮的底线冲突；在内容样式里改成实色主色、圆角取四档里的 8、去掉投影；check_document 仍会因库自己的渐变规则报错，要在缺陷清单里写明是库的规则而不是页面的。",
       "why": "手机页原型 check_document 逐条归因",
-      "uses": 1,
+      "uses": 2,
       "first_seen": "2026-11-04",
-      "last_confirmed": "2026-11-04"
+      "last_confirmed": "2026-11-05"
     },
     {
       "key": "layered-rule-consistency",
@@ -1071,10 +1098,11 @@
     {
       "key": "publish-docx-manual-copy",
       "kind": "lesson",
-      "text": "publish.py 的 document 阶段只发布 HTML（会把模板 document.html 当成品）；Word 或 Excel 成品直接放到会话根目录，命名为文件夹名加扩展名，不跑 publish.py。",
-      "uses": 1,
+      "text": "publish.py 的 document 阶段只发布网页（成为会话根目录的汇总页）；Word、Excel 等成品检查通过后用 deliver.py 放进会话根目录（项目任务用 --project 建会话、--to 写进项目 docs），再用 make_summary.py 生成列出它的汇总页，不跑 publish.py。",
+      "why": "2026-11-05 输出目录统一规范：根目录只有 raw 与同名汇总页，成品文件名不再等于会话名",
+      "uses": 2,
       "first_seen": "2026-10-29",
-      "last_confirmed": "2026-10-29"
+      "last_confirmed": "2026-11-05"
     },
     {
       "key": "read-docx-card-before-client-docs",
@@ -1084,6 +1112,15 @@
       "uses": 1,
       "first_seen": "2026-11-02",
       "last_confirmed": "2026-11-02"
+    },
+    {
+      "key": "reading-page-advisory-phrases",
+      "kind": "lesson",
+      "text": "check_document 把阅读型页面里“…摘要”结尾的二级标题当附属章节，把“说明：”“建议：”开头的段落和表格单元格里的“下一步计划”这类元信息词当提示语报错；评审页和结论页的来源摘录里改写成事实句（如“接下来要做的事”），章节标题用内容名。",
+      "why": "014 返工：需求评审页因“一、需求摘要”“建议：”和来源表里的“下一步计划”被拦，重写后零错误。",
+      "uses": 1,
+      "first_seen": "2026-11-05",
+      "last_confirmed": "2026-11-05"
     },
     {
       "key": "reading-page-for-design-docs",
@@ -1133,11 +1170,11 @@
     {
       "key": "session-tree-validated-keep-work-outside",
       "kind": "lesson",
-      "text": "会话校验会递归检查会话目录里的全部 HTML 与 02-visual 文件夹：构建工作区、工具页和框架项目放在会话目录之外，会话里只放一个成品和 raw 下的说明材料",
-      "why": "2026-11-04 构建树与工具页放在会话里被校验报错，搬出后通过",
-      "uses": 1,
+      "text": "会话根目录只放 raw 和同名汇总页（独立任务再加成品）：构建工作区、框架项目、工具页、评审页和生成脚本都放进 raw；校验只按成品契约检查简报、阶段页和汇总页，raw 里其余网页与文件不当成品检查；布局用 check_output_layout.py session 核对。",
+      "why": "2026-11-05 输出目录统一规范取代原先把构建树放到会话目录之外的做法",
+      "uses": 2,
       "first_seen": "2026-11-04",
-      "last_confirmed": "2026-11-04"
+      "last_confirmed": "2026-11-05"
     },
     {
       "key": "shell-pd-not-text-token",
@@ -1147,6 +1184,15 @@
       "uses": 1,
       "first_seen": "2026-11-04",
       "last_confirmed": "2026-11-04"
+    },
+    {
+      "key": "shell-stage-before-panels-float-when-narrow",
+      "kind": "lesson",
+      "text": "原型三栏外壳窗口放不下时先保舞台宽度：kind 用 stageMin 声明舞台下限，引擎启动与改变窗口时按“窗口宽减 32 是否容得下左栏、右栏、两个间隙和舞台下限”决定先把右栏再把左栏改成浮在舞台上的面板（默认收起，点页头按钮打开，点遮罩或 Esc 收起）；折叠与浮层规则只在宽窗口生效，设备框取高度与舞台宽度里更小的比例。以前两栏各取最大宽度，嵌在约 1050 宽的设计文档 iframe 里手机框压到面板上、后台舞台被挤到约 400 退成窄屏。回归测试在 test_prototype_shell_layout.py，量 1050、1200、1440、1920 的舞台宽度、设备框与面板是否重叠、后台侧栏是否带名称。",
+      "why": "项目设计阶段审计发现文档页签里的原型被外壳挤变形（评审人看到的不是原型应有的样子）",
+      "uses": 1,
+      "first_seen": "2026-11-05",
+      "last_confirmed": "2026-11-05"
     },
     {
       "key": "small-fill-selector-naming",
@@ -1182,6 +1228,15 @@
       "uses": 1,
       "first_seen": "2026-11-04",
       "last_confirmed": "2026-11-04"
+    },
+    {
+      "key": "static-check-brand-card-class-name",
+      "kind": "lesson",
+      "text": "check_document 只认类名 .brand-card 是品牌主卡：卡内的子元素写成 .brand-card 的后代选择器，检查才知道白字压在卡的实色底上；换别的类名会被报“白字 1.0:1”与“深色或饱和填充”。石墨这类深中性主色做品牌主卡仍会被报“dark neutral”，那是规则与主题的冲突，如实写进冲突记录，不为过静态检查去换色或去掉用户选定的主卡。",
+      "why": "重建原型时把品牌主卡类名统一成 brand-card，该项静态错误从 36 降到 28",
+      "uses": 1,
+      "first_seen": "2026-11-05",
+      "last_confirmed": "2026-11-05"
     },
     {
       "key": "swimlane-gutters",
@@ -1344,6 +1399,15 @@
       "last_confirmed": "2026-11-02"
     },
     {
+      "key": "client-pdf-page-sheets",
+      "kind": "fact",
+      "text": "Word 排版导出的客户 PDF（需求说明书、方案说明书、使用说明）逐页读图用 PyMuPDF 渲成每张六页的总览图（Luz-Project 构建时写入 raw/client-docs/<名>-pages-N.png）：封面无页码、目录页码与标题所在页一致、续表编号接续、每页占满情况都能一眼看出。",
+      "why": "014 审计 A-32：01、02 没有总览图，逐页阅读没有依据。",
+      "uses": 1,
+      "first_seen": "2026-11-05",
+      "last_confirmed": "2026-11-05"
+    },
+    {
       "key": "component-library-dark-layer",
       "kind": "fact",
       "text": "组件库深色层：<html> 或任意祖先带类 dark 为深色，light 强制浅色，都没有则跟随系统，data-theme 同义，最近一层生效；setAppearance(system|light|dark) 记 localStorage 的 luz-theme，applyTheme 只写 data-lt（行内值会压住深色）；--p-text、--p-fg 给主题色当文字用。背景、文字、边框、阴影、遮罩、状态色一律是令牌，浅色值等于原来写死的值，深色值由 tools/tokens.py 生成。例外：白字、二维码、深色侧栏、深底舞台（.st.night）、照片遮罩、纯黑阴影、彩色点缀；全库对比度只剩 1 个装饰数字。",
@@ -1384,9 +1448,9 @@
       "kind": "fact",
       "text": "演示数据用固定种子的脚本生成并沿用另一端已有的数据（同一账号编号取模得到同一头像），汇总数字不写死，全部在页面里由明细算出；用 Playwright 断言每个指标、图上每一项点进明细后的条数等于图上数字。固定演示时钟放在数据里；注意默认“本月”在月初只有几天，周粒度会少于 3 个点而触发降级。",
       "why": "后台汇总概览与明细的数字对得上",
-      "uses": 1,
+      "uses": 2,
       "first_seen": "2026-11-04",
-      "last_confirmed": "2026-11-04"
+      "last_confirmed": "2026-11-05"
     },
     {
       "key": "design-path-and-thinking-chain",
@@ -1636,6 +1700,15 @@
       "last_confirmed": "2026-11-02"
     },
     {
+      "key": "prototype-build-relative-paths",
+      "kind": "fact",
+      "text": "原型构建与检查脚本放在会话 raw 里（描述文件、生成脚本、检查输出都不进项目），用一个 _paths.py 相对自己所在位置取会话 raw，技能根目录读环境变量 LUZ_SKILLS_ROOT（有默认值），成品直接写进项目 docs 下的原型文件（项目目录取自 project.json 的 deliver_root）而不在 raw 里留逐字节重复的拷贝；一个 build.py 一键重建（数据、规格、内容模块、生成、映射表、令牌），一个 run_checks.py 跑全部检查并把原始输出写进 raw 的 checks 目录、末尾打印汇总表。",
+      "why": "项目设计阶段审计：脚本写死绝对路径，成品在 raw 与 docs 各存一份；2026-11-05 输出目录统一规范：项目只放成果，脚本与过程文件在会话 raw",
+      "uses": 2,
+      "first_seen": "2026-11-05",
+      "last_confirmed": "2026-11-05"
+    },
+    {
       "key": "prototype-reference-page",
       "kind": "fact",
       "text": "产品开发用的前端界面 HTML（三栏单文件可点原型、多系统多页签）的规则页是 references/prototype-reference.html（id 前缀 proto），规则卡 prototype-reference（context.py prototype-reference），在 design-path 的 P8 读。内容：整套用、只取一块还是自己写的判定，交付形态与 Luz-Project 02 文档的对齐，按编号取组件与 data-cid，规格与两个生成器，深浅色契约，验收命令，已知限制；细节以 prototype-templates 与 component-library 的 README 为准。",
@@ -1665,11 +1738,15 @@
     {
       "key": "prototype-template-engine",
       "kind": "fact",
-      "text": "原型模板在 references/prototype-templates/：engine/（引擎与接口契约 ENGINE.md）、mini/、admin/、schema/、examples/（商城、垂直电商、到店预约三份行业各异的示例）；生成器 scripts/build_prototype.py <规格> --out/--check，默认输出 dist/（已忽略）。机制可整套复用，页面清单与首页组成只是参考，规格无必填页面。深色用库的真令牌（html 的 data-theme，外壳变量带 sh-/mo- 前缀不与库重名），弹层 dialog 在 body 下要单独 applyTheme；库组件的点击钩子先于委托，引擎点击委托用捕获阶段。测试：test_prototype_mini/florist/admin/suite。",
-      "why": "用户 2026-11-04 要求把小程序成品抽成可由规格生成的原型模板；组件库深色层完成后引擎改接令牌，并处理后台模板提的引擎请求",
-      "uses": 2,
+      "text": "原型模板在 references/prototype-templates/：engine/（引擎与契约 ENGINE.md）、mini/、admin/、schema/、examples/；生成器 scripts/build_prototype.py <规格> --out/--check。机制可整套复用，页面清单与首页组成只是参考。深色用库的真令牌，弹层 dialog 在 body 下要单独 applyTheme，引擎点击委托用捕获阶段。三栏外壳舞台优先：kind 的 stageMin 声明舞台下限，放不下时左右栏改成浮层；device.capsule 只给小程序；外观选择不记 localStorage。测试：test_prototype_mini/florist/admin/suite/shell_layout。",
+      "why": "用户 2026-11-04 要求把小程序成品抽成可由规格生成的原型模板；本次补舞台优先与胶囊语义",
+      "uses": 3,
       "first_seen": "2026-11-04",
-      "last_confirmed": "2026-11-04"
+      "last_confirmed": "2026-11-05",
+      "previous": {
+        "text": "原型模板在 references/prototype-templates/：engine/（引擎与接口契约 ENGINE.md）、mini/、admin/、schema/、examples/（商城、垂直电商、到店预约三份行业各异的示例）；生成器 scripts/build_prototype.py <规格> --out/--check，默认输出 dist/（已忽略）。机制可整套复用，页面清单与首页组成只是参考，规格无必填页面。深色用库的真令牌（html 的 data-theme，外壳变量带 sh-/mo- 前缀不与库重名），弹层 dialog 在 body 下要单独 applyTheme；库组件的点击钩子先于委托，引擎点击委托用捕获阶段。测试：test_prototype_mini/florist/admin/suite。",
+        "replaced_at": "2026-11-05"
+      }
     },
     {
       "key": "quote-standard-discount-final-rows",
@@ -1706,6 +1783,15 @@
       "uses": 1,
       "first_seen": "2026-11-04",
       "last_confirmed": "2026-11-04"
+    },
+    {
+      "key": "session-output-layout",
+      "kind": "fact",
+      "text": "会话目录 NNN-主题 的根只放 raw 和同名汇总页：网页成品就是汇总页（publish.py），xlsx、docx、pdf 等独立任务的成品放根目录（deliver.py）并由 make_summary.py 的 spec（成果、依据、过程文件）列出；项目任务用 new_session.py --project 建会话，成品只写进项目 docs 的 NN-名称，项目不保存原始文件；校验只对带 output_standard 的新会话报错，旧会话只提示。",
+      "why": "用户 2026-11-05 定的 Luz 技能输出目录统一规范；落实在 new_session、publish、deliver、validate_session、validate_skill 与 test_session_layout",
+      "uses": 1,
+      "first_seen": "2026-11-05",
+      "last_confirmed": "2026-11-05"
     },
     {
       "key": "showcase-pipeline",

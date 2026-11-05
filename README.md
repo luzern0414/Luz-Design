@@ -59,7 +59,7 @@
 
 1. **先读规则卡**：`context.py <任务类型>` 一次给出这类任务的你的偏好、相关教训、规范原文、该用的工具和必须通过的检查；模板和生成脚本只是骨架，内容以规则卡为准。
 2. **收集事实**：只记录用户给出的目的、对象、渠道、精确文案、尺寸与格式；缺文案或格式就先停下来问。
-3. **建会话**：每个任务一个编号目录，工作文件放在 `raw/`，最终只交付一个文件。
+3. **建会话**：每个任务一个“三位序号-主题”目录，根目录只有 `raw/`（全部源文件与过程文件）和同名汇总页；独立任务的成品也放在根目录并在汇总页里列出，项目任务的成果只写进项目目录的 `docs`（`01-需求对接`、`02-产品开发`、`03-验收交付`，文件名“序号-名称”），项目不保存任何原始文件。汇总页用 `make_summary.py` 生成，布局用 `check_output_layout.py` 检查；旧会话保留原样，校验只给提示。
 4. **调研**：配色、字体或文件格式需要依据时，按 Luz-Crawl 的调用协议查官方色板、设计体系和标准，并写明依据。
 5. **出稿**：视觉稿汇总在一个总览页里，**等用户批准**后才算定稿；文件先定类型，再按类型排版并导出。
 6. **检查与交付**：在 BRIEF 里写明采用了哪些规则；表格和 Word 生成后自动检查，网页用检查脚本复核，零错误才交付；没写“采用的规则”的会话不能发布；改动过的产出需要重新批准。
@@ -78,7 +78,7 @@ SKILL.md        技能入口：分工、路由、规则摘要、每次调用后�
 WORKFLOW.md     各阶段的进入条件与停止条件
 references/     视觉设计规范、文件设计规范、界面实现参考（价格、角标、券面、不规则卡片与浮层效果的画法）、页面范式库（page-patterns.html，数据在 page-patterns.json）、设计路径与思考链（design-path.html，数据在 design-path.json）、原型参考实现与组件模板库的规则页（prototype-reference.html）、组件模板库（component-library/）、原型参考实现（prototype-templates/）、界面职责划分（ui-ownership.md）、行业主题库、UI 套件（含交易与营销界面示例 commerce-kit）、生图提示词与会话模板
 experience/     经验库：用户偏好、教训、配色与字阶等模式、来源，以及生成的目录页
-scripts/        文件、PDF 与对比度检查、设计令牌导出、Excel 与 Word 生成、页面范式（page_pattern.py）与设计路径（design_path.py）、原型生成（build_prototype.py、build_prototype_suite.py）与组件模板库的构建检查、会话、发布、经验库、校验与测试
+scripts/        文件、PDF 与对比度检查、设计令牌导出、Excel 与 Word 生成、页面范式（page_pattern.py）与设计路径（design_path.py）、原型生成（build_prototype.py、build_prototype_suite.py）与组件模板库的构建检查、会话（new_session、add_mode）、发布与交付（publish、deliver）、汇总页与布局检查（make_summary、check_output_layout）、经验库、校验与测试
 agents/         Agent 平台配置
 ```
 

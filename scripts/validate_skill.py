@@ -39,6 +39,12 @@ REQUIRED = [
     "scripts/validate_session.py",
     "scripts/validate_skill.py",
     "scripts/publish.py",
+    "scripts/deliver.py",
+    "scripts/check_output_layout.py",
+    "scripts/make_summary.py",
+    "scripts/test_output_layout.py",
+    "scripts/test_make_summary.py",
+    "scripts/test_session_layout.py",
     "scripts/experience.py",
     "scripts/test_session_flow.py",
     "scripts/test_experience.py",
@@ -210,7 +216,7 @@ RULE_PAGES = [
     ("ui-details.html", "details", "界面细节规范"),
     ("prototype-reference.html", "proto", "原型参考实现与组件模板库"),
 ]
-TEMPLATE_NAMES = ("brief.md", "visual-board.html", "document.html", "commerce-kit.html", "approvals.json", "manifest.json",)
+TEMPLATE_NAMES = ("brief.md", "visual-board.html", "document.html", "commerce-kit.html", "approvals.json", "manifest.json", "summary.json",)
 REFERENCE_SUBDIRS = {"ui-kit", "component-library", "prototype-templates"}   # ui-kit: 视觉实现底座（样式、行为、六种布局的可运行页面），页面本身也要过顶部结构检查
 # The skill keeps four folders (agents, references, scripts, experience); sessions are outputs and live in OUTPUT_ROOT.
 ALLOWED_TOP_LEVEL = {".git", ".gitignore", "LICENSE", "NOTICE", "README.md", "SKILL.md", "WORKFLOW.md", "agents", "references", "scripts", "experience"}
@@ -514,6 +520,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Validate the flattened Luz Design skill and root-level sessions.")
     parser.add_argument("--strict-production", action="store_true", help="Validate every session as handed off (strict session structure)")
     parser.add_argument("--package-only", action="store_true", help="Validate only the skill package, not the sessions in the output root")
+    parser.add_argument("--legacy-details", action="store_true", help="List every finding of the older sessions (they are notes, never errors)")
     args = parser.parse_args(argv)
     errors: list[str] = []
     for rel in REQUIRED:
@@ -658,7 +665,7 @@ def main(argv: list[str] | None = None) -> int:
             templates[name] = read_template(ROOT, name)
         except (KeyError, OSError) as exc:
             errors.append(str(exc))
-    for name in ("approvals.json", "manifest.json"):
+    for name in ("approvals.json", "manifest.json", "summary.json"):
         if name in templates:
             try:
                 json.loads(templates[name])
@@ -672,7 +679,7 @@ def main(argv: list[str] | None = None) -> int:
         if name in templates and f'data-artifact="{artifact}"' not in templates[name]:
             errors.append(f"{name} must declare its artifact type")
     # Schema 3.0 ledgers carry only Luz Design stages; system stages belong to Luz-System.
-    from validate_session import LEGACY_SYSTEM_STAGES, SCHEMA_VERSION, STAGE_PATHS
+    from validate_session import LEGACY_SYSTEM_STAGES, OUTPUT_STANDARD, SCHEMA_VERSION, STAGE_PATHS
     for name in ("approvals.json", "manifest.json"):
         try:
             data = json.loads(templates.get(name, "{}"))
@@ -680,6 +687,8 @@ def main(argv: list[str] | None = None) -> int:
             continue
         if data.get("schema_version") != SCHEMA_VERSION:
             errors.append(f"template {name} schema_version must be {SCHEMA_VERSION}")
+        if name == "manifest.json" and data.get("output_standard") != OUTPUT_STANDARD:
+            errors.append(f"template manifest.json output_standard must be {OUTPUT_STANDARD} (sessions made from it follow the output layout)")
         keys = set(data.get("stages", {})) if name == "manifest.json" else set(data) - {"schema_version", "standalone_poster"}
         if keys != set(STAGE_PATHS) or keys & set(LEGACY_SYSTEM_STAGES):
             errors.append(f"template {name} stages must be exactly: {', '.join(STAGE_PATHS)}")
@@ -699,12 +708,9 @@ def main(argv: list[str] | None = None) -> int:
     if args.package_only:
         return 1 if errors else 0
 
-    sessions = [path for path in OUTPUT_ROOT.iterdir() if path.is_dir() and SESSION_RE.match(path.name)] if OUTPUT_ROOT.is_dir() else []
-    session_errors = [
-        f"{session.name}: {error}"
-        for session in sorted(sessions)
-        for error in validate_session(session, strict=args.strict_production)
-    ]
+    session_errors, session_notes, session_count = session_sweep(OUTPUT_ROOT, args.strict_production, args.legacy_details)
+    for note in session_notes:
+        print("NOTE", note)
     if errors or session_errors:
         if session_errors:
             print(f"SESSIONS FAIL: {len(session_errors)} issue(s) in {OUTPUT_ROOT}")
@@ -714,13 +720,48 @@ def main(argv: list[str] | None = None) -> int:
         return 1
     if not Path("D:/Codes/Imagegen/src/imagegen.py").is_file():
         print("WARN: Imagegen was not found at D:\\Codes\\Imagegen")
-    session_label = f"{len(sessions)} production session(s)" if args.strict_production else f"{len(sessions)} session(s)"
+    session_label = f"{session_count} production session(s)" if args.strict_production else f"{session_count} session(s)"
     validation_label = "sessions strictly validated" if args.strict_production else "sessions structurally validated"
     print(
         f"PASS: Luz Design skill validated with {len(REQUIRED)} required files, "
         f"{session_label}, {len(RULE_PAGES)} rule pages, and {validation_label}"
     )
     return 0
+
+
+def session_sweep(output_root: Path, strict: bool = False, details: bool = False) -> tuple[list[str], list[str], int]:
+    """(errors, notes, number of sessions) of the sessions in the output root.
+
+    A session created under the output layout (MANIFEST.json output_standard) is validated and its findings fail the run. An
+    older session (two-digit number, several deliverables in the root, no summary page, no manifest) stays as it is: its
+    findings are notes, in full with `details`, otherwise one line with the count."""
+    from check_output_layout import LEGACY_NAME
+    from validate_session import read_manifest, uses_output_standard
+    errors: list[str] = []
+    notes: list[str] = []
+    older: list[str] = []
+    skipped: list[str] = []
+    count = findings = 0
+    for session in sorted(path for path in output_root.iterdir() if path.is_dir()) if output_root.is_dir() else []:
+        if not (SESSION_RE.match(session.name) or LEGACY_NAME.match(session.name)):
+            skipped.append(session.name)
+            continue
+        count += 1
+        hints: list[str] = []
+        found = validate_session(session, strict=strict, notes=hints)
+        if uses_output_standard(read_manifest(session)):
+            errors.extend(f"{session.name}: {error}" for error in found)
+            notes.extend(f"{session.name}: {hint}" for hint in hints)
+            continue
+        older.append(session.name)
+        findings += len(found) + len(hints)
+        if details:
+            notes.extend(f"{session.name}: {message}" for message in found + hints)
+    if older:
+        notes.insert(0, f"{len(older)} older session(s) kept as they are, {findings} finding(s) not enforced (--legacy-details lists them)")
+    if skipped:
+        notes.insert(0, f"not numbered session folders, not validated: {', '.join(skipped)}")
+    return errors, notes, count
 
 
 def sibling_card_errors() -> list[str]:

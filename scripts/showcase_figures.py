@@ -273,6 +273,7 @@ def arch_layers(data: dict[str, Any], t: dict[str, str], w: int) -> str:
     # --- flows. A node has its links on two sides (top, bottom); on each side they leave in the order of where they go, left to right
     # (a link to the right margin or the external column last), so that a link going straight down never crosses the lane of one going sideways.
     used_lane = [0] * (len(layers) + 1)
+    used_top = [0] * (len(layers) + 1)      # lanes of the gap ABOVE a layer, taken by the links to the external column; used_lane counts those below it
     buckets: dict[tuple[str, bool], list[tuple[float, int, str]]] = {}
     for k, f in enumerate(flows):
         a, b = f["from"], f["to"]
@@ -315,8 +316,8 @@ def arch_layers(data: dict[str, Any], t: dict[str, str], w: int) -> str:
             inner_id, ext_id = (b, a) if ga.get("ext") else (a, b)
             gi, ge = geo[inner_id], geo[ext_id]
             li = gi["layer"]
-            lane = (lb_y := layer_boxes[li]["y"]) - 12 - 18 * used_lane[li]
-            used_lane[li] += 1
+            lane = (lb_y := layer_boxes[li]["y"]) - 12 - 18 * used_top[li]
+            used_top[li] += 1
             xi = px(inner_id, True, k, "i")
             lane_x = x1 + lane_zone - 18 * (k % max(1, len(ext_flows))) - 8
             ye = ge["y"] + ge["h"] / 2

@@ -16,7 +16,7 @@
       ],
       "tools": [
         "先写描述文件 spec.json，再运行 `py -X utf8 scripts/make_xlsx.py spec.json <输出.xlsx>`；脚本写完会自动检查，有 ERROR 就改到通过",
-        "要放进会话时：`py -X utf8 scripts/new_session.py --name \"<名称>\" --modes document --card xlsx`；描述文件留在 `raw/03-documents/`，成品检查通过后复制到会话根目录并以会话名命名",
+        "要放进会话时：`py -X utf8 scripts/new_session.py --name \"<名称>\" --modes document --card xlsx`；描述文件留在 `raw/03-documents/`，成品检查通过后用 `py -X utf8 scripts/deliver.py <会话目录> <成品>` 放进会话根目录，再用 `make_summary.py` 生成列出它的汇总页（项目任务加 `--project`，成品写进项目的 docs，见 SKILL.md Sessions）",
         "版式固定，不按主题换色：宋体（用户要求时微软雅黑，全簿一个字体族），标题为正文加 4 磅（默认 16 磅）粗体居中，`subtitle` 一行副标题（写给谁、版本、日期、金额口径、颜色含义），表头蓝灰底；文字一律黑色，颜色只做底色：`tint_by` 指定一列，每个取值依次取六种淡色铺整行，`highlight` 把需要多看一眼的行（可选、新增）数据格铺黄色；所有边框细黑线，关闭网格线；`theme` 只为兼容保留",
         "列类型：`text`、`longtext`、`money`（#,##0.00）、`days`（0.0，工时）、`number`、`decimal`、`percent`、`date`；名称列自动粗体左对齐，数字右对齐；类型这类标签列写 `\"tags\": [\"基础\", \"可选\"]`，值加粗，颜色由整行底色表达，文字仍是黑色",
         "行高按最长一格的行数算（每行字号的 1.5 倍加字号 0.6 倍的边距，12 磅字单行 25、两行 43、三行 61，换行符另起一行），所有文本列自动换行，工作簿默认字体与单元格同一字体族；不要手工把行高改小",
@@ -44,7 +44,7 @@
         "先写描述文件 spec.json（type: contract | proposal | report | minutes | general；论文版式加 \"style\": \"paper\"，标题编号 \"number_format\": \"1、\" 或 \"1.\"），再运行 `py -X utf8 scripts/make_docx.py spec.json <输出.docx>`；脚本写完会自动检查",
         "交给客户的方案书、使用说明、报告（客户正式文档）：在描述文件里加 \"mono\": true、\"cover\": {\"subtitle\": …, \"info\": [[名称, 内容]…]}、\"toc\": true，章节内容写成 \"blocks\"（{\"p\"} 文段、{\"items\"} 列点、{\"sub\"} 二级标题、{\"table\": {header, rows, caption}} 带表题的表），运行 `py -X utf8 scripts/make_docx_paginated.py spec.json <输出.docx>`：它用本机 WPS 文字或 Word 排版，把目录页码和跨页表的“续表 N”写进文件，并导出同名 PDF；交付 PDF；Word 源文件留在 raw，不交给客户，除非用户要",
         "文字内容来自用户或 Luz-Writing；本技能只负责结构与版式",
-        "要放进会话时：`py -X utf8 scripts/new_session.py --name \"<名称>\" --modes document --card docx`；描述文件留在 `raw/03-documents/`，成品检查通过后复制到会话根目录并以会话名命名",
+        "要放进会话时：`py -X utf8 scripts/new_session.py --name \"<名称>\" --modes document --card docx`；描述文件留在 `raw/03-documents/`，成品检查通过后用 `py -X utf8 scripts/deliver.py <会话目录> <成品>` 放进会话根目录，再用 `make_summary.py` 生成列出它的汇总页（项目任务加 `--project`，成品写进项目的 docs，见 SKILL.md Sessions）",
         "描述文件显式选择与当前内容、行业和受众匹配的 theme（references/themes.json）；客户正式文档全黑白，theme 只影响其他文字文档的表格浅色"
       ],
       "checks": [
@@ -70,7 +70,7 @@
       ],
       "tools": [
         "`py -X utf8 scripts/new_session.py --name \"<名称>\" --modes document` 生成会话与 document.html 骨架（标签页图标已按主题填好）",
-        "`py -X utf8 scripts/publish.py <会话目录> document` 发布到会话根目录",
+        "`py -X utf8 scripts/publish.py <会话目录> document` 发布为会话根目录的汇总页（根目录只有它和 raw；项目任务建会话时加 `--project`、发布时加 `--as NN-名称`，页面写进项目的 `docs/02-产品开发/`）；格式见“网页文件 › 会话汇总页”",
         "中文排版（行首行末、行长、行距、中西文间距）与视口写法（语言、缩放、安全区）不收进本卡，用到时读 `references/visual-design.html` 的“中文排版”“视口、安全区与自适应写法”",
         "`references/md-type.css` 是阅读页文字层级的母本（桌面正文 18、手机 16，一到六级标题、列表、引用、表格、代码）；做新的阅读页样式时把它夹在 `luz-md-type:start` 与 `luz-md-type:end` 两行注释之间，各技能的副本用 `py -X utf8 scripts/sync_md_type.py` 核对"
       ],
@@ -95,7 +95,7 @@
       ],
       "tools": [
         "幻灯片版式按本卡；文字来自用户或 Luz-Writing",
-        "要放进会话时：`py -X utf8 scripts/new_session.py --name \"<名称>\" --modes document --card slides`；成品检查通过后复制到会话根目录并以会话名命名（`.pptx`）",
+        "要放进会话时：`py -X utf8 scripts/new_session.py --name \"<名称>\" --modes document --card slides`；成品检查通过后用 `py -X utf8 scripts/deliver.py <会话目录> <成品.pptx>` 放进会话根目录，再用 `make_summary.py` 生成列出它的汇总页（项目任务的 docs 只收 PDF 与 XLSX，导出 PDF 后用 `--project`、`--to` 交付）",
         "画面 13.333 × 7.5 英寸；用版式里的标题占位符写页标题且各页不同，图片加替代文字，表格设表头行；链接文字写明去向。字号 40、28、20、18 磅，任何文字不小于 18 磅"
       ],
       "checks": [
@@ -129,7 +129,7 @@
         "中文 PDF 默认统一微软雅黑（Microsoft YaHei），标题、表头、正文、中西文及页码同一字体族；网页导出源显式固定微软雅黑。用户为当前文件明确指定其他字体、论文或公文版式时按其要求",
         "横版表格目录（行业、产品、方向、价目清单）：写 spec.json，运行 `py -X utf8 scripts/make_table_pdf.py spec.json out.pdf`；脚本生成阅读型网页源并跑 `check_document.py`，用 Edge 导出带书签、标签与页码的 PDF，核对页数上限、字体嵌入与文字层，再输出每 6 页一张的总览图；句子型单元格（功能清单、规则表）在 section 里加 `heads`（每列一个表头）、`widths`（内容列相对宽度）、`fill: true`（单元格铺满列宽，文字左对齐，只有 6 字以内的短值居中）",
         "Markdown 直接按本卡书写",
-        "要放进会话时：`py -X utf8 scripts/new_session.py --name \"<名称>\" --modes document --card pdf-markdown`；成品核对后复制到会话根目录并以会话名命名",
+        "要放进会话时：`py -X utf8 scripts/new_session.py --name \"<名称>\" --modes document --card pdf-markdown`；成品核对后用 `py -X utf8 scripts/deliver.py <会话目录> <成品>` 放进会话根目录，再用 `make_summary.py` 生成列出它的汇总页（项目任务加 `--project`，PDF 写进项目的 docs，见 SKILL.md Sessions）",
         "配色按本次主题显式选择 theme，不能给所有文件套同一颜色；表格按真实行高分页，每个片段独立四角圆角，目录分组标题与章节标题左边线一致；行业术语用 keep_together 词表保护，文案逐项定制、不设统一字数上限",
         "成品 PDF 一律先运行 `py -X utf8 scripts/check_pdf.py <文件.pdf>`：核对嵌入字体数据、字体族（自动按文档判断：微软雅黑文档只许 MicrosoftYaHei 系，正式 Word 文档许宋体、黑体加 Times New Roman，两类混用或字体回退都报错；用户指定其他字体时加 `--fonts 字体名`）、每页文字层、书签和页面尺寸；声明可访问时加 `--accessible`（标签、语言、标题、标题栏显示标题）；印刷稿加 `--print`（裁切框、出血不少于 3 毫米、位图 300 像素每英寸、红绿蓝图片告警）；纯图稿加 `--allow-image-pages`"
       ],

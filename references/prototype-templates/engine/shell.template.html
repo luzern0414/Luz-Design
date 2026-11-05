@@ -6,6 +6,8 @@
 <title>{{TITLE}}</title>
 <link rel="icon" href="{{FAVICON}}">
 {{HEAD}}
+<script>/* 首帧就按系统外观定深浅：脚本在引擎启动前执行，免得先画一帧浅色底再变深（audit_stability 的底色突变）；之后由引擎的外观配置接管 */
+try { if (matchMedia("(prefers-color-scheme: dark)").matches) document.documentElement.setAttribute("data-theme", "dark") } catch (e) {}</script>
 <style>
 /*__KIT_CSS__*/
 /*__IX_CSS__*/

@@ -61,6 +61,14 @@
 </ul>
 <h4>同类问题</h4>
 <p>网页文件是文档，不是应用。凡是把它做成应用界面、或在内容之外增加附属信息的元素都属同类：页眉、页脚、侧栏、导航条、面包屑、品牌块、搜索框、主题切换、返回顶部、浮动按钮、分享按钮、阅读进度条、标签行、状态徽章、过程统计卡、阅读时长、最后更新时间、页内脚注区、“关于本页”折叠区、每节标题下的引导句、节末小结。只有用户明确要求的那一项可以保留。</p>
+<h4>会话汇总页</h4>
+<ul>
+<li>每个会话根目录有一页与目录同名的 <code>NNN-主题.html</code>，与 <code>raw</code> 同级；成品本身是网页时它就是汇总页，其他格式的成品由 <code>py -X utf8 scripts/make_summary.py spec.json &lt;会话目录&gt; --check</code> 生成（描述文件的格式写在脚本开头）。</li>
+<li>单文件、浅色、<code>lang="zh-CN"</code>、单一字体族，字号取下方逐级数值表（桌面正文 18、手机 16，表格 16 与 14），视口不禁用缩放，带标签页图标。</li>
+<li>第一行是唯一的一级标题，不加副标题、时间、哈希和工具名；每节一个二级标题和一张带表题的表，没有内容的节不写。</li>
+<li>成果、依据、过程文件三节：成果写名称、用途、位置（独立任务写同级文件名，项目任务写项目内相对路径，如 <code>docs\01-需求对接\01-需求说明书.pdf</code>）；依据写来源和采用的规则；过程文件写 <code>raw</code> 下的主要文件和用途。</li>
+<li>检查：<code>py -X utf8 scripts/check_output_layout.py session &lt;会话目录&gt; [--project-linked]</code>，核对目录名、根目录内容、<code>raw</code> 与汇总页是否在、一级标题在最前、不禁用缩放；项目任务的成果只在项目目录，根目录不再放。</li>
+</ul>
 <h4>排版参数</h4>
 <p>阅读型网页的文字层级写成 <code>Markdown</code> 渲染的样子：每一级的字号、字重、行高与上下留白固定，页面只取这几级，不另造样式。字号分两套：手机（宽度小于 768 像素）与桌面（768 像素及以上），桌面正文 18，不能比手机小；样式的母本是 <code>references/md-type.css</code>，各技能的阅读页样式用 <code>scripts/sync_md_type.py</code> 同步同一段，不各写各的。</p>
 <div class="table-wrap"><table class="num"><thead><tr><th>层级</th><th><code>Markdown</code> 元素</th><th>桌面</th><th>手机</th><th>字重与行高</th><th>间距</th></tr></thead><tbody>
@@ -418,7 +426,7 @@
 
 <!-- SECTION:output-contract:START id=output-contract data-rule-id=file-output-contract -->
 <section id="output-contract" data-rule-id="file-output-contract" aria-labelledby="output-contract-heading">
-<h2 id="output-contract-heading" class="section-heading"><svg class="icon-linear section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v5h5M9 12h6M9 16h6"/></svg><span>输出契约</span></h2><div class="table-wrap"><table><thead><tr><th>路径</th><th>职责</th><th>通过条件</th></tr></thead><tbody><tr><td><code data-path="03-documents/document.html">可编辑网页源文件</code></td><td>可编辑网页源文件</td><td>语义结构、第一行标题、带标签页图标、浅色、单一字体族、字号不低于下限</td></tr><tr><td><code data-path="03-documents/spec.json">描述文件</code></td><td>表格文件与文字文档的生成源</td><td>由生成脚本生成并通过检查；交付前修改成品时同步回描述文件</td></tr><tr><td><code data-path="03-documents/outputs/">导出文件目录</code></td><td>真实导出文件</td><td>用户要求的表格文件、文字文档、演示文稿或便携式文档实际存在并已重新打开</td></tr><tr><td><code data-path="scripts/check_document.py">文档检查脚本</code></td><td>格式检查</td><td>网页、表格、文字文档、演示文稿、标记文本文件逐个检查，零错误；便携式文档按“便携式文档”的检查项核对</td></tr><tr><td><code data-path="99-delivery/MANIFEST.json">交付清单</code></td><td>交付事实</td><td>源与导出路径、格式、状态和验证记录</td></tr></tbody></table></div><p>终稿以会话名命名放在会话根目录（网页由发布脚本发布，其他格式在检查通过后复制）。若源格式需要文字文档或演示文稿原生文件，不得用一个网页文件代替声明为该格式的交付；实际导出和验证路径必须一致。</p>
+<h2 id="output-contract-heading" class="section-heading"><svg class="icon-linear section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v5h5M9 12h6M9 16h6"/></svg><span>输出契约</span></h2><div class="table-wrap"><table><thead><tr><th>路径</th><th>职责</th><th>通过条件</th></tr></thead><tbody><tr><td><code data-path="03-documents/document.html">可编辑网页源文件</code></td><td>可编辑网页源文件</td><td>语义结构、第一行标题、带标签页图标、浅色、单一字体族、字号不低于下限</td></tr><tr><td><code data-path="03-documents/spec.json">描述文件</code></td><td>表格文件与文字文档的生成源</td><td>由生成脚本生成并通过检查；交付前修改成品时同步回描述文件</td></tr><tr><td><code data-path="03-documents/outputs/">导出文件目录</code></td><td>真实导出文件</td><td>用户要求的表格文件、文字文档、演示文稿或便携式文档实际存在并已重新打开</td></tr><tr><td><code data-path="03-documents/summary.json">汇总页描述文件</code></td><td>非网页成品的汇总页生成源</td><td>成果、依据、过程文件三节；由生成脚本写成会话根目录的汇总页，列出根目录里的每个成品（项目任务列出项目内路径）</td></tr><tr><td><code data-path="scripts/check_document.py">文档检查脚本</code></td><td>格式检查</td><td>网页、表格、文字文档、演示文稿、标记文本文件逐个检查，零错误；便携式文档按“便携式文档”的检查项核对</td></tr><tr><td><code data-path="99-delivery/MANIFEST.json">交付清单</code></td><td>交付事实</td><td>源与导出路径、格式、状态和验证记录</td></tr></tbody></table></div><p>网页终稿由发布脚本写成会话根目录的汇总页；其他格式在检查通过后由交付脚本放进会话根目录（独立任务）或项目目录的 <code>docs</code>（项目任务，文件名“序号-名称”，会话根目录不留副本），汇总页列出它们。若源格式需要文字文档或演示文稿原生文件，不得用一个网页文件代替声明为该格式的交付；实际导出和验证路径必须一致。</p>
 </section>
 <!-- SECTION:output-contract:END -->
 

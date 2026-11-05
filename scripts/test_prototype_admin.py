@@ -594,6 +594,8 @@ class BrowserTest(unittest.TestCase):
 
     def test_accordion_parent_in_icon_rail_opens_a_floating_menu(self):
         pg = self.open(w=1440)
+        self.assertEqual(pg.evaluate("document.querySelector('#adApp').dataset.mode"), "wide", "舞台优先：1440 宽也是完整侧栏")
+        pg.click("[data-ad-w='820']")  # 图标栏用“预览宽度”工具到达（以前靠两侧面板把舞台挤窄，那是缺陷）
         self.assertEqual(pg.evaluate("document.querySelector('#adApp').dataset.mode"), "mid")
         pg.click("#adSide .ad-ni.parent")
         self.assertTrue(pg.locator(".ad-menu").is_visible(), "图标栏下点手风琴父项出悬浮菜单")
@@ -832,7 +834,7 @@ class BrowserTest(unittest.TestCase):
         pg.click("[data-net=online]")
 
     def test_logic_panel_follows_the_page(self):
-        pg = self.open()
+        pg = self.open(w=1920, h=1000)  # 1440 宽时右栏是抽屉（默认收起），并排要 1612 以上
         for tab, name in (("orders", "订单"), ("products", "商品"), ("settings", "系统设置")):
             self.nav(pg, tab)
             txt = pg.locator("#ptRight").inner_text()
@@ -938,14 +940,14 @@ class BrowserTest(unittest.TestCase):
         self.assertEqual(pg.errors, [])
 
     def test_desktop_1440_and_1920_layout(self):
-        for w, mode in ((1440, "mid"), (1920, "wide")):
+        for w, mode, columns in ((1050, "wide", 1), (1440, "wide", 2), (1920, "wide", 3)):
             pg = self.open(w=w, h=900)
             self.assertEqual(pg.evaluate("document.querySelector('#adApp').dataset.mode"), mode, w)
             self.assertFalse(pg.evaluate("document.documentElement.scrollWidth > innerWidth + 1"), w)
             box = pg.evaluate("(() => { const r = document.querySelector('#adApp').getBoundingClientRect(); return [r.left, r.right, r.height] })()")
             self.assertTrue(box[0] >= 0 and box[1] <= w and box[2] >= 560, box)
             cols = pg.evaluate("getComputedStyle(document.querySelector('.pt-layout')).gridTemplateColumns.split(' ').length")
-            self.assertEqual(cols, 3)
+            self.assertEqual(cols, columns, f"{w} 宽：放不下的侧栏改成抽屉，不占列，舞台保持 ≥ 960")
             for tab in ("dash", "orders", "finance"):
                 self.nav(pg, tab)
                 self.assertFalse(pg.evaluate("document.querySelector('#adScreen .ad-scroll').scrollWidth > document.querySelector('#adScreen .ad-scroll').clientWidth + 1"), f"{tab}@{w}：内容超出右边界")

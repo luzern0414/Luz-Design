@@ -128,8 +128,48 @@ const K = (() => {
   }
   K.setRole = (r) => { S.role = r; K.emit('role', r); K.render({ fresh: true }) }
   K.setNet = (n) => { S.net = n; K.emit('net', n); S.view = 'ok'; K.render({ fresh: true }) }
-  /* 三栏宽度与折叠（R6）：kind 可声明 layout: {left, right}（像素），外壳按它排；页头右侧有“左栏”“右栏”两个折叠按钮，折叠后舞台变宽 */
-  K.setFold = (side, on) => { html.dataset['fold' + (side === 'left' ? 'Left' : 'Right')] = on ? '1' : '0'; $$('[data-fold]').forEach((b) => b.setAttribute('aria-pressed', html.dataset['fold' + (b.dataset.fold === 'left' ? 'Left' : 'Right')] === '1')); if (K.kindDef && K.kindDef.size) fit(); else if (dlg.open) placeClip() }
+  /* 三栏宽度、折叠与停靠（R6）：kind 可声明 layout: {left, right}（像素）和 stageMin(spec)（舞台至少要多宽）；页头右侧有“左栏”“右栏”两个按钮。
+   * 窗口放得下“舞台 + 两栏”时两栏并排（dock=inline），按钮 = 折叠、折叠后舞台变宽；放不下时（嵌在文档的 iframe 里、笔记本窗口）先把右栏、再把左栏
+   * 改成抽屉（dock=float，浮在舞台上，默认收起，按钮 = 打开），舞台保持设备框应有的宽度，不被两栏挤窄。aria-pressed = 这一栏现在是收起的。 */
+  const SIDES = { left: 'Left', right: 'Right' }
+  const folded = (side) => html.dataset['fold' + SIDES[side]] === '1'
+  const dockOf = (side) => html.dataset['dock' + SIDES[side]] || 'inline'
+  const stackMode = () => matchMedia('(max-width: 910px)').matches
+  function syncFolds() {
+    let drawer = false
+    for (const side of ['left', 'right']) {
+      const out = folded(side) || dockOf(side) === 'float'
+      html.dataset['out' + SIDES[side]] = out ? '1' : '0'
+      if (dockOf(side) === 'float' && !folded(side)) drawer = true
+    }
+    html.dataset.floatOpen = drawer && !stackMode() ? '1' : '0'
+    $$('[data-fold]').forEach((b) => b.setAttribute('aria-pressed', String(folded(b.dataset.fold))))
+    const sc = $('.pt-scrim'); if (sc) sc.hidden = html.dataset.floatOpen !== '1'
+  }
+  K.setFold = (side, on) => {
+    html.dataset['fold' + SIDES[side]] = on ? '1' : '0'; syncFolds()
+    if (K.kindDef && K.kindDef.size) fit(); else if (dlg.open) placeClip()
+    if (dlg.open) placeClip()
+    if (!on && dockOf(side) === 'float') { const panel = $(side === 'left' ? '#ptLeft' : '#ptRight'); panel.setAttribute('tabindex', '-1'); panel.focus({ preventScroll: true }) }
+  }
+  /* 按窗口宽度给两栏选停靠方式；停靠方式变了的那一栏重置折叠（抽屉默认收起，并排默认展开），没变的保持用户选的 */
+  K.layoutSync = () => {
+    const kd = K.kindDef; if (!kd) return
+    const app = $('.pt-app'); const cssPx = (v, d) => { const n = parseFloat(app.style.getPropertyValue(v)); return n > 0 ? n : d }
+    const need = kd.stageMin && K.spec ? Math.max(0, kd.stageMin(K.spec) | 0) : 0
+    app.style.setProperty('--sh-stage-min', need ? need + 'px' : '0px')
+    const room = html.clientWidth - 32, GAP = 16, L = cssPx('--sh-left', 240), R = cssPx('--sh-right', 260)
+    let dl = 'inline', dr = 'inline'
+    if (need && !stackMode()) {
+      if (room < L + R + need + 2 * GAP) { dr = 'float'; if (room < L + need + GAP) dl = 'float' }
+    }
+    for (const [side, dock] of [['left', dl], ['right', dr]]) {
+      if (dockOf(side) !== dock || html.dataset['dock' + SIDES[side]] === undefined) {
+        html.dataset['dock' + SIDES[side]] = dock; html.dataset['fold' + SIDES[side]] = dock === 'float' ? '1' : '0'
+      }
+    }
+    syncFolds(); fit(); if (dlg.open) placeClip()
+  }
   K.setReduce = (on) => { S.reduce = !!on; html.dataset.reduce = on ? '1' : '0'; K.emit('reduce', S.reduce); renderLeft() }
   const mq = matchMedia('(prefers-color-scheme: dark)')
   /* 外观：先交给组件库的 setAppearance（给 <html> 设类与 data-theme；不记 localStorage），再把“跟随系统”算成具体的深或浅写回 data-theme，
@@ -692,8 +732,10 @@ const K = (() => {
   let fitEl = null, fitIn = null, fitSize = null
   function fit() {
     if (!fitSize) return
-    const narrow = innerWidth < 910
+    const narrow = stackMode()
     let k = narrow ? Math.min(1, innerWidth / fitSize.w) : Math.min(1, (innerHeight - 76) / (fitSize.h + 12))
+    const sw = $('#ptStage') ? $('#ptStage').clientWidth : 0
+    if (!narrow && sw > 0) k = Math.min(k, sw / fitSize.w) /* 设备框不比舞台宽：宽度放不下就等比缩小，不压到两侧的面板上 */
     k = Math.max(0.5, k); fitScale = k
     fitEl.style.width = fitSize.w * k + 'px'; fitEl.style.height = fitSize.h * k + 'px'
     fitIn.style.width = fitSize.w + 'px'; fitIn.style.height = fitSize.h + 'px'; fitIn.style.transform = k === 1 ? '' : `scale(${k})`
@@ -701,7 +743,7 @@ const K = (() => {
     if (dlg2 && dlg2.open) placeClip(dlg2)
     if (K.kindDef.fit) K.kindDef.fit(k)
   }
-  addEventListener('resize', fit)
+  addEventListener('resize', () => { if (K.layoutSync && K.kindDef && K.spec) K.layoutSync(); else fit() })
 
   /* ---------- 注册与启动 ---------- */
   K.kind = (def) => { K.kindDef = def }
@@ -719,7 +761,16 @@ const K = (() => {
     html.dataset.darkMode = 'tokens' // 深色一律用令牌（组件库的深色层 + 外壳 --sh-*），不再有滤镜近似
     document.body.appendChild(dlg)
     if (kd.layout) { const L = kd.layout(spec) || {}; const app = $('.pt-app'); if (L.left) app.style.setProperty('--sh-left', L.left + 'px'); if (L.right) app.style.setProperty('--sh-right', L.right + 'px') }
-    $$('[data-fold]').forEach((b) => b.addEventListener('click', () => K.setFold(b.dataset.fold, html.dataset['fold' + (b.dataset.fold === 'left' ? 'Left' : 'Right')] !== '1')))
+    $$('[data-fold]').forEach((b) => b.addEventListener('click', () => K.setFold(b.dataset.fold, !folded(b.dataset.fold))))
+    const scrim = document.createElement('div'); scrim.className = 'pt-scrim'; scrim.hidden = true; scrim.setAttribute('data-shell', ''); scrim.setAttribute('aria-hidden', 'true')
+    scrim.addEventListener('click', () => { for (const side of ['left', 'right']) if (dockOf(side) === 'float') html.dataset['fold' + SIDES[side]] = '1'; syncFolds() })
+    $('.pt-app').appendChild(scrim)
+    /* 抽屉开着时按 Esc 收起（弹层开着时让弹层先关），焦点回到页头的按钮 */
+    document.addEventListener('keydown', (e) => {
+      if (e.key !== 'Escape' || html.dataset.floatOpen !== '1' || dlg.open) return
+      e.stopImmediatePropagation()
+      for (const side of ['left', 'right']) if (dockOf(side) === 'float' && !folded(side)) { K.setFold(side, true); const b = $(`[data-fold="${side}"]`); if (b) b.focus() }
+    })
     K.groups = buildGroups(spec, kd)
     K.groups.forEach((g) => {
       const t = spec.theme || {}
@@ -734,8 +785,9 @@ const K = (() => {
       const stage = $('#ptStage'); fitSize = size
       fitEl = document.createElement('div'); fitEl.className = 'pt-fit'; fitIn = document.createElement('div'); fitIn.className = 'pt-stage-in'
       while (stage.firstChild) fitIn.appendChild(stage.firstChild)
-      fitEl.appendChild(fitIn); stage.appendChild(fitEl); fit()
+      fitEl.appendChild(fitIn); stage.appendChild(fitEl)
     }
+    K.layoutSync()
     S.sc = {}
     Object.keys(K.data).forEach((k) => delete K.data[k]); Object.assign(K.data, clone(spec.data || {}))
     if (K.contentDef && K.contentDef.init) K.contentDef.init(K.data)

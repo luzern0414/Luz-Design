@@ -1,0 +1,439 @@
+{
+  "schema_version": 1,
+  "templates": {
+    "ui-component-output": {
+      "kind": "document",
+      "label": "需求与来源绑定的组件复用 UI；须完成当前浏览器与整体审阅",
+      "files": [
+        "scripts/component_ui.py",
+        "scripts/component_reuse.py",
+        "scripts/component_ui_browser.py",
+        "scripts/component_composition.py"
+      ]
+    },
+    "reading-html": {
+      "kind": "document",
+      "label": "阅读报告与阶段汇总",
+      "files": [
+        "scripts/make_summary.py"
+      ]
+    },
+    "docx": {
+      "kind": "document",
+      "label": "分类 Word 文档",
+      "files": [
+        "scripts/make_docx.py",
+        "scripts/document_palette.py",
+        "scripts/check_document.py",
+        "scripts/design_output_gate.py"
+      ]
+    },
+    "docx-paginated": {
+      "kind": "document",
+      "label": "客户正式 Word 与导出 PDF",
+      "files": [
+        "scripts/make_docx_paginated.py",
+        "scripts/make_docx.py",
+        "scripts/docx_layout.ps1",
+        "scripts/document_palette.py",
+        "scripts/check_document.py",
+        "scripts/design_output_gate.py"
+      ]
+    },
+    "xlsx": {
+      "kind": "document",
+      "label": "业务表格",
+      "files": [
+        "scripts/make_xlsx.py",
+        "scripts/document_palette.py",
+        "scripts/xlsx_metrics.py",
+        "scripts/check_document.py",
+        "scripts/design_output_gate.py"
+      ]
+    },
+    "table-pdf": {
+      "kind": "document",
+      "label": "表格目录 PDF",
+      "files": [
+        "scripts/make_table_pdf.py",
+        "scripts/check_document.py",
+        "scripts/check_pdf.py"
+      ]
+    },
+    "showcase": {
+      "kind": "document",
+      "label": "系统架构图册",
+      "files": [
+        "scripts/make_showcase.py",
+        "scripts/showcase.py",
+        "scripts/showcase_figures.py",
+        "scripts/showcase_icons.py",
+        "scripts/check_document.py"
+      ]
+    },
+    "hardware-plan": {
+      "kind": "document",
+      "label": "硬件方案阅读页",
+      "files": [
+        "references/hardware-plan.template.html",
+        "references/md-type.css"
+      ]
+    },
+    "writing-article": {
+      "kind": "document",
+      "label": "图文文章模板",
+      "files": [
+        "templates/documents/reading/writing-article.html"
+      ]
+    },
+    "system-architecture": {
+      "kind": "document",
+      "label": "系统架构阅读页",
+      "files": [
+        "templates/documents/reading/system-architecture.html",
+        "references/md-type.css"
+      ]
+    },
+    "system-design": {
+      "kind": "document",
+      "label": "系统方案阅读页",
+      "files": [
+        "templates/documents/reading/system-design.html",
+        "references/md-type.css"
+      ]
+    },
+    "dev-technical-plan": {
+      "kind": "document",
+      "label": "后端技术方案",
+      "files": [
+        "templates/documents/reading/dev/tech-plan/template.html",
+        "templates/documents/reading/dev/shared/luz-reading.css",
+        "templates/documents/reading/dev/tech-plan/tokens.snapshot.json",
+        "references/themes.json"
+      ]
+    },
+    "dev-function-catalog": {
+      "kind": "document",
+      "label": "开发功能逻辑参考页",
+      "files": [
+        "templates/documents/reading/dev/reference/function-catalog.template.html",
+        "templates/documents/reading/dev/shared/luz-reading.css",
+        "templates/documents/reading/dev/tech-plan/tokens.snapshot.json",
+        "references/themes.json"
+      ]
+    },
+    "dev-standards": {
+      "kind": "document",
+      "label": "开发规范参考页",
+      "files": [
+        "templates/documents/reading/dev/reference/standards.template.html",
+        "templates/documents/reading/dev/shared/luz-reading.css",
+        "templates/documents/reading/dev/tech-plan/tokens.snapshot.json",
+        "references/themes.json"
+      ]
+    },
+    "dev-knowledge": {
+      "kind": "document",
+      "label": "已核实知识索引",
+      "files": [
+        "templates/documents/reading/dev/reference/knowledge.template.html",
+        "templates/documents/reading/dev/shared/luz-reading.css",
+        "templates/documents/reading/dev/tech-plan/tokens.snapshot.json",
+        "references/themes.json"
+      ]
+    },
+    "design-visual-board": {
+      "kind": "document",
+      "label": "独立海报与主视觉方案板",
+      "files": [
+        "references/templates.txt",
+        "scripts/new_session.py"
+      ]
+    },
+    "design-document-page": {
+      "kind": "document",
+      "label": "Design 文档阅读页",
+      "files": [
+        "references/templates.txt",
+        "scripts/new_session.py"
+      ]
+    },
+    "frontend-app-task": {
+      "kind": "document",
+      "category": "app",
+      "label": "移动任务清单",
+      "files": [
+        "scripts/frontend.py",
+        "scripts/frontend_rules.py",
+        "scripts/audit_ui_rules.js",
+        "references/design/hard-rules.md",
+        "kit/frontend/catalog.json",
+        "kit/frontend/generated-assets.json",
+        "kit/frontend/shared/interaction.css",
+        "kit/frontend/shared/interaction.js",
+        "kit/frontend/shared/typography.css",
+        "kit/frontend/app-task/app.js",
+        "kit/frontend/app-task/index.html",
+        "kit/frontend/app-task/style.css",
+        "kit/frontend/vendor/vue.global.prod.js",
+        "kit/frontend/vendor/VUE-LICENSE",
+        "kit/frontend/vendor/vant.min.js",
+        "kit/frontend/vendor/vant.css",
+        "kit/frontend/vendor/VANT-LICENSE",
+        "kit/frontend/artwork/action-add.webp",
+        "kit/frontend/artwork/action-check.webp",
+        "kit/frontend/artwork/action-close.webp",
+        "kit/frontend/artwork/action-filter.webp",
+        "kit/frontend/artwork/action-play.webp",
+        "kit/frontend/artwork/action-restore.webp",
+        "kit/frontend/artwork/add.webp",
+        "kit/frontend/artwork/archive.webp",
+        "kit/frontend/artwork/back.webp",
+        "kit/frontend/artwork/bill.webp",
+        "kit/frontend/artwork/biz-customer.webp",
+        "kit/frontend/artwork/biz-demo.webp",
+        "kit/frontend/artwork/biz-notes.webp",
+        "kit/frontend/artwork/biz-record.webp",
+        "kit/frontend/artwork/biz-review.webp",
+        "kit/frontend/artwork/biz-store.webp",
+        "kit/frontend/artwork/biz-system.webp",
+        "kit/frontend/artwork/biz-upload.webp",
+        "kit/frontend/artwork/book.webp",
+        "kit/frontend/artwork/contract.webp",
+        "kit/frontend/artwork/edit.webp",
+        "kit/frontend/artwork/layout.webp",
+        "kit/frontend/artwork/line-pause.webp",
+        "kit/frontend/artwork/line-record.webp",
+        "kit/frontend/artwork/line-shield.webp",
+        "kit/frontend/artwork/line-upload.webp",
+        "kit/frontend/artwork/list.webp",
+        "kit/frontend/artwork/location.webp",
+        "kit/frontend/artwork/message.webp",
+        "kit/frontend/artwork/nav-clients.webp",
+        "kit/frontend/artwork/nav-demo.webp",
+        "kit/frontend/artwork/nav-home.webp",
+        "kit/frontend/artwork/nav-user.webp",
+        "kit/frontend/artwork/order.webp",
+        "kit/frontend/artwork/pattern.webp",
+        "kit/frontend/artwork/ribbon.webp",
+        "kit/frontend/artwork/scan.webp",
+        "kit/frontend/artwork/search.webp",
+        "kit/frontend/artwork/settings.webp",
+        "kit/frontend/artwork/solid-content.webp",
+        "kit/frontend/artwork/solid-design.webp",
+        "kit/frontend/artwork/solid-office.webp",
+        "kit/frontend/artwork/solid-tasks.webp",
+        "kit/frontend/artwork/support.webp",
+        "references/design/interaction-contract.md",
+        "kit/frontend/vendor/element-plus.js",
+        "kit/frontend/vendor/element-plus.css",
+        "kit/frontend/vendor/ELEMENT-PLUS-LICENSE"
+      ]
+    },
+    "frontend-web-workspace": {
+      "kind": "document",
+      "category": "web",
+      "label": "桌面任务工作台",
+      "files": [
+        "scripts/frontend.py",
+        "scripts/frontend_rules.py",
+        "scripts/audit_ui_rules.js",
+        "references/design/hard-rules.md",
+        "kit/frontend/catalog.json",
+        "kit/frontend/generated-assets.json",
+        "kit/frontend/shared/interaction.css",
+        "kit/frontend/shared/interaction.js",
+        "kit/frontend/shared/typography.css",
+        "kit/frontend/web-workspace/app.js",
+        "kit/frontend/web-workspace/index.html",
+        "kit/frontend/web-workspace/style.css",
+        "kit/frontend/vendor/vue.global.prod.js",
+        "kit/frontend/vendor/VUE-LICENSE",
+        "kit/frontend/vendor/element-plus.js",
+        "kit/frontend/vendor/element-plus.css",
+        "kit/frontend/vendor/ELEMENT-PLUS-LICENSE",
+        "kit/frontend/artwork/action-add.webp",
+        "kit/frontend/artwork/action-check.webp",
+        "kit/frontend/artwork/action-close.webp",
+        "kit/frontend/artwork/action-filter.webp",
+        "kit/frontend/artwork/action-play.webp",
+        "kit/frontend/artwork/action-restore.webp",
+        "kit/frontend/artwork/add.webp",
+        "kit/frontend/artwork/archive.webp",
+        "kit/frontend/artwork/back.webp",
+        "kit/frontend/artwork/bill.webp",
+        "kit/frontend/artwork/biz-customer.webp",
+        "kit/frontend/artwork/biz-demo.webp",
+        "kit/frontend/artwork/biz-notes.webp",
+        "kit/frontend/artwork/biz-record.webp",
+        "kit/frontend/artwork/biz-review.webp",
+        "kit/frontend/artwork/biz-store.webp",
+        "kit/frontend/artwork/biz-system.webp",
+        "kit/frontend/artwork/biz-upload.webp",
+        "kit/frontend/artwork/book.webp",
+        "kit/frontend/artwork/contract.webp",
+        "kit/frontend/artwork/edit.webp",
+        "kit/frontend/artwork/layout.webp",
+        "kit/frontend/artwork/line-pause.webp",
+        "kit/frontend/artwork/line-record.webp",
+        "kit/frontend/artwork/line-shield.webp",
+        "kit/frontend/artwork/line-upload.webp",
+        "kit/frontend/artwork/list.webp",
+        "kit/frontend/artwork/location.webp",
+        "kit/frontend/artwork/message.webp",
+        "kit/frontend/artwork/nav-clients.webp",
+        "kit/frontend/artwork/nav-demo.webp",
+        "kit/frontend/artwork/nav-home.webp",
+        "kit/frontend/artwork/nav-user.webp",
+        "kit/frontend/artwork/order.webp",
+        "kit/frontend/artwork/pattern.webp",
+        "kit/frontend/artwork/ribbon.webp",
+        "kit/frontend/artwork/scan.webp",
+        "kit/frontend/artwork/search.webp",
+        "kit/frontend/artwork/settings.webp",
+        "kit/frontend/artwork/solid-content.webp",
+        "kit/frontend/artwork/solid-design.webp",
+        "kit/frontend/artwork/solid-office.webp",
+        "kit/frontend/artwork/solid-tasks.webp",
+        "kit/frontend/artwork/support.webp",
+        "references/design/interaction-contract.md"
+      ]
+    },
+    "frontend-existing": {
+      "kind": "document",
+      "category": "web",
+      "label": "已有工程的完整构建、组件来源和实际效果验证",
+      "files": [
+        "scripts/frontend.py",
+        "references/component-reuse.md",
+        "references/design/interaction-contract.md"
+      ]
+    },
+    "html-templates-app": {
+      "kind": "reference-only",
+      "label": "App 端单文件模板库（app.html：整页模板与组件库两个 tab），五个完整页面与按钮、背景、卡片、入口、导航、表单、列表行、数据、反馈、智能体、动效细分组件，主题色 24 种可自选，背景效果与图标形态可切换",
+      "files": [
+        "templates/app/app.html",
+        "templates/app/source/pages/agent.html",
+        "templates/app/source/pages/home.html",
+        "templates/app/source/pages/list.html",
+        "templates/app/source/pages/mine.html",
+        "templates/app/source/pages/orders.html",
+        "templates/app/source/parts/10-btn.part",
+        "templates/app/source/parts/20-bgnd.part",
+        "templates/app/source/parts/30-card.part",
+        "templates/app/source/parts/40-entr.part",
+        "templates/app/source/parts/50-navi.part",
+        "templates/app/source/parts/60-form.part",
+        "templates/app/source/parts/70-rows.part",
+        "templates/app/source/parts/80-data.part",
+        "templates/app/source/parts/90-feed.part",
+        "templates/app/source/parts/A0-chat.part",
+        "templates/app/source/parts/B0-motn.part",
+        "kit/tokens.css",
+        "kit/ui.css",
+        "kit/kit.css",
+        "kit/app.css",
+        "kit/web.css",
+        "kit/agent.css",
+        "kit/ui.js",
+        "kit/registry.js",
+        "kit/assets/manifest.json",
+        "references/template-registry.json",
+        "scripts/template_registry.py",
+        "scripts/build_templates.py",
+        "scripts/bundle.shell.tpl",
+        "scripts/components.shell.tpl",
+        "index.html"
+      ]
+    },
+    "html-templates-web": {
+      "kind": "reference-only",
+      "label": "Web 后台单文件模板库（web.html：整页模板与组件库两个 tab），五个完整页面与布局壳、表格、表单、图表等细分组件，主题色 24 种可自选，背景效果与图标形态可切换",
+      "files": [
+        "templates/web/web.html",
+        "templates/web/source/pages/agent.html",
+        "templates/web/source/pages/home.html",
+        "templates/web/source/pages/list.html",
+        "templates/web/source/pages/mine.html",
+        "templates/web/source/pages/orders.html",
+        "templates/web/source/parts/10-btn.part",
+        "templates/web/source/parts/20-bgnd.part",
+        "templates/web/source/parts/30-card.part",
+        "templates/web/source/parts/40-layt.part",
+        "templates/web/source/parts/50-tabl.part",
+        "templates/web/source/parts/60-form.part",
+        "templates/web/source/parts/70-data.part",
+        "templates/web/source/parts/80-feed.part",
+        "templates/web/source/parts/90-chat.part",
+        "templates/web/source/parts/A0-motn.part",
+        "kit/tokens.css",
+        "kit/ui.css",
+        "kit/kit.css",
+        "kit/app.css",
+        "kit/web.css",
+        "kit/agent.css",
+        "kit/ui.js",
+        "kit/registry.js",
+        "kit/assets/manifest.json",
+        "references/template-registry.json",
+        "scripts/template_registry.py",
+        "scripts/build_templates.py",
+        "scripts/bundle.shell.tpl",
+        "scripts/components.shell.tpl",
+        "index.html"
+      ]
+    },
+    "html-templates-poster": {
+      "kind": "reference-only",
+      "label": "海报单文件模板库（poster.html：海报模板与提示词库两个 tab），十二个固定画布海报与六十条提示词，编号 PS 与 PP",
+      "files": [
+        "templates/poster/poster.html",
+        "templates/poster/README.md",
+        "templates/poster/source/templates/PS-001-活动竖版.html",
+        "templates/poster/source/templates/PS-002-新品竖版.html",
+        "templates/poster/source/templates/PS-003-优惠券方版.html",
+        "templates/poster/source/templates/PS-004-节日长图.html",
+        "templates/poster/source/templates/PS-005-开业横版.html",
+        "templates/poster/source/templates/PS-006-会员招募竖版.html",
+        "templates/poster/source/templates/PS-007-课程招生A4.html",
+        "templates/poster/source/templates/PS-008-招聘A4.html",
+        "templates/poster/source/templates/PS-009-单品陈列.html",
+        "templates/poster/source/templates/PS-010-品牌故事.html",
+        "templates/poster/source/templates/PS-011-数据海报.html",
+        "templates/poster/source/templates/PS-012-母亲节祝福.html",
+        "templates/poster/source/prompts/viewer.html",
+        "templates/poster/source/prompts/prompts.json",
+        "templates/poster/source/prompts/styles.json",
+        "templates/poster/source/prompts/prompts.js",
+        "templates/poster/source/prompts/README.md",
+        "scripts/export_poster.py",
+        "scripts/build_prompts_js.py",
+        "scripts/poster.wall.tpl",
+        "kit/tokens.css",
+        "kit/assets/manifest.json"
+      ]
+    },
+    "html-templates-documents": {
+      "kind": "reference-only",
+      "label": "文件模板库（documents.html 目录页），文字文档、表格文件、幻灯片、PDF、阅读网页的基础模板与可复用块，编号 DC，每类有描述文件与样例",
+      "files": [
+        "templates/documents/documents.html",
+        "templates/documents/README.md",
+        "templates/documents/excel/manifest.json",
+        "templates/documents/pdf/manifest.json",
+        "templates/documents/reading/manifest.json",
+        "templates/documents/slides/manifest.json",
+        "templates/documents/word/manifest.json",
+        "templates/documents/excel/README.md",
+        "templates/documents/pdf/README.md",
+        "templates/documents/reading/README.md",
+        "templates/documents/slides/README.md",
+        "templates/documents/slides/commercial-sources.md",
+        "templates/documents/word/README.md",
+        "scripts/build_documents_index.py",
+        "scripts/documents.page.tpl"
+      ]
+    }
+  }
+}

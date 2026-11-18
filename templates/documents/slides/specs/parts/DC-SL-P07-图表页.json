@@ -1,0 +1,40 @@
+{
+ "id": "DC-SL-P07",
+ "name": "图表页",
+ "layout": "chart",
+ "title": "周末是销售高峰",
+ "chart": {
+  "type": "column",
+  "caption": "每日销售额 单位 千元",
+  "categories": [
+   "周一",
+   "周二",
+   "周三",
+   "周四",
+   "周五",
+   "周六",
+   "周日"
+  ],
+  "series": [
+   {
+    "name": "销售额",
+    "values": [
+     18,
+     20,
+     22,
+     24,
+     31,
+     39,
+     32
+    ]
+   }
+  ],
+  "number_format": "0"
+ },
+ "stat": {
+  "icon": "bouquet",
+  "label": "周六单日最高",
+  "value": "39",
+  "unit": "千元"
+ }
+}

@@ -1,0 +1,1850 @@
+/* 由 scripts/build_prompts_js.py 从 prompts.json 与 styles.json 生成，不手改 */
+window.LZ_PROMPTS = {
+ "version": 1,
+ "categories": [
+  {
+   "name": "商品摄影",
+   "icon": "bag",
+   "note": "花束、绿植、礼盒、咖啡甜品、护肤、数码等各行业商品图"
+  },
+  {
+   "name": "场景主视觉",
+   "icon": "pin",
+   "note": "门店、橱窗、餐桌、客厅、户外等无人的场景头图"
+  },
+  {
+   "name": "背景与纹理",
+   "icon": "seedling",
+   "note": "可平铺纹理、渐变光感、抽象形与材质底"
+  },
+  {
+   "name": "图标拼板",
+   "icon": "coupon",
+   "note": "4×4 元素拼板：软陶三维、真实质感、扁平彩色"
+  },
+  {
+   "name": "空态与结果插画",
+   "icon": "cart",
+   "note": "空态与结果页的单物体插画"
+  },
+  {
+   "name": "对象标识池",
+   "icon": "mark-006",
+   "note": "同风格的抽象标记池，按对象编号固定分配"
+  },
+  {
+   "name": "海报主视觉",
+   "icon": "giftbox",
+   "note": "促销、新品、节日、招聘、课程、开业等海报画面"
+  },
+  {
+   "name": "人物与头像",
+   "icon": "mark-013",
+   "note": "没有真人照片时使用的卡通动物与抽象人形"
+  },
+  {
+   "name": "其他",
+   "icon": "star",
+   "note": "页签图标与会员徽章"
+  }
+ ],
+ "themes": [
+  {
+   "key": "rose",
+   "name": "雾粉",
+   "en": "dusty rose",
+   "hex": "#A85D79",
+   "secondary_name": "鼠尾草绿",
+   "secondary_en": "sage green",
+   "secondary_hex": "#8FA68E"
+  },
+  {
+   "key": "coral",
+   "name": "珊瑚",
+   "en": "muted coral",
+   "hex": "#A76352",
+   "secondary_name": "暖沙",
+   "secondary_en": "warm sand",
+   "secondary_hex": "#D6BE9B"
+  },
+  {
+   "key": "orange",
+   "name": "暖橙",
+   "en": "caramel amber",
+   "hex": "#9A6A3C",
+   "secondary_name": "橄榄绿",
+   "secondary_en": "olive green",
+   "secondary_hex": "#8B9462"
+  },
+  {
+   "key": "green",
+   "name": "草绿",
+   "en": "fresh sage green",
+   "hex": "#50804E",
+   "secondary_name": "奶油米",
+   "secondary_en": "warm cream",
+   "secondary_hex": "#EADFC4"
+  },
+  {
+   "key": "teal",
+   "name": "青碧",
+   "en": "muted teal",
+   "hex": "#457D81",
+   "secondary_name": "浅桃",
+   "secondary_en": "soft peach",
+   "secondary_hex": "#E8B49A"
+  },
+  {
+   "key": "blue",
+   "name": "天蓝",
+   "en": "dusty blue",
+   "hex": "#5577A4",
+   "secondary_name": "燕麦沙",
+   "secondary_en": "oat sand",
+   "secondary_hex": "#D9C7A6"
+  },
+  {
+   "key": "purple",
+   "name": "紫藤",
+   "en": "wisteria purple",
+   "hex": "#7D6CA5",
+   "secondary_name": "奶黄",
+   "secondary_en": "butter yellow",
+   "secondary_hex": "#E5D48F"
+  },
+  {
+   "key": "graphite",
+   "name": "石墨",
+   "en": "graphite grey",
+   "hex": "#4B515A",
+   "secondary_name": "香槟金",
+   "secondary_en": "warm champagne",
+   "secondary_hex": "#CDB894"
+  }
+ ],
+ "styles": [
+  {
+   "id": "ST-001",
+   "name": "柔光棚拍商品摄影",
+   "kind": "photo",
+   "use": "花束、绿植、礼盒、母婴、家居这类柔和的商品图，同一商品系列统一使用",
+   "lighting": "Soft diffused daylight from a large window at the upper left, one gentle natural contact shadow directly under the subject, no hard highlights.",
+   "material": "True-to-life textures, photorealistic editorial product photography, 85mm lens look, shallow depth of field, crisp focus on the subject.",
+   "color_rule": "Natural color, restrained saturation, warm neutral base, no color cast."
+  },
+  {
+   "id": "ST-002",
+   "name": "暖调餐饮美食摄影",
+   "kind": "photo",
+   "use": "咖啡、甜品、餐桌这类需要食欲感的图，暖光但不过饱和",
+   "lighting": "Warm window light from the left at about 45 degrees with a soft white fill from the right, gentle specular highlights on glaze and cream, no harsh shadows.",
+   "material": "True-to-life food and tableware textures: crumb, glaze, cream, ceramic, linen weave and wood grain; photorealistic editorial food photography, 70mm lens look, shallow depth of field.",
+   "color_rule": "Natural warm color, appetizing but not oversaturated, no orange cast."
+  },
+  {
+   "id": "ST-003",
+   "name": "冷调洁净棚拍",
+   "kind": "photo",
+   "use": "护肤、数码、药妆这类强调洁净与质感的商品图",
+   "lighting": "Large softbox from the front left, a thin cool rim light from behind, smooth soft reflections on the surface, soft shadow edges.",
+   "material": "Frosted glass, brushed metal, satin plastic and soft fabric rendered with true reflections and fine surface texture; photorealistic studio product photography, 100mm lens look, sharp focus across the product.",
+   "color_rule": "Clean cool-neutral base with a single accent color, no color cast, no neon."
+  },
+  {
+   "id": "ST-004",
+   "name": "自然光空间摄影",
+   "kind": "photo",
+   "use": "门店、客厅、户外、健身房这类空间场景，无人",
+   "lighting": "Natural window light in late morning, soft shadows with gentle falloff across the space, no direct sun glare.",
+   "material": "Real wood grain, linen, plaster, ceramic and glass, tidy and lived-in; photorealistic interior and lifestyle photography, 35mm lens look, eye-level camera, deep enough depth of field to read the whole space.",
+   "color_rule": "Natural color, low saturation, harmonious warm neutrals."
+  },
+  {
+   "id": "ST-005",
+   "name": "低对比可平铺纹理",
+   "kind": "texture",
+   "use": "放在正文后面的小图案底，四边无缝，对比极低",
+   "lighting": "Flat even lighting with no shadows, no vignette and no gradient across the tile.",
+   "material": "Delicate flat surface design with a hand-drawn feel, uniform motif density, all motifs small and evenly distributed.",
+   "color_rule": "Very low contrast, tone on tone, motifs at most about 12 percent darker than the base, almost-white ground."
+  },
+  {
+   "id": "ST-006",
+   "name": "柔和光感背景",
+   "kind": "background",
+   "use": "页面顶部、横幅、卡片后面的渐变与光晕，文字区保持干净",
+   "lighting": "Soft diffused glow with smooth gradient falloff, no hard edges and no visible banding.",
+   "material": "Smooth airy surface with a very fine grain to prevent banding, no objects and no pattern.",
+   "color_rule": "Two or three analogous tones, low contrast, the largest calm area left clean for copy."
+  },
+  {
+   "id": "ST-007",
+   "name": "软陶三维图标",
+   "kind": "icon",
+   "use": "入口与业务物件的三维软陶质感拼板",
+   "lighting": "Soft studio light from the upper left with gentle shading on the form of each object, no shadow falling outside the object.",
+   "material": "Smooth matte soft clay with slightly rounded edges and a faint surface softness, not glossy plastic.",
+   "color_rule": "One or two low-saturation colors plus white per object, different objects use different main hues."
+  },
+  {
+   "id": "ST-008",
+   "name": "真实质感图标",
+   "kind": "icon",
+   "use": "入口与业务物件的写实拼板，纸、陶、玻璃、金属保持真实纹理",
+   "lighting": "Soft studio light from the upper left with natural highlights on each object, no shadow falling outside the object.",
+   "material": "True-to-life materials such as paper, kraft, ribbon, ceramic, glass and metal with fine real surface texture, photorealistic object rendering.",
+   "color_rule": "Natural color, restrained saturation, one or two colors per object."
+  },
+  {
+   "id": "ST-009",
+   "name": "扁平彩色图标",
+   "kind": "icon",
+   "use": "二维实心扁平图标与抽象标记，无阴影无描边",
+   "lighting": "No cast shadow and no lighting effects, flat fills with at most one gentle tonal shade per shape.",
+   "material": "Clean flat vector-style shapes with uniform rounded corners and a consistent edge treatment, no outline stroke, no texture.",
+   "color_rule": "One or two low-saturation colors plus white per object, no gradients beyond one tonal step."
+  },
+  {
+   "id": "ST-010",
+   "name": "扁平空态插画",
+   "kind": "illustration",
+   "use": "空态与结果页的单物体插画，与扁平图标同一套画法",
+   "lighting": "No cast shadow and no ground shadow, at most one gentle tonal step inside each shape.",
+   "material": "Flat illustration built from simple rounded shapes with consistent proportions and minimal detail, drawn in the same style as the matching flat icon set.",
+   "color_rule": "Low-saturation palette tinted toward {{primary}} plus white, one small accent."
+  },
+  {
+   "id": "ST-011",
+   "name": "单线条标记",
+   "kind": "mark",
+   "use": "对象标识池的线性标记，线宽统一，无填充",
+   "lighting": "No lighting and no shadow, flat solid ink on a plain ground.",
+   "material": "Monoline strokes of one uniform width with round caps and round joins, open simple shapes, no fills and no gradients.",
+   "color_rule": "One ink color only, deep and low-saturation, on a plain ground."
+  },
+  {
+   "id": "ST-012",
+   "name": "海报摄影主视觉",
+   "kind": "poster",
+   "use": "促销、新品、开业这类以实物摄影为主的海报画面",
+   "lighting": "Directional soft light from the upper left, a long soft shadow falling to the right, a faint rim light on the edges.",
+   "material": "Real materials with crisp detail and fine surface texture, photorealistic still life, 70mm lens look, eye-level or slightly high camera.",
+   "color_rule": "Color-blocked backdrop in a tint of {{primary}}, one accent, no more than three hues in total."
+  },
+  {
+   "id": "ST-013",
+   "name": "海报剪纸拼贴",
+   "kind": "poster",
+   "use": "节日、招聘、课程这类以平面图形为主的海报画面",
+   "lighting": "No realistic lighting, flat layered shapes with a soft drop shadow between layers.",
+   "material": "Layered paper-cut shapes with a fine paper grain and crisp clean edges, graphic flat composition.",
+   "color_rule": "Bold limited palette of three hues built around {{primary}}, flat fills."
+  },
+  {
+   "id": "ST-014",
+   "name": "卡通动物头像",
+   "kind": "avatar",
+   "use": "不用真人照片时的默认头像，圆润简单",
+   "lighting": "Soft even light from the front, one subtle shadow under the chin.",
+   "material": "Smooth soft-clay cartoon finish with simple rounded forms, big simple eyes, a plain calm expression, no outline stroke.",
+   "color_rule": "Low-saturation natural animal colors, each animal one or two main colors plus white."
+  },
+  {
+   "id": "ST-015",
+   "name": "材质平铺底",
+   "kind": "texture",
+   "use": "纸、亚麻、石材这类真实材质的无缝底",
+   "lighting": "Flat even top-down light with no shadows, no vignette and no gradient across the image.",
+   "material": "Macro photograph of a real surface with fine natural fibers or grain, perfectly uniform detail across the whole image, seamless on every edge.",
+   "color_rule": "Very low contrast, a single warm-neutral tone with at most two close shades."
+  }
+ ],
+ "negatives": [
+  {
+   "id": "NG-001",
+   "name": "通用",
+   "use": "适用于背景、插画、标记等没有特别要求的画面，先写这一组再按需追加",
+   "text": "no text, letters, numbers, labels, captions, logos, brand marks, watermarks or signatures, no UI elements, no buttons, no borders or frames, no collage, one single coherent image"
+  },
+  {
+   "id": "NG-002",
+   "name": "摄影",
+   "use": "商品与场景摄影，包装留白，不出现手、人和品牌",
+   "text": "no text, letters, numbers, labels, logos, brand names, watermarks or signatures, all packaging left entirely blank, no hands, no people, no faces, no UI elements, no borders or frames, no collage, no plastic CGI look, no oversaturated or neon colors, no lens flare, no distorted proportions"
+  },
+  {
+   "id": "NG-003",
+   "name": "图标拼板",
+   "use": "4×4 元素拼板与标识池，防止粘连、跨格、网格线与重复物件",
+   "text": "no text, letters, numbers, labels, logos or watermarks, no grid lines, no borders, no overlapping or touching objects, no object crossing a cell edge, no cropped objects, no duplicate objects, no cast shadow on the background"
+  },
+  {
+   "id": "NG-004",
+   "name": "海报",
+   "use": "海报主视觉，文案区留空，不出现文字、二维码与真人",
+   "text": "no text, letters, numbers, typography, logos, brand marks, watermarks, QR codes or signatures, no UI elements, no buttons, no borders or frames, no collage of unrelated pictures, no real people or human faces, no recognizable real-world brands, nothing placed inside the reserved copy area"
+  }
+ ],
+ "prompts": [
+  {
+   "id": "PP-001",
+   "name": "玫瑰花束摄影",
+   "category": "商品摄影",
+   "use": "花店商品图：圆形玫瑰花束居中，淡粉底",
+   "role": "photo",
+   "ratio": "1:1",
+   "resolution": "1k",
+   "background": "opaque",
+   "format": "png",
+   "prompt": "Use case: product-mockup\nAsset type: a polished commerce reference image for a mobile storefront\nPrimary request: One premium round bouquet of muted pink garden roses, white accent flowers and eucalyptus, wrapped in ivory paper with a simple ribbon. Product centered, entire bouquet visible. Pale blush background, soft daylight and natural contact shadow. No vase, no hand.\nStyle/medium: high quality photorealistic editorial product photography\nText: none. All product packaging must be entirely blank.\nConstraints: no text, no typography, no logo, no brand, no watermark, no UI, no buttons, no collage, no border. A single coherent image.\nThese are fictional visual examples for an internal HTML reference, not images of real branded products.",
+   "negative": "Constraints: no text, no typography, no logo, no brand, no watermark, no UI, no buttons, no collage, no border. A single coherent image.\nThese are fictional visual examples for an internal HTML reference, not images of real branded products.",
+   "style_ref": [
+    "ST-001"
+   ],
+   "negative_ref": "NG-002",
+   "checks": [
+    "整束花完整入画并居中，无花瓶无手",
+    "包装纸与丝带上没有文字或标志",
+    "淡粉背景干净，接触阴影自然"
+   ],
+   "verified": true,
+   "result": "../../../../kit/assets/photo/bouquet-rose.webp",
+   "source": "source/florist-rose.txt",
+   "notes": "花型太满或偏离时只改主体一句，其余行与末尾约束原样保留。"
+  },
+  {
+   "id": "PP-002",
+   "name": "郁金香花束摄影",
+   "category": "商品摄影",
+   "use": "花店商品图：鹅黄郁金香加白纸包装，暖奶油底",
+   "role": "photo",
+   "ratio": "1:1",
+   "resolution": "1k",
+   "background": "opaque",
+   "format": "png",
+   "prompt": "Use case: product-mockup\nAsset type: a polished commerce reference image for a mobile storefront\nPrimary request: One fresh bouquet of buttery yellow tulips with green leaves in a loose white paper wrap tied with an ivory ribbon. Product centered, entire bouquet visible. Pale warm cream background, soft daylight and natural contact shadow. No vase, no hand.\nStyle/medium: high quality photorealistic editorial product photography\nText: none. All product packaging must be entirely blank.\nConstraints: no text, no typography, no logo, no brand, no watermark, no UI, no buttons, no collage, no border. A single coherent image.\nThese are fictional visual examples for an internal HTML reference, not images of real branded products.",
+   "negative": "Constraints: no text, no typography, no logo, no brand, no watermark, no UI, no buttons, no collage, no border. A single coherent image.\nThese are fictional visual examples for an internal HTML reference, not images of real branded products.",
+   "style_ref": [
+    "ST-001"
+   ],
+   "negative_ref": "NG-002",
+   "checks": [
+    "郁金香颜色是奶油黄，不偏橙",
+    "白纸包装完整，丝带无字",
+    "背景暖奶油色，没有杂物"
+   ],
+   "verified": true,
+   "result": "../../../../kit/assets/photo/bouquet-tulip.webp",
+   "source": "source/florist-tulip.txt",
+   "notes": "花色偏了就把颜色词换成更具体的，如 buttery yellow 改成 pale butter yellow。"
+  },
+  {
+   "id": "PP-003",
+   "name": "白色花束摄影",
+   "category": "商品摄影",
+   "use": "花店商品图：白洋桔梗与尤加利，鼠尾草绿包装，淡薄荷底",
+   "role": "photo",
+   "ratio": "1:1",
+   "resolution": "1k",
+   "background": "opaque",
+   "format": "png",
+   "prompt": "Use case: product-mockup\nAsset type: a polished commerce reference image for a mobile storefront\nPrimary request: One airy bouquet of white lisianthus, tiny white daisies and fresh eucalyptus in a natural pale sage paper wrap with an ivory ribbon. Product centered, entire bouquet visible. Pale mint background, soft daylight and natural contact shadow. No vase, no hand.\nStyle/medium: high quality photorealistic editorial product photography\nText: none. All product packaging must be entirely blank.\nConstraints: no text, no typography, no logo, no brand, no watermark, no UI, no buttons, no collage, no border. A single coherent image.\nThese are fictional visual examples for an internal HTML reference, not images of real branded products.",
+   "negative": "Constraints: no text, no typography, no logo, no brand, no watermark, no UI, no buttons, no collage, no border. A single coherent image.\nThese are fictional visual examples for an internal HTML reference, not images of real branded products.",
+   "style_ref": [
+    "ST-001"
+   ],
+   "negative_ref": "NG-002",
+   "checks": [
+    "白花层次分明，不糊成一团",
+    "包装纸是淡鼠尾草绿，丝带象牙色",
+    "背景淡薄荷色，与花束有明度差"
+   ],
+   "verified": true,
+   "result": "../../../../kit/assets/photo/bouquet-white.webp",
+   "source": "source/florist-white.txt",
+   "notes": "整体发灰时在主体里加 fresh and luminous，而不是加滤镜词。"
+  },
+  {
+   "id": "PP-004",
+   "name": "龟背竹盆栽摄影",
+   "category": "商品摄影",
+   "use": "绿植商品图：白色陶盆里的单株龟背竹，用于商品列表与详情",
+   "role": "photo",
+   "ratio": "1:1",
+   "resolution": "1k",
+   "background": "opaque",
+   "format": "png",
+   "prompt": "Purpose: Product photograph of a potted houseplant for a mobile storefront product list and product detail page.\nSubject: One monstera deliciosa houseplant with five large split leaves in a plain matte white ceramic pot, the whole plant and the whole pot visible, leaves healthy and unmarked.\nComposition: Square 1:1, plant and pot together fill about 70% of the frame height with a 10% margin all around, eye-level camera, centered, the base of the pot fully visible.\nLighting: Soft diffused daylight from a large window at the upper left, one gentle natural contact shadow directly under the subject, no hard highlights. A faint soft highlight runs along the upper leaf surfaces.\nMaterial: True-to-life textures, photorealistic editorial product photography, 85mm lens look, shallow depth of field, crisp focus on the subject. Waxy leaf sheen with visible veins, fine matte ceramic grain on the pot.\nColor: {{primary}} appears only as a very pale tint in the backdrop; the leaves are natural deep green and the pot is warm white. Natural color, restrained saturation, warm neutral base, no color cast.\nBackground and output: Seamless backdrop in a very pale tint of {{primary}} with a soft floor-to-wall transition, opaque. Output: 1:1, 1k, PNG.\nAvoid: no text, letters, numbers, labels, logos, brand names, watermarks or signatures, all packaging left entirely blank, no hands, no people, no faces, no UI elements, no borders or frames, no collage, no plastic CGI look, no oversaturated or neon colors, no lens flare, no distorted proportions, no spilled soil, no plastic nursery pot, no price tags.",
+   "negative": "no text, letters, numbers, labels, logos, brand names, watermarks or signatures, all packaging left entirely blank, no hands, no people, no faces, no UI elements, no borders or frames, no collage, no plastic CGI look, no oversaturated or neon colors, no lens flare, no distorted proportions, no spilled soil, no plastic nursery pot, no price tags.",
+   "style_ref": [
+    "ST-001"
+   ],
+   "negative_ref": "NG-002",
+   "checks": [
+    "叶片、盆身完整入画，盆底可见",
+    "叶面有真实叶脉与蜡质光泽，不像塑料",
+    "背景只有极淡主题色，没有地面杂物"
+   ],
+   "verified": false,
+   "result": "",
+   "source": "",
+   "notes": "叶片太乱时把 five large split leaves 改成 three，并保持盆器那一句不变。"
+  },
+  {
+   "id": "PP-005",
+   "name": "花礼盒摄影",
+   "category": "商品摄影",
+   "use": "节日礼盒商品图：牛皮纸盒盖上放一小簇鲜花，盒身留白",
+   "role": "photo",
+   "ratio": "1:1",
+   "resolution": "1k",
+   "background": "opaque",
+   "format": "png",
+   "prompt": "Purpose: Product photograph of a gift box for a mobile storefront festival gift section.\nSubject: One closed kraft-paper gift box tied with a wide ribbon, a small cluster of fresh roses, white lisianthus and eucalyptus resting on the lid; the box and ribbon are entirely blank.\nComposition: Square 1:1, three-quarter view from slightly above, the box fills 60% of the frame width with a 14% margin, the flower cluster fully visible and not cropped.\nLighting: Soft diffused daylight from a large window at the upper left, one gentle natural contact shadow directly under the subject, no hard highlights. The lid casts a soft shadow onto the front face of the box.\nMaterial: True-to-life textures, photorealistic editorial product photography, 85mm lens look, shallow depth of field, crisp focus on the subject. Kraft paper with visible fibers, satin ribbon with a soft sheen, petals with true-to-life softness.\nColor: The roses are tints of {{primary}}, the ribbon is {{secondary}}, the box is natural kraft brown; no other saturated colors. Natural color, restrained saturation, warm neutral base, no color cast.\nBackground and output: Seamless backdrop in a pale warm grey with a soft floor transition, opaque. Output: 1:1, 1k, PNG.\nAvoid: no text, letters, numbers, labels, logos, brand names, watermarks or signatures, all packaging left entirely blank, no hands, no people, no faces, no UI elements, no borders or frames, no collage, no plastic CGI look, no oversaturated or neon colors, no lens flare, no distorted proportions, no printed pattern on the box, no gift tag, no card.",
+   "negative": "no text, letters, numbers, labels, logos, brand names, watermarks or signatures, all packaging left entirely blank, no hands, no people, no faces, no UI elements, no borders or frames, no collage, no plastic CGI look, no oversaturated or neon colors, no lens flare, no distorted proportions, no printed pattern on the box, no gift tag, no card.",
+   "style_ref": [
+    "ST-001"
+   ],
+   "negative_ref": "NG-002",
+   "checks": [
+    "盒身与丝带没有文字、图案或吊牌",
+    "花簇完整，没有被盒盖或画面裁切",
+    "牛皮纸有纤维质感，丝带颜色取自辅色"
+   ],
+   "verified": false,
+   "result": "",
+   "source": "",
+   "notes": "盒子比例不对时把 three-quarter view 改为 front view，其余不动。"
+  },
+  {
+   "id": "PP-006",
+   "name": "陶瓷花器摄影",
+   "category": "商品摄影",
+   "use": "花器商品图：哑光陶瓷花瓶配干花，暖灰底",
+   "role": "photo",
+   "ratio": "1:1",
+   "resolution": "1k",
+   "background": "opaque",
+   "format": "png",
+   "prompt": "Purpose: Product photograph of a decorative vase for a mobile storefront homeware section.\nSubject: One tall matte ceramic vase with a gently curved neck holding three stems of dried pampas grass and two dried bunny-tail grass stems, the whole vase and the whole arrangement visible.\nComposition: Square 1:1, vase centered and filling 75% of the frame height, 8% margin at the top and bottom, eye-level camera.\nLighting: Soft diffused daylight from a large window at the upper left, one gentle natural contact shadow directly under the subject, no hard highlights. A soft gradient of light falls across the curved body of the vase from left to right.\nMaterial: True-to-life textures, photorealistic editorial product photography, 85mm lens look, shallow depth of field, crisp focus on the subject. Hand-thrown matte glaze with faint speckles, feathery dried grass heads.\nColor: The vase is a muted tint of {{primary}}, the grass is warm oatmeal and cream, the backdrop is warm grey; {{primary}} is the only saturated hue. Natural color, restrained saturation, warm neutral base, no color cast.\nBackground and output: Seamless warm grey backdrop with a soft floor transition, opaque. Output: 1:1, 1k, PNG.\nAvoid: no text, letters, numbers, labels, logos, brand names, watermarks or signatures, all packaging left entirely blank, no hands, no people, no faces, no UI elements, no borders or frames, no collage, no plastic CGI look, no oversaturated or neon colors, no lens flare, no distorted proportions, no water, no visible tabletop clutter, no second vase.",
+   "negative": "no text, letters, numbers, labels, logos, brand names, watermarks or signatures, all packaging left entirely blank, no hands, no people, no faces, no UI elements, no borders or frames, no collage, no plastic CGI look, no oversaturated or neon colors, no lens flare, no distorted proportions, no water, no visible tabletop clutter, no second vase.",
+   "style_ref": [
+    "ST-001"
+   ],
+   "negative_ref": "NG-002",
+   "checks": [
+    "花瓶轮廓完整，釉面是哑光而非塑料反光",
+    "干花枝条数量与描述一致",
+    "背景暖灰无缝，没有桌面杂物"
+   ],
+   "verified": false,
+   "result": "",
+   "source": "",
+   "notes": "釉面发亮时在材质行里加 no gloss，并保持其余行不变。"
+  },
+  {
+   "id": "PP-007",
+   "name": "手冲咖啡摄影",
+   "category": "商品摄影",
+   "use": "咖啡店商品图：手冲壶、玻璃杯与咖啡豆的静物组合",
+   "role": "photo",
+   "ratio": "4:3",
+   "resolution": "1k",
+   "background": "opaque",
+   "format": "png",
+   "prompt": "Purpose: Product photograph of a pour-over coffee set for a cafe's mobile ordering page.\nSubject: One ceramic pour-over server with a glass dripper on top, a clear glass cup of freshly brewed black coffee beside it, and a small wooden scoop of whole roasted beans on a wooden board.\nComposition: Landscape 4:3, camera at 45 degrees above the table, the group fills about 60% of the frame width with a 15% margin, the cup and the server both fully visible.\nLighting: Warm window light from the left at about 45 degrees with a soft white fill from the right, gentle specular highlights on glaze and cream, no harsh shadows. A faint warm reflection of the window appears on the glass dripper.\nMaterial: True-to-life food and tableware textures: crumb, glaze, cream, ceramic, linen weave and wood grain; photorealistic editorial food photography, 70mm lens look, shallow depth of field. Glossy ceramic server, clear glass with true reflections, oily roasted bean surfaces, light oak wood grain.\nColor: Coffee brown and cream dominate; {{primary}} appears only on one small ceramic saucer under the cup. Natural warm color, appetizing but not oversaturated, no orange cast.\nBackground and output: Seamless oatmeal linen tabletop with a softly blurred pale wall, opaque. Output: 4:3, 1k, PNG.\nAvoid: no text, letters, numbers, labels, logos, brand names, watermarks or signatures, all packaging left entirely blank, no hands, no people, no faces, no UI elements, no borders or frames, no collage, no plastic CGI look, no oversaturated or neon colors, no lens flare, no distorted proportions, no steam, no coffee stains, no cafe branding.",
+   "negative": "no text, letters, numbers, labels, logos, brand names, watermarks or signatures, all packaging left entirely blank, no hands, no people, no faces, no UI elements, no borders or frames, no collage, no plastic CGI look, no oversaturated or neon colors, no lens flare, no distorted proportions, no steam, no coffee stains, no cafe branding.",
+   "style_ref": [
+    "ST-002"
+   ],
+   "negative_ref": "NG-002",
+   "checks": [
+    "壶、杯、豆三样都在且不重叠",
+    "玻璃与陶瓷反光真实，没有塑料感",
+    "主题色只在小碟上，不抢咖啡色"
+   ],
+   "verified": false,
+   "result": "",
+   "source": "",
+   "notes": "杯中咖啡发灰时在材质行里补 dark glossy surface with a thin crema ring。"
+  },
+  {
+   "id": "PP-008",
+   "name": "草莓蛋糕摄影",
+   "category": "商品摄影",
+   "use": "甜品店商品图：一块草莓奶油蛋糕与叉子，暖奶油底",
+   "role": "photo",
+   "ratio": "1:1",
+   "resolution": "1k",
+   "background": "opaque",
+   "format": "png",
+   "prompt": "Purpose: Product photograph of a dessert for a bakery's mobile ordering page.\nSubject: One slice of strawberry cream layer cake on a matte ceramic plate, three fresh strawberry halves on top, a small dessert fork resting beside the slice, the whole plate visible.\nComposition: Square 1:1, camera at about 35 degrees above the table, the plate fills 65% of the frame width with a 12% margin, the cut face of the slice turned toward the camera.\nLighting: Warm window light from the left at about 45 degrees with a soft white fill from the right, gentle specular highlights on glaze and cream, no harsh shadows. The cream layers catch a thin soft highlight along their upper edge.\nMaterial: True-to-life food and tableware textures: crumb, glaze, cream, ceramic, linen weave and wood grain; photorealistic editorial food photography, 70mm lens look, shallow depth of field. Moist sponge crumb, smooth whipped cream, glossy strawberry skin, matte plate glaze, a few loose crumbs on the plate.\nColor: The plate is a pale tint of {{primary}}, the strawberries are natural red, the cream is warm ivory; {{primary}} is the only added hue. Natural warm color, appetizing but not oversaturated, no orange cast.\nBackground and output: Seamless warm cream tabletop with a softly blurred wall behind, opaque. Output: 1:1, 1k, PNG.\nAvoid: no text, letters, numbers, labels, logos, brand names, watermarks or signatures, all packaging left entirely blank, no hands, no people, no faces, no UI elements, no borders or frames, no collage, no plastic CGI look, no oversaturated or neon colors, no lens flare, no distorted proportions, no candles, no piped lettering, no decorative picks.",
+   "negative": "no text, letters, numbers, labels, logos, brand names, watermarks or signatures, all packaging left entirely blank, no hands, no people, no faces, no UI elements, no borders or frames, no collage, no plastic CGI look, no oversaturated or neon colors, no lens flare, no distorted proportions, no candles, no piped lettering, no decorative picks.",
+   "style_ref": [
+    "ST-002"
+   ],
+   "negative_ref": "NG-002",
+   "checks": [
+    "蛋糕切面层次清楚，奶油不塌",
+    "盘、叉、草莓都完整入画",
+    "奶油面没有任何字样或裱花字母"
+   ],
+   "verified": false,
+   "result": "",
+   "source": "",
+   "notes": "切面糊在一起时把 moist sponge crumb 改为 clearly separated sponge and cream layers。"
+  },
+  {
+   "id": "PP-009",
+   "name": "护肤瓶罐摄影",
+   "category": "商品摄影",
+   "use": "美业商品图：三只高低不同的空白护肤瓶罐，淡主题色底",
+   "role": "photo",
+   "ratio": "4:3",
+   "resolution": "1k",
+   "background": "opaque",
+   "format": "png",
+   "prompt": "Purpose: Product photograph of a skincare line for a beauty salon's mobile storefront.\nSubject: Three skincare containers of different heights in a row: a frosted glass dropper bottle, a squat cream jar with a matte lid and a slim pump bottle; every surface is blank with no label, no print and no embossing.\nComposition: Landscape 4:3, the row is centered and fills 60% of the frame width, 20% margin above, camera at eye level with a slight three-quarter angle.\nLighting: Large softbox from the front left, a thin cool rim light from behind, smooth soft reflections on the surface, soft shadow edges. A soft gradient reflection runs down the glass bottles, the lids show a thin satin highlight.\nMaterial: Frosted glass, brushed metal, satin plastic and soft fabric rendered with true reflections and fine surface texture; photorealistic studio product photography, 100mm lens look, sharp focus across the product. Frosted glass, satin plastic pump, matte lid, a thin water-like sheen on the stone slab beneath.\nColor: The backdrop is a pale tint of {{primary}}; the containers are warm white and translucent; {{primary}} is the only saturated hue. Clean cool-neutral base with a single accent color, no color cast, no neon.\nBackground and output: Polished pale stone slab with a seamless soft backdrop sweep, opaque. Output: 4:3, 1k, PNG.\nAvoid: no text, letters, numbers, labels, logos, brand names, watermarks or signatures, all packaging left entirely blank, no hands, no people, no faces, no UI elements, no borders or frames, no collage, no plastic CGI look, no oversaturated or neon colors, no lens flare, no distorted proportions, no water drops, no flowers, no cotton pads.",
+   "negative": "no text, letters, numbers, labels, logos, brand names, watermarks or signatures, all packaging left entirely blank, no hands, no people, no faces, no UI elements, no borders or frames, no collage, no plastic CGI look, no oversaturated or neon colors, no lens flare, no distorted proportions, no water drops, no flowers, no cotton pads.",
+   "style_ref": [
+    "ST-003"
+   ],
+   "negative_ref": "NG-002",
+   "checks": [
+    "三件容器高低不同、互不遮挡",
+    "瓶身没有任何标签或压印文字",
+    "磨砂玻璃与哑光盖的质感区分清楚"
+   ],
+   "verified": false,
+   "result": "",
+   "source": "",
+   "notes": "容器出现标签时把 blank 一句移到 Subject 最前面并加 completely blank。"
+  },
+  {
+   "id": "PP-010",
+   "name": "无线耳机摄影",
+   "category": "商品摄影",
+   "use": "数码商品图：石墨色头戴耳机三分之四视角，冷灰底",
+   "role": "photo",
+   "ratio": "1:1",
+   "resolution": "1k",
+   "background": "opaque",
+   "format": "png",
+   "prompt": "Purpose: Product photograph of a consumer electronics item for a mobile storefront product detail page.\nSubject: One pair of wireless over-ear headphones in matte graphite, standing upright in a three-quarter view, the earcups showing no logo and no markings, a thin accent ring inside the earcup.\nComposition: Square 1:1, the headphones fill 70% of the frame height with a 10% margin, camera at eye level, the headband and both earcups fully visible.\nLighting: Large softbox from the front left, a thin cool rim light from behind, smooth soft reflections on the surface, soft shadow edges. A soft reflection of the softbox runs along the headband and the earcup rim.\nMaterial: Frosted glass, brushed metal, satin plastic and soft fabric rendered with true reflections and fine surface texture; photorealistic studio product photography, 100mm lens look, sharp focus across the product. Matte graphite shell, soft protein-leather cushions, a thin anodized metal slider, fine real surface grain.\nColor: Graphite and cool grey dominate; the accent ring inside the earcup is {{primary}}; no other saturated colors. Clean cool-neutral base with a single accent color, no color cast, no neon.\nBackground and output: Seamless cool grey backdrop with a soft floor reflection under the product, opaque. Output: 1:1, 1k, PNG.\nAvoid: no text, letters, numbers, labels, logos, brand names, watermarks or signatures, all packaging left entirely blank, no hands, no people, no faces, no UI elements, no borders or frames, no collage, no plastic CGI look, no oversaturated or neon colors, no lens flare, no distorted proportions, no cables, no buttons with symbols, no printed model name.",
+   "negative": "no text, letters, numbers, labels, logos, brand names, watermarks or signatures, all packaging left entirely blank, no hands, no people, no faces, no UI elements, no borders or frames, no collage, no plastic CGI look, no oversaturated or neon colors, no lens flare, no distorted proportions, no cables, no buttons with symbols, no printed model name.",
+   "style_ref": [
+    "ST-003"
+   ],
+   "negative_ref": "NG-002",
+   "checks": [
+    "耳罩与头梁完整，无标志无印字",
+    "主题色只出现在耳罩内圈",
+    "冷灰背景无缝，倒影轻"
+   ],
+   "verified": false,
+   "result": "",
+   "source": "",
+   "notes": "金属部分发塑料时材质行补 brushed anodized metal with fine linear grain。"
+  },
+  {
+   "id": "PP-011",
+   "name": "母婴棉织摄影",
+   "category": "商品摄影",
+   "use": "母婴商品图：折叠的奶油色纱布毯、木质牙胶与针织袜",
+   "role": "photo",
+   "ratio": "1:1",
+   "resolution": "1k",
+   "background": "opaque",
+   "format": "png",
+   "prompt": "Purpose: Product photograph of baby textiles for a mother-and-baby shop's mobile storefront.\nSubject: A neatly folded cream muslin baby blanket with a small natural wooden teething ring and a pair of knitted baby socks resting on top; the whole stack is visible.\nComposition: Square 1:1, three-quarter view from slightly above, the stack fills 65% of the frame width with a 12% margin.\nLighting: Soft diffused daylight from a large window at the upper left, one gentle natural contact shadow directly under the subject, no hard highlights. Light skims the muslin weave and shows its soft crinkles.\nMaterial: True-to-life textures, photorealistic editorial product photography, 85mm lens look, shallow depth of field, crisp focus on the subject. Fine open-weave muslin, soft knitted wool, smooth sanded beech wood.\nColor: The blanket is warm cream, the socks are a tint of {{primary}}, the teething ring is natural wood; {{primary}} is the only saturated hue. Natural color, restrained saturation, warm neutral base, no color cast.\nBackground and output: Seamless pale warm cream surface and wall, opaque. Output: 1:1, 1k, PNG.\nAvoid: no text, letters, numbers, labels, logos, brand names, watermarks or signatures, all packaging left entirely blank, no hands, no people, no faces, no UI elements, no borders or frames, no collage, no plastic CGI look, no oversaturated or neon colors, no lens flare, no distorted proportions, no baby, no toys with faces, no printed patterns.",
+   "negative": "no text, letters, numbers, labels, logos, brand names, watermarks or signatures, all packaging left entirely blank, no hands, no people, no faces, no UI elements, no borders or frames, no collage, no plastic CGI look, no oversaturated or neon colors, no lens flare, no distorted proportions, no baby, no toys with faces, no printed patterns.",
+   "style_ref": [
+    "ST-001"
+   ],
+   "negative_ref": "NG-002",
+   "checks": [
+    "布毯折叠整齐，纹理是纱布而不是毛巾",
+    "没有婴儿、没有带脸的玩具",
+    "针织袜颜色取自主题色的浅调"
+   ],
+   "verified": false,
+   "result": "",
+   "source": "",
+   "notes": "毯子像毛巾时把 fine open-weave muslin 加上 gauze with visible small gaps。"
+  },
+  {
+   "id": "PP-012",
+   "name": "香氛蜡烛摄影",
+   "category": "商品摄影",
+   "use": "家居商品图：陶瓷罐香氛蜡烛配小碟与干尤加利",
+   "role": "photo",
+   "ratio": "1:1",
+   "resolution": "1k",
+   "background": "opaque",
+   "format": "png",
+   "prompt": "Purpose: Product photograph of a home fragrance item for a homeware shop's mobile storefront.\nSubject: One soy candle in a matte ceramic jar with a wooden lid leaning against it, beside a small ceramic dish and a sprig of dried eucalyptus; the jar is entirely blank with no label.\nComposition: Square 1:1, eye-level camera, the jar sits slightly left of center and the group fills 65% of the frame width with a 12% margin.\nLighting: Soft diffused daylight from a large window at the upper left, one gentle natural contact shadow directly under the subject, no hard highlights. A warm soft light on the jar; the unlit wick is visible and no flame is shown.\nMaterial: True-to-life textures, photorealistic editorial product photography, 85mm lens look, shallow depth of field, crisp focus on the subject. Matte glaze with a faint speckle, light oak lid grain, a smooth wax surface, dry leaf texture.\nColor: The jar is a muted tint of {{primary}}, the dish is warm white, the eucalyptus is sage; {{primary}} is the only saturated hue. Natural color, restrained saturation, warm neutral base, no color cast.\nBackground and output: Seamless pale greige tabletop and wall with a soft shadow transition, opaque. Output: 1:1, 1k, PNG.\nAvoid: no text, letters, numbers, labels, logos, brand names, watermarks or signatures, all packaging left entirely blank, no hands, no people, no faces, no UI elements, no borders or frames, no collage, no plastic CGI look, no oversaturated or neon colors, no lens flare, no distorted proportions, no flame, no smoke, no printed label.",
+   "negative": "no text, letters, numbers, labels, logos, brand names, watermarks or signatures, all packaging left entirely blank, no hands, no people, no faces, no UI elements, no borders or frames, no collage, no plastic CGI look, no oversaturated or neon colors, no lens flare, no distorted proportions, no flame, no smoke, no printed label.",
+   "style_ref": [
+    "ST-001"
+   ],
+   "negative_ref": "NG-002",
+   "checks": [
+    "罐身空白无标签，木盖靠在罐边",
+    "烛芯可见但没有火焰与烟",
+    "干尤加利是实物质感，不是塑料叶"
+   ],
+   "verified": false,
+   "result": "",
+   "source": "",
+   "notes": "出现火焰时把 no flame 移到 Subject 句首并加 unlit candle。"
+  },
+  {
+   "id": "PP-013",
+   "name": "花店主视觉",
+   "category": "场景主视觉",
+   "use": "花店头图：右半是粉色花束，左半留作文案区",
+   "role": "photo",
+   "ratio": "16:9",
+   "resolution": "1k",
+   "background": "opaque",
+   "format": "png",
+   "prompt": "Use case: product-mockup\nAsset type: a polished commerce reference image for a mobile storefront\nPrimary request: A fresh, abundant bouquet of dusty pink garden roses, white lisianthus and eucalyptus, tied in natural ivory paper, on a pale rose studio table. An elegant flower studio still life. Flowers occupy the right half; the left half is softly lit pale rose negative space for live HTML copy.\nStyle/medium: high quality photorealistic editorial product photography\nText: none. All product packaging must be entirely blank.\nConstraints: no text, no typography, no logo, no brand, no watermark, no UI, no buttons, no collage, no border. A single coherent image.\nThese are fictional visual examples for an internal HTML reference, not images of real branded products.",
+   "negative": "Constraints: no text, no typography, no logo, no brand, no watermark, no UI, no buttons, no collage, no border. A single coherent image.\nThese are fictional visual examples for an internal HTML reference, not images of real branded products.",
+   "style_ref": [
+    "ST-001"
+   ],
+   "negative_ref": "NG-002",
+   "checks": [
+    "花束在右半，左半是干净的淡粉留白",
+    "花、丝带、包装纸上都没有文字",
+    "整图是一张完整照片，没有拼贴或边框"
+   ],
+   "verified": true,
+   "result": "../../../../kit/assets/photo/scene-hero-pink.webp",
+   "source": "source/florist-hero.txt",
+   "notes": "花束偏到中间时在 Primary request 里加 flowers occupy only the right third。"
+  },
+  {
+   "id": "PP-014",
+   "name": "门店橱窗场景",
+   "category": "场景主视觉",
+   "use": "门店头图：街边小店橱窗，窗内绿植与牛皮纸礼盒，无招牌",
+   "role": "photo",
+   "ratio": "16:9",
+   "resolution": "2k",
+   "background": "opaque",
+   "format": "png",
+   "prompt": "Purpose: Hero photograph of a neighborhood shop window for a mobile store page header, headline text will be added later over the left third.\nSubject: The display window of a small flower and gift shop seen straight-on from the sidewalk: a wooden shelf of potted plants, a dried-flower wreath hanging on the glass door, a stack of blank kraft gift boxes, a fabric awning above; the shop has no signage.\nComposition: Landscape 16:9, camera straight-on at eye level about three meters from the window, the window fills 80% of the frame width, the left third stays calm and uncluttered.\nLighting: Natural window light in late morning, soft shadows with gentle falloff across the space, no direct sun glare. Soft reflections of the street fall across the upper glass, warm interior light glows inside.\nMaterial: Real wood grain, linen, plaster, ceramic and glass, tidy and lived-in; photorealistic interior and lifestyle photography, 35mm lens look, eye-level camera, deep enough depth of field to read the whole space. Painted timber window frame, clear glass with true reflections, woven textures, terracotta pots.\nColor: The awning is a tint of {{primary}}, the plants are natural green, the wood is warm oak, {{secondary}} appears in two or three pot accents. Natural color, low saturation, harmonious warm neutrals.\nBackground and output: Real sidewalk and window scene, opaque, the street beyond kept blurred. Output: 16:9, 2k, PNG.\nAvoid: no text, letters, numbers, labels, logos, brand names, watermarks or signatures, all packaging left entirely blank, no hands, no people, no faces, no UI elements, no borders or frames, no collage, no plastic CGI look, no oversaturated or neon colors, no lens flare, no distorted proportions, no signage, no street name, no passers-by, no vehicles.",
+   "negative": "no text, letters, numbers, labels, logos, brand names, watermarks or signatures, all packaging left entirely blank, no hands, no people, no faces, no UI elements, no borders or frames, no collage, no plastic CGI look, no oversaturated or neon colors, no lens flare, no distorted proportions, no signage, no street name, no passers-by, no vehicles.",
+   "style_ref": [
+    "ST-004"
+   ],
+   "negative_ref": "NG-002",
+   "checks": [
+    "橱窗完整入画，左三分之一安静可放文案",
+    "招牌、门牌、路牌一律没有文字",
+    "窗玻璃有真实反光，不是贴图"
+   ],
+   "verified": false,
+   "result": "",
+   "source": "",
+   "notes": "招牌上出现文字时把 no signage 写进 Subject 句尾并强调 awning is plain。"
+  },
+  {
+   "id": "PP-015",
+   "name": "咖啡吧台场景",
+   "category": "场景主视觉",
+   "use": "咖啡店头图：无人的橡木吧台，咖啡机、杯架与玻璃甜品柜",
+   "role": "photo",
+   "ratio": "16:9",
+   "resolution": "2k",
+   "background": "opaque",
+   "format": "png",
+   "prompt": "Purpose: Hero photograph of a cafe counter for a cafe mini-program home page, copy will be added over the left half.\nSubject: An empty cafe service counter in oak with an espresso machine showing no logo, a row of ceramic cups on a shelf, a glass pastry case with blank trays, two brass pendant lamps hanging above; no people.\nComposition: Landscape 16:9, camera at counter height slightly off-axis, the counter fills the right 60% of the frame, the left 40% is a calm plaster wall.\nLighting: Natural window light in late morning, soft shadows with gentle falloff across the space, no direct sun glare. Daylight from a window on the left, the pendant lamps add a warm glow, soft shadows under the counter edge.\nMaterial: Real wood grain, linen, plaster, ceramic and glass, tidy and lived-in; photorealistic interior and lifestyle photography, 35mm lens look, eye-level camera, deep enough depth of field to read the whole space. Oak grain, brushed steel with true reflections, ceramic glaze, clear glass, lime plaster wall.\nColor: Warm oak and cream dominate, a muted tint of {{primary}} on the cups and one wall panel; {{primary}} is the only saturated hue. Natural color, low saturation, harmonious warm neutrals.\nBackground and output: Real interior scene, opaque, background kept softly out of focus. Output: 16:9, 2k, PNG.\nAvoid: no text, letters, numbers, labels, logos, brand names, watermarks or signatures, all packaging left entirely blank, no hands, no people, no faces, no UI elements, no borders or frames, no collage, no plastic CGI look, no oversaturated or neon colors, no lens flare, no distorted proportions, no menu boards, no chalkboard writing, no barista.",
+   "negative": "no text, letters, numbers, labels, logos, brand names, watermarks or signatures, all packaging left entirely blank, no hands, no people, no faces, no UI elements, no borders or frames, no collage, no plastic CGI look, no oversaturated or neon colors, no lens flare, no distorted proportions, no menu boards, no chalkboard writing, no barista.",
+   "style_ref": [
+    "ST-004"
+   ],
+   "negative_ref": "NG-002",
+   "checks": [
+    "画面无人，咖啡机无标志",
+    "黑板、菜单、杯身都没有文字",
+    "左四成是干净墙面，可放标题"
+   ],
+   "verified": false,
+   "result": "",
+   "source": "",
+   "notes": "出现菜单板时把 no menu boards 放到 Subject 末尾并补 plain plaster wall。"
+  },
+  {
+   "id": "PP-016",
+   "name": "餐桌俯拍场景",
+   "category": "场景主视觉",
+   "use": "餐饮头图：圆木桌俯拍，两份菜与器皿，角落留白",
+   "role": "photo",
+   "ratio": "4:3",
+   "resolution": "2k",
+   "background": "opaque",
+   "format": "png",
+   "prompt": "Purpose: Overhead hero photograph of a dining table for a restaurant's mobile home page.\nSubject: A round wooden table seen from directly above with two ceramic plates of roasted vegetables and grilled fish, two glasses of water, two linen napkins, wooden chopsticks on rests and a small bud vase with a single sprig; no people.\nComposition: Landscape 4:3, camera exactly overhead, the table fills the frame with an 8% margin, the upper-left corner stays quieter for copy.\nLighting: Warm window light from the left at about 45 degrees with a soft white fill from the right, gentle specular highlights on glaze and cream, no harsh shadows. Warm window light from the left leaves soft long shadows to the right.\nMaterial: True-to-life food and tableware textures: crumb, glaze, cream, ceramic, linen weave and wood grain; photorealistic editorial food photography, 70mm lens look, shallow depth of field. Oiled wood grain, speckled stoneware, linen weave, glossy sauce highlights.\nColor: Warm natural food colors, the napkins are a tint of {{primary}}, the stoneware is warm white; {{primary}} is the only added hue. Natural warm color, appetizing but not oversaturated, no orange cast.\nBackground and output: Real tabletop scene filling the frame, opaque. Output: 4:3, 2k, PNG.\nAvoid: no text, letters, numbers, labels, logos, brand names, watermarks or signatures, all packaging left entirely blank, no hands, no people, no faces, no UI elements, no borders or frames, no collage, no plastic CGI look, no oversaturated or neon colors, no lens flare, no distorted proportions, no menu, no bill, no cutlery engraving.",
+   "negative": "no text, letters, numbers, labels, logos, brand names, watermarks or signatures, all packaging left entirely blank, no hands, no people, no faces, no UI elements, no borders or frames, no collage, no plastic CGI look, no oversaturated or neon colors, no lens flare, no distorted proportions, no menu, no bill, no cutlery engraving.",
+   "style_ref": [
+    "ST-002"
+   ],
+   "negative_ref": "NG-002",
+   "checks": [
+    "镜头垂直向下，桌面不变形",
+    "没有人手、菜单或账单",
+    "左上角相对安静，可叠标题"
+   ],
+   "verified": false,
+   "result": "",
+   "source": "",
+   "notes": "菜品像塑料时材质行加 slightly uneven char marks and natural gloss。"
+  },
+  {
+   "id": "PP-017",
+   "name": "客厅家居场景",
+   "category": "场景主视觉",
+   "use": "家居头图：亚麻沙发、圆桌与落地灯的安静角落，左侧墙面留白",
+   "role": "photo",
+   "ratio": "16:9",
+   "resolution": "2k",
+   "background": "opaque",
+   "format": "png",
+   "prompt": "Purpose: Hero photograph of a living room corner for a homeware brand's mobile home page, headline text will be added over the left third.\nSubject: A calm living room corner with a low linen sofa, a round oak coffee table holding a ceramic vase of dried grass, a folded wool throw, a floor lamp with a paper shade and a large window with sheer curtains; no people, no pictures on the walls.\nComposition: Landscape 16:9, camera at sofa-seat height, the furniture sits in the right 60% of the frame, the left third is a plain plaster wall.\nLighting: Natural window light in late morning, soft shadows with gentle falloff across the space, no direct sun glare. Daylight streams through the sheer curtains and lays a soft window shape on the floor.\nMaterial: Real wood grain, linen, plaster, ceramic and glass, tidy and lived-in; photorealistic interior and lifestyle photography, 35mm lens look, eye-level camera, deep enough depth of field to read the whole space. Linen upholstery, oak grain, lime plaster, ceramic glaze, wool knit.\nColor: Warm neutrals, the throw and the vase are tints of {{primary}}, {{secondary}} appears in one cushion; no other saturated colors. Natural color, low saturation, harmonious warm neutrals.\nBackground and output: Real interior scene, opaque, depth of field covers the whole room. Output: 16:9, 2k, PNG.\nAvoid: no text, letters, numbers, labels, logos, brand names, watermarks or signatures, all packaging left entirely blank, no hands, no people, no faces, no UI elements, no borders or frames, no collage, no plastic CGI look, no oversaturated or neon colors, no lens flare, no distorted proportions, no framed art, no books with readable covers, no television.",
+   "negative": "no text, letters, numbers, labels, logos, brand names, watermarks or signatures, all packaging left entirely blank, no hands, no people, no faces, no UI elements, no borders or frames, no collage, no plastic CGI look, no oversaturated or neon colors, no lens flare, no distorted proportions, no framed art, no books with readable covers, no television.",
+   "style_ref": [
+    "ST-004"
+   ],
+   "negative_ref": "NG-002",
+   "checks": [
+    "家具比例自然，无扭曲的沙发腿",
+    "墙上没有画框，也没有可读封面的书",
+    "左三分之一为干净墙面"
+   ],
+   "verified": false,
+   "result": "",
+   "source": "",
+   "notes": "房间太满时把清单里的毛毯与落地灯删掉，保留沙发与圆桌。"
+  },
+  {
+   "id": "PP-018",
+   "name": "美业工作台场景",
+   "category": "场景主视觉",
+   "use": "美业头图：无人的化妆台，圆镜、护肤瓶托盘与折叠白毛巾",
+   "role": "photo",
+   "ratio": "3:2",
+   "resolution": "2k",
+   "background": "opaque",
+   "format": "png",
+   "prompt": "Purpose: Hero photograph of a beauty salon station for a salon mini-program page header.\nSubject: A bright salon vanity with no people: a round mirror that reflects only the wall, a tray of unlabeled skincare bottles, folded white towels, a small bowl of rose petals and a potted fern.\nComposition: Landscape 3:2, camera at eye level slightly off-axis, the vanity fills the right 65% of the frame, a calm pale wall on the left.\nLighting: Large softbox from the front left, a thin cool rim light from behind, smooth soft reflections on the surface, soft shadow edges. A large softbox glow from the front left with soft reflections in the mirror and on the bottles.\nMaterial: Frosted glass, brushed metal, satin plastic and soft fabric rendered with true reflections and fine surface texture; photorealistic studio product photography, 100mm lens look, sharp focus across the product. Frosted glass, polished mirror, soft cotton towels, matte ceramic tray, fresh petals.\nColor: The wall is a pale tint of {{primary}}, the towels are white, the fern is natural green; {{primary}} is the only saturated hue. Clean cool-neutral base with a single accent color, no color cast, no neon.\nBackground and output: Real interior scene, opaque, background gently out of focus. Output: 3:2, 2k, PNG.\nAvoid: no text, letters, numbers, labels, logos, brand names, watermarks or signatures, all packaging left entirely blank, no hands, no people, no faces, no UI elements, no borders or frames, no collage, no plastic CGI look, no oversaturated or neon colors, no lens flare, no distorted proportions, no reflections of people, no price cards, no brand labels.",
+   "negative": "no text, letters, numbers, labels, logos, brand names, watermarks or signatures, all packaging left entirely blank, no hands, no people, no faces, no UI elements, no borders or frames, no collage, no plastic CGI look, no oversaturated or neon colors, no lens flare, no distorted proportions, no reflections of people, no price cards, no brand labels.",
+   "style_ref": [
+    "ST-003"
+   ],
+   "negative_ref": "NG-002",
+   "checks": [
+    "镜中没有人影或文字",
+    "瓶身无标签，毛巾折叠整齐",
+    "左侧留白可放标题"
+   ],
+   "verified": false,
+   "result": "",
+   "source": "",
+   "notes": "镜中出现人影时在 Subject 里写 the mirror reflects only a plain wall。"
+  },
+  {
+   "id": "PP-019",
+   "name": "户外野餐场景",
+   "category": "场景主视觉",
+   "use": "户外头图：树荫下的亚麻野餐毯、藤篮与柠檬水，无人",
+   "role": "photo",
+   "ratio": "16:9",
+   "resolution": "2k",
+   "background": "opaque",
+   "format": "png",
+   "prompt": "Purpose: Hero photograph of an outdoor picnic for a seasonal campaign page header.\nSubject: A linen picnic blanket on a green lawn under a leafy tree, a woven basket holding fresh flowers, two glass jars of lemonade with lemon slices, a straw hat resting on the blanket; no people.\nComposition: Landscape 16:9, camera low and slightly above the lawn, the blanket sits in the lower right and fills 45% of the frame, the upper left is soft blurred foliage for copy.\nLighting: Natural window light in late morning, soft shadows with gentle falloff across the space, no direct sun glare. Dappled sunlight through the leaves, soft shadows across the blanket, no hard sun glare.\nMaterial: Real wood grain, linen, plaster, ceramic and glass, tidy and lived-in; photorealistic interior and lifestyle photography, 35mm lens look, eye-level camera, deep enough depth of field to read the whole space. Linen weave, woven rattan, glass with condensation, fresh grass blades.\nColor: The blanket stripes are a tint of {{primary}}, the flowers add {{secondary}}, everything else is natural green and warm neutral. Natural color, low saturation, harmonious warm neutrals.\nBackground and output: Real outdoor scene, opaque, foreground and far background softly blurred. Output: 16:9, 2k, PNG.\nAvoid: no text, letters, numbers, labels, logos, brand names, watermarks or signatures, all packaging left entirely blank, no hands, no people, no faces, no UI elements, no borders or frames, no collage, no plastic CGI look, no oversaturated or neon colors, no lens flare, no distorted proportions, no food labels, no picnic table, no pets.",
+   "negative": "no text, letters, numbers, labels, logos, brand names, watermarks or signatures, all packaging left entirely blank, no hands, no people, no faces, no UI elements, no borders or frames, no collage, no plastic CGI look, no oversaturated or neon colors, no lens flare, no distorted proportions, no food labels, no picnic table, no pets.",
+   "style_ref": [
+    "ST-004"
+   ],
+   "negative_ref": "NG-002",
+   "checks": [
+    "画面无人无宠物",
+    "光斑自然，没有过曝的亮块",
+    "左上角虚化的树叶适合放标题"
+   ],
+   "verified": false,
+   "result": "",
+   "source": "",
+   "notes": "光斑太碎时把 dappled sunlight 改为 gentle open shade。"
+  },
+  {
+   "id": "PP-020",
+   "name": "健身空间场景",
+   "category": "场景主视觉",
+   "use": "健身头图：明亮的无人工作室，哑铃架、瑜伽垫与木地板",
+   "role": "photo",
+   "ratio": "16:9",
+   "resolution": "2k",
+   "background": "opaque",
+   "format": "png",
+   "prompt": "Purpose: Hero photograph of a boutique fitness studio for a gym mini-program home page.\nSubject: An empty bright fitness studio: a rack of dumbbells in graded sizes with no numbers or markings, two rolled yoga mats, a kettlebell, a wooden floor and tall windows; no people.\nComposition: Landscape 16:9, camera at chest height looking down the room, equipment fills the right 55% of the frame, the left side is a calm wall.\nLighting: Natural window light in late morning, soft shadows with gentle falloff across the space, no direct sun glare. Strong window light from the left, soft long shadows across the floor, gentle falloff toward the back wall.\nMaterial: Real wood grain, linen, plaster, ceramic and glass, tidy and lived-in; photorealistic interior and lifestyle photography, 35mm lens look, eye-level camera, deep enough depth of field to read the whole space. Brushed steel with true reflections, matte rubber, rolled mat texture, wide oak planks, plaster wall.\nColor: The yoga mats and one wall stripe are tints of {{primary}}, the floor is warm oak, steel is neutral grey; {{primary}} is the only saturated hue. Natural color, low saturation, harmonious warm neutrals.\nBackground and output: Real interior scene, opaque, depth of field covers the studio. Output: 16:9, 2k, PNG.\nAvoid: no text, letters, numbers, labels, logos, brand names, watermarks or signatures, all packaging left entirely blank, no hands, no people, no faces, no UI elements, no borders or frames, no collage, no plastic CGI look, no oversaturated or neon colors, no lens flare, no distorted proportions, no mirrors showing people, no wall posters, no markings on the weights.",
+   "negative": "no text, letters, numbers, labels, logos, brand names, watermarks or signatures, all packaging left entirely blank, no hands, no people, no faces, no UI elements, no borders or frames, no collage, no plastic CGI look, no oversaturated or neon colors, no lens flare, no distorted proportions, no mirrors showing people, no wall posters, no markings on the weights.",
+   "style_ref": [
+    "ST-004"
+   ],
+   "negative_ref": "NG-002",
+   "checks": [
+    "画面无人，镜面不映出人影",
+    "哑铃与器械没有数字或标识",
+    "地板透视自然，左侧可放标题"
+   ],
+   "verified": false,
+   "result": "",
+   "source": "",
+   "notes": "哑铃出现数字时把 no numbers or markings 提到 Subject 句首。"
+  },
+  {
+   "id": "PP-021",
+   "name": "叶片平铺纹理",
+   "category": "背景与纹理",
+   "use": "可平铺纹理：极淡的鼠尾草叶片，放在正文后面",
+   "role": "background",
+   "ratio": "1:1",
+   "resolution": "1k",
+   "background": "opaque",
+   "format": "png",
+   "prompt": "Use case: stylized-concept\nAsset type: a subtle tiled background texture\nPrimary request: A seamless repeating surface pattern of small delicate sage leaves and tiny stems. Very low contrast pale sage green on an almost white background. Sparse, refined, quiet, all motifs small and evenly distributed, flat texture suitable behind readable app content. Seamless on every edge.\nStyle/medium: delicate flat surface design\nText: none. All product packaging must be entirely blank.\nConstraints: no text, no typography, no logo, no brand, no watermark, no UI, no buttons, no collage, no border. A single coherent image.\nThese are fictional visual examples for an internal HTML reference, not images of real branded products.",
+   "negative": "Constraints: no text, no typography, no logo, no brand, no watermark, no UI, no buttons, no collage, no border. A single coherent image.\nThese are fictional visual examples for an internal HTML reference, not images of real branded products.",
+   "style_ref": [
+    "ST-005"
+   ],
+   "negative_ref": "NG-001",
+   "checks": [
+    "四边无缝，平铺后看不出接缝",
+    "对比极低，叠上正文仍清楚",
+    "元素大小一致、分布均匀，没有大块空缺"
+   ],
+   "verified": true,
+   "result": "../../../../kit/assets/photo/pattern-leaves.webp",
+   "source": "source/pattern-leaves.txt",
+   "notes": "接缝明显时把 Seamless on every edge 改成 tileable on all four edges 并去掉靠边的元素。"
+  },
+  {
+   "id": "PP-022",
+   "name": "花瓣平铺纹理",
+   "category": "背景与纹理",
+   "use": "可平铺纹理：极淡的雾粉花瓣与植物线痕",
+   "role": "background",
+   "ratio": "1:1",
+   "resolution": "1k",
+   "background": "opaque",
+   "format": "png",
+   "prompt": "Use case: stylized-concept\nAsset type: a subtle tiled background texture\nPrimary request: A seamless repeating surface pattern of tiny loosely painted flower petals and subtle botanical line impressions. Very low contrast dusty rose and pale pink on an almost white background. Sparse, delicate, quiet, all motifs small and evenly distributed, flat texture suitable behind readable app content. Seamless on every edge.\nStyle/medium: delicate flat surface design\nText: none. All product packaging must be entirely blank.\nConstraints: no text, no typography, no logo, no brand, no watermark, no UI, no buttons, no collage, no border. A single coherent image.\nThese are fictional visual examples for an internal HTML reference, not images of real branded products.",
+   "negative": "Constraints: no text, no typography, no logo, no brand, no watermark, no UI, no buttons, no collage, no border. A single coherent image.\nThese are fictional visual examples for an internal HTML reference, not images of real branded products.",
+   "style_ref": [
+    "ST-005"
+   ],
+   "negative_ref": "NG-001",
+   "checks": [
+    "四边无缝，平铺后无接缝",
+    "粉色极淡，不压住前景文字",
+    "没有成团的花，整体均匀"
+   ],
+   "verified": true,
+   "result": "../../../../kit/assets/photo/pattern-petals.webp",
+   "source": "source/pattern-petals.txt",
+   "notes": "花瓣太抢眼时把 Very low contrast 改成 Extremely low contrast 并加 barely visible。"
+  },
+  {
+   "id": "PP-023",
+   "name": "波纹平铺纹理",
+   "category": "背景与纹理",
+   "use": "可平铺纹理：极淡的青蓝流动波纹",
+   "role": "background",
+   "ratio": "1:1",
+   "resolution": "1k",
+   "background": "opaque",
+   "format": "png",
+   "prompt": "Use case: stylized-concept\nAsset type: a subtle tiled background texture\nPrimary request: A seamless repeating surface pattern of fine rounded flowing wave lines. Very low contrast pale cyan and soft blue gray on an almost white background. Sparse, clean, quiet, flat texture suitable behind readable app content. Seamless on every edge.\nStyle/medium: delicate flat surface design\nText: none. All product packaging must be entirely blank.\nConstraints: no text, no typography, no logo, no brand, no watermark, no UI, no buttons, no collage, no border. A single coherent image.\nThese are fictional visual examples for an internal HTML reference, not images of real branded products.",
+   "negative": "Constraints: no text, no typography, no logo, no brand, no watermark, no UI, no buttons, no collage, no border. A single coherent image.\nThese are fictional visual examples for an internal HTML reference, not images of real branded products.",
+   "style_ref": [
+    "ST-005"
+   ],
+   "negative_ref": "NG-001",
+   "checks": [
+    "波纹连续，四边首尾相接",
+    "线条细而淡，没有出现粗描边",
+    "整体是冷色极淡，不显脏"
+   ],
+   "verified": true,
+   "result": "../../../../kit/assets/photo/pattern-waves.webp",
+   "source": "source/pattern-waves.txt",
+   "notes": "波纹在边缘断开时加 every wave line continues across the tile edge。"
+  },
+  {
+   "id": "PP-024",
+   "name": "柔光渐变背景",
+   "category": "背景与纹理",
+   "use": "页面顶部背景：淡主题色渐变加右上角光晕，下方留给内容",
+   "role": "background",
+   "ratio": "3:4",
+   "resolution": "1k",
+   "background": "opaque",
+   "format": "png",
+   "prompt": "Purpose: Background for the top area of a mobile home page, cropped to the screen width, headline and search will be placed over the upper part.\nSubject: A soft diagonal gradient field with a faint out-of-focus light bloom in the upper right corner; nothing else.\nComposition: Portrait 3:4, the bloom occupies the upper right 35% of the frame, the lower 55% stays almost uniform so content can sit on it.\nLighting: Soft diffused glow with smooth gradient falloff, no hard edges and no visible banding. The bloom glows softly and fades smoothly into the field.\nMaterial: Smooth airy surface with a very fine grain to prevent banding, no objects and no pattern.\nColor: The gradient runs from a very pale tint of {{primary}} at the top to warm off-white at the bottom; the bloom is a slightly more saturated tint of {{primary}}. Two or three analogous tones, low contrast, the largest calm area left clean for copy.\nBackground and output: Opaque flat image, no vignette, edges fully clean. Output: 3:4, 1k, PNG.\nAvoid: no text, letters, numbers, labels, captions, logos, brand marks, watermarks or signatures, no UI elements, no buttons, no borders or frames, no collage, one single coherent image, no stripes, no visible bands, no objects.",
+   "negative": "no text, letters, numbers, labels, captions, logos, brand marks, watermarks or signatures, no UI elements, no buttons, no borders or frames, no collage, one single coherent image, no stripes, no visible bands, no objects.",
+   "style_ref": [
+    "ST-006"
+   ],
+   "negative_ref": "NG-001",
+   "checks": [
+    "渐变过渡平滑，看不到色带",
+    "下半部足够均匀，可直接放内容",
+    "光晕在右上角，不压左侧文字区"
+   ],
+   "verified": false,
+   "result": "",
+   "source": "",
+   "notes": "色带明显时把 very fine grain 改为 slightly stronger fine grain。"
+  },
+  {
+   "id": "PP-025",
+   "name": "光斑虚化背景",
+   "category": "背景与纹理",
+   "use": "横幅背景：两种色调的柔和光斑，集中在右侧，左侧留给标题",
+   "role": "background",
+   "ratio": "16:9",
+   "resolution": "1k",
+   "background": "opaque",
+   "format": "png",
+   "prompt": "Purpose: Banner background for a campaign page header, headline text will be added over the left half.\nSubject: A field of large out-of-focus light discs in two tones with very soft edges, concentrated along the right third of the frame and thinning toward the middle.\nComposition: Landscape 16:9, the discs vary between 4% and 14% of the frame height, the left half contains only the calm base color.\nLighting: Soft diffused glow with smooth gradient falloff, no hard edges and no visible banding. Each disc glows evenly with a softly fading edge, the highest brightness near the right edge.\nMaterial: Smooth airy surface with a very fine grain to prevent banding, no objects and no pattern. Smooth airy bokeh, no hard rims, no objects.\nColor: The discs are tints of {{primary}} and {{secondary}} on a base of warm off-white mixed with a very pale tint of {{primary}}. Two or three analogous tones, low contrast, the largest calm area left clean for copy.\nBackground and output: Opaque flat image, no vignette, the left edge fully clean. Output: 16:9, 1k, PNG.\nAvoid: no text, letters, numbers, labels, captions, logos, brand marks, watermarks or signatures, no UI elements, no buttons, no borders or frames, no collage, one single coherent image, no sparkles, no star shapes, no sharp-edged circles.",
+   "negative": "no text, letters, numbers, labels, captions, logos, brand marks, watermarks or signatures, no UI elements, no buttons, no borders or frames, no collage, one single coherent image, no sparkles, no star shapes, no sharp-edged circles.",
+   "style_ref": [
+    "ST-006"
+   ],
+   "negative_ref": "NG-001",
+   "checks": [
+    "光斑边缘柔和，没有硬边圆环",
+    "左半几乎纯色，文字可读",
+    "两种光斑颜色分别取主色与辅色的浅调"
+   ],
+   "verified": false,
+   "result": "",
+   "source": "",
+   "notes": "光斑太硬时加 completely defocused with no visible rim。"
+  },
+  {
+   "id": "PP-026",
+   "name": "抽象弧形背景",
+   "category": "背景与纹理",
+   "use": "卡片与页脚背景：三层柔和起伏的弧形，像远处的山丘",
+   "role": "background",
+   "ratio": "3:4",
+   "resolution": "1k",
+   "background": "opaque",
+   "format": "png",
+   "prompt": "Purpose: Decorative background for the lower part of a welcome page, content sits on the upper two thirds.\nSubject: Three large overlapping soft arcs sweeping across the lower part of the image like gentle hills, each arc slightly darker than the one behind it.\nComposition: Portrait 3:4, the arcs occupy the lower 35% of the frame, the upper 65% is a smooth pale field.\nLighting: Soft diffused glow with smooth gradient falloff, no hard edges and no visible banding. A very subtle inner shadow along each arc edge gives a layered paper feeling.\nMaterial: Smooth airy surface with a very fine grain to prevent banding, no objects and no pattern. Layered matte paper-like forms with soft edges and a very fine grain.\nColor: The three arcs step from a very pale tint of {{primary}} to a slightly deeper tint of {{primary}} and a faint {{secondary}} tint; the field is warm off-white. Two or three analogous tones, low contrast, the largest calm area left clean for copy.\nBackground and output: Opaque flat image, edges fully clean. Output: 3:4, 1k, PNG.\nAvoid: no text, letters, numbers, labels, captions, logos, brand marks, watermarks or signatures, no UI elements, no buttons, no borders or frames, no collage, one single coherent image, no sun, no trees, no horizon line, no gradients with visible bands.",
+   "negative": "no text, letters, numbers, labels, captions, logos, brand marks, watermarks or signatures, no UI elements, no buttons, no borders or frames, no collage, one single coherent image, no sun, no trees, no horizon line, no gradients with visible bands.",
+   "style_ref": [
+    "ST-006"
+   ],
+   "negative_ref": "NG-001",
+   "checks": [
+    "三层弧形递进清楚，不像真实风景",
+    "上方三分之二是干净的底色",
+    "弧形边缘柔和，没有硬描边"
+   ],
+   "verified": false,
+   "result": "",
+   "source": "",
+   "notes": "层次不明显时把 slightly darker 改成 clearly but gently darker。"
+  },
+  {
+   "id": "PP-027",
+   "name": "纸张纹理底",
+   "category": "背景与纹理",
+   "use": "材质底：细纤维的暖白纸张，四边无缝，适合做海报与卡片的底",
+   "role": "background",
+   "ratio": "1:1",
+   "resolution": "1k",
+   "background": "opaque",
+   "format": "png",
+   "prompt": "Purpose: Seamless paper texture used as a base layer behind posters and cards.\nSubject: The surface of a sheet of uncoated warm white cotton paper with fine visible fibers and a very light tooth.\nComposition: Square 1:1, extreme close view filling the whole frame, no edge, no fold, no crease, no corner of the sheet visible.\nLighting: Flat even top-down light with no shadows, no vignette and no gradient across the image. Even top-down light, the fibers read only as a faint relief.\nMaterial: Macro photograph of a real surface with fine natural fibers or grain, perfectly uniform detail across the whole image, seamless on every edge. Cotton rag paper with scattered tiny fibers.\nColor: Warm white with a faint tint of {{primary}} in the overall tone. Very low contrast, a single warm-neutral tone with at most two close shades.\nBackground and output: Opaque flat image, uniform across the whole frame. Output: 1:1, 1k, PNG.\nAvoid: no text, letters, numbers, labels, captions, logos, brand marks, watermarks or signatures, no UI elements, no buttons, no borders or frames, no collage, one single coherent image, no folds, no stains, no torn edges, no ruled lines.",
+   "negative": "no text, letters, numbers, labels, captions, logos, brand marks, watermarks or signatures, no UI elements, no buttons, no borders or frames, no collage, one single coherent image, no folds, no stains, no torn edges, no ruled lines.",
+   "style_ref": [
+    "ST-015"
+   ],
+   "negative_ref": "NG-001",
+   "checks": [
+    "整图纤维均匀，没有明显亮斑",
+    "没有折痕、边缘或污渍",
+    "平铺后看不出接缝"
+   ],
+   "verified": false,
+   "result": "",
+   "source": "",
+   "notes": "出现折痕时加 perfectly flat sheet 并删去所有 edge 相关的词。"
+  },
+  {
+   "id": "PP-028",
+   "name": "亚麻布纹底",
+   "category": "背景与纹理",
+   "use": "材质底：细密亚麻布纹，哑光米色，适合做场景桌面与卡片底",
+   "role": "background",
+   "ratio": "1:1",
+   "resolution": "1k",
+   "background": "opaque",
+   "format": "png",
+   "prompt": "Purpose: Seamless linen texture used as a tabletop and card base in storefront imagery.\nSubject: The surface of a plain oatmeal linen cloth with an even plain weave and tiny natural slubs.\nComposition: Square 1:1, extreme close view filling the whole frame, threads running straight and horizontal, no hem and no seam visible.\nLighting: Flat even top-down light with no shadows, no vignette and no gradient across the image. Even top-down light, the weave reads as a soft relief.\nMaterial: Macro photograph of a real surface with fine natural fibers or grain, perfectly uniform detail across the whole image, seamless on every edge. Natural linen threads with slight irregular thickness.\nColor: Warm oatmeal with a faint tint of {{secondary}} in the overall tone. Very low contrast, a single warm-neutral tone with at most two close shades.\nBackground and output: Opaque flat image, uniform across the whole frame. Output: 1:1, 1k, PNG.\nAvoid: no text, letters, numbers, labels, captions, logos, brand marks, watermarks or signatures, no UI elements, no buttons, no borders or frames, no collage, one single coherent image, no wrinkles, no stitching, no stains, no printed pattern.",
+   "negative": "no text, letters, numbers, labels, captions, logos, brand marks, watermarks or signatures, no UI elements, no buttons, no borders or frames, no collage, one single coherent image, no wrinkles, no stitching, no stains, no printed pattern.",
+   "style_ref": [
+    "ST-015"
+   ],
+   "negative_ref": "NG-001",
+   "checks": [
+    "经纬线笔直，不起皱",
+    "整图密度一致，没有渐变",
+    "平铺后看不出接缝"
+   ],
+   "verified": false,
+   "result": "",
+   "source": "",
+   "notes": "布纹太粗时把 extreme close view 改为 close view。"
+  },
+  {
+   "id": "PP-029",
+   "name": "大理石柔纹底",
+   "category": "背景与纹理",
+   "use": "材质底：浅色大理石，纹理极淡，适合美业与礼盒场景的底",
+   "role": "background",
+   "ratio": "1:1",
+   "resolution": "1k",
+   "background": "opaque",
+   "format": "png",
+   "prompt": "Purpose: Seamless pale marble texture used as a surface base for beauty and gift imagery.\nSubject: The polished surface of pale marble with sparse, very thin soft grey veins that fade out smoothly.\nComposition: Square 1:1, flat top-down view filling the whole frame, veins spread diagonally and evenly, no tile joints.\nLighting: Flat even top-down light with no shadows, no vignette and no gradient across the image. Even top-down light, a faint polish sheen without reflections of the room.\nMaterial: Macro photograph of a real surface with fine natural fibers or grain, perfectly uniform detail across the whole image, seamless on every edge. Fine polished stone with subtle crystalline depth.\nColor: Warm white stone with a faint tint of {{primary}} in the overall tone, the veins a soft warm grey. Very low contrast, a single warm-neutral tone with at most two close shades.\nBackground and output: Opaque flat image, uniform across the whole frame. Output: 1:1, 1k, PNG.\nAvoid: no text, letters, numbers, labels, captions, logos, brand marks, watermarks or signatures, no UI elements, no buttons, no borders or frames, no collage, one single coherent image, no cracks, no gold veins, no reflections, no tile joints.",
+   "negative": "no text, letters, numbers, labels, captions, logos, brand marks, watermarks or signatures, no UI elements, no buttons, no borders or frames, no collage, one single coherent image, no cracks, no gold veins, no reflections, no tile joints.",
+   "style_ref": [
+    "ST-015"
+   ],
+   "negative_ref": "NG-001",
+   "checks": [
+    "纹路稀疏而细，不抢前景",
+    "没有倒影、裂缝与拼缝",
+    "整图明度均匀，平铺无接缝"
+   ],
+   "verified": false,
+   "result": "",
+   "source": "",
+   "notes": "纹路太重时把 sparse 改成 very sparse 并加 almost plain。"
+  },
+  {
+   "id": "PP-030",
+   "name": "水彩晕染背景",
+   "category": "背景与纹理",
+   "use": "横幅背景：湿画法水彩晕染，淡主题色，文字区近似纯色",
+   "role": "background",
+   "ratio": "4:3",
+   "resolution": "1k",
+   "background": "opaque",
+   "format": "png",
+   "prompt": "Purpose: Soft watercolor background for a seasonal page header, headline text will be added over the left part.\nSubject: Wet-on-wet watercolor washes in overlapping soft clouds, the strongest wash in the upper right corner and the lower left nearly plain.\nComposition: Landscape 4:3, washes cover the upper right 45% of the frame and thin out toward the left and bottom.\nLighting: Soft diffused glow with smooth gradient falloff, no hard edges and no visible banding. Light passes through the washes, giving soft translucent edges.\nMaterial: Smooth airy surface with a very fine grain to prevent banding, no objects and no pattern. Cold-press watercolor paper with a visible paper tooth and soft blooming edges where pigment meets water.\nColor: The washes are tints of {{primary}} and {{secondary}} on warm white paper. Two or three analogous tones, low contrast, the largest calm area left clean for copy.\nBackground and output: Opaque flat image, a clean paper margin around the edge. Output: 4:3, 1k, PNG.\nAvoid: no text, letters, numbers, labels, captions, logos, brand marks, watermarks or signatures, no UI elements, no buttons, no borders or frames, no collage, one single coherent image, no brush strokes with hard edges, no splatter, no figures.",
+   "negative": "no text, letters, numbers, labels, captions, logos, brand marks, watermarks or signatures, no UI elements, no buttons, no borders or frames, no collage, one single coherent image, no brush strokes with hard edges, no splatter, no figures.",
+   "style_ref": [
+    "ST-006"
+   ],
+   "negative_ref": "NG-001",
+   "checks": [
+    "晕染边缘柔和，纸面纹理可见",
+    "左下近似纯色，可放文字",
+    "颜色停在淡调，没有浓重色块"
+   ],
+   "verified": false,
+   "result": "",
+   "source": "",
+   "notes": "色块太浓时在色彩行加 heavily diluted pigment。"
+  },
+  {
+   "id": "PP-031",
+   "name": "软陶三维商城物件拼板",
+   "category": "图标拼板",
+   "use": "入口图标：16 个商城物件的软陶三维拼板",
+   "role": "icon-sheet",
+   "ratio": "1:1",
+   "resolution": "2k",
+   "background": "transparent",
+   "format": "png",
+   "prompt": "Purpose: Element sheet of entry icons for a storefront mini-program home page; the sheet is cut into 16 single images afterwards.\nSubject: Sixteen separate objects in reading order, left to right, top to bottom: (1) shopping bag with rope handles; (2) shopping cart; (3) gift box with a ribbon bow; (4) coupon ticket with a heart cut-out; (5) leather wallet; (6) delivery scooter; (7) map location pin; (8) heart; (9) five-point star; (10) cardboard parcel box; (11) small shop with a striped awning; (12) blank gift card with a ribbon; (13) woven shopping basket; (14) blank bank card; (15) customer service headset; (16) notification bell.\nComposition: Strict 4x4 grid of 16 separate objects, 4 columns by 4 rows of equal cells, each object centered in its own cell and never crossing a cell edge, all objects at the same visual scale and the same camera angle, wide even gaps between objects, no grid lines drawn. Each object fills about 70% of its cell.\nLighting: Soft studio light from the upper left with gentle shading on the form of each object, no shadow falling outside the object.\nMaterial: Smooth matte soft clay with slightly rounded edges and a faint surface softness, not glossy plastic.\nColor: {{primary}} is the main hue of three objects and {{secondary}} of two; the remaining objects use soft warm yellow, soft teal, muted coral and pale blue. One or two low-saturation colors plus white per object, different objects use different main hues.\nBackground and output: Transparent background (alpha), nothing drawn behind the objects, no floor plane and no ground shadow. Output: 1:1, 2k, PNG with alpha.\nAvoid: no text, letters, numbers, labels, logos or watermarks, no grid lines, no borders, no overlapping or touching objects, no object crossing a cell edge, no cropped objects, no duplicate objects, no cast shadow on the background, no human figures.",
+   "negative": "no text, letters, numbers, labels, logos or watermarks, no grid lines, no borders, no overlapping or touching objects, no object crossing a cell edge, no cropped objects, no duplicate objects, no cast shadow on the background, no human figures.",
+   "style_ref": [
+    "ST-007"
+   ],
+   "negative_ref": "NG-003",
+   "checks": [
+    "16 个物件与清单逐个对应",
+    "每个居中不跨格，无邻格碎片",
+    "浅深底上边缘干净，无数字文字"
+   ],
+   "verified": false,
+   "result": "",
+   "source": "",
+   "notes": "某个物件不对时只改清单里那一项的名词，风格行与约束行原样复用。"
+  },
+  {
+   "id": "PP-032",
+   "name": "软陶三维办公物件拼板",
+   "category": "图标拼板",
+   "use": "入口图标：16 个办公物件的软陶三维拼板",
+   "role": "icon-sheet",
+   "ratio": "1:1",
+   "resolution": "2k",
+   "background": "transparent",
+   "format": "png",
+   "prompt": "Purpose: Element sheet of entry icons for an admin workspace; the sheet is cut into 16 single images afterwards.\nSubject: Sixteen separate objects in reading order, left to right, top to bottom: (1) briefcase; (2) clipboard with a blank sheet; (3) manila folder; (4) sealed envelope; (5) magnifying glass; (6) pencil; (7) paper clip; (8) light bulb; (9) bar chart block of three plain bars; (10) padlock; (11) brass key; (12) gear; (13) cloud; (14) megaphone; (15) trophy cup; (16) shield.\nComposition: Strict 4x4 grid of 16 separate objects, 4 columns by 4 rows of equal cells, each object centered in its own cell and never crossing a cell edge, all objects at the same visual scale and the same camera angle, wide even gaps between objects, no grid lines drawn. Each object fills about 70% of its cell.\nLighting: Soft studio light from the upper left with gentle shading on the form of each object, no shadow falling outside the object.\nMaterial: Smooth matte soft clay with slightly rounded edges and a faint surface softness, not glossy plastic.\nColor: {{primary}} is the main hue of three objects and {{secondary}} of two; the remaining objects use soft warm yellow, soft teal, muted coral and pale blue. One or two low-saturation colors plus white per object, different objects use different main hues.\nBackground and output: Transparent background (alpha), nothing drawn behind the objects, no floor plane and no ground shadow. Output: 1:1, 2k, PNG with alpha.\nAvoid: no text, letters, numbers, labels, logos or watermarks, no grid lines, no borders, no overlapping or touching objects, no object crossing a cell edge, no cropped objects, no duplicate objects, no cast shadow on the background, no human figures.",
+   "negative": "no text, letters, numbers, labels, logos or watermarks, no grid lines, no borders, no overlapping or touching objects, no object crossing a cell edge, no cropped objects, no duplicate objects, no cast shadow on the background, no human figures.",
+   "style_ref": [
+    "ST-007"
+   ],
+   "negative_ref": "NG-003",
+   "checks": [
+    "16 个物件逐个对应清单",
+    "图表块只有柱形，没有数字",
+    "浅深底上边缘干净，光线一致"
+   ],
+   "verified": false,
+   "result": "",
+   "source": "",
+   "notes": "图表块出现数字时把清单项改成 three plain bars with no axis and no numbers。"
+  },
+  {
+   "id": "PP-033",
+   "name": "真实质感商城物件拼板",
+   "category": "图标拼板",
+   "use": "入口图标：16 个商城业务物件的写实质感拼板",
+   "role": "icon-sheet",
+   "ratio": "1:1",
+   "resolution": "2k",
+   "background": "transparent",
+   "format": "png",
+   "prompt": "Purpose: Element sheet of realistic entry icons for a storefront mini-program home page; the sheet is cut into 16 single images afterwards.\nSubject: Sixteen separate objects in reading order, left to right, top to bottom: (1) shopping bag with rope handles; (2) shopping cart; (3) gift box with a ribbon bow; (4) coupon ticket with a heart cut-out; (5) leather wallet; (6) delivery scooter; (7) map location pin; (8) heart; (9) five-point star; (10) cardboard parcel box; (11) small shop with a striped awning; (12) blank gift card with a ribbon; (13) woven shopping basket; (14) blank bank card; (15) customer service headset; (16) notification bell.\nComposition: Strict 4x4 grid of 16 separate objects, 4 columns by 4 rows of equal cells, each object centered in its own cell and never crossing a cell edge, all objects at the same visual scale and the same camera angle, wide even gaps between objects, no grid lines drawn. Each object fills about 70% of its cell.\nLighting: Soft studio light from the upper left with natural highlights on each object, no shadow falling outside the object.\nMaterial: True-to-life materials such as paper, kraft, ribbon, ceramic, glass and metal with fine real surface texture, photorealistic object rendering.\nColor: {{primary}} is the main hue of three objects and {{secondary}} of two; the remaining objects use warm kraft brown, soft teal, muted coral and pale blue. Natural color, restrained saturation, one or two colors per object.\nBackground and output: Transparent background (alpha), nothing drawn behind the objects, no floor plane and no ground shadow. Output: 1:1, 2k, PNG with alpha.\nAvoid: no text, letters, numbers, labels, logos or watermarks, no grid lines, no borders, no overlapping or touching objects, no object crossing a cell edge, no cropped objects, no duplicate objects, no cast shadow on the background, no human figures, no printed text on any object.",
+   "negative": "no text, letters, numbers, labels, logos or watermarks, no grid lines, no borders, no overlapping or touching objects, no object crossing a cell edge, no cropped objects, no duplicate objects, no cast shadow on the background, no human figures, no printed text on any object.",
+   "style_ref": [
+    "ST-008"
+   ],
+   "negative_ref": "NG-003",
+   "checks": [
+    "16 个物件与清单逐个对应",
+    "纸陶金属质感真实，不像动画",
+    "浅深底上边缘干净，票券无字"
+   ],
+   "verified": false,
+   "result": "",
+   "source": "",
+   "notes": "像 CG 时在材质行加 photographed object cut-out with natural fine imperfections。"
+  },
+  {
+   "id": "PP-034",
+   "name": "真实质感办公物件拼板",
+   "category": "图标拼板",
+   "use": "入口图标：16 个办公与服务物件的写实质感拼板",
+   "role": "icon-sheet",
+   "ratio": "1:1",
+   "resolution": "2k",
+   "background": "transparent",
+   "format": "png",
+   "prompt": "Purpose: Element sheet of realistic entry icons for an admin workspace; the sheet is cut into 16 single images afterwards.\nSubject: Sixteen separate objects in reading order, left to right, top to bottom: (1) briefcase; (2) clipboard with a blank sheet; (3) manila folder; (4) sealed envelope; (5) magnifying glass; (6) pencil; (7) paper clip; (8) light bulb; (9) bar chart block of three plain bars; (10) padlock; (11) brass key; (12) gear; (13) cloud; (14) megaphone; (15) trophy cup; (16) shield.\nComposition: Strict 4x4 grid of 16 separate objects, 4 columns by 4 rows of equal cells, each object centered in its own cell and never crossing a cell edge, all objects at the same visual scale and the same camera angle, wide even gaps between objects, no grid lines drawn. Each object fills about 70% of its cell.\nLighting: Soft studio light from the upper left with natural highlights on each object, no shadow falling outside the object.\nMaterial: True-to-life materials such as paper, kraft, ribbon, ceramic, glass and metal with fine real surface texture, photorealistic object rendering.\nColor: {{primary}} is the main hue of three objects and {{secondary}} of two; the remaining objects use warm kraft brown, soft teal, muted coral and pale blue. Natural color, restrained saturation, one or two colors per object.\nBackground and output: Transparent background (alpha), nothing drawn behind the objects, no floor plane and no ground shadow. Output: 1:1, 2k, PNG with alpha.\nAvoid: no text, letters, numbers, labels, logos or watermarks, no grid lines, no borders, no overlapping or touching objects, no object crossing a cell edge, no cropped objects, no duplicate objects, no cast shadow on the background, no human figures, no printed text on any object.",
+   "negative": "no text, letters, numbers, labels, logos or watermarks, no grid lines, no borders, no overlapping or touching objects, no object crossing a cell edge, no cropped objects, no duplicate objects, no cast shadow on the background, no human figures, no printed text on any object.",
+   "style_ref": [
+    "ST-008"
+   ],
+   "negative_ref": "NG-003",
+   "checks": [
+    "16 个物件逐个对应清单",
+    "纸页空白，没有印字",
+    "金属玻璃反光真实，无邻格碎片"
+   ],
+   "verified": false,
+   "result": "",
+   "source": "",
+   "notes": "纸页出现字样时清单里写 completely blank sheet with no marks。"
+  },
+  {
+   "id": "PP-035",
+   "name": "扁平彩色商城物件拼板",
+   "category": "图标拼板",
+   "use": "入口图标：16 个商城业务物件的扁平彩色拼板，无描边无阴影",
+   "role": "icon-sheet",
+   "ratio": "1:1",
+   "resolution": "2k",
+   "background": "transparent",
+   "format": "png",
+   "prompt": "Purpose: Element sheet of flat entry icons for a storefront mini-program home page; the sheet is cut into 16 single images afterwards.\nSubject: Sixteen separate objects in reading order, left to right, top to bottom: (1) shopping bag with rope handles; (2) shopping cart; (3) gift box with a ribbon bow; (4) coupon ticket with a heart cut-out; (5) leather wallet; (6) delivery scooter; (7) map location pin; (8) heart; (9) five-point star; (10) cardboard parcel box; (11) small shop with a striped awning; (12) blank gift card with a ribbon; (13) woven shopping basket; (14) blank bank card; (15) customer service headset; (16) notification bell.\nComposition: Strict 4x4 grid of 16 separate objects, 4 columns by 4 rows of equal cells, each object centered in its own cell and never crossing a cell edge, all objects at the same visual scale and the same camera angle, wide even gaps between objects, no grid lines drawn. Each object fills about 70% of its cell.\nLighting: No cast shadow and no lighting effects, flat fills with at most one gentle tonal shade per shape.\nMaterial: Clean flat vector-style shapes with uniform rounded corners and a consistent edge treatment, no outline stroke, no texture.\nColor: {{primary}} is the main hue of three objects and {{secondary}} of two; the remaining objects use soft warm yellow, soft teal, muted coral and pale blue. One or two low-saturation colors plus white per object, no gradients beyond one tonal step.\nBackground and output: Transparent background (alpha), nothing drawn behind the objects, no floor plane and no ground shadow. Output: 1:1, 2k, PNG with alpha.\nAvoid: no text, letters, numbers, labels, logos or watermarks, no grid lines, no borders, no overlapping or touching objects, no object crossing a cell edge, no cropped objects, no duplicate objects, no cast shadow on the background, no human figures, no outline stroke.",
+   "negative": "no text, letters, numbers, labels, logos or watermarks, no grid lines, no borders, no overlapping or touching objects, no object crossing a cell edge, no cropped objects, no duplicate objects, no cast shadow on the background, no human figures, no outline stroke.",
+   "style_ref": [
+    "ST-009"
+   ],
+   "negative_ref": "NG-003",
+   "checks": [
+    "16 个物件逐个对应清单",
+    "全部平涂，没有阴影与高光",
+    "圆角一致，缩到 48 像素能认出"
+   ],
+   "verified": false,
+   "result": "",
+   "source": "",
+   "notes": "出现阴影时在光线行后追加 absolutely no shadow and no highlight。"
+  },
+  {
+   "id": "PP-036",
+   "name": "扁平彩色办公物件拼板",
+   "category": "图标拼板",
+   "use": "入口图标：16 个办公物件的扁平彩色拼板",
+   "role": "icon-sheet",
+   "ratio": "1:1",
+   "resolution": "2k",
+   "background": "transparent",
+   "format": "png",
+   "prompt": "Purpose: Element sheet of flat entry icons for an admin workspace; the sheet is cut into 16 single images afterwards.\nSubject: Sixteen separate objects in reading order, left to right, top to bottom: (1) briefcase; (2) clipboard with a blank sheet; (3) manila folder; (4) sealed envelope; (5) magnifying glass; (6) pencil; (7) paper clip; (8) light bulb; (9) bar chart block of three plain bars; (10) padlock; (11) brass key; (12) gear; (13) cloud; (14) megaphone; (15) trophy cup; (16) shield.\nComposition: Strict 4x4 grid of 16 separate objects, 4 columns by 4 rows of equal cells, each object centered in its own cell and never crossing a cell edge, all objects at the same visual scale and the same camera angle, wide even gaps between objects, no grid lines drawn. Each object fills about 70% of its cell.\nLighting: No cast shadow and no lighting effects, flat fills with at most one gentle tonal shade per shape.\nMaterial: Clean flat vector-style shapes with uniform rounded corners and a consistent edge treatment, no outline stroke, no texture.\nColor: {{primary}} is the main hue of three objects and {{secondary}} of two; the remaining objects use soft warm yellow, soft teal, muted coral and pale blue. One or two low-saturation colors plus white per object, no gradients beyond one tonal step.\nBackground and output: Transparent background (alpha), nothing drawn behind the objects, no floor plane and no ground shadow. Output: 1:1, 2k, PNG with alpha.\nAvoid: no text, letters, numbers, labels, logos or watermarks, no grid lines, no borders, no overlapping or touching objects, no object crossing a cell edge, no cropped objects, no duplicate objects, no cast shadow on the background, no human figures, no outline stroke.",
+   "negative": "no text, letters, numbers, labels, logos or watermarks, no grid lines, no borders, no overlapping or touching objects, no object crossing a cell edge, no cropped objects, no duplicate objects, no cast shadow on the background, no human figures, no outline stroke.",
+   "style_ref": [
+    "ST-009"
+   ],
+   "negative_ref": "NG-003",
+   "checks": [
+    "16 个物件逐个对应清单",
+    "全部平涂，轮廓简单，无文字",
+    "每个物件一至两种彩色加白"
+   ],
+   "verified": false,
+   "result": "",
+   "source": "",
+   "notes": "两个物件太像时把其中一项换成同组里轮廓差异更大的名词。"
+  },
+  {
+   "id": "PP-037",
+   "name": "空购物车插画",
+   "category": "空态与结果插画",
+   "use": "空态插画：一辆空购物车，车内只有一片小叶",
+   "role": "illustration",
+   "ratio": "4:3",
+   "resolution": "2k",
+   "background": "transparent",
+   "format": "png",
+   "prompt": "Purpose: Empty-state illustration for a shopping cart page, shown above a short line of live text.\nSubject: One empty shopping cart in a slightly angled three-quarter view with a single small leaf resting inside the basket.\nComposition: Landscape 4:3, the object is centered and fills about 55% of the frame width with an equal margin on every side.\nLighting: No cast shadow and no ground shadow, at most one gentle tonal step inside each shape.\nMaterial: Flat illustration built from simple rounded shapes with consistent proportions and minimal detail, drawn in the same style as the matching flat icon set.\nColor: The cart is a tint of {{primary}}, the wheels are warm grey, the leaf is {{secondary}}; no other colors. Low-saturation palette tinted toward {{primary}} plus white, one small accent.\nBackground and output: Transparent background (alpha), nothing drawn behind the object. Output: 4:3, 2k, PNG with alpha.\nAvoid: no text, letters, numbers, labels, captions, logos, brand marks, watermarks or signatures, no UI elements, no buttons, no borders or frames, no collage, one single coherent image, no coins, no price tags.",
+   "negative": "no text, letters, numbers, labels, captions, logos, brand marks, watermarks or signatures, no UI elements, no buttons, no borders or frames, no collage, one single coherent image, no coins, no price tags.",
+   "style_ref": [
+    "ST-010"
+   ],
+   "negative_ref": "NG-001",
+   "checks": [
+    "只有一个主体，轮廓简单",
+    "浅深底上边缘干净",
+    "与同风格图标放在一起不突兀"
+   ],
+   "verified": false,
+   "result": "",
+   "source": "",
+   "notes": "细节太多时把 slightly angled three-quarter view 改为 simple side view。"
+  },
+  {
+   "id": "PP-038",
+   "name": "无搜索结果插画",
+   "category": "空态与结果插画",
+   "use": "空态插画：放大镜靠着一个空纸盒",
+   "role": "illustration",
+   "ratio": "4:3",
+   "resolution": "2k",
+   "background": "transparent",
+   "format": "png",
+   "prompt": "Purpose: Empty-state illustration for a search page with no results, shown above a short line of live text.\nSubject: One large magnifying glass leaning against an open empty cardboard box, three tiny dots floating above the box.\nComposition: Landscape 4:3, the object is centered and fills about 55% of the frame width with an equal margin on every side.\nLighting: No cast shadow and no ground shadow, at most one gentle tonal step inside each shape.\nMaterial: Flat illustration built from simple rounded shapes with consistent proportions and minimal detail, drawn in the same style as the matching flat icon set.\nColor: The magnifier rim is {{primary}}, the glass is a very pale tint of {{primary}}, the box is warm kraft; no other colors. Low-saturation palette tinted toward {{primary}} plus white, one small accent.\nBackground and output: Transparent background (alpha), nothing drawn behind the object. Output: 4:3, 2k, PNG with alpha.\nAvoid: no text, letters, numbers, labels, captions, logos, brand marks, watermarks or signatures, no UI elements, no buttons, no borders or frames, no collage, one single coherent image, no question mark, no sad faces.",
+   "negative": "no text, letters, numbers, labels, captions, logos, brand marks, watermarks or signatures, no UI elements, no buttons, no borders or frames, no collage, one single coherent image, no question mark, no sad faces.",
+   "style_ref": [
+    "ST-010"
+   ],
+   "negative_ref": "NG-001",
+   "checks": [
+    "主体是放大镜加空盒，没有符号字符",
+    "盒内是空的",
+    "透明边缘干净"
+   ],
+   "verified": false,
+   "result": "",
+   "source": "",
+   "notes": "出现问号符号时在 Subject 末尾加 no symbols inside the glass。"
+  },
+  {
+   "id": "PP-039",
+   "name": "提交成功插画",
+   "category": "空态与结果插画",
+   "use": "结果插画：圆形徽章加对勾，周围几片小叶",
+   "role": "illustration",
+   "ratio": "4:3",
+   "resolution": "2k",
+   "background": "transparent",
+   "format": "png",
+   "prompt": "Purpose: Result illustration for a successful submission page, shown above a short line of live text.\nSubject: One round badge with a bold rounded check mark in white, a small ribbon tail below it, and three small leaves floating around the badge.\nComposition: Landscape 4:3, the object is centered and fills about 55% of the frame width with an equal margin on every side.\nLighting: No cast shadow and no ground shadow, at most one gentle tonal step inside each shape.\nMaterial: Flat illustration built from simple rounded shapes with consistent proportions and minimal detail, drawn in the same style as the matching flat icon set.\nColor: The badge is {{primary}}, the check mark is white, the ribbon is a tint of {{primary}}, the leaves are {{secondary}}. Low-saturation palette tinted toward {{primary}} plus white, one small accent.\nBackground and output: Transparent background (alpha), nothing drawn behind the object. Output: 4:3, 2k, PNG with alpha.\nAvoid: no text, letters, numbers, labels, captions, logos, brand marks, watermarks or signatures, no UI elements, no buttons, no borders or frames, no collage, one single coherent image, no confetti text, no stars with faces.",
+   "negative": "no text, letters, numbers, labels, captions, logos, brand marks, watermarks or signatures, no UI elements, no buttons, no borders or frames, no collage, one single coherent image, no confetti text, no stars with faces.",
+   "style_ref": [
+    "ST-010"
+   ],
+   "negative_ref": "NG-001",
+   "checks": [
+    "对勾粗圆、居中",
+    "叶片大小一致",
+    "徽章与丝带不粘连"
+   ],
+   "verified": false,
+   "result": "",
+   "source": "",
+   "notes": "对勾太细时把 bold rounded 改成 extra bold rounded。"
+  },
+  {
+   "id": "PP-040",
+   "name": "网络异常插画",
+   "category": "空态与结果插画",
+   "use": "结果插画：云朵下一对分开的插头与插座",
+   "role": "illustration",
+   "ratio": "4:3",
+   "resolution": "2k",
+   "background": "transparent",
+   "format": "png",
+   "prompt": "Purpose: Result illustration for a network error page, shown above a short line of live text.\nSubject: One cloud above a plug and a socket that are separated by a small gap, a tiny spark between them.\nComposition: Landscape 4:3, the object is centered and fills about 55% of the frame width with an equal margin on every side.\nLighting: No cast shadow and no ground shadow, at most one gentle tonal step inside each shape.\nMaterial: Flat illustration built from simple rounded shapes with consistent proportions and minimal detail, drawn in the same style as the matching flat icon set.\nColor: The cloud is a tint of {{primary}}, the plug is warm grey, the spark is {{secondary}}; no other colors. Low-saturation palette tinted toward {{primary}} plus white, one small accent.\nBackground and output: Transparent background (alpha), nothing drawn behind the object. Output: 4:3, 2k, PNG with alpha.\nAvoid: no text, letters, numbers, labels, captions, logos, brand marks, watermarks or signatures, no UI elements, no buttons, no borders or frames, no collage, one single coherent image, no warning triangle, no exclamation mark.",
+   "negative": "no text, letters, numbers, labels, captions, logos, brand marks, watermarks or signatures, no UI elements, no buttons, no borders or frames, no collage, one single coherent image, no warning triangle, no exclamation mark.",
+   "style_ref": [
+    "ST-010"
+   ],
+   "negative_ref": "NG-001",
+   "checks": [
+    "插头与插座分开，间隙清楚",
+    "没有感叹号或三角警示",
+    "透明边缘干净"
+   ],
+   "verified": false,
+   "result": "",
+   "source": "",
+   "notes": "线缆缠在一起时在 Subject 加 no cables。"
+  },
+  {
+   "id": "PP-041",
+   "name": "暂无订单插画",
+   "category": "空态与结果插画",
+   "use": "空态插画：敞口空纸箱里长出一棵小芽",
+   "role": "illustration",
+   "ratio": "4:3",
+   "resolution": "2k",
+   "background": "transparent",
+   "format": "png",
+   "prompt": "Purpose: Empty-state illustration for an empty orders list, shown above a short line of live text.\nSubject: One empty open cardboard parcel box with its flaps open and a tiny sprout with two leaves growing out of it.\nComposition: Landscape 4:3, the object is centered and fills about 55% of the frame width with an equal margin on every side.\nLighting: No cast shadow and no ground shadow, at most one gentle tonal step inside each shape.\nMaterial: Flat illustration built from simple rounded shapes with consistent proportions and minimal detail, drawn in the same style as the matching flat icon set.\nColor: The box is warm kraft, the sprout is {{secondary}}, the box flaps carry a thin tint of {{primary}} on their inner side. Low-saturation palette tinted toward {{primary}} plus white, one small accent.\nBackground and output: Transparent background (alpha), nothing drawn behind the object. Output: 4:3, 2k, PNG with alpha.\nAvoid: no text, letters, numbers, labels, captions, logos, brand marks, watermarks or signatures, no UI elements, no buttons, no borders or frames, no collage, one single coherent image, no shipping labels, no tape text.",
+   "negative": "no text, letters, numbers, labels, captions, logos, brand marks, watermarks or signatures, no UI elements, no buttons, no borders or frames, no collage, one single coherent image, no shipping labels, no tape text.",
+   "style_ref": [
+    "ST-010"
+   ],
+   "negative_ref": "NG-001",
+   "checks": [
+    "箱子是空的，只有一棵芽",
+    "箱面没有运单或胶带字",
+    "与其他空态插画画法一致"
+   ],
+   "verified": false,
+   "result": "",
+   "source": "",
+   "notes": "箱面出现字样时把 no shipping labels 写在 Subject 里。"
+  },
+  {
+   "id": "PP-042",
+   "name": "暂无消息插画",
+   "category": "空态与结果插画",
+   "use": "空态插画：打开的空信封旁一只纸飞机",
+   "role": "illustration",
+   "ratio": "4:3",
+   "resolution": "2k",
+   "background": "transparent",
+   "format": "png",
+   "prompt": "Purpose: Empty-state illustration for an empty message list, shown above a short line of live text.\nSubject: One open empty envelope with its flap raised and a small paper plane resting beside it.\nComposition: Landscape 4:3, the object is centered and fills about 55% of the frame width with an equal margin on every side.\nLighting: No cast shadow and no ground shadow, at most one gentle tonal step inside each shape.\nMaterial: Flat illustration built from simple rounded shapes with consistent proportions and minimal detail, drawn in the same style as the matching flat icon set.\nColor: The envelope is a tint of {{primary}} with a white inside, the plane is {{secondary}}; no other colors. Low-saturation palette tinted toward {{primary}} plus white, one small accent.\nBackground and output: Transparent background (alpha), nothing drawn behind the object. Output: 4:3, 2k, PNG with alpha.\nAvoid: no text, letters, numbers, labels, captions, logos, brand marks, watermarks or signatures, no UI elements, no buttons, no borders or frames, no collage, one single coherent image, no letters on the envelope, no stamps.",
+   "negative": "no text, letters, numbers, labels, captions, logos, brand marks, watermarks or signatures, no UI elements, no buttons, no borders or frames, no collage, one single coherent image, no letters on the envelope, no stamps.",
+   "style_ref": [
+    "ST-010"
+   ],
+   "negative_ref": "NG-001",
+   "checks": [
+    "信封是空的，没有信纸字迹",
+    "纸飞机轮廓清楚",
+    "没有邮票或地址"
+   ],
+   "verified": false,
+   "result": "",
+   "source": "",
+   "notes": "信封上出现字样时把 no letters on the envelope 提到 Subject 句首。"
+  },
+  {
+   "id": "PP-043",
+   "name": "几何抽象标记拼板",
+   "category": "对象标识池",
+   "use": "对象标识池：16 个双色实心抽象标记，按对象编号固定分配",
+   "role": "icon-sheet",
+   "ratio": "1:1",
+   "resolution": "2k",
+   "background": "transparent",
+   "format": "png",
+   "prompt": "Purpose: Element sheet of abstract identity marks used as default customer and contact badges; the sheet is cut into 16 single marks afterwards.\nSubject: Sixteen visibly different abstract emblems in reading order, each built from two or three simple solid shapes separated by a thin gap: (1) two leaves; (2) circle over a wave; (3) diamond over a chevron; (4) square with a cut corner; (5) two overlapping circles; (6) heart made of two arcs; (7) triangle over a bar; (8) stacked chevrons; (9) drop with a leaf; (10) sprout over an arc; (11) half sun over waves; (12) four petals; (13) hexagon with a notch; (14) arch with a dot; (15) pair of mirrored crescents; (16) spiral of three arcs.\nComposition: Strict 4x4 grid of 16 separate objects, 4 columns by 4 rows of equal cells, each object centered in its own cell and never crossing a cell edge, all objects at the same visual scale and the same camera angle, wide even gaps between objects, no grid lines drawn. Each emblem fills about 65% of its cell.\nLighting: No cast shadow and no lighting effects, flat fills with at most one gentle tonal shade per shape.\nMaterial: Clean flat vector-style shapes with uniform rounded corners and a consistent edge treatment, no outline stroke, no texture.\nColor: Each emblem uses two or three muted hues from this set only: {{primary}}, {{secondary}}, slate blue, clay brown and dusty olive; no two emblems share the same pair of hues. One or two low-saturation colors plus white per object, no gradients beyond one tonal step.\nBackground and output: Transparent background (alpha), nothing drawn behind the objects, no floor plane and no ground shadow. Output: 1:1, 2k, PNG with alpha.\nAvoid: no text, letters, numbers, labels, logos or watermarks, no grid lines, no borders, no overlapping or touching objects, no object crossing a cell edge, no cropped objects, no duplicate objects, no cast shadow on the background, no letters or monograms, no real brand shapes, no human figures.",
+   "negative": "no text, letters, numbers, labels, logos or watermarks, no grid lines, no borders, no overlapping or touching objects, no object crossing a cell edge, no cropped objects, no duplicate objects, no cast shadow on the background, no letters or monograms, no real brand shapes, no human figures.",
+   "style_ref": [
+    "ST-009"
+   ],
+   "negative_ref": "NG-003",
+   "checks": [
+    "16 个轮廓互不相同，不是只换色",
+    "没有字母或真实品牌形状",
+    "缩到 32 像素仍能区分"
+   ],
+   "verified": false,
+   "result": "",
+   "source": "",
+   "notes": "两个太像时只替换清单里那一项的形状描述，不要重写风格行。"
+  },
+  {
+   "id": "PP-044",
+   "name": "线性植物标记拼板",
+   "category": "对象标识池",
+   "use": "对象标识池：16 个单线条植物标记，线宽统一",
+   "role": "icon-sheet",
+   "ratio": "1:1",
+   "resolution": "2k",
+   "background": "transparent",
+   "format": "png",
+   "prompt": "Purpose: Element sheet of line identity marks used as default badges for objects; the sheet is cut into 16 single marks afterwards.\nSubject: Sixteen visibly different botanical line marks in reading order: (1) single leaf; (2) sprout with two leaves; (3) olive branch; (4) flower bud; (5) fern frond; (6) clover; (7) ginkgo leaf; (8) wheat ear; (9) tulip; (10) pine sprig; (11) monstera leaf; (12) cherry blossom; (13) bamboo stem; (14) berry sprig; (15) lotus; (16) cactus.\nComposition: Strict 4x4 grid of 16 separate objects, 4 columns by 4 rows of equal cells, each object centered in its own cell and never crossing a cell edge, all objects at the same visual scale and the same camera angle, wide even gaps between objects, no grid lines drawn. Each mark fills about 65% of its cell.\nLighting: No lighting and no shadow, flat solid ink on a plain ground.\nMaterial: Monoline strokes of one uniform width with round caps and round joins, open simple shapes, no fills and no gradients.\nColor: Every mark is drawn in {{primary}} ink on the transparent ground. One ink color only, deep and low-saturation, on a plain ground.\nBackground and output: Transparent background (alpha), nothing drawn behind the objects, no floor plane and no ground shadow. Output: 1:1, 2k, PNG with alpha.\nAvoid: no text, letters, numbers, labels, logos or watermarks, no grid lines, no borders, no overlapping or touching objects, no object crossing a cell edge, no cropped objects, no duplicate objects, no cast shadow on the background, no filled shapes, no human figures, no letters.",
+   "negative": "no text, letters, numbers, labels, logos or watermarks, no grid lines, no borders, no overlapping or touching objects, no object crossing a cell edge, no cropped objects, no duplicate objects, no cast shadow on the background, no filled shapes, no human figures, no letters.",
+   "style_ref": [
+    "ST-011"
+   ],
+   "negative_ref": "NG-003",
+   "checks": [
+    "16 个植物各不相同",
+    "线宽一致，端点与拐角都是圆的",
+    "没有填充和阴影，浅深底清楚"
+   ],
+   "verified": false,
+   "result": "",
+   "source": "",
+   "notes": "线宽不一致时在材质行加 identical stroke width on every mark。"
+  },
+  {
+   "id": "PP-045",
+   "name": "线性几何标记拼板",
+   "category": "对象标识池",
+   "use": "对象标识池：16 个单线条几何标记，适合企业与门店对象",
+   "role": "icon-sheet",
+   "ratio": "1:1",
+   "resolution": "2k",
+   "background": "transparent",
+   "format": "png",
+   "prompt": "Purpose: Element sheet of abstract line marks used as default badges for companies and stores; the sheet is cut into 16 single marks afterwards.\nSubject: Sixteen visibly different abstract line marks in reading order: (1) concentric circles; (2) circle crossed by two arcs; (3) open hexagon; (4) three stacked wavy lines in a circle; (5) arrow-free chevron pair; (6) square corner pair; (7) overlapping rings; (8) half circle over a line; (9) triangle with an inner arc; (10) interlocking loops; (11) petal ring; (12) stepped arch; (13) diamond with an inner circle; (14) crescent with a dot; (15) three parallel arcs; (16) knot made of one continuous line.\nComposition: Strict 4x4 grid of 16 separate objects, 4 columns by 4 rows of equal cells, each object centered in its own cell and never crossing a cell edge, all objects at the same visual scale and the same camera angle, wide even gaps between objects, no grid lines drawn. Each mark fills about 65% of its cell.\nLighting: No lighting and no shadow, flat solid ink on a plain ground.\nMaterial: Monoline strokes of one uniform width with round caps and round joins, open simple shapes, no fills and no gradients.\nColor: Every mark is drawn in {{primary}} ink on the transparent ground. One ink color only, deep and low-saturation, on a plain ground.\nBackground and output: Transparent background (alpha), nothing drawn behind the objects, no floor plane and no ground shadow. Output: 1:1, 2k, PNG with alpha.\nAvoid: no text, letters, numbers, labels, logos or watermarks, no grid lines, no borders, no overlapping or touching objects, no object crossing a cell edge, no cropped objects, no duplicate objects, no cast shadow on the background, no filled shapes, no human figures, no letters or monograms.",
+   "negative": "no text, letters, numbers, labels, logos or watermarks, no grid lines, no borders, no overlapping or touching objects, no object crossing a cell edge, no cropped objects, no duplicate objects, no cast shadow on the background, no filled shapes, no human figures, no letters or monograms.",
+   "style_ref": [
+    "ST-011"
+   ],
+   "negative_ref": "NG-003",
+   "checks": [
+    "16 个形状互不相同，无字母",
+    "线条粗细统一",
+    "缩到 32 像素仍能区分"
+   ],
+   "verified": false,
+   "result": "",
+   "source": "",
+   "notes": "太复杂时把清单项换成更简单的两笔形状。"
+  },
+  {
+   "id": "PP-046",
+   "name": "促销海报主视觉",
+   "category": "海报主视觉",
+   "use": "促销海报：叠放的礼盒与彩纸屑，印刷级",
+   "role": "poster",
+   "ratio": "3:4",
+   "resolution": "4k",
+   "background": "opaque",
+   "format": "png",
+   "prompt": "Purpose: Key visual for a sales promotion poster; headline, offer details and date will be added later as live text.\nSubject: Three gift boxes of different sizes stacked on a low round plinth, each tied with a satin ribbon bow, a few pieces of paper confetti floating in the air; every box is entirely blank.\nComposition: Portrait 3:4, the stack sits in the lower right and fills about 50% of the frame height, the whole upper 40% and the left third are clean backdrop reserved for copy.\nLighting: Directional soft light from the upper left, a long soft shadow falling to the right, a faint rim light on the edges.\nMaterial: Real materials with crisp detail and fine surface texture, photorealistic still life, 70mm lens look, eye-level or slightly high camera.\nColor: The boxes are tints of {{primary}} with one box in {{secondary}}, the ribbons are warm ivory; the backdrop is a lighter tint of {{primary}}. Color-blocked backdrop in a tint of {{primary}}, one accent, no more than three hues in total.\nBackground and output: Opaque flat artwork with no border, the reserved copy area stays clean. Output: 3:4, 4k, PNG.\nAvoid: no text, letters, numbers, typography, logos, brand marks, watermarks, QR codes or signatures, no UI elements, no buttons, no borders or frames, no collage of unrelated pictures, no real people or human faces, no recognizable real-world brands, nothing placed inside the reserved copy area, no price tags, no sale badges, no starbursts.",
+   "negative": "no text, letters, numbers, typography, logos, brand marks, watermarks, QR codes or signatures, no UI elements, no buttons, no borders or frames, no collage of unrelated pictures, no real people or human faces, no recognizable real-world brands, nothing placed inside the reserved copy area, no price tags, no sale badges, no starbursts.",
+   "style_ref": [
+    "ST-012"
+   ],
+   "negative_ref": "NG-004",
+   "checks": [
+    "礼盒空白，无价签与字样",
+    "上方 40% 与左三分之一没有物体",
+    "背景是主题色的浅调色块，整体不超三个色相"
+   ],
+   "verified": false,
+   "result": "",
+   "source": "",
+   "notes": "主体太大压了文案区时把 about 50% 改成 about 40%。"
+  },
+  {
+   "id": "PP-047",
+   "name": "新品上市主视觉",
+   "category": "海报主视觉",
+   "use": "新品海报：台阶上的一只空白瓶与叶影",
+   "role": "poster",
+   "ratio": "3:4",
+   "resolution": "2k",
+   "background": "opaque",
+   "format": "png",
+   "prompt": "Purpose: Key visual for a new product launch poster; headline and product name will be added later as live text.\nSubject: One matte ceramic pump bottle with no label standing on a round stepped plinth, a soft shadow of fern leaves cast across the backdrop.\nComposition: Portrait 3:4, the bottle and plinth are centered in the lower half and fill 45% of the frame height, the upper 40% is clean backdrop for the headline.\nLighting: Directional soft light from the upper left, a long soft shadow falling to the right, a faint rim light on the edges.\nMaterial: Real materials with crisp detail and fine surface texture, photorealistic still life, 70mm lens look, eye-level or slightly high camera.\nColor: The backdrop and plinth are tints of {{primary}}, the bottle is warm white, the leaf shadows are a slightly deeper tint of {{primary}}. Color-blocked backdrop in a tint of {{primary}}, one accent, no more than three hues in total.\nBackground and output: Opaque flat artwork with no border, the reserved copy area stays clean. Output: 3:4, 2k, PNG.\nAvoid: no text, letters, numbers, typography, logos, brand marks, watermarks, QR codes or signatures, no UI elements, no buttons, no borders or frames, no collage of unrelated pictures, no real people or human faces, no recognizable real-world brands, nothing placed inside the reserved copy area, no product name, no barcode, no model number.",
+   "negative": "no text, letters, numbers, typography, logos, brand marks, watermarks, QR codes or signatures, no UI elements, no buttons, no borders or frames, no collage of unrelated pictures, no real people or human faces, no recognizable real-world brands, nothing placed inside the reserved copy area, no product name, no barcode, no model number.",
+   "style_ref": [
+    "ST-012"
+   ],
+   "negative_ref": "NG-004",
+   "checks": [
+    "瓶身无标签、无字",
+    "叶影柔和，不盖住主体",
+    "上方 40% 干净"
+   ],
+   "verified": false,
+   "result": "",
+   "source": "",
+   "notes": "叶影太抢时加 very soft diffuse leaf shadows。"
+  },
+  {
+   "id": "PP-048",
+   "name": "春节节日主视觉",
+   "category": "海报主视觉",
+   "use": "春节海报：两盏灯笼与梅枝的剪纸层叠，上部留给标题",
+   "role": "poster",
+   "ratio": "2:3",
+   "resolution": "2k",
+   "background": "opaque",
+   "format": "png",
+   "prompt": "Purpose: Key visual for a Spring Festival poster; headline and greetings will be added later as live text.\nSubject: Two hanging paper lanterns with gold tassels, a branch of plum blossom crossing from the upper right, a few paper-cut cloud shapes and small gold coins scattered at the bottom; no characters on the lanterns.\nComposition: Portrait 2:3, the lanterns hang from the upper left corner, the branch crosses the upper right, the center band between them stays clear for the headline.\nLighting: No realistic lighting, flat layered shapes with a soft drop shadow between layers.\nMaterial: Layered paper-cut shapes with a fine paper grain and crisp clean edges, graphic flat composition.\nColor: The lanterns are {{primary}} with gold accents, the clouds and blossom are tints of {{primary}} and {{secondary}} on a warm ivory ground. Bold limited palette of three hues built around {{primary}}, flat fills.\nBackground and output: Opaque flat artwork with no border, the reserved copy area stays clean. Output: 2:3, 2k, PNG.\nAvoid: no text, letters, numbers, typography, logos, brand marks, watermarks, QR codes or signatures, no UI elements, no buttons, no borders or frames, no collage of unrelated pictures, no real people or human faces, no recognizable real-world brands, nothing placed inside the reserved copy area, no calligraphy, no couplets, no zodiac text.",
+   "negative": "no text, letters, numbers, typography, logos, brand marks, watermarks, QR codes or signatures, no UI elements, no buttons, no borders or frames, no collage of unrelated pictures, no real people or human faces, no recognizable real-world brands, nothing placed inside the reserved copy area, no calligraphy, no couplets, no zodiac text.",
+   "style_ref": [
+    "ST-013"
+   ],
+   "negative_ref": "NG-004",
+   "checks": [
+    "灯笼上没有任何字",
+    "中间一条带保持干净",
+    "整体不超三个色相，层次清晰"
+   ],
+   "verified": false,
+   "result": "",
+   "source": "",
+   "notes": "灯笼出现字时把 no characters on the lanterns 提到 Subject 句首。"
+  },
+  {
+   "id": "PP-049",
+   "name": "中秋节日主视觉",
+   "category": "海报主视觉",
+   "use": "中秋海报：满月圆盘、桂花枝、月饼盘与剪纸玉兔",
+   "role": "poster",
+   "ratio": "2:3",
+   "resolution": "2k",
+   "background": "opaque",
+   "format": "png",
+   "prompt": "Purpose: Key visual for a Mid-Autumn Festival poster; headline will be added later as live text.\nSubject: A large pale full-moon disc layered behind osmanthus branches, a low plate of round mooncakes with plain tops, a few small clouds and a paper-cut rabbit silhouette sitting on the plate edge.\nComposition: Portrait 2:3, the moon sits in the upper half, the plate and the rabbit fill the lower right, the upper left stays clean for the headline.\nLighting: No realistic lighting, flat layered shapes with a soft drop shadow between layers.\nMaterial: Layered paper-cut shapes with a fine paper grain and crisp clean edges, graphic flat composition.\nColor: The moon is a very pale tint of {{secondary}}, the branches and clouds are tints of {{primary}}, the mooncakes are warm gold-brown, the ground is a deep tint of {{primary}}. Bold limited palette of three hues built around {{primary}}, flat fills.\nBackground and output: Opaque flat artwork with no border, the reserved copy area stays clean. Output: 2:3, 2k, PNG.\nAvoid: no text, letters, numbers, typography, logos, brand marks, watermarks, QR codes or signatures, no UI elements, no buttons, no borders or frames, no collage of unrelated pictures, no real people or human faces, no recognizable real-world brands, nothing placed inside the reserved copy area, no patterns of characters on the mooncakes, no calligraphy.",
+   "negative": "no text, letters, numbers, typography, logos, brand marks, watermarks, QR codes or signatures, no UI elements, no buttons, no borders or frames, no collage of unrelated pictures, no real people or human faces, no recognizable real-world brands, nothing placed inside the reserved copy area, no patterns of characters on the mooncakes, no calligraphy.",
+   "style_ref": [
+    "ST-013"
+   ],
+   "negative_ref": "NG-004",
+   "checks": [
+    "月饼表面无字",
+    "满月不被枝叶盖住一半",
+    "左上留白干净"
+   ],
+   "verified": false,
+   "result": "",
+   "source": "",
+   "notes": "月亮太小时把 large 改成 very large 并加 occupying about 40% of the frame width。"
+  },
+  {
+   "id": "PP-050",
+   "name": "招聘海报主视觉",
+   "category": "海报主视觉",
+   "use": "招聘海报：台灯、笔记本、咖啡杯与向上的台阶，无人物",
+   "role": "poster",
+   "ratio": "9:16",
+   "resolution": "2k",
+   "background": "opaque",
+   "format": "png",
+   "prompt": "Purpose: Key visual for a hiring poster shared on mobile; headline, roles and contact details will be added later as live text.\nSubject: An abstract workspace in layered paper-cut style: a desk lamp, a laptop whose screen shows only soft color blocks, a coffee cup, a small potted plant, and a flight of rising steps leading toward the top of the frame; no people.\nComposition: Tall 9:16, the objects sit along the lower third, the steps rise diagonally to the upper right, the top 30% and the left side stay clean for copy and platform interface overlays.\nLighting: No realistic lighting, flat layered shapes with a soft drop shadow between layers.\nMaterial: Layered paper-cut shapes with a fine paper grain and crisp clean edges, graphic flat composition.\nColor: The steps and lamp are {{primary}}, the laptop and cup are tints of {{primary}}, the plant is {{secondary}}, the ground is warm off-white. Bold limited palette of three hues built around {{primary}}, flat fills.\nBackground and output: Opaque flat artwork with no border, the reserved copy area stays clean. Output: 9:16, 2k, PNG.\nAvoid: no text, letters, numbers, typography, logos, brand marks, watermarks, QR codes or signatures, no UI elements, no buttons, no borders or frames, no collage of unrelated pictures, no real people or human faces, no recognizable real-world brands, nothing placed inside the reserved copy area, no screen text, no charts, no job titles.",
+   "negative": "no text, letters, numbers, typography, logos, brand marks, watermarks, QR codes or signatures, no UI elements, no buttons, no borders or frames, no collage of unrelated pictures, no real people or human faces, no recognizable real-world brands, nothing placed inside the reserved copy area, no screen text, no charts, no job titles.",
+   "style_ref": [
+    "ST-013"
+   ],
+   "negative_ref": "NG-004",
+   "checks": [
+    "画面无人，屏幕上没有任何字或界面",
+    "台阶向上，视线向右上",
+    "顶部 30% 留白，适配平台遮挡"
+   ],
+   "verified": false,
+   "result": "",
+   "source": "",
+   "notes": "屏幕出现界面时把 soft color blocks 改成 a plain flat color。"
+  },
+  {
+   "id": "PP-051",
+   "name": "课程招生主视觉",
+   "category": "海报主视觉",
+   "use": "教育海报：叠起的空白精装书、一杯彩色铅笔与上升的纸飞机",
+   "role": "poster",
+   "ratio": "3:4",
+   "resolution": "2k",
+   "background": "opaque",
+   "format": "png",
+   "prompt": "Purpose: Key visual for a course enrollment poster; headline, schedule and contact details will be added later as live text.\nSubject: A pile of three closed hardcover books with blank spines and blank covers, a cup of sharpened colored pencils and a paper airplane rising toward the upper right.\nComposition: Portrait 3:4, the books and pencils fill the lower third, the plane rises through the middle, the upper 35% and the left third stay clean for copy.\nLighting: No realistic lighting, flat layered shapes with a soft drop shadow between layers.\nMaterial: Layered paper-cut shapes with a fine paper grain and crisp clean edges, graphic flat composition.\nColor: The books are {{primary}}, tints of {{primary}} and {{secondary}}, the pencils use soft warm yellow and soft teal, the plane is white on a warm ivory ground. Bold limited palette of three hues built around {{primary}}, flat fills.\nBackground and output: Opaque flat artwork with no border, the reserved copy area stays clean. Output: 3:4, 2k, PNG.\nAvoid: no text, letters, numbers, typography, logos, brand marks, watermarks, QR codes or signatures, no UI elements, no buttons, no borders or frames, no collage of unrelated pictures, no real people or human faces, no recognizable real-world brands, nothing placed inside the reserved copy area, no book titles, no alphabet letters, no rulers with numbers.",
+   "negative": "no text, letters, numbers, typography, logos, brand marks, watermarks, QR codes or signatures, no UI elements, no buttons, no borders or frames, no collage of unrelated pictures, no real people or human faces, no recognizable real-world brands, nothing placed inside the reserved copy area, no book titles, no alphabet letters, no rulers with numbers.",
+   "style_ref": [
+    "ST-013"
+   ],
+   "negative_ref": "NG-004",
+   "checks": [
+    "书脊与封面空白，无书名",
+    "纸飞机方向向上，带出视线",
+    "上方与左侧留白"
+   ],
+   "verified": false,
+   "result": "",
+   "source": "",
+   "notes": "书上出现字样时加 matte cloth covers with no marks。"
+  },
+  {
+   "id": "PP-052",
+   "name": "开业庆典主视觉",
+   "category": "海报主视觉",
+   "use": "开业海报：一束气球、金色彩带与彩纸，中部留给标题，印刷级",
+   "role": "poster",
+   "ratio": "2:3",
+   "resolution": "4k",
+   "background": "opaque",
+   "format": "png",
+   "prompt": "Purpose: Key visual for a grand opening poster; headline, address and date will be added later as live text.\nSubject: A bunch of matte latex balloons tied together with a satin ribbon, gold paper confetti and long curled ribbon streamers in the air.\nComposition: Portrait 2:3, the balloons fill the upper right quarter, the streamers curl down the right edge, the center and the lower left stay clean for copy.\nLighting: Directional soft light from the upper left, a long soft shadow falling to the right, a faint rim light on the edges.\nMaterial: Real materials with crisp detail and fine surface texture, photorealistic still life, 70mm lens look, eye-level or slightly high camera.\nColor: The balloons are tints of {{primary}} and {{secondary}} with two in warm ivory, the confetti is soft gold, the backdrop is a lighter tint of {{primary}}. Color-blocked backdrop in a tint of {{primary}}, one accent, no more than three hues in total.\nBackground and output: Opaque flat artwork with no border, the reserved copy area stays clean. Output: 2:3, 4k, PNG.\nAvoid: no text, letters, numbers, typography, logos, brand marks, watermarks, QR codes or signatures, no UI elements, no buttons, no borders or frames, no collage of unrelated pictures, no real people or human faces, no recognizable real-world brands, nothing placed inside the reserved copy area, no printed balloons, no banner, no ribbon with text.",
+   "negative": "no text, letters, numbers, typography, logos, brand marks, watermarks, QR codes or signatures, no UI elements, no buttons, no borders or frames, no collage of unrelated pictures, no real people or human faces, no recognizable real-world brands, nothing placed inside the reserved copy area, no printed balloons, no banner, no ribbon with text.",
+   "style_ref": [
+    "ST-012"
+   ],
+   "negative_ref": "NG-004",
+   "checks": [
+    "气球表面无印字",
+    "彩带不盖住中部文案区",
+    "金色只有一种，色相不超三个"
+   ],
+   "verified": false,
+   "result": "",
+   "source": "",
+   "notes": "气球太满时把 a bunch 改为 five balloons。"
+  },
+  {
+   "id": "PP-053",
+   "name": "健身课程主视觉",
+   "category": "海报主视觉",
+   "use": "健身海报：哑铃、瑜伽垫与水瓶落在木地板上，对角光束，无人",
+   "role": "poster",
+   "ratio": "9:16",
+   "resolution": "2k",
+   "background": "opaque",
+   "format": "png",
+   "prompt": "Purpose: Key visual for a fitness class poster shared on mobile; headline, class times and contact details will be added later as live text.\nSubject: A pair of dumbbells with no markings, a rolled yoga mat and a plain steel water bottle resting on a wooden floor against a color-blocked wall, a diagonal beam of sunlight across the wall.\nComposition: Tall 9:16, the objects sit in the lower third, the upper 40% is a clean color-blocked wall for copy, keep the bottom 12% free for platform overlays.\nLighting: Directional soft light from the upper left, a long soft shadow falling to the right, a faint rim light on the edges.\nMaterial: Real materials with crisp detail and fine surface texture, photorealistic still life, 70mm lens look, eye-level or slightly high camera.\nColor: The wall is a tint of {{primary}}, the mat is {{primary}}, the floor is warm oak, steel is neutral grey. Color-blocked backdrop in a tint of {{primary}}, one accent, no more than three hues in total.\nBackground and output: Opaque flat artwork with no border, the reserved copy area stays clean. Output: 9:16, 2k, PNG.\nAvoid: no text, letters, numbers, typography, logos, brand marks, watermarks, QR codes or signatures, no UI elements, no buttons, no borders or frames, no collage of unrelated pictures, no real people or human faces, no recognizable real-world brands, nothing placed inside the reserved copy area, no numbers on the weights, no sports logos, no athletes.",
+   "negative": "no text, letters, numbers, typography, logos, brand marks, watermarks, QR codes or signatures, no UI elements, no buttons, no borders or frames, no collage of unrelated pictures, no real people or human faces, no recognizable real-world brands, nothing placed inside the reserved copy area, no numbers on the weights, no sports logos, no athletes.",
+   "style_ref": [
+    "ST-012"
+   ],
+   "negative_ref": "NG-004",
+   "checks": [
+    "哑铃无数字，水瓶无标志",
+    "画面无人",
+    "底部 12% 无关键内容"
+   ],
+   "verified": false,
+   "result": "",
+   "source": "",
+   "notes": "光束太强时把 diagonal beam of sunlight 改为 soft diagonal light。"
+  },
+  {
+   "id": "PP-054",
+   "name": "医药健康主视觉",
+   "category": "海报主视觉",
+   "use": "医药健康海报：白石研钵、棕色滴瓶、草本叶与胶囊，洁净安静",
+   "role": "poster",
+   "ratio": "3:4",
+   "resolution": "2k",
+   "background": "opaque",
+   "format": "png",
+   "prompt": "Purpose: Key visual for a health care and pharmacy campaign poster; headline and notes will be added later as live text.\nSubject: A white stone mortar and pestle, a brown glass dropper bottle with no label, a few fresh green herb leaves and three plain round capsules scattered on a pale surface.\nComposition: Portrait 3:4, the group sits in the lower half and fills about 50% of the frame width, the upper 40% is clean backdrop for copy.\nLighting: Directional soft light from the upper left, a long soft shadow falling to the right, a faint rim light on the edges.\nMaterial: Real materials with crisp detail and fine surface texture, photorealistic still life, 70mm lens look, eye-level or slightly high camera.\nColor: The backdrop and the herb leaves lean toward {{primary}} tints, the glass is warm amber, the stone is white; {{primary}} is the only saturated hue. Color-blocked backdrop in a tint of {{primary}}, one accent, no more than three hues in total.\nBackground and output: Opaque flat artwork with no border, the reserved copy area stays clean. Output: 3:4, 2k, PNG.\nAvoid: no text, letters, numbers, typography, logos, brand marks, watermarks, QR codes or signatures, no UI elements, no buttons, no borders or frames, no collage of unrelated pictures, no real people or human faces, no recognizable real-world brands, nothing placed inside the reserved copy area, no pill blister packs with text, no medical crosses, no doctors.",
+   "negative": "no text, letters, numbers, typography, logos, brand marks, watermarks, QR codes or signatures, no UI elements, no buttons, no borders or frames, no collage of unrelated pictures, no real people or human faces, no recognizable real-world brands, nothing placed inside the reserved copy area, no pill blister packs with text, no medical crosses, no doctors.",
+   "style_ref": [
+    "ST-012"
+   ],
+   "negative_ref": "NG-004",
+   "checks": [
+    "瓶身无标签，胶囊无印字",
+    "没有医生、十字标志",
+    "整体洁净，不夸张疗效意象"
+   ],
+   "verified": false,
+   "result": "",
+   "source": "",
+   "notes": "胶囊印字时把 plain round capsules 改为 plain unmarked round capsules。"
+  },
+  {
+   "id": "PP-055",
+   "name": "母婴活动主视觉",
+   "category": "海报主视觉",
+   "use": "母婴海报：云朵吊饰、针织兔与木摇铃，柔和粉彩，上部留白",
+   "role": "poster",
+   "ratio": "3:4",
+   "resolution": "2k",
+   "background": "opaque",
+   "format": "png",
+   "prompt": "Purpose: Key visual for a mother-and-baby activity poster; headline and details will be added later as live text.\nSubject: A cloud mobile hanging from the top edge with small paper-cut moons and stars on thin strings, a knitted bunny toy and a wooden rattle resting on a soft rounded hill at the bottom.\nComposition: Portrait 3:4, the mobile hangs in the upper right, the toys sit in the lower left, the center band stays clean for the headline.\nLighting: No realistic lighting, flat layered shapes with a soft drop shadow between layers.\nMaterial: Layered paper-cut shapes with a fine paper grain and crisp clean edges, graphic flat composition.\nColor: The clouds and hill are tints of {{primary}}, the bunny is warm cream, the moons and stars are {{secondary}} on a pale warm ground. Bold limited palette of three hues built around {{primary}}, flat fills.\nBackground and output: Opaque flat artwork with no border, the reserved copy area stays clean. Output: 3:4, 2k, PNG.\nAvoid: no text, letters, numbers, typography, logos, brand marks, watermarks, QR codes or signatures, no UI elements, no buttons, no borders or frames, no collage of unrelated pictures, no real people or human faces, no recognizable real-world brands, nothing placed inside the reserved copy area, no babies, no parents, no feeding bottles with markings.",
+   "negative": "no text, letters, numbers, typography, logos, brand marks, watermarks, QR codes or signatures, no UI elements, no buttons, no borders or frames, no collage of unrelated pictures, no real people or human faces, no recognizable real-world brands, nothing placed inside the reserved copy area, no babies, no parents, no feeding bottles with markings.",
+   "style_ref": [
+    "ST-013"
+   ],
+   "negative_ref": "NG-004",
+   "checks": [
+    "画面无婴儿与真人",
+    "玩具轮廓清楚，不含文字",
+    "中部留白干净"
+   ],
+   "verified": false,
+   "result": "",
+   "source": "",
+   "notes": "兔子表情太复杂时在 Subject 里写 a simple knitted bunny with two dot eyes。"
+  },
+  {
+   "id": "PP-056",
+   "name": "卡通动物头像拼板",
+   "category": "人物与头像",
+   "use": "默认头像：16 个不同动物头像，无真人照片时按用户固定分配",
+   "role": "icon-sheet",
+   "ratio": "1:1",
+   "resolution": "2k",
+   "background": "transparent",
+   "format": "png",
+   "prompt": "Purpose: Element sheet of default animal avatars for users who have no photo; the sheet is cut into 16 avatars afterwards.\nSubject: Sixteen different animal heads in reading order, each a round head-only portrait: (1) fox; (2) rabbit; (3) cat; (4) bear; (5) panda; (6) deer; (7) owl; (8) penguin; (9) koala; (10) otter; (11) hedgehog; (12) corgi dog; (13) frog; (14) lamb; (15) raccoon; (16) tiger cub.\nComposition: Strict 4x4 grid of 16 separate objects, 4 columns by 4 rows of equal cells, each object centered in its own cell and never crossing a cell edge, all objects at the same visual scale and the same camera angle, wide even gaps between objects, no grid lines drawn. Each head fills about 70% of its cell.\nLighting: Soft even light from the front, one subtle shadow under the chin.\nMaterial: Smooth soft-clay cartoon finish with simple rounded forms, big simple eyes, a plain calm expression, no outline stroke.\nColor: Each animal keeps natural low-saturation colors; {{primary}} appears as a small scarf or flower accent on three animals and {{secondary}} on two. Low-saturation natural animal colors, each animal one or two main colors plus white.\nBackground and output: Transparent background (alpha), nothing drawn behind the objects, no floor plane and no ground shadow. Output: 1:1, 2k, PNG with alpha.\nAvoid: no text, letters, numbers, labels, logos or watermarks, no grid lines, no borders, no overlapping or touching objects, no object crossing a cell edge, no cropped objects, no duplicate objects, no cast shadow on the background, no human features, no clothing with text, no accessories with logos.",
+   "negative": "no text, letters, numbers, labels, logos or watermarks, no grid lines, no borders, no overlapping or touching objects, no object crossing a cell edge, no cropped objects, no duplicate objects, no cast shadow on the background, no human features, no clothing with text, no accessories with logos.",
+   "style_ref": [
+    "ST-014"
+   ],
+   "negative_ref": "NG-003",
+   "checks": [
+    "16 种动物互不相同，数量对",
+    "只有头部，没有文字或人脸",
+    "圆形头像框裁切后仍清楚"
+   ],
+   "verified": false,
+   "result": "",
+   "source": "",
+   "notes": "两种动物太像时把其中一项换成轮廓差异大的动物。"
+  },
+  {
+   "id": "PP-057",
+   "name": "抽象人形头像拼板",
+   "category": "人物与头像",
+   "use": "默认头像：16 个无五官的抽象人形，由几何形组成",
+   "role": "icon-sheet",
+   "ratio": "1:1",
+   "resolution": "2k",
+   "background": "transparent",
+   "format": "png",
+   "prompt": "Purpose: Element sheet of abstract person avatars for users who have no photo; the sheet is cut into 16 avatars afterwards.\nSubject: Sixteen abstract faceless person busts in reading order, each a circle head over rounded shoulders with a different hair silhouette: (1) bun; (2) short crop; (3) bob; (4) long straight; (5) curly cloud; (6) ponytail; (7) side part; (8) braid; (9) bald; (10) cap; (11) beanie; (12) headband; (13) top knot; (14) buzz cut; (15) wavy medium; (16) bangs.\nComposition: Strict 4x4 grid of 16 separate objects, 4 columns by 4 rows of equal cells, each object centered in its own cell and never crossing a cell edge, all objects at the same visual scale and the same camera angle, wide even gaps between objects, no grid lines drawn. Each bust fills about 70% of its cell.\nLighting: No cast shadow and no lighting effects, flat fills with at most one gentle tonal shade per shape.\nMaterial: Clean flat vector-style shapes with uniform rounded corners and a consistent edge treatment, no outline stroke, no texture.\nColor: Each bust uses a different pair of low-saturation hues; {{primary}} is the main hue of three busts and {{secondary}} of two; the skin areas are plain warm tints without detail. One or two low-saturation colors plus white per object, no gradients beyond one tonal step.\nBackground and output: Transparent background (alpha), nothing drawn behind the objects, no floor plane and no ground shadow. Output: 1:1, 2k, PNG with alpha.\nAvoid: no text, letters, numbers, labels, logos or watermarks, no grid lines, no borders, no overlapping or touching objects, no object crossing a cell edge, no cropped objects, no duplicate objects, no cast shadow on the background, no facial features, no eyes, no mouth, no real person likeness, no outline stroke.",
+   "negative": "no text, letters, numbers, labels, logos or watermarks, no grid lines, no borders, no overlapping or touching objects, no object crossing a cell edge, no cropped objects, no duplicate objects, no cast shadow on the background, no facial features, no eyes, no mouth, no real person likeness, no outline stroke.",
+   "style_ref": [
+    "ST-009"
+   ],
+   "negative_ref": "NG-003",
+   "checks": [
+    "全部无五官，没有真人相似",
+    "16 种发型互不相同",
+    "低饱和不撞色，圆形裁切后清楚"
+   ],
+   "verified": false,
+   "result": "",
+   "source": "",
+   "notes": "出现五官时在 Subject 开头加 completely blank faces。"
+  },
+  {
+   "id": "PP-058",
+   "name": "吉祥物角色插画",
+   "category": "人物与头像",
+   "use": "品牌角色：捧着小水壶的圆润小猫，用于欢迎页与加载页",
+   "role": "illustration",
+   "ratio": "1:1",
+   "resolution": "2k",
+   "background": "transparent",
+   "format": "png",
+   "prompt": "Purpose: Brand mascot illustration for a welcome page and a loading page, shown beside live text.\nSubject: One plump cartoon kitten sitting upright and holding a tiny watering can, a small leaf on its head, a calm happy expression.\nComposition: Square 1:1, the kitten fills about 70% of the frame height with a 10% margin, front view, the whole body visible.\nLighting: Soft even light from the front, one subtle shadow under the chin.\nMaterial: Smooth soft-clay cartoon finish with simple rounded forms, big simple eyes, a plain calm expression, no outline stroke.\nColor: The kitten is warm cream with a tint of {{primary}} on the ears and cheeks, the watering can is {{secondary}}, the leaf is natural green. Low-saturation natural animal colors, each animal one or two main colors plus white.\nBackground and output: Transparent background (alpha), nothing drawn behind the mascot, no ground shadow. Output: 1:1, 2k, PNG with alpha.\nAvoid: no text, letters, numbers, labels, captions, logos, brand marks, watermarks or signatures, no UI elements, no buttons, no borders or frames, no collage, one single coherent image, no clothing with text, no brand marks.",
+   "negative": "no text, letters, numbers, labels, captions, logos, brand marks, watermarks or signatures, no UI elements, no buttons, no borders or frames, no collage, one single coherent image, no clothing with text, no brand marks.",
+   "style_ref": [
+    "ST-014"
+   ],
+   "negative_ref": "NG-001",
+   "checks": [
+    "只有一只猫，身体完整",
+    "表情平静简单",
+    "透明边缘在浅深底上干净"
+   ],
+   "verified": false,
+   "result": "",
+   "source": "",
+   "notes": "表情太夸张时加 neutral small smile and two dot eyes。"
+  },
+  {
+   "id": "PP-059",
+   "name": "页签图标",
+   "category": "其他",
+   "use": "页签图标：主题色圆角底加一个白色图案",
+   "role": "illustration",
+   "ratio": "1:1",
+   "resolution": "1k",
+   "background": "transparent",
+   "format": "png",
+   "prompt": "Purpose: Browser tab icon for an HTML page; it is shown at 16 to 32 pixels, so the shape must read instantly.\nSubject: One rounded-square tile with a solid fill and a single white pictogram of a leaf and a bud in the center; replace the pictogram with one simple noun that fits the page theme.\nComposition: Square 1:1, the tile fills 90% of the frame, the pictogram fills 55% of the tile and is centered.\nLighting: No cast shadow and no lighting effects, flat fills with at most one gentle tonal shade per shape.\nMaterial: Clean flat vector-style shapes with uniform rounded corners and a consistent edge treatment, no outline stroke, no texture.\nColor: The tile is solid {{primary}} and the pictogram is pure white; no other colors. One or two low-saturation colors plus white per object, no gradients beyond one tonal step.\nBackground and output: Transparent background (alpha) outside the rounded tile. Output: 1:1, 1k, PNG with alpha.\nAvoid: no text, letters, numbers, labels, captions, logos, brand marks, watermarks or signatures, no UI elements, no buttons, no borders or frames, no collage, one single coherent image, no gradients, no inner shadow, no border.",
+   "negative": "no text, letters, numbers, labels, captions, logos, brand marks, watermarks or signatures, no UI elements, no buttons, no borders or frames, no collage, one single coherent image, no gradients, no inner shadow, no border.",
+   "style_ref": [
+    "ST-009"
+   ],
+   "negative_ref": "NG-001",
+   "checks": [
+    "缩到 16 像素仍能认出图案",
+    "只有一种底色加白色",
+    "圆角底之外完全透明"
+   ],
+   "verified": false,
+   "result": "",
+   "source": "",
+   "notes": "图案太细时把 pictogram 换成更粗的单一轮廓。"
+  },
+  {
+   "id": "PP-060",
+   "name": "会员等级徽章",
+   "category": "其他",
+   "use": "会员标识：金色圆形奖章配主题色丝带，无字无数字",
+   "role": "illustration",
+   "ratio": "1:1",
+   "resolution": "2k",
+   "background": "transparent",
+   "format": "png",
+   "prompt": "Purpose: Membership level badge for a profile page, shown at about 64 pixels beside live text.\nSubject: One round gold medal with a raised rim and a simple five-point star in the center, hanging from a short folded ribbon.\nComposition: Square 1:1, the medal fills about 65% of the frame width, the ribbon runs to the top edge with a 6% margin, front view.\nLighting: Soft studio light from the upper left with gentle shading on the form of each object, no shadow falling outside the object.\nMaterial: Smooth matte soft clay with slightly rounded edges and a faint surface softness, not glossy plastic.\nColor: The medal is a soft gold, the star is a lighter gold, the ribbon is {{primary}}; no other saturated colors. One or two low-saturation colors plus white per object, different objects use different main hues.\nBackground and output: Transparent background (alpha), nothing drawn behind the badge. Output: 1:1, 2k, PNG with alpha.\nAvoid: no text, letters, numbers, labels, captions, logos, brand marks, watermarks or signatures, no UI elements, no buttons, no borders or frames, no collage, one single coherent image, no numbers, no laurel text, no crown.",
+   "negative": "no text, letters, numbers, labels, captions, logos, brand marks, watermarks or signatures, no UI elements, no buttons, no borders or frames, no collage, one single coherent image, no numbers, no laurel text, no crown.",
+   "style_ref": [
+    "ST-007"
+   ],
+   "negative_ref": "NG-001",
+   "checks": [
+    "奖章上没有数字与字母",
+    "金色是暖金，不发荧光",
+    "缩到 64 像素星形仍清楚"
+   ],
+   "verified": false,
+   "result": "",
+   "source": "",
+   "notes": "金色发黄绿时把 soft gold 改成 warm champagne gold。"
+  }
+ ]
+};

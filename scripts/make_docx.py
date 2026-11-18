@@ -11,7 +11,7 @@ spec.json (common keys):
   "theme": "fitness-gym",                        # choose the table tint for this topic; themes.json
   "sections": [                                   # body, in order
     {"heading": "合同标的", "paragraphs": ["..."], "items": ["...", "..."],
-     "table": {"header": ["设备", "数量", "单价（元）"], "rows": [["人脸终端", 2, 1680]], "money_cols": [2]},
+     "table": {"header": ["设备", "数量", "接口"], "rows": [["人脸终端", 2, "RS485"]]},      # a money_cols list exists, but amounts only appear when a person supplied the quotation
      "children": [ {"heading": "...", "paragraphs": ["..."]} ]}
   ],
   "attachments": [{"title": "设备清单", "sections": [...]}],  # optional, each starts on a new page
@@ -27,7 +27,8 @@ contract only:
 minutes only:
   "meta": [["时间", "..."], ["地点", "..."], ["主持", "..."], ["参会", "..."], ["记录", "..."]]
 
-Paragraph text may contain {{money:128000}}, which renders as “人民币 128,000.00 元（大写：壹拾贰万捌仟元整）”.
+Paragraph text may contain {{money:<金额>}}, which renders as “人民币 <金额>.00 元（大写：<大写金额>）”; the figure is one a person supplied (a contract's agreed
+price, a quotation they gave), never one the agent made up, and no example in this skill carries a default amount (file-design.html 表格文件 › 工时、金额与报价).
 Contracts number clauses 第一条、第二条…, sub-clauses 1.1、1.2; other types number 一、（一）1.（1）.
 Footer: contracts “第 X 页 共 Y 页”, other types the page number only.
 A table stays on the page of the paragraph that introduces it (short tables whole, long ones with at least two rows).
@@ -52,6 +53,7 @@ tables keep the ordinary light grid. The built-in check then runs with --allow p
 """
 from __future__ import annotations
 
+import argparse
 import json
 import re
 import sys
@@ -130,7 +132,18 @@ def money_text(match: re.Match) -> str:
     return f"人民币 {value:,.2f} 元（大写：{rmb_upper(value)}）"
 
 
-def build(spec: dict, out: Path) -> Path:
+def build(spec: dict, out: Path, *, context=None, session=None, stage=None) -> Path:
+    """Business writer: validate evidence and the exact template before bytes."""
+    from design_output_gate import require_output_context, record_rendered_output
+    out = Path(out)
+    context = require_output_context(out, "docx", context=context, session=session, stage=stage)
+    result = _render_document(spec, out)
+    record_rendered_output(context, out, "docx", generator="Luz-Design/scripts/make_docx.py")
+    return result
+
+
+def _render_document(spec: dict, out: Path) -> Path:
+    """Internal layout engine; business callers enter through gated build()."""
     header_fill = table_tint(spec.get("theme"))
     import docx
     from docx.enum.section import WD_ORIENT, WD_SECTION  # noqa: F401
@@ -579,15 +592,25 @@ def verify_output(out: Path, kind: str, allow: list[str] | None = None) -> int:
 
 
 def main(argv: list[str] | None = None) -> int:
-    argv = argv if argv is not None else sys.argv[1:]
-    if len(argv) != 2:
-        print(__doc__)
+    parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
+    parser.add_argument("spec")
+    parser.add_argument("output")
+    parser.add_argument("--session", help="Design session; otherwise inferred from environment or output path")
+    args = parser.parse_args(argv)
+    from design_output_gate import require_output_context, record_rendered_output
+    try:
+        context = require_output_context(args.output, "docx", session=args.session)
+    except ValueError as exc:
+        print(f"FAIL: {exc}", file=sys.stderr)
         return 2
-    spec = json.loads(Path(argv[0]).read_text(encoding="utf-8-sig"))
-    out = build(spec, Path(argv[1]))
+    spec = json.loads(Path(args.spec).read_text(encoding="utf-8-sig"))
+    out = build(spec, Path(args.output), context=context)
     print("wrote", out)
     paper = spec.get("style") == "paper" and spec.get("type") != "contract"
-    return verify_output(out, "docx", ["paper"] if paper else None)
+    code = verify_output(out, "docx", ["paper"] if paper else None)
+    if code == 0:
+        record_rendered_output(context, out, "docx", generator="Luz-Design/scripts/make_docx.py")
+    return code
 
 
 if __name__ == "__main__":

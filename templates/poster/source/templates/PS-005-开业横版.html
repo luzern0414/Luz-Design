@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="zh-CN" data-ic-base="../../../../kit/assets/icons">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>门店开业横版</title>
+<link rel="icon" href="../../../../kit/assets/icons/flat/bouquet.webp">
+<link rel="stylesheet" href="../../../../kit/tokens.css">
+<style>
+:root { --pw: 1920px; --ph: 1080px; }
+/* 海报画布与预览：画布大小写死，页面按视口缩放预览；地址加 ?export=1 去掉缩放与外框，用于导出 */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; }
+body { background: color-mix(in srgb, var(--ink) 12%, var(--bg)); font: 400 16px/1.5 var(--font); color: var(--ink); -webkit-font-smoothing: antialiased; }
+.pv { min-height: 100vh; display: grid; place-items: center; padding: 24px; }
+.pv__fit { --k: 1; position: relative; width: calc(var(--pw) * var(--k)); height: calc(var(--ph) * var(--k)); box-shadow: var(--elev-3); }
+.poster { position: absolute; left: 0; top: 0; width: var(--pw); height: var(--ph); overflow: hidden; transform: scale(var(--k)); transform-origin: 0 0; background: var(--bg); color: var(--ink); font-family: var(--font); line-height: 1.3; text-rendering: optimizeLegibility; }
+.poster *, .poster *::before, .poster *::after { margin: 0; padding: 0; }
+.poster img { display: block; }
+.poster h1, .poster h2, .poster h3, .poster p { font-weight: inherit; }
+.x-tex { position: absolute; inset: 0; background: url(../../../../kit/assets/photo/pattern-petals.webp) 0 0 / 520px; opacity: .45; pointer-events: none; }
+.x-nw { white-space: nowrap; }
+.is-export body, .is-export { background: transparent; }
+.is-export .pv { display: block; min-height: 0; padding: 0; }
+.is-export .pv__fit { --k: 1; box-shadow: none; }
+.marks i { position: absolute; background: var(--ink-2); }
+@media print { html, body { background: none; } .pv { display: block; min-height: 0; padding: 0; } .pv__fit { --k: 1; box-shadow: none; } .marks { display: none; } }
+
+/* ── 本海报 ── */
+.p5 { position: absolute; inset: 0; background: var(--bg); }
+.p5 .wash { position: absolute; inset: 0; background: radial-gradient(900px 900px at 80% 50%, color-mix(in srgb, var(--action) 18%, var(--bg)), transparent 70%); }
+.p5 .x-tex { opacity: .4; -webkit-mask-image: linear-gradient(90deg, black 0%, transparent 55%); mask-image: linear-gradient(90deg, black 0%, transparent 55%); }
+.p5 .brand { position: absolute; left: 120px; top: 76px; display: flex; align-items: center; gap: 16px; font-size: 42px; font-weight: 600; letter-spacing: .08em; }
+.p5 .brand img { width: 68px; height: 68px; }
+.p5 .tag { position: absolute; left: 120px; top: 216px; display: flex; align-items: center; gap: 20px; font-size: 32px; font-weight: 600; letter-spacing: .3em; color: var(--action-press); }
+.p5 .tag::before { content: ""; width: 72px; height: 3px; background: var(--action-press); }
+.p5 .title { position: absolute; left: 116px; top: 276px; font-size: 136px; font-weight: 700; letter-spacing: -.01em; line-height: 1.1; white-space: nowrap; }
+.p5 .title b { color: var(--action); font-weight: 700; }
+.p5 .sub { position: absolute; left: 124px; top: 448px; font-size: 44px; font-weight: 500; color: var(--ink-2); letter-spacing: .08em; white-space: nowrap; }
+.p5 .perks { position: absolute; left: 120px; top: 560px; width: 1000px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; }
+.p5 .perk { padding-right: 28px; }
+.p5 .perk + .perk { padding-left: 36px; border-left: 2px solid var(--line-strong); }
+.p5 .perk img { width: 100px; height: 100px; }
+.p5 .perk h3 { margin-top: 14px; font-size: 42px; font-weight: 600; letter-spacing: .04em; white-space: nowrap; }
+.p5 .perk p { margin-top: 8px; font-size: 32px; color: var(--ink-2); line-height: 1.4; }
+.p5 .info { position: absolute; left: 120px; bottom: 76px; width: 900px; display: grid; grid-template-columns: 1fr 1fr; padding-top: 30px; border-top: 3px solid var(--ink); }
+.p5 .info h4 { font-size: 30px; font-weight: 500; letter-spacing: .3em; color: var(--action-press); }
+.p5 .info p { margin-top: 6px; font-size: 40px; font-weight: 600; }
+.p5 .circle { position: absolute; left: 1290px; top: 90px; width: 760px; height: 760px; border-radius: 50%; background: color-mix(in srgb, var(--action) 26%, var(--bg)); }
+.p5 .ring { position: absolute; left: 1210px; top: 128px; width: 720px; height: 952px; border: 3px solid color-mix(in srgb, var(--action) 55%, transparent); border-radius: 360px 360px 0 0; border-bottom: 0; }
+.p5 .arch { position: absolute; left: 1240px; top: 100px; width: 640px; height: 980px; border-radius: 320px 320px 0 0; overflow: hidden; box-shadow: var(--elev-3); }
+.p5 .arch img { width: 100%; height: 100%; object-fit: cover; object-position: 86% 50%; }
+.p5 .disc { position: absolute; left: 1110px; top: 660px; width: 300px; height: 300px; border-radius: 50%; overflow: hidden; border: 10px solid var(--surface); box-shadow: var(--elev-3); }
+.p5 .disc img { width: 100%; height: 100%; object-fit: cover; }
+.p5 .seal { position: absolute; left: 1660px; top: 800px; width: 200px; height: 200px; border-radius: 50%; background: var(--accent); color: var(--surface); display: grid; place-content: center; text-align: center; box-shadow: var(--elev-2); }
+.p5 .seal::before { content: ""; position: absolute; inset: 10px; border: 2px dashed color-mix(in srgb, var(--surface) 70%, transparent); border-radius: 50%; }
+.p5 .seal span { font-size: 32px; font-weight: 500; letter-spacing: .1em; }
+.p5 .seal strong { font-size: 60px; font-weight: 700; line-height: 1.1; }
+</style>
+</head>
+<body>
+<div class="pv"><div class="pv__fit">
+<main class="poster" id="poster" data-cid="PS-005" data-name="门店开业横版" data-size="1920×1080" data-use="门店">
+<div class="p5">
+  <div class="wash"></div>
+  <div class="x-tex"></div>
+  <div class="brand"><img data-ic="bouquet" src="../../../../kit/assets/icons/flat/bouquet.webp" alt="">花间集</div>
+  <div class="tag">新店开业</div>
+  <h1 class="title">徐汇滨江店<b>开业</b></h1>
+  <p class="sub">花间集第三家门店 开业三天礼遇</p>
+  <div class="perks">
+    <div class="perk"><img data-ic="coupon" src="../../../../kit/assets/icons/flat/coupon.webp" alt=""><h3>新客立减</h3><p>首单满199元<br>立减50元</p></div>
+    <div class="perk"><img data-ic="giftcard" src="../../../../kit/assets/icons/flat/giftcard.webp" alt=""><h3>入会有礼</h3><p>开业当天入会<br>赠小花一束</p></div>
+    <div class="perk"><img data-ic="bouquet" src="../../../../kit/assets/icons/flat/bouquet.webp" alt=""><h3>半价花束</h3><p>指定花束<br>第二束半价</p></div>
+  </div>
+  <div class="info">
+    <div><h4>地址</h4><p>滨江大道一号</p></div>
+    <div><h4>营业</h4><p>每日 9:00 至 21:00</p></div>
+  </div>
+  <div class="circle"></div>
+  <div class="ring"></div>
+  <div class="arch"><img src="../../../../kit/assets/photo/scene-hero-pink.webp" alt="粉色花束"></div>
+  <div class="disc"><img src="../../../../kit/assets/photo/product-succulent.webp" alt="多肉组合盆"></div>
+  <div class="seal"><span>开业</span><strong>三天</strong></div>
+</div>
+</main>
+</div></div>
+<script src="../../../../kit/ui.js"></script>
+<script>
+(function () {
+  var q = new URLSearchParams(location.search), root = document.documentElement;
+  if (q.get('export') === '1') root.classList.add('is-export');
+  if (q.get('bleed') === '1') root.classList.add('is-bleed');
+  var p = document.getElementById('poster'), fit = p.parentNode;
+  function fitIt() {
+    if (root.classList.contains('is-export')) { fit.style.setProperty('--k', 1); return; }
+    var k = Math.min((innerWidth - 48) / p.offsetWidth, (innerHeight - 48) / p.offsetHeight, 1);
+    fit.style.setProperty('--k', Math.max(k, 0.05));
+  }
+  addEventListener('resize', fitIt); fitIt();
+  var pg = document.createElement('style');
+  pg.textContent = '@page{size:' + p.offsetWidth + 'px ' + p.offsetHeight + 'px;margin:0}';
+  document.head.appendChild(pg);
+  if (root.classList.contains('is-bleed') && !root.classList.contains('is-export')) {
+    var m = document.createElement('div'); m.className = 'marks'; m.setAttribute('aria-hidden', 'true');
+    var b = parseFloat(getComputedStyle(p).getPropertyValue('--bleed')) || 11.34, L = 20, G = 4;
+    var W = p.offsetWidth, H = p.offsetHeight;
+    [[0, 0], [1, 0], [0, 1], [1, 1]].forEach(function (c) {
+      var x = c[0] ? W - b : b, y = c[1] ? H - b : b;
+      var v = [x - 0.5, c[1] ? H + G : -G - L, 1, L], h = [c[0] ? W + G : -G - L, y - 0.5, L, 1];
+      [v, h].forEach(function (r) {
+        var i = document.createElement('i'); i.style.cssText = 'left:' + r[0] + 'px;top:' + r[1] + 'px;width:' + r[2] + 'px;height:' + r[3] + 'px';
+        m.appendChild(i);
+      });
+    });
+    m.style.cssText = 'position:absolute;left:0;top:0;width:' + W + 'px;height:' + H + 'px;transform:scale(var(--k));transform-origin:0 0;pointer-events:none';
+    fit.appendChild(m);
+  }
+})();
+</script>
+</body>
+</html>

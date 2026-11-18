@@ -1,0 +1,35 @@
+{
+  "id": "DC-XL-P05",
+  "name": "数据验证",
+  "use": "限制可输入值：整数、小数范围或下拉列表（样例后处理，见本文件夹 tools/xlsx_decorate.py）",
+  "fragment": {
+    "decorate": {
+      "validations": [
+        {
+          "column": "数量",
+          "type": "whole",
+          "min": 0
+        },
+        {
+          "column": "验收结果",
+          "type": "list",
+          "values": [
+            "通过",
+            "未通过",
+            "待验收"
+          ]
+        }
+      ]
+    }
+  },
+  "used_in": [
+    "DC-XL-001",
+    "DC-XL-002",
+    "DC-XL-003",
+    "DC-XL-004",
+    "DC-XL-005",
+    "DC-XL-006",
+    "DC-XL-007",
+    "DC-XL-010"
+  ]
+}

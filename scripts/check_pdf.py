@@ -135,6 +135,10 @@ def check_pdf(path: Path, *, fonts: str = "auto", accessible: bool = False, prin
     toc = doc.get_toc()
     if bookmarks and pages > 1 and not toc:
         errors.append("no bookmarks: export with the heading outline (Word: create bookmarks from headings; browser: outline on)")
+    if bookmarks:
+        for index, (_level, title, destination) in enumerate(toc, 1):
+            if not title.strip() or not 1 <= destination <= pages:
+                errors.append(f"invalid bookmark destination at outline item {index}: {title!r}, page {destination}; verify the actual heading page")
 
     # Accessibility.
     problems: list[str] = []

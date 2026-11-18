@@ -1,0 +1,13 @@
+{
+ "id": "DC-SL-P15",
+ "name": "序号要点页",
+ "layout": "bullets",
+ "title": "花材到店先做三件事",
+ "image": "product-rose-red",
+ "numbered": true,
+ "points": [
+  "拆包检查花头与茎秆",
+  "剪去茎底2厘米",
+  "立即放入清水养护"
+ ]
+}

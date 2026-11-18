@@ -1,0 +1,70 @@
+{
+ "app-task": {
+  "category": "app",
+  "dependencies": [
+   {
+    "name": "vue",
+    "version": "3.5.22",
+    "source": "https://registry.npmjs.org/vue",
+    "license": "VUE-LICENSE",
+    "files": {
+     "vue.global.prod.js": "dae9c178e86e09240e58721cdb46a81ac96ae1dc6a870d1b1bb9ffaee3c6d3fe",
+     "VUE-LICENSE": "1bb85cc9b13b81ef41c81c51866172fc345e0503c86726a6755b796590b70175"
+    },
+    "usage": "Vue 模板渲染、计算状态与本地持久化连接。"
+   },
+   {
+    "name": "vant",
+    "version": "4.9.22",
+    "source": "https://registry.npmjs.org/vant",
+    "license": "VANT-LICENSE",
+    "files": {
+     "vant.min.js": "d79962940498090eb0fc150466b5ac5b2b50bd6ce4c149a45ff16e1d7d452387",
+     "vant.css": "0998e97a5b2826ed8a9a506407cbf6c47221da5e997be8748008fcfe2f33bdd6",
+     "VANT-LICENSE": "d18ad730cd8c4f33a032d9859dd29e5e07b244a41f76af58adb04be7219be383"
+    },
+    "usage": "底部导航、移动表单与内嵌纵向选择器；业务填写和详情使用独立页面。"
+   },
+   {
+    "name": "element-plus",
+    "version": "2.11.5",
+    "source": "https://registry.npmjs.org/element-plus",
+    "license": "ELEMENT-PLUS-LICENSE",
+    "files": {
+     "element-plus.js": "664f2cad7999f9306dbfe7a5e25995edc53dbf5c555f6509798b4bc0903965cd",
+     "element-plus.css": "3c986d8864a8391128464e4dee4bb6d34987c429b5d41747b29f2c0cc7d3846e",
+     "ELEMENT-PLUS-LICENSE": "0790118bb4d66681db1d63181f72ef68e632d632f6db0373ef87cf328561af27"
+    },
+    "usage": "输入、按钮、按需表单、图表信息提示及适用的业务表格；详情与完整填写使用独立页面，字段纠错原位完成。"
+   }
+  ]
+ },
+ "web-workspace": {
+  "category": "web",
+  "dependencies": [
+   {
+    "name": "vue",
+    "version": "3.5.22",
+    "source": "https://registry.npmjs.org/vue",
+    "license": "VUE-LICENSE",
+    "files": {
+     "vue.global.prod.js": "dae9c178e86e09240e58721cdb46a81ac96ae1dc6a870d1b1bb9ffaee3c6d3fe",
+     "VUE-LICENSE": "1bb85cc9b13b81ef41c81c51866172fc345e0503c86726a6755b796590b70175"
+    },
+    "usage": "Vue 模板渲染、计算状态与本地持久化连接。"
+   },
+   {
+    "name": "element-plus",
+    "version": "2.11.5",
+    "source": "https://registry.npmjs.org/element-plus",
+    "license": "ELEMENT-PLUS-LICENSE",
+    "files": {
+     "element-plus.js": "664f2cad7999f9306dbfe7a5e25995edc53dbf5c555f6509798b4bc0903965cd",
+     "element-plus.css": "3c986d8864a8391128464e4dee4bb6d34987c429b5d41747b29f2c0cc7d3846e",
+     "ELEMENT-PLUS-LICENSE": "0790118bb4d66681db1d63181f72ef68e632d632f6db0373ef87cf328561af27"
+    },
+    "usage": "输入、按钮、按需表单、图表信息提示及适用的业务表格；详情与完整填写使用独立页面，字段纠错原位完成。"
+   }
+  ]
+ }
+}

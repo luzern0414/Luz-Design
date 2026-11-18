@@ -1,6 +1,14 @@
 {
   "schema_version": "1.0",
-  "purpose": "把参考案例中的视觉语言保存为可解释的候选信号；这些条目不是页面结构或固定数量规范。",
+  "purpose": "把参考案例中的视觉语言保存为可配置默认值的候选信号；这些条目不是页面结构、固定数量或生成前的风格选择题。",
+  "selection_protocol": {
+    "order": ["真实检索成熟组件与设计原理", "通过当前前置检索", "Imagegen 真生图标、插画或低对比背景", "交付真组件可配置 UI", "用户复制并提交完整参数后记录选定"],
+    "upfront_approval_required": false,
+    "approval_scope_compatibility": "styles[].approval_scope 是旧字段名，表示允许使用的资产角色，不是生图或生成预览的审批条件",
+    "control_icons": "真实组件库的线性矢量；不能生成整张界面",
+    "backgrounds": "可以生成与主题一致、文字区留白的低对比背景；核验实际素材和浅深主题文字对比度",
+    "selection": "只在收到用户提交的完整 luz-ui-config 参数时记录选定；默认配置与模型操作不等于 approved"
+  },
   "styles": [
     {
       "id": "isometric-2-5d",
@@ -39,7 +47,7 @@
       "signals": ["柔和层次", "轻表面变化", "亲和实物联想"],
       "suitable_roles": ["entry-icons", "hero-decoration", "campaign-visual"],
       "avoid": ["control-icons", "需要严格扁平的企业后台", "高密度表格"],
-      "accessibility_risks": ["表面变化不能替代边框、文字或图标状态", "渐变需限定在已确认的装饰资产"],
+      "accessibility_risks": ["表面变化不能替代边框、文字或图标状态", "渐变需限定在配置允许的装饰资产，控件保持可读"],
       "approval_scope": ["entryIcons", "heroDecorations"]
     },
     {

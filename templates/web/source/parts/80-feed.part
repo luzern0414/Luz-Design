@@ -1,0 +1,1229 @@
+<!-- cat: FEED | 反馈与状态 -->
+<style>
+  /* 反馈与状态：类名前缀 fb-。通知用轻提示，警告确认用居中框，结果紧邻被操作的对象 */
+  .fb-card { display: grid; gap: var(--s-4); padding: var(--s-5); align-content: start; min-width: 0; }
+  .fb-card--flush { padding: 0; gap: 0; overflow: hidden; }
+  .fb-bar { display: flex; align-items: center; gap: var(--s-2); flex-wrap: wrap; }
+  .fb-bar--end { justify-content: flex-end; }
+  .fb-bar--between { justify-content: space-between; }
+  .fb-bar--center { justify-content: center; }
+  /* 示例卡片是舞台上唯一的一层白卡：卡里的列表、进度行不再自带边框与圆角，行首与卡的内容边对齐 */
+  .fb-card .card.list { border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+  .fb-card .card.list .row, .fb-card .card.list .fb-ord, .fb-card .card.list .fb-kv { padding-left: 0; padding-right: 0; }
+  .fb-card .card.list .row + .row::before { left: 0; }
+  .fb-card--bare { padding: 0; gap: var(--s-3); background: none; border: 0; box-shadow: none; }
+  .fb-head { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); min-height: 36px; }
+  .fb-spin { display: inline-block; flex: none; width: 24px; height: 24px; border: 3px solid var(--action-edge); border-top-color: var(--action); border-radius: 50%; animation: lz-spin .8s linear infinite; }
+  .fb-spin--sm { width: 16px; height: 16px; border-width: 2px; }
+  .fb-dots { display: inline-flex; gap: 3px; }
+
+  /* 轻提示样张 */
+  .fb-sample { display: flex; align-items: center; justify-content: center; min-height: 64px; border-radius: var(--r-md); background: var(--zone); }
+  .fb-sample .toast { animation: none; }
+
+  /* 列表行与确认 */
+  .fb-rows { overflow: hidden; }
+  .fb-rows .row__lead { width: 48px; height: 48px; }
+  .fb-rows .row__title, .fb-rows .row__meta { display: block; }
+  .fb-rows .row__trail { flex-direction: row; align-items: center; gap: var(--s-2); }
+  .fb-gone { display: none; align-items: center; gap: var(--s-2); }
+  .fb-rows [data-gone="true"] .fb-gone { display: inline-flex; }
+  .fb-rows [data-gone="true"] [data-del], .fb-rows [data-gone="true"] .row__lead, .fb-rows [data-gone="true"] .row__main { opacity: .42; }
+  .fb-rows [data-gone="true"] [data-del] { display: none; }
+
+  /* 结果页 */
+  .fb-res { display: grid; justify-items: center; gap: var(--s-4); padding: var(--s-2) var(--s-4); text-align: center; }
+  #fb-res-card .seg { justify-content: center; }
+  .fb-res__ic { display: grid; place-items: center; width: 80px; height: 80px; border-radius: 50%; background: var(--success); }
+  .fb-res__ic img { width: 40px; height: 40px; filter: invert(1); }
+  .fb-res[data-state="fail"] .fb-res__ic { background: var(--danger); }
+  .fb-res[data-state="wait"] .fb-res__ic { background: var(--action-tint); box-shadow: inset 0 0 0 1px var(--action-edge); }
+  .fb-res[data-state="wait"] .fb-res__ic img { display: none; }
+  .fb-res[data-state="wait"] .fb-spin { width: 36px; height: 36px; border-width: 4px; }
+  .fb-res:not([data-state="wait"]) .fb-spin { display: none; }
+  .fb-res.is-in .fb-res__ic { animation: lz-pop var(--dur-slow) var(--ease-spring) both; }
+  .fb-res h3 { font-size: var(--fs-xl); font-weight: 700; line-height: var(--lh-tight); }
+  .fb-res__kv { display: grid; grid-template-columns: auto auto; gap: var(--s-2) var(--s-6); padding: var(--s-3) var(--s-5); border-radius: var(--r-md); background: var(--zone); font-size: var(--fs-sm); text-align: left; }
+  .fb-res__kv dt { color: var(--ink-3); }
+  .fb-res__kv dd { margin: 0; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+  /* 空态 */
+  .fb-empty { display: grid; justify-items: center; gap: var(--s-3); padding: var(--s-6) var(--s-4); text-align: center; }
+  .fb-card > .fb-empty { padding: var(--s-1) var(--s-4); }
+  .fb-empty img { width: 112px; height: 112px; object-fit: contain; filter: drop-shadow(0 10px 14px color-mix(in srgb, var(--action) 18%, transparent)); }
+  .fb-empty--sm img { width: 80px; height: 80px; }
+  .fb-empty p { font-size: var(--fs-md); font-weight: 600; color: var(--ink-2); }
+  .fb-empty .tag { margin-top: calc(var(--s-1) * -1); }
+  .fb-tabs { padding: var(--s-3) var(--s-4); border-bottom: 1px solid var(--line); }
+  .fb-tbl .table { table-layout: fixed; }
+  .fb-tbl .table .who { display: flex; }
+  .fb-tbl .table tbody tr { cursor: default; }
+  .fb-tbl .table td.fb-none { padding: 0; white-space: normal; }
+  .fb-srch { display: grid; gap: var(--s-3); }
+  .fb-srch .search { width: 100%; }
+  .fb-srch input[type="search"]::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; display: none; }
+  .fb-srch .search .ibtn { width: 28px; height: 28px; }
+  .fb-srch .search .ibtn img { width: 14px; height: 14px; }
+  .fb-plist { overflow: hidden; }
+  .fb-plist .row { min-height: 52px; padding-top: var(--s-2); padding-bottom: var(--s-2); }
+  .fb-plist .row__lead { width: 36px; height: 36px; border-radius: var(--r-sm); }
+  .fb-plist mark { background: var(--action-tint); color: var(--action-press); font-weight: 600; }
+
+  /* 骨架与加载 */
+  .fb-grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-3); }
+  .fb-pc { display: grid; gap: var(--s-2); padding: var(--s-2) var(--s-2) var(--s-3); border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface); box-shadow: var(--elev-1); animation: lz-rise var(--dur-slow) var(--ease-out) both; animation-delay: calc(var(--i, 0) * var(--stagger)); }
+  .fb-pc img, .fb-pc .skel { width: 100%; aspect-ratio: 1 / 1; border-radius: var(--r-sm); object-fit: cover; }
+  .fb-pc__n { font-size: var(--fs-sm); font-weight: 600; padding: 0 var(--s-1); }
+  .fb-pc__f { display: flex; align-items: center; justify-content: space-between; padding: 0 var(--s-1); }
+  .fb-tbl .skel { height: 16px; display: block; margin: 0 auto; }
+  .fb-busy { position: relative; }
+  .fb-busy__body { display: grid; }
+  .fb-busy__veil { position: absolute; inset: 0; z-index: 2; display: grid; place-content: center; justify-items: center; gap: var(--s-2); border-radius: inherit; background: color-mix(in srgb, var(--surface) 80%, transparent); font-size: var(--fs-sm); font-weight: 600; color: var(--ink-2); opacity: 0; pointer-events: none; transition: opacity var(--dur-base) var(--ease-out); }
+  .fb-busy[data-busy="true"] .fb-busy__veil { opacity: 1; pointer-events: auto; }
+  .fb-busy .fb-spin { width: 32px; height: 32px; }
+  .fb-kv { display: flex; align-items: center; justify-content: space-between; min-height: 52px; padding: 0 var(--s-4); }
+  .fb-kv + .fb-kv { border-top: 1px solid var(--line); }
+  .fb-kv b { font-size: var(--fs-lg); font-variant-numeric: tabular-nums; }
+
+  /* 进度 */
+  .fb-ups { display: grid; }
+  .fb-ups .fb-up + .fb-up { position: relative; margin-top: var(--s-4); padding-top: var(--s-4); }
+  .fb-ups .fb-up + .fb-up::before { content: ""; position: absolute; left: 0; right: 0; top: 0; border-top: 1px solid var(--line); }
+  .fb-up { display: grid; gap: var(--s-2); }
+  .fb-up__top { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); }
+  .fb-up__name { display: flex; align-items: center; gap: var(--s-3); min-width: 0; }
+  .fb-up__name img { width: 32px; height: 32px; object-fit: contain; flex: none; }
+  .fb-up__bot { display: flex; justify-content: space-between; font-size: var(--fs-sm); color: var(--ink-3); font-variant-numeric: tabular-nums; }
+  .fb-up[data-state="done"] .progress > i { background: var(--success); }
+  .fb-up[data-state="stop"] .progress > i { background: var(--ink-3); }
+
+  /* 行内保存 */
+  .fb-saving { display: inline-flex; align-items: center; gap: var(--s-2); font-size: var(--fs-sm); color: var(--ink-3); }
+  .fb-sv-err { font-size: var(--fs-sm); color: var(--danger); }
+  .fb-save .switch[aria-disabled="true"] { opacity: .5; pointer-events: none; }
+  .fb-save .row__meta[data-tone="danger"] { color: var(--danger); }
+
+  /* 订单状态 */
+  .fb-legend { display: flex; flex-wrap: wrap; gap: var(--s-2); }
+  .fb-ord { display: grid; grid-template-columns: 32px minmax(0, 1fr) auto auto; align-items: center; gap: var(--s-3); min-height: 60px; padding: var(--s-2) var(--s-4); }
+  .fb-ord + .fb-ord { border-top: 1px solid var(--line); }
+  .fb-ord img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
+  .fb-ord__m { min-width: 0; }
+  .fb-ord .tag { min-width: 56px; justify-content: center; }
+  #fb-pub .row__trail .tag { min-width: 56px; justify-content: center; }
+  .fb-ord .btn { min-width: 76px; }
+  .fb-ord .tag { transition: background var(--dur-base) var(--ease-out), color var(--dur-base) var(--ease-out); }
+
+  /* 红点角标 */
+  .fb-ibs { display: flex; align-items: center; justify-content: center; gap: var(--s-5); flex-wrap: wrap; }
+  .fb-ib { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: var(--r-md); background: var(--surface); box-shadow: inset 0 0 0 1px var(--line-strong); transition: transform var(--dur-instant) var(--ease-out), background var(--dur-quick) var(--ease-out); }
+  .fb-ib img { width: 24px; height: 24px; }
+  .fb-ib:active { transform: scale(.94); }
+  @media (hover: hover) { .fb-ib:hover { background: var(--zone); } }
+  .fb-bdg { position: absolute; top: -6px; right: -6px; display: grid; place-items: center; min-width: 20px; height: 20px; padding: 0 5px; border-radius: var(--r-full); background: var(--danger); color: var(--surface); font-size: var(--fs-xs); font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums; box-shadow: 0 0 0 2px var(--surface); }
+  .fb-bdg[data-dot] { top: -3px; right: -3px; min-width: 12px; width: 12px; height: 12px; padding: 0; font-size: 0; }
+  .fb-bdg[data-tone="accent"] { background: var(--accent); }
+  .fb-bdg.is-pop { animation: lz-pop var(--dur-slow) var(--ease-spring) both; }
+  .fb-bdg[hidden] { display: none; }
+
+  /* 通知中心 */
+  .fb-nc { position: relative; width: 100%; max-width: 480px; margin: 0 auto; min-height: 48px; transition: min-height var(--dur-base) var(--ease-out); }
+  .fb-nc[data-open="true"] { min-height: 404px; }
+  .fb-nc__bar { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); }
+  .fb-nc__t { font-size: var(--fs-lg); font-weight: 600; line-height: var(--lh-tight); }
+  .fb-nc__panel { position: absolute; z-index: 5; right: 0; top: 60px; width: 100%; box-shadow: var(--elev-3); overflow: hidden; transform-origin: top right; animation: lz-toast var(--dur-base) var(--ease-out) both; }
+  .fb-nc__head { display: flex; align-items: center; justify-content: space-between; gap: var(--s-2); padding: var(--s-3) var(--s-4); border-bottom: 1px solid var(--line); }
+  .fb-nc__head .seg { padding: 0; margin: 0; }
+  .fb-nc__row { align-items: flex-start; }
+  .fb-nc__row .row__lead { width: 40px; height: 40px; object-fit: contain; }
+  .fb-nc__row .row__title, .fb-nc__row .row__meta { display: block; }
+  .fb-nc__row .row__trail { align-self: center; }
+  .fb-nc__row .fb-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--action); }
+  .fb-nc__row[data-unread="false"] .fb-dot { background: transparent; }
+  .fb-nc__row[data-unread="false"] .row__title { font-weight: 400; color: var(--ink-2); }
+  .fb-nc__list { max-height: 292px; overflow-y: auto; }
+  .fb-nc__none { padding: var(--s-6); text-align: center; color: var(--ink-3); font-size: var(--fs-sm); }
+
+  /* 悬浮说明 */
+  .fb-tips { display: grid; grid-template-columns: repeat(6, auto); justify-content: center; gap: var(--s-3); }
+  .fb-tips .ibtn { width: 48px; height: 48px; border-radius: var(--r-md); background: var(--surface); box-shadow: inset 0 0 0 1px var(--line-strong); }
+  .fb-tips .ibtn img { width: 24px; height: 24px; }
+  .fb-def { display: inline-flex; align-items: center; gap: var(--s-2); font-size: var(--fs-md); font-weight: 600; text-decoration: underline dotted var(--ink-3); text-underline-offset: 5px; cursor: help; }
+  .fb-defrow { display: flex; align-items: center; justify-content: center; gap: var(--s-8); flex-wrap: wrap; }
+  .fb-defrow b { font-size: var(--fs-xl); font-variant-numeric: tabular-nums; margin-left: var(--s-2); }
+
+  /* 页内提示条 */
+  .fb-bans { display: grid; }
+  .fb-bw { display: grid; grid-template-rows: 1fr; transition: grid-template-rows var(--dur-base) var(--ease-out), opacity var(--dur-base) var(--ease-out); }
+  .fb-bw > div { overflow: hidden; min-height: 0; }
+  .fb-bw[data-gone] { grid-template-rows: 0fr; opacity: 0; }
+  .fb-ban { margin-bottom: var(--s-2); display: flex; align-items: center; gap: var(--s-3); min-height: 52px; padding: var(--s-2) var(--s-2) var(--s-2) var(--s-4); border-radius: var(--r-md); border-left: 4px solid var(--c); background: var(--bg-t); font-size: var(--fs-sm); }
+  .fb-ban b { flex: none; color: var(--c); font-weight: 700; }
+  .fb-ban span { flex: 1; min-width: 0; color: var(--ink); }
+  .fb-bw:last-child .fb-ban { margin-bottom: 0; }
+  .fb-ban .ibtn { width: 36px; height: 36px; flex: none; }
+  .fb-ban .ibtn img { width: 16px; height: 16px; }
+  .fb-ban[data-tone="success"] { --c: var(--success); --bg-t: var(--success-tint); }
+  .fb-ban[data-tone="warning"] { --c: var(--warning); --bg-t: var(--warning-tint); }
+  .fb-ban[data-tone="danger"] { --c: var(--danger); --bg-t: var(--danger-tint); }
+  .fb-ban[data-tone="info"] { --c: var(--info); --bg-t: var(--info-tint); }
+  @media (max-width: 560px) { .fb-grid3 { grid-template-columns: repeat(2, minmax(0, 1fr)); } .fb-tips { grid-template-columns: repeat(3, auto); } }
+</style>
+
+<article class="demo" data-cid="WB-FEED-001" data-name="成功轻提示" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">成功轻提示</span></div>
+  <p class="demo__note">适合：保存或发货完成后的即时回执</p>
+  <div class="demo__stage">
+    <div class="card fb-card">
+      <div class="fb-sample"><div class="toast" data-tone="success">订单已发货</div></div>
+      <div class="fb-bar fb-bar--center"><button type="button" class="btn btn--primary btn--sm" data-fire="订单已发货" data-tone="success">发货</button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="WB-FEED-002" data-name="失败轻提示" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">失败轻提示</span></div>
+  <p class="demo__note">适合：操作失败后的简短状态，原因留在字段旁</p>
+  <div class="demo__stage">
+    <div class="card fb-card">
+      <div class="fb-sample"><div class="toast" data-tone="danger">保存失败</div></div>
+      <div class="fb-bar fb-bar--center"><button type="button" class="btn btn--outline btn--sm" data-fire="保存失败" data-tone="danger">保存</button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="WB-FEED-003" data-name="普通轻提示" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">普通轻提示</span></div>
+  <p class="demo__note">适合：复制、切换等无结果好坏的中性回执</p>
+  <div class="demo__stage">
+    <div class="card fb-card">
+      <div class="fb-sample"><div class="toast">已复制订单号</div></div>
+      <div class="fb-bar fb-bar--center"><button type="button" class="btn btn--secondary btn--sm" data-fire="已复制订单号" data-tone="neutral">复制订单号</button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="WB-FEED-004" data-name="删除确认框" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">删除确认框</span></div>
+  <p class="demo__note">适合：不可逆操作前的居中确认，删除后可撤销</p>
+  <div class="demo__stage">
+    <div class="card fb-card fb-card--flush">
+      <div class="list fb-rows" id="fb-del">
+        <div class="row" data-n="红玫瑰花束" data-gone="false"><img class="row__lead" src="../../kit/assets/photo/product-rose-red.webp" alt=""><span class="row__main"><span class="row__title">红玫瑰花束</span><span class="row__meta">在售 库存 36 件</span></span><span class="row__trail"><button type="button" class="btn btn--danger-soft btn--sm" data-del>删除</button><span class="fb-gone"><span class="tag">已删除</span><button type="button" class="btn btn--secondary btn--sm" data-undo>撤销</button></span></span></div>
+        <div class="row" data-n="白郁金香" data-gone="false"><img class="row__lead" src="../../kit/assets/photo/product-tulip-white.webp" alt=""><span class="row__main"><span class="row__title">白郁金香</span><span class="row__meta">在售 库存 52 件</span></span><span class="row__trail"><button type="button" class="btn btn--danger-soft btn--sm" data-del>删除</button><span class="fb-gone"><span class="tag">已删除</span><button type="button" class="btn btn--secondary btn--sm" data-undo>撤销</button></span></span></div>
+        <div class="row" data-n="龟背竹盆栽" data-gone="false"><img class="row__lead" src="../../kit/assets/photo/product-monstera.webp" alt=""><span class="row__main"><span class="row__title">龟背竹盆栽</span><span class="row__meta">在售 库存 18 件</span></span><span class="row__trail"><button type="button" class="btn btn--danger-soft btn--sm" data-del>删除</button><span class="fb-gone"><span class="tag">已删除</span><button type="button" class="btn btn--secondary btn--sm" data-undo>撤销</button></span></span></div>
+      </div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="WB-FEED-005" data-name="发布确认框" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">发布确认框</span></div>
+  <p class="demo__note">适合：上架下架等有影响但可恢复的操作</p>
+  <div class="demo__stage">
+    <div class="card fb-card fb-card--flush">
+      <div class="list fb-rows" id="fb-pub">
+        <div class="row" data-n="粉芍药花束" data-on="false"><img class="row__lead" src="../../kit/assets/photo/product-peony-pink.webp" alt=""><span class="row__main"><span class="row__title">粉芍药花束</span><span class="row__meta">¥239 库存 24 件</span></span><span class="row__trail"><span class="tag" data-st>草稿</span><button type="button" class="btn btn--primary btn--sm" data-act>上架</button></span></div>
+        <div class="row" data-n="向日葵花束" data-on="true"><img class="row__lead" src="../../kit/assets/photo/product-sunflower.webp" alt=""><span class="row__main"><span class="row__title">向日葵花束</span><span class="row__meta">¥159 库存 40 件</span></span><span class="row__trail"><span class="tag" data-tone="success" data-st>已上架</span><button type="button" class="btn btn--ghost btn--sm" data-act>下架</button></span></div>
+      </div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="WB-FEED-006" data-name="操作结果页" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">操作结果页</span></div>
+  <p class="demo__note">适合：提交后的独立结果页，成功失败处理中三态</p>
+  <div class="demo__stage">
+    <div class="card fb-card" id="fb-res-card">
+      <div class="seg" data-seg="fb-res" aria-label="结果状态"><button class="seg__item" data-key="ok" aria-selected="true">成功</button><button class="seg__item" data-key="fail">失败</button><button class="seg__item" data-key="wait">处理中</button></div>
+      <div class="fb-res" data-state="ok" role="status" aria-live="polite">
+        <span class="fb-res__ic"><img src="../../kit/assets/line/check.webp" alt=""><span class="fb-spin"></span></span>
+        <h3></h3>
+        <dl class="fb-res__kv"></dl>
+        <div class="btn-group"></div>
+      </div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="WB-FEED-007" data-name="卡片空态" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">卡片空态</span></div>
+  <p class="demo__note">适合：整块内容暂无数据，只留一个刷新动作</p>
+  <div class="demo__stage">
+    <div class="card fb-card">
+      <div class="fb-empty">
+        <img data-ic="cart" src="../../kit/assets/icons/flat/cart.webp" alt="">
+        <p>暂无订单</p>
+        <button type="button" class="btn btn--secondary btn--sm" id="fb-refresh">刷新</button>
+      </div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="WB-FEED-008" data-name="表格空态" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">表格空态</span></div>
+  <p class="demo__note">适合：筛选后表格无行，保留表头与筛选</p>
+  <div class="demo__stage">
+    <div class="card fb-card fb-card--flush fb-tbl">
+      <div class="fb-tabs"><div class="seg" data-seg="fb-te" aria-label="商品状态"><button class="seg__item" data-key="on" aria-selected="true">在售<small>3</small></button><button class="seg__item" data-key="off">已下架<small>0</small></button></div></div>
+      <div class="table-wrap"><table class="table">
+        <colgroup><col style="width:40%"><col style="width:20%"><col style="width:20%"><col style="width:20%"></colgroup>
+        <thead><tr><th class="t-l">商品</th><th class="t-r">价格 元</th><th class="t-r">库存 件</th><th>状态</th></tr></thead>
+        <tbody></tbody>
+      </table></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="WB-FEED-009" data-name="无结果空态" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">无结果空态</span></div>
+  <p class="demo__note">适合：搜索无匹配时保留输入，一键清空</p>
+  <div class="demo__stage">
+    <div class="card fb-card fb-srch">
+      <label class="search"><img src="../../kit/assets/line/search.webp" alt=""><input type="search" id="fb-q" placeholder="搜索商品" aria-label="搜索商品" autocomplete="off"><button type="button" class="ibtn" id="fb-qx" data-tip="清空" aria-label="清空搜索" hidden><img src="../../kit/assets/line/close.webp" alt=""></button></label>
+      <div class="card list fb-plist" id="fb-plist" style="box-shadow:none"></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="WB-FEED-010" data-name="无权限空态" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">无权限空态</span></div>
+  <p class="demo__note">适合：角色无权查看时的整页占位，可发起申请</p>
+  <div class="demo__stage">
+    <div class="card fb-card">
+      <div class="fb-empty">
+        <img data-ic="wallet" src="../../kit/assets/icons/flat/wallet.webp" alt="">
+        <p>暂无查看权限</p>
+        <span class="tag" data-tone="warning">财务报表仅店长可看</span>
+        <button type="button" class="btn btn--primary btn--sm" id="fb-apply">申请权限</button>
+      </div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="WB-FEED-011" data-name="加载失败重试" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">加载失败重试</span></div>
+  <p class="demo__note">适合：接口失败后原位重试，成功后换回内容</p>
+  <div class="demo__stage">
+    <div class="card fb-card" id="fb-err">
+      <div class="fb-empty" data-fb="fail" role="alert">
+        <img src="../../kit/assets/solid/biz-system.webp" alt="">
+        <p>数据加载失败</p>
+        <span class="tag" data-tone="danger" data-tries>已重试 0 次</span>
+        <button type="button" class="btn btn--primary btn--sm" data-retry>重试</button>
+      </div>
+      <div data-fb="ok" hidden>
+        <div class="card list fb-rows" style="box-shadow:none">
+          <div class="fb-kv"><span>营业额 元</span><b>178,880</b></div>
+          <div class="fb-kv"><span>订单量 单</span><b>1,342</b></div>
+          <div class="fb-kv"><span>客单价 元</span><b>133</b></div>
+        </div>
+        <div class="fb-bar fb-bar--end" style="margin-top:var(--s-3)"><button type="button" class="btn btn--text btn--sm" data-reset>重新加载</button></div>
+      </div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="WB-FEED-012" data-name="骨架卡片" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">骨架卡片</span></div>
+  <p class="demo__note">适合：卡片网格加载时保持占位尺寸</p>
+  <div class="demo__stage">
+    <div class="fb-card fb-card--bare" id="fb-skc">
+      <div class="fb-grid3" aria-busy="false"></div>
+      <div class="fb-bar fb-bar--end"><button type="button" class="btn btn--secondary btn--sm" data-reload>重新加载</button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="WB-FEED-013" data-name="骨架表格" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">骨架表格</span></div>
+  <p class="demo__note">适合：表格首次加载，行数与列宽先占位</p>
+  <div class="demo__stage">
+    <div class="card fb-card fb-card--flush fb-tbl" id="fb-skt">
+      <div class="table-wrap"><table class="table" aria-busy="false">
+        <colgroup><col style="width:24%"><col style="width:28%"><col style="width:24%"><col style="width:24%"></colgroup>
+        <thead><tr><th>订单号</th><th class="t-l">客户</th><th class="t-r">金额 元</th><th>状态</th></tr></thead>
+        <tbody></tbody>
+      </table></div>
+      <div class="fb-bar fb-bar--end" style="padding:var(--s-3) var(--s-4);border-top:1px solid var(--line)"><button type="button" class="btn btn--secondary btn--sm" data-reload>重新加载</button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="WB-FEED-014" data-name="加载中遮罩" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">加载中遮罩</span></div>
+  <p class="demo__note">适合：局部刷新时盖住原内容并保持布局</p>
+  <div class="demo__stage">
+    <div class="card fb-card">
+      <div class="fb-busy" id="fb-busy" data-busy="false">
+        <div class="card list fb-busy__body" style="box-shadow:none">
+          <div class="fb-kv"><span>营业额 元</span><b data-v="0">178,880</b></div>
+          <div class="fb-kv"><span>订单量 单</span><b data-v="1">1,342</b></div>
+          <div class="fb-kv"><span>新增会员 人</span><b data-v="2">342</b></div>
+        </div>
+        <div class="fb-busy__veil" role="status" aria-live="polite"><span class="fb-spin"></span><span>加载中</span></div>
+      </div>
+      <div class="fb-bar fb-bar--end"><button type="button" class="btn btn--secondary btn--sm" data-go>刷新数据</button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="WB-FEED-015" data-name="上传进度条" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">上传进度条</span></div>
+  <p class="demo__note">适合：文件导入导出的实时进度，可中途取消</p>
+  <div class="demo__stage">
+    <div class="card fb-card" id="fb-up">
+      <div class="fb-ups">
+        <div class="fb-up" data-state="wait"><div class="fb-up__top"><span class="fb-up__name"><img src="../../kit/assets/solid/solid-content.webp" alt=""><span class="row__title">商品图片 18 张</span></span><span class="tag" data-s>等待中</span></div><div class="progress" role="progressbar" aria-label="商品图片上传进度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i style="--v:0%"></i></div><div class="fb-up__bot"><span data-pct>0%</span><span data-sz>0 张</span></div></div>
+        <div class="fb-up" data-state="wait"><div class="fb-up__top"><span class="fb-up__name"><img src="../../kit/assets/solid/bill.webp" alt=""><span class="row__title">订单明细表</span></span><span class="tag" data-s>等待中</span></div><div class="progress" role="progressbar" aria-label="订单明细表上传进度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i style="--v:0%"></i></div><div class="fb-up__bot"><span data-pct>0%</span><span data-sz>0 条</span></div></div>
+      </div>
+      <div class="fb-bar fb-bar--end"><button type="button" class="btn btn--primary btn--sm" data-go>开始上传</button><button type="button" class="btn btn--ghost btn--sm" data-stop disabled>取消</button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="WB-FEED-016" data-name="行内保存状态" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">行内保存状态</span></div>
+  <p class="demo__note">适合：开关与单字段原位修改，保存中失败可重试</p>
+  <div class="demo__stage">
+    <div class="card fb-card fb-card--flush">
+      <div class="list fb-rows" id="fb-save">
+        <div class="row fb-save" data-n="红玫瑰花束"><img class="row__lead" src="../../kit/assets/photo/product-rose-red.webp" alt=""><span class="row__main"><span class="row__title">红玫瑰花束</span><span class="row__meta" data-meta>已上架</span></span><span class="row__trail"><span class="fb-saving" hidden><span class="fb-spin fb-spin--sm"></span>保存中</span><button type="button" class="btn btn--text btn--xs" data-retry hidden>重试</button><button type="button" class="switch" role="switch" aria-checked="true" aria-label="上架红玫瑰花束"></button></span></div>
+        <div class="row fb-save" data-n="多肉组合盆"><img class="row__lead" src="../../kit/assets/photo/product-succulent.webp" alt=""><span class="row__main"><span class="row__title">多肉组合盆</span><span class="row__meta" data-meta>已上架</span></span><span class="row__trail"><span class="fb-saving" hidden><span class="fb-spin fb-spin--sm"></span>保存中</span><button type="button" class="btn btn--text btn--xs" data-retry hidden>重试</button><button type="button" class="switch" role="switch" aria-checked="true" aria-label="上架多肉组合盆"></button></span></div>
+        <div class="row fb-save" data-n="花礼盒" data-fail="1"><img class="row__lead" src="../../kit/assets/photo/product-giftbox.webp" alt=""><span class="row__main"><span class="row__title">花礼盒</span><span class="row__meta" data-meta>已上架</span></span><span class="row__trail"><span class="fb-saving" hidden><span class="fb-spin fb-spin--sm"></span>保存中</span><button type="button" class="btn btn--text btn--xs" data-retry hidden>重试</button><button type="button" class="switch" role="switch" aria-checked="true" aria-label="上架花礼盒"></button></span></div>
+      </div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="WB-FEED-017" data-name="订单状态标签" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">订单状态标签</span></div>
+  <p class="demo__note">适合：订单全流程的状态，同状态跨页同色并带文字</p>
+  <div class="demo__stage">
+    <div class="card fb-card">
+      <div class="fb-legend" aria-label="订单状态一览"><span class="tag" data-tone="warning">待付款</span><span class="tag" data-tone="action">待发货</span><span class="tag" data-tone="info">待收货</span><span class="tag" data-tone="success">已完成</span><span class="tag" data-tone="danger">售后</span></div>
+      <div class="card list fb-rows" id="fb-ord" style="box-shadow:none"></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="WB-FEED-018" data-name="红点角标" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">红点角标</span></div>
+  <p class="demo__note">适合：入口上的未读提醒，圆点、数字、文字三种</p>
+  <div class="demo__stage">
+    <div class="card fb-card" id="fb-ibs">
+      <div class="fb-ibs">
+        <button type="button" class="fb-ib" data-k="msg" data-tip="消息" aria-label="消息"><img src="../../kit/assets/line/message.webp" alt=""><span class="fb-bdg"></span></button>
+        <button type="button" class="fb-ib" data-k="ord" data-tip="订单" aria-label="订单"><img src="../../kit/assets/line/archive.webp" alt=""><span class="fb-bdg" data-dot></span></button>
+        <button type="button" class="fb-ib" data-k="cus" data-tip="客户" aria-label="客户"><img src="../../kit/assets/line/people.webp" alt=""><span class="fb-bdg"></span></button>
+        <button type="button" class="fb-ib" data-k="set" data-tip="设置" aria-label="设置"><img src="../../kit/assets/line/settings.webp" alt=""><span class="fb-bdg" data-tone="accent"></span></button>
+      </div>
+      <div class="fb-bar fb-bar--center"><button type="button" class="btn btn--secondary btn--sm" data-add>新增一条消息</button><button type="button" class="btn btn--ghost btn--sm" data-clear>全部已读</button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="WB-FEED-019" data-name="通知中心" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">通知中心</span></div>
+  <p class="demo__note">适合：顶部入口展开的通知面板，逐条已读</p>
+  <div class="demo__stage">
+    <div class="card fb-card">
+      <div class="fb-nc" id="fb-nc" data-open="true">
+        <div class="fb-nc__bar">
+          <span class="fb-nc__t">订单管理</span>
+          <button type="button" class="ibtn fb-ib" data-tip="通知" aria-label="通知" aria-haspopup="dialog" aria-expanded="true" aria-controls="fb-nc-panel" data-trigger><img src="../../kit/assets/line/message.webp" alt=""><span class="fb-bdg" data-n></span></button>
+        </div>
+        <div class="card fb-nc__panel" id="fb-nc-panel" role="dialog" aria-label="通知中心">
+          <div class="fb-nc__head"><div class="seg" data-seg="fb-nc" aria-label="通知范围"><button class="seg__item" data-key="all" aria-selected="true">全部</button><button class="seg__item" data-key="unread">未读</button></div><button type="button" class="btn btn--text btn--sm" data-all>全部已读</button></div>
+          <div class="fb-nc__list list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="WB-FEED-020" data-name="悬浮说明" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">悬浮说明</span></div>
+  <p class="demo__note">适合：纯图标按钮的功能名与指标口径，悬停与聚焦均出现</p>
+  <div class="demo__stage">
+    <div class="card fb-card">
+      <div class="fb-tips" role="toolbar" aria-label="常用操作">
+        <button type="button" class="ibtn" data-tip="编辑" aria-label="编辑"><img src="../../kit/assets/line/edit.webp" alt=""></button>
+        <button type="button" class="ibtn" data-tip="筛选" aria-label="筛选"><img src="../../kit/assets/line/filter.webp" alt=""></button>
+        <button type="button" class="ibtn" data-tip="设置" aria-label="设置"><img src="../../kit/assets/line/settings.webp" alt=""></button>
+        <button type="button" class="ibtn" data-tip="撤销" aria-label="撤销"><img src="../../kit/assets/line/undo.webp" alt=""></button>
+        <button type="button" class="ibtn" data-tip="扫码" aria-label="扫码"><img src="../../kit/assets/line/scan.webp" alt=""></button>
+        <button type="button" class="ibtn" data-tip="上传" aria-label="上传"><img src="../../kit/assets/line/upload.webp" alt=""></button>
+      </div>
+      <div class="fb-defrow">
+        <span><span class="fb-def" tabindex="0" data-tip="已支付订单实付金额 不含退款">营业额</span><b>178,880</b></span>
+        <span><span class="fb-def" tabindex="0" data-tip="营业额除以订单量">客单价</span><b>133</b></span>
+      </div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="WB-FEED-021" data-name="页内提示条" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">页内提示条</span></div>
+  <p class="demo__note">适合：页面顶部的持续提醒，四种语义可关闭</p>
+  <div class="demo__stage">
+    <div class="card fb-card" id="fb-ban">
+      <div class="fb-bans">
+        <div class="fb-bw"><div><div class="fb-ban" data-tone="success" role="status"><b>成功</b><span>三家门店库存已同步</span><button type="button" class="ibtn" data-close data-tip="关闭" aria-label="关闭提示"><img src="../../kit/assets/line/close.webp" alt=""></button></div></div></div>
+        <div class="fb-bw"><div><div class="fb-ban" data-tone="info" role="status"><b>通知</b><span>新版经营报表已上线</span><button type="button" class="ibtn" data-close data-tip="关闭" aria-label="关闭提示"><img src="../../kit/assets/line/close.webp" alt=""></button></div></div></div>
+        <div class="fb-bw"><div><div class="fb-ban" data-tone="warning" role="alert"><b>警告</b><span>红玫瑰花束库存低于 10 件</span><button type="button" class="ibtn" data-close data-tip="关闭" aria-label="关闭提示"><img src="../../kit/assets/line/close.webp" alt=""></button></div></div></div>
+        <div class="fb-bw"><div><div class="fb-ban" data-tone="danger" role="alert"><b>错误</b><span>支付渠道连接失败</span><button type="button" class="ibtn" data-close data-tip="关闭" aria-label="关闭提示"><img src="../../kit/assets/line/close.webp" alt=""></button></div></div></div>
+      </div>
+      <div class="fb-bar fb-bar--end"><button type="button" class="btn btn--text btn--sm" data-restore>恢复全部</button></div>
+    </div>
+  </div>
+</article>
+
+<script>
+(() => {
+  const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const demo = id => document.querySelector(`[data-cid="${id}"]`);
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  const num = n => n.toLocaleString('zh-CN');
+  const A = '../../kit/assets';
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+  /* 001 至 003 轻提示：样张加真实触发 */
+  ['WB-FEED-001', 'WB-FEED-002', 'WB-FEED-003'].forEach(id => { const b = $('[data-fire]', demo(id)); b.addEventListener('click', () => Lz.toast(b.dataset.fire, b.dataset.tone)); });
+
+  /* 004 删除确认：居中框、无输入，确认后行内撤销 */
+  (() => {
+    const box = $('#fb-del');
+    box.addEventListener('click', async e => {
+      const del = e.target.closest('[data-del]'), un = e.target.closest('[data-undo]');
+      if (del) { const r = del.closest('.row'); const ok = await Lz.confirm({ title: '删除' + r.dataset.n, ok: '删除', cancel: '取消', tone: 'danger' }); if (ok) { r.dataset.gone = 'true'; Lz.toast('已删除', 'success'); $('[data-undo]', r).focus(); } else Lz.toast('已取消'); }
+      else if (un) { const r = un.closest('.row'); r.dataset.gone = 'false'; Lz.toast('已撤销', 'success'); $('[data-del]', r).focus(); }
+    });
+  })();
+
+  /* 005 发布确认：上架与下架共用主题色确认框 */
+  (() => {
+    const box = $('#fb-pub');
+    box.addEventListener('click', async e => {
+      const b = e.target.closest('[data-act]'); if (!b) return; const r = b.closest('.row'), on = r.dataset.on === 'true';
+      const ok = await Lz.confirm({ title: (on ? '下架' : '上架') + r.dataset.n, ok: on ? '下架' : '上架', cancel: '取消', tone: 'primary' });
+      if (!ok) return; r.dataset.on = String(!on);
+      const st = $('[data-st]', r); st.textContent = on ? '已下架' : '已上架'; st.dataset.tone = on ? '' : 'success'; if (on) st.removeAttribute('data-tone');
+      b.textContent = on ? '上架' : '下架'; b.className = 'btn btn--sm ' + (on ? 'btn--primary' : 'btn--ghost');
+      Lz.toast(on ? '已下架' : '已上架', 'success'); b.focus();
+    });
+  })();
+
+  /* 006 结果页：三态切换，处理中自动落到成功 */
+  (() => {
+    const card = $('#fb-res-card'), res = $('.fb-res', card); let timer = 0;
+    const S = {
+      ok: { t: '订单已提交', kv: [['订单号', '10382'], ['金额', '¥199.00'], ['门店', '建国路店']], b: [['查看订单', 'primary', '正在打开订单'], ['继续开单', 'ghost', '已清空开单页']] },
+      fail: { t: '订单提交失败', kv: [['订单号', '未生成'], ['失败原因', '库存不足'], ['门店', '建国路店']], b: [['重新提交', 'primary', 'wait'], ['返回修改', 'ghost', '已回到开单页']] },
+      wait: { t: '订单提交中', kv: [['订单号', '待生成'], ['金额', '¥199.00'], ['门店', '建国路店']], b: [['取消', 'ghost', '已取消提交']] },
+    };
+    const show = k => {
+      clearTimeout(timer); const s = S[k]; res.dataset.state = k; $('h3', res).textContent = s.t;
+      $('.fb-res__ic img', res).src = A + (k === 'fail' ? '/line/close.webp' : '/line/check.webp');
+      $('dl', res).innerHTML = s.kv.map(([a, b]) => `<dt>${a}</dt><dd>${b}</dd>`).join('');
+      $('.btn-group', res).innerHTML = s.b.map(([t, c, m]) => `<button type="button" class="btn btn--${c}" data-m="${m}">${t}</button>`).join('');
+      res.classList.remove('is-in'); void res.offsetWidth; res.classList.add('is-in');
+      $$('.seg__item', card).forEach(b => b.setAttribute('aria-selected', String(b.dataset.key === k)));
+      if (k === 'wait') timer = setTimeout(() => show('ok'), 1800);
+    };
+    document.addEventListener('lz:seg', e => { if (e.detail.group === 'fb-res') show(e.detail.key); });
+    $('.btn-group', res).addEventListener('click', e => { const b = e.target.closest('[data-m]'); if (!b) return; if (b.dataset.m === 'wait') show('wait'); else Lz.toast(b.dataset.m, b.dataset.m.startsWith('已取消') ? 'neutral' : 'success'); });
+  })();
+
+  /* 007 卡片空态：刷新带加载态 */
+  (() => { const b = $('#fb-refresh'); b.addEventListener('click', async () => { b.classList.add('is-loading'); await sleep(900); b.classList.remove('is-loading'); Lz.toast('已是最新'); }); })();
+
+  /* 008 表格空态：已下架没有行，显示 3D 图标 */
+  (() => {
+    const body = $('tbody', demo('WB-FEED-008'));
+    const D = [['粉芍药花束', 'product-peony-pink', 239, 24], ['白郁金香', 'product-tulip-white', 179, 52], ['龟背竹盆栽', 'product-monstera', 159, 18]];
+    const render = k => { body.innerHTML = k === 'on' ? D.map(d => `<tr><td class="t-l"><span class="who"><img src="${A}/photo/${d[1]}.webp" alt="" style="border-radius:var(--r-sm)"><span class="one-line">${d[0]}</span></span></td><td class="t-r">${d[2]}</td><td class="t-r">${d[3]}</td><td><span class="tag" data-tone="success">在售</span></td></tr>`).join('') : `<tr><td class="fb-none" colspan="4"><div class="fb-empty fb-empty--sm"><img data-ic="bouquet" src="${A}/icons/${Lz.iconSet()}/bouquet.webp" alt=""><p>暂无下架商品</p></div></td></tr>`; };
+    document.addEventListener('lz:seg', e => { if (e.detail.group === 'fb-te') render(e.detail.key); });
+  })();
+
+  /* 009 无结果：实时过滤，无匹配显示空态与清空 */
+  (() => {
+    const q = $('#fb-q'), x = $('#fb-qx'), box = $('#fb-plist');
+    const P = [['红玫瑰花束', 'product-rose-red', 199], ['粉芍药花束', 'product-peony-pink', 239], ['向日葵花束', 'product-sunflower', 159], ['白郁金香', 'product-tulip-white', 179], ['蓝绣球盆栽', 'product-hydrangea-blue', 129], ['龟背竹盆栽', 'product-monstera', 159]];
+    const render = () => {
+      const k = q.value.trim(); x.hidden = !k; const r = P.filter(p => p[0].includes(k));
+      box.innerHTML = r.length ? r.map(p => `<div class="row"><img class="row__lead" src="${A}/photo/${p[1]}.webp" alt=""><span class="row__main"><span class="row__title">${k ? p[0].replace(k, m => `<mark>${esc(m)}</mark>`) : p[0]}</span></span><span class="row__trail"><span class="price"><small>¥</small>${p[2]}</span></span></div>`).join('') : `<div class="fb-empty fb-empty--sm" role="status"><img data-ic="vase" src="${A}/icons/${Lz.iconSet()}/vase.webp" alt=""><p>无匹配商品</p><button type="button" class="btn btn--secondary btn--sm" data-clear>清空搜索</button></div>`;
+    };
+    q.addEventListener('input', render); x.addEventListener('click', () => { q.value = ''; render(); q.focus(); });
+    box.addEventListener('click', e => { if (e.target.closest('[data-clear]')) { q.value = ''; render(); q.focus(); } });
+    render();
+  })();
+
+  /* 010 无权限：申请后按钮转为已提交 */
+  (() => { const b = $('#fb-apply'); b.addEventListener('click', async () => { b.classList.add('is-loading'); await sleep(800); b.classList.remove('is-loading'); b.disabled = true; b.textContent = '已提交申请'; Lz.toast('申请已提交', 'success'); }); })();
+
+  /* 011 加载失败重试：前两次仍失败，第三次成功 */
+  (() => {
+    const card = $('#fb-err'), fail = $('[data-fb="fail"]', card), ok = $('[data-fb="ok"]', card), btn = $('[data-retry]', card), tries = $('[data-tries]', card); let n = 0;
+    btn.addEventListener('click', async () => {
+      btn.classList.add('is-loading'); await sleep(1000); btn.classList.remove('is-loading'); n++;
+      if (n < 3) { tries.textContent = `已重试 ${n} 次`; Lz.toast('仍然失败', 'danger'); }
+      else { fail.hidden = true; ok.hidden = false; Lz.toast('已加载', 'success'); $('[data-reset]', card).focus(); }
+    });
+    $('[data-reset]', card).addEventListener('click', () => { n = 0; tries.textContent = '已重试 0 次'; ok.hidden = true; fail.hidden = false; btn.focus(); });
+  })();
+
+  /* 012 骨架卡 */
+  (() => {
+    const root = $('#fb-skc'), grid = $('.fb-grid3', root), btn = $('[data-reload]', root);
+    const P = [['红玫瑰花束', 'product-rose-red', 199, '热卖'], ['粉芍药花束', 'product-peony-pink', 239, '新品'], ['向日葵花束', 'product-sunflower', 159, '']];
+    const real = () => P.map((p, i) => `<div class="fb-pc" style="--i:${i}"><img src="${A}/photo/${p[1]}.webp" alt=""><span class="fb-pc__n">${p[0]}</span><span class="fb-pc__f"><span class="price"><small>¥</small>${p[2]}</span>${p[3] ? `<span class="tag" data-tone="${p[3] === '热卖' ? 'price' : 'action'}">${p[3]}</span>` : ''}</span></div>`).join('');
+    const sk = () => [0, 1, 2].map(() => '<div class="fb-pc" aria-hidden="true"><div class="skel"></div><span class="skel" style="height:16px;width:70%"></span><span class="skel" style="height:16px;width:44%"></span></div>').join('');
+    const load = async () => { grid.setAttribute('aria-busy', 'true'); grid.innerHTML = sk(); btn.disabled = true; await sleep(1400); grid.innerHTML = real(); grid.setAttribute('aria-busy', 'false'); btn.disabled = false; };
+    grid.innerHTML = real(); btn.addEventListener('click', load);
+    const io = new IntersectionObserver(es => { if (es[0].isIntersecting) { io.disconnect(); load(); } }, { threshold: .6 }); io.observe(grid);
+  })();
+
+  /* 013 骨架表 */
+  (() => {
+    const root = $('#fb-skt'), body = $('tbody', root), tb = $('table', root), btn = $('[data-reload]', root);
+    const R = [['10382', '林晓', '199.00', '待发货', 'action'], ['10517', '陈默', '239.00', '待收货', 'info'], ['10890', '周岚', '159.00', '已完成', 'success'], ['10921', '吴桐', '179.00', '待付款', 'warning']];
+    const real = () => R.map(r => `<tr><td>${r[0]}</td><td class="t-l">${r[1]}</td><td class="t-r">${r[2]}</td><td><span class="tag" data-tone="${r[4]}">${r[3]}</span></td></tr>`).join('');
+    const sk = () => R.map(() => '<tr aria-hidden="true"><td><span class="skel" style="width:60%"></span></td><td><span class="skel" style="width:46%;margin-left:var(--s-5)"></span></td><td><span class="skel" style="width:50%;margin-left:auto"></span></td><td><span class="skel" style="width:56px;height:22px;border-radius:7px"></span></td></tr>').join('');
+    const load = async () => { tb.setAttribute('aria-busy', 'true'); body.innerHTML = sk(); btn.disabled = true; await sleep(1400); body.innerHTML = real(); tb.setAttribute('aria-busy', 'false'); btn.disabled = false; };
+    body.innerHTML = real(); btn.addEventListener('click', load);
+  })();
+
+  /* 014 加载中遮罩：数值在遮罩下更新 */
+  (() => {
+    const root = $('#fb-busy'), btn = $('[data-go]', demo('WB-FEED-014')); let k = 0;
+    const V = [['178,880', '1,342', '342'], ['179,260', '1,347', '344'], ['180,114', '1,355', '347']];
+    btn.addEventListener('click', async () => { root.dataset.busy = 'true'; btn.disabled = true; await sleep(1300); k = (k + 1) % V.length; $$('[data-v]', root).forEach(b => { b.textContent = V[k][+b.dataset.v]; }); root.dataset.busy = 'false'; btn.disabled = false; Lz.toast('已刷新', 'success'); });
+  })();
+
+  /* 015 上传进度：两个文件各自推进，可取消 */
+  (() => {
+    const root = $('#fb-up'), ups = $$('.fb-up', root), go = $('[data-go]', root), stop = $('[data-stop]', root);
+    const TOT = [18, 326], UN = ['张', '条']; let t = null;
+    const set = (u, i, n) => { u.v = n; u.querySelector('.progress > i').style.setProperty('--v', n + '%'); u.querySelector('.progress').setAttribute('aria-valuenow', n); $('[data-pct]', u).textContent = n + '%'; $('[data-sz]', u).textContent = `${Math.round(TOT[i] * n / 100)} / ${TOT[i]} ${UN[i]}`; };
+    const state = (u, s, txt, tone) => { u.dataset.state = s; const g = $('[data-s]', u); g.textContent = txt; if (tone) g.dataset.tone = tone; else g.removeAttribute('data-tone'); };
+    const end = () => { clearInterval(t); t = null; go.disabled = false; stop.disabled = true; };
+    ups.forEach((u, i) => { set(u, i, 0); });
+    go.addEventListener('click', () => { ups.forEach((u, i) => { set(u, i, 0); u.speed = 3 + i * 4; state(u, 'run', '上传中', 'action'); }); go.disabled = true; stop.disabled = false;
+      t = setInterval(() => { ups.forEach((u, i) => { if (u.v >= 100) return; const n = Math.min(100, u.v + u.speed + (u.v % 3)); set(u, i, n); if (n >= 100) state(u, 'done', '已完成', 'success'); }); if (ups.every(u => u.v >= 100)) { end(); go.textContent = '重新上传'; Lz.toast('上传完成', 'success'); } }, 120); });
+    stop.addEventListener('click', () => { end(); ups.forEach((u, i) => { if (u.v < 100) state(u, 'stop', '已取消'); }); Lz.toast('已取消上传'); });
+  })();
+
+  /* 016 行内保存：保存中禁用开关，第三项首次失败后回滚并可重试 */
+  (() => {
+    const box = $('#fb-save');
+    const run = async (row, sw, on) => {
+      const sv = $('.fb-saving', row), rt = $('[data-retry]', row), meta = $('[data-meta]', row);
+      sv.hidden = false; rt.hidden = true; sw.setAttribute('aria-disabled', 'true'); meta.textContent = on ? '正在上架' : '正在下架'; meta.removeAttribute('data-tone');
+      await sleep(900); sv.hidden = true; sw.removeAttribute('aria-disabled');
+      if (row.dataset.fail === '1') { row.dataset.fail = '0'; sw.setAttribute('aria-checked', String(!on)); meta.textContent = '保存失败'; meta.dataset.tone = 'danger'; rt.hidden = false; row.dataset.want = String(on); Lz.toast('保存失败', 'danger'); return; }
+      meta.textContent = on ? '已上架' : '已下架'; Lz.toast('已保存', 'success');
+    };
+    document.addEventListener('lz:toggle', e => { const sw = e.target.closest && e.target.closest('#fb-save [role="switch"]'); if (!sw) return; run(sw.closest('.fb-save'), sw, sw.getAttribute('aria-checked') === 'true'); });
+    box.addEventListener('click', e => { const r = e.target.closest('[data-retry]'); if (!r) return; const row = r.closest('.fb-save'), sw = $('[role="switch"]', row), on = row.dataset.want === 'true'; sw.setAttribute('aria-checked', String(on)); run(row, sw, on); });
+  })();
+
+  /* 017 订单状态：按业务动词推进，售后为终态 */
+  (() => {
+    const box = $('#fb-ord');
+    const ST = [['待付款', 'warning', '确认收款', 'primary'], ['待发货', 'action', '发货', 'primary'], ['待收货', 'info', '确认送达', 'primary'], ['已完成', 'success', '申请售后', 'ghost'], ['售后', 'danger', '', '']];
+    const O = [['10382', '林晓', 'mark-001', 199, 1], ['10517', '陈默', 'mark-002', 239, 2], ['10921', '周岚', 'mark-003', 159, 0]];
+    const paint = row => { const s = ST[+row.dataset.st], tag = $('.tag', row), b = $('.btn', row); tag.textContent = s[0]; tag.dataset.tone = s[1]; b.hidden = !s[2]; if (s[2]) { b.textContent = s[2]; b.className = 'btn btn--sm btn--' + s[3]; } };
+    box.innerHTML = O.map(o => `<div class="fb-ord" tabindex="-1" data-st="${o[4]}"><img src="${A}/marks/${o[2]}.webp" alt=""><span class="fb-ord__m"><span class="row__title" style="display:block">订单 ${o[0]}</span><span class="row__meta" style="display:block">${o[1]} <span class="price" style="font-weight:400"><small>¥</small>${o[3]}</span></span></span><span class="tag"></span><button type="button" class="btn btn--sm"></button></div>`).join('');
+    $$('.fb-ord', box).forEach(paint);
+    box.addEventListener('click', e => { const b = e.target.closest('.btn'); if (!b) return; const r = b.closest('.fb-ord'), n = +r.dataset.st; r.dataset.st = Math.min(4, n + 1); paint(r); Lz.toast(n === 3 ? '已申请售后' : '状态已更新', 'success'); (b.hidden ? r : b).focus({ preventScroll: true }); });
+  })();
+
+  /* 018 红点角标：圆点、数字、九十九加、文字 */
+  (() => {
+    const root = $('#fb-ibs'), S = { msg: 3, ord: 'dot', cus: 128, set: '新' };
+    const paint = (el, v) => { const b = $('.fb-bdg', el); if (v === 0 || v === '') { b.hidden = true; return; } b.hidden = false; if (v === 'dot') { b.setAttribute('data-dot', ''); b.textContent = ''; } else { b.removeAttribute('data-dot'); b.textContent = typeof v === 'number' && v > 99 ? '99+' : v; } };
+    const pop = el => { const b = $('.fb-bdg', el); b.classList.remove('is-pop'); void b.offsetWidth; b.classList.add('is-pop'); };
+    $$('.fb-ib', root).forEach(el => { paint(el, S[el.dataset.k]); el.addEventListener('click', () => { S[el.dataset.k] = 0; paint(el, 0); }); });
+    $('[data-add]', root).addEventListener('click', () => { const el = $('[data-k="msg"]', root); S.msg = (typeof S.msg === 'number' ? S.msg : 0) + 1; paint(el, S.msg); pop(el); });
+    $('[data-clear]', root).addEventListener('click', () => { $$('.fb-ib', root).forEach(el => { S[el.dataset.k] = 0; paint(el, 0); }); });
+  })();
+
+  /* 019 通知中心：面板内逐条已读，Escape 与点外部关闭并回到触发器 */
+  (() => {
+    const root = $('#fb-nc'), panel = $('#fb-nc-panel'), trig = $('[data-trigger]', root), list = $('.fb-nc__list', root), badge = $('[data-n]', root); let filter = 'all';
+    const N = [['solid/biz-store', '新订单待发货', '建国路店 刚刚', true], ['solid/bill', '本周报表已生成', '昨天', true], ['solid/biz-review', '收到一条售后申请', '徐汇滨江店 昨天', true], ['solid/solid-tasks', '红玫瑰花束库存不足', '浦东世纪店 昨天', false]];
+    const unread = () => N.filter(n => n[3]).length;
+    const render = () => {
+      const rows = N.map((n, i) => ({ n, i })).filter(x => filter === 'all' || x.n[3]);
+      list.innerHTML = rows.length ? rows.map(({ n, i }) => `<button type="button" class="row fb-nc__row" data-i="${i}" data-unread="${n[3]}"><img class="row__lead" src="${A}/${n[0]}.webp" alt=""><span class="row__main"><span class="row__title">${n[1]}</span><span class="row__meta">${n[2]}</span></span><span class="row__trail"><i class="fb-dot"></i></span></button>`).join('') : '<p class="fb-nc__none">没有未读通知</p>';
+      const u = unread(); badge.hidden = !u; badge.textContent = u; trig.setAttribute('aria-label', u ? `通知 ${u} 条未读` : '通知');
+      $('[data-all]', root).disabled = !u;
+    };
+    let touched = false;
+    const open = o => { panel.hidden = !o; root.dataset.open = String(o); trig.setAttribute('aria-expanded', String(o)); if (o) { panel.style.animation = 'none'; void panel.offsetWidth; panel.style.animation = ''; } };
+    trig.addEventListener('click', e => { e.stopPropagation(); touched = true; open(panel.hidden); });
+    document.addEventListener('lz:seg', e => { if (e.detail.group === 'fb-nc') { filter = e.detail.key; render(); } });
+    list.addEventListener('click', e => { const r = e.target.closest('.fb-nc__row'); if (!r) return; N[+r.dataset.i][3] = false; render(); });
+    $('[data-all]', root).addEventListener('click', () => { N.forEach(n => { n[3] = false; }); render(); Lz.toast('已全部标为已读', 'success'); });
+    document.addEventListener('click', e => { if (touched && !panel.hidden && !root.contains(e.target)) open(false); });
+    root.addEventListener('keydown', e => { if (e.key === 'Escape' && !panel.hidden) { open(false); trig.focus(); } });
+    render();
+  })();
+
+  /* 021 页内提示条：逐条关闭，恢复全部 */
+  (() => {
+    const root = $('#fb-ban');
+    root.addEventListener('click', e => { const c = e.target.closest('[data-close]'); if (c) { c.closest('.fb-bw').dataset.gone = ''; $('[data-restore]', root).focus(); } if (e.target.closest('[data-restore]')) $$('.fb-bw', root).forEach(b => b.removeAttribute('data-gone')); });
+  })();
+})();
+</script>
+
+<style>
+  /* 反馈与状态（补充）：居中详情 fb-dg、气泡卡片 fb-pp、可关闭标签 fb-ct、通知卡 fb-nt、计数徽标 fb-cn、状态徽章 fb-ls、公告横幅 fb-bn、悬停预览 fb-hc */
+
+  /* 居中详情弹层：只读内容，关闭靠文字按钮、遮罩与 Esc */
+  .fb-dgl .row { min-height: 64px; }
+  .fb-dgl .avatar { width: 40px; height: 40px; }
+  .fb-dg-mask { position: fixed; inset: 0; z-index: 120; display: grid; place-items: center; padding: var(--s-6); background: var(--scrim); overscroll-behavior: contain; animation: lz-fade var(--dur-base) var(--ease-out) both; }
+  .fb-dg { width: min(640px, 100%); max-height: 100%; overflow: auto; background: var(--surface); border-radius: var(--r-xl); box-shadow: var(--elev-4); color: var(--ink); animation: lz-dialog var(--dur-base) var(--ease-out) both; }
+  .fb-dg:focus-visible { outline-offset: -3px; }
+  .fb-dg__head { display: flex; align-items: center; gap: var(--s-3); min-height: 64px; padding: 0 var(--s-6); border-bottom: 1px solid var(--line); }
+  .fb-dg__head h2 { font-size: var(--fs-lg); font-weight: 600; line-height: var(--lh-tight); }
+  .fb-dg__pos { margin-left: auto; font-size: var(--fs-sm); color: var(--ink-3); font-variant-numeric: tabular-nums; }
+  .fb-dg__body { display: grid; grid-template-columns: 176px minmax(0, 1fr); gap: var(--s-5); padding: var(--s-5) var(--s-6); }
+  .fb-dg__img { width: 176px; height: 176px; border-radius: var(--r-md); object-fit: cover; background: var(--zone); }
+  .fb-dg__kv { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--s-3) var(--s-5); align-content: center; font-size: var(--fs-sm); }
+  .fb-dg__kv dt { color: var(--ink-3); white-space: nowrap; }
+  .fb-dg__kv dd { margin: 0; min-width: 0; font-weight: 600; }
+  .fb-dg__rows { grid-column: 1 / -1; display: grid; border-top: 1px solid var(--line); }
+  .fb-dg__ln { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); min-height: 48px; font-size: var(--fs-sm); }
+  .fb-dg__ln + .fb-dg__ln { border-top: 1px solid var(--line); }
+  .fb-dg__it { display: flex; align-items: center; gap: var(--s-3); min-width: 0; font-size: var(--fs-md); font-weight: 600; }
+  .fb-dg__it img { width: 36px; height: 36px; border-radius: var(--r-sm); object-fit: cover; flex: none; }
+  .fb-dg__it small { font-size: var(--fs-sm); font-weight: 400; color: var(--ink-3); }
+  .fb-dg__ln--sum { font-size: var(--fs-md); font-weight: 600; }
+  .fb-dg__ln--sum .price { font-size: var(--fs-xl); }
+  .fb-dg__foot { display: flex; justify-content: flex-end; padding: var(--s-3) var(--s-6); border-top: 1px solid var(--line); }
+  @media (max-width: 560px) { .fb-dg-mask { padding: var(--s-3); } .fb-dg__body { grid-template-columns: minmax(0, 1fr); } .fb-dg__img { width: 100%; height: 160px; } .fb-dg__head, .fb-dg__body, .fb-dg__foot { padding-left: var(--s-4); padding-right: var(--s-4); } }
+
+  /* 弹出气泡卡片：点芯片在它左侧弹出，上下位置夹在卡片内，箭头指向芯片 */
+  .fb-pp-box { position: relative; min-height: 196px; }
+  .fb-pp-box .row__lead { width: 40px; height: 40px; border-radius: var(--r-sm); }
+  .fb-pp-chip { display: inline-flex; align-items: center; gap: var(--s-1); height: 32px; padding: 0 var(--s-2) 0 var(--s-3); border-radius: var(--r-full); background: var(--zone); color: var(--ink-2); font-size: var(--fs-sm); font-weight: 600; font-variant-numeric: tabular-nums; transition: background var(--dur-quick) var(--ease-out), box-shadow var(--dur-quick) var(--ease-out); }
+  .fb-pp-chip[data-tone="success"] { background: var(--success-tint); color: var(--success); }
+  .fb-pp-chip[data-tone="warning"] { background: var(--warning-tint); color: var(--warning); }
+  .fb-pp-chip[data-tone="danger"] { background: var(--danger-tint); color: color-mix(in srgb, var(--danger) 80%, black); }
+  .fb-pp-chip .chev::after { border-color: currentColor; }
+  @media (hover: hover) { .fb-pp-chip:hover { box-shadow: inset 0 0 0 1px currentColor; } }
+  .fb-pp-chip[aria-expanded="true"] { box-shadow: inset 0 0 0 1.5px currentColor; }
+  .fb-pp, .fb-hc { position: absolute; z-index: 6; display: grid; gap: var(--s-2); width: 268px; padding: var(--s-4); border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface); box-shadow: var(--elev-3); animation: lz-toast var(--dur-quick) var(--ease-out) both; }
+  .fb-pp::after, .fb-hc::after { content: ""; position: absolute; top: var(--ay, 24px); width: 12px; height: 12px; background: var(--surface); border: solid var(--line); }
+  .fb-pp::after { right: -7px; border-width: 1px 1px 0 0; transform: rotate(45deg); }
+  .fb-hc::after { transform: rotate(45deg); }
+  .fb-pp__t { display: flex; align-items: center; justify-content: space-between; gap: var(--s-2); font-size: var(--fs-md); font-weight: 600; line-height: var(--lh-tight); }
+  .fb-pp__p { font-size: var(--fs-sm); color: var(--ink-2); line-height: 1.55; }
+  .fb-pp__f { display: flex; justify-content: flex-end; gap: var(--s-2); margin-top: var(--s-1); }
+
+  /* 可关闭标签组 */
+  .fb-ct { gap: var(--s-5); }
+  .fb-ct-group { display: grid; gap: var(--s-3); }
+  .fb-ct-sep { height: 1px; background: var(--line); }
+  .fb-ct-head { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); min-height: 32px; }
+  .fb-ct-lab { font-size: var(--fs-sm); font-weight: 600; color: var(--ink-2); }
+  .fb-ct-ttl { display: inline-flex; align-items: center; gap: var(--s-2); }
+  .fb-ct-n { font-size: var(--fs-sm); color: var(--ink-3); font-variant-numeric: tabular-nums; }
+  .fb-ct-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2); min-height: 32px; }
+  .fb-ct-row[data-fit] { flex-wrap: nowrap; overflow: hidden; }
+  .fb-ct__chip { flex: none; display: inline-flex; align-items: center; gap: var(--s-1); height: 32px; padding: 0 var(--s-1) 0 var(--s-3); border-radius: var(--r-full); background: var(--zone); font-size: var(--fs-sm); color: var(--ink-3); transition: opacity var(--dur-quick) var(--ease-out), transform var(--dur-quick) var(--ease-out); }
+  .fb-ct__chip b { font-weight: 600; color: var(--ink); }
+  .fb-ct__chip[data-tone="action"] { background: var(--action-soft); color: var(--action-press); }
+  .fb-ct__chip[data-tone="success"] { background: var(--success-tint); color: var(--success); }
+  .fb-ct__chip[data-tone="warning"] { background: var(--warning-tint); color: var(--warning); }
+  .fb-ct__chip[data-tone] b { color: inherit; }
+  .fb-ct__chip[data-fixed] { padding-right: var(--s-3); background: var(--surface); box-shadow: inset 0 0 0 1px var(--line-strong); color: var(--ink-2); }
+  .fb-ct__chip[data-fixed] small { font-size: var(--fs-sm); color: var(--ink-3); }
+  .fb-ct__chip[data-leave] { opacity: 0; transform: scale(.88); }
+  .fb-ct__x { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; transition: background var(--dur-quick) var(--ease-out); }
+  .fb-ct__x img { width: 12px; height: 12px; }
+  @media (hover: hover) { .fb-ct__x:hover { background: color-mix(in srgb, var(--ink) 12%, transparent); } }
+  .fb-ct__more { flex: none; display: inline-flex; align-items: center; height: 32px; padding: 0 var(--s-3); border-radius: var(--r-full); box-shadow: inset 0 0 0 1px var(--line-strong); font-size: var(--fs-sm); font-weight: 600; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+  @media (hover: hover) { .fb-ct__more:hover { background: var(--zone); } }
+  .fb-ct-none { font-size: var(--fs-sm); color: var(--ink-3); }
+
+  /* 通知提醒卡：右上角堆叠，不抢焦点 */
+  .fb-nt-stack { display: grid; gap: var(--s-3); align-content: start; min-height: 244px; }
+  .fb-nt-stack[data-empty] { align-content: center; }
+  .fb-nt { position: relative; display: grid; grid-template-columns: 36px minmax(0, 1fr) auto; column-gap: var(--s-3); padding: var(--s-4); border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--elev-2); animation: lz-toast var(--dur-base) var(--ease-out) both; }
+  .fb-nt::before { content: ""; position: absolute; left: 0; top: var(--s-4); bottom: var(--s-4); width: 3px; border-radius: 0 3px 3px 0; background: var(--c, var(--action)); }
+  .fb-nt[data-tone="warning"] { --c: var(--warning); }
+  .fb-nt[data-tone="danger"] { --c: var(--danger); }
+  .fb-nt__ic { width: 36px; height: 36px; object-fit: contain; }
+  .fb-nt__t { min-height: 36px; display: flex; align-items: center; font-size: var(--fs-md); font-weight: 600; line-height: var(--lh-tight); }
+  .fb-nt__p { font-size: var(--fs-sm); color: var(--ink-2); line-height: 1.55; }
+  .fb-nt__f { display: flex; align-items: center; gap: var(--s-2); margin-top: var(--s-3); }
+  .fb-nt .ibtn { width: 36px; height: 36px; margin: 0 calc(var(--s-2) * -1) 0 0; }
+  .fb-nt .ibtn img { width: 14px; height: 14px; }
+  .fb-nt-stack .fb-empty { align-self: center; }
+
+  /* 数量计数徽标：跟在导航文字后面，零值默认隐藏，超过九十九显示 99+ */
+  .fb-cn-menu { display: grid; gap: var(--s-1); }
+  .fb-cn-item { display: flex; align-items: center; gap: var(--s-3); width: 100%; min-height: 44px; padding: 0 var(--s-3); border-radius: var(--r-md); font-size: var(--fs-md); color: var(--ink-2); text-align: left; transition: background var(--dur-quick) var(--ease-out), color var(--dur-quick) var(--ease-out); }
+  .fb-cn-item img { width: 20px; height: 20px; flex: none; }
+  .fb-cn-item > span:first-of-type { flex: 1; min-width: 0; }
+  @media (hover: hover) { .fb-cn-item:hover { background: var(--zone); } }
+  .fb-cn-item[aria-current="true"] { background: var(--action-tint); color: var(--action-press); font-weight: 600; box-shadow: inset 0 0 0 1px var(--action-edge); }
+  .fb-cn { display: inline-grid; place-items: center; min-width: 28px; height: 24px; padding: 0 var(--s-2); border-radius: var(--r-full); background: color-mix(in srgb, var(--ink) 8%, var(--surface)); color: var(--ink-2); font-size: var(--fs-sm); font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums; }
+  .fb-cn[data-tone="action"] { background: var(--action); color: var(--surface); }
+  .fb-cn[data-tone="danger"] { background: var(--danger); color: var(--surface); }
+  .fb-cn[data-tone="warning"] { background: var(--warning); color: var(--surface); }
+  .fb-cn.is-pop { animation: lz-pop var(--dur-slow) var(--ease-spring) both; }
+  .fb-cn-bar { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); flex-wrap: wrap; }
+  .fb-cn-zero { display: inline-flex; align-items: center; gap: var(--s-2); font-size: var(--fs-sm); color: var(--ink-2); }
+
+  /* 状态徽章标签：浅色与实色两种，状态按流转规则才可改 */
+  .fb-ls { display: inline-flex; align-items: center; gap: var(--s-1); height: 28px; padding: 0 var(--s-3); border-radius: var(--r-sm); background: var(--ls-t); color: var(--ls-c); font-size: var(--fs-sm); font-weight: 600; line-height: 1; white-space: nowrap; transition: background var(--dur-base) var(--ease-out), color var(--dur-base) var(--ease-out); }
+  button.fb-ls { padding-right: var(--s-2); cursor: pointer; }
+  .fb-ls .chev::after { border-color: currentColor; }
+  .fb-ls[data-s="wait"], .fb-ls[data-to="wait"] { --ls-c: var(--ink-2); --ls-t: color-mix(in srgb, var(--ink) 8%, var(--surface)); --ls-b: var(--ink-2); }
+  .fb-ls[data-s="run"], .fb-ls[data-to="run"] { --ls-c: var(--info); --ls-t: var(--info-tint); --ls-b: var(--info); }
+  .fb-ls[data-s="appr"], .fb-ls[data-to="appr"] { --ls-c: var(--warning); --ls-t: var(--warning-tint); --ls-b: var(--warning); }
+  .fb-ls[data-s="ok"], .fb-ls[data-to="ok"] { --ls-c: var(--success); --ls-t: var(--success-tint); --ls-b: var(--success); }
+  .fb-ls[data-s="no"], .fb-ls[data-to="no"] { --ls-c: color-mix(in srgb, var(--danger) 80%, black); --ls-t: var(--danger-tint); --ls-b: var(--danger); }
+  [data-solid="true"] .fb-ls { background: var(--ls-b); color: var(--surface); }
+  @media (hover: hover) { button.fb-ls:hover { box-shadow: inset 0 0 0 1px currentColor; } }
+  .fb-ls-list { display: grid; }
+  .fb-ls-item + .fb-ls-item { border-top: 1px solid var(--line); }
+  .fb-ls-item .row { min-height: 56px; padding: var(--s-2) 0; }
+  .fb-ls-item .row__title, .fb-ls-item .row__meta { display: block; }
+  .fb-ls-item .row__trail { flex-direction: row; align-items: center; }
+  .fb-ls-opts { display: flex; align-items: center; gap: var(--s-2); margin: 0 calc(var(--s-5) * -1); padding-left: var(--s-5); padding-right: var(--s-5); }
+  .fb-ls-to { font-size: var(--fs-sm); color: var(--ink-3); }
+  .fb-ls-opts .btn { margin-left: auto; }
+
+  /* 页顶公告横幅：占满页面顶部，实色标签加正文，详情就近展开 */
+  .fb-bn { display: flex; align-items: center; gap: var(--s-3); min-height: 56px; padding: var(--s-2) var(--s-2) var(--s-2) var(--s-5); background: var(--bg-t); border-bottom: 1px solid color-mix(in srgb, var(--c) 26%, transparent); font-size: var(--fs-sm); }
+  .fb-bn b { display: inline-flex; align-items: center; flex: none; height: 24px; padding: 0 var(--s-2); border-radius: var(--r-sm); background: var(--c); color: var(--surface); font-weight: 600; line-height: 1; }
+  .fb-bn span { flex: 1; min-width: 0; color: var(--ink); }
+  .fb-bn .ibtn { width: 36px; height: 36px; flex: none; }
+  .fb-bn .ibtn img { width: 16px; height: 16px; }
+  .fb-bn[data-tone="warning"] { --c: var(--warning); --bg-t: var(--warning-tint); }
+  .fb-bn[data-tone="danger"] { --c: var(--danger); --bg-t: var(--danger-tint); }
+  .fb-bn[data-tone="info"] { --c: var(--info); --bg-t: var(--info-tint); }
+  .fb-bn-kv { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--s-2) var(--s-5); font-size: var(--fs-sm); }
+  .fb-bn-kv dt { color: var(--ink-3); white-space: nowrap; }
+  .fb-bn-kv dd { margin: 0; font-weight: 600; }
+  .fb-bn-foot { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); padding: var(--s-4) var(--s-5); }
+  .fb-bn-foot .seg { padding: 0; }
+
+  /* 悬停预览卡 */
+  .fb-hc-box { position: relative; min-height: 196px; }
+  .fb-hc-box .table td { height: 56px; padding-left: var(--s-2); padding-right: var(--s-2); }
+  .fb-hc-box .table th { padding-left: var(--s-2); padding-right: var(--s-2); }
+  .fb-hc-t { font-weight: 600; text-decoration: underline dotted var(--ink-3); text-decoration-thickness: 1.5px; text-underline-offset: 5px; cursor: pointer; }
+  .fb-hc-t[aria-expanded="true"] { color: var(--action-press); }
+  .fb-hc { width: 272px; gap: var(--s-3); }
+  .fb-hc[data-side="right"]::after { left: -7px; border-width: 0 0 1px 1px; }
+  .fb-hc[data-side="left"]::after { right: -7px; border-width: 1px 1px 0 0; }
+  .fb-hc__head { display: flex; align-items: center; gap: var(--s-3); }
+  .fb-hc__head img { width: 44px; height: 44px; border-radius: var(--r-sm); object-fit: cover; flex: none; background: var(--zone); }
+  .fb-hc__head img.is-round { border-radius: 50%; object-fit: contain; padding: 4px; background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); }
+  .fb-hc__nm { flex: 1; min-width: 0; display: grid; }
+  .fb-hc__nm b { font-size: var(--fs-md); line-height: var(--lh-tight); }
+  .fb-hc__nm span { font-size: var(--fs-sm); color: var(--ink-3); }
+  .fb-hc__st { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); padding-top: var(--s-3); border-top: 1px solid var(--line); }
+  .fb-hc__st > div { display: grid; gap: 2px; justify-items: center; text-align: center; }
+  .fb-hc__st > div + div { border-left: 1px solid var(--line); }
+  .fb-hc__st span { font-size: var(--fs-sm); color: var(--ink-3); }
+  .fb-hc__st b { font-size: var(--fs-md); font-variant-numeric: tabular-nums; }
+</style>
+
+<article class="demo" data-cid="WB-FEED-022" data-name="居中详情弹层" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">居中详情弹层</span></div>
+  <p class="demo__note">适合：只读详情与图文预览居中悬浮，带关闭</p>
+  <div class="demo__stage">
+    <div class="card fb-card fb-card--flush fb-dgl">
+      <div class="list fb-rows" id="fb-dg-list">
+        <button type="button" class="row" data-i="0" aria-haspopup="dialog"><img class="avatar avatar--mark" src="../../kit/assets/marks/mark-001.webp" alt=""><span class="row__main"><span class="row__title">订单 10382</span><span class="row__meta">林晓 建国路店</span></span><span class="row__trail"><span class="price"><small>¥</small>199.00</span><span class="tag" data-tone="action">待发货</span></span></button>
+        <button type="button" class="row" data-i="1" aria-haspopup="dialog"><img class="avatar avatar--mark" src="../../kit/assets/marks/mark-002.webp" alt=""><span class="row__main"><span class="row__title">订单 10517</span><span class="row__meta">陈默 徐汇滨江店</span></span><span class="row__trail"><span class="price"><small>¥</small>239.00</span><span class="tag" data-tone="info">待收货</span></span></button>
+        <button type="button" class="row" data-i="2" aria-haspopup="dialog"><img class="avatar avatar--mark" src="../../kit/assets/marks/mark-003.webp" alt=""><span class="row__main"><span class="row__title">订单 10921</span><span class="row__meta">周岚 浦东世纪店</span></span><span class="row__trail"><span class="price"><small>¥</small>159.00</span><span class="tag" data-tone="warning">待付款</span></span></button>
+      </div>
+    </div>
+    <div class="fb-dg-mask" id="fb-dg-mask" hidden>
+    <div class="fb-dg" id="fb-dg" role="dialog" aria-modal="true" aria-labelledby="fb-dg-t" tabindex="-1">
+      <div class="fb-dg__head"><h2 id="fb-dg-t">订单 10382</h2><span class="tag" data-st>待发货</span><span class="fb-dg__pos" data-pos></span></div>
+      <div class="fb-dg__body">
+        <img class="fb-dg__img" data-img src="../../kit/assets/photo/product-rose-red.webp" alt="">
+        <dl class="fb-dg__kv"></dl>
+        <div class="fb-dg__rows"></div>
+      </div>
+      <div class="fb-dg__foot"><div class="btn-group"><button type="button" class="btn btn--ghost btn--sm" data-prev>上一单</button><button type="button" class="btn btn--ghost btn--sm" data-next>下一单</button><button type="button" class="btn btn--secondary btn--sm" data-close>关闭</button></div></div>
+    </div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="WB-FEED-023" data-name="弹出气泡卡片" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">弹出气泡卡片</span></div>
+  <p class="demo__note">适合：点击对象旁弹出的小卡片，内含说明与动作</p>
+  <div class="demo__stage">
+    <div class="card fb-card fb-card--flush fb-pp-box" id="fb-pp-box">
+      <div class="list fb-rows">
+        <div class="row" data-k="0"><img class="row__lead" src="../../kit/assets/photo/product-hydrangea-blue.webp" alt=""><span class="row__main"><span class="row__title">蓝绣球盆栽</span><span class="row__meta">在售 ¥129</span></span><span class="row__trail"><button type="button" class="fb-pp-chip" data-tone="warning" aria-haspopup="dialog" aria-expanded="false" aria-controls="fb-pp">库存 8 件<span class="chev" aria-hidden="true"></span></button></span></div>
+        <div class="row" data-k="1"><img class="row__lead" src="../../kit/assets/photo/product-tulip-white.webp" alt=""><span class="row__main"><span class="row__title">白郁金香</span><span class="row__meta">在售 ¥179</span></span><span class="row__trail"><button type="button" class="fb-pp-chip" data-tone="success" aria-haspopup="dialog" aria-expanded="false" aria-controls="fb-pp">库存 52 件<span class="chev" aria-hidden="true"></span></button></span></div>
+        <div class="row" data-k="2"><img class="row__lead" src="../../kit/assets/photo/product-giftbox.webp" alt=""><span class="row__main"><span class="row__title">花礼盒</span><span class="row__meta">已下架 ¥259</span></span><span class="row__trail"><button type="button" class="fb-pp-chip" data-tone="danger" aria-haspopup="dialog" aria-expanded="false" aria-controls="fb-pp">库存 0 件<span class="chev" aria-hidden="true"></span></button></span></div>
+      </div>
+      <div class="fb-pp" id="fb-pp" role="dialog" aria-label="库存说明" hidden></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="WB-FEED-024" data-name="可关闭标签组" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">可关闭标签组</span></div>
+  <p class="demo__note">适合：分类与筛选条件标签成组展示并可移除</p>
+  <div class="demo__stage">
+    <div class="card fb-card fb-ct" id="fb-ct">
+      <div class="fb-ct-group" data-g="cond">
+        <div class="fb-ct-head"><span class="fb-ct-ttl"><span class="fb-ct-lab">筛选条件</span><span class="fb-ct-n" data-n></span></span><button type="button" class="btn btn--text btn--sm" data-reset>清除全部</button></div>
+        <div class="fb-ct-row" data-row></div>
+      </div>
+      <div class="fb-ct-sep" role="separator"></div>
+      <div class="fb-ct-group" data-g="cat">
+        <div class="fb-ct-head"><span class="fb-ct-ttl"><span class="fb-ct-lab">商品分类</span><span class="fb-ct-n" data-n></span></span><button type="button" class="btn btn--text btn--sm" data-reset hidden>恢复分类</button></div>
+        <div class="fb-ct-row" data-row></div>
+      </div>
+      <span class="sr-only" role="status" aria-live="polite" data-live></span>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="WB-FEED-025" data-name="通知提醒卡" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">通知提醒卡</span></div>
+  <p class="demo__note">适合：右上角堆叠的通知卡，含标题、正文与动作</p>
+  <div class="demo__stage">
+    <div class="fb-card fb-card--bare" id="fb-nt">
+      <div class="fb-bar"><button type="button" class="btn btn--secondary btn--sm" data-k="order">新订单</button><button type="button" class="btn btn--secondary btn--sm" data-k="stock">库存预警</button><button type="button" class="btn btn--secondary btn--sm" data-k="pay">支付异常</button><button type="button" class="btn btn--text btn--sm" data-clear>清空通知</button></div>
+      <div class="fb-nt-stack" role="region" aria-label="通知" aria-live="polite"></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="WB-FEED-026" data-name="数量计数徽标" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">数量计数徽标</span></div>
+  <p class="demo__note">适合：导航与按钮旁的未读与待办数量</p>
+  <div class="demo__stage">
+    <div class="card fb-card" id="fb-cn">
+      <nav class="fb-cn-menu" aria-label="待办分类"></nav>
+      <div class="fb-cn-bar">
+        <div class="btn-group"><button type="button" class="btn btn--secondary btn--sm" data-add>新增一条</button><button type="button" class="btn btn--ghost btn--sm" data-sub>处理一条</button><button type="button" class="btn btn--text btn--sm" data-zero>清零</button></div>
+        <span class="fb-cn-zero"><span id="fb-cn-zl">显示零值</span><button type="button" class="switch" role="switch" aria-checked="false" aria-labelledby="fb-cn-zl"></button></span>
+      </div>
+      <span class="sr-only" role="status" aria-live="polite" data-live></span>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="WB-FEED-027" data-name="状态徽章标签" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">状态徽章标签</span></div>
+  <p class="demo__note">适合：工单与审批状态用统一徽章快速识别</p>
+  <div class="demo__stage">
+    <div class="card fb-card" id="fb-ls">
+      <div class="seg" data-seg="fb-ls" aria-label="徽章样式"><button class="seg__item" data-key="soft" aria-selected="true">浅色</button><button class="seg__item" data-key="solid">实色</button></div>
+      <div class="fb-ls-list"></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="WB-FEED-028" data-name="页顶公告横幅" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">页顶公告横幅</span></div>
+  <p class="demo__note">适合：全站维护与重要通知占满页面顶部的横幅</p>
+  <div class="demo__stage">
+    <div class="card fb-card fb-card--flush" id="fb-bn">
+      <div class="fb-bw" data-wrap><div>
+        <div class="fb-bn" data-tone="warning" role="status"><b data-tag>维护</b><span data-msg></span><button type="button" class="btn btn--text btn--sm" data-more aria-expanded="false" aria-controls="fb-bn-p"></button><button type="button" class="ibtn" data-close data-tip="关闭" aria-label="关闭公告"><img src="../../kit/assets/line/close.webp" alt=""></button></div>
+        <div class="expand" id="fb-bn-p" data-open="false" inert><div><dl class="fb-bn-kv expand__body"></dl></div></div>
+      </div></div>
+      <div class="fb-bn-foot"><div class="seg" data-seg="fb-bn" aria-label="公告类型"><button class="seg__item" data-key="ops" aria-selected="true">维护公告</button><button class="seg__item" data-key="fault">故障公告</button><button class="seg__item" data-key="news">上线公告</button></div><button type="button" class="btn btn--text btn--sm" data-restore hidden>恢复显示</button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="WB-FEED-029" data-name="悬停预览卡" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">悬停预览卡</span></div>
+  <p class="demo__note">适合：鼠标停在名称上预览关联对象摘要</p>
+  <div class="demo__stage">
+    <div class="card fb-card fb-card--flush fb-hc-box" id="fb-hc-box">
+      <div class="table-wrap"><table class="table table--static">
+        <colgroup><col style="width:20%"><col style="width:20%"><col style="width:28%"><col style="width:32%"></colgroup>
+        <thead><tr><th>订单</th><th>客户</th><th>商品</th><th>门店</th></tr></thead>
+        <tbody>
+          <tr><td>10382</td><td><button type="button" class="fb-hc-t" data-k="cus" data-v="林晓" aria-expanded="false">林晓</button></td><td><button type="button" class="fb-hc-t" data-k="sku" data-v="红玫瑰花束" aria-expanded="false">红玫瑰花束</button></td><td><button type="button" class="fb-hc-t" data-k="store" data-v="建国路店" aria-expanded="false">建国路店</button></td></tr>
+          <tr><td>10517</td><td><button type="button" class="fb-hc-t" data-k="cus" data-v="陈默" aria-expanded="false">陈默</button></td><td><button type="button" class="fb-hc-t" data-k="sku" data-v="粉芍药花束" aria-expanded="false">粉芍药花束</button></td><td><button type="button" class="fb-hc-t" data-k="store" data-v="徐汇滨江店" aria-expanded="false">徐汇滨江店</button></td></tr>
+          <tr><td>10921</td><td><button type="button" class="fb-hc-t" data-k="cus" data-v="周岚" aria-expanded="false">周岚</button></td><td><button type="button" class="fb-hc-t" data-k="sku" data-v="向日葵花束" aria-expanded="false">向日葵花束</button></td><td><button type="button" class="fb-hc-t" data-k="store" data-v="浦东世纪店" aria-expanded="false">浦东世纪店</button></td></tr>
+        </tbody>
+      </table></div>
+      <div class="fb-hc" id="fb-hc" role="group" aria-label="对象摘要" hidden></div>
+    </div>
+  </div>
+</article>
+
+<script>
+(() => {
+  const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const A = '../../kit/assets';
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const money = n => n.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const price = n => `<span class="price"><small>¥</small>${money(n)}</span>`;
+  const mk = html => { const t = document.createElement('template'); t.innerHTML = html.trim(); return t.content.firstElementChild; };
+
+  /* 022 居中详情：遮罩加居中浮层，打开时挪到页面最外层并让页面其余部分不可操作；Tab 在层内循环，Esc、遮罩、关闭按钮都能关，焦点回到被点的行 */
+  (() => {
+    const mask = $('#fb-dg-mask'), dlg = $('#fb-dg'), list = $('#fb-dg-list'), home = mask.parentElement;
+    const O = [
+      { id: '10382', who: '林晓', store: '建国路店', st: ['待发货', 'action'], way: '同城配送', pay: '微信支付', addr: '建国路 88 号 3 栋 502', items: [['红玫瑰花束', 'product-rose-red', 1, 199]], fee: 0 },
+      { id: '10517', who: '陈默', store: '徐汇滨江店', st: ['待收货', 'info'], way: '门店自提', pay: '微信支付', addr: '徐汇滨江店前台', items: [['粉芍药花束', 'product-peony-pink', 1, 239]], fee: 0 },
+      { id: '10921', who: '周岚', store: '浦东世纪店', st: ['待付款', 'warning'], way: '同城配送', pay: '待支付', addr: '世纪大道 1200 号 1 单元 1801', items: [['向日葵花束', 'product-sunflower', 1, 159]], fee: 0 },
+    ];
+    let cur = 0, opener = null, locked = [], htmlOv = '';
+    const paint = () => {
+      const o = O[cur], sum = o.items.reduce((s, it) => s + it[2] * it[3], 0) + o.fee;
+      $('#fb-dg-t').textContent = '订单 ' + o.id;
+      const st = $('[data-st]', dlg); st.textContent = o.st[0]; st.dataset.tone = o.st[1];
+      $('[data-pos]', dlg).textContent = `第 ${cur + 1} 单 共 ${O.length} 单`;
+      $('[data-img]', dlg).src = `${A}/photo/${o.items[0][1]}.webp`;
+      $('.fb-dg__kv', dlg).innerHTML = [['客户', o.who], ['门店', o.store], ['配送', o.way], ['地址', o.addr], ['支付', o.pay]].map(([a, b]) => `<dt>${a}</dt><dd>${esc(b)}</dd>`).join('');
+      $('.fb-dg__rows', dlg).innerHTML = o.items.map(it => `<div class="fb-dg__ln"><span class="fb-dg__it"><img src="${A}/photo/${it[1]}.webp" alt=""><span>${it[0]} <small>${it[2]} 件</small></span></span>${price(it[2] * it[3])}</div>`).join('')
+        + `<div class="fb-dg__ln"><span>配送费</span>${price(o.fee)}</div><div class="fb-dg__ln fb-dg__ln--sum"><span>实付</span>${price(sum)}</div>`;
+      $('[data-prev]', dlg).disabled = cur === 0; $('[data-next]', dlg).disabled = cur === O.length - 1;
+    };
+    const open = row => {
+      opener = row; cur = +row.dataset.i; paint();
+      document.body.appendChild(mask); mask.hidden = false;
+      locked = [...document.body.children].filter(e => e !== mask && !e.inert && !e.matches('script, style, .toast-host, .tip')); locked.forEach(e => { e.inert = true; });
+      htmlOv = document.documentElement.style.overflow; document.documentElement.style.overflow = 'hidden';
+      document.addEventListener('keydown', keys, true);
+      $('[data-close]', dlg).focus();
+    };
+    const close = () => {
+      if (mask.hidden) return;
+      document.removeEventListener('keydown', keys, true);
+      mask.hidden = true; home.appendChild(mask);
+      locked.forEach(e => { e.inert = false; }); locked = []; document.documentElement.style.overflow = htmlOv;
+      if (opener) opener.focus({ preventScroll: true });
+    };
+    const keys = e => {
+      if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); close(); return; }
+      if (e.key !== 'Tab') return;
+      const f = $$('button:not(:disabled), [href], [tabindex]:not([tabindex="-1"])', dlg).filter(x => x.getClientRects().length);
+      if (!f.length) { e.preventDefault(); dlg.focus(); return; }
+      const first = f[0], last = f[f.length - 1], at = document.activeElement;
+      if (!dlg.contains(at)) { e.preventDefault(); (e.shiftKey ? last : first).focus(); }
+      else if (e.shiftKey && (at === first || at === dlg)) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && at === last) { e.preventDefault(); first.focus(); }
+    };
+    list.addEventListener('click', e => { const r = e.target.closest('[data-i]'); if (r) open(r); });
+    const go = d => { cur += d; paint(); const b = $(d > 0 ? '[data-next]' : '[data-prev]', dlg); if (b.disabled) $('[data-close]', dlg).focus(); };
+    $('[data-prev]', dlg).addEventListener('click', () => go(-1)); $('[data-next]', dlg).addEventListener('click', () => go(1));
+    $('[data-close]', dlg).addEventListener('click', close);
+    mask.addEventListener('click', e => { if (e.target === mask) close(); });
+    paint();
+  })();
+
+  /* 023 气泡卡片：点芯片在其左侧弹出，位置夹在卡片内；Esc、点外面、焦点离开都关闭 */
+  (() => {
+    const box = $('#fb-pp-box'), pop = $('#fb-pp'); let cur = null; const made = {};
+    const D = [
+      { n: '蓝绣球盆栽', t: '库存偏低', tone: 'warning', p: '低于预警线 10 件，建国路店 5 件，徐汇滨江店 3 件', a: ['去补货', '稍后'] },
+      { n: '白郁金香', t: '库存充足', tone: 'success', p: '高于预警线 10 件，近 7 日日均售出 6 件', a: ['查看流水'] },
+      { n: '花礼盒', t: '已售罄', tone: 'danger', p: '库存 0 件，前台已自动下架', a: ['去补货', '稍后'] },
+    ];
+    const fill = k => {
+      const d = D[k], ok = made[k];
+      pop.innerHTML = `<div class="fb-pp__t"><span>${d.n}</span><span class="tag" data-tone="${ok ? 'action' : d.tone}">${ok ? '补货中' : d.t}</span></div><p class="fb-pp__p">${ok ? '补货单已创建，到货后库存自动更新' : d.p}</p><div class="fb-pp__f">${d.a.map((a, i) => `<button type="button" class="btn btn--sm ${i ? 'btn--ghost' : (a === '去补货' ? 'btn--primary' : 'btn--secondary')}" data-a="${a}"${ok && a === '去补货' ? ' disabled' : ''}>${ok && a === '去补货' ? '已创建补货单' : a}</button>`).join('')}</div>`;
+    };
+    const place = chip => {
+      const b = box.getBoundingClientRect(), c = chip.getBoundingClientRect(), h = pop.offsetHeight, cy = c.top + c.height / 2 - b.top;
+      const top = Math.min(Math.max(cy - 34, 8), Math.max(8, b.height - h - 8));
+      pop.style.top = top + 'px'; pop.style.right = (b.right - c.left + 10) + 'px'; pop.style.setProperty('--ay', Math.min(Math.max(cy - top - 5, 14), Math.max(14, h - 26)) + 'px');
+    };
+    const close = back => { if (!cur) return; const c = cur; cur = null; pop.hidden = true; c.setAttribute('aria-expanded', 'false'); if (back) c.focus({ preventScroll: true }); };
+    const open = chip => { if (cur) close(); cur = chip; chip.setAttribute('aria-expanded', 'true'); fill(+chip.closest('[data-k]').dataset.k); pop.hidden = false; place(chip); const f = $('button', pop); if (f) f.focus({ preventScroll: true }); };
+    box.addEventListener('click', e => { const c = e.target.closest('.fb-pp-chip'); if (c) { e.stopPropagation(); c === cur ? close(true) : open(c); return; }
+      const a = e.target.closest('[data-a]'); if (!a) return; const k = +cur.closest('[data-k]').dataset.k;
+      if (a.dataset.a === '去补货') { made[k] = true; Lz.toast('已创建补货单', 'success'); close(true); } else close(true); });
+    document.addEventListener('click', e => { if (cur && !pop.contains(e.target)) close(false); });
+    box.addEventListener('keydown', e => { if (e.key === 'Escape' && cur) { e.stopPropagation(); close(true); } });
+    box.addEventListener('focusout', e => { if (cur && !box.contains(e.relatedTarget)) close(false); });
+    addEventListener('resize', () => close(false));
+  })();
+
+  /* 024 可关闭标签：移除带离场动效，清空后给恢复入口；一行放不下的折成「更多」，点开才换行显示全部 */
+  (() => {
+    const root = $('#fb-ct'), live = $('[data-live]', root);
+    const G = {
+      cond: { all: [['门店', '建国路店'], ['品类', '花束'], ['状态', '在售'], ['库存', '低于 10 件'], ['价格', '100 至 300 元']], init: null, open: false, folded: false, none: '未设置筛选条件', reset: ['清除全部', '恢复条件'] },
+      cat: { all: [['花束', 'action'], ['盆栽', 'success'], ['礼盒', 'warning']], init: null, open: false, folded: false, fixed: '在售商品' },
+    };
+    Object.values(G).forEach(g => { g.init = g.all.slice(); });
+    const chip = (k, c, i) => k === 'cond'
+      ? `<span class="fb-ct__chip" data-i="${i}">${c[0]} <b>${c[1]}</b><button type="button" class="fb-ct__x" data-rm aria-label="移除 ${c[0]} ${c[1]}" data-tip="移除"><img src="${A}/line/close.webp" alt=""></button></span>`
+      : `<span class="fb-ct__chip" data-tone="${c[1]}" data-i="${i}"><b>${c[0]}</b><button type="button" class="fb-ct__x" data-rm aria-label="移除 ${c[0]}" data-tip="移除"><img src="${A}/line/close.webp" alt=""></button></span>`;
+    const draw = (k, row, count) => {
+      const g = G[k], hide = g.all.length - count;
+      row.innerHTML = (k === 'cat' ? `<span class="fb-ct__chip" data-fixed>${g.fixed}<small>固定</small></span>` : '')
+        + g.all.slice(0, count).map((c, i) => chip(k, c, i)).join('')
+        + (hide > 0 ? `<button type="button" class="fb-ct__more" data-more aria-expanded="false">更多 ${hide}</button>` : (g.open && g.folded ? '<button type="button" class="fb-ct__more" data-more aria-expanded="true">收起</button>' : ''))
+        + (k === 'cond' && !g.all.length ? `<span class="fb-ct-none">${g.none}</span>` : '');
+    };
+    const paint = (k, focusIdx) => {
+      const g = G[k], box = $(`[data-g="${k}"]`, root), row = $('[data-row]', box), rs = $('[data-reset]', box);
+      let count = g.all.length;
+      if (g.open) { row.removeAttribute('data-fit'); draw(k, row, count); }
+      else { row.dataset.fit = ''; for (;;) { draw(k, row, count); if (count <= 1 || row.scrollWidth <= row.clientWidth + 1) break; count--; } g.folded = count < g.all.length; }
+      $('[data-n]', box).textContent = g.all.length ? g.all.length + ' 项' : '';
+      if (k === 'cond') { rs.textContent = g.all.length ? g.reset[0] : g.reset[1]; } else { rs.hidden = g.all.length === g.init.length; }
+      if (focusIdx != null) { const t = $$('[data-rm]', row)[focusIdx] || $$('[data-rm]', row).pop() || rs; if (t && !t.hidden) t.focus(); }
+    };
+    root.addEventListener('click', async e => {
+      const box = e.target.closest('[data-g]'); if (!box) return; const k = box.dataset.g, g = G[k];
+      const rm = e.target.closest('[data-rm]');
+      if (rm) { const c = rm.closest('.fb-ct__chip'), i = +c.dataset.i, name = g.all[i][0]; c.dataset.leave = ''; rm.disabled = true; await sleep(160); g.all.splice(i, 1); live.textContent = '已移除 ' + name; paint(k, i); return; }
+      if (e.target.closest('[data-more]')) { g.open = !g.open; paint(k); const m = $('[data-more]', box); if (m) m.focus(); return; }
+      if (e.target.closest('[data-reset]')) {
+        if (k === 'cond' && g.all.length) { g.all = []; live.textContent = '已清除全部筛选条件'; paint(k); $('[data-reset]', box).focus(); }
+        else { g.all = g.init.slice(); live.textContent = '已恢复'; paint(k, 0); }
+      }
+    });
+    paint('cond'); paint('cat');
+    let w0 = root.clientWidth; new ResizeObserver(() => { if (root.clientWidth !== w0) { w0 = root.clientWidth; paint('cond'); paint('cat'); } }).observe(root);
+  })();
+
+  /* 025 通知卡：新通知排在最上，最多三条，不抢焦点；动作与关闭都就地处理 */
+  (() => {
+    const root = $('#fb-nt'), stack = $('.fb-nt-stack', root), clear = $('[data-clear]', root);
+    const K = {
+      order: { tone: 'action', ic: 'biz-store', t: '新订单 10382', p: '林晓下单红玫瑰花束 ¥199.00 待发货', a: ['查看订单', '稍后'] },
+      stock: { tone: 'warning', ic: 'solid-tasks', t: '蓝绣球盆栽库存偏低', p: '全店仅剩 8 件，低于预警线 10 件', a: ['去补货', '忽略'] },
+      pay: { tone: 'danger', ic: 'biz-system', t: '支付渠道连接失败', p: '微信支付连续 3 次超时，线上收款受影响', a: ['查看详情', '忽略'] },
+    };
+    const sync = () => { const n = $$('.fb-nt', stack).length; stack.toggleAttribute('data-empty', !n); clear.disabled = !n; if (!n && !$('.fb-empty', stack)) stack.appendChild(mk(`<div class="fb-empty fb-empty--sm"><img data-ic="bag" src="${A}/icons/${Lz.iconSet()}/bag.webp" alt=""><p>暂无通知</p></div>`)); if (n) { const e = $('.fb-empty', stack); if (e) e.remove(); } };
+    const add = k => {
+      const d = K[k]; const el = mk(`<div class="fb-nt" data-tone="${d.tone}" role="${d.tone === 'danger' ? 'alert' : 'status'}"><img class="fb-nt__ic" src="${A}/solid/${d.ic}.webp" alt=""><div><p class="fb-nt__t">${d.t}</p><p class="fb-nt__p">${d.p}</p><div class="fb-nt__f"><button type="button" class="btn btn--primary btn--sm" data-go>${d.a[0]}</button><button type="button" class="btn btn--text btn--sm" data-x>${d.a[1]}</button></div></div><button type="button" class="ibtn" data-x data-tip="关闭" aria-label="关闭通知"><img src="${A}/line/close.webp" alt=""></button></div>`);
+      el.dataset.act = d.a[0];
+      const e0 = $('.fb-empty', stack); if (e0) e0.remove();
+      stack.prepend(el); $$('.fb-nt', stack).slice(3).forEach(x => x.remove()); sync();
+    };
+    root.addEventListener('click', e => {
+      const k = e.target.closest('[data-k]'); if (k) { add(k.dataset.k); return; }
+      if (e.target.closest('[data-clear]')) { $$('.fb-nt', stack).forEach(x => x.remove()); sync(); return; }
+      const n = e.target.closest('.fb-nt'); if (!n) return;
+      if (e.target.closest('[data-go]')) { Lz.toast(n.dataset.act === '查看订单' ? '正在打开订单' : n.dataset.act === '去补货' ? '已创建补货单' : '正在打开详情', 'neutral'); }
+      if (e.target.closest('[data-x]') || e.target.closest('[data-go]')) { n.remove(); sync(); }
+    });
+    add('stock'); add('order');
+  })();
+
+  /* 026 计数徽标：新增、处理、清零，零值可显示，九十九以上显示 99+ */
+  (() => {
+    const root = $('#fb-cn'), menu = $('.fb-cn-menu', root), live = $('[data-live]', root);
+    const M = [{ n: '订单', ic: 'archive', v: 12, tone: 'action' }, { n: '售后', ic: 'support', v: 3, tone: 'danger' }, { n: '库存预警', ic: 'shield', v: 0, tone: 'warning' }, { n: '客户留言', ic: 'message', v: 128, tone: 'neutral' }];
+    let cur = 0, zero = false;
+    const label = v => (v > 99 ? '99+' : String(v));
+    menu.innerHTML = M.map((m, i) => `<button type="button" class="fb-cn-item" data-i="${i}" aria-current="${i === cur}"><img src="${A}/line/${m.ic}.webp" alt=""><span>${m.n}</span></button>`).join('');
+    const upd = (i, pop) => {
+      const m = M[i], el = $(`[data-i="${i}"]`, menu); let c = $('.fb-cn', el);
+      if (!(m.v > 0 || zero)) { if (c) c.remove(); return; }
+      if (!c) { c = document.createElement('span'); c.className = 'fb-cn'; el.appendChild(c); }
+      c.dataset.tone = m.v ? m.tone : 'neutral'; c.textContent = label(m.v); el.setAttribute('aria-label', `${m.n} 共 ${m.v} 条`);
+      if (pop) { c.classList.remove('is-pop'); void c.offsetWidth; c.classList.add('is-pop'); }
+    };
+    const btns = () => { const m = M[cur]; $('[data-sub]', root).disabled = !m.v; $('[data-zero]', root).disabled = !m.v; };
+    const all = () => M.forEach((_, i) => upd(i)); all(); btns();
+    menu.addEventListener('click', e => { const b = e.target.closest('.fb-cn-item'); if (!b) return; cur = +b.dataset.i; $$('.fb-cn-item', menu).forEach((x, i) => x.setAttribute('aria-current', String(i === cur))); btns(); });
+    const set = fn => { fn(M[cur]); upd(cur, true); btns(); live.textContent = `${M[cur].n} ${M[cur].v} 条`; };
+    $('[data-add]', root).addEventListener('click', () => set(m => { m.v++; }));
+    $('[data-sub]', root).addEventListener('click', () => set(m => { m.v = Math.max(0, m.v - 1); }));
+    $('[data-zero]', root).addEventListener('click', () => set(m => { m.v = 0; }));
+    root.addEventListener('lz:toggle', e => { zero = $('[role="switch"]', root).getAttribute('aria-checked') === 'true'; all(); });
+  })();
+
+  /* 027 状态徽章：浅色与实色切换；点徽章就近展开可流转的状态，终态只读 */
+  (() => {
+    const root = $('#fb-ls'), list = $('.fb-ls-list', root);
+    const ST = { wait: '待处理', run: '处理中', appr: '待审批', ok: '已通过', no: '已驳回' };
+    const NEXT = { wait: ['run'], run: ['appr'], appr: ['ok', 'no'], no: ['wait'], ok: [] };
+    const T = [['红玫瑰花束到货延迟', '工单 2041 吴桐', 'run'], ['白郁金香调价申请', '审批 3306 陈默', 'appr'], ['多肉组合盆破损', '工单 2042 周岚', 'wait'], ['满减活动延期', '审批 3304 吴桐', 'no'], ['花礼盒下架申请', '审批 3305 林晓', 'ok']];
+    const badge = (s, i) => NEXT[s].length ? `<button type="button" class="fb-ls" data-s="${s}" aria-expanded="false" aria-controls="fb-ls-p${i}" aria-label="更改状态 当前${ST[s]}">${ST[s]}<span class="chev" aria-hidden="true"></span></button>` : `<span class="fb-ls" data-s="${s}">${ST[s]}</span>`;
+    const opts = s => NEXT[s].map(n => `<button type="button" class="fb-ls" data-to="${n}">${ST[n]}</button>`).join('');
+    const row = (t, i) => `<div class="fb-ls-item" data-i="${i}" data-s="${t[2]}"><div class="row"><span class="row__main"><span class="row__title">${t[0]}</span><span class="row__meta">${t[1]}</span></span><span class="row__trail">${badge(t[2], i)}</span></div>${NEXT[t[2]].length ? `<div class="expand" id="fb-ls-p${i}" data-open="false" inert><div><div class="expand__body fb-ls-opts"><span class="fb-ls-to">改为</span>${opts(t[2])}<button type="button" class="btn btn--text btn--sm" data-cancel>取消</button></div></div></div>` : ''}</div>`;
+    list.innerHTML = T.map(row).join('');
+    const setOpen = (item, o) => { const p = $('.expand', item), b = $('button.fb-ls[data-s]', item); if (!p) return; p.dataset.open = String(o); p.inert = !o; if (b) b.setAttribute('aria-expanded', String(o)); };
+    list.addEventListener('click', e => {
+      const item = e.target.closest('.fb-ls-item'); if (!item) return; const i = +item.dataset.i;
+      const b = e.target.closest('button.fb-ls[data-s]');
+      if (b) { const o = $('.expand', item).dataset.open !== 'true'; $$('.fb-ls-item', list).forEach(x => setOpen(x, false)); setOpen(item, o); return; }
+      if (e.target.closest('[data-cancel]')) { setOpen(item, false); $('button.fb-ls[data-s]', item).focus(); return; }
+      const to = e.target.closest('[data-to]');
+      if (to) { T[i][2] = to.dataset.to; const nu = mk(row(T[i], i)); item.replaceWith(nu); Lz.toast('状态已更新为' + ST[T[i][2]], 'success'); const f = $('button.fb-ls[data-s]', nu); if (f) f.focus({ preventScroll: true }); }
+    });
+    list.addEventListener('keydown', e => { if (e.key === 'Escape') { const item = e.target.closest('.fb-ls-item'); if (item && $('.expand', item) && $('.expand', item).dataset.open === 'true') { setOpen(item, false); $('button.fb-ls[data-s]', item).focus(); } } });
+    document.addEventListener('lz:seg', e => { if (e.detail.group === 'fb-ls') root.dataset.solid = String(e.detail.key === 'solid'); });
+  })();
+
+  /* 028 公告横幅：三类公告切换，详情就近展开，关闭后收起并给恢复入口 */
+  (() => {
+    const root = $('#fb-bn'), wrap = $('[data-wrap]', root), ban = $('.fb-bn', root), more = $('[data-more]', root), p = $('#fb-bn-p'), kv = $('dl', p), rs = $('[data-restore]', root);
+    const N = {
+      ops: { tone: 'warning', tag: '维护', msg: '支付系统周六 02:00 至 04:00 升级维护，线上收款暂停', link: '查看影响', kv: [['影响范围', '小程序下单、网页收款'], ['维护时段', '周六 02:00 至 04:00'], ['不受影响', '门店扫码收银']] },
+      fault: { tone: 'danger', tag: '故障', msg: '微信支付通道异常，建国路店线上订单暂不能支付', link: '查看进度', kv: [['影响范围', '建国路店线上支付'], ['当前进度', '通道方已确认，正在恢复'], ['不受影响', '其他门店与线下收银']] },
+      news: { tone: 'info', tag: '上线', msg: '会员积分抵扣已上线，订单页可直接使用', link: '查看规则', kv: [['抵扣比例', '100 积分抵 1 元'], ['使用门槛', '订单满 50 元'], ['适用范围', '全部门店线上订单']] },
+    };
+    const setOpen = o => { p.dataset.open = String(o); p.inert = !o; more.setAttribute('aria-expanded', String(o)); };
+    const show = k => { const n = N[k]; ban.dataset.tone = n.tone; ban.setAttribute('role', n.tone === 'danger' ? 'alert' : 'status'); $('[data-tag]', ban).textContent = n.tag; $('[data-msg]', ban).textContent = n.msg; more.textContent = n.link; kv.innerHTML = n.kv.map(([a, b]) => `<dt>${a}</dt><dd>${b}</dd>`).join(''); setOpen(false); wrap.removeAttribute('data-gone'); wrap.inert = false; rs.hidden = true; };
+    more.addEventListener('click', () => setOpen(p.dataset.open !== 'true'));
+    $('[data-close]', root).addEventListener('click', () => { wrap.dataset.gone = ''; wrap.inert = true; rs.hidden = false; rs.focus(); });
+    rs.addEventListener('click', () => { wrap.removeAttribute('data-gone'); wrap.inert = false; rs.hidden = true; more.focus(); });
+    document.addEventListener('lz:seg', e => { if (e.detail.group === 'fb-bn') show(e.detail.key); });
+    show('ops');
+  })();
+
+  /* 029 悬停预览：悬停稍停、键盘聚焦或点按都出卡，鼠标可移入卡里，Esc 关闭；右侧放不下就放左侧 */
+  (() => {
+    const box = $('#fb-hc-box'), card = $('#fb-hc'); let cur = null, t1 = 0, t2 = 0;
+    const CUS = { 林晓: ['mark-001', '金卡会员', '常客', 'action', 12, '3,680', '1,260'], 陈默: ['mark-002', '银卡会员', '新客', 'info', 3, '1,046', '420'], 周岚: ['mark-003', '金卡会员', '常客', 'action', 8, '2,415', '880'] };
+    const SKU = { 红玫瑰花束: ['product-rose-red', 199, 36, 58, '98%'], 粉芍药花束: ['product-peony-pink', 239, 24, 31, '97%'], 向日葵花束: ['product-sunflower', 159, 40, 44, '99%'] };
+    const STO = { 建国路店: [412, '56,320', 6], 徐汇滨江店: [536, '71,640', 7], 浦东世纪店: [394, '50,920', 5] };
+    const st3 = a => `<div class="fb-hc__st">${a.map(([k, v]) => `<div><span>${k}</span><b>${v}</b></div>`).join('')}</div>`;
+    const D = {
+      cus: n => { const c = CUS[n]; return `<div class="fb-hc__head"><img class="is-round" src="${A}/marks/${c[0]}.webp" alt=""><span class="fb-hc__nm"><b>${n}</b><span>${c[1]}</span></span><span class="tag" data-tone="${c[3]}">${c[2]}</span></div>${st3([['订单', c[4] + ' 单'], ['累计消费', '¥' + c[5]], ['积分', c[6]]])}`; },
+      sku: n => { const c = SKU[n]; return `<div class="fb-hc__head"><img src="${A}/photo/${c[0]}.webp" alt=""><span class="fb-hc__nm"><b>${n}</b><span class="price"><small>¥</small>${c[1]}</span></span><span class="tag" data-tone="success">在售</span></div>${st3([['库存', c[2] + ' 件'], ['本周售出', c[3] + ' 件'], ['好评率', c[4]]])}`; },
+      store: n => { const c = STO[n]; return `<div class="fb-hc__head"><img class="is-round" src="${A}/solid/biz-store.webp" alt=""><span class="fb-hc__nm"><b>${n}</b><span>09:00 至 21:00</span></span><span class="tag" data-tone="success">营业中</span></div>${st3([['本周订单', c[0] + ' 单'], ['本周营业额', '¥' + c[1]], ['店员', c[2] + ' 人']])}`; },
+    };
+    const place = el => {
+      const b = box.getBoundingClientRect(), c = el.getBoundingClientRect(), w = card.offsetWidth, h = card.offsetHeight, cy = c.top + c.height / 2 - b.top;
+      const roomR = b.right - c.right - 22, roomL = c.left - b.left - 22, side = roomR >= w || roomR >= roomL ? 'right' : 'left';
+      const left = side === 'right' ? c.right - b.left + 14 : c.left - b.left - 14 - w;
+      const top = Math.min(Math.max(cy - 34, 8), Math.max(8, b.height - h - 8));
+      card.dataset.side = side; card.style.left = Math.max(8, left) + 'px'; card.style.top = top + 'px';
+      card.style.setProperty('--ay', Math.min(Math.max(cy - top - 5, 14), Math.max(14, h - 26)) + 'px');
+    };
+    const close = () => { clearTimeout(t1); if (!cur) return; cur.setAttribute('aria-expanded', 'false'); cur.removeAttribute('aria-describedby'); cur = null; card.hidden = true; };
+    const open = el => { clearTimeout(t2); if (cur === el) return; if (cur) close(); cur = el; card.innerHTML = D[el.dataset.k](el.dataset.v); card.hidden = false; place(el); el.setAttribute('aria-expanded', 'true'); el.setAttribute('aria-describedby', 'fb-hc'); };
+    $$('.fb-hc-t', box).forEach(el => {
+      el.addEventListener('pointerenter', e => { if (e.pointerType !== 'mouse') return; clearTimeout(t2); t1 = setTimeout(() => open(el), 140); });
+      el.addEventListener('pointerleave', e => { if (e.pointerType !== 'mouse') return; clearTimeout(t1); t2 = setTimeout(close, 160); });
+      el.addEventListener('focus', () => { if (el.matches(':focus-visible')) open(el); });
+      el.addEventListener('blur', e => { if (!card.contains(e.relatedTarget)) close(); });
+      el.addEventListener('pointerdown', e => { el._pt = e.pointerType; });
+      el.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') el._pt = 'key'; });
+      el.addEventListener('click', () => { if (cur === el) { if (el._pt !== 'mouse') close(); } else open(el); });
+    });
+    card.addEventListener('pointerenter', () => clearTimeout(t2));
+    card.addEventListener('pointerleave', () => { t2 = setTimeout(close, 160); });
+    box.addEventListener('keydown', e => { if (e.key === 'Escape' && cur) { const c = cur; close(); c.focus({ preventScroll: true }); } });
+    document.addEventListener('click', e => { if (cur && !box.contains(e.target)) close(); });
+    addEventListener('resize', close);
+  })();
+})();
+</script>

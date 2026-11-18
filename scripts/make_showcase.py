@@ -221,10 +221,21 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--html", type=Path)
     ap.add_argument("--min-fill", type=float, default=0.75)
     ap.add_argument("--max-pages", type=int)
+    ap.add_argument("--session", help="Design session with current research; PDF and working HTML stay in raw")
     args = ap.parse_args(argv)
+    html_path = args.html or args.pdf.with_suffix(".html")
+    from crawl_gate import require_session_preflight, record_template_output
+    try:
+        ctx = require_session_preflight(args.session, args.pdf, template_id="showcase")
+        require_session_preflight(ctx["session"], html_path, template_id="showcase")
+        if not all(path.resolve().is_relative_to(ctx["raw"].resolve()) for path in (args.pdf, html_path)):
+            raise ValueError("展示图册的 PDF 与过程 HTML 必须先写入会话 raw，再用 deliver 放置成果")
+    except (OSError, ValueError, TypeError) as exc:
+        print("ERROR: " + str(exc), file=sys.stderr)
+        return 2
     spec = json.loads(args.spec.read_text(encoding="utf-8-sig"))
     args.pdf.parent.mkdir(parents=True, exist_ok=True)
-    html_path = args.html or args.pdf.with_suffix(".html")
+    html_path.parent.mkdir(parents=True, exist_ok=True)
     html_path.write_text(showcase.build(spec), encoding="utf-8")
     import check_document
     if check_document.main([str(html_path), "--allow", "showcase"]) != 0:
@@ -240,7 +251,11 @@ def main(argv: list[str] | None = None) -> int:
     for e in errors:
         print("ERROR", e)
     print(args.pdf)
-    return 1 if errors else 0
+    if errors:
+        return 1
+    record_template_output(ctx, html_path, "showcase", generator="Luz-Design/scripts/make_showcase.py:html")
+    record_template_output(ctx, args.pdf, "showcase", generator="Luz-Design/scripts/make_showcase.py:pdf")
+    return 0
 
 
 if __name__ == "__main__":

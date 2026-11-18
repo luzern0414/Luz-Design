@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="zh-CN" data-ic-base="../../../../kit/assets/icons">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>母亲节祝福海报</title>
+<link rel="icon" href="../../../../kit/assets/icons/flat/bouquet.webp">
+<link rel="stylesheet" href="../../../../kit/tokens.css">
+<style>
+:root { --pw: 1080px; --ph: 1440px; }
+/* 海报画布与预览：画布大小写死，页面按视口缩放预览；地址加 ?export=1 去掉缩放与外框，用于导出 */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; }
+body { background: color-mix(in srgb, var(--ink) 12%, var(--bg)); font: 400 16px/1.5 var(--font); color: var(--ink); -webkit-font-smoothing: antialiased; }
+.pv { min-height: 100vh; display: grid; place-items: center; padding: 24px; }
+.pv__fit { --k: 1; position: relative; width: calc(var(--pw) * var(--k)); height: calc(var(--ph) * var(--k)); box-shadow: var(--elev-3); }
+.poster { position: absolute; left: 0; top: 0; width: var(--pw); height: var(--ph); overflow: hidden; transform: scale(var(--k)); transform-origin: 0 0; background: var(--bg); color: var(--ink); font-family: var(--font); line-height: 1.3; text-rendering: optimizeLegibility; }
+.poster *, .poster *::before, .poster *::after { margin: 0; padding: 0; }
+.poster img { display: block; }
+.poster h1, .poster h2, .poster h3, .poster p { font-weight: inherit; }
+.x-tex { position: absolute; inset: 0; background: url(../../../../kit/assets/photo/pattern-petals.webp) 0 0 / 520px; opacity: .45; pointer-events: none; }
+.x-nw { white-space: nowrap; }
+.is-export body, .is-export { background: transparent; }
+.is-export .pv { display: block; min-height: 0; padding: 0; }
+.is-export .pv__fit { --k: 1; box-shadow: none; }
+.marks i { position: absolute; background: var(--ink-2); }
+@media print { html, body { background: none; } .pv { display: block; min-height: 0; padding: 0; } .pv__fit { --k: 1; box-shadow: none; } .marks { display: none; } }
+
+/* ── 本海报 ── */
+.p12 { position: absolute; inset: 0; background: var(--action-tint); }
+.p12 .photo { position: absolute; left: 0; top: 0; width: 1080px; height: 800px; }
+.p12 .photo img { width: 100%; height: 100%; object-fit: cover; object-position: 60% 40%; }
+.p12 .brand { position: absolute; left: 72px; top: 64px; display: flex; align-items: center; gap: 14px; font-size: 36px; font-weight: 600; letter-spacing: .08em; }
+.p12 .brand img { width: 56px; height: 56px; }
+.p12 .panel { position: absolute; left: 0; right: 0; top: 660px; bottom: 0; background: var(--bg); border-radius: 80px 80px 0 0; }
+.p12 .heart { position: absolute; left: 50%; top: 590px; width: 150px; height: 150px; transform: translateX(-50%); filter: drop-shadow(0 14px 14px color-mix(in srgb, var(--price) 30%, transparent)); }
+.p12 .title { position: absolute; left: 0; right: 0; top: 766px; text-align: center; font-size: 150px; font-weight: 700; letter-spacing: .02em; line-height: 1.1; white-space: nowrap; }
+.p12 .title b { color: var(--action); font-weight: 700; }
+.p12 .sub { position: absolute; left: 0; right: 0; top: 944px; text-align: center; font-size: 42px; font-weight: 500; color: var(--ink-2); letter-spacing: .2em; text-indent: .2em; }
+.p12 .gifts { position: absolute; left: 72px; right: 72px; top: 1040px; display: grid; grid-template-columns: 1fr 1fr; border-top: 2px solid var(--line-strong); padding-top: 34px; }
+.p12 .gift { display: flex; align-items: center; gap: 24px; }
+.p12 .gift + .gift { padding-left: 36px; border-left: 2px solid var(--line-strong); }
+.p12 .gift .ph { flex: none; width: 150px; height: 150px; border-radius: 50%; overflow: hidden; background: var(--action-tint); }
+.p12 .gift .ph img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.1); }
+.p12 .gift h3 { font-size: 36px; font-weight: 600; letter-spacing: .04em; white-space: nowrap; }
+.p12 .gift p { margin-top: 4px; font-size: 28px; color: var(--ink-2); }
+.p12 .gift .price { margin-top: 6px; font-size: 56px; font-weight: 700; line-height: 1; color: var(--price); font-variant-numeric: tabular-nums; }
+.p12 .gift .price small { font-size: 28px; font-weight: 600; margin-right: 2px; }
+.p12 .foot { position: absolute; left: 72px; right: 72px; bottom: 52px; display: flex; align-items: center; justify-content: space-between; font-size: 30px; color: var(--ink-2); letter-spacing: .04em; }
+.p12 .foot b { display: block; font-size: 36px; font-weight: 700; color: var(--action-press); letter-spacing: .08em; }
+.p12 .qr { width: 112px; height: 112px; border: 3px dashed var(--action); border-radius: 10px; display: grid; place-content: center; font-size: 32px; font-weight: 700; letter-spacing: .1em; text-indent: .1em; color: var(--action-press); }
+</style>
+</head>
+<body>
+<div class="pv"><div class="pv__fit">
+<main class="poster" id="poster" data-cid="PS-012" data-name="母亲节祝福海报" data-size="1080×1440" data-use="节日">
+<div class="p12">
+  <div class="photo"><img src="../../../../kit/assets/photo/bg-floral.webp" alt="粉芍药"></div>
+  <div class="brand"><img data-ic="bouquet" src="../../../../kit/assets/icons/flat/bouquet.webp" alt="">花间集</div>
+  <div class="panel"></div>
+  <img class="heart" data-ic="heart" src="../../../../kit/assets/icons/flat/heart.webp" alt="">
+  <h1 class="title">母亲节<b>快乐</b></h1>
+  <p class="sub">送给妈妈的一束花</p>
+  <div class="gifts">
+    <div class="gift"><div class="ph"><img src="../../../../kit/assets/photo/product-peony-pink.webp" alt="粉芍药花束"></div><div><h3>粉芍药花束</h3><p>附手写贺卡</p><div class="price"><small>¥</small>239</div></div></div>
+    <div class="gift"><div class="ph"><img src="../../../../kit/assets/photo/product-giftbox.webp" alt="花礼盒"></div><div><h3>花礼盒</h3><p>附手写贺卡</p><div class="price"><small>¥</small>259</div></div></div>
+  </div>
+  <div class="foot"><div><b>花间集</b>建国路店 徐汇滨江店 浦东世纪店</div><div class="qr">扫码</div></div>
+</div>
+</main>
+</div></div>
+<script src="../../../../kit/ui.js"></script>
+<script>
+(function () {
+  var q = new URLSearchParams(location.search), root = document.documentElement;
+  if (q.get('export') === '1') root.classList.add('is-export');
+  if (q.get('bleed') === '1') root.classList.add('is-bleed');
+  var p = document.getElementById('poster'), fit = p.parentNode;
+  function fitIt() {
+    if (root.classList.contains('is-export')) { fit.style.setProperty('--k', 1); return; }
+    var k = Math.min((innerWidth - 48) / p.offsetWidth, (innerHeight - 48) / p.offsetHeight, 1);
+    fit.style.setProperty('--k', Math.max(k, 0.05));
+  }
+  addEventListener('resize', fitIt); fitIt();
+  var pg = document.createElement('style');
+  pg.textContent = '@page{size:' + p.offsetWidth + 'px ' + p.offsetHeight + 'px;margin:0}';
+  document.head.appendChild(pg);
+  if (root.classList.contains('is-bleed') && !root.classList.contains('is-export')) {
+    var m = document.createElement('div'); m.className = 'marks'; m.setAttribute('aria-hidden', 'true');
+    var b = parseFloat(getComputedStyle(p).getPropertyValue('--bleed')) || 11.34, L = 20, G = 4;
+    var W = p.offsetWidth, H = p.offsetHeight;
+    [[0, 0], [1, 0], [0, 1], [1, 1]].forEach(function (c) {
+      var x = c[0] ? W - b : b, y = c[1] ? H - b : b;
+      var v = [x - 0.5, c[1] ? H + G : -G - L, 1, L], h = [c[0] ? W + G : -G - L, y - 0.5, L, 1];
+      [v, h].forEach(function (r) {
+        var i = document.createElement('i'); i.style.cssText = 'left:' + r[0] + 'px;top:' + r[1] + 'px;width:' + r[2] + 'px;height:' + r[3] + 'px';
+        m.appendChild(i);
+      });
+    });
+    m.style.cssText = 'position:absolute;left:0;top:0;width:' + W + 'px;height:' + H + 'px;transform:scale(var(--k));transform-origin:0 0;pointer-events:none';
+    fit.appendChild(m);
+  }
+})();
+</script>
+</body>
+</html>

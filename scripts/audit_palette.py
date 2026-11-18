@@ -9,6 +9,8 @@ danger, info, price); no hue is added for decoration (a purple bar series, teal 
 browser, reads the computed text, background, border, fill and stroke colours of every visible element, drops the neutrals, buckets the rest by hue
 and reports every hue that is not a hue of the theme's own tokens. It also reports letter avatars (a name's first character in a coloured circle), which
 the standard forbids. Canvas charts are not read: their palette comes from the theme in the first place.
+The ordered-progress ramp is the one allowed exception: on an element with data-stage-set and data-stage a colour equal to one of the page's --stage-1 to --stage-6 is not counted (the ramp's hues are 210-300 degrees, 25 degrees or more from the status hues);
+the same colour anywhere else, or a colour on such an element that is not a stage token, is counted as usual.
 
 Colours are read back through a canvas pixel, so oklch(), color-mix() and color(srgb ...) values count like hex ones.
 
@@ -41,12 +43,15 @@ COLLECT = """() => {
   /* any CSS colour (rgb, oklch, color-mix, color(srgb ...)) read back through a canvas pixel */
   const cv = document.createElement('canvas'); cv.width = cv.height = 1; const cx = cv.getContext('2d', { willReadFrequently: true });
   const parse = (c) => { if (!c || c === 'none') return null; cx.clearRect(0, 0, 1, 1); cx.fillStyle = '#000'; cx.fillStyle = c; cx.fillRect(0, 0, 1, 1); const d = cx.getImageData(0, 0, 1, 1).data; return { r: d[0], g: d[1], b: d[2], a: d[3] / 255 }; };
+  /* the ordered-progress ramp (visual-design.html 有序进度状态的色阶): the page's own --stage-1…6 are allowed on the elements that carry data-stage-set and data-stage (their text, dot or bar) and nowhere else */
+  const stageRgb = [1, 2, 3, 4, 5, 6].map((i) => parse(getComputedStyle(document.documentElement).getPropertyValue('--stage-' + i).trim())).filter(Boolean);
+  const isStage = (el, q) => !!el.closest('[data-stage-set][data-stage]') && stageRgb.some((s) => s.r === q.r && s.g === q.g && s.b === q.b);
   for (const el of document.querySelectorAll('body *')) {
     const r = el.getBoundingClientRect(); if (r.width < 2 || r.height < 2) continue;
     const s = getComputedStyle(el); if (s.visibility === 'hidden' || s.display === 'none') continue;
     const where = el.tagName.toLowerCase() + '.' + [...el.classList].slice(0, 2).join('.');
     const area = r.width * r.height;
-    const push = (kind, c) => { const q = parse(c); if (q && q.a > 0.5) out.push([kind, q.r, q.g, q.b, Math.round(area), where]); };
+    const push = (kind, c) => { const q = parse(c); if (q && q.a > 0.5 && !isStage(el, q)) out.push([kind, q.r, q.g, q.b, Math.round(area), where]); };
     push('bg', s.backgroundColor);
     if ([...el.childNodes].some((n) => n.nodeType === 3 && n.nodeValue.trim())) push('text', s.color);
     if (parseFloat(s.borderTopWidth) > 0 && s.borderTopStyle !== 'none') push('border', s.borderTopColor);

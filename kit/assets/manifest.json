@@ -1,0 +1,803 @@
+{
+ "note": "本库模板使用的已生成素材（线性图标、彩色实心图标、三套风格的 3D、真实与扁平图标、花卉商品图、场景图、纹理、对象标识）。新设计须按图像规则重新生成并替换，不得把这些素材当作最终品牌资产。",
+ "assets": [
+  {
+   "path": "icons/3d/bag.webp",
+   "sha256": "48305ddde3f89a2ed67c4d90fb17a4fd27cb261eb6efc370558b09b75e00a358",
+   "role": "icon-3d",
+   "origin": "原 016 花店库生成素材（Imagegen，preserved-ui/florist-016/assets/icons）"
+  },
+  {
+   "path": "icons/3d/bouquet.webp",
+   "sha256": "1f9bdc2cc53ac6bcc5709b0d48ed103fd8b93881cbda55e6fad0e80f26f3ecdf",
+   "role": "icon-3d",
+   "origin": "原 016 花店库生成素材（Imagegen，preserved-ui/florist-016/assets/icons）"
+  },
+  {
+   "path": "icons/3d/cart.webp",
+   "sha256": "29e45d34484a0110a5fc2ec2d88d93a10df672a571c2395f79c396bc4585970a",
+   "role": "icon-3d",
+   "origin": "原 016 花店库生成素材（Imagegen，preserved-ui/florist-016/assets/icons）"
+  },
+  {
+   "path": "icons/3d/coupon.webp",
+   "sha256": "30131400ff02f917f6bc1fe3397d1f17b2eb5e42e78b2e8c23ef93ed4ec1ee8f",
+   "role": "icon-3d",
+   "origin": "原 016 花店库生成素材（Imagegen，preserved-ui/florist-016/assets/icons）"
+  },
+  {
+   "path": "icons/3d/giftbox.webp",
+   "sha256": "a4c4bdbf8a35585c0e5ca232b8df9e43eeabb89a38427d7a660cf6e8b227d7c4",
+   "role": "icon-3d",
+   "origin": "原 016 花店库生成素材（Imagegen，preserved-ui/florist-016/assets/icons）"
+  },
+  {
+   "path": "icons/3d/giftcard.webp",
+   "sha256": "29be271d74eb99b7dad625f951a3fc1c4bb58922d8709096bde908088464490f",
+   "role": "icon-3d",
+   "origin": "原 016 花店库生成素材（Imagegen，preserved-ui/florist-016/assets/icons）"
+  },
+  {
+   "path": "icons/3d/heart.webp",
+   "sha256": "a9dd19c626487889a683c47a18876e18e96bbea5f418c36a7ee3964919fb1446",
+   "role": "icon-3d",
+   "origin": "原 016 花店库生成素材（Imagegen，preserved-ui/florist-016/assets/icons）"
+  },
+  {
+   "path": "icons/3d/pin.webp",
+   "sha256": "47442322b43b1e0901cc970d2c3de085da2032c61acc030f90e785879e0bac5e",
+   "role": "icon-3d",
+   "origin": "原 016 花店库生成素材（Imagegen，preserved-ui/florist-016/assets/icons）"
+  },
+  {
+   "path": "icons/3d/plant.webp",
+   "sha256": "d82851d1b088c51f4aca6b1c5c63f9b117a2c2cbdebd462ee63d9d1803402586",
+   "role": "icon-3d",
+   "origin": "原 016 花店库生成素材（Imagegen，preserved-ui/florist-016/assets/icons）"
+  },
+  {
+   "path": "icons/3d/scooter.webp",
+   "sha256": "e0349d123ea1ea88d0eaa3bf5ec930f475dfbc152a58c49ff9c069d17a256073",
+   "role": "icon-3d",
+   "origin": "原 016 花店库生成素材（Imagegen，preserved-ui/florist-016/assets/icons）"
+  },
+  {
+   "path": "icons/3d/seedling.webp",
+   "sha256": "b556d1a01bd975670b4050eee6ba7f93f521646266f3500a769c3e2614bbcbbc",
+   "role": "icon-3d",
+   "origin": "原 016 花店库生成素材（Imagegen，preserved-ui/florist-016/assets/icons）"
+  },
+  {
+   "path": "icons/3d/shears.webp",
+   "sha256": "6def1b26e353a55f70146c527dad8b40dd09eabaa1e910d5302567084567bef3",
+   "role": "icon-3d",
+   "origin": "原 016 花店库生成素材（Imagegen，preserved-ui/florist-016/assets/icons）"
+  },
+  {
+   "path": "icons/3d/star.webp",
+   "sha256": "add118d4925af66d16a03bbc9a0cb61ecfe9a8e0b871c37ce0ba96913f4d20b3",
+   "role": "icon-3d",
+   "origin": "原 016 花店库生成素材（Imagegen，preserved-ui/florist-016/assets/icons）"
+  },
+  {
+   "path": "icons/3d/vase.webp",
+   "sha256": "c75bb5ef4426eba93423e2f589d51bd01d0ff238b4d90568cc775395c8c298f1",
+   "role": "icon-3d",
+   "origin": "原 016 花店库生成素材（Imagegen，preserved-ui/florist-016/assets/icons）"
+  },
+  {
+   "path": "icons/3d/wallet.webp",
+   "sha256": "5ffdaa4619074155ac32ed3516ae91388e72d206444cb71f16796a10d350a7ba",
+   "role": "icon-3d",
+   "origin": "原 016 花店库生成素材（Imagegen，preserved-ui/florist-016/assets/icons）"
+  },
+  {
+   "path": "icons/3d/watering.webp",
+   "sha256": "857483f40a4b02c2a96c19d2d9e05b808ae6fed3eea6f3ab4e355a605a0c2921",
+   "role": "icon-3d",
+   "origin": "原 016 花店库生成素材（Imagegen，preserved-ui/florist-016/assets/icons）"
+  },
+  {
+   "path": "icons/flat/bag.webp",
+   "sha256": "bdf126a3c4b6d18056363390a5750f675440496382fdb62c125f41e4ec71d008",
+   "role": "icon-flat",
+   "origin": "原 016 花店库生成素材（Imagegen，preserved-ui/florist-016/assets/icons）"
+  },
+  {
+   "path": "icons/flat/bouquet.webp",
+   "sha256": "97495eb91d3a19c7f2918c30b43d71dfa5d68ec72739650fb9e67ea017d4c0f7",
+   "role": "icon-flat",
+   "origin": "原 016 花店库生成素材（Imagegen，preserved-ui/florist-016/assets/icons）"
+  },
+  {
+   "path": "icons/flat/cart.webp",
+   "sha256": "ca148ee72aeefef6818c0068a2b755de40cd7e8d7ca30a9984665a5ba58fc3ac",
+   "role": "icon-flat",
+   "origin": "原 016 花店库生成素材（Imagegen，preserved-ui/florist-016/assets/icons）"
+  },
+  {
+   "path": "icons/flat/coupon.webp",
+   "sha256": "804d3e810ada351b0f5601f93b442f8341f3618868177e60d83eb5864e719dce",
+   "role": "icon-flat",
+   "origin": "原 016 花店库生成素材（Imagegen，preserved-ui/florist-016/assets/icons）"
+  },
+  {
+   "path": "icons/flat/giftbox.webp",
+   "sha256": "07a91ed9429f3cd5c4bd489403be6b0710d45693af6429ebb7424cb054f1e8fd",
+   "role": "icon-flat",
+   "origin": "原 016 花店库生成素材（Imagegen，preserved-ui/florist-016/assets/icons）"
+  },
+  {
+   "path": "icons/flat/giftcard.webp",
+   "sha256": "d949c3ecf9343e89cb3df3fc7d46b07977a3182e416ae938334147b5c2052b75",
+   "role": "icon-flat",
+   "origin": "原 016 花店库生成素材（Imagegen，preserved-ui/florist-016/assets/icons）"
+  },
+  {
+   "path": "icons/flat/heart.webp",
+   "sha256": "8fe16087fc0144d346aedbc21ef557a761893b604221051c19d8ad4cdabaf030",
+   "role": "icon-flat",
+   "origin": "原 016 花店库生成素材（Imagegen，preserved-ui/florist-016/assets/icons）"
+  },
+  {
+   "path": "icons/flat/pin.webp",
+   "sha256": "664ae12ba685220018e354376b2d95482a05c59f475eaca5ee5706f35640fbaf",
+   "role": "icon-flat",
+   "origin": "原 016 花店库生成素材（Imagegen，preserved-ui/florist-016/assets/icons）"
+  },
+  {
+   "path": "icons/flat/plant.webp",
+   "sha256": "4bec54e9b73dd63632fde933ffbd1e204add4ee7d86206088324f4a70cbc203c",
+   "role": "icon-flat",
+   "origin": "原 016 花店库生成素材（Imagegen，preserved-ui/florist-016/assets/icons）"
+  },
+  {
+   "path": "icons/flat/scooter.webp",
+   "sha256": "ebea9f6ce44ce9ec06639810013ff493b2e3ba25651d3e8fd2fcce89c7dea925",
+   "role": "icon-flat",
+   "origin": "原 016 花店库生成素材（Imagegen，preserved-ui/florist-016/assets/icons）"
+  },
+  {
+   "path": "icons/flat/seedling.webp",
+   "sha256": "c4b58663116410a462279fbfb1d788119e179f0e63e0c14c6c3069e924c16f32",
+   "role": "icon-flat",
+   "origin": "原 016 花店库生成素材（Imagegen，preserved-ui/florist-016/assets/icons）"
+  },
+  {
+   "path": "icons/flat/shears.webp",
+   "sha256": "4008254f67d4f33745abca256a281dd070d3e9bf6303482bd1929a41aac6d8b6",
+   "role": "icon-flat",
+   "origin": "原 016 花店库生成素材（Imagegen，preserved-ui/florist-016/assets/icons）"
+  },
+  {
+   "path": "icons/flat/star.webp",
+   "sha256": "fad92afa2ee971c78c428a4f6667093d4a969441a055bd586be0f829e29d013b",
+   "role": "icon-flat",
+   "origin": "原 016 花店库生成素材（Imagegen，preserved-ui/florist-016/assets/icons）"
+  },
+  {
+   "path": "icons/flat/vase.webp",
+   "sha256": "e41ec478ae46c72d8e542f2a502fe6ffe7970cb692b631507bfd3d7b63fb42e6",
+   "role": "icon-flat",
+   "origin": "原 016 花店库生成素材（Imagegen，preserved-ui/florist-016/assets/icons）"
+  },
+  {
+   "path": "icons/flat/wallet.webp",
+   "sha256": "149418d9d31a835ce41ce04c1b59640c8742bb7e0ba93e5a220e730bc0362049",
+   "role": "icon-flat",
+   "origin": "原 016 花店库生成素材（Imagegen，preserved-ui/florist-016/assets/icons）"
+  },
+  {
+   "path": "icons/flat/watering.webp",
+   "sha256": "f9025382f82bc8e28b146c8bae2e852fa4338196f4bf6d2bb4bf0e5c2610daaf",
+   "role": "icon-flat",
+   "origin": "原 016 花店库生成素材（Imagegen，preserved-ui/florist-016/assets/icons）"
+  },
+  {
+   "path": "icons/real/bag.webp",
+   "sha256": "efb41d5f674178459325f992d35d0b155c7f5b7ed07005f6f368fb48e68edebb",
+   "role": "icon-real",
+   "origin": "原 016 花店库生成素材（Imagegen，preserved-ui/florist-016/assets/icons）"
+  },
+  {
+   "path": "icons/real/bouquet.webp",
+   "sha256": "284a40c94f591a4b03f4e63cae99ed268b19930ecf5a7c561a292c1055ebb48a",
+   "role": "icon-real",
+   "origin": "原 016 花店库生成素材（Imagegen，preserved-ui/florist-016/assets/icons）"
+  },
+  {
+   "path": "icons/real/cart.webp",
+   "sha256": "faa9cb75cbbed6149038b70aee69cd9e03544df2cd01fe1cefe5118a8d377749",
+   "role": "icon-real",
+   "origin": "原 016 花店库生成素材（Imagegen，preserved-ui/florist-016/assets/icons）"
+  },
+  {
+   "path": "icons/real/coupon.webp",
+   "sha256": "d7fb32d42319e7334f10f5d32fd92e180b92b52e4334cf67bdaff6af1574d872",
+   "role": "icon-real",
+   "origin": "原 016 花店库生成素材（Imagegen，preserved-ui/florist-016/assets/icons）"
+  },
+  {
+   "path": "icons/real/giftbox.webp",
+   "sha256": "e4c956a1919dd8281f34bad39ae77084e9669e73a78c567547d6acb0d3d73f64",
+   "role": "icon-real",
+   "origin": "原 016 花店库生成素材（Imagegen，preserved-ui/florist-016/assets/icons）"
+  },
+  {
+   "path": "icons/real/giftcard.webp",
+   "sha256": "2b0867e690fb472481384ba402098151f1b28b27e58b720bfec61a56044beea7",
+   "role": "icon-real",
+   "origin": "原 016 花店库生成素材（Imagegen，preserved-ui/florist-016/assets/icons）"
+  },
+  {
+   "path": "icons/real/heart.webp",
+   "sha256": "cb30f94225565dff9467ec4e5b72907938c41945414d6bb920ebd0ba4d1fdb0f",
+   "role": "icon-real",
+   "origin": "原 016 花店库生成素材（Imagegen，preserved-ui/florist-016/assets/icons）"
+  },
+  {
+   "path": "icons/real/pin.webp",
+   "sha256": "fcda8fecb7d473028b108d003fb44a16ce61a4f98676405a7a8afd2e03070460",
+   "role": "icon-real",
+   "origin": "原 016 花店库生成素材（Imagegen，preserved-ui/florist-016/assets/icons）"
+  },
+  {
+   "path": "icons/real/plant.webp",
+   "sha256": "ae9eb9ad19291af800f597b8dbb3b3b3c3cd8ad64e64fe6d6d68da145e0fa720",
+   "role": "icon-real",
+   "origin": "原 016 花店库生成素材（Imagegen，preserved-ui/florist-016/assets/icons）"
+  },
+  {
+   "path": "icons/real/scooter.webp",
+   "sha256": "cfee6464989ae5cd1cd1959466a94bc54575b0c1ed5597dc32ff82bb8667f529",
+   "role": "icon-real",
+   "origin": "原 016 花店库生成素材（Imagegen，preserved-ui/florist-016/assets/icons）"
+  },
+  {
+   "path": "icons/real/seedling.webp",
+   "sha256": "0432c7deb351f1148cfe449c04f73a4784f8f88ca98c0f3fa31d7c0434e1f8b1",
+   "role": "icon-real",
+   "origin": "原 016 花店库生成素材（Imagegen，preserved-ui/florist-016/assets/icons）"
+  },
+  {
+   "path": "icons/real/shears.webp",
+   "sha256": "2cd91ed2c6c0ecf4dec8c49ef69605b63fcb8abb8dd30062dd8b08ffca3a9443",
+   "role": "icon-real",
+   "origin": "原 016 花店库生成素材（Imagegen，preserved-ui/florist-016/assets/icons）"
+  },
+  {
+   "path": "icons/real/star.webp",
+   "sha256": "8da5a9721e856bec4eab7f7b44a3b8c6c1c517ccccf73a06127c9b73084e7c98",
+   "role": "icon-real",
+   "origin": "原 016 花店库生成素材（Imagegen，preserved-ui/florist-016/assets/icons）"
+  },
+  {
+   "path": "icons/real/vase.webp",
+   "sha256": "8419273b98faaaf67e459d78d6eb1fda33f24c0793f7ea48420770581cbbe316",
+   "role": "icon-real",
+   "origin": "原 016 花店库生成素材（Imagegen，preserved-ui/florist-016/assets/icons）"
+  },
+  {
+   "path": "icons/real/wallet.webp",
+   "sha256": "3119884ca0903fb5a28f2f3e39b2442c28275433b85c302cf95f806a20c44ad2",
+   "role": "icon-real",
+   "origin": "原 016 花店库生成素材（Imagegen，preserved-ui/florist-016/assets/icons）"
+  },
+  {
+   "path": "icons/real/watering.webp",
+   "sha256": "42621fd1687ec6c6de0f21570f0efde81baf8564943d545cfea55a8ac54ebbf4",
+   "role": "icon-real",
+   "origin": "原 016 花店库生成素材（Imagegen，preserved-ui/florist-016/assets/icons）"
+  },
+  {
+   "path": "line/add.webp",
+   "sha256": "58e493f23b0f4c3cdfc936a4aacb03b6e9a0bce7d07a1b3259bdbb26693e4356",
+   "role": "line-icon",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  },
+  {
+   "path": "line/archive.webp",
+   "sha256": "5e0808e5bc2b4535aa2ea5110ec7b417649eb4562abaf3747cc51a5cdda3dd8f",
+   "role": "line-icon",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  },
+  {
+   "path": "line/back.webp",
+   "sha256": "3f35b494e2d31bfe983a00e90755c082466ff7253cab6b60f6551970e6cd6654",
+   "role": "line-icon",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  },
+  {
+   "path": "line/book.webp",
+   "sha256": "c8fa06c2c25c226c2ba357f926d64912d03643981397ee5ed4ded12c63bf3f9a",
+   "role": "line-icon",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  },
+  {
+   "path": "line/check.webp",
+   "sha256": "3aaca7ccfe7312c6b47c2cd4e57c55a00750bb2c4ad5aed7e0d1e37fac392485",
+   "role": "line-icon",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  },
+  {
+   "path": "line/close.webp",
+   "sha256": "e859563970f306e3989cf3161dd8bc816d0a1cc5c7830b76ec3c7862d2e4078d",
+   "role": "line-icon",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  },
+  {
+   "path": "line/edit.webp",
+   "sha256": "cfa3840f9e20a3b57a905dbc63fb2ee9f6e794933b42ece6dc01f128b68d5210",
+   "role": "line-icon",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  },
+  {
+   "path": "line/file-add.webp",
+   "sha256": "29606acf3f1521baef9ff4fd0d0255bbc78518b6ddb52a15fa65089036c15971",
+   "role": "line-icon",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  },
+  {
+   "path": "line/filter.webp",
+   "sha256": "234049997a09f0c395bb00948a9d8bd94aa78d1c9bcba60b981bb79e756ce561",
+   "role": "line-icon",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  },
+  {
+   "path": "line/folder.webp",
+   "sha256": "6fdc4f85658aba048f63a435c9c30c2d3a0e02a9b23fe96e8ab356f9a1c5d1c1",
+   "role": "line-icon",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  },
+  {
+   "path": "line/home.webp",
+   "sha256": "5ee23489b1fa89c8bb58ebf0194142138a3b6e5abb0c149783f6f513ab8a6dc6",
+   "role": "line-icon",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  },
+  {
+   "path": "line/list.webp",
+   "sha256": "84233917b0ed3f75a6c9a50dfb9dd32f548a49ec41816830db5828e508ade86e",
+   "role": "line-icon",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  },
+  {
+   "path": "line/location.webp",
+   "sha256": "75336247ddbc5361039770f775addd6f467dc809de2afa36ae595c6861bff517",
+   "role": "line-icon",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  },
+  {
+   "path": "line/message.webp",
+   "sha256": "b8dc951f971f86449683768cf777fffd6ccd95ec71db9c8d2e30af6729a0173a",
+   "role": "line-icon",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  },
+  {
+   "path": "line/mic.webp",
+   "sha256": "ac3b6555632d82daa730dfcd68207e30ee2440eead57c27475800448dfc04cef",
+   "role": "line-icon",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  },
+  {
+   "path": "line/minus.webp",
+   "sha256": "ed49bca11fa2e58ea9fa398d5bece7edc51d74384836753c9e000593227ca144",
+   "role": "icon-line",
+   "origin": "由 line/add.webp 去掉竖笔画派生（保留横笔画与圆角端点）"
+  },
+  {
+   "path": "line/monitor.webp",
+   "sha256": "aaa47e74be6a0fe78790ca9a7a795753d40d9bbadf90c84e2043893589c43cd2",
+   "role": "line-icon",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  },
+  {
+   "path": "line/pause.webp",
+   "sha256": "a0410b3013cb7291e58b4c74f237123d6c51b041396748684939fd3bb119a2f0",
+   "role": "line-icon",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  },
+  {
+   "path": "line/people.webp",
+   "sha256": "7475c7e04a7cd41196a31aca1532bce370bf31d198714a4856f395570d23a16c",
+   "role": "line-icon",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  },
+  {
+   "path": "line/play.webp",
+   "sha256": "6b0480c1987ca4555ef76ace04bae16827124af9ed39cd34dacc2e45f14de0d3",
+   "role": "line-icon",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  },
+  {
+   "path": "line/scan.webp",
+   "sha256": "b623518d61b2e7fa89414dbffa9b064b0ac8cb237ec0c3723bb6675eee12cf25",
+   "role": "line-icon",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  },
+  {
+   "path": "line/search.webp",
+   "sha256": "0abaf49452ba56a6a2b6ea88eaddac5efb85f69c4a464eebc0814c87cd2d881d",
+   "role": "line-icon",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  },
+  {
+   "path": "line/settings.webp",
+   "sha256": "a61912b65e3edcf8d3e4f9f64b6c5935c92f521d20980a9f75b105db0cce541b",
+   "role": "line-icon",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  },
+  {
+   "path": "line/shield.webp",
+   "sha256": "02122ad37ead620192eb5536b7a4a47032972a1723752d42c1fd961351eea636",
+   "role": "line-icon",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  },
+  {
+   "path": "line/support.webp",
+   "sha256": "74d2fb6549078a31d9f3f9899ba4fac8872c0c9f559acda4bb282833d8e63add",
+   "role": "line-icon",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  },
+  {
+   "path": "line/undo.webp",
+   "sha256": "ba7f43ae463930e8214598ed44f3c8faa4953b22da36cd69c9f061149fc1ff93",
+   "role": "line-icon",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  },
+  {
+   "path": "line/upload.webp",
+   "sha256": "29378e65a3ea681b2a75e825671c1899925a587efca6b5236a7a90b378deda26",
+   "role": "line-icon",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  },
+  {
+   "path": "line/user.webp",
+   "sha256": "3ab4e2ee2e86958636775519697cf91c954614e362b85bcf64674dc609d29004",
+   "role": "line-icon",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  },
+  {
+   "path": "marks/mark-001.webp",
+   "sha256": "417afdf0071e21b1902c91f45bd2e10570b9bbf3de026b24662b4f62e1d006b7",
+   "role": "identity-mark",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  },
+  {
+   "path": "marks/mark-002.webp",
+   "sha256": "0b9be3920ceb352f5ee13150aa877c5d15e24c0c7deb80bc56043ec4fdcbd06d",
+   "role": "identity-mark",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  },
+  {
+   "path": "marks/mark-003.webp",
+   "sha256": "fab257616bd2f80bf906202c6a1576393f68adea259c53c1b1af9caaae1c3383",
+   "role": "identity-mark",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  },
+  {
+   "path": "marks/mark-004.webp",
+   "sha256": "103785d7fc23fadf8f83fa4199da4a513ad23349a3a4a0b5e0eef27fae06010b",
+   "role": "identity-mark",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  },
+  {
+   "path": "marks/mark-005.webp",
+   "sha256": "f99accb8f85e1c954c3bae5ff8618274ccd76dece48a9bba61dd6908fc355f71",
+   "role": "identity-mark",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  },
+  {
+   "path": "marks/mark-006.webp",
+   "sha256": "67d7e1a6020b9abbbd15044c5b17f07f48cd3654131174e9bcb1323f0fecb521",
+   "role": "identity-mark",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  },
+  {
+   "path": "marks/mark-007.webp",
+   "sha256": "98da8433df7fd0f53e23ad9ad9da4e1f95b8fddca822e703cc04137e785f9d3b",
+   "role": "identity-mark",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  },
+  {
+   "path": "marks/mark-008.webp",
+   "sha256": "03135a66919062ff4a56b0ce1186608bcf47ab135c06d603a62ead7eee827e8e",
+   "role": "identity-mark",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  },
+  {
+   "path": "marks/mark-009.webp",
+   "sha256": "f2004d9352d73a8e374f530b74c62b54d1aad76f2a0032425366fc04a7584b1d",
+   "role": "identity-mark",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  },
+  {
+   "path": "marks/mark-010.webp",
+   "sha256": "1847431b78a6b17d1e71d726987cfb534004f72028f19a83de01e56d38563cf2",
+   "role": "identity-mark",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  },
+  {
+   "path": "marks/mark-011.webp",
+   "sha256": "2a6758c8784edec9b306aa021f6d8596ed714601ccd5034ef799cf52651bf49c",
+   "role": "identity-mark",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  },
+  {
+   "path": "marks/mark-012.webp",
+   "sha256": "1e57544c7b372ae57093dcb503973e64e7be573b7175c6779846dabc10c325cd",
+   "role": "identity-mark",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  },
+  {
+   "path": "marks/mark-013.webp",
+   "sha256": "9ecd918fe5119196588fba0d4416898eb2492083b0039453c17a2736d70f35b7",
+   "role": "identity-mark",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  },
+  {
+   "path": "marks/mark-014.webp",
+   "sha256": "ab2beefea5e69dfdcc575f5bcc4826f9af89db06edd1d5f7d7af16849ee1e25f",
+   "role": "identity-mark",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  },
+  {
+   "path": "marks/mark-015.webp",
+   "sha256": "3609f9b97bbd4c73cda5a73ece7b65a0010cdbf82aa9d1714a210bb24dd70ee1",
+   "role": "identity-mark",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  },
+  {
+   "path": "marks/mark-016.webp",
+   "sha256": "79b9c620dc6910c30e94267b89adcbbe28c1373d2da7807b4cf8462aaae32e45",
+   "role": "identity-mark",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  },
+  {
+   "path": "marks/mark-017.webp",
+   "sha256": "8efe686dab1f65668279e6fd3a1e0290cedef72e5ea68910f6afa91954b49462",
+   "role": "identity-mark",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  },
+  {
+   "path": "marks/mark-018.webp",
+   "sha256": "f81e2eaefdd8500559ed2f004f64ec93407c57df66c21d6a58cc99282e086868",
+   "role": "identity-mark",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  },
+  {
+   "path": "marks/mark-019.webp",
+   "sha256": "1603d8ce0448d08ffa00e3cafd8169de8d3d6ecf80a682e90489d8365d079e11",
+   "role": "identity-mark",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  },
+  {
+   "path": "marks/mark-020.webp",
+   "sha256": "fa09d691164f828d4edfc1cfbc474cb6f8114199b8229a7b93c5a92ce46954f1",
+   "role": "identity-mark",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  },
+  {
+   "path": "marks/mark-021.webp",
+   "sha256": "6f287183eaa6846cd2b4a7063637118acb7af4e98255d2223931f1796a31f140",
+   "role": "identity-mark",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  },
+  {
+   "path": "marks/mark-022.webp",
+   "sha256": "2f39ee6637ee1783c0bcdfda5aefbbc81a56944024db8cbe9a1d6027ac5ef535",
+   "role": "identity-mark",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  },
+  {
+   "path": "marks/mark-023.webp",
+   "sha256": "484f0219937fcc76c7466f8a40db7d5f3957849554e4f414998a9e3177b66b79",
+   "role": "identity-mark",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  },
+  {
+   "path": "marks/mark-024.webp",
+   "sha256": "927c60ffd096eaff0940b7ced91aa72250270b7c967ea7a15db666db5276046d",
+   "role": "identity-mark",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  },
+  {
+   "path": "photo/bg-floral.webp",
+   "sha256": "22ae95fda716c2d2e18438e36df304ba7db215163a7c75b9bf413e04786e882b",
+   "role": "scene",
+   "origin": "原 016 花店库与 028 工作台生成素材（Imagegen）"
+  },
+  {
+   "path": "photo/bg-green.webp",
+   "sha256": "7badbcb93e31dbf46792c60f06460aeacb788126614bae3cb605deed7524a81c",
+   "role": "scene",
+   "origin": "原 016 花店库与 028 工作台生成素材（Imagegen）"
+  },
+  {
+   "path": "photo/bouquet-rose.webp",
+   "sha256": "a87511a0ebb2d88f142ccf081a49dbee3607adc8ba7674480d18ba32bd311f7a",
+   "role": "scene",
+   "origin": "原 016 花店库与 028 工作台生成素材（Imagegen）"
+  },
+  {
+   "path": "photo/bouquet-tulip.webp",
+   "sha256": "9515e835b2887f76452c8f0219bb5bde7034652f9ea7ad93f945afdd1ff9fabe",
+   "role": "scene",
+   "origin": "原 016 花店库与 028 工作台生成素材（Imagegen）"
+  },
+  {
+   "path": "photo/bouquet-white.webp",
+   "sha256": "3ada483709d63e93ebe1e658442839df283bf029b179a6c62ac474ce50dcaea2",
+   "role": "scene",
+   "origin": "原 016 花店库与 028 工作台生成素材（Imagegen）"
+  },
+  {
+   "path": "photo/pattern-leaves.webp",
+   "sha256": "042204cddcff101014a2d021f60e9261d2cb7c3daf09bb964604ec5e4ea98591",
+   "role": "texture",
+   "origin": "原 016 花店库与 028 工作台生成素材（Imagegen）"
+  },
+  {
+   "path": "photo/pattern-petals.webp",
+   "sha256": "e2c355494d7cb56ca9d5c8a991f7e71ec00e37ca491a6d555109b7eadf12afd8",
+   "role": "texture",
+   "origin": "原 016 花店库与 028 工作台生成素材（Imagegen）"
+  },
+  {
+   "path": "photo/pattern-waves.webp",
+   "sha256": "6cca054faefea6d690f4b697118efa72aebd0ff28829a2ed5f4a9c7bdd597edc",
+   "role": "texture",
+   "origin": "原 016 花店库与 028 工作台生成素材（Imagegen）"
+  },
+  {
+   "path": "photo/product-giftbox.webp",
+   "sha256": "08845f6a4b6da363b6665a90265fe4f9c103fc2b114acf92fd31a1fc0c6b579b",
+   "role": "product-photo",
+   "origin": "原 016 花店库与 028 工作台生成素材（Imagegen）"
+  },
+  {
+   "path": "photo/product-hydrangea-blue.webp",
+   "sha256": "c323f0ac72e7a0d794ad602ec1f477427e484fa42f5938d39622a0d7edfcd873",
+   "role": "product-photo",
+   "origin": "原 016 花店库与 028 工作台生成素材（Imagegen）"
+  },
+  {
+   "path": "photo/product-monstera.webp",
+   "sha256": "0ea932cb25db95e0d9df8769abba720ddafe7c3f404be5a99a211b605dd7d8a1",
+   "role": "product-photo",
+   "origin": "原 016 花店库与 028 工作台生成素材（Imagegen）"
+  },
+  {
+   "path": "photo/product-pampas-vase.webp",
+   "sha256": "31ef2f022992938a882dd055e94c2bedbf0380ea1f423865f36a907a47b2e456",
+   "role": "product-photo",
+   "origin": "原 016 花店库与 028 工作台生成素材（Imagegen）"
+  },
+  {
+   "path": "photo/product-peony-pink.webp",
+   "sha256": "2c883c71bc54777658f8d21c9635f31abcf6a9727031a9ad1c5e5b4d5dfd4323",
+   "role": "product-photo",
+   "origin": "原 016 花店库与 028 工作台生成素材（Imagegen）"
+  },
+  {
+   "path": "photo/product-rose-red.webp",
+   "sha256": "634756ae006d270095d20f9b9cf3f729c1f7e556e4dbcf37c1e2fc0c9b981b3e",
+   "role": "product-photo",
+   "origin": "原 016 花店库与 028 工作台生成素材（Imagegen）"
+  },
+  {
+   "path": "photo/product-succulent.webp",
+   "sha256": "a2e6c96f7f03fdf1c66bf49d46f550b468cdfdacf519da9f51019cc23725acef",
+   "role": "product-photo",
+   "origin": "原 016 花店库与 028 工作台生成素材（Imagegen）"
+  },
+  {
+   "path": "photo/product-sunflower.webp",
+   "sha256": "aaf0dc1a45eef0d554d5ac9d87f0a45b57ff5202c872e3ac79681ad39213707b",
+   "role": "product-photo",
+   "origin": "原 016 花店库与 028 工作台生成素材（Imagegen）"
+  },
+  {
+   "path": "photo/product-tulip-white.webp",
+   "sha256": "981713e2eba487ea38d257ccdf89de58e93c8652134b8c770755a9975a968f81",
+   "role": "product-photo",
+   "origin": "原 016 花店库与 028 工作台生成素材（Imagegen）"
+  },
+  {
+   "path": "photo/scene-hero-pink.webp",
+   "sha256": "de267fd3e3bd220668404f1f3a067cd69ebbd95f6b3989cf6bf3104a05715aa5",
+   "role": "scene",
+   "origin": "原 016 花店库与 028 工作台生成素材（Imagegen）"
+  },
+  {
+   "path": "solid/bill.webp",
+   "sha256": "429b7b0eb8f96f3a8262eb27203b286cf2d91893791a1a785beb85e730cae26a",
+   "role": "solid-icon",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  },
+  {
+   "path": "solid/biz-customer.webp",
+   "sha256": "abc4317ebb1d94b045e490007e2f42ebced5463c9d3c123d7a473f54454a1e8e",
+   "role": "solid-icon",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  },
+  {
+   "path": "solid/biz-demo.webp",
+   "sha256": "a46b115014e021c5aac3a66b898aebdbd3d4983070c574a6e68431b1e04c56c5",
+   "role": "solid-icon",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  },
+  {
+   "path": "solid/biz-notes.webp",
+   "sha256": "af7b849aee9a5cfdb95e7b774db9cee534f1045b54783959694250e05c5a5042",
+   "role": "solid-icon",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  },
+  {
+   "path": "solid/biz-record.webp",
+   "sha256": "11a87a9d80c9c717cb4b1c80d89a3e6cfbae54d916cbde61d283c1ef40a2aaa5",
+   "role": "solid-icon",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  },
+  {
+   "path": "solid/biz-review.webp",
+   "sha256": "dc899de4e9169b2007329cd3335d0985c2c89d2dc5c7141bb6cdaef5209c1ed2",
+   "role": "solid-icon",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  },
+  {
+   "path": "solid/biz-store.webp",
+   "sha256": "f6dd79759abcf90e1f430714ad1b700f7b6a06ee0b466b9c5a1e22e4e964d7db",
+   "role": "solid-icon",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  },
+  {
+   "path": "solid/biz-system.webp",
+   "sha256": "0ab35befb3ea47c0f63685f8f71b30079f3f4f893693c5ec42893312a6a6cf3d",
+   "role": "solid-icon",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  },
+  {
+   "path": "solid/biz-upload.webp",
+   "sha256": "db979f4698705c5e1b38a3fa61df36368254dad81b2e0ccb91332e2200b053b0",
+   "role": "solid-icon",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  },
+  {
+   "path": "solid/layout.webp",
+   "sha256": "04d2b0ffd28f2910c49a5fe6910d2f723bee287a94af2783d7b70f080755a036",
+   "role": "solid-icon",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  },
+  {
+   "path": "solid/order.webp",
+   "sha256": "6878a25c2a6dd0a6dd36509346c6f0736d383db19d80ce16941761a2fdeb39b0",
+   "role": "solid-icon",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  },
+  {
+   "path": "solid/solid-content.webp",
+   "sha256": "66df59d34e55c449ae4f9988f949102f454e165c7ee6b7846e15a12d7285baf1",
+   "role": "solid-icon",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  },
+  {
+   "path": "solid/solid-design.webp",
+   "sha256": "8f6a1ed756339bab5d518833a35eaf4ebff889b5a3d4c222d20be7c41646867a",
+   "role": "solid-icon",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  },
+  {
+   "path": "solid/solid-office.webp",
+   "sha256": "8ff6995f39c849cdef4b4443226a6088feb8c6f13f6ab67fe10ad8ab9033304e",
+   "role": "solid-icon",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  },
+  {
+   "path": "solid/solid-tasks.webp",
+   "sha256": "f28d21041a569403069e4af10ccddc997024130ab9535564bb2fd4094aa39bf5",
+   "role": "solid-icon",
+   "origin": "templates/frontend/artwork（Imagegen 生成）"
+  }
+ ]
+}

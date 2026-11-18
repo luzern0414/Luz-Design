@@ -1,0 +1,12 @@
+{
+ "id": "DC-SL-P02",
+ "name": "章节页",
+ "layout": "section",
+ "number": "01",
+ "title": "鲜花要先醒水再上架",
+ "image": "bg-floral",
+ "focus": [
+  0.8,
+  0.5
+ ]
+}

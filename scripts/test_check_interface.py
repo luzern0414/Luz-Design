@@ -340,5 +340,53 @@ class TextFieldFocusFrameTest(unittest.TestCase):
         self.assertEqual(self.errors(".input { box-shadow: 0 0 0 2px #2563eb; } input:not(:focus) { outline: 2px solid #2563eb; }"), [])
 
 
+class ScriptBuiltInterfaceTest(unittest.TestCase):
+    """What a static read of a page built from a component library cannot see: the markup is made by a script, an option sets a variable only when it is switched on,
+    a modifier class stands for a variant of a base class. The checker reads those precisely instead of reporting them, and still reports the real thing."""
+
+    def fills(self, css: str, body: str = "<p>示例</p>") -> list[str]:
+        errors, _ = run(body, css)
+        return [e for e in errors if "dark or saturated fill" in e or "decorative gradient" in e or "gradient on control" in e]
+
+    def test_a_button_class_is_a_control_even_when_a_script_draws_the_button(self) -> None:
+        self.assertEqual(self.fills(".btn-p{background:#A85D79;color:#fff}"), [])
+        self.assertEqual(self.fills(".ad-btn.primary{background:#A85D79;color:#fff}"), [])
+        self.assertEqual(self.fills(".sa button.fav{background:#A85D79;color:#fff}"), [])
+        self.assertTrue(self.fills(".banner{background:#A85D79;color:#fff}"), "a banner is a block, whatever colour it is")
+
+    def test_a_gradient_button_is_still_a_gradient(self) -> None:
+        errors = self.fills(".btn-p{background:linear-gradient(180deg,#A85D79,#B86D89);color:#fff}")
+        self.assertTrue([e for e in errors if "gradient" in e], errors)
+
+    def test_a_modifier_class_takes_the_size_of_its_base_class(self) -> None:
+        css = ".tg{display:inline-flex;height:20px;padding:0 6px}.tg-hot{background:#A9574C;color:#fff}"
+        self.assertEqual(self.fills(css), [])
+        self.assertTrue(self.fills(".card{height:120px}.card-hot{background:#A9574C;color:#fff}"), "a base class of container size gives no pass")
+        self.assertTrue(self.fills(".tg-hot{background:#A9574C;color:#fff}"), "without a base class that declares a small size the fill is judged as before")
+
+    def test_a_variable_that_only_an_option_sets_is_not_the_default_look(self) -> None:
+        css = ".side{background:var(--side);color:var(--sideink)}#root[data-cfg-sidebar=dark]{--side:#23272E;--sideink:#F1F2F4}:root{--side:#FFFFFF;--sideink:#1F2329}"
+        errors, _ = run("<nav>示例</nav>", css)
+        self.assertEqual([e for e in errors if "dark or saturated fill" in e or "color too light" in e], [])
+        only_option = ".side{background:var(--side,#FFFFFF);color:var(--sideink,#1F2329)}#root[data-cfg-sidebar=dark]{--side:#23272E;--sideink:#F1F2F4}"
+        errors, _ = run("<nav>示例</nav>", only_option)
+        self.assertEqual([e for e in errors if "dark or saturated fill" in e or "color too light" in e], [], "the fallback is the default state")
+        errors, _ = run("<nav>示例</nav>", ".side{background:var(--side);color:#fff}:root{--side:#23272E}")
+        self.assertTrue([e for e in errors if "dark or saturated fill" in e], "an unconditional dark side is still a dark side")
+
+    def test_a_translucent_black_veil_is_a_scrim_but_a_dark_toast_is_not(self) -> None:
+        self.assertEqual(self.fills(".pt-mask{position:absolute;inset:0;background:rgba(8,10,13,.55)}"), [])
+        self.assertEqual(self.fills(".thumb-cap{position:absolute;left:0;bottom:0;height:16px;background:rgba(31,35,41,.7);color:#fff}"), [])
+        self.assertTrue(self.fills(".ad-tip{position:absolute;padding:6px 10px;height:40px;background:rgba(31,35,41,.92);color:#fff}"), "0.92 alpha is a dark panel")
+        self.assertTrue(self.fills(".toast{padding:12px 20px;height:44px;background:#1F2329;color:#fff}"), "an opaque dark toast is a dark block")
+        self.assertEqual(self.fills(".gal-cnt{position:absolute;right:14px;bottom:14px;background:color-mix(in srgb,rgba(31,35,41,1) 55%,transparent);color:#fff}"), [], "a mixed veil is a veil")
+        self.assertTrue(self.fills(".gal-cnt{position:absolute;background:color-mix(in srgb,rgba(31,35,41,1) 92%,transparent);color:#fff;height:40px}"), "a 92 % mix is a dark panel")
+
+    def test_a_namespaced_state_class_is_a_state(self) -> None:
+        css = ".ck{width:22px;height:22px;border-radius:50%}.ck.fl-on{background:#A85D79;color:#fff}"
+        self.assertEqual(self.fills(css), [])
+        self.assertTrue(self.fills(".pill{height:40px}.pill.fl-on{background:#A85D79;color:#fff}"), "a state of a container is still a container")
+
+
 if __name__ == "__main__":
     unittest.main()

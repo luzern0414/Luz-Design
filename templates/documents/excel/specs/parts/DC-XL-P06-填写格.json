@@ -1,0 +1,21 @@
+{
+  "id": "DC-XL-P06",
+  "name": "填写格",
+  "use": "需要人填写的格铺极浅米黄 FFF8E1（样例后处理）",
+  "fragment": {
+    "decorate": {
+      "input_columns": [
+        "单价（元）",
+        "验收日期"
+      ]
+    }
+  },
+  "used_in": [
+    "DC-XL-001",
+    "DC-XL-003",
+    "DC-XL-004",
+    "DC-XL-005",
+    "DC-XL-007",
+    "DC-XL-010"
+  ]
+}

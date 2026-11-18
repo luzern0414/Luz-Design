@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="zh-CN" data-ic-base="../../../../kit/assets/icons">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>优惠券促销方版</title>
+<link rel="icon" href="../../../../kit/assets/icons/flat/bouquet.webp">
+<link rel="stylesheet" href="../../../../kit/tokens.css">
+<style>
+:root { --pw: 1080px; --ph: 1080px; }
+/* 海报画布与预览：画布大小写死，页面按视口缩放预览；地址加 ?export=1 去掉缩放与外框，用于导出 */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; }
+body { background: color-mix(in srgb, var(--ink) 12%, var(--bg)); font: 400 16px/1.5 var(--font); color: var(--ink); -webkit-font-smoothing: antialiased; }
+.pv { min-height: 100vh; display: grid; place-items: center; padding: 24px; }
+.pv__fit { --k: 1; position: relative; width: calc(var(--pw) * var(--k)); height: calc(var(--ph) * var(--k)); box-shadow: var(--elev-3); }
+.poster { position: absolute; left: 0; top: 0; width: var(--pw); height: var(--ph); overflow: hidden; transform: scale(var(--k)); transform-origin: 0 0; background: var(--bg); color: var(--ink); font-family: var(--font); line-height: 1.3; text-rendering: optimizeLegibility; }
+.poster *, .poster *::before, .poster *::after { margin: 0; padding: 0; }
+.poster img { display: block; }
+.poster h1, .poster h2, .poster h3, .poster p { font-weight: inherit; }
+.x-tex { position: absolute; inset: 0; background: url(../../../../kit/assets/photo/pattern-petals.webp) 0 0 / 520px; opacity: .45; pointer-events: none; }
+.x-nw { white-space: nowrap; }
+.is-export body, .is-export { background: transparent; }
+.is-export .pv { display: block; min-height: 0; padding: 0; }
+.is-export .pv__fit { --k: 1; box-shadow: none; }
+.marks i { position: absolute; background: var(--ink-2); }
+@media print { html, body { background: none; } .pv { display: block; min-height: 0; padding: 0; } .pv__fit { --k: 1; box-shadow: none; } .marks { display: none; } }
+
+/* ── 本海报 ── */
+.p3 { position: absolute; inset: 0; background: color-mix(in srgb, var(--action) 13%, var(--bg)); }
+.p3 .x-tex { opacity: .6; -webkit-mask-image: linear-gradient(180deg, black 0%, transparent 60%); mask-image: linear-gradient(180deg, black 0%, transparent 60%); }
+.p3 .brand { position: absolute; left: 72px; top: 64px; display: flex; align-items: center; gap: 14px; font-size: 36px; font-weight: 600; letter-spacing: .06em; }
+.p3 .brand img { width: 56px; height: 56px; }
+.p3 .title { position: absolute; left: 72px; top: 164px; font-size: 104px; font-weight: 700; letter-spacing: .02em; white-space: nowrap; line-height: 1.1; }
+.p3 .sub { position: absolute; left: 76px; top: 292px; font-size: 38px; font-weight: 500; color: var(--ink-2); letter-spacing: .1em; white-space: nowrap; }
+.p3 .disc { position: absolute; left: 750px; top: -40px; width: 400px; height: 400px; border-radius: 50%; overflow: hidden; border: 12px solid var(--surface); box-shadow: var(--elev-2); }
+.p3 .disc img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 30%; }
+.p3 .ticket-wrap { position: absolute; left: 72px; top: 400px; width: 936px; height: 400px; filter: drop-shadow(0 18px 28px color-mix(in srgb, var(--action-press) 22%, transparent)); }
+.p3 .ticket { position: absolute; inset: 0; background: var(--surface); border-radius: 32px;
+  -webkit-mask: radial-gradient(circle 36px at 660px 0, transparent 35px, black 36px), radial-gradient(circle 36px at 660px 100%, transparent 35px, black 36px); -webkit-mask-composite: source-in;
+  mask: radial-gradient(circle 36px at 660px 0, transparent 35px, black 36px), radial-gradient(circle 36px at 660px 100%, transparent 35px, black 36px); mask-composite: intersect; }
+.p3 .cut { position: absolute; left: 660px; top: 54px; bottom: 54px; border-left: 4px dashed var(--action-edge); }
+.p3 .left { position: absolute; left: 64px; top: 0; bottom: 0; width: 560px; display: flex; flex-direction: column; justify-content: center; }
+.p3 .left .cond { font-size: 40px; font-weight: 600; color: var(--ink-2); letter-spacing: .06em; }
+.p3 .amt { display: flex; align-items: flex-end; gap: 8px; margin: 4px 0 0 -4px; color: var(--price); line-height: .95; font-variant-numeric: tabular-nums; }
+.p3 .amt small { font-size: 96px; font-weight: 700; padding-bottom: 18px; }
+.p3 .amt b { font-size: 232px; font-weight: 700; letter-spacing: -.02em; }
+.p3 .left .kind { margin-top: 2px; font-size: 36px; font-weight: 600; color: var(--action-press); letter-spacing: .2em; }
+.p3 .right { position: absolute; left: 660px; right: 0; top: 0; bottom: 0; display: grid; place-content: center; justify-items: center; gap: 14px; }
+.p3 .right img { width: 150px; height: 150px; }
+.p3 .right span { font-size: 38px; font-weight: 600; letter-spacing: .2em; text-indent: .2em; color: var(--action-press); }
+.p3 .rules { position: absolute; left: 72px; top: 868px; display: grid; gap: 12px; }
+.p3 .rules div { display: flex; align-items: center; gap: 16px; font-size: 34px; font-weight: 500; color: var(--ink-2); }
+.p3 .rules img { width: 56px; height: 56px; }
+.p3 .qr { position: absolute; right: 72px; top: 862px; width: 160px; height: 160px; border: 4px dashed var(--action); border-radius: 12px; display: grid; place-content: center; font-size: 44px; font-weight: 700; letter-spacing: .12em; text-indent: .12em; color: var(--action-press); }
+.p3 .qrl { position: absolute; right: 72px; top: 862px; transform: translateX(calc(-160px - 28px)); font-size: 30px; font-weight: 600; color: var(--ink-2); letter-spacing: .1em; white-space: nowrap; line-height: 160px; }
+</style>
+</head>
+<body>
+<div class="pv"><div class="pv__fit">
+<main class="poster" id="poster" data-cid="PS-003" data-name="优惠券促销方版" data-size="1080×1080" data-use="促销">
+<div class="p3">
+  <div class="x-tex"></div>
+  <div class="brand"><img data-ic="bouquet" src="../../../../kit/assets/icons/flat/bouquet.webp" alt="">花间集</div>
+  <h1 class="title">新客专享礼券</h1>
+  <p class="sub">鲜花 绿植 礼盒全店通用</p>
+  <div class="disc"><img src="../../../../kit/assets/photo/bouquet-tulip.webp" alt="黄郁金香花束"></div>
+  <div class="ticket-wrap">
+    <div class="ticket"></div>
+    <div class="cut"></div>
+    <div class="left">
+      <div class="cond">满299元可用</div>
+      <div class="amt"><small>¥</small><b>50</b></div>
+      <div class="kind">新客首单立减</div>
+    </div>
+    <div class="right"><img data-ic="coupon" src="../../../../kit/assets/icons/flat/coupon.webp" alt=""><span>通用券</span></div>
+  </div>
+  <div class="rules">
+    <div><img data-ic="pin" src="../../../../kit/assets/icons/flat/pin.webp" alt="">三家门店通用</div>
+    <div><img data-ic="giftcard" src="../../../../kit/assets/icons/flat/giftcard.webp" alt="">每人限领一张</div>
+    <div><img data-ic="heart" src="../../../../kit/assets/icons/flat/heart.webp" alt="">领取后七天内有效</div>
+  </div>
+  <div class="qrl">领取礼券</div>
+  <div class="qr">扫码</div>
+</div>
+</main>
+</div></div>
+<script src="../../../../kit/ui.js"></script>
+<script>
+(function () {
+  var q = new URLSearchParams(location.search), root = document.documentElement;
+  if (q.get('export') === '1') root.classList.add('is-export');
+  if (q.get('bleed') === '1') root.classList.add('is-bleed');
+  var p = document.getElementById('poster'), fit = p.parentNode;
+  function fitIt() {
+    if (root.classList.contains('is-export')) { fit.style.setProperty('--k', 1); return; }
+    var k = Math.min((innerWidth - 48) / p.offsetWidth, (innerHeight - 48) / p.offsetHeight, 1);
+    fit.style.setProperty('--k', Math.max(k, 0.05));
+  }
+  addEventListener('resize', fitIt); fitIt();
+  var pg = document.createElement('style');
+  pg.textContent = '@page{size:' + p.offsetWidth + 'px ' + p.offsetHeight + 'px;margin:0}';
+  document.head.appendChild(pg);
+  if (root.classList.contains('is-bleed') && !root.classList.contains('is-export')) {
+    var m = document.createElement('div'); m.className = 'marks'; m.setAttribute('aria-hidden', 'true');
+    var b = parseFloat(getComputedStyle(p).getPropertyValue('--bleed')) || 11.34, L = 20, G = 4;
+    var W = p.offsetWidth, H = p.offsetHeight;
+    [[0, 0], [1, 0], [0, 1], [1, 1]].forEach(function (c) {
+      var x = c[0] ? W - b : b, y = c[1] ? H - b : b;
+      var v = [x - 0.5, c[1] ? H + G : -G - L, 1, L], h = [c[0] ? W + G : -G - L, y - 0.5, L, 1];
+      [v, h].forEach(function (r) {
+        var i = document.createElement('i'); i.style.cssText = 'left:' + r[0] + 'px;top:' + r[1] + 'px;width:' + r[2] + 'px;height:' + r[3] + 'px';
+        m.appendChild(i);
+      });
+    });
+    m.style.cssText = 'position:absolute;left:0;top:0;width:' + W + 'px;height:' + H + 'px;transform:scale(var(--k));transform-origin:0 0;pointer-events:none';
+    fit.appendChild(m);
+  }
+})();
+</script>
+</body>
+</html>

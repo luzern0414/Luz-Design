@@ -1,0 +1,17 @@
+/* One family and five semantic levels. Minimums are guardrails, not defaults. */
+:root{--ui-font:"Microsoft YaHei",sans-serif;--ui-body:16px;--ui-label:14px;--ui-meta:13px;--ui-section:20px;--ui-title:30px;--el-font-family:var(--ui-font);--el-font-size-base:var(--ui-body);--el-font-size-small:var(--ui-meta);--van-base-font:var(--ui-font)}
+html,body{font-family:var(--ui-font);font-size:var(--ui-body);line-height:1.65}
+body *,body *::before,body *::after{font-family:var(--ui-font)!important}
+h1{font-size:var(--ui-title)!important;font-weight:600;line-height:1.4}
+h2{font-size:var(--ui-section)!important;font-weight:600;line-height:1.5}
+h3{font-size:var(--ui-body)!important;font-weight:600;line-height:1.5}
+.el-input__inner,.el-textarea__inner,.van-field__control,.requirement-text,.note-form,.notes-list,.detail dl,.work-records>div,.inline-field-multiline .inline-field-value{font-size:var(--ui-body)!important}
+.el-button,.text-action,.choice-list>button,.el-radio-button__inner,.el-form-item__label,.van-button{font-size:var(--ui-label)!important}
+.el-table,.el-table .cell{font-size:var(--ui-body)!important}
+.main-nav button,.mobile-tabs .van-tabbar-item,.status-tag,.object-copy>span,.metrics span,.metrics small,.count small,.demo-meta small,.demo-meta>span,.small-id,.inline-status,.inline-field-error,.record-list small,.stage-choices legend,.work-records span,.business-entries button,.el-popper.luz-tooltip.is-light{font-size:var(--ui-meta)!important}
+.object-copy h2,.demo-meta h2{font-size:var(--ui-body)!important}
+.record-list strong{font-size:var(--ui-label)!important}
+.el-popper.luz-tooltip.is-light{font-family:var(--ui-font);line-height:1.65}
+.main-nav img,.mobile-tabs .van-tabbar-item img{opacity:1!important}
+.customer-header .meta,.customer-overview .meta,.customer-statistics span,.customer-statistics small,.home-overview .metrics span,.home-overview .metrics small{color:#4b585d}
+@media(max-width:760px){html[data-ui-surface="app"],html[data-ui-surface="app-web"]{--ui-body:15px;--ui-section:20px;--ui-title:28px}}

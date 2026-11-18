@@ -1,0 +1,23 @@
+{
+  "id": "DC-RD-P15",
+  "name": "配图块",
+  "use": "图片内嵌并带替代文字，图注在图下方；单张宽图或两张并排",
+  "fragment": {
+    "type": "figures",
+    "items": [
+      {
+        "src": "photo/product-rose-red.webp",
+        "alt": "牛皮纸包裹的红玫瑰花束，搭配尤加利叶",
+        "caption": "红玫瑰花束"
+      },
+      {
+        "src": "photo/bouquet-rose.webp",
+        "alt": "奶白纸包装的粉色玫瑰花束，系着丝带",
+        "caption": "粉色玫瑰花束"
+      }
+    ]
+  },
+  "used_in": [
+    "DC-RD-004"
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "id": "DC-RD-P05",
+  "name": "环形图块",
+  "use": "部分与整体：画布环形加 DOM 列表，列表给出每项数值与占比，同单位、非负、互斥且合成完整总体",
+  "fragment": {
+    "type": "chart",
+    "kind": "donut",
+    "caption": "图 1 订单状态构成",
+    "unit": "单",
+    "items": [
+      {
+        "name": "已完成",
+        "value": 5
+      },
+      {
+        "name": "待发货",
+        "value": 3
+      },
+      {
+        "name": "待收货",
+        "value": 3
+      },
+      {
+        "name": "待付款",
+        "value": 2
+      },
+      {
+        "name": "售后",
+        "value": 2
+      }
+    ]
+  },
+  "used_in": [
+    "DC-RD-001"
+  ]
+}

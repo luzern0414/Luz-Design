@@ -1,0 +1,323 @@
+{
+  "type": "excel",
+  "title": "表格文件",
+  "naming": "DC-XL-三位序号-中文名.xlsx",
+  "items": [
+    {
+      "id": "DC-XL-001",
+      "name": "报价单",
+      "use": "团购与大客户报价：按品类分组列出品名、规格、数量，单价由人工报价单录入后自动算金额与合计",
+      "file": "samples/DC-XL-001-报价单.xlsx",
+      "spec": "specs/DC-XL-001-报价单.json",
+      "generator": "Luz-Design/scripts/make_xlsx.py；样例另经本文件夹 tools/xlsx_decorate.py 补数据验证、填写格与条件色块",
+      "checks": [
+        "check_document.py --allow quote"
+      ],
+      "fields": [
+        "title",
+        "columns",
+        "rows",
+        "quote_evidence.requested_by",
+        "quote_evidence.request_note"
+      ]
+    },
+    {
+      "id": "DC-XL-002",
+      "name": "功能清单",
+      "use": "系统功能清单：使用端、使用角色、功能模块三级分组，区分基础与可选",
+      "file": "samples/DC-XL-002-功能清单.xlsx",
+      "spec": "specs/DC-XL-002-功能清单.json",
+      "generator": "Luz-Design/scripts/make_xlsx.py；样例另经本文件夹 tools/xlsx_decorate.py 补数据验证、填写格与条件色块",
+      "checks": [
+        "check_document.py"
+      ],
+      "fields": [
+        "title",
+        "columns",
+        "rows"
+      ]
+    },
+    {
+      "id": "DC-XL-003",
+      "name": "确认表",
+      "use": "业务逻辑确认与需要提供的资料两个工作表，客户回填审核结果与提供状态",
+      "file": "samples/DC-XL-003-确认表.xlsx",
+      "spec": "specs/DC-XL-003-确认表.json",
+      "generator": "Luz-Design/scripts/make_xlsx.py；样例另经本文件夹 tools/xlsx_decorate.py 补数据验证、填写格与条件色块",
+      "checks": [
+        "check_document.py --allow multi-sheet"
+      ],
+      "fields": [
+        "title",
+        "sheets"
+      ]
+    },
+    {
+      "id": "DC-XL-004",
+      "name": "台账",
+      "use": "门店设备台账：门店、区域两级分组，记录数量、保养周期与设备状态",
+      "file": "samples/DC-XL-004-台账.xlsx",
+      "spec": "specs/DC-XL-004-台账.json",
+      "generator": "Luz-Design/scripts/make_xlsx.py；样例另经本文件夹 tools/xlsx_decorate.py 补数据验证、填写格与条件色块",
+      "checks": [
+        "check_document.py"
+      ],
+      "fields": [
+        "title",
+        "columns",
+        "rows"
+      ]
+    },
+    {
+      "id": "DC-XL-005",
+      "name": "验收表",
+      "use": "验收清单：按模块列验收项与标准，验收人回填结果、问题与日期",
+      "file": "samples/DC-XL-005-验收表.xlsx",
+      "spec": "specs/DC-XL-005-验收表.json",
+      "generator": "Luz-Design/scripts/make_xlsx.py；样例另经本文件夹 tools/xlsx_decorate.py 补数据验证、填写格与条件色块",
+      "checks": [
+        "check_document.py"
+      ],
+      "fields": [
+        "title",
+        "columns",
+        "rows"
+      ]
+    },
+    {
+      "id": "DC-XL-006",
+      "name": "排期表",
+      "use": "按周排期：阶段分组，用淡色块标出计划、进行与完成",
+      "file": "samples/DC-XL-006-排期表.xlsx",
+      "spec": "specs/DC-XL-006-排期表.json",
+      "generator": "Luz-Design/scripts/make_xlsx.py；样例另经本文件夹 tools/xlsx_decorate.py 补数据验证、填写格与条件色块",
+      "checks": [
+        "check_document.py"
+      ],
+      "fields": [
+        "title",
+        "columns",
+        "rows"
+      ]
+    },
+    {
+      "id": "DC-XL-007",
+      "name": "预算表",
+      "use": "月度预算对照：预算与实际由人工录入，差额、执行率与状态自动计算",
+      "file": "samples/DC-XL-007-预算表.xlsx",
+      "spec": "specs/DC-XL-007-预算表.json",
+      "generator": "Luz-Design/scripts/make_xlsx.py；样例另经本文件夹 tools/xlsx_decorate.py 补数据验证、填写格与条件色块",
+      "checks": [
+        "check_document.py --allow quote"
+      ],
+      "fields": [
+        "title",
+        "columns",
+        "rows",
+        "quote_evidence.requested_by",
+        "quote_evidence.request_note"
+      ]
+    },
+    {
+      "id": "DC-XL-008",
+      "name": "订单导出",
+      "use": "系统导出版式：门店分组合并，枚举翻成中文，状态用淡色标识",
+      "file": "samples/DC-XL-008-订单导出.xlsx",
+      "spec": "specs/DC-XL-008-订单导出.json",
+      "generator": "Luz-Design/scripts/make_xlsx.py；样例另经本文件夹 tools/xlsx_decorate.py 补数据验证、填写格与条件色块",
+      "checks": [
+        "check_document.py"
+      ],
+      "fields": [
+        "title",
+        "columns",
+        "rows"
+      ]
+    },
+    {
+      "id": "DC-XL-009",
+      "name": "可筛选导出",
+      "use": "要继续筛选排序的导出表：不合并、每行写全门店名并开启筛选",
+      "file": "samples/DC-XL-009-可筛选导出.xlsx",
+      "spec": "specs/DC-XL-009-可筛选导出.json",
+      "generator": "Luz-Design/scripts/make_xlsx.py；样例另经本文件夹 tools/xlsx_decorate.py 补数据验证、填写格与条件色块",
+      "checks": [
+        "check_document.py"
+      ],
+      "fields": [
+        "title",
+        "columns",
+        "rows"
+      ]
+    },
+    {
+      "id": "DC-XL-010",
+      "name": "选型清单",
+      "use": "门店硬件选型：子系统与环节分组，型号由选型人填写",
+      "file": "samples/DC-XL-010-选型清单.xlsx",
+      "spec": "specs/DC-XL-010-选型清单.json",
+      "generator": "Luz-Design/scripts/make_xlsx.py；样例另经本文件夹 tools/xlsx_decorate.py 补数据验证、填写格与条件色块",
+      "checks": [
+        "check_document.py"
+      ],
+      "fields": [
+        "title",
+        "columns",
+        "rows"
+      ]
+    }
+  ],
+  "parts": [
+    {
+      "id": "DC-XL-P01",
+      "name": "表头与列类型",
+      "file": "specs/parts/DC-XL-P01-表头与列类型.json",
+      "used_in": [
+        "DC-XL-001",
+        "DC-XL-002",
+        "DC-XL-003",
+        "DC-XL-004",
+        "DC-XL-005",
+        "DC-XL-006",
+        "DC-XL-007",
+        "DC-XL-008",
+        "DC-XL-009",
+        "DC-XL-010"
+      ]
+    },
+    {
+      "id": "DC-XL-P02",
+      "name": "分组列",
+      "file": "specs/parts/DC-XL-P02-分组列.json",
+      "used_in": [
+        "DC-XL-001",
+        "DC-XL-002",
+        "DC-XL-003",
+        "DC-XL-004",
+        "DC-XL-005",
+        "DC-XL-006",
+        "DC-XL-007",
+        "DC-XL-008",
+        "DC-XL-010"
+      ]
+    },
+    {
+      "id": "DC-XL-P03",
+      "name": "合计行",
+      "file": "specs/parts/DC-XL-P03-合计行.json",
+      "used_in": [
+        "DC-XL-001",
+        "DC-XL-007"
+      ]
+    },
+    {
+      "id": "DC-XL-P04",
+      "name": "状态与类型列",
+      "file": "specs/parts/DC-XL-P04-状态与类型列.json",
+      "used_in": [
+        "DC-XL-001",
+        "DC-XL-002",
+        "DC-XL-003",
+        "DC-XL-004",
+        "DC-XL-005",
+        "DC-XL-006",
+        "DC-XL-008",
+        "DC-XL-009",
+        "DC-XL-010"
+      ]
+    },
+    {
+      "id": "DC-XL-P05",
+      "name": "数据验证",
+      "file": "specs/parts/DC-XL-P05-数据验证.json",
+      "used_in": [
+        "DC-XL-001",
+        "DC-XL-002",
+        "DC-XL-003",
+        "DC-XL-004",
+        "DC-XL-005",
+        "DC-XL-006",
+        "DC-XL-007",
+        "DC-XL-010"
+      ]
+    },
+    {
+      "id": "DC-XL-P06",
+      "name": "填写格",
+      "file": "specs/parts/DC-XL-P06-填写格.json",
+      "used_in": [
+        "DC-XL-001",
+        "DC-XL-003",
+        "DC-XL-004",
+        "DC-XL-005",
+        "DC-XL-007",
+        "DC-XL-010"
+      ]
+    },
+    {
+      "id": "DC-XL-P07",
+      "name": "条件色块",
+      "file": "specs/parts/DC-XL-P07-条件色块.json",
+      "used_in": [
+        "DC-XL-003",
+        "DC-XL-004",
+        "DC-XL-005",
+        "DC-XL-006",
+        "DC-XL-007",
+        "DC-XL-008",
+        "DC-XL-009"
+      ]
+    },
+    {
+      "id": "DC-XL-P08",
+      "name": "打印设置",
+      "file": "specs/parts/DC-XL-P08-打印设置.json",
+      "used_in": [
+        "DC-XL-001",
+        "DC-XL-002",
+        "DC-XL-003",
+        "DC-XL-004",
+        "DC-XL-005",
+        "DC-XL-006",
+        "DC-XL-007",
+        "DC-XL-008",
+        "DC-XL-009",
+        "DC-XL-010"
+      ]
+    },
+    {
+      "id": "DC-XL-P09",
+      "name": "冻结窗格",
+      "file": "specs/parts/DC-XL-P09-冻结窗格.json",
+      "used_in": [
+        "DC-XL-001",
+        "DC-XL-002",
+        "DC-XL-003",
+        "DC-XL-004",
+        "DC-XL-005",
+        "DC-XL-006",
+        "DC-XL-007",
+        "DC-XL-008",
+        "DC-XL-009",
+        "DC-XL-010"
+      ]
+    },
+    {
+      "id": "DC-XL-P10",
+      "name": "报价依据",
+      "file": "specs/parts/DC-XL-P10-报价依据.json",
+      "used_in": [
+        "DC-XL-001",
+        "DC-XL-007"
+      ]
+    },
+    {
+      "id": "DC-XL-P11",
+      "name": "多工作表",
+      "file": "specs/parts/DC-XL-P11-多工作表.json",
+      "used_in": [
+        "DC-XL-003"
+      ]
+    }
+  ]
+}

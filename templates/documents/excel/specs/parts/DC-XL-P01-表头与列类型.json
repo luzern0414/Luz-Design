@@ -1,0 +1,47 @@
+{
+  "id": "DC-XL-P01",
+  "name": "表头与列类型",
+  "use": "列定义：名称列左对齐，长文本缩进一级，数字右对齐，日期统一年-月-日，表头居中蓝灰底",
+  "fragment": {
+    "columns": [
+      {
+        "name": "品名"
+      },
+      {
+        "name": "规格"
+      },
+      {
+        "name": "数量",
+        "type": "number"
+      },
+      {
+        "name": "单价（元）",
+        "type": "money"
+      },
+      {
+        "name": "执行率",
+        "type": "percent"
+      },
+      {
+        "name": "验收日期",
+        "type": "date"
+      },
+      {
+        "name": "说明",
+        "type": "longtext"
+      }
+    ]
+  },
+  "used_in": [
+    "DC-XL-001",
+    "DC-XL-002",
+    "DC-XL-003",
+    "DC-XL-004",
+    "DC-XL-005",
+    "DC-XL-006",
+    "DC-XL-007",
+    "DC-XL-008",
+    "DC-XL-009",
+    "DC-XL-010"
+  ]
+}

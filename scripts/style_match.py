@@ -10,9 +10,11 @@ from __future__ import annotations
 
 import argparse
 import copy
+from datetime import datetime
 import json
 import math
 import re
+import sys
 from pathlib import Path
 from typing import Any, Mapping
 
@@ -429,7 +431,7 @@ def rank_styles(brief: Any) -> list[dict[str, Any]]:
             "id": style_id,
             "label": style["label"],
             "score": round(scores[style_id], 2),
-            "reasons": reasons[style_id] or ["作为低风险候选，等待用户结合品牌气质确认"],
+            "reasons": reasons[style_id] or ["作为低风险起始参数，在可配置界面中结合品牌气质调整"],
             "suitable_roles": style["suitable_roles"],
             "avoid": style["avoid"],
             "accessibility_risks": style["accessibility_risks"],
@@ -475,15 +477,50 @@ def build_match(
 
 
 def can_design(match: Mapping[str, Any]) -> bool:
+    """A usable candidate can be previewed; this never grants human approval.
+
+    Formal output and Imagegen still use the separate current-research gate.
+    ``approval`` is retained for old records, not an upfront generation gate.
+    """
     approval = match.get("approval", {})
-    if approval.get("status") != "approved":
+    if not isinstance(approval, Mapping) or approval.get("status") == "rejected":
         return False
     selected = approval.get("selectedStyle")
     candidate_ids = {candidate.get("id") for candidate in match.get("candidates", [])}
-    if not selected or selected not in candidate_ids:
+    if not candidate_ids or (selected is not None and selected not in candidate_ids):
         return False
     scope = approval.get("scope", {})
-    return scope.get("controls") == "line-vector" and any(scope.get(key) == selected for key in ("entryIcons", "metricIllustrations", "heroDecorations", "emptyState"))
+    return isinstance(scope, Mapping) and scope.get("controls") == "line-vector"
+
+
+def _approval_errors(match: Mapping[str, Any]) -> list[str]:
+    approval = match.get("approval", {})
+    if not isinstance(approval, Mapping):
+        return ["界面 approval 必须是对象"]
+    status = approval.get("status", "pending")
+    if status not in {"pending", "approved", "rejected", "not_requested"}:
+        return ["界面 approval.status 无效"]
+    if status != "approved":
+        return []
+    by = str(approval.get("approved_by") or approval.get("by") or "").strip()
+    at = str(approval.get("approved_at") or approval.get("at") or "").strip()
+    note = str(approval.get("note") or "").strip()
+    errors = []
+    if not by or not at or not note:
+        errors.append("界面风格确认缺少审批人、时间和用户确认依据")
+    if re.search(r"\b(auto|model|system|validator|script|assistant|agent|codex|ai)\b|模型|脚本|自动|智能体", by, re.I):
+        errors.append("界面风格不能由模型、脚本或自动程序代替用户批准")
+    if at:
+        try:
+            datetime.fromisoformat(at.replace("Z", "+00:00"))
+        except ValueError:
+            errors.append("界面风格确认时间必须是 ISO 时间")
+    selected = approval.get("selectedStyle")
+    candidates = {candidate.get("id") for candidate in match.get("candidates", [])}
+    scope = approval.get("scope", {})
+    if not selected or selected not in candidates or not isinstance(scope, Mapping) or scope.get("controls") != "line-vector":
+        errors.append("界面风格确认必须引用候选并保留 controls=line-vector")
+    return errors
 
 
 def _load_json(path: str | None) -> Any:
@@ -491,21 +528,22 @@ def _load_json(path: str | None) -> Any:
 
 
 def session_style_errors(session: Path, *, required: bool = False) -> list[str]:
-    """An interface card cannot bypass style confirmation through document mode."""
+    """Validate existing legacy approval claims without blocking a draft UI.
+
+    Configurable UI is the review artifact. No style-match record or a pending
+    record is a normal state before the person returns their full parameters.
+    """
     raw = Path(session) / "raw"
-    if not required and not (raw / "00-rules" / "interface-visual.md").is_file():
-        return []
     path = raw / "02-visual" / "style-match.json"
+    if not path.exists():
+        return []
     try:
         match = json.loads(path.read_text(encoding="utf-8"))
-        if not can_design(match):
-            return ["界面风格尚未由用户确认：raw/02-visual/style-match.json"]
-        approval = match["approval"]
-        if not (approval.get("approved_by") or approval.get("by")) or not approval.get("note") or not (approval.get("approved_at") or approval.get("at")):
-            return ["界面风格确认缺少审批人、时间和用户确认依据"]
+        if not isinstance(match, Mapping):
+            return ["界面风格匹配必须是 JSON 对象：raw/02-visual/style-match.json"]
+        return _approval_errors(match)
     except (OSError, ValueError, TypeError, KeyError):
-        return ["缺少界面风格匹配与用户确认：raw/02-visual/style-match.json"]
-    return []
+        return ["无法读取界面风格匹配：raw/02-visual/style-match.json"]
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -514,7 +552,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--input", help="JSON file containing brief, viewport and content")
     parser.add_argument("--approval", help="JSON approval object or result file")
     parser.add_argument("--output", help="Write JSON result to this path")
-    parser.add_argument("--check-design", action="store_true", help="Exit non-zero unless approval permits concrete design")
+    parser.add_argument("--session", help="Design session; inferred from LUZ_DESIGN_SESSION or the output path")
+    parser.add_argument("--stage", help="Business stage; defaults to LUZ_CRAWL_STAGE or design")
+    parser.add_argument("--check-design", action="store_true", help="Read-only candidate-scope check; human approval is not needed to preview")
     parser.add_argument("--dock", nargs=3, type=int, metavar=("ENTRIES", "LONGEST_LABEL", "WIDTH"),
                         help="derive a mini-program icon dock from entries, longest label (characters) and screen width, then exit")
     args = parser.parse_args(argv)
@@ -529,8 +569,22 @@ def main(argv: list[str] | None = None) -> int:
     if approval and "approval" in approval:
         approval = approval["approval"]
     result = build_match(brief, viewport=viewport, content=content, approval=approval)
+    errors = _approval_errors(result)
+    if errors:
+        print("FAIL: " + "; ".join(errors), file=sys.stderr)
+        return 2
     encoded = json.dumps(result, ensure_ascii=False, indent=2)
-    if args.output:
+    if args.output and not args.check_design:
+        from crawl_gate import require_session_preflight
+        try:
+            context = require_session_preflight(args.session, args.output, stage=args.stage)
+            output = Path(args.output).resolve()
+            if not output.is_relative_to(context["raw"]) or output.suffix.lower() != ".json":
+                raise ValueError("风格匹配结果是待核实的研究候选 JSON，必须保存在本会话 raw 中")
+        except ValueError as exc:
+            print(f"FAIL: {exc}", file=sys.stderr)
+            return 2
+        Path(args.output).parent.mkdir(parents=True, exist_ok=True)
         Path(args.output).write_text(encoded + "\n", encoding="utf-8")
     else:
         print(encoded)

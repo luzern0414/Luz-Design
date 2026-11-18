@@ -1,0 +1,370 @@
+{
+  "type": "slides",
+  "title": "幻灯片",
+  "naming": "DC-SL-三位序号-中文名.pptx",
+  "items": [
+    {
+      "id": "DC-SL-001",
+      "name": "工作汇报",
+      "use": "门店周度工作汇报：数据概览、销售图表、各店进展、业绩表与重点安排，每页一个结论",
+      "file": "samples/DC-SL-001-工作汇报.pptx",
+      "preview": "samples/previews/DC-SL-001-工作汇报.jpg",
+      "spec": "specs/DC-SL-001-工作汇报.json",
+      "generator": "py -X utf8 templates/documents/slides/build_slides.py templates/documents/slides/specs/DC-SL-001-工作汇报.json templates/documents/slides/samples/DC-SL-001-工作汇报.pptx",
+      "checks": [
+        "py -X utf8 scripts/check_document.py templates/documents/slides/samples/DC-SL-001-工作汇报.pptx"
+      ],
+      "fields": [
+        "theme",
+        "title",
+        "slides[].title",
+        "slides[].image",
+        "slides[].items",
+        "slides[].chart",
+        "slides[].stat",
+        "slides[].points",
+        "slides[].columns",
+        "slides[].rows",
+        "slides[].badge",
+        "slides[].head",
+        "slides[].left",
+        "slides[].right",
+        "slides[].steps"
+      ]
+    },
+    {
+      "id": "DC-SL-002",
+      "name": "方案提案",
+      "use": "服务方案提案：顾客痛点、做法对比、订花流程、套餐价格表、试运行目标与上线准备",
+      "file": "samples/DC-SL-002-方案提案.pptx",
+      "preview": "samples/previews/DC-SL-002-方案提案.jpg",
+      "spec": "specs/DC-SL-002-方案提案.json",
+      "generator": "py -X utf8 templates/documents/slides/build_slides.py templates/documents/slides/specs/DC-SL-002-方案提案.json templates/documents/slides/samples/DC-SL-002-方案提案.pptx",
+      "checks": [
+        "py -X utf8 scripts/check_document.py templates/documents/slides/samples/DC-SL-002-方案提案.pptx"
+      ],
+      "fields": [
+        "theme",
+        "title",
+        "slides[].title",
+        "slides[].image",
+        "slides[].points",
+        "slides[].left",
+        "slides[].right",
+        "slides[].steps",
+        "slides[].columns",
+        "slides[].rows",
+        "slides[].side",
+        "slides[].badge",
+        "slides[].head",
+        "slides[].chart",
+        "slides[].stat",
+        "slides[].items"
+      ]
+    },
+    {
+      "id": "DC-SL-003",
+      "name": "培训课件",
+      "use": "新店员培训课件：先后步骤、对错对照、花材要点表、季节图表与顾客引言，含两个章节页",
+      "file": "samples/DC-SL-003-培训课件.pptx",
+      "preview": "samples/previews/DC-SL-003-培训课件.jpg",
+      "spec": "specs/DC-SL-003-培训课件.json",
+      "generator": "py -X utf8 templates/documents/slides/build_slides.py templates/documents/slides/specs/DC-SL-003-培训课件.json templates/documents/slides/samples/DC-SL-003-培训课件.pptx",
+      "checks": [
+        "py -X utf8 scripts/check_document.py templates/documents/slides/samples/DC-SL-003-培训课件.pptx"
+      ],
+      "fields": [
+        "theme",
+        "title",
+        "slides[].title",
+        "slides[].image",
+        "slides[].numbered",
+        "slides[].points",
+        "slides[].number",
+        "slides[].focus",
+        "slides[].steps",
+        "slides[].side",
+        "slides[].head",
+        "slides[].left",
+        "slides[].right",
+        "slides[].columns",
+        "slides[].rows",
+        "slides[].chart",
+        "slides[].stat",
+        "slides[].quote",
+        "slides[].who",
+        "slides[].role",
+        "slides[].mark"
+      ]
+    },
+    {
+      "id": "DC-SL-004",
+      "name": "产品介绍",
+      "use": "商品系列介绍：数据概览、主推商品图文、价格表、价位条形图与顾客引言",
+      "file": "samples/DC-SL-004-产品介绍.pptx",
+      "preview": "samples/previews/DC-SL-004-产品介绍.jpg",
+      "spec": "specs/DC-SL-004-产品介绍.json",
+      "generator": "py -X utf8 templates/documents/slides/build_slides.py templates/documents/slides/specs/DC-SL-004-产品介绍.json templates/documents/slides/samples/DC-SL-004-产品介绍.pptx",
+      "checks": [
+        "py -X utf8 scripts/check_document.py templates/documents/slides/samples/DC-SL-004-产品介绍.pptx"
+      ],
+      "fields": [
+        "theme",
+        "title",
+        "slides[].title",
+        "slides[].image",
+        "slides[].focus",
+        "slides[].items",
+        "slides[].badge",
+        "slides[].head",
+        "slides[].points",
+        "slides[].side",
+        "slides[].columns",
+        "slides[].rows",
+        "slides[].left",
+        "slides[].right",
+        "slides[].chart",
+        "slides[].stat",
+        "slides[].quote",
+        "slides[].who",
+        "slides[].role",
+        "slides[].mark"
+      ]
+    },
+    {
+      "id": "DC-SL-005",
+      "name": "门店路演",
+      "use": "门店路演：经营数据、会员增长折线、核心优势、新店复制步骤、门店经营表与合作方式",
+      "file": "samples/DC-SL-005-门店路演.pptx",
+      "preview": "samples/previews/DC-SL-005-门店路演.jpg",
+      "spec": "specs/DC-SL-005-门店路演.json",
+      "generator": "py -X utf8 templates/documents/slides/build_slides.py templates/documents/slides/specs/DC-SL-005-门店路演.json templates/documents/slides/samples/DC-SL-005-门店路演.pptx",
+      "checks": [
+        "py -X utf8 scripts/check_document.py templates/documents/slides/samples/DC-SL-005-门店路演.pptx"
+      ],
+      "fields": [
+        "theme",
+        "title",
+        "slides[].title",
+        "slides[].image",
+        "slides[].items",
+        "slides[].head",
+        "slides[].points",
+        "slides[].chart",
+        "slides[].stat",
+        "slides[].steps",
+        "slides[].columns",
+        "slides[].rows",
+        "slides[].focus",
+        "slides[].quote",
+        "slides[].who",
+        "slides[].role",
+        "slides[].mark",
+        "slides[].left",
+        "slides[].right"
+      ]
+    },
+    {
+      "id": "DC-SL-006",
+      "name": "季度复盘",
+      "use": "季度经营复盘：目标达成、月度目标对比、销售构成环形图、门店成绩表与做得好和要改进",
+      "file": "samples/DC-SL-006-季度复盘.pptx",
+      "preview": "samples/previews/DC-SL-006-季度复盘.jpg",
+      "spec": "specs/DC-SL-006-季度复盘.json",
+      "generator": "py -X utf8 templates/documents/slides/build_slides.py templates/documents/slides/specs/DC-SL-006-季度复盘.json templates/documents/slides/samples/DC-SL-006-季度复盘.pptx",
+      "checks": [
+        "py -X utf8 scripts/check_document.py templates/documents/slides/samples/DC-SL-006-季度复盘.pptx"
+      ],
+      "fields": [
+        "theme",
+        "title",
+        "slides[].title",
+        "slides[].image",
+        "slides[].items",
+        "slides[].chart",
+        "slides[].stat",
+        "slides[].columns",
+        "slides[].rows",
+        "slides[].left",
+        "slides[].right",
+        "slides[].points",
+        "slides[].side",
+        "slides[].badge",
+        "slides[].head",
+        "slides[].steps"
+      ]
+    }
+  ],
+  "parts": [
+    {
+      "id": "DC-SL-P01",
+      "name": "封面",
+      "file": "specs/parts/DC-SL-P01-封面.json",
+      "used_in": [
+        "DC-SL-001",
+        "DC-SL-002",
+        "DC-SL-003",
+        "DC-SL-004",
+        "DC-SL-005",
+        "DC-SL-006"
+      ]
+    },
+    {
+      "id": "DC-SL-P02",
+      "name": "章节页",
+      "file": "specs/parts/DC-SL-P02-章节页.json",
+      "used_in": [
+        "DC-SL-003"
+      ]
+    },
+    {
+      "id": "DC-SL-P03",
+      "name": "要点页",
+      "file": "specs/parts/DC-SL-P03-要点页.json",
+      "used_in": [
+        "DC-SL-001",
+        "DC-SL-002",
+        "DC-SL-004",
+        "DC-SL-005",
+        "DC-SL-006"
+      ]
+    },
+    {
+      "id": "DC-SL-P04",
+      "name": "对比页",
+      "file": "specs/parts/DC-SL-P04-对比页.json",
+      "used_in": [
+        "DC-SL-001",
+        "DC-SL-002",
+        "DC-SL-003",
+        "DC-SL-004",
+        "DC-SL-005",
+        "DC-SL-006"
+      ]
+    },
+    {
+      "id": "DC-SL-P05",
+      "name": "图文页",
+      "file": "specs/parts/DC-SL-P05-图文页.json",
+      "used_in": [
+        "DC-SL-001",
+        "DC-SL-002",
+        "DC-SL-003",
+        "DC-SL-004",
+        "DC-SL-005",
+        "DC-SL-006"
+      ]
+    },
+    {
+      "id": "DC-SL-P06",
+      "name": "表格页",
+      "file": "specs/parts/DC-SL-P06-表格页.json",
+      "used_in": [
+        "DC-SL-001",
+        "DC-SL-002",
+        "DC-SL-003",
+        "DC-SL-004",
+        "DC-SL-005",
+        "DC-SL-006"
+      ]
+    },
+    {
+      "id": "DC-SL-P07",
+      "name": "图表页",
+      "file": "specs/parts/DC-SL-P07-图表页.json",
+      "used_in": [
+        "DC-SL-001",
+        "DC-SL-003",
+        "DC-SL-006"
+      ]
+    },
+    {
+      "id": "DC-SL-P08",
+      "name": "结束页",
+      "file": "specs/parts/DC-SL-P08-结束页.json",
+      "used_in": [
+        "DC-SL-001",
+        "DC-SL-002",
+        "DC-SL-003",
+        "DC-SL-004",
+        "DC-SL-005",
+        "DC-SL-006"
+      ]
+    },
+    {
+      "id": "DC-SL-P09",
+      "name": "引言页",
+      "file": "specs/parts/DC-SL-P09-引言页.json",
+      "used_in": [
+        "DC-SL-003",
+        "DC-SL-004",
+        "DC-SL-005"
+      ]
+    },
+    {
+      "id": "DC-SL-P10",
+      "name": "流程页",
+      "file": "specs/parts/DC-SL-P10-流程页.json",
+      "used_in": [
+        "DC-SL-001",
+        "DC-SL-002",
+        "DC-SL-003",
+        "DC-SL-005",
+        "DC-SL-006"
+      ]
+    },
+    {
+      "id": "DC-SL-P11",
+      "name": "数据页",
+      "file": "specs/parts/DC-SL-P11-数据页.json",
+      "used_in": [
+        "DC-SL-001",
+        "DC-SL-002",
+        "DC-SL-004",
+        "DC-SL-005",
+        "DC-SL-006"
+      ]
+    },
+    {
+      "id": "DC-SL-P12",
+      "name": "折线图页",
+      "file": "specs/parts/DC-SL-P12-折线图页.json",
+      "used_in": [
+        "DC-SL-005"
+      ]
+    },
+    {
+      "id": "DC-SL-P13",
+      "name": "环形图页",
+      "file": "specs/parts/DC-SL-P13-环形图页.json",
+      "used_in": [
+        "DC-SL-002",
+        "DC-SL-006"
+      ]
+    },
+    {
+      "id": "DC-SL-P14",
+      "name": "条形图页",
+      "file": "specs/parts/DC-SL-P14-条形图页.json",
+      "used_in": [
+        "DC-SL-004"
+      ]
+    },
+    {
+      "id": "DC-SL-P15",
+      "name": "序号要点页",
+      "file": "specs/parts/DC-SL-P15-序号要点页.json",
+      "used_in": [
+        "DC-SL-003"
+      ]
+    },
+    {
+      "id": "DC-SL-P16",
+      "name": "数据卡要点页",
+      "file": "specs/parts/DC-SL-P16-数据卡要点页.json",
+      "used_in": [
+        "DC-SL-002"
+      ]
+    }
+  ]
+}

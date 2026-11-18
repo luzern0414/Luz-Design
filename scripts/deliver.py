@@ -42,6 +42,15 @@ def deliver(folder: Path, source: Path, *, as_name: str | None = None, to: str |
     manifest_path = work_dir(folder) / "99-delivery" / "MANIFEST.json"
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     link = project_link(manifest)
+    from crawl_gate import require_session_preflight, record_template_output
+    from template_library import require_selected
+    context = require_session_preflight(folder, source)
+    if not source.is_relative_to(context["raw"]):
+        raise ValueError("deliver.py 的源文件必须在本会话 raw 中；先将待检查的成品放入会话")
+    from ui_entry_policy import check_nonpage_delivery
+    check_nonpage_delivery(source, folder)
+    source_selection = require_selected(context["template_root"], context["caller"], context["stage"], source, phase="post")
+    template_id = source_selection["id"]
     if link is None:
         if to:
             raise ValueError("--to is for a session made with --project; this session keeps its deliverables in the root")
@@ -54,8 +63,10 @@ def deliver(folder: Path, source: Path, *, as_name: str | None = None, to: str |
         target = folder / name
         if target.exists() and target != source and not replace:
             raise FileExistsError(f"{name} is already in the session root; use --replace to overwrite it")
+        target_context = require_session_preflight(folder, target, template_id=template_id)
         if target != source:
             shutil.copyfile(source, target)
+        record_template_output(target_context, target, template_id, generator="Luz-Design/scripts/deliver.py")
         return target
     if to not in PROJECT_DIRS:
         raise ValueError(f"this session is for a project: pass --to {' or '.join(PROJECT_DIRS)} (pages go through publish.py --as)")
@@ -70,6 +81,7 @@ def deliver(folder: Path, source: Path, *, as_name: str | None = None, to: str |
     delivered = [entry for entry in link.get("delivered", []) if isinstance(entry, dict)]
     if target.exists() and not replace and not any(entry.get("path") == relative for entry in delivered):
         raise FileExistsError(f"{relative} already exists in the project and was not written by this session; choose another number or use --replace")
+    target_context = require_session_preflight(folder, target, template_id=template_id)
     target.parent.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(source, target)
     link["delivered"] = [entry for entry in delivered if entry.get("path") != relative] + [{
@@ -79,6 +91,7 @@ def deliver(folder: Path, source: Path, *, as_name: str | None = None, to: str |
     }]
     manifest["project"] = link
     manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    record_template_output(target_context, target, template_id, generator="Luz-Design/scripts/deliver.py")
     return target
 
 

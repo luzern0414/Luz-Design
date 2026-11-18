@@ -1,6 +1,6 @@
 {
-  "version": "2026-11-04.v12",
-  "note": "行业主题表。颜色为语义 token 的起始值，JSON 键 camelCase 对应 Figma/WXSS 的 kebab-case（ink2 = ink-2，navBg = nav-bg）。规则：canvas 用浅白、极浅灰的中性色或主色同色相的极浅底（亮度 >= 0.85），navBg 用白底或主色浅底阶纯色，都不用渐变与纹理；主色与辅色从公开设计体系的官方色板取阶（Ant Design、TDesign 等），阶数从最浅的第 1 阶数起（Ant Design 页面从 0 编号，其第 0 阶即第 1 阶）：action 取白字达 4.5:1 的一阶（品牌阶，第 6 阶附近），actionPress 深一阶，actionTint 取第 1 阶作容器底；scale 给出整列 10 阶，界面只用第 1、2–3、品牌、按下与第 9 阶；modules 是一级模块的点缀色（tint 第 1 阶、mid 第 2 阶、solid 为该列第一个对白底达 4.5:1 的一阶），一个颜色只代表一个模块，色相与成功、警告、危险相差至少 25 度；营销按钮用 accentTint 容器底配 accent 文字（Material 3 色调按钮）；白字只落在 action / actionPress / success / danger / warning 与品牌主卡（action 实色）上；navBg 上只放 ink 文字与图标。shared.elevation 是五级层级的阴影令牌（近处锐利小阴影 + 远处柔和大阴影，颜色为中性深色，可换成主题第 10 阶的同透明度暗调）。每个主题都有 dark 映射（深色是第二套色板，不是浅色取反），与 shared.dark 一起驱动整个深色界面，规则见 visual-design.html “深色与浅色两套主题”。themes.<id>.dark 的键：canvas 页面底、navBg 导航底、surface 卡片面（比页面底亮）、action 品牌阶（白字或 onAction 达 4.5:1）、actionPress 按下阶、onAction 品牌阶上的文字色、actionText 品牌色文字与图标（在各层深色底上不低于 4.5:1，浅色里这个角色由 actionPress 兼任）、actionTint 品牌浅底的深色版（深而低饱和）、accent 与 accentTint 营销辅色、line 线色；有 modules 的主题还有 dark.modules。shared.dark 的键：ink / ink2 / ink3 三档文字，success / warning / danger / info / price 五个状态文字色与各自的 Tint（深而低饱和的底），successFill / warningFill / dangerFill 是承载白字的实色填充（深色下状态文字色要亮，实色按钮要暗，所以分成两个值），sage 与 sageTint，photo 与 photo2 图片占位色，elevation 五级层级（surfaceMix 是各级表面往 surface 里混入的白色百分比，阴影与线令牌的形状同浅色）。scripts/make_dark.py 按浅色映射推导初稿（OKLCH 同色相，明度按对比度目标求解），check_contrast.py 逐项核对；b2b-graphite 的映射取自 Tailwind CSS zinc 与 blue 色阶，中性主题在深色里是浅色按钮配深色字。换主题只替换 Color/* 变量，结构不变。scripts/export_tokens.py 把一个主题连同 shared 导出为 W3C 设计令牌格式的文件（.tokens.json），交给开发与项目汇总。b2b-graphite 是面向企业的数据与获客工具后台专用的石墨主题：主按钮用近黑的锌灰实色，accent 在本主题只作链接色、不作营销辅色，也不作焦点色（焦点见 shared.elevation 的说明），elevationCard 为 hairline 时静止卡片只用发丝线、悬停与浮层仍按层级令牌；其他行业不用。非门店类主题（enterprise-navy 深海蓝、travel-azure 航旅蓝、violet-academy 紫罗兰、wine-jewel 酒红紫、antique-gold 古金、agri-green 田野绿、civic-red 政务红）的主色、按压色、浅底都取自 Ant Design 基础色板的同一列，页面底取主色同色相的极浅色，辅色取更克制的第 7 阶，只作小面积营销与点缀；它们与已有主题的感知距离（OKLab）不小于 0.045，不是旧主题的近似色。",
+  "version": "2026-11-05.v13",
+  "note": "行业主题表。颜色为语义 token 的起始值，JSON 键 camelCase 对应 Figma/WXSS 的 kebab-case（ink2 = ink-2，navBg = nav-bg）。规则：canvas 用浅白、极浅灰的中性色或主色同色相的极浅底（亮度 >= 0.85），navBg 用白底或主色浅底阶纯色，都不用渐变与纹理；主色与辅色从公开设计体系的官方色板取阶（Ant Design、TDesign 等），阶数从最浅的第 1 阶数起（Ant Design 页面从 0 编号，其第 0 阶即第 1 阶）：action 取白字达 4.5:1 的一阶（品牌阶，第 6 阶附近），actionPress 深一阶，actionTint 取第 1 阶作容器底；scale 给出整列 10 阶，界面只用第 1、2–3、品牌、按下与第 9 阶；modules 是一级模块的点缀色（tint 第 1 阶、mid 第 2 阶、solid 为该列第一个对白底达 4.5:1 的一阶），一个颜色只代表一个模块，色相与成功、警告、危险相差至少 25 度；营销按钮用 accentTint 容器底配 accent 文字（Material 3 色调按钮）；白字只落在 action / actionPress / success / danger / warning 与品牌主卡（action 实色）上；navBg 上只放 ink 文字与图标。shared.elevation 是五级层级的阴影令牌（近处锐利小阴影 + 远处柔和大阴影，颜色为中性深色，可换成主题第 10 阶的同透明度暗调）。每个主题都有 dark 映射（深色是第二套色板，不是浅色取反），与 shared.dark 一起驱动整个深色界面，规则见 visual-design.html “深色与浅色两套主题”。themes.<id>.dark 的键：canvas 页面底、navBg 导航底、surface 卡片面（比页面底亮）、action 品牌阶（白字或 onAction 达 4.5:1）、actionPress 按下阶、onAction 品牌阶上的文字色、actionText 品牌色文字与图标（在各层深色底上不低于 4.5:1，浅色里这个角色由 actionPress 兼任）、actionTint 品牌浅底的深色版（深而低饱和）、accent 与 accentTint 营销辅色、line 线色；有 modules 的主题还有 dark.modules。shared.dark 的键：ink / ink2 / ink3 三档文字，success / warning / danger / info / price 五个状态文字色与各自的 Tint（深而低饱和的底），successFill / warningFill / dangerFill 是承载白字的实色填充（深色下状态文字色要亮，实色按钮要暗，所以分成两个值），sage 与 sageTint，photo 与 photo2 图片占位色，elevation 五级层级（surfaceMix 是各级表面往 surface 里混入的白色百分比，阴影与线令牌的形状同浅色）。scripts/make_dark.py 按浅色映射推导初稿（OKLCH 同色相，明度按对比度目标求解），check_contrast.py 逐项核对；b2b-graphite 的映射取自 Tailwind CSS zinc 与 blue 色阶，中性主题在深色里是浅色按钮配深色字。换主题只替换 Color/* 变量，结构不变。scripts/export_tokens.py 把一个主题连同 shared 导出为 W3C 设计令牌格式的文件（.tokens.json），交给开发与项目汇总。b2b-graphite 是面向企业的数据与获客工具后台专用的石墨主题：主按钮用近黑的锌灰实色，accent 在本主题只作链接色、不作营销辅色，也不作焦点色（焦点见 shared.elevation 的说明），elevationCard 为 hairline 时静止卡片只用发丝线、悬停与浮层仍按层级令牌；其他行业不用。非门店类主题（enterprise-navy 深海蓝、travel-azure 航旅蓝、violet-academy 紫罗兰、wine-jewel 酒红紫、antique-gold 古金、agri-green 田野绿、civic-red 政务红）的主色、按压色、浅底都取自 Ant Design 基础色板的同一列，页面底取主色同色相的极浅色，辅色取更克制的第 7 阶，只作小面积营销与点缀；它们与已有主题的感知距离（OKLab）不小于 0.045，不是旧主题的近似色。每个主题还有 stage：有序进度状态的色阶（hue 是起点色相，light 与 dark 各 6 级，越靠后越深越实或越亮越醒目），由 scripts/stage_ramp.py themes --write 按算法生成，不手调；对比度、相邻色差、彩度由 check_contrast.py 逐项核对，导出见 export_tokens.py 的 color.stage，规则见 visual-design.html “有序进度状态的色阶”。",
   "shared": {
     "surface": "#FFFFFF",
     "ink": "#2B2326",
@@ -108,6 +108,25 @@
         "accent": "#E5B560",
         "accentTint": "#34260C",
         "line": "#413635"
+      },
+      "stage": {
+        "hue": 230.0,
+        "light": [
+          "#5A6F7A",
+          "#48637B",
+          "#3E567B",
+          "#3C4679",
+          "#3F3674",
+          "#43236B"
+        ],
+        "dark": [
+          "#8FA5B1",
+          "#93AEC6",
+          "#9DB4DA",
+          "#ACB8EB",
+          "#BEBBF9",
+          "#D4BDFF"
+        ]
       }
     },
     "sichuan-hotpot": {
@@ -138,6 +157,25 @@
         "accent": "#EBB45B",
         "accentTint": "#35260D",
         "line": "#413635"
+      },
+      "stage": {
+        "hue": 230.0,
+        "light": [
+          "#5A6F7A",
+          "#48637B",
+          "#3E567B",
+          "#3C4679",
+          "#3F3674",
+          "#43236B"
+        ],
+        "dark": [
+          "#8FA5B1",
+          "#93AEC6",
+          "#9DB4DA",
+          "#ACB8EB",
+          "#BEBBF9",
+          "#D4BDFF"
+        ]
       }
     },
     "cantonese-cafe": {
@@ -168,6 +206,25 @@
         "accent": "#E6B860",
         "accentTint": "#34260C",
         "line": "#323C37"
+      },
+      "stage": {
+        "hue": 210.0,
+        "light": [
+          "#577075",
+          "#406675",
+          "#2E5A77",
+          "#264C78",
+          "#283C77",
+          "#2F2B73"
+        ],
+        "dark": [
+          "#8DA7AC",
+          "#8CB1C0",
+          "#90B9D5",
+          "#9ABEEA",
+          "#A9C2FC",
+          "#C0C5FF"
+        ]
       }
     },
     "japanese-sushi": {
@@ -198,6 +255,25 @@
         "accent": "#FFA993",
         "accentTint": "#3C201A",
         "line": "#333A41"
+      },
+      "stage": {
+        "hue": 230.0,
+        "light": [
+          "#5A6F7A",
+          "#48637B",
+          "#3E567B",
+          "#3C4679",
+          "#3F3674",
+          "#43236B"
+        ],
+        "dark": [
+          "#8FA5B1",
+          "#93AEC6",
+          "#9DB4DA",
+          "#ACB8EB",
+          "#BEBBF9",
+          "#D4BDFF"
+        ]
       }
     },
     "bbq-snack": {
@@ -228,6 +304,25 @@
         "accent": "#E8B55E",
         "accentTint": "#35260C",
         "line": "#413732"
+      },
+      "stage": {
+        "hue": 210.0,
+        "light": [
+          "#577075",
+          "#406675",
+          "#2E5A77",
+          "#264C78",
+          "#283C77",
+          "#2F2B73"
+        ],
+        "dark": [
+          "#8DA7AC",
+          "#8CB1C0",
+          "#90B9D5",
+          "#9ABEEA",
+          "#A9C2FC",
+          "#C0C5FF"
+        ]
       }
     },
     "coffee": {
@@ -258,6 +353,25 @@
         "accent": "#EAB27D",
         "accentTint": "#38240F",
         "line": "#403731"
+      },
+      "stage": {
+        "hue": 210.0,
+        "light": [
+          "#577075",
+          "#406675",
+          "#2E5A77",
+          "#264C78",
+          "#283C77",
+          "#2F2B73"
+        ],
+        "dark": [
+          "#8DA7AC",
+          "#8CB1C0",
+          "#90B9D5",
+          "#9ABEEA",
+          "#A9C2FC",
+          "#C0C5FF"
+        ]
       }
     },
     "milk-tea": {
@@ -288,6 +402,25 @@
         "accent": "#FFA5BB",
         "accentTint": "#3B1F26",
         "line": "#313C39"
+      },
+      "stage": {
+        "hue": 210.0,
+        "light": [
+          "#577075",
+          "#406675",
+          "#2E5A77",
+          "#264C78",
+          "#283C77",
+          "#2F2B73"
+        ],
+        "dark": [
+          "#8DA7AC",
+          "#8CB1C0",
+          "#90B9D5",
+          "#9ABEEA",
+          "#A9C2FC",
+          "#C0C5FF"
+        ]
       }
     },
     "bakery-dessert": {
@@ -318,6 +451,25 @@
         "accent": "#E7B55E",
         "accentTint": "#35260C",
         "line": "#413638"
+      },
+      "stage": {
+        "hue": 230.0,
+        "light": [
+          "#5A6F7A",
+          "#48637B",
+          "#3E567B",
+          "#3C4679",
+          "#3F3674",
+          "#43236B"
+        ],
+        "dark": [
+          "#8FA5B1",
+          "#93AEC6",
+          "#9DB4DA",
+          "#ACB8EB",
+          "#BEBBF9",
+          "#D4BDFF"
+        ]
       }
     },
     "fast-noodle": {
@@ -348,6 +500,25 @@
         "accent": "#ECB450",
         "accentTint": "#35260C",
         "line": "#413634"
+      },
+      "stage": {
+        "hue": 230.0,
+        "light": [
+          "#5A6F7A",
+          "#48637B",
+          "#3E567B",
+          "#3C4679",
+          "#3F3674",
+          "#43236B"
+        ],
+        "dark": [
+          "#8FA5B1",
+          "#93AEC6",
+          "#9DB4DA",
+          "#ACB8EB",
+          "#BEBBF9",
+          "#D4BDFF"
+        ]
       }
     },
     "western-light": {
@@ -378,6 +549,25 @@
         "accent": "#F3AF91",
         "accentTint": "#3B2116",
         "line": "#343C35"
+      },
+      "stage": {
+        "hue": 210.0,
+        "light": [
+          "#577075",
+          "#406675",
+          "#2E5A77",
+          "#264C78",
+          "#283C77",
+          "#2F2B73"
+        ],
+        "dark": [
+          "#8DA7AC",
+          "#8CB1C0",
+          "#90B9D5",
+          "#9ABEEA",
+          "#A9C2FC",
+          "#C0C5FF"
+        ]
       }
     },
     "florist": {
@@ -408,6 +598,25 @@
         "accent": "#DEB867",
         "accentTint": "#33270C",
         "line": "#413637"
+      },
+      "stage": {
+        "hue": 230.0,
+        "light": [
+          "#5A6F7A",
+          "#48637B",
+          "#3E567B",
+          "#3C4679",
+          "#3F3674",
+          "#43236B"
+        ],
+        "dark": [
+          "#8FA5B1",
+          "#93AEC6",
+          "#9DB4DA",
+          "#ACB8EB",
+          "#BEBBF9",
+          "#D4BDFF"
+        ]
       }
     },
     "pharmacy": {
@@ -438,6 +647,25 @@
         "accent": "#E5B75F",
         "accentTint": "#34260C",
         "line": "#313B40"
+      },
+      "stage": {
+        "hue": 226.2,
+        "light": [
+          "#596F79",
+          "#47647A",
+          "#3B567B",
+          "#394779",
+          "#3B3775",
+          "#3F256D"
+        ],
+        "dark": [
+          "#8FA6B0",
+          "#92AEC5",
+          "#9AB5D9",
+          "#A8B9EB",
+          "#BABCFA",
+          "#CFBFFF"
+        ]
       }
     },
     "pet": {
@@ -468,6 +696,25 @@
         "accent": "#92C9AD",
         "accentTint": "#113022",
         "line": "#403732"
+      },
+      "stage": {
+        "hue": 210.0,
+        "light": [
+          "#577075",
+          "#406675",
+          "#2E5A77",
+          "#264C78",
+          "#283C77",
+          "#2F2B73"
+        ],
+        "dark": [
+          "#8DA7AC",
+          "#8CB1C0",
+          "#90B9D5",
+          "#9ABEEA",
+          "#A9C2FC",
+          "#C0C5FF"
+        ]
       }
     },
     "beauty-nail": {
@@ -498,6 +745,25 @@
         "accent": "#E4B65E",
         "accentTint": "#34260C",
         "line": "#40363B"
+      },
+      "stage": {
+        "hue": 230.0,
+        "light": [
+          "#5A6F7A",
+          "#48637B",
+          "#3E567B",
+          "#3C4679",
+          "#3F3674",
+          "#43236B"
+        ],
+        "dark": [
+          "#8FA5B1",
+          "#93AEC6",
+          "#9DB4DA",
+          "#ACB8EB",
+          "#BEBBF9",
+          "#D4BDFF"
+        ]
       }
     },
     "salon": {
@@ -528,6 +794,25 @@
         "accent": "#E4B779",
         "accentTint": "#36250D",
         "line": "#323A41"
+      },
+      "stage": {
+        "hue": 230.0,
+        "light": [
+          "#5A6F7A",
+          "#48637B",
+          "#3E567B",
+          "#3C4679",
+          "#3F3674",
+          "#43236B"
+        ],
+        "dark": [
+          "#8FA5B1",
+          "#93AEC6",
+          "#9DB4DA",
+          "#ACB8EB",
+          "#BEBBF9",
+          "#D4BDFF"
+        ]
       }
     },
     "ai-agent": {
@@ -624,6 +909,25 @@
             "solid": "#A8BBFF"
           }
         }
+      },
+      "stage": {
+        "hue": 230.0,
+        "light": [
+          "#5A6F7A",
+          "#48637B",
+          "#3E567B",
+          "#3C4679",
+          "#3F3674",
+          "#43236B"
+        ],
+        "dark": [
+          "#8FA5B1",
+          "#93AEC6",
+          "#9DB4DA",
+          "#ACB8EB",
+          "#BEBBF9",
+          "#D4BDFF"
+        ]
       }
     },
     "fitness-gym": {
@@ -655,7 +959,26 @@
         "accentTint": "#382410",
         "line": "#413634"
       },
-      "source": "Ant Design 官方色板：火山 volcano 作主色（volcano-6 #D4380D 白字 4.8:1，悬停 volcano-5 #FA541C，按下 volcano-7 #AD2102，浅底 volcano-0 #FFF2E8）；营销取邻近色金盏花 gold（文字 gold-8 #874D00，容器 gold-0 #FFFBE6 / gold-1 #FFF1B8，描边 gold-2 #FFE58F）"
+      "source": "Ant Design 官方色板：火山 volcano 作主色（volcano-6 #D4380D 白字 4.8:1，悬停 volcano-5 #FA541C，按下 volcano-7 #AD2102，浅底 volcano-0 #FFF2E8）；营销取邻近色金盏花 gold（文字 gold-8 #874D00，容器 gold-0 #FFFBE6 / gold-1 #FFF1B8，描边 gold-2 #FFE58F）",
+      "stage": {
+        "hue": 230.0,
+        "light": [
+          "#5A6F7A",
+          "#48637B",
+          "#3E567B",
+          "#3C4679",
+          "#3F3674",
+          "#43236B"
+        ],
+        "dark": [
+          "#8FA5B1",
+          "#93AEC6",
+          "#9DB4DA",
+          "#ACB8EB",
+          "#BEBBF9",
+          "#D4BDFF"
+        ]
+      }
     },
     "b2b-graphite": {
       "label": "石墨工具",
@@ -687,6 +1010,25 @@
         "accent": "#60A5FA",
         "accentTint": "#172554",
         "line": "#3F3F46"
+      },
+      "stage": {
+        "hue": 230.0,
+        "light": [
+          "#5A6F7A",
+          "#48637B",
+          "#3E567B",
+          "#3C4679",
+          "#3F3674",
+          "#43236B"
+        ],
+        "dark": [
+          "#8FA5B1",
+          "#93AEC6",
+          "#9DB4DA",
+          "#ACB8EB",
+          "#BEBBF9",
+          "#D4BDFF"
+        ]
       }
     },
     "enterprise-navy": {
@@ -718,6 +1060,25 @@
         "accent": "#6ACDD1",
         "accentTint": "#042F31",
         "line": "#323947"
+      },
+      "stage": {
+        "hue": 230.0,
+        "light": [
+          "#5A6F7A",
+          "#48637B",
+          "#3E567B",
+          "#3C4679",
+          "#3F3674",
+          "#43236B"
+        ],
+        "dark": [
+          "#8FA5B1",
+          "#93AEC6",
+          "#9DB4DA",
+          "#ACB8EB",
+          "#BEBBF9",
+          "#D4BDFF"
+        ]
       }
     },
     "travel-azure": {
@@ -749,6 +1110,25 @@
         "accent": "#FFAB73",
         "accentTint": "#3A2213",
         "line": "#323A47"
+      },
+      "stage": {
+        "hue": 230.0,
+        "light": [
+          "#5A6F7A",
+          "#48637B",
+          "#3E567B",
+          "#3C4679",
+          "#3F3674",
+          "#43236B"
+        ],
+        "dark": [
+          "#8FA5B1",
+          "#93AEC6",
+          "#9DB4DA",
+          "#ACB8EB",
+          "#BEBBF9",
+          "#D4BDFF"
+        ]
       }
     },
     "violet-academy": {
@@ -780,6 +1160,25 @@
         "accent": "#F6B057",
         "accentTint": "#37250E",
         "line": "#3A3746"
+      },
+      "stage": {
+        "hue": 230.0,
+        "light": [
+          "#5A6F7A",
+          "#48637B",
+          "#3E567B",
+          "#3C4679",
+          "#3F3674",
+          "#43236B"
+        ],
+        "dark": [
+          "#8FA5B1",
+          "#93AEC6",
+          "#9DB4DA",
+          "#ACB8EB",
+          "#BEBBF9",
+          "#D4BDFF"
+        ]
       }
     },
     "wine-jewel": {
@@ -811,6 +1210,25 @@
         "accent": "#F5AE55",
         "accentTint": "#37250E",
         "line": "#44343B"
+      },
+      "stage": {
+        "hue": 230.0,
+        "light": [
+          "#5A6F7A",
+          "#48637B",
+          "#3E567B",
+          "#3C4679",
+          "#3F3674",
+          "#43236B"
+        ],
+        "dark": [
+          "#8FA5B1",
+          "#93AEC6",
+          "#9DB4DA",
+          "#ACB8EB",
+          "#BEBBF9",
+          "#D4BDFF"
+        ]
       }
     },
     "antique-gold": {
@@ -842,6 +1260,25 @@
         "accent": "#6ACDD1",
         "accentTint": "#042F31",
         "line": "#3F392A"
+      },
+      "stage": {
+        "hue": 210.0,
+        "light": [
+          "#577075",
+          "#406675",
+          "#2E5A77",
+          "#264C78",
+          "#283C77",
+          "#2F2B73"
+        ],
+        "dark": [
+          "#8DA7AC",
+          "#8CB1C0",
+          "#90B9D5",
+          "#9ABEEA",
+          "#A9C2FC",
+          "#C0C5FF"
+        ]
       }
     },
     "agri-green": {
@@ -873,6 +1310,25 @@
         "accent": "#F8B158",
         "accentTint": "#37250E",
         "line": "#323D30"
+      },
+      "stage": {
+        "hue": 210.0,
+        "light": [
+          "#577075",
+          "#406675",
+          "#2E5A77",
+          "#264C78",
+          "#283C77",
+          "#2F2B73"
+        ],
+        "dark": [
+          "#8DA7AC",
+          "#8CB1C0",
+          "#90B9D5",
+          "#9ABEEA",
+          "#A9C2FC",
+          "#C0C5FF"
+        ]
       }
     },
     "civic-red": {
@@ -904,6 +1360,25 @@
         "accent": "#F5AF56",
         "accentTint": "#37250E",
         "line": "#463432"
+      },
+      "stage": {
+        "hue": 230.0,
+        "light": [
+          "#5A6F7A",
+          "#48637B",
+          "#3E567B",
+          "#3C4679",
+          "#3F3674",
+          "#43236B"
+        ],
+        "dark": [
+          "#8FA5B1",
+          "#93AEC6",
+          "#9DB4DA",
+          "#ACB8EB",
+          "#BEBBF9",
+          "#D4BDFF"
+        ]
       }
     }
   }

@@ -1,0 +1,972 @@
+<!-- cat: ROWS | 列表行 -->
+<style>
+/* 列表行：基于 .row 与 .list，行内状态与动作各有位置；所有类名带 rw- 前缀 */
+.rw-ed__f .input:focus-visible { outline: none; }
+.rw-ic { width: 24px; height: 24px; flex: none; }
+.rw-av { width: 48px; height: 48px; flex: none; border-radius: 50%; background: var(--zone); object-fit: contain; padding: 8px; }
+.rw-av--sq { border-radius: var(--r-md); }
+.rw-3d { width: 44px; height: 44px; flex: none; object-fit: contain; }
+.rw-wrap { position: relative; flex: none; }
+.rw-wrap .badge { top: -4px; right: -8px; }
+.rw-dot { position: absolute; top: -2px; right: -2px; width: 12px; height: 12px; border-radius: 50%; background: var(--danger); box-shadow: 0 0 0 2px var(--surface); animation: lz-pop var(--dur-slow) var(--ease-spring) both; }
+.rw-gone { opacity: 0; transform: scale(.4); transition: opacity var(--dur-quick), transform var(--dur-quick); }
+.rw-gold { background: var(--accent-tint); color: var(--accent); }
+.rw-grow { flex: 1; min-width: 0; }
+.rw-chev { margin-left: auto; }
+.rw-val { color: var(--ink-3); font-size: var(--fs-sm); }
+
+/* 订单行 */
+.rw-ord { padding: var(--s-4); }
+.rw-ord__h { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--s-3); }
+.rw-ord__h b { font-size: var(--fs-md); font-weight: 600; }
+.rw-ord__b { display: flex; align-items: center; gap: var(--s-2); }
+.rw-ord__b img { width: 60px; height: 60px; border-radius: var(--r-md); object-fit: cover; background: var(--zone); }
+.rw-ord__sum { margin-left: auto; display: grid; justify-items: end; gap: 2px; text-align: right; font-size: var(--fs-sm); color: var(--ink-3); }
+.rw-ord__sum b { font-size: var(--fs-lg); color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+.rw-ord__sum b small { font-size: var(--fs-xs); font-weight: 600; margin-right: 1px; }
+.rw-ord__f { display: flex; justify-content: flex-end; gap: var(--s-2); margin-top: var(--s-3); padding-top: var(--s-3); border-top: 1px solid var(--line); }
+.rw-ord__f .btn[hidden] { display: none; }
+
+/* 消息行 */
+.rw-msg { align-items: flex-start; }
+.rw-msg .row__title { font-weight: 400; color: var(--ink-2); }
+.rw-msg[data-unread] .row__title { font-weight: 600; color: var(--ink); }
+.rw-msg .row__meta { display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+.rw-msg[data-unread] .row__meta { color: var(--ink-2); }
+.rw-msg .row__trail { align-self: flex-start; padding-top: 2px; min-width: 40px; }
+.rw-msg .badge { position: static; animation: none; }
+
+/* 地址行 */
+.rw-addr { align-items: flex-start; }
+.rw-addr .fm-ring2 { margin-top: 3px; }
+.rw-ring { display: grid; place-items: center; width: 22px; height: 22px; margin-top: 2px; border: 1.5px solid var(--line-strong); border-radius: 50%; background: var(--surface); flex: none; transition: border-color var(--dur-quick) var(--ease-out); }
+.rw-ring::after { content: ""; width: 12px; height: 12px; border-radius: 50%; background: var(--action); transform: scale(0); transition: transform var(--dur-base) var(--ease-spring); }
+[aria-checked="true"] > .rw-ring { border-color: var(--action); }
+[aria-checked="true"] > .rw-ring::after { transform: scale(1); }
+.rw-addr__n { display: flex; align-items: center; gap: var(--s-2); font-size: var(--fs-md); font-weight: 600; }
+.rw-addr__n span { font-weight: 400; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.rw-addr .row__meta { margin-top: 4px; line-height: 1.5; }
+.rw-addr[aria-checked="true"] { background: var(--action-tint); }
+
+/* 联系人行 */
+.rw-ct .row__main { display: grid; gap: 4px; }
+.rw-ct__m { display: flex; align-items: center; gap: var(--s-2); font-size: var(--fs-sm); color: var(--ink-3); }
+.rw-ct .ibtn { flex: none; background: var(--zone); border-radius: 50%; }
+
+/* 带开关行 */
+.rw-sw .row__main { padding-right: var(--s-2); }
+
+/* 可展开行与价格明细 */
+.rw-kv { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-3); padding: 3px 0; font-size: var(--fs-sm); color: var(--ink-2); }
+.rw-kv b { font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
+.rw-kv--em { margin-top: var(--s-2); padding-top: var(--s-3); border-top: 1px solid var(--line); font-size: var(--fs-md); color: var(--ink); font-weight: 600; }
+.rw-kv--em b { font-size: var(--fs-xl); color: var(--price); font-weight: 700; }
+.rw-kv--em b small { font-size: var(--fs-sm); margin-right: 1px; }
+.rw-kv .neg { color: var(--price); }
+.rw-kv .free { color: var(--success); }
+.rw-pr { padding: var(--s-4); }
+.rw-pr .rw-kv { padding: 5px 0; font-size: var(--fs-md); }
+.rw-pr__sw { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); margin-top: var(--s-2); padding: var(--s-3); border-radius: var(--r-md); background: var(--action-tint); font-size: var(--fs-sm); color: var(--action-press); font-weight: 600; }
+
+/* 分组标题 */
+.rw-gh { display: flex; align-items: center; gap: var(--s-2); width: 100%; min-height: 44px; padding: 0 var(--s-4); background: var(--zone); font-size: var(--fs-sm); font-weight: 600; color: var(--ink-2); text-align: left; }
+.rw-gh small { min-width: 20px; padding: 0 6px; border-radius: var(--r-full); background: var(--surface); font-size: var(--fs-xs); font-weight: 600; line-height: 20px; text-align: center; color: var(--ink-3); }
+.rw-gh .chev { margin-left: auto; }
+.rw-gh[aria-expanded="true"] .chev::after { transform: rotate(45deg); }
+.rw-xl .expand:not([data-open="true"]) + .row::before { content: ""; position: absolute; top: 0; left: var(--s-4); right: 0; border-top: 1px solid var(--line); }
+.rw-sub { padding: var(--s-3) var(--s-4); display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); font-size: var(--fs-md); }
+.rw-sub + .rw-sub { border-top: 1px solid var(--line); }
+.rw-sub span { font-size: var(--fs-sm); color: var(--ink-3); }
+
+/* 索引列表 */
+.rw-idx { position: relative; height: 312px; overflow: hidden; }
+.rw-idx__sc { height: 100%; overflow-y: auto; scrollbar-width: none; scroll-behavior: smooth; }
+.rw-idx__sc::-webkit-scrollbar { display: none; }
+.rw-idx__h { position: sticky; top: 0; z-index: 1; padding: 6px var(--s-4); background: var(--zone); font-size: var(--fs-sm); font-weight: 600; color: var(--ink-2); }
+.rw-idx .row { min-height: 56px; padding-right: 40px; }
+.rw-idx__pad { height: 200px; }
+.rw-idx__rail { position: absolute; z-index: 2; top: 50%; right: 4px; transform: translateY(-50%); display: grid; gap: 2px; padding: 6px 2px; border-radius: var(--r-full); background: var(--zone); touch-action: none; }
+.rw-idx__rail button { display: grid; place-items: center; width: 22px; height: 28px; border-radius: 50%; font-size: var(--fs-xs); font-weight: 600; color: var(--ink-3); transition: background var(--dur-quick) var(--ease-out), color var(--dur-quick) var(--ease-out); }
+.rw-idx__rail button[aria-current="true"] { background: var(--action); color: var(--surface); }
+.rw-idx__bub { position: absolute; z-index: 2; top: 50%; right: 44px; transform: translateY(-50%) scale(.8); display: grid; place-items: center; width: 56px; height: 56px; border-radius: var(--r-lg); background: var(--action); color: var(--surface); font-size: var(--fs-2xl); font-weight: 700; opacity: 0; pointer-events: none; transition: opacity var(--dur-quick) var(--ease-out), transform var(--dur-quick) var(--ease-out); }
+.rw-idx__bub.is-on { opacity: 1; transform: translateY(-50%) scale(1); }
+
+/* 缩略图行与标签行 */
+.rw-th .row__lead { width: 64px; height: 64px; }
+.rw-th .row { min-height: 88px; }
+.rw-th .row__meta { margin-top: 4px; }
+.rw-th .row__trail { align-self: center; gap: 4px; text-align: right; }
+.rw-th .row__trail b { font-weight: 400; color: var(--ink-3); font-size: var(--fs-sm); }
+.rw-tg .row__lead { width: 56px; height: 56px; }
+.rw-tg__t { display: flex; gap: var(--s-1); margin-top: 6px; }
+.rw-old { margin-left: 4px; font-size: var(--fs-xs); color: var(--ink-3); text-decoration: line-through; font-weight: 400; }
+
+/* 任务进度行 */
+.rw-task { align-items: center; }
+.rw-task .progress { height: 6px; margin-top: 8px; }
+.rw-task__n { font-size: var(--fs-sm); font-variant-numeric: tabular-nums; color: var(--ink-3); margin-left: var(--s-2); font-weight: 400; }
+.rw-task .btn { min-width: 72px; }
+.rw-task .btn[disabled] { opacity: 1; }
+
+/* 排行行 */
+.rw-rk { font-variant-numeric: tabular-nums; }
+.rw-rk__n { display: grid; place-items: center; width: 28px; height: 28px; flex: none; border-radius: 9px; font-size: var(--fs-md); font-weight: 600; color: var(--ink-3); }
+.rw-rk__n[data-t="1"] { background: var(--accent-tint); color: var(--accent); }
+.rw-rk__n[data-t="2"] { background: var(--zone); color: var(--ink-2); }
+.rw-rk__n[data-t="3"] { background: var(--warning-tint); color: var(--warning); }
+.rw-rk .row__lead { width: 52px; height: 52px; }
+.rw-rk .progress { height: 4px; margin-top: 8px; }
+.rw-rk .btn { min-width: 56px; }
+.rw-rk .btn[disabled] { opacity: 1; }
+
+/* 带头像行 */
+.rw-pe { position: relative; flex: none; }
+.rw-pe i { position: absolute; right: 1px; bottom: 1px; width: 12px; height: 12px; border-radius: 50%; background: var(--ink-3); box-shadow: 0 0 0 2px var(--surface); }
+.rw-pe i[data-s="on"] { background: var(--success); }
+.rw-pe i[data-s="busy"] { background: var(--warning); }
+.rw-st { font-size: var(--fs-sm); color: var(--ink-3); }
+.rw-st[data-s="on"] { color: var(--success); }
+.rw-st[data-s="busy"] { color: var(--warning); }
+
+/* 原位改名 */
+.rw-ed { min-height: 64px; }
+.rw-ed__v { display: flex; align-items: center; gap: var(--s-2); margin: -5px 0; }
+.rw-ed__v .row__title { max-width: 160px; }
+.rw-ed__f { display: flex; align-items: center; gap: var(--s-2); margin-bottom: 2px; }
+.rw-ed__f .input { min-height: 40px; padding: 0 var(--s-3); flex: 1; min-width: 0; border-radius: var(--r-sm); }
+.rw-ed__f .btn { min-height: 40px; padding: 0 var(--s-3); font-size: var(--fs-sm); }
+.rw-ed .ibtn { width: 36px; height: 36px; }
+.rw-ed .ibtn img { width: 18px; height: 18px; }
+.rw-ed [hidden] { display: none !important; }
+
+/* 左滑操作行 */
+.rw-sl { position: relative; overflow: hidden; touch-action: pan-y; background: var(--surface); transition: height var(--dur-base) var(--ease-out), opacity var(--dur-base) var(--ease-out); }
+.rw-sl + .rw-sl::before { content: ""; position: absolute; z-index: 2; top: 0; left: var(--s-4); right: 0; border-top: 1px solid var(--line); }
+.rw-sl__acts { position: absolute; top: 0; right: 0; bottom: 0; display: flex; }
+.rw-sl__acts button { width: 72px; font-size: var(--fs-sm); font-weight: 600; color: var(--surface); }
+.rw-sl__acts button[data-a="pin"] { background: var(--action); }
+.rw-sl__acts button[data-a="del"] { background: var(--danger); }
+.rw-sl__f { position: relative; z-index: 1; display: flex; align-items: center; gap: var(--s-3); min-height: 64px; padding: var(--s-2) var(--s-4); background: var(--surface); transition: transform var(--dur-base) var(--ease-out); will-change: transform; }
+.rw-sl__f.is-drag { transition: none; }
+.rw-sl__f .row__title { font-weight: 600; }
+</style>
+
+<article class="demo" data-cid="AP-ROWS-001" data-name="设置功能行" data-cat="ROWS">
+  <div class="demo__head"><span class="demo__name">设置功能行</span></div>
+  <p class="demo__note">适合：设置页的功能入口，线性图标在左，当前值与箭头在右</p>
+  <div class="demo__stage">
+    <div class="card list" id="rw-set">
+      <button class="row row--link" data-go="通用设置"><img class="rw-ic" src="../../kit/assets/line/settings.webp" alt=""><div class="row__main"><p class="row__title">通用设置</p></div><span class="row__trail"></span></button>
+      <button class="row row--link" data-go="账号与安全"><img class="rw-ic" src="../../kit/assets/line/shield.webp" alt=""><div class="row__main"><p class="row__title">账号与安全</p></div><span class="row__trail"><span class="rw-val">已验证</span></span></button>
+      <button class="row row--link" data-go="消息通知"><img class="rw-ic" src="../../kit/assets/line/message.webp" alt=""><div class="row__main"><p class="row__title">消息通知</p></div><span class="row__trail"><span class="rw-val">已开启</span></span></button>
+      <button class="row row--link" data-clear><img class="rw-ic" src="../../kit/assets/line/archive.webp" alt=""><div class="row__main"><p class="row__title">清除缓存</p></div><span class="row__trail"><span class="rw-val" data-size>12.4 兆</span></span></button>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-ROWS-002" data-name="订单卡片行" data-cat="ROWS">
+  <div class="demo__head"><span class="demo__name">订单卡片行</span></div>
+  <p class="demo__note">适合：订单列表，状态在右上，操作在底部，随状态流转</p>
+  <div class="demo__stage">
+    <section class="card rw-ord" id="rw-ord">
+      <div class="rw-ord__h"><b>建国路店</b><span class="tag" data-tone="warning" data-st>待付款</span></div>
+      <div class="rw-ord__b">
+        <img src="../../kit/assets/photo/product-rose-red.webp" alt=""><img src="../../kit/assets/photo/product-sunflower.webp" alt=""><img src="../../kit/assets/photo/product-succulent.webp" alt="">
+        <div class="rw-ord__sum"><span>共 3 件</span><b><small>¥</small>447</b></div>
+      </div>
+      <div class="rw-ord__f"><button class="btn btn--ghost btn--sm" data-a="cancel">取消订单</button><button class="btn btn--primary btn--sm" data-a="pay">去支付</button><button class="btn btn--secondary btn--sm" data-a="urge" hidden>提醒发货</button><button class="btn btn--secondary btn--sm" data-a="again" hidden>再次购买</button></div>
+    </section>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-ROWS-003" data-name="会话消息行" data-cat="ROWS">
+  <div class="demo__head"><span class="demo__name">会话消息行</span></div>
+  <p class="demo__note">适合：会话列表，未读加粗并带数字，点开后转为已读</p>
+  <div class="demo__stage">
+    <div class="card list" id="rw-msg">
+      <button class="row rw-msg" data-unread><img class="rw-av" src="../../kit/assets/marks/mark-001.webp" alt=""><div class="row__main"><p class="row__title one-line">林晓</p><p class="row__meta">花束收到了 非常漂亮</p></div><span class="row__trail"><span>刚刚</span><span class="badge" data-b>2</span></span></button>
+      <button class="row rw-msg" data-unread><img class="rw-av" src="../../kit/assets/marks/mark-002.webp" alt=""><div class="row__main"><p class="row__title one-line">陈琳</p><p class="row__meta">明天的花艺课程已经安排好</p></div><span class="row__trail"><span>5 分钟前</span><span class="rw-dot" data-b style="position: static; box-shadow: none"></span></span></button>
+      <button class="row rw-msg"><img class="rw-av" src="../../kit/assets/marks/mark-003.webp" alt=""><div class="row__main"><p class="row__title one-line">周明</p><p class="row__meta">已到达楼下 请取花</p></div><span class="row__trail"><span>昨天</span></span></button>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-ROWS-004" data-name="收货地址行" data-cat="ROWS">
+  <div class="demo__head"><span class="demo__name">收货地址行</span></div>
+  <p class="demo__note">适合：选择收货地址，整行单选，右侧进入编辑页</p>
+  <div class="demo__stage">
+    <div class="card list" id="rw-addr" role="radiogroup" aria-label="收货地址">
+      <div class="row rw-addr" role="radio" aria-checked="true" tabindex="0"><span class="rw-ring"></span><div class="row__main"><p class="rw-addr__n">林晓<span>138 0013 8000</span><span class="tag" data-tone="action">默认</span></p><p class="row__meta">黄浦区建国路 88 号 1502</p></div><button class="ibtn" aria-label="编辑地址" data-tip="编辑"><img src="../../kit/assets/line/edit.webp" alt=""></button></div>
+      <div class="row rw-addr" role="radio" aria-checked="false" tabindex="-1"><span class="rw-ring"></span><div class="row__main"><p class="rw-addr__n">林晓<span>138 0013 8000</span><span class="tag">公司</span></p><p class="row__meta">徐汇区滨江大道 1200 号</p></div><button class="ibtn" aria-label="编辑地址" data-tip="编辑"><img src="../../kit/assets/line/edit.webp" alt=""></button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-ROWS-005" data-name="联系人行" data-cat="ROWS">
+  <div class="demo__head"><span class="demo__name">联系人行</span></div>
+  <p class="demo__note">适合：客户与会员名单，图像标识加身份标签，右侧发起沟通</p>
+  <div class="demo__stage">
+    <div class="card list">
+      <div class="row rw-ct"><img class="rw-av" src="../../kit/assets/marks/mark-001.webp" alt=""><div class="row__main"><p class="row__title">林晓</p><div class="rw-ct__m"><span class="tag rw-gold">金卡会员</span><span>建国路店</span></div></div><button class="ibtn" aria-label="发消息" data-tip="发消息" data-say="林晓"><img src="../../kit/assets/line/message.webp" alt=""></button></div>
+      <div class="row rw-ct"><img class="rw-av" src="../../kit/assets/marks/mark-004.webp" alt=""><div class="row__main"><p class="row__title">吴悦</p><div class="rw-ct__m"><span class="tag">普通会员</span><span>浦东世纪店</span></div></div><button class="ibtn" aria-label="发消息" data-tip="发消息" data-say="吴悦"><img src="../../kit/assets/line/message.webp" alt=""></button></div>
+      <div class="row rw-ct"><img class="rw-av" src="../../kit/assets/marks/mark-005.webp" alt=""><div class="row__main"><p class="row__title">郑雅</p><div class="rw-ct__m"><span class="tag rw-gold">金卡会员</span><span>徐汇滨江店</span></div></div><button class="ibtn" aria-label="发消息" data-tip="发消息" data-say="郑雅"><img src="../../kit/assets/line/message.webp" alt=""></button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-ROWS-006" data-name="带开关行" data-cat="ROWS">
+  <div class="demo__head"><span class="demo__name">带开关行</span></div>
+  <p class="demo__note">适合：通知偏好等即时生效的选项，说明随开关变化</p>
+  <div class="demo__stage">
+    <div class="card list" id="rw-sw">
+      <div class="row rw-sw"><div class="row__main"><p class="row__title">订单提醒</p><p class="row__meta" data-m>下单与配送进度已开启</p></div><button class="switch" role="switch" aria-checked="true" aria-label="订单提醒" data-on="下单与配送进度已开启" data-off="已关闭"></button></div>
+      <div class="row rw-sw"><div class="row__main"><p class="row__title">活动通知</p><p class="row__meta" data-m>已关闭</p></div><button class="switch" role="switch" aria-checked="false" aria-label="活动通知" data-on="优惠与新品已开启" data-off="已关闭"></button></div>
+      <div class="row rw-sw"><div class="row__main"><p class="row__title">周期订花提醒</p><p class="row__meta" data-m>每期送达前一天提醒</p></div><button class="switch" role="switch" aria-checked="true" aria-label="周期订花提醒" data-on="每期送达前一天提醒" data-off="已关闭"></button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-ROWS-007" data-name="带箭头行" data-cat="ROWS">
+  <div class="demo__head"><span class="demo__name">带箭头行</span></div>
+  <p class="demo__note">适合：进入下级页面，左侧名称、右侧当前值与箭头</p>
+  <div class="demo__stage">
+    <div class="card list">
+      <button class="row row--link" data-go="收货地址"><div class="row__main"><p class="row__title">收货地址</p></div><span class="row__trail"><span class="rw-val">上海 徐汇</span></span></button>
+      <button class="row row--link" data-go="发票抬头"><div class="row__main"><p class="row__title">发票抬头</p></div><span class="row__trail"><span class="rw-val">未设置</span></span></button>
+      <button class="row row--link" data-go="配送时间"><div class="row__main"><p class="row__title">配送时间</p></div><span class="row__trail"><span class="rw-val">尽快送达</span></span></button>
+      <button class="row row--link" data-go="优惠券"><div class="row__main"><p class="row__title">优惠券</p></div><span class="row__trail"><span class="tag" data-tone="price">3 张可用</span></span></button>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-ROWS-008" data-name="带角标行" data-cat="ROWS">
+  <div class="demo__head"><span class="demo__name">带角标行</span></div>
+  <p class="demo__note">适合：通知中心分类，角标挂在图标上，进入后清除</p>
+  <div class="demo__stage">
+    <div class="card list" id="rw-bd">
+      <button class="row row--link" data-go="订单通知" data-read><span class="rw-wrap"><img class="rw-3d" data-ic="scooter" src="../../kit/assets/icons/flat/scooter.webp" alt=""><span class="badge" data-b>3</span></span><div class="row__main"><p class="row__title">订单通知</p><p class="row__meta">骑手已取货</p></div><span class="row__trail"><span class="rw-val">刚刚</span></span></button>
+      <button class="row row--link" data-go="活动消息" data-read><span class="rw-wrap"><img class="rw-3d" data-ic="coupon" src="../../kit/assets/icons/flat/coupon.webp" alt=""><i class="rw-dot" data-b></i></span><div class="row__main"><p class="row__title">活动消息</p><p class="row__meta">新人礼券即将到期</p></div><span class="row__trail"><span class="rw-val">昨天</span></span></button>
+      <button class="row row--link" data-go="会员通知" data-read><span class="rw-wrap"><img class="rw-3d" data-ic="giftcard" src="../../kit/assets/icons/flat/giftcard.webp" alt=""></span><div class="row__main"><p class="row__title">会员通知</p><p class="row__meta">积分已到账</p></div><span class="row__trail"><span class="rw-val">周一</span></span></button>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-ROWS-009" data-name="带标签行" data-cat="ROWS">
+  <div class="demo__head"><span class="demo__name">带标签行</span></div>
+  <p class="demo__note">适合：商品列表，名称下带语义标签，价格居右</p>
+  <div class="demo__stage">
+    <div class="card list rw-tg">
+      <div class="row"><img class="row__lead" src="../../kit/assets/photo/product-rose-red.webp" alt=""><div class="row__main"><p class="row__title one-line">红玫瑰花束</p><div class="rw-tg__t"><span class="tag" data-tone="price">热卖</span><span class="tag" data-tone="success">包邮</span></div></div><span class="price"><small>¥</small>199</span></div>
+      <div class="row"><img class="row__lead" src="../../kit/assets/photo/product-peony-pink.webp" alt=""><div class="row__main"><p class="row__title one-line">粉芍药花束</p><div class="rw-tg__t"><span class="tag" data-tone="action">新品</span><span class="tag" data-tone="info">2 小时达</span></div></div><span class="price"><small>¥</small>239</span></div>
+      <div class="row"><img class="row__lead" src="../../kit/assets/photo/product-succulent.webp" alt=""><div class="row__main"><p class="row__title one-line">多肉组合盆</p><div class="rw-tg__t"><span class="tag rw-gold">限时</span></div></div><span class="price"><small>¥</small>89<span class="rw-old">¥109</span></span></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-ROWS-010" data-name="可展开行" data-cat="ROWS">
+  <div class="demo__head"><span class="demo__name">可展开行</span></div>
+  <p class="demo__note">适合：订单明细等次要信息，展开内容紧邻本行</p>
+  <div class="demo__stage">
+    <div class="card list rw-xl">
+      <button class="row" data-expand="rw-ex1"><div class="row__main"><p class="row__title">订单明细</p><p class="row__meta">共 2 件</p></div><span class="rw-val">¥378</span><span class="chev"></span></button>
+      <div class="expand" id="rw-ex1" data-open="true"><div><div class="expand__body">
+        <p class="rw-kv"><span>红玫瑰花束 ×1</span><b>¥199</b></p>
+        <p class="rw-kv"><span>粉芍药花束 ×1</span><b>¥239</b></p>
+        <p class="rw-kv"><span>配送费</span><b class="free">免费</b></p>
+        <p class="rw-kv"><span>优惠券</span><b class="neg">-¥60</b></p>
+      </div></div></div>
+      <button class="row" data-expand="rw-ex2"><div class="row__main"><p class="row__title">配送信息</p><p class="row__meta">建国路店</p></div><span class="rw-val">2 小时达</span><span class="chev"></span></button>
+      <div class="expand" id="rw-ex2"><div><div class="expand__body">
+        <p class="rw-kv"><span>收货人</span><b>林晓</b></p>
+        <p class="rw-kv"><span>手机号</span><b>138 0013 8000</b></p>
+        <p class="rw-kv"><span>地址</span><b>建国路 88 号</b></p>
+      </div></div></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-ROWS-011" data-name="分组标题行" data-cat="ROWS">
+  <div class="demo__head"><span class="demo__name">分组标题行</span></div>
+  <p class="demo__note">适合：按时间分组的列表，标题带数量，可折叠整组</p>
+  <div class="demo__stage">
+    <div class="card list">
+      <button class="rw-gh" data-expand="rw-g1">昨天<small>2</small><span class="chev"></span></button>
+      <div class="expand" id="rw-g1" data-open="true"><div>
+        <div class="rw-sub">粉芍药花束已送达<span>18:20</span></div>
+        <div class="rw-sub">红玫瑰花束已发货<span>09:45</span></div>
+      </div></div>
+      <button class="rw-gh" data-expand="rw-g2">更早<small>2</small><span class="chev"></span></button>
+      <div class="expand" id="rw-g2" data-open="true"><div>
+        <div class="rw-sub">花礼盒已完成<span>周一</span></div>
+        <div class="rw-sub">蓝绣球盆栽申请售后<span>周日</span></div>
+      </div></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-ROWS-012" data-name="花材索引列表" data-cat="ROWS">
+  <div class="demo__head"><span class="demo__name">花材索引列表</span></div>
+  <p class="demo__note">适合：按花期分组的长名录，右侧索引点按或滑动定位</p>
+  <div class="demo__stage">
+    <div class="card rw-idx" id="rw-idx">
+      <div class="rw-idx__sc">
+        <section data-k="春"><div class="rw-idx__h">春</div>
+          <div class="row"><div class="row__main"><p class="row__title">芍药</p><p class="row__meta">花期 4 至 5 月</p></div></div>
+          <div class="row"><div class="row__main"><p class="row__title">郁金香</p><p class="row__meta">花期 3 至 4 月</p></div></div>
+          <div class="row"><div class="row__main"><p class="row__title">洋桔梗</p><p class="row__meta">花期 4 至 6 月</p></div></div>
+        </section>
+        <section data-k="夏"><div class="rw-idx__h">夏</div>
+          <div class="row"><div class="row__main"><p class="row__title">向日葵</p><p class="row__meta">花期 6 至 8 月</p></div></div>
+          <div class="row"><div class="row__main"><p class="row__title">绣球</p><p class="row__meta">花期 6 至 7 月</p></div></div>
+          <div class="row"><div class="row__main"><p class="row__title">百合</p><p class="row__meta">花期 6 至 8 月</p></div></div>
+        </section>
+        <section data-k="秋"><div class="rw-idx__h">秋</div>
+          <div class="row"><div class="row__main"><p class="row__title">菊花</p><p class="row__meta">花期 9 至 11 月</p></div></div>
+          <div class="row"><div class="row__main"><p class="row__title">桂花</p><p class="row__meta">花期 9 至 10 月</p></div></div>
+        </section>
+        <section data-k="冬"><div class="rw-idx__h">冬</div>
+          <div class="row"><div class="row__main"><p class="row__title">腊梅</p><p class="row__meta">花期 12 至 2 月</p></div></div>
+          <div class="row"><div class="row__main"><p class="row__title">水仙</p><p class="row__meta">花期 1 至 2 月</p></div></div>
+        </section>
+        <div class="rw-idx__pad"></div>
+      </div>
+      <div class="rw-idx__rail" role="tablist" aria-label="花期索引"><button aria-current="true" data-k="春" aria-label="春">春</button><button data-k="夏" aria-label="夏">夏</button><button data-k="秋" aria-label="秋">秋</button><button data-k="冬" aria-label="冬">冬</button></div>
+      <div class="rw-idx__bub" aria-hidden="true">春</div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-ROWS-013" data-name="带缩略图行" data-cat="ROWS">
+  <div class="demo__head"><span class="demo__name">带缩略图行</span></div>
+  <p class="demo__note">适合：订单与购物车商品，大缩略图、规格、数量与价格</p>
+  <div class="demo__stage">
+    <div class="card list rw-th">
+      <div class="row"><img class="row__lead" src="../../kit/assets/photo/product-rose-red.webp" alt=""><div class="row__main"><p class="row__title one-line">红玫瑰花束</p><p class="row__meta">19 枝 牛皮纸</p></div><div class="row__trail"><span class="price"><small>¥</small>199</span><b>×1</b></div></div>
+      <div class="row"><img class="row__lead" src="../../kit/assets/photo/product-monstera.webp" alt=""><div class="row__main"><p class="row__title one-line">龟背竹盆栽</p><p class="row__meta">中盆 白色陶瓷</p></div><div class="row__trail"><span class="price"><small>¥</small>159</span><b>×2</b></div></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-ROWS-014" data-name="价格明细行" data-cat="ROWS">
+  <div class="demo__head"><span class="demo__name">价格明细行</span></div>
+  <p class="demo__note">适合：结算页金额汇总，折扣红色、免费绿色，合计加大</p>
+  <div class="demo__stage">
+    <section class="card rw-pr" id="rw-pr">
+      <p class="rw-kv"><span>商品金额</span><b>¥398</b></p>
+      <p class="rw-kv"><span>配送费</span><b class="free">免费</b></p>
+      <p class="rw-kv"><span>优惠券</span><b class="neg">-¥20</b></p>
+      <p class="rw-kv" data-pt hidden><span>积分抵现</span><b class="neg">-¥10</b></p>
+      <p class="rw-kv rw-kv--em"><span>实付</span><b data-total><small>¥</small>378</b></p>
+      <div class="rw-pr__sw"><span>使用 100 积分抵扣 ¥10</span><button class="switch" role="switch" aria-checked="false" aria-label="使用积分抵扣"></button></div>
+    </section>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-ROWS-015" data-name="任务进度行" data-cat="ROWS">
+  <div class="demo__head"><span class="demo__name">任务进度行</span></div>
+  <p class="demo__note">适合：积分与成长任务，进度条加右侧动作，完成后可领取</p>
+  <div class="demo__stage">
+    <div class="card list" id="rw-task">
+      <div class="row rw-task"><img class="rw-3d" data-ic="watering" src="../../kit/assets/icons/flat/watering.webp" alt=""><div class="row__main"><p class="row__title">浇水打卡<span class="rw-task__n">3/5</span></p><div class="progress"><i style="--v: 60%"></i></div></div><button class="btn btn--secondary btn--sm" data-go="浇水打卡">去打卡</button></div>
+      <div class="row rw-task"><img class="rw-3d" data-ic="star" src="../../kit/assets/icons/flat/star.webp" alt=""><div class="row__main"><p class="row__title">晒单评价<span class="rw-task__n">1/1</span></p><div class="progress"><i style="--v: 100%"></i></div></div><button class="btn btn--primary btn--sm" data-claim>领取</button></div>
+      <div class="row rw-task"><img class="rw-3d" data-ic="heart" src="../../kit/assets/icons/flat/heart.webp" alt=""><div class="row__main"><p class="row__title">邀请好友<span class="rw-task__n">0/3</span></p><div class="progress"><i style="--v: 0%"></i></div></div><button class="btn btn--secondary btn--sm" data-go="邀请好友">去邀请</button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-ROWS-016" data-name="热销排行行" data-cat="ROWS">
+  <div class="demo__head"><span class="demo__name">热销排行行</span></div>
+  <p class="demo__note">适合：热销榜，前三名用金银铜底，销量占比条</p>
+  <div class="demo__stage">
+    <div class="card list rw-rk">
+      <div class="row"><span class="rw-rk__n" data-t="1">1</span><img class="row__lead" src="../../kit/assets/photo/product-monstera.webp" alt=""><div class="row__main"><p class="row__title one-line">龟背竹盆栽</p><p class="row__meta">已售 2860 件</p><div class="progress"><i style="--v: 100%"></i></div></div><button class="btn btn--secondary btn--xs" data-cart>加购</button></div>
+      <div class="row"><span class="rw-rk__n" data-t="2">2</span><img class="row__lead" src="../../kit/assets/photo/product-succulent.webp" alt=""><div class="row__main"><p class="row__title one-line">多肉组合盆</p><p class="row__meta">已售 2214 件</p><div class="progress"><i style="--v: 77%"></i></div></div><button class="btn btn--secondary btn--xs" data-cart>加购</button></div>
+      <div class="row"><span class="rw-rk__n" data-t="3">3</span><img class="row__lead" src="../../kit/assets/photo/product-pampas-vase.webp" alt=""><div class="row__main"><p class="row__title one-line">干花花瓶摆件</p><p class="row__meta">已售 1907 件</p><div class="progress"><i style="--v: 66%"></i></div></div><button class="btn btn--secondary btn--xs" data-cart>加购</button></div>
+      <div class="row"><span class="rw-rk__n">4</span><img class="row__lead" src="../../kit/assets/photo/product-giftbox.webp" alt=""><div class="row__main"><p class="row__title one-line">花礼盒</p><p class="row__meta">已售 1530 件</p><div class="progress"><i style="--v: 53%"></i></div></div><button class="btn btn--secondary btn--xs" data-cart>加购</button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-ROWS-017" data-name="带头像行" data-cat="ROWS">
+  <div class="demo__head"><span class="demo__name">带头像行</span></div>
+  <p class="demo__note">适合：团队与服务人员，头像右下角用状态点，右侧文字说明状态</p>
+  <div class="demo__stage">
+    <div class="card list">
+      <button class="row" data-go="陈琳"><span class="rw-pe"><img class="rw-av" src="../../kit/assets/marks/mark-002.webp" alt=""><i data-s="on"></i></span><div class="row__main"><p class="row__title">陈琳</p><p class="row__meta">花艺师</p></div><span class="rw-st" data-s="on">在线</span></button>
+      <button class="row" data-go="周明"><span class="rw-pe"><img class="rw-av" src="../../kit/assets/marks/mark-003.webp" alt=""><i data-s="busy"></i></span><div class="row__main"><p class="row__title">周明</p><p class="row__meta">配送员</p></div><span class="rw-st" data-s="busy">配送中</span></button>
+      <button class="row" data-go="吴悦"><span class="rw-pe"><img class="rw-av" src="../../kit/assets/marks/mark-004.webp" alt=""><i></i></span><div class="row__main"><p class="row__title">吴悦</p><p class="row__meta">客服</p></div><span class="rw-st">离线</span></button>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-ROWS-018" data-name="行内原位改名" data-cat="ROWS">
+  <div class="demo__head"><span class="demo__name">行内原位改名</span></div>
+  <p class="demo__note">适合：修改备注名，在原位变为输入框，保存取消紧邻同排</p>
+  <div class="demo__stage">
+    <div class="card list" id="rw-ed">
+      <div class="row rw-ed" data-name="林晓"><img class="rw-av" src="../../kit/assets/marks/mark-001.webp" alt=""><div class="row__main"><div class="rw-ed__v"><p class="row__title one-line" data-t>林晓</p><button class="ibtn" aria-label="修改备注名" data-tip="修改备注名" data-e><img src="../../kit/assets/line/edit.webp" alt=""></button></div><div class="rw-ed__f" hidden><input class="input" aria-label="备注名" maxlength="10" autocomplete="off"><button class="btn btn--primary" data-save>保存</button><button class="btn btn--ghost" data-cancel>取消</button></div><p class="row__meta">金卡会员</p></div></div>
+      <div class="row rw-ed" data-name="吴悦"><img class="rw-av" src="../../kit/assets/marks/mark-004.webp" alt=""><div class="row__main"><div class="rw-ed__v"><p class="row__title one-line" data-t>吴悦</p><button class="ibtn" aria-label="修改备注名" data-tip="修改备注名" data-e><img src="../../kit/assets/line/edit.webp" alt=""></button></div><div class="rw-ed__f" hidden><input class="input" aria-label="备注名" maxlength="10" autocomplete="off"><button class="btn btn--primary" data-save>保存</button><button class="btn btn--ghost" data-cancel>取消</button></div><p class="row__meta">普通会员</p></div></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-ROWS-019" data-name="左滑操作行" data-cat="ROWS">
+  <div class="demo__head"><span class="demo__name">左滑操作行</span></div>
+  <p class="demo__note">适合：消息与收藏的快捷操作，左滑露出置顶与删除</p>
+  <div class="demo__stage">
+    <div class="card list" id="rw-sl">
+      <div class="rw-sl"><div class="rw-sl__acts"><button data-a="pin">置顶</button><button data-a="del">删除</button></div><div class="rw-sl__f" tabindex="0"><img class="rw-av" src="../../kit/assets/marks/mark-001.webp" alt=""><div class="row__main"><p class="row__title one-line">林晓</p><p class="row__meta">花束收到了 非常漂亮</p></div><span class="row__trail">刚刚</span></div></div>
+      <div class="rw-sl"><div class="rw-sl__acts"><button data-a="pin">置顶</button><button data-a="del">删除</button></div><div class="rw-sl__f" tabindex="0"><img class="rw-av" src="../../kit/assets/marks/mark-002.webp" alt=""><div class="row__main"><p class="row__title one-line">陈琳</p><p class="row__meta">明天的花艺课程已经安排好</p></div><span class="row__trail">5 分钟前</span></div></div>
+      <div class="rw-sl"><div class="rw-sl__acts"><button data-a="pin">置顶</button><button data-a="del">删除</button></div><div class="rw-sl__f" tabindex="0"><img class="rw-av" src="../../kit/assets/marks/mark-003.webp" alt=""><div class="row__main"><p class="row__title one-line">周明</p><p class="row__meta">已到达楼下 请取花</p></div><span class="row__trail">昨天</span></div></div>
+    </div>
+  </div>
+</article>
+
+<script>
+(function () {
+  var $ = function (s, r) { return (r || document).querySelector(s); }, $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var clamp = function (v, a, b) { return Math.min(b, Math.max(a, v)); };
+
+  // 通用入口提示
+  $$('[data-cid^="AP-ROWS-"] [data-go]').forEach(function (el) { el.addEventListener('click', function () { Lz.toast('已打开' + el.dataset.go); }); });
+
+  // 001 清除缓存
+  (function () {
+    var b = $('#rw-set [data-clear]'); if (!b) return;
+    b.addEventListener('click', function () {
+      var v = $('[data-size]', b); if (v.textContent === '0 兆') { Lz.toast('缓存已为空'); return; }
+      Lz.confirm({ title: '清除缓存', body: '将释放 ' + v.textContent, ok: '清除' }).then(function (y) { if (y) { v.textContent = '0 兆'; Lz.toast('已清除缓存', 'success'); } });
+    });
+  })();
+
+  // 002 订单状态流转
+  (function () {
+    var host = $('#rw-ord'); if (!host) return;
+    var st = $('[data-st]', host), a = function (k) { return $('[data-a="' + k + '"]', host); };
+    function state(s) {
+      st.textContent = { pay: '待付款', ship: '待发货', closed: '已关闭' }[s]; st.dataset.tone = { pay: 'warning', ship: 'info', closed: '' }[s];
+      a('cancel').hidden = a('pay').hidden = s !== 'pay'; a('urge').hidden = s !== 'ship'; a('again').hidden = s !== 'closed';
+    }
+    a('pay').addEventListener('click', function () { var b = a('pay'); b.classList.add('is-loading'); setTimeout(function () { b.classList.remove('is-loading'); state('ship'); Lz.toast('支付成功', 'success'); }, 800); });
+    a('cancel').addEventListener('click', function () { Lz.confirm({ title: '取消订单', body: '取消后商品将释放库存', ok: '取消订单', tone: 'danger', cancel: '再想想' }).then(function (y) { if (y) { state('closed'); Lz.toast('订单已关闭'); } }); });
+    a('urge').addEventListener('click', function () { Lz.toast('已提醒商家发货', 'success'); });
+    a('again').addEventListener('click', function () { state('pay'); Lz.toast('已重新下单'); });
+    state('pay');
+  })();
+
+  // 003 消息已读
+  $$('#rw-msg .row').forEach(function (r) {
+    r.addEventListener('click', function () { r.removeAttribute('data-unread'); var b = $('[data-b]', r); if (b) { b.classList.add('rw-gone'); setTimeout(function () { b.remove(); }, 160); } });
+  });
+
+  // 004 地址单选
+  (function () {
+    var host = $('#rw-addr'); if (!host) return;
+    var rows = $$('.row', host);
+    function set(i) { rows.forEach(function (r, j) { r.setAttribute('aria-checked', String(j === i)); r.tabIndex = j === i ? 0 : -1; }); }
+    rows.forEach(function (r, i) {
+      r.addEventListener('click', function (e) { if (e.target.closest('.ibtn')) { Lz.toast('已打开编辑页'); return; } set(i); });
+      r.addEventListener('keydown', function (e) { if (e.target !== r) return; var d = { ArrowDown: 1, ArrowUp: -1 }[e.key]; if (e.key === ' ' || e.key === 'Enter') { set(i); e.preventDefault(); } if (!d) return; var n = (i + d + rows.length) % rows.length; set(n); rows[n].focus(); e.preventDefault(); });
+    });
+  })();
+
+  // 005 联系人
+  $$('[data-say]').forEach(function (b) { b.addEventListener('click', function () { Lz.toast('已打开与' + b.dataset.say + '的会话'); }); });
+
+  // 006 开关说明
+  $$('#rw-sw .switch').forEach(function (sw) {
+    var m = $('[data-m]', sw.closest('.row'));
+    sw.addEventListener('lz:toggle', function () { m.textContent = sw.getAttribute('aria-checked') === 'true' ? sw.dataset.on : sw.dataset.off; });
+  });
+
+  // 008 角标清除
+  $$('#rw-bd [data-read]').forEach(function (r) {
+    r.addEventListener('click', function () { var b = $('[data-b]', r); if (b) { b.classList.add('rw-gone'); setTimeout(function () { b.remove(); }, 160); } });
+  });
+
+  // 012 索引列表
+  (function () {
+    var host = $('#rw-idx'); if (!host) return;
+    var sc = $('.rw-idx__sc', host), secs = $$('section', sc), btns = $$('.rw-idx__rail button', host), bub = $('.rw-idx__bub', host), lock = 0, tm;
+    function mark(i) { btns.forEach(function (b, j) { if (j === i) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current'); }); }
+    function go(i, smooth) { lock = Date.now() + 500; mark(i); sc.style.scrollBehavior = smooth ? 'smooth' : 'auto'; sc.scrollTo({ top: secs[i].offsetTop }); bub.textContent = btns[i].dataset.k; bub.classList.add('is-on'); clearTimeout(tm); tm = setTimeout(function () { bub.classList.remove('is-on'); }, 700); }
+    btns.forEach(function (b, i) { b.addEventListener('click', function () { go(i, true); }); });
+    var rail = $('.rw-idx__rail', host), drag = false;
+    function at(e) { var y = e.clientY, hit = btns.findIndex(function (b) { var r = b.getBoundingClientRect(); return y >= r.top && y <= r.bottom; }); if (hit >= 0) go(hit, false); }
+    rail.addEventListener('pointerdown', function (e) { drag = true; rail.setPointerCapture(e.pointerId); at(e); });
+    rail.addEventListener('pointermove', function (e) { if (drag) at(e); });
+    ['pointerup', 'pointercancel'].forEach(function (ev) { rail.addEventListener(ev, function () { drag = false; }); });
+    sc.addEventListener('scroll', function () { if (Date.now() < lock) return; var cur = 0; secs.forEach(function (s, i) { if (s.offsetTop - 4 <= sc.scrollTop) cur = i; }); mark(cur); }, { passive: true });
+  })();
+
+  // 014 积分抵现
+  (function () {
+    var host = $('#rw-pr'); if (!host) return;
+    var sw = $('.switch', host), pt = $('[data-pt]', host), tot = $('[data-total]', host);
+    sw.addEventListener('lz:toggle', function () { var on = sw.getAttribute('aria-checked') === 'true'; pt.hidden = !on; tot.innerHTML = '<small>¥</small>' + (on ? 368 : 378); });
+  })();
+
+  // 015 任务领取
+  (function () {
+    var b = $('#rw-task [data-claim]'); if (!b) return;
+    b.addEventListener('click', function () { b.textContent = '已领取'; b.disabled = true; b.className = 'btn btn--secondary btn--sm'; Lz.toast('已领取 20 积分', 'success'); });
+  })();
+
+  // 016 加购
+  $$('[data-cart]').forEach(function (b) { b.addEventListener('click', function () { b.textContent = '已加购'; b.disabled = true; Lz.toast('已加入购物车', 'success'); }); });
+
+  // 018 原位改名
+  $$('#rw-ed .rw-ed').forEach(function (row) {
+    var v = $('.rw-ed__v', row), f = $('.rw-ed__f', row), t = $('[data-t]', row), inp = $('input', f), edit = $('[data-e]', row);
+    function open() { inp.value = t.textContent; v.hidden = true; f.hidden = false; inp.focus(); inp.select(); }
+    function close(keep) { f.hidden = true; v.hidden = false; if (keep) edit.focus(); }
+    function save() { var n = inp.value.trim(); if (!n) { inp.setAttribute('aria-invalid', 'true'); inp.classList.remove('shake'); void inp.offsetWidth; inp.classList.add('shake'); return; } inp.removeAttribute('aria-invalid'); t.textContent = n; close(true); Lz.toast('备注名已更新', 'success'); }
+    edit.addEventListener('click', open);
+    $('[data-save]', f).addEventListener('click', save);
+    $('[data-cancel]', f).addEventListener('click', function () { inp.removeAttribute('aria-invalid'); close(true); });
+    inp.addEventListener('keydown', function (e) { if (e.isComposing) return; if (e.key === 'Enter') { e.preventDefault(); save(); } if (e.key === 'Escape') { close(true); } });
+  });
+
+  // 019 左滑操作
+  (function () {
+    var host = $('#rw-sl'); if (!host) return;
+    var W = 144, open = null;
+    function setX(f, x, anim) { f.classList.toggle('is-drag', !anim); f.style.transform = 'translateX(' + x + 'px)'; f._x = x; }
+    function close(f) { if (f) setX(f, 0, true); if (open === f) open = null; }
+    $$('.rw-sl', host).forEach(function (row) {
+      var f = $('.rw-sl__f', row), x0 = 0, sx = 0, sy = 0, down = false, moved = false, lockDir = '';
+      f._x = 0;
+      f.addEventListener('pointerdown', function (e) { down = true; moved = false; lockDir = ''; sx = e.clientX; sy = e.clientY; x0 = f._x; if (open && open !== f) close(open); });
+      f.addEventListener('pointermove', function (e) {
+        if (!down) return; var dx = e.clientX - sx, dy = e.clientY - sy;
+        if (!lockDir && (Math.abs(dx) > 6 || Math.abs(dy) > 6)) lockDir = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
+        if (lockDir !== 'x') return; moved = true; if (!f.hasPointerCapture(e.pointerId)) f.setPointerCapture(e.pointerId);
+        setX(f, clamp(x0 + dx, -W - 24, 0), false);
+      });
+      function end() { if (!down) return; down = false; if (!moved) return; var o = f._x < -W / 2; setX(f, o ? -W : 0, true); open = o ? f : (open === f ? null : open); }
+      f.addEventListener('pointerup', end); f.addEventListener('pointercancel', end);
+      f.addEventListener('click', function (e) { if (moved) { e.preventDefault(); moved = false; return; } if (f._x < 0) close(f); });
+      f.addEventListener('keydown', function (e) { if (e.key === 'ArrowLeft') { if (open && open !== f) close(open); setX(f, -W, true); open = f; e.preventDefault(); } if (e.key === 'ArrowRight' || e.key === 'Escape') { close(f); e.preventDefault(); } });
+      $('[data-a="pin"]', row).addEventListener('click', function () { close(f); host.insertBefore(row, host.firstChild); Lz.toast('已置顶'); });
+      $('[data-a="del"]', row).addEventListener('click', function () {
+        Lz.confirm({ title: '删除会话', body: '删除后无法恢复', ok: '删除', tone: 'danger' }).then(function (y) {
+          if (!y) { close(f); return; } var h = row.offsetHeight; row.style.height = h + 'px'; void row.offsetWidth; row.style.height = '0px'; row.style.opacity = '0';
+          setTimeout(function () { row.remove(); Lz.toast('已删除'); }, 240);
+        });
+      });
+    });
+  })();
+})();
+</script>
+
+<article class="demo" data-cid="AP-ROWS-020" data-name="文本展开收起" data-cat="ROWS">
+  <div class="demo__head"><span class="demo__name">文本展开收起</span></div>
+  <p class="demo__note">适合：评价与商品描述超过行数时省略，可展开全文</p>
+  <div class="demo__stage">
+    <div class="card list rw-te">
+      <div class="rw-te__it">
+        <div class="rw-te__h"><img class="rw-av" src="../../kit/assets/marks/mark-001.webp" alt=""><div class="row__main"><p class="row__title">林晓</p><p class="row__meta">金卡会员 已购红玫瑰花束</p></div></div>
+        <p class="rw-te__t" id="rw-te-a" data-lines="3">花束收到的时候还带着水珠，玫瑰开得很饱满，外层是牛皮纸，里面附了一张保鲜说明。配送的小哥提前电话确认了时间，准时送到公司前台，同事们都说好看。放在办公桌上一周了，花瓣依然挺括，下次朋友过生日还会再来买。</p>
+        <button class="btn btn--text btn--sm rw-te__b" aria-controls="rw-te-a" aria-expanded="false" hidden>展开全文</button>
+      </div>
+      <div class="rw-te__it">
+        <div class="rw-te__h"><img class="rw-av" src="../../kit/assets/marks/mark-004.webp" alt=""><div class="row__main"><p class="row__title">吴悦</p><p class="row__meta">普通会员 已购多肉组合盆</p></div></div>
+        <p class="rw-te__t" id="rw-te-b" data-lines="3">多肉很精神，包装也很用心。</p>
+        <button class="btn btn--text btn--sm rw-te__b" aria-controls="rw-te-b" aria-expanded="false" hidden>展开全文</button>
+      </div>
+      <div class="rw-te__it">
+        <div class="rw-te__h"><img class="rw-av rw-av--sq" src="../../kit/assets/photo/product-peony-pink.webp" alt=""><div class="row__main"><p class="row__title">粉芍药花束</p><p class="row__meta">商品描述</p></div></div>
+        <p class="rw-te__t" id="rw-te-c" data-lines="2">精选当季粉芍药，花苞饱满，到手后斜剪根部并浸水，三到五天完全绽放。搭配尤加利叶与满天星，外层使用雾粉色包装纸，适合生日与纪念日赠送。</p>
+        <button class="btn btn--text btn--sm rw-te__b" aria-controls="rw-te-c" aria-expanded="false" hidden>展开全文</button>
+      </div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-ROWS-021" data-name="关键词高亮文本" data-cat="ROWS">
+  <div class="demo__head"><span class="demo__name">关键词高亮文本</span></div>
+  <p class="demo__note">适合：搜索结果标题中高亮命中的关键词</p>
+  <div class="demo__stage">
+    <div class="card rw-hl">
+      <div class="rw-hl__bar">
+        <label class="search"><img src="../../kit/assets/line/search.webp" alt=""><input type="search" value="玫瑰" placeholder="搜索花束或花材" aria-label="搜索花束或花材" autocomplete="off"></label>
+        <div class="btn-group"><button class="btn btn--secondary btn--sm" data-q="玫瑰">玫瑰</button><button class="btn btn--secondary btn--sm" data-q="花束">花束</button><button class="btn btn--secondary btn--sm" data-q="盆栽">盆栽</button></div>
+      </div>
+      <p class="rw-hl__n" role="status" data-n></p>
+      <div class="list rw-hl__l" data-list></div>
+      <div class="empty rw-hl__e" data-empty hidden><img data-ic="vase" src="../../kit/assets/icons/flat/vase.webp" alt=""><span>没有找到相关商品</span></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-ROWS-022" data-name="头像尺寸兜底" data-cat="ROWS">
+  <div class="demo__head"><span class="demo__name">头像尺寸兜底</span></div>
+  <p class="demo__note">适合：评价与会话列表按多种尺寸展示头像，缺图按固定样式兜底</p>
+  <div class="demo__stage">
+    <div class="card rw-avs">
+      <div class="rw-avs__bar"><div class="seg" data-seg="rw-avs" aria-label="头像尺寸"><button class="seg__item" data-key="28" aria-selected="false">小</button><button class="seg__item" data-key="40" aria-selected="true">中</button><button class="seg__item" data-key="56" aria-selected="false">大</button><button class="seg__item" data-key="72" aria-selected="false">特大</button></div></div>
+      <div class="list">
+        <div class="row">
+          <span class="rw-avs__a" data-kind="photo" data-src="../../kit/assets/photo/bouquet-rose.webp" data-fb="../../kit/assets/marks/mark-001.webp"><img src="../../kit/assets/photo/bouquet-rose.webp" alt=""></span>
+          <div class="row__main"><p class="row__title">林晓</p><p class="row__meta" data-m>已上传照片</p></div>
+          <button class="btn btn--text btn--sm" data-fail aria-pressed="false">模拟失效</button>
+        </div>
+        <div class="row">
+          <span class="rw-avs__a" data-kind="mark"><img src="../../kit/assets/marks/mark-002.webp" alt=""></span>
+          <div class="row__main"><p class="row__title">陈琳</p><p class="row__meta">未传照片 固定对象标识</p></div>
+        </div>
+        <div class="row">
+          <span class="rw-avs__a" data-kind="line"><img src="../../kit/assets/line/user.webp" alt=""></span>
+          <div class="row__main"><p class="row__title">到店顾客</p><p class="row__meta">未登录 线性图标</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-ROWS-023" data-name="带文字分割线" data-cat="ROWS">
+  <div class="demo__head"><span class="demo__name">带文字分割线</span></div>
+  <p class="demo__note">适合：列表分组之间的细分割线，可带居中的分组名</p>
+  <div class="demo__stage">
+    <div class="card list rw-dvl" data-s="center">
+      <div class="rw-dvl__bar"><div class="seg" data-seg="rw-dvl" aria-label="分割线样式"><button class="seg__item" data-key="center" aria-selected="true">居中</button><button class="seg__item" data-key="left" aria-selected="false">靠左</button><button class="seg__item" data-key="dash" aria-selected="false">虚线</button></div></div>
+      <button class="rw-dv" data-expand="rw-dvg1"><span class="rw-dv__t">鲜花<small>2</small><span class="chev"></span></span></button>
+      <div class="expand" id="rw-dvg1" data-open="true"><div>
+        <div class="row"><img class="row__lead" src="../../kit/assets/photo/product-rose-red.webp" alt=""><div class="row__main"><p class="row__title one-line">红玫瑰花束</p><p class="row__meta">19 枝</p></div><span class="price"><small>¥</small>199</span></div>
+        <div class="row"><img class="row__lead" src="../../kit/assets/photo/product-peony-pink.webp" alt=""><div class="row__main"><p class="row__title one-line">粉芍药花束</p><p class="row__meta">11 枝</p></div><span class="price"><small>¥</small>239</span></div>
+      </div></div>
+      <button class="rw-dv" data-expand="rw-dvg2"><span class="rw-dv__t">绿植<small>2</small><span class="chev"></span></span></button>
+      <div class="expand" id="rw-dvg2" data-open="true"><div>
+        <div class="row"><img class="row__lead" src="../../kit/assets/photo/product-monstera.webp" alt=""><div class="row__main"><p class="row__title one-line">龟背竹盆栽</p><p class="row__meta">中盆</p></div><span class="price"><small>¥</small>159</span></div>
+        <div class="row"><img class="row__lead" src="../../kit/assets/photo/product-succulent.webp" alt=""><div class="row__main"><p class="row__title one-line">多肉组合盆</p><p class="row__meta">四种多肉</p></div><span class="price"><small>¥</small>89</span></div>
+      </div></div>
+      <button class="rw-dv" data-expand="rw-dvg3"><span class="rw-dv__t">已售罄<small>1</small><span class="chev"></span></span></button>
+      <div class="expand" id="rw-dvg3" data-open="true"><div>
+        <div class="row rw-dvl__off"><img class="row__lead" src="../../kit/assets/photo/product-hydrangea-blue.webp" alt=""><div class="row__main"><p class="row__title one-line">蓝绣球盆栽</p><p class="row__meta">补货中</p></div><span class="tag">已售罄</span></div>
+      </div></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-ROWS-024" data-name="相对时间文本" data-cat="ROWS">
+  <div class="demo__head"><span class="demo__name">相对时间文本</span></div>
+  <p class="demo__note">适合：评论与消息显示几分钟前、昨天等相对时间</p>
+  <div class="demo__stage">
+    <div class="card list rw-rt">
+      <div class="rw-rt__bar"><span class="card__title">会员留言</span><button class="btn btn--secondary btn--sm" data-send>发一条</button></div>
+      <div data-list></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-ROWS-025" data-name="拖拽排序行" data-cat="ROWS">
+  <div class="demo__head"><span class="demo__name">拖拽排序行</span></div>
+  <p class="demo__note">适合：后台调整分类与商品顺序，行左侧拖动手柄</p>
+  <div class="demo__stage">
+    <div class="card rw-dr">
+      <div class="list rw-dr__l">
+        <div class="row rw-dr__r" data-id="flower"><button class="rw-dr__h" aria-label="拖动排序 鲜花">拖动</button><div class="row__main"><p class="row__title one-line">鲜花</p><p class="row__meta">在售 24 件</p></div><span class="rw-dr__n">1</span></div>
+        <div class="row rw-dr__r" data-id="plant"><button class="rw-dr__h" aria-label="拖动排序 绿植">拖动</button><div class="row__main"><p class="row__title one-line">绿植</p><p class="row__meta">在售 18 件</p></div><span class="rw-dr__n">2</span></div>
+        <div class="row rw-dr__r" data-id="gift"><button class="rw-dr__h" aria-label="拖动排序 礼盒">拖动</button><div class="row__main"><p class="row__title one-line">礼盒</p><p class="row__meta">在售 9 件</p></div><span class="rw-dr__n">3</span></div>
+        <div class="row rw-dr__r" data-id="vase"><button class="rw-dr__h" aria-label="拖动排序 花器">拖动</button><div class="row__main"><p class="row__title one-line">花器</p><p class="row__meta">在售 15 件</p></div><span class="rw-dr__n">4</span></div>
+        <div class="row rw-dr__r" data-id="seed" data-lock><button class="rw-dr__h" disabled aria-label="种苗固定在末位">固定</button><div class="row__main"><p class="row__title one-line">种苗</p><p class="row__meta">在售 12 件</p></div><span class="rw-dr__n">5</span></div>
+      </div>
+      <div class="rw-dr__f"><span class="rw-dr__s" role="status" data-s>顺序未调整</span><div class="btn-group"><button class="btn btn--ghost btn--sm" data-reset disabled>还原</button><button class="btn btn--primary btn--sm" data-save disabled>保存</button></div></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-ROWS-026" data-name="虚拟滚动列表" data-cat="ROWS">
+  <div class="demo__head"><span class="demo__name">虚拟滚动列表</span></div>
+  <p class="demo__note">适合：上千条订单与记录滚动时保持流畅</p>
+  <div class="demo__stage">
+    <div class="card rw-vl">
+      <div class="rw-vl__bar"><span class="card__title">订单记录</span><span class="rw-vl__r" data-r></span></div>
+      <div class="rw-vl__sc" tabindex="0" role="region" aria-label="订单记录列表"><div class="rw-vl__pad" data-pad><div class="rw-vl__win" role="list" data-win></div></div></div>
+      <div class="rw-vl__f"><button class="btn btn--secondary btn--sm" data-top>回到顶部</button><button class="btn btn--secondary btn--sm" data-mid>跳到第 1,000 条</button></div>
+    </div>
+  </div>
+</article>
+
+<style>
+/* 新增列表行：文本展开 te、关键词高亮 hl、头像兜底 avs、分割线 dvl、相对时间 rt、拖拽排序 dr、虚拟列表 vl */
+/* 020 文本展开收起 */
+.rw-te__it { display: grid; gap: var(--s-2); padding: var(--s-4); }
+.rw-te__it + .rw-te__it { border-top: 1px solid var(--line); }
+.rw-te__h { display: flex; align-items: center; gap: var(--s-3); }
+.rw-te__h .rw-av { width: 40px; height: 40px; padding: 6px; }
+.rw-te__h .rw-av--sq { padding: 0; object-fit: cover; }
+.rw-te__t { font-size: var(--fs-md); line-height: var(--lh-body); color: var(--ink-2); }
+.rw-te__t.is-clamp { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: var(--n, 3); overflow: hidden; }
+.rw-te__b { justify-self: start; min-height: 32px; margin: -2px 0 -6px calc(var(--s-2) * -1); }
+
+/* 021 关键词高亮文本 */
+.rw-hl { overflow: hidden; }
+.rw-hl__bar { display: grid; gap: var(--s-3); padding: var(--s-3) var(--s-4); border-bottom: 1px solid var(--line); }
+.rw-hl__n { padding: var(--s-2) var(--s-4) 0; font-size: var(--fs-sm); color: var(--ink-3); min-height: 30px; }
+.rw-hl__k { padding: 0 1px; background: linear-gradient(transparent 52%, var(--action-edge) 52%); color: var(--action-press); font-weight: 600; }
+.rw-hl__l .row { min-height: 64px; }
+.rw-hl__e { padding: var(--s-5) var(--s-4); }
+.rw-hl__e img { width: 64px; height: 64px; }
+
+/* 022 头像尺寸兜底 */
+.rw-avs { overflow: hidden; }
+.rw-avs__bar { padding: var(--s-3) var(--s-4); border-bottom: 1px solid var(--line); }
+.rw-avs .seg__item { padding: 0 var(--s-3); }
+.rw-avs__a { --sz: 40px; display: grid; place-items: center; flex: none; width: var(--sz); height: var(--sz); border-radius: 50%; overflow: hidden; background: var(--zone); box-shadow: inset 0 0 0 1px var(--line); transition: width var(--dur-base) var(--ease-out), height var(--dur-base) var(--ease-out); }
+.rw-avs__a img { width: 100%; height: 100%; object-fit: cover; }
+.rw-avs__a[data-kind="mark"] { background: var(--surface); }
+.rw-avs__a[data-kind="mark"] img { width: 68%; height: 68%; object-fit: contain; }
+.rw-avs__a[data-kind="line"] img { width: 58%; height: 58%; object-fit: contain; opacity: .55; }
+.rw-avs .row { min-height: 72px; }
+
+/* 023 带文字分割线 */
+.rw-dvl__bar { padding: var(--s-3) var(--s-4); }
+.rw-dvl__bar .seg__item { padding: 0 var(--s-4); }
+.rw-dv { display: flex; align-items: center; gap: var(--s-3); width: 100%; min-height: 44px; padding: 0 var(--s-4); font-size: var(--fs-sm); color: var(--ink-3); background: var(--surface); }
+.rw-dv::before, .rw-dv::after { content: ""; flex: 1; border-top: 1px solid var(--line-strong); }
+.rw-dv__t { display: inline-flex; align-items: center; gap: var(--s-1); font-weight: 600; color: var(--ink-2); }
+.rw-dv__t small { min-width: 20px; padding: 0 6px; border-radius: var(--r-full); background: var(--zone); font-size: var(--fs-xs); font-weight: 600; line-height: 20px; text-align: center; color: var(--ink-3); }
+[data-s="left"] > .rw-dv::before { display: none; }
+[data-s="dash"] > .rw-dv::before, [data-s="dash"] > .rw-dv::after { border-top-style: dashed; }
+.rw-dvl__off { opacity: .6; }
+
+/* 024 相对时间文本 */
+.rw-rt__bar { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); padding: var(--s-3) var(--s-4); border-bottom: 1px solid var(--line); }
+.rw-rt .row { align-items: flex-start; min-height: 64px; }
+.rw-rt .rw-av { width: 40px; height: 40px; padding: 6px; }
+.rw-rt .row__trail { padding-top: 2px; }
+.rw-rt__t { padding: 4px 6px; margin: -4px -6px; border-radius: var(--r-sm); font-size: var(--fs-sm); color: var(--ink-3); font-variant-numeric: tabular-nums; white-space: nowrap; }
+@media (hover: hover) { .rw-rt__t:hover { background: var(--zone); } }
+.rw-rt .row[data-new] { animation: lz-rise var(--dur-slow) var(--ease-out) both; }
+
+/* 025 拖拽排序行 */
+.rw-dr { overflow: hidden; }
+.rw-dr__l { position: relative; transition: background var(--dur-quick) var(--ease-out); }
+.rw-dr__l.is-dragging { background: var(--zone); }
+.rw-dr__r { background: var(--surface); }
+.rw-dr__r.is-drag { z-index: 2; box-shadow: var(--elev-2); }
+.rw-dr__h { display: inline-flex; align-items: center; justify-content: center; flex: none; min-width: 52px; height: 32px; padding: 0 var(--s-2); border-radius: var(--r-sm); background: var(--zone); color: var(--ink-2); font-size: var(--fs-sm); font-weight: 600; touch-action: none; cursor: grab; transition: background var(--dur-quick) var(--ease-out); }
+.rw-dr__r.is-drag .rw-dr__h { cursor: grabbing; background: var(--action-soft); color: var(--action-press); }
+.rw-dr__h[disabled] { background: none; box-shadow: inset 0 0 0 1px var(--line); color: var(--ink-3); cursor: not-allowed; }
+.rw-dr__n { min-width: 20px; text-align: center; font-size: var(--fs-md); font-weight: 600; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.rw-dr__f { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); padding: var(--s-3) var(--s-4); border-top: 1px solid var(--line); }
+.rw-dr__s { min-width: 0; font-size: var(--fs-sm); color: var(--ink-2); }
+
+/* 026 虚拟滚动列表 */
+.rw-vl { overflow: hidden; }
+.rw-vl__bar { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); padding: var(--s-3) var(--s-4); border-bottom: 1px solid var(--line); }
+.rw-vl__r { font-size: var(--fs-sm); color: var(--ink-3); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.rw-vl__sc { height: 360px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
+.rw-vl__sc:focus-visible { outline-offset: -2px; border-radius: 0; }
+.rw-vl__pad { position: relative; }
+.rw-vl__win { position: absolute; top: 0; left: 0; right: 0; will-change: transform; }
+.rw-vl .row { height: 72px; min-height: 72px; padding-block: 0; }
+.rw-vl .row::before { content: ""; position: absolute; top: 0; left: var(--s-4); right: 0; border-top: 1px solid var(--line); }
+.rw-vl .row[data-i="0"]::before { display: none; }
+.rw-vl .row__trail { align-items: flex-end; }
+.rw-vl__f { display: flex; align-items: center; gap: var(--s-2); padding: var(--s-3) var(--s-4); border-top: 1px solid var(--line); }
+</style>
+
+<script>
+(function () {
+  var $ = function (s, r) { return (r || document).querySelector(s); }, $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var D = function (cid) { return document.querySelector('[data-cid="' + cid + '"]'); };
+  var pad = function (n) { return String(n).padStart(2, '0'); };
+
+  /* 020 文本展开收起：超过行数才出按钮，展开后按钮变为收起 */
+  (function () {
+    var root = D('AP-ROWS-020'); if (!root) return;
+    $$('.rw-te__it', root).forEach(function (it) {
+      var t = $('.rw-te__t', it), b = $('.rw-te__b', it);
+      t.style.setProperty('--n', t.dataset.lines || 3); t.classList.add('is-clamp');
+      function measure() {
+        if (b.getAttribute('aria-expanded') === 'true') return;
+        t.classList.add('is-clamp'); b.hidden = !(t.scrollHeight > t.clientHeight + 1);
+      }
+      b.addEventListener('click', function () {
+        var open = b.getAttribute('aria-expanded') !== 'true';
+        b.setAttribute('aria-expanded', String(open)); t.classList.toggle('is-clamp', !open); b.textContent = open ? '收起' : '展开全文';
+      });
+      new ResizeObserver(measure).observe(t); measure();
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
+    });
+  })();
+
+  /* 021 关键词高亮：空格分隔多个词，名称与说明里命中的字都高亮，输入法组字时不过滤 */
+  (function () {
+    var root = D('AP-ROWS-021'); if (!root) return;
+    var input = $('input', root), list = $('[data-list]', root), n = $('[data-n]', root), empty = $('[data-empty]', root);
+    var P = [
+      ['product-rose-red', '红玫瑰花束', '19 枝 牛皮纸包装', 199], ['product-sunflower', '向日葵花束', '9 枝 麻绳束扎', 159], ['product-succulent', '多肉组合盆', '四种多肉 白色陶盆', 89],
+      ['product-monstera', '龟背竹盆栽', '中盆 白色陶瓷', 159], ['product-pampas-vase', '干花花瓶摆件', '蒲苇 玻璃花瓶', 129], ['product-peony-pink', '粉芍药花束', '11 枝 雾粉包装纸', 239],
+      ['product-tulip-white', '白郁金香花束', '15 枝 透明纸包装', 179], ['product-hydrangea-blue', '蓝绣球盆栽', '大盆 陶土盆', 129], ['product-giftbox', '花礼盒', '含红玫瑰 3 枝 附贺卡', 268]
+    ];
+    var esc = function (s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); };
+    function mark(host, text, words) {
+      host.textContent = '';
+      if (!words.length) { host.textContent = text; return; }
+      var re = new RegExp('(' + words.map(esc).join('|') + ')', 'g'), last = 0, m;
+      while ((m = re.exec(text))) {
+        if (m.index > last) host.append(text.slice(last, m.index));
+        var k = document.createElement('mark'); k.className = 'rw-hl__k'; k.textContent = m[0]; host.append(k); last = m.index + m[0].length;
+      }
+      if (last < text.length) host.append(text.slice(last));
+    }
+    function render() {
+      var words = input.value.trim().split(/\s+/).filter(Boolean);
+      var hit = P.filter(function (p) { return words.every(function (w) { return (p[1] + p[2]).indexOf(w) >= 0; }); });
+      list.textContent = '';
+      hit.forEach(function (p) {
+        var row = document.createElement('div'); row.className = 'row';
+        row.innerHTML = '<img class="row__lead" alt=""><div class="row__main"><p class="row__title one-line"></p><p class="row__meta one-line"></p></div><span class="price"><small>¥</small>' + p[3] + '</span>';
+        $('.row__lead', row).src = '../../kit/assets/photo/' + p[0] + '.webp';
+        mark($('.row__title', row), p[1], words); mark($('.row__meta', row), p[2], words); list.append(row);
+      });
+      list.hidden = !hit.length; empty.hidden = !!hit.length;
+      n.textContent = words.length ? '找到 ' + hit.length + ' 个商品' : '全部 ' + P.length + ' 个商品';
+    }
+    var composing = false;
+    input.addEventListener('compositionstart', function () { composing = true; });
+    input.addEventListener('compositionend', function () { composing = false; render(); });
+    input.addEventListener('input', function () { if (!composing) render(); });
+    $$('[data-q]', root).forEach(function (b) { b.addEventListener('click', function () { input.value = b.dataset.q; render(); }); });
+    render();
+  })();
+
+  /* 022 头像尺寸兜底：照片失效时换成按用户固定的对象标识；没有标识的用线性图标 */
+  (function () {
+    var root = D('AP-ROWS-022'); if (!root) return;
+    var boxes = $$('.rw-avs__a', root), fail = $('[data-fail]', root), meta = $('[data-m]', root);
+    var photo = boxes[0], img = $('img', photo);
+    function toFallback() { img.src = photo.dataset.fb; photo.dataset.kind = 'mark'; meta.textContent = '照片失效 固定对象标识'; fail.textContent = '恢复'; fail.setAttribute('aria-pressed', 'true'); }
+    function toPhoto() { img.src = photo.dataset.src; photo.dataset.kind = 'photo'; meta.textContent = '已上传照片'; fail.textContent = '模拟失效'; fail.setAttribute('aria-pressed', 'false'); }
+    img.addEventListener('error', function () { if (photo.dataset.kind === 'photo') toFallback(); });
+    fail.addEventListener('click', function () { if (fail.getAttribute('aria-pressed') === 'true') toPhoto(); else toFallback(); });
+    root.addEventListener('lz:seg', function (e) { boxes.forEach(function (b) { b.style.setProperty('--sz', e.detail.key + 'px'); }); });
+    boxes.forEach(function (b) { b.style.setProperty('--sz', '40px'); });
+  })();
+
+  /* 023 分割线样式：居中、靠左、虚线，三种共用同一个可折叠的分组名 */
+  (function () {
+    var root = D('AP-ROWS-023'); if (!root) return;
+    var host = $('.rw-dvl', root);
+    root.addEventListener('lz:seg', function (e) { host.dataset.s = e.detail.key; });
+  })();
+
+  /* 024 相对时间：每十五秒刷新，点时间在相对与完整时刻之间切换 */
+  (function () {
+    var root = D('AP-ROWS-024'); if (!root) return;
+    var list = $('[data-list]', root), WK = ['日', '一', '二', '三', '四', '五', '六'];
+    var day0 = function (d) { return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime(); };
+    var hm = function (d) { return pad(d.getHours()) + ':' + pad(d.getMinutes()); };
+    var dateOnly = function (d) { return d.getFullYear() + '年' + (d.getMonth() + 1) + '月' + d.getDate() + '日'; };
+    var abs = function (d) { return dateOnly(d) + ' ' + hm(d); };
+    function rel(d, now) {
+      var s = Math.floor((now - d) / 1000);
+      if (s < 60) return '刚刚';
+      if (s < 3600) return Math.floor(s / 60) + ' 分钟前';
+      var dd = Math.round((day0(now) - day0(d)) / 864e5);
+      if (dd === 0) return Math.floor(s / 3600) + ' 小时前';
+      if (dd === 1) return '昨天 ' + hm(d);
+      if (dd === 2) return '前天 ' + hm(d);
+      if (dd < 7) return '周' + WK[d.getDay()] + ' ' + hm(d);
+      if (d.getFullYear() === now.getFullYear()) return (d.getMonth() + 1) + '月' + d.getDate() + '日';
+      return dateOnly(d);
+    }
+    var M = [['林晓', 'mark-001', '花束收到了 非常漂亮', 8], ['陈琳', 'mark-002', '明天的花艺课程已经安排好', 260], ['周明', 'mark-003', '已到达楼下 请取花', 11400], ['吴悦', 'mark-004', '想预订周六的生日花篮', 100800],
+      ['郑雅', 'mark-005', '上次的绣球开得很好', 259200], ['赵宁', 'mark-006', '请问可以开具发票吗', 1728000], ['孙乐', 'mark-008', '会员积分已经到账', 34560000]];
+    function addRow(name, mark, text, d, isNew) {
+      var row = document.createElement('div'); row.className = 'row'; if (isNew) row.dataset.new = '';
+      row.innerHTML = '<img class="rw-av" alt=""><div class="row__main"><p class="row__title one-line"></p><p class="row__meta one-line"></p></div><span class="row__trail"><button class="rw-rt__t"><time></time></button></span>';
+      $('.rw-av', row).src = '../../kit/assets/marks/' + mark + '.webp';
+      $('.row__title', row).textContent = name; $('.row__meta', row).textContent = text;
+      var b = $('.rw-rt__t', row); b._d = d; b._abs = false; b.addEventListener('click', function () { b._abs = !b._abs; paint(b); });
+      if (isNew) list.insertBefore(row, list.firstChild); else list.append(row);
+      paint(b);
+    }
+    function paint(b) {
+      var now = new Date(), t = $('time', b); t.dateTime = b._d.toISOString();
+      t.textContent = b._abs ? abs(b._d) : rel(b._d, now); b.dataset.tip = b._abs ? rel(b._d, now) : abs(b._d); b.setAttribute('aria-label', abs(b._d));
+    }
+    var t0 = Date.now();
+    M.forEach(function (m) { addRow(m[0], m[1], m[2], new Date(t0 - m[3] * 1000)); });
+    setInterval(function () { $$('.rw-rt__t', root).forEach(paint); }, 15000);
+    var cnt = 0, S = [['客服', '订单已确认 马上备货'], ['客服', '花材已备好'], ['客服', '骑手已取货']];
+    $('[data-send]', root).addEventListener('click', function () {
+      var s = S[cnt++ % S.length]; addRow(s[0], 'mark-007', s[1], new Date(), true);
+      var rows = $$('.row', list); if (rows.length > 8) rows[rows.length - 1].remove();
+    });
+  })();
+
+  /* 025 拖拽排序：手柄指针拖动，上下方向键也能移动；末位固定不可动 */
+  (function () {
+    var root = D('AP-ROWS-025'); if (!root) return;
+    var list = $('.rw-dr__l', root), stat = $('[data-s]', root), bReset = $('[data-reset]', root), bSave = $('[data-save]', root);
+    var all = function () { return $$('.rw-dr__r', list); }, mov = function () { return all().filter(function (r) { return !r.hasAttribute('data-lock'); }); };
+    var ids = function () { return all().map(function (r) { return r.dataset.id; }).join(); };
+    var nm = function (r) { return $('.row__title', r).textContent; };
+    var base = ids(), orig = all(), drag = null;
+    function number() { all().forEach(function (r, i) { $('.rw-dr__n', r).textContent = i + 1; }); bReset.disabled = bSave.disabled = ids() === base; }
+    function place(row, idx) {
+      var others = mov().filter(function (r) { return r !== row; }); idx = Math.max(0, Math.min(others.length, idx));
+      if (mov().indexOf(row) === idx) return false;
+      var ref = others[idx] || $('[data-lock]', list) || null, rows = all(), before = new Map(rows.map(function (r) { return [r, r.offsetTop]; }));
+      list.insertBefore(row, ref);
+      rows.forEach(function (r) { if (r === row) return; var dy = before.get(r) - r.offsetTop; if (dy && !Lz.reduce) r.animate([{ transform: 'translateY(' + dy + 'px)' }, { transform: 'none' }], { duration: 200, easing: 'cubic-bezier(.22,1,.36,1)' }); });
+      number(); return true;
+    }
+    function said(row) { stat.textContent = '已将' + nm(row) + '放到第 ' + (all().indexOf(row) + 1) + ' 位'; }
+    all().forEach(function (row) {
+      var h = $('.rw-dr__h', row); if (h.disabled) return;
+      h.addEventListener('pointerdown', function (e) {
+        if (e.button) return; e.preventDefault();
+        drag = { row: row, y: e.clientY, top: row.offsetTop }; row.classList.add('is-drag'); list.classList.add('is-dragging'); row.style.transition = 'none';
+      });
+      h.addEventListener('keydown', function (e) {
+        var d = { ArrowUp: -1, ArrowDown: 1 }[e.key]; if (!d) return; e.preventDefault();
+        if (place(row, mov().indexOf(row) + d)) { h.focus(); said(row); }
+      });
+    });
+    document.addEventListener('pointermove', function (e) {
+      if (!drag) return;
+      var row = drag.row, hh = row.offsetHeight, last = mov().length * hh, top = Math.max(0, Math.min(last - hh, drag.top + e.clientY - drag.y)), center = top + hh / 2;
+      var idx = 0; mov().forEach(function (r) { if (r !== row && r.offsetTop + hh / 2 < center) idx++; });
+      place(row, idx); row.style.transform = 'translateY(' + (top - row.offsetTop) + 'px)';
+    });
+    function drop() {
+      if (!drag) return; var row = drag.row; drag = null; row.classList.remove('is-drag'); list.classList.remove('is-dragging');
+      row.style.transition = 'transform var(--dur-base) var(--ease-out)'; row.style.transform = '';
+      setTimeout(function () { row.style.transition = ''; }, 240); said(row);
+    }
+    document.addEventListener('pointerup', drop); document.addEventListener('pointercancel', drop);
+    bReset.addEventListener('click', function () { orig.forEach(function (r) { list.append(r); }); number(); stat.textContent = '顺序已还原'; });
+    bSave.addEventListener('click', function () { base = ids(); number(); stat.textContent = '顺序已保存'; Lz.toast('分类顺序已保存', 'success'); });
+  })();
+
+  /* 026 虚拟滚动：两千条只渲染窗口内的行，滚动时按位置换行 */
+  (function () {
+    var root = D('AP-ROWS-026'); if (!root) return;
+    var sc = $('.rw-vl__sc', root), pad2 = $('[data-pad]', root), win = $('[data-win]', root), rd = $('[data-r]', root);
+    var N = 2000, H = 72, BUF = 4, G = ['红玫瑰花束', '向日葵花束', '粉芍药花束', '白郁金香花束', '蓝绣球盆栽', '多肉组合盆', '龟背竹盆栽', '花礼盒'], PR = [199, 159, 239, 179, 129, 89, 159, 268], ST = ['建国路店', '徐汇滨江店', '浦东世纪店'];
+    var fmt = function (n) { return n.toLocaleString('zh-CN'); };
+    function status(i) { return i < 3 ? ['配送中', 'info'] : (i % 13 === 5 ? ['已关闭', ''] : ['已完成', 'success']); }
+    pad2.style.height = N * H + 'px';
+    var from = -1, to = -1, raf = 0;
+    function row(i) {
+      var s = status(i), g = i % G.length;
+      return '<div class="row" role="listitem" aria-posinset="' + (i + 1) + '" aria-setsize="' + N + '" data-i="' + i + '"><div class="row__main"><p class="row__title one-line">' + G[g] + '</p><p class="row__meta one-line">订单 ' + fmt(N - i) + ' ' + ST[i % ST.length] + '</p></div><span class="row__trail"><span class="price"><small>¥</small>' + PR[g] + '</span><span class="tag"' + (s[1] ? ' data-tone="' + s[1] + '"' : '') + '>' + s[0] + '</span></span></div>';
+    }
+    function paint() {
+      raf = 0; var top = sc.scrollTop, vh = sc.clientHeight;
+      var a = Math.max(0, Math.floor(top / H) - BUF), b = Math.min(N - 1, Math.ceil((top + vh) / H) + BUF);
+      if (a !== from || b !== to) { from = a; to = b; var h = ''; for (var i = a; i <= b; i++) h += row(i); win.innerHTML = h; win.style.transform = 'translateY(' + a * H + 'px)'; }
+      rd.textContent = '第 ' + fmt(Math.floor(top / H) + 1) + ' 至 ' + fmt(Math.min(N, Math.ceil((top + vh) / H))) + ' 条 共 ' + fmt(N) + ' 条';
+    }
+    sc.addEventListener('scroll', function () { if (!raf) raf = requestAnimationFrame(paint); }, { passive: true });
+    $('[data-top]', root).addEventListener('click', function () { sc.scrollTo({ top: 0 }); });
+    $('[data-mid]', root).addEventListener('click', function () { sc.scrollTo({ top: 999 * H }); });
+    paint();
+  })();
+})();
+</script>

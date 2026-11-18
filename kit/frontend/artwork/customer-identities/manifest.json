@@ -1,0 +1,2383 @@
+{
+  "schema": "luz-customer-identities/1",
+  "style_version": "customer-identities-v1",
+  "source_sha256": "1a1309e504810ab09812768ca90c05d32b93ed0687d4c2187006c43f5cb50a03",
+  "transform": "12x12 grid crop; neutral background removed; 2-color raster flattening; 128px transparent PNG-compatible WebP",
+  "duplicate_threshold": 0.77,
+  "items": [
+    {
+      "id": "customer-identities/mark-001",
+      "cell": 1,
+      "file": "artwork/customer-identities/mark-001.webp",
+      "sha256": "417afdf0071e21b1902c91f45bd2e10570b9bbf3de026b24662b4f62e1d006b7",
+      "colors": [
+        [
+          114,
+          138,
+          124
+        ],
+        [
+          175,
+          123,
+          104
+        ]
+      ],
+      "closest_silhouette": 0
+    },
+    {
+      "id": "customer-identities/mark-002",
+      "cell": 2,
+      "file": "artwork/customer-identities/mark-002.webp",
+      "sha256": "0b9be3920ceb352f5ee13150aa877c5d15e24c0c7deb80bc56043ec4fdcbd06d",
+      "colors": [
+        [
+          99,
+          117,
+          132
+        ],
+        [
+          172,
+          130,
+          110
+        ]
+      ],
+      "closest_silhouette": 0.4293
+    },
+    {
+      "id": "customer-identities/mark-003",
+      "cell": 3,
+      "file": "artwork/customer-identities/mark-003.webp",
+      "sha256": "fab257616bd2f80bf906202c6a1576393f68adea259c53c1b1af9caaae1c3383",
+      "colors": [
+        [
+          83,
+          110,
+          144
+        ],
+        [
+          174,
+          120,
+          108
+        ]
+      ],
+      "closest_silhouette": 0.5202
+    },
+    {
+      "id": "customer-identities/mark-004",
+      "cell": 4,
+      "file": "artwork/customer-identities/mark-004.webp",
+      "sha256": "103785d7fc23fadf8f83fa4199da4a513ad23349a3a4a0b5e0eef27fae06010b",
+      "colors": [
+        [
+          82,
+          108,
+          145
+        ],
+        [
+          187,
+          152,
+          101
+        ]
+      ],
+      "closest_silhouette": 0.6715
+    },
+    {
+      "id": "customer-identities/mark-005",
+      "cell": 5,
+      "file": "artwork/customer-identities/mark-005.webp",
+      "sha256": "f99accb8f85e1c954c3bae5ff8618274ccd76dece48a9bba61dd6908fc355f71",
+      "colors": [
+        [
+          96,
+          102,
+          154
+        ],
+        [
+          143,
+          134,
+          115
+        ]
+      ],
+      "closest_silhouette": 0.5584
+    },
+    {
+      "id": "customer-identities/mark-006",
+      "cell": 6,
+      "file": "artwork/customer-identities/mark-006.webp",
+      "sha256": "67d7e1a6020b9abbbd15044c5b17f07f48cd3654131174e9bcb1323f0fecb521",
+      "colors": [
+        [
+          85,
+          108,
+          147
+        ],
+        [
+          183,
+          151,
+          118
+        ]
+      ],
+      "closest_silhouette": 0.6425
+    },
+    {
+      "id": "customer-identities/mark-007",
+      "cell": 7,
+      "file": "artwork/customer-identities/mark-007.webp",
+      "sha256": "98da8433df7fd0f53e23ad9ad9da4e1f95b8fddca822e703cc04137e785f9d3b",
+      "colors": [
+        [
+          94,
+          115,
+          139
+        ],
+        [
+          190,
+          162,
+          116
+        ]
+      ],
+      "closest_silhouette": 0.7566
+    },
+    {
+      "id": "customer-identities/mark-008",
+      "cell": 8,
+      "file": "artwork/customer-identities/mark-008.webp",
+      "sha256": "03135a66919062ff4a56b0ce1186608bcf47ab135c06d603a62ead7eee827e8e",
+      "colors": [
+        [
+          105,
+          121,
+          135
+        ],
+        [
+          173,
+          127,
+          111
+        ]
+      ],
+      "closest_silhouette": 0.5656
+    },
+    {
+      "id": "customer-identities/mark-009",
+      "cell": 9,
+      "file": "artwork/customer-identities/mark-009.webp",
+      "sha256": "f2004d9352d73a8e374f530b74c62b54d1aad76f2a0032425366fc04a7584b1d",
+      "colors": [
+        [
+          89,
+          101,
+          147
+        ],
+        [
+          118,
+          138,
+          116
+        ]
+      ],
+      "closest_silhouette": 0.6658
+    },
+    {
+      "id": "customer-identities/mark-010",
+      "cell": 10,
+      "file": "artwork/customer-identities/mark-010.webp",
+      "sha256": "1847431b78a6b17d1e71d726987cfb534004f72028f19a83de01e56d38563cf2",
+      "colors": [
+        [
+          98,
+          109,
+          167
+        ],
+        [
+          178,
+          130,
+          105
+        ]
+      ],
+      "closest_silhouette": 0.5778
+    },
+    {
+      "id": "customer-identities/mark-011",
+      "cell": 11,
+      "file": "artwork/customer-identities/mark-011.webp",
+      "sha256": "2a6758c8784edec9b306aa021f6d8596ed714601ccd5034ef799cf52651bf49c",
+      "colors": [
+        [
+          83,
+          111,
+          149
+        ],
+        [
+          178,
+          144,
+          111
+        ]
+      ],
+      "closest_silhouette": 0.4438
+    },
+    {
+      "id": "customer-identities/mark-012",
+      "cell": 12,
+      "file": "artwork/customer-identities/mark-012.webp",
+      "sha256": "1e57544c7b372ae57093dcb503973e64e7be573b7175c6779846dabc10c325cd",
+      "colors": [
+        [
+          99,
+          123,
+          134
+        ],
+        [
+          175,
+          128,
+          112
+        ]
+      ],
+      "closest_silhouette": 0.5693
+    },
+    {
+      "id": "customer-identities/mark-013",
+      "cell": 13,
+      "file": "artwork/customer-identities/mark-013.webp",
+      "sha256": "9ecd918fe5119196588fba0d4416898eb2492083b0039453c17a2736d70f35b7",
+      "colors": [
+        [
+          99,
+          127,
+          137
+        ],
+        [
+          182,
+          133,
+          111
+        ]
+      ],
+      "closest_silhouette": 0.5357
+    },
+    {
+      "id": "customer-identities/mark-014",
+      "cell": 14,
+      "file": "artwork/customer-identities/mark-014.webp",
+      "sha256": "ab2beefea5e69dfdcc575f5bcc4826f9af89db06edd1d5f7d7af16849ee1e25f",
+      "colors": [
+        [
+          98,
+          117,
+          131
+        ],
+        [
+          178,
+          157,
+          101
+        ]
+      ],
+      "closest_silhouette": 0.6828
+    },
+    {
+      "id": "customer-identities/mark-015",
+      "cell": 15,
+      "file": "artwork/customer-identities/mark-015.webp",
+      "sha256": "3609f9b97bbd4c73cda5a73ece7b65a0010cdbf82aa9d1714a210bb24dd70ee1",
+      "colors": [
+        [
+          92,
+          106,
+          159
+        ],
+        [
+          175,
+          124,
+          112
+        ]
+      ],
+      "closest_silhouette": 0.6
+    },
+    {
+      "id": "customer-identities/mark-016",
+      "cell": 16,
+      "file": "artwork/customer-identities/mark-016.webp",
+      "sha256": "79b9c620dc6910c30e94267b89adcbbe28c1373d2da7807b4cf8462aaae32e45",
+      "colors": [
+        [
+          96,
+          108,
+          130
+        ],
+        [
+          180,
+          135,
+          115
+        ]
+      ],
+      "closest_silhouette": 0.6366
+    },
+    {
+      "id": "customer-identities/mark-017",
+      "cell": 17,
+      "file": "artwork/customer-identities/mark-017.webp",
+      "sha256": "8efe686dab1f65668279e6fd3a1e0290cedef72e5ea68910f6afa91954b49462",
+      "colors": [
+        [
+          87,
+          101,
+          149
+        ],
+        [
+          184,
+          146,
+          119
+        ]
+      ],
+      "closest_silhouette": 0.6034
+    },
+    {
+      "id": "customer-identities/mark-018",
+      "cell": 18,
+      "file": "artwork/customer-identities/mark-018.webp",
+      "sha256": "f81e2eaefdd8500559ed2f004f64ec93407c57df66c21d6a58cc99282e086868",
+      "colors": [
+        [
+          114,
+          135,
+          125
+        ],
+        [
+          164,
+          133,
+          131
+        ]
+      ],
+      "closest_silhouette": 0.744
+    },
+    {
+      "id": "customer-identities/mark-019",
+      "cell": 19,
+      "file": "artwork/customer-identities/mark-019.webp",
+      "sha256": "1603d8ce0448d08ffa00e3cafd8169de8d3d6ecf80a682e90489d8365d079e11",
+      "colors": [
+        [
+          92,
+          118,
+          145
+        ],
+        [
+          179,
+          191,
+          203
+        ]
+      ],
+      "closest_silhouette": 0.7147
+    },
+    {
+      "id": "customer-identities/mark-020",
+      "cell": 20,
+      "file": "artwork/customer-identities/mark-020.webp",
+      "sha256": "fa09d691164f828d4edfc1cfbc474cb6f8114199b8229a7b93c5a92ce46954f1",
+      "colors": [
+        [
+          93,
+          105,
+          156
+        ],
+        [
+          181,
+          138,
+          106
+        ]
+      ],
+      "closest_silhouette": 0.6261
+    },
+    {
+      "id": "customer-identities/mark-021",
+      "cell": 21,
+      "file": "artwork/customer-identities/mark-021.webp",
+      "sha256": "6f287183eaa6846cd2b4a7063637118acb7af4e98255d2223931f1796a31f140",
+      "colors": [
+        [
+          97,
+          117,
+          144
+        ],
+        [
+          178,
+          130,
+          104
+        ]
+      ],
+      "closest_silhouette": 0.5844
+    },
+    {
+      "id": "customer-identities/mark-022",
+      "cell": 22,
+      "file": "artwork/customer-identities/mark-022.webp",
+      "sha256": "2f39ee6637ee1783c0bcdfda5aefbbc81a56944024db8cbe9a1d6027ac5ef535",
+      "colors": [
+        [
+          102,
+          120,
+          127
+        ],
+        [
+          164,
+          179,
+          199
+        ]
+      ],
+      "closest_silhouette": 0.6774
+    },
+    {
+      "id": "customer-identities/mark-023",
+      "cell": 23,
+      "file": "artwork/customer-identities/mark-023.webp",
+      "sha256": "484f0219937fcc76c7466f8a40db7d5f3957849554e4f414998a9e3177b66b79",
+      "colors": [
+        [
+          86,
+          110,
+          160
+        ],
+        [
+          185,
+          139,
+          123
+        ]
+      ],
+      "closest_silhouette": 0.3676
+    },
+    {
+      "id": "customer-identities/mark-024",
+      "cell": 24,
+      "file": "artwork/customer-identities/mark-024.webp",
+      "sha256": "927c60ffd096eaff0940b7ced91aa72250270b7c967ea7a15db666db5276046d",
+      "colors": [
+        [
+          91,
+          115,
+          155
+        ],
+        [
+          183,
+          144,
+          110
+        ]
+      ],
+      "closest_silhouette": 0.5248
+    },
+    {
+      "id": "customer-identities/mark-025",
+      "cell": 25,
+      "file": "artwork/customer-identities/mark-025.webp",
+      "sha256": "0738d8471aac92ee344bf79643ebc97a2b125d05950e6fa46cc878311212aa95",
+      "colors": [
+        [
+          101,
+          121,
+          123
+        ],
+        [
+          175,
+          136,
+          127
+        ]
+      ],
+      "closest_silhouette": 0.6798
+    },
+    {
+      "id": "customer-identities/mark-026",
+      "cell": 26,
+      "file": "artwork/customer-identities/mark-026.webp",
+      "sha256": "0841572c29d1250967745ecac654d05bbe58ef69a1cc0f3982020c211b386543",
+      "colors": [
+        [
+          81,
+          105,
+          143
+        ],
+        [
+          175,
+          131,
+          110
+        ]
+      ],
+      "closest_silhouette": 0.6794
+    },
+    {
+      "id": "customer-identities/mark-027",
+      "cell": 27,
+      "file": "artwork/customer-identities/mark-027.webp",
+      "sha256": "bdede2a2fced3655345966a77403f011013d78c4eae9e33ca5dbe0d2ce480744",
+      "colors": [
+        [
+          91,
+          112,
+          135
+        ],
+        [
+          164,
+          142,
+          115
+        ]
+      ],
+      "closest_silhouette": 0.7025
+    },
+    {
+      "id": "customer-identities/mark-028",
+      "cell": 28,
+      "file": "artwork/customer-identities/mark-028.webp",
+      "sha256": "5439a28a00dd8fac4ca21ec197556f24e1ec17c1401413ffa3c519daa7532430",
+      "colors": [
+        [
+          85,
+          111,
+          149
+        ],
+        [
+          129,
+          145,
+          136
+        ]
+      ],
+      "closest_silhouette": 0.3935
+    },
+    {
+      "id": "customer-identities/mark-029",
+      "cell": 29,
+      "file": "artwork/customer-identities/mark-029.webp",
+      "sha256": "bd6fac9490ee92a850a97baa12a91fa734f13a4749af34b368c4b2765c97417e",
+      "colors": [
+        [
+          110,
+          133,
+          127
+        ],
+        [
+          179,
+          132,
+          105
+        ]
+      ],
+      "closest_silhouette": 0.6455
+    },
+    {
+      "id": "customer-identities/mark-030",
+      "cell": 30,
+      "file": "artwork/customer-identities/mark-030.webp",
+      "sha256": "c0c477c76a25b88d7bb1109f3255f03a359ad9789553358878e7539f860d8994",
+      "colors": [
+        [
+          79,
+          107,
+          141
+        ],
+        [
+          188,
+          158,
+          111
+        ]
+      ],
+      "closest_silhouette": 0.732
+    },
+    {
+      "id": "customer-identities/mark-031",
+      "cell": 31,
+      "file": "artwork/customer-identities/mark-031.webp",
+      "sha256": "cc5d1d337d6aec2f15ce89dd3de057683e1edfc8208f05470c416e4a4dbc3936",
+      "colors": [
+        [
+          109,
+          126,
+          124
+        ],
+        [
+          175,
+          116,
+          109
+        ]
+      ],
+      "closest_silhouette": 0.5333
+    },
+    {
+      "id": "customer-identities/mark-032",
+      "cell": 32,
+      "file": "artwork/customer-identities/mark-032.webp",
+      "sha256": "1d6cef094feb04ab24a6176646724d397a6c6b0c7d7c6f67ece6cebd15c8b458",
+      "colors": [
+        [
+          99,
+          120,
+          138
+        ],
+        [
+          181,
+          191,
+          201
+        ]
+      ],
+      "closest_silhouette": 0.6977
+    },
+    {
+      "id": "customer-identities/mark-034",
+      "cell": 34,
+      "file": "artwork/customer-identities/mark-034.webp",
+      "sha256": "ccf57707b25ed891f1ce68138273c93acb5b2f64005fe0c4c4430006540d9d38",
+      "colors": [
+        [
+          82,
+          111,
+          148
+        ],
+        [
+          178,
+          154,
+          104
+        ]
+      ],
+      "closest_silhouette": 0.7099
+    },
+    {
+      "id": "customer-identities/mark-035",
+      "cell": 35,
+      "file": "artwork/customer-identities/mark-035.webp",
+      "sha256": "5063c0d95bb221e080986f024f406b4b79d3aca49ab3189991fe5cebff363846",
+      "colors": [
+        [
+          98,
+          122,
+          133
+        ],
+        [
+          171,
+          135,
+          118
+        ]
+      ],
+      "closest_silhouette": 0.6751
+    },
+    {
+      "id": "customer-identities/mark-036",
+      "cell": 36,
+      "file": "artwork/customer-identities/mark-036.webp",
+      "sha256": "1e3e2789efebe1bfc55c68cb3ca06d9e4dfb77a4ef2125892227bc2c4fc27f79",
+      "colors": [
+        [
+          88,
+          116,
+          151
+        ],
+        [
+          175,
+          156,
+          102
+        ]
+      ],
+      "closest_silhouette": 0.7367
+    },
+    {
+      "id": "customer-identities/mark-037",
+      "cell": 37,
+      "file": "artwork/customer-identities/mark-037.webp",
+      "sha256": "45742af820e2dccb9557c358f13cff34de47a14416586151b66ca5b058d0a7dc",
+      "colors": [
+        [
+          107,
+          137,
+          121
+        ],
+        [
+          170,
+          129,
+          117
+        ]
+      ],
+      "closest_silhouette": 0.7413
+    },
+    {
+      "id": "customer-identities/mark-038",
+      "cell": 38,
+      "file": "artwork/customer-identities/mark-038.webp",
+      "sha256": "06600becaced59b1d4cd561472f117e609339e7293ee0385d02191cebae2efd7",
+      "colors": [
+        [
+          94,
+          104,
+          157
+        ],
+        [
+          181,
+          159,
+          109
+        ]
+      ],
+      "closest_silhouette": 0.6867
+    },
+    {
+      "id": "customer-identities/mark-039",
+      "cell": 39,
+      "file": "artwork/customer-identities/mark-039.webp",
+      "sha256": "e3cee61599943ad5f2236ae9e13fc2ec99c5dab2045ed64bc234f31ed485eb41",
+      "colors": [
+        [
+          99,
+          111,
+          145
+        ],
+        [
+          176,
+          114,
+          109
+        ]
+      ],
+      "closest_silhouette": 0.7601
+    },
+    {
+      "id": "customer-identities/mark-040",
+      "cell": 40,
+      "file": "artwork/customer-identities/mark-040.webp",
+      "sha256": "c34ea472489ec5078b32515a62782eb80ff6f6417ce1b351ca6e8e4e7c9705d3",
+      "colors": [
+        [
+          91,
+          103,
+          155
+        ],
+        [
+          180,
+          148,
+          117
+        ]
+      ],
+      "closest_silhouette": 0.7246
+    },
+    {
+      "id": "customer-identities/mark-041",
+      "cell": 41,
+      "file": "artwork/customer-identities/mark-041.webp",
+      "sha256": "341b458146364d1d87d0ff8461ca3de5dc43db69a20359641b0a6fd91fb07dd6",
+      "colors": [
+        [
+          98,
+          109,
+          127
+        ],
+        [
+          172,
+          125,
+          116
+        ]
+      ],
+      "closest_silhouette": 0.736
+    },
+    {
+      "id": "customer-identities/mark-043",
+      "cell": 43,
+      "file": "artwork/customer-identities/mark-043.webp",
+      "sha256": "0d9619eee49635e781eded394aefa37a1ec2dc77d8b7795985850fe67c137e70",
+      "colors": [
+        [
+          93,
+          116,
+          136
+        ],
+        [
+          175,
+          131,
+          125
+        ]
+      ],
+      "closest_silhouette": 0.6054
+    },
+    {
+      "id": "customer-identities/mark-044",
+      "cell": 44,
+      "file": "artwork/customer-identities/mark-044.webp",
+      "sha256": "d0ec4af604347bb6adcb6654d90960fe00927f6edc6d83eb3423bdb7abc1000c",
+      "colors": [
+        [
+          92,
+          126,
+          153
+        ],
+        [
+          173,
+          139,
+          102
+        ]
+      ],
+      "closest_silhouette": 0.7091
+    },
+    {
+      "id": "customer-identities/mark-045",
+      "cell": 45,
+      "file": "artwork/customer-identities/mark-045.webp",
+      "sha256": "5cee67bf48cdba384be39a04045ea7b8f094771efed087dc6c6524c845016b7e",
+      "colors": [
+        [
+          87,
+          106,
+          153
+        ],
+        [
+          184,
+          141,
+          111
+        ]
+      ],
+      "closest_silhouette": 0.7655
+    },
+    {
+      "id": "customer-identities/mark-046",
+      "cell": 46,
+      "file": "artwork/customer-identities/mark-046.webp",
+      "sha256": "d30c0d2967b7f995d2f3486c11ed51309fa293ad25a30e2cf3edb6cc7c808b22",
+      "colors": [
+        [
+          102,
+          124,
+          138
+        ],
+        [
+          176,
+          118,
+          110
+        ]
+      ],
+      "closest_silhouette": 0.7201
+    },
+    {
+      "id": "customer-identities/mark-047",
+      "cell": 47,
+      "file": "artwork/customer-identities/mark-047.webp",
+      "sha256": "52c138a399e04959c7b3f33c2be86ceb8b078aef9be9dd6f0979362235b2940f",
+      "colors": [
+        [
+          100,
+          109,
+          149
+        ],
+        [
+          187,
+          155,
+          129
+        ]
+      ],
+      "closest_silhouette": 0.6883
+    },
+    {
+      "id": "customer-identities/mark-048",
+      "cell": 48,
+      "file": "artwork/customer-identities/mark-048.webp",
+      "sha256": "fb611ae873415edac1e0bdf6627a6111c56a02a4a916c1ba2deb923d3d26bf57",
+      "colors": [
+        [
+          105,
+          122,
+          131
+        ],
+        [
+          184,
+          144,
+          104
+        ]
+      ],
+      "closest_silhouette": 0.7196
+    },
+    {
+      "id": "customer-identities/mark-049",
+      "cell": 49,
+      "file": "artwork/customer-identities/mark-049.webp",
+      "sha256": "26dbda537dd4991f60f780c7741ba8f284093b0368a1b353098e7a6afd0fe577",
+      "colors": [
+        [
+          100,
+          113,
+          139
+        ],
+        [
+          178,
+          185,
+          200
+        ]
+      ],
+      "closest_silhouette": 0.6595
+    },
+    {
+      "id": "customer-identities/mark-050",
+      "cell": 50,
+      "file": "artwork/customer-identities/mark-050.webp",
+      "sha256": "192c31b692f14987d79d3c5c69e82e3a6789693c627855ce47cf91f2b92a52b9",
+      "colors": [
+        [
+          93,
+          115,
+          136
+        ],
+        [
+          169,
+          134,
+          133
+        ]
+      ],
+      "closest_silhouette": 0.7574
+    },
+    {
+      "id": "customer-identities/mark-051",
+      "cell": 51,
+      "file": "artwork/customer-identities/mark-051.webp",
+      "sha256": "6b95f963905646b19cf2273e5e7dc69f121214da12972d4e421774363a69348e",
+      "colors": [
+        [
+          89,
+          107,
+          158
+        ],
+        [
+          185,
+          147,
+          111
+        ]
+      ],
+      "closest_silhouette": 0.7375
+    },
+    {
+      "id": "customer-identities/mark-052",
+      "cell": 52,
+      "file": "artwork/customer-identities/mark-052.webp",
+      "sha256": "ecd4a60bffe39278f7d383af113bfa9c0d96ae9b7872850a305bd634b46b8a6d",
+      "colors": [
+        [
+          104,
+          121,
+          117
+        ],
+        [
+          175,
+          129,
+          109
+        ]
+      ],
+      "closest_silhouette": 0.7411
+    },
+    {
+      "id": "customer-identities/mark-053",
+      "cell": 53,
+      "file": "artwork/customer-identities/mark-053.webp",
+      "sha256": "6fc29b08fa30b236ea7948f6e9bd1495de17c6a30ecd4c9ae62312018897f713",
+      "colors": [
+        [
+          85,
+          112,
+          144
+        ],
+        [
+          181,
+          152,
+          117
+        ]
+      ],
+      "closest_silhouette": 0.7531
+    },
+    {
+      "id": "customer-identities/mark-055",
+      "cell": 55,
+      "file": "artwork/customer-identities/mark-055.webp",
+      "sha256": "eb7e87cc389024cc1dc8d0f55eee2eb682e7740a15bde307d193b1bf3a985cac",
+      "colors": [
+        [
+          78,
+          104,
+          140
+        ],
+        [
+          183,
+          149,
+          113
+        ]
+      ],
+      "closest_silhouette": 0.6294
+    },
+    {
+      "id": "customer-identities/mark-057",
+      "cell": 57,
+      "file": "artwork/customer-identities/mark-057.webp",
+      "sha256": "906ff94213d82b3868bdedc4963190778058979d1bc4e85810e244dcabc82a44",
+      "colors": [
+        [
+          78,
+          106,
+          145
+        ],
+        [
+          189,
+          152,
+          117
+        ]
+      ],
+      "closest_silhouette": 0.7472
+    },
+    {
+      "id": "customer-identities/mark-058",
+      "cell": 58,
+      "file": "artwork/customer-identities/mark-058.webp",
+      "sha256": "00bbc15a1e11f7d7ddf485ef98dccc3d50ea21cdc673cdba2b6a967b4594bbac",
+      "colors": [
+        [
+          108,
+          128,
+          118
+        ],
+        [
+          176,
+          115,
+          105
+        ]
+      ],
+      "closest_silhouette": 0.6059
+    },
+    {
+      "id": "customer-identities/mark-059",
+      "cell": 59,
+      "file": "artwork/customer-identities/mark-059.webp",
+      "sha256": "b5e4c04913a35825dc27d5ad4191cc6815c9a6d1fb001140495386c49f85fa5a",
+      "colors": [
+        [
+          106,
+          126,
+          119
+        ],
+        [
+          178,
+          132,
+          105
+        ]
+      ],
+      "closest_silhouette": 0.6814
+    },
+    {
+      "id": "customer-identities/mark-060",
+      "cell": 60,
+      "file": "artwork/customer-identities/mark-060.webp",
+      "sha256": "7f2c308a4aa7d2681e003a1b95da60915d0829b465808f29f89a99d7463626b3",
+      "colors": [
+        [
+          94,
+          117,
+          131
+        ],
+        [
+          181,
+          141,
+          122
+        ]
+      ],
+      "closest_silhouette": 0.7656
+    },
+    {
+      "id": "customer-identities/mark-063",
+      "cell": 63,
+      "file": "artwork/customer-identities/mark-063.webp",
+      "sha256": "763e26198664801694e2c79c27470b141b509d3f86b6f69cdd11225e8b173019",
+      "colors": [
+        [
+          90,
+          103,
+          153
+        ],
+        [
+          179,
+          148,
+          114
+        ]
+      ],
+      "closest_silhouette": 0.7376
+    },
+    {
+      "id": "customer-identities/mark-064",
+      "cell": 64,
+      "file": "artwork/customer-identities/mark-064.webp",
+      "sha256": "ff42d6c0ada544c77352ea345276294cf62147c0301d5f3886a2ccfce9d074a1",
+      "colors": [
+        [
+          94,
+          123,
+          135
+        ],
+        [
+          177,
+          142,
+          136
+        ]
+      ],
+      "closest_silhouette": 0.75
+    },
+    {
+      "id": "customer-identities/mark-065",
+      "cell": 65,
+      "file": "artwork/customer-identities/mark-065.webp",
+      "sha256": "e3efa2756d0273802523fb353986bf34afdb71f5dbc0390e4e765e40ac523a66",
+      "colors": [
+        [
+          88,
+          109,
+          163
+        ],
+        [
+          162,
+          145,
+          114
+        ]
+      ],
+      "closest_silhouette": 0.689
+    },
+    {
+      "id": "customer-identities/mark-066",
+      "cell": 66,
+      "file": "artwork/customer-identities/mark-066.webp",
+      "sha256": "979abaa850f595a282fba930fa8c9010703fa74474582cdb94f2249d70cbb6b7",
+      "colors": [
+        [
+          87,
+          118,
+          145
+        ],
+        [
+          178,
+          132,
+          136
+        ]
+      ],
+      "closest_silhouette": 0.6554
+    },
+    {
+      "id": "customer-identities/mark-067",
+      "cell": 67,
+      "file": "artwork/customer-identities/mark-067.webp",
+      "sha256": "aa4f187cd3c855deb191fac3e05ecf743dce9f51e9489c8ed2553d5cc28246fc",
+      "colors": [
+        [
+          105,
+          127,
+          126
+        ],
+        [
+          173,
+          185,
+          190
+        ]
+      ],
+      "closest_silhouette": 0.5702
+    },
+    {
+      "id": "customer-identities/mark-068",
+      "cell": 68,
+      "file": "artwork/customer-identities/mark-068.webp",
+      "sha256": "9cc30660a94cdbd63d77bae3a7fbba78fd4bbd7646792c498620e4e5374e170c",
+      "colors": [
+        [
+          82,
+          110,
+          145
+        ],
+        [
+          185,
+          151,
+          117
+        ]
+      ],
+      "closest_silhouette": 0.736
+    },
+    {
+      "id": "customer-identities/mark-069",
+      "cell": 69,
+      "file": "artwork/customer-identities/mark-069.webp",
+      "sha256": "4eb34c198e1186c6c1a81e3dbbed56391c656bc66541c4ff3bdfd9f5619d427d",
+      "colors": [
+        [
+          86,
+          97,
+          142
+        ],
+        [
+          177,
+          121,
+          104
+        ]
+      ],
+      "closest_silhouette": 0.77
+    },
+    {
+      "id": "customer-identities/mark-070",
+      "cell": 70,
+      "file": "artwork/customer-identities/mark-070.webp",
+      "sha256": "0e911e6f0ec60d7178d69b9022f433ea669aa9c1b7d6cb832c7c00951947f293",
+      "colors": [
+        [
+          96,
+          116,
+          139
+        ],
+        [
+          181,
+          143,
+          123
+        ]
+      ],
+      "closest_silhouette": 0.75
+    },
+    {
+      "id": "customer-identities/mark-071",
+      "cell": 71,
+      "file": "artwork/customer-identities/mark-071.webp",
+      "sha256": "7e5c95c949ba49973f7861eb3d387839fdd5978c387ae43b4e78b2f7e33e205d",
+      "colors": [
+        [
+          94,
+          109,
+          141
+        ],
+        [
+          184,
+          148,
+          118
+        ]
+      ],
+      "closest_silhouette": 0.7397
+    },
+    {
+      "id": "customer-identities/mark-072",
+      "cell": 72,
+      "file": "artwork/customer-identities/mark-072.webp",
+      "sha256": "4a413f20c0660a47ccfa3803a2e0269d554714c1324d235656d2d1f800995b0b",
+      "colors": [
+        [
+          102,
+          116,
+          138
+        ],
+        [
+          182,
+          186,
+          207
+        ]
+      ],
+      "closest_silhouette": 0.7538
+    },
+    {
+      "id": "customer-identities/mark-074",
+      "cell": 74,
+      "file": "artwork/customer-identities/mark-074.webp",
+      "sha256": "26555081e4358a6ca70faf8857f13be12a09b196a7912b1b5e52b82cf10ee907",
+      "colors": [
+        [
+          91,
+          99,
+          148
+        ],
+        [
+          136,
+          138,
+          113
+        ]
+      ],
+      "closest_silhouette": 0.7422
+    },
+    {
+      "id": "customer-identities/mark-075",
+      "cell": 75,
+      "file": "artwork/customer-identities/mark-075.webp",
+      "sha256": "e7afb497e0ccbc671a97b863218bfa1f519b49a33f26a484cd99c680ad2873ae",
+      "colors": [
+        [
+          116,
+          136,
+          125
+        ],
+        [
+          176,
+          122,
+          105
+        ]
+      ],
+      "closest_silhouette": 0.7025
+    },
+    {
+      "id": "customer-identities/mark-078",
+      "cell": 78,
+      "file": "artwork/customer-identities/mark-078.webp",
+      "sha256": "98b1c0155b630b0f8bf0f77f3f59d3d6239c41e7e9b36e9548e8275fbd6115d6",
+      "colors": [
+        [
+          103,
+          122,
+          140
+        ],
+        [
+          177,
+          129,
+          109
+        ]
+      ],
+      "closest_silhouette": 0.6451
+    },
+    {
+      "id": "customer-identities/mark-079",
+      "cell": 79,
+      "file": "artwork/customer-identities/mark-079.webp",
+      "sha256": "7dbe96e3f2c3bdba9bab9c6f8dd1ba99931897fa1772409fc07d5873723a1a3f",
+      "colors": [
+        [
+          82,
+          107,
+          145
+        ],
+        [
+          183,
+          144,
+          111
+        ]
+      ],
+      "closest_silhouette": 0.7232
+    },
+    {
+      "id": "customer-identities/mark-080",
+      "cell": 80,
+      "file": "artwork/customer-identities/mark-080.webp",
+      "sha256": "5b99d83cf232748a09b23181466d53140a4007c80afc98dac79b11370d140c5e",
+      "colors": [
+        [
+          97,
+          117,
+          136
+        ],
+        [
+          181,
+          139,
+          112
+        ]
+      ],
+      "closest_silhouette": 0.6667
+    },
+    {
+      "id": "customer-identities/mark-081",
+      "cell": 81,
+      "file": "artwork/customer-identities/mark-081.webp",
+      "sha256": "874ec8c6ee7586c8962d3b2e38f9b0de35331c489d5fc68eadc202818fb00571",
+      "colors": [
+        [
+          83,
+          111,
+          146
+        ],
+        [
+          175,
+          127,
+          106
+        ]
+      ],
+      "closest_silhouette": 0.6975
+    },
+    {
+      "id": "customer-identities/mark-082",
+      "cell": 82,
+      "file": "artwork/customer-identities/mark-082.webp",
+      "sha256": "afac96e9889baa879467c18dae546f93fe8bd409423d9862634454381e0d3b5c",
+      "colors": [
+        [
+          106,
+          125,
+          119
+        ],
+        [
+          177,
+          128,
+          110
+        ]
+      ],
+      "closest_silhouette": 0.666
+    },
+    {
+      "id": "customer-identities/mark-084",
+      "cell": 84,
+      "file": "artwork/customer-identities/mark-084.webp",
+      "sha256": "cc4953b51593186b6886c86c35be56c86336b3f68fb8d3794716efa9cc0563fa",
+      "colors": [
+        [
+          105,
+          125,
+          146
+        ],
+        [
+          176,
+          137,
+          102
+        ]
+      ],
+      "closest_silhouette": 0.7038
+    },
+    {
+      "id": "customer-identities/mark-085",
+      "cell": 85,
+      "file": "artwork/customer-identities/mark-085.webp",
+      "sha256": "ebac8c85695c9aad0cc553669e3725e161904189de9cd1ae9f1772820fa1ea53",
+      "colors": [
+        [
+          91,
+          103,
+          154
+        ],
+        [
+          177,
+          115,
+          104
+        ]
+      ],
+      "closest_silhouette": 0.6117
+    },
+    {
+      "id": "customer-identities/mark-086",
+      "cell": 86,
+      "file": "artwork/customer-identities/mark-086.webp",
+      "sha256": "3e428e637cba2afbdf2ea2237e1dbe8468ab3475c950ece15cd5367726c108f1",
+      "colors": [
+        [
+          96,
+          128,
+          134
+        ],
+        [
+          182,
+          145,
+          108
+        ]
+      ],
+      "closest_silhouette": 0.7102
+    },
+    {
+      "id": "customer-identities/mark-087",
+      "cell": 87,
+      "file": "artwork/customer-identities/mark-087.webp",
+      "sha256": "9ca15908f252d2d82b0074b4c8c39b4342f1007d64d17c1b9f29bd82912bbc70",
+      "colors": [
+        [
+          104,
+          123,
+          117
+        ],
+        [
+          171,
+          122,
+          110
+        ]
+      ],
+      "closest_silhouette": 0.7646
+    },
+    {
+      "id": "customer-identities/mark-089",
+      "cell": 89,
+      "file": "artwork/customer-identities/mark-089.webp",
+      "sha256": "0f9ff77f8118a251943a3913fe9c6fedd17971e16cc2db57f650f485cca51c6c",
+      "colors": [
+        [
+          99,
+          122,
+          138
+        ],
+        [
+          188,
+          147,
+          108
+        ]
+      ],
+      "closest_silhouette": 0.7539
+    },
+    {
+      "id": "customer-identities/mark-090",
+      "cell": 90,
+      "file": "artwork/customer-identities/mark-090.webp",
+      "sha256": "36ad49030b76ae76903391e5fdb8c8fd5087d6b450e3d86ad43297e827573965",
+      "colors": [
+        [
+          96,
+          118,
+          138
+        ],
+        [
+          176,
+          120,
+          111
+        ]
+      ],
+      "closest_silhouette": 0.7108
+    },
+    {
+      "id": "customer-identities/mark-093",
+      "cell": 93,
+      "file": "artwork/customer-identities/mark-093.webp",
+      "sha256": "98ff491ecb1d81666a4447a65e2da9d5166c09f92c0d9d97c1b50b0cafb9744c",
+      "colors": [
+        [
+          98,
+          108,
+          164
+        ],
+        [
+          176,
+          122,
+          115
+        ]
+      ],
+      "closest_silhouette": 0.681
+    },
+    {
+      "id": "customer-identities/mark-095",
+      "cell": 95,
+      "file": "artwork/customer-identities/mark-095.webp",
+      "sha256": "c951dfd7f697ecfbb53db7e4c7d30ee9df3503c1b3ee6b77c9fc11bea188e1a1",
+      "colors": [
+        [
+          91,
+          111,
+          140
+        ],
+        [
+          169,
+          122,
+          106
+        ]
+      ],
+      "closest_silhouette": 0.6906
+    },
+    {
+      "id": "customer-identities/mark-096",
+      "cell": 96,
+      "file": "artwork/customer-identities/mark-096.webp",
+      "sha256": "19cae50f47b001e54c49910c1f8e0e2d53701b2428e156fd0ace729bf635e0c9",
+      "colors": [
+        [
+          91,
+          120,
+          134
+        ],
+        [
+          181,
+          126,
+          107
+        ]
+      ],
+      "closest_silhouette": 0.7065
+    },
+    {
+      "id": "customer-identities/mark-097",
+      "cell": 97,
+      "file": "artwork/customer-identities/mark-097.webp",
+      "sha256": "18df0c3f922b0e6fc6d1019720abbc7145a69f0cf9edeae55776f04b54fd7d2c",
+      "colors": [
+        [
+          95,
+          118,
+          131
+        ],
+        [
+          183,
+          149,
+          119
+        ]
+      ],
+      "closest_silhouette": 0.7029
+    },
+    {
+      "id": "customer-identities/mark-098",
+      "cell": 98,
+      "file": "artwork/customer-identities/mark-098.webp",
+      "sha256": "5c484629538940631ad7ec58ae2159659b4e788268c0a94750c0f62497363883",
+      "colors": [
+        [
+          99,
+          113,
+          151
+        ],
+        [
+          182,
+          188,
+          209
+        ]
+      ],
+      "closest_silhouette": 0.6741
+    },
+    {
+      "id": "customer-identities/mark-100",
+      "cell": 100,
+      "file": "artwork/customer-identities/mark-100.webp",
+      "sha256": "21b9a9d25eb3ed05151c37e5ec55d08255b82f6d64dfb055a03def2d66175405",
+      "colors": [
+        [
+          98,
+          113,
+          141
+        ],
+        [
+          176,
+          135,
+          121
+        ]
+      ],
+      "closest_silhouette": 0.5887
+    },
+    {
+      "id": "customer-identities/mark-101",
+      "cell": 101,
+      "file": "artwork/customer-identities/mark-101.webp",
+      "sha256": "cb74c0cf94a9ed01408ec1f27c8615fd63de11156bbf409ff06e3b37e3994ce8",
+      "colors": [
+        [
+          93,
+          118,
+          140
+        ],
+        [
+          181,
+          145,
+          121
+        ]
+      ],
+      "closest_silhouette": 0.6165
+    },
+    {
+      "id": "customer-identities/mark-102",
+      "cell": 102,
+      "file": "artwork/customer-identities/mark-102.webp",
+      "sha256": "7af640b95ba19c42255cdc3a37766768f8e47d7e1980b8393a9c87f4ad1e34f9",
+      "colors": [
+        [
+          79,
+          107,
+          143
+        ],
+        [
+          183,
+          139,
+          107
+        ]
+      ],
+      "closest_silhouette": 0.7368
+    },
+    {
+      "id": "customer-identities/mark-103",
+      "cell": 103,
+      "file": "artwork/customer-identities/mark-103.webp",
+      "sha256": "fb69309a693cc3da9b52f6d80dcf4eb6926b959c65bd70666b07731fd373cddc",
+      "colors": [
+        [
+          87,
+          105,
+          150
+        ],
+        [
+          173,
+          144,
+          130
+        ]
+      ],
+      "closest_silhouette": 0.5884
+    },
+    {
+      "id": "customer-identities/mark-105",
+      "cell": 105,
+      "file": "artwork/customer-identities/mark-105.webp",
+      "sha256": "a8599323e327ff9b23b93d6b27fca68eea2b263fb33f5ed14885ddf598292584",
+      "colors": [
+        [
+          107,
+          128,
+          128
+        ],
+        [
+          179,
+          135,
+          107
+        ]
+      ],
+      "closest_silhouette": 0.6488
+    },
+    {
+      "id": "customer-identities/mark-106",
+      "cell": 106,
+      "file": "artwork/customer-identities/mark-106.webp",
+      "sha256": "9b36966485f9fd5721b3df2b137f5042771f5c7621ef0d7c0204799dfa460732",
+      "colors": [
+        [
+          90,
+          105,
+          161
+        ],
+        [
+          188,
+          153,
+          116
+        ]
+      ],
+      "closest_silhouette": 0.7365
+    },
+    {
+      "id": "customer-identities/mark-107",
+      "cell": 107,
+      "file": "artwork/customer-identities/mark-107.webp",
+      "sha256": "3e08fc82ad94ab068436ba64af1be505cd4c8fee42916d1fc89954f2b8a0d48f",
+      "colors": [
+        [
+          85,
+          108,
+          147
+        ],
+        [
+          182,
+          146,
+          122
+        ]
+      ],
+      "closest_silhouette": 0.6819
+    },
+    {
+      "id": "customer-identities/mark-108",
+      "cell": 108,
+      "file": "artwork/customer-identities/mark-108.webp",
+      "sha256": "b95da213a80139a93662c51ead1bc100629b1187a1a1dcaf7ee89203a073ed4d",
+      "colors": [
+        [
+          97,
+          127,
+          124
+        ],
+        [
+          176,
+          117,
+          111
+        ]
+      ],
+      "closest_silhouette": 0.7597
+    },
+    {
+      "id": "customer-identities/mark-110",
+      "cell": 110,
+      "file": "artwork/customer-identities/mark-110.webp",
+      "sha256": "91a37a858d9be87d9edfd6fda1a6829a08829deb910ae224da3409a79ee1aed5",
+      "colors": [
+        [
+          82,
+          104,
+          143
+        ],
+        [
+          173,
+          150,
+          125
+        ]
+      ],
+      "closest_silhouette": 0.6802
+    },
+    {
+      "id": "customer-identities/mark-111",
+      "cell": 111,
+      "file": "artwork/customer-identities/mark-111.webp",
+      "sha256": "f007fadb4bae9aefa4d5986987c39b64923d223844466d16f0e07b2ef697f11c",
+      "colors": [
+        [
+          102,
+          130,
+          123
+        ],
+        [
+          174,
+          118,
+          110
+        ]
+      ],
+      "closest_silhouette": 0.7655
+    },
+    {
+      "id": "customer-identities/mark-112",
+      "cell": 112,
+      "file": "artwork/customer-identities/mark-112.webp",
+      "sha256": "33711c914b524681ef38e3674b781da03a0671d350ecd609cf274642662a41c3",
+      "colors": [
+        [
+          105,
+          128,
+          132
+        ],
+        [
+          187,
+          153,
+          107
+        ]
+      ],
+      "closest_silhouette": 0.7396
+    },
+    {
+      "id": "customer-identities/mark-113",
+      "cell": 113,
+      "file": "artwork/customer-identities/mark-113.webp",
+      "sha256": "90107b09da2a30c16b0190e4e02e178d70a376aacf2807adbde9c508db023633",
+      "colors": [
+        [
+          102,
+          126,
+          145
+        ],
+        [
+          173,
+          133,
+          131
+        ]
+      ],
+      "closest_silhouette": 0.6725
+    },
+    {
+      "id": "customer-identities/mark-114",
+      "cell": 114,
+      "file": "artwork/customer-identities/mark-114.webp",
+      "sha256": "274552657df5c10334b73db43abc64e79b34e86b390f37428f7e33016db8df76",
+      "colors": [
+        [
+          97,
+          112,
+          138
+        ],
+        [
+          186,
+          154,
+          109
+        ]
+      ],
+      "closest_silhouette": 0.7359
+    },
+    {
+      "id": "customer-identities/mark-115",
+      "cell": 115,
+      "file": "artwork/customer-identities/mark-115.webp",
+      "sha256": "099737fee314b168418a8ad7e123b4799ec2ee18faac403b558135cd0b11bacb",
+      "colors": [
+        [
+          82,
+          106,
+          144
+        ],
+        [
+          177,
+          148,
+          120
+        ]
+      ],
+      "closest_silhouette": 0.7609
+    },
+    {
+      "id": "customer-identities/mark-116",
+      "cell": 116,
+      "file": "artwork/customer-identities/mark-116.webp",
+      "sha256": "1888585a71b1ba9d57e59737fdc766d816e70678568aa935b8039c1f95eb8e81",
+      "colors": [
+        [
+          94,
+          115,
+          170
+        ],
+        [
+          189,
+          149,
+          108
+        ]
+      ],
+      "closest_silhouette": 0.7536
+    },
+    {
+      "id": "customer-identities/mark-119",
+      "cell": 119,
+      "file": "artwork/customer-identities/mark-119.webp",
+      "sha256": "cee914b05a4a08e838e5e4af780aabba59a514ee9210e3df0bb317114ce37b42",
+      "colors": [
+        [
+          88,
+          100,
+          148
+        ],
+        [
+          129,
+          139,
+          113
+        ]
+      ],
+      "closest_silhouette": 0.7631
+    },
+    {
+      "id": "customer-identities/mark-121",
+      "cell": 121,
+      "file": "artwork/customer-identities/mark-121.webp",
+      "sha256": "eb1d3581618bd7a576eaab552cf3cbb05d1c1a25bc39162ce555d46e111cc15f",
+      "colors": [
+        [
+          100,
+          112,
+          131
+        ],
+        [
+          183,
+          148,
+          110
+        ]
+      ],
+      "closest_silhouette": 0.6612
+    },
+    {
+      "id": "customer-identities/mark-122",
+      "cell": 122,
+      "file": "artwork/customer-identities/mark-122.webp",
+      "sha256": "8848edafe69b8a83115bff56e2a7b4a70ca55fe7f098a75054d532b844a9f14f",
+      "colors": [
+        [
+          78,
+          104,
+          141
+        ],
+        [
+          170,
+          138,
+          122
+        ]
+      ],
+      "closest_silhouette": 0.6801
+    },
+    {
+      "id": "customer-identities/mark-123",
+      "cell": 123,
+      "file": "artwork/customer-identities/mark-123.webp",
+      "sha256": "232145bfed9c7888ea8dbcb6f9533c6e94518bfaf9af0c7a3a4240d4b91bb86c",
+      "colors": [
+        [
+          89,
+          121,
+          140
+        ],
+        [
+          177,
+          141,
+          127
+        ]
+      ],
+      "closest_silhouette": 0.4193
+    },
+    {
+      "id": "customer-identities/mark-124",
+      "cell": 124,
+      "file": "artwork/customer-identities/mark-124.webp",
+      "sha256": "91e37622215dccfdf17b2824255e0f95a464b82db210bc61221f4177a082aee4",
+      "colors": [
+        [
+          86,
+          105,
+          150
+        ],
+        [
+          186,
+          151,
+          117
+        ]
+      ],
+      "closest_silhouette": 0.5985
+    },
+    {
+      "id": "customer-identities/mark-129",
+      "cell": 129,
+      "file": "artwork/customer-identities/mark-129.webp",
+      "sha256": "73825db98f56116a2101c3b95b43d9e0552664dc93069ff106d88c10847d6ede",
+      "colors": [
+        [
+          82,
+          105,
+          144
+        ],
+        [
+          182,
+          140,
+          121
+        ]
+      ],
+      "closest_silhouette": 0.7606
+    },
+    {
+      "id": "customer-identities/mark-130",
+      "cell": 130,
+      "file": "artwork/customer-identities/mark-130.webp",
+      "sha256": "8df7b3bb58e713b3ddc3dbcc1a08ef02ffd32bb9b84a5cd3ee792d04674976e6",
+      "colors": [
+        [
+          107,
+          134,
+          118
+        ],
+        [
+          178,
+          131,
+          113
+        ]
+      ],
+      "closest_silhouette": 0.6882
+    },
+    {
+      "id": "customer-identities/mark-131",
+      "cell": 131,
+      "file": "artwork/customer-identities/mark-131.webp",
+      "sha256": "52327e7fe92d5c47b04c1bc840643ed82da8825089b59c89d2e0d022f5cb3894",
+      "colors": [
+        [
+          114,
+          132,
+          128
+        ],
+        [
+          181,
+          118,
+          101
+        ]
+      ],
+      "closest_silhouette": 0.5616
+    },
+    {
+      "id": "customer-identities/mark-132",
+      "cell": 132,
+      "file": "artwork/customer-identities/mark-132.webp",
+      "sha256": "fe6f6fc4069f7c592553c469f407373504b0faaf2f0513c2b68872f07bcecd6d",
+      "colors": [
+        [
+          95,
+          105,
+          156
+        ],
+        [
+          184,
+          151,
+          122
+        ]
+      ],
+      "closest_silhouette": 0.6979
+    },
+    {
+      "id": "customer-identities/mark-134",
+      "cell": 134,
+      "file": "artwork/customer-identities/mark-134.webp",
+      "sha256": "fb82cababdfefed4881760448ee25a3364f80d219ed7371c71b24d7a0db5e5ce",
+      "colors": [
+        [
+          80,
+          114,
+          146
+        ],
+        [
+          155,
+          146,
+          120
+        ]
+      ],
+      "closest_silhouette": 0.7559
+    },
+    {
+      "id": "customer-identities/mark-135",
+      "cell": 135,
+      "file": "artwork/customer-identities/mark-135.webp",
+      "sha256": "b8b89e1849270ca2b157067fa2f6cb394db28c2d4c20a6e01eb4dbd2f8ac9c35",
+      "colors": [
+        [
+          96,
+          121,
+          130
+        ],
+        [
+          177,
+          139,
+          114
+        ]
+      ],
+      "closest_silhouette": 0.6884
+    },
+    {
+      "id": "customer-identities/mark-137",
+      "cell": 137,
+      "file": "artwork/customer-identities/mark-137.webp",
+      "sha256": "e5155a46cb341fca33f8d1b9ffa701b48db726b687580a169fc131eeb2652c88",
+      "colors": [
+        [
+          105,
+          128,
+          141
+        ],
+        [
+          172,
+          120,
+          111
+        ]
+      ],
+      "closest_silhouette": 0.6995
+    },
+    {
+      "id": "customer-identities/mark-138",
+      "cell": 138,
+      "file": "artwork/customer-identities/mark-138.webp",
+      "sha256": "bd16f96e05e81a8af71cb5f9ebfb4e48522127b312c98b708b48c3cccd726d4d",
+      "colors": [
+        [
+          99,
+          129,
+          123
+        ],
+        [
+          184,
+          152,
+          118
+        ]
+      ],
+      "closest_silhouette": 0.7125
+    },
+    {
+      "id": "customer-identities/mark-139",
+      "cell": 139,
+      "file": "artwork/customer-identities/mark-139.webp",
+      "sha256": "46bc0bb6a5bb1119122f216a104af015091b5b50546c3947a24d7570d8c31b1c",
+      "colors": [
+        [
+          113,
+          135,
+          125
+        ],
+        [
+          176,
+          124,
+          96
+        ]
+      ],
+      "closest_silhouette": 0.7676
+    },
+    {
+      "id": "customer-identities/mark-141",
+      "cell": 141,
+      "file": "artwork/customer-identities/mark-141.webp",
+      "sha256": "d22722d9878658a0cfa8cd5210294d8e4a6b061c3e9bb26b54ac634da3b6071b",
+      "colors": [
+        [
+          88,
+          105,
+          154
+        ],
+        [
+          159,
+          138,
+          112
+        ]
+      ],
+      "closest_silhouette": 0.6052
+    },
+    {
+      "id": "customer-identities/mark-142",
+      "cell": 142,
+      "file": "artwork/customer-identities/mark-142.webp",
+      "sha256": "780d0cfcf1c795cf75c3cc18e9e90b0396a43badd10b621bbd7532f1691a4d24",
+      "colors": [
+        [
+          94,
+          103,
+          156
+        ],
+        [
+          184,
+          145,
+          108
+        ]
+      ],
+      "closest_silhouette": 0.7221
+    },
+    {
+      "id": "customer-identities/mark-144",
+      "cell": 144,
+      "file": "artwork/customer-identities/mark-144.webp",
+      "sha256": "968ba41c7ab03f96f2e874032effcc593b55090436b130ea4dd9473bba5cf302",
+      "colors": [
+        [
+          82,
+          106,
+          146
+        ],
+        [
+          178,
+          130,
+          123
+        ]
+      ],
+      "closest_silhouette": 0.6238
+    }
+  ],
+  "excluded": [
+    {
+      "cell": 33,
+      "reason": "near-duplicate silhouette after contact-sheet review",
+      "similarity": 0.8735,
+      "nearest": "customer-identities/mark-014"
+    },
+    {
+      "cell": 42,
+      "reason": "near-duplicate silhouette after contact-sheet review",
+      "similarity": 0.8206,
+      "nearest": "customer-identities/mark-036"
+    },
+    {
+      "cell": 54,
+      "reason": "near-duplicate silhouette after contact-sheet review",
+      "similarity": 0.7896,
+      "nearest": "customer-identities/mark-003"
+    },
+    {
+      "cell": 56,
+      "reason": "near-duplicate silhouette after contact-sheet review",
+      "similarity": 0.7818,
+      "nearest": "customer-identities/mark-019"
+    },
+    {
+      "cell": 61,
+      "reason": "near-duplicate silhouette after contact-sheet review",
+      "similarity": 0.8635,
+      "nearest": "customer-identities/mark-060"
+    },
+    {
+      "cell": 62,
+      "reason": "near-duplicate silhouette after contact-sheet review",
+      "similarity": 0.7938,
+      "nearest": "customer-identities/mark-041"
+    },
+    {
+      "cell": 73,
+      "reason": "near-duplicate silhouette after contact-sheet review",
+      "similarity": 0.7886,
+      "nearest": "customer-identities/mark-039"
+    },
+    {
+      "cell": 76,
+      "reason": "near-duplicate silhouette after contact-sheet review",
+      "similarity": 0.7764,
+      "nearest": "customer-identities/mark-020"
+    },
+    {
+      "cell": 77,
+      "reason": "near-duplicate silhouette after contact-sheet review",
+      "similarity": 0.7778,
+      "nearest": "customer-identities/mark-036"
+    },
+    {
+      "cell": 83,
+      "reason": "near-duplicate silhouette after contact-sheet review",
+      "similarity": 0.7753,
+      "nearest": "customer-identities/mark-014"
+    },
+    {
+      "cell": 88,
+      "reason": "near-duplicate silhouette after contact-sheet review",
+      "similarity": 0.773,
+      "nearest": "customer-identities/mark-036"
+    },
+    {
+      "cell": 91,
+      "reason": "near-duplicate silhouette after contact-sheet review",
+      "similarity": 0.8758,
+      "nearest": "customer-identities/mark-022"
+    },
+    {
+      "cell": 92,
+      "reason": "near-duplicate silhouette after contact-sheet review",
+      "similarity": 0.8121,
+      "nearest": "customer-identities/mark-036"
+    },
+    {
+      "cell": 94,
+      "reason": "near-duplicate silhouette after contact-sheet review",
+      "similarity": 0.7774,
+      "nearest": "customer-identities/mark-026"
+    },
+    {
+      "cell": 99,
+      "reason": "near-duplicate silhouette after contact-sheet review",
+      "similarity": 0.8017,
+      "nearest": "customer-identities/mark-019"
+    },
+    {
+      "cell": 104,
+      "reason": "near-duplicate silhouette after contact-sheet review",
+      "similarity": 0.7868,
+      "nearest": "customer-identities/mark-060"
+    },
+    {
+      "cell": 109,
+      "reason": "near-duplicate silhouette after contact-sheet review",
+      "similarity": 0.8038,
+      "nearest": "customer-identities/mark-069"
+    },
+    {
+      "cell": 117,
+      "reason": "near-duplicate silhouette after contact-sheet review",
+      "similarity": 0.8,
+      "nearest": "customer-identities/mark-057"
+    },
+    {
+      "cell": 118,
+      "reason": "near-duplicate silhouette after contact-sheet review",
+      "similarity": 0.7851,
+      "nearest": "customer-identities/mark-020"
+    },
+    {
+      "cell": 120,
+      "reason": "near-duplicate silhouette after contact-sheet review",
+      "similarity": 0.7752,
+      "nearest": "customer-identities/mark-030"
+    },
+    {
+      "cell": 125,
+      "reason": "near-duplicate silhouette after contact-sheet review",
+      "similarity": 0.7854,
+      "nearest": "customer-identities/mark-030"
+    },
+    {
+      "cell": 126,
+      "reason": "near-duplicate silhouette after contact-sheet review",
+      "similarity": 0.8511,
+      "nearest": "customer-identities/mark-036"
+    },
+    {
+      "cell": 127,
+      "reason": "near-duplicate silhouette after contact-sheet review",
+      "similarity": 0.8145,
+      "nearest": "customer-identities/mark-037"
+    },
+    {
+      "cell": 128,
+      "reason": "near-duplicate silhouette after contact-sheet review",
+      "similarity": 0.7728,
+      "nearest": "customer-identities/mark-041"
+    },
+    {
+      "cell": 133,
+      "reason": "near-duplicate silhouette after contact-sheet review",
+      "similarity": 0.7731,
+      "nearest": "customer-identities/mark-068"
+    },
+    {
+      "cell": 136,
+      "reason": "near-duplicate silhouette after contact-sheet review",
+      "similarity": 0.8707,
+      "nearest": "customer-identities/mark-039"
+    },
+    {
+      "cell": 140,
+      "reason": "near-duplicate silhouette after contact-sheet review",
+      "similarity": 0.8305,
+      "nearest": "customer-identities/mark-036"
+    },
+    {
+      "cell": 143,
+      "reason": "near-duplicate silhouette after contact-sheet review",
+      "similarity": 0.7901,
+      "nearest": "customer-identities/mark-068"
+    }
+  ]
+}

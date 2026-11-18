@@ -9,17 +9,19 @@
     py -X utf8 scripts/page_pattern.py check spec.json
     py -X utf8 scripts/page_pattern.py check-page page.html [--hash "#/home"] [--width 390] [--role home|mine|other]
 
-数据源是 references/page-patterns.json（页面规则页 references/page-patterns.html 由它而来）。入口表格式见该文件的 entrances_schema，
-或运行 show entrances。职责划分：System 决定功能与入口归属，本工具只决定首页的模块、顺序与去重，不增删 System 已批准的入口。
+本工具用 references/page-patterns.json 组织首页范式。导入入口表时，由 System 的公开校验器核对功能归属。
 退出码：check 与 check-page 发现违反时为 1；输入有误为 2。
 """
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import json
+import os
 import re
 import sys
 from datetime import date
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
@@ -30,10 +32,6 @@ sys.path.insert(0, str(HERE))
 
 from style_match import dock_grid  # noqa: E402
 
-TYPES9 = ["context", "search", "task", "status", "account", "order", "marketing", "content", "tool"]
-CATEGORIES = ["core", "info", "marketing", "aux"]
-ENTRIES = ["tab", "home", "mine", "context", "in-page"]
-FREQS = ["high", "mid", "low"]
 TYPE_PRIORITY = {"context": 0, "search": 1, "status": 2, "order": 3, "task": 4, "marketing": 5, "content": 6, "account": 7, "tool": 8}
 FEED_IDS = {"feed", "two-column-card-grid", "masonry", "single-column-list"}
 HOME_ORDER = ["search-header", "notice-bar", "status-card", "member-card-hero", "banner-carousel", "workbench", "entry-cards",
@@ -187,14 +185,20 @@ def show_method(data: dict) -> list[str]:
     return out
 
 
-def show_entrances(data: dict) -> list[str]:
-    s = data["entrances_schema"]
-    out = [s["description"], s["file"], "字段："]
-    out += [f"  {k}：{v}" for k, v in s["fields"].items()]
-    out.append("标签栏项：" + "；".join(f"{k}：{v}" for k, v in s["tabbar_item"].items()))
-    out.append("示例：")
-    out.append(json.dumps(s["example"], ensure_ascii=False, indent=1))
-    return out
+@lru_cache(maxsize=1)
+def entrances_contract():
+    system = Path(os.environ.get("LUZ_SYSTEM_ROOT") or ROOT.parent / "Luz-System")
+    path = system / "scripts/entrances_check.py"
+    if not path.is_file():
+        raise SystemExit(f"导入入口表需要 Luz-System 的公开合同：{path}")
+    spec = importlib.util.spec_from_file_location("luz_system_entrances", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def show_entrances() -> list[str]:
+    return [json.dumps(entrances_contract().schema(), ensure_ascii=False, indent=2)]
 
 
 def cmd_list(args, data: dict) -> int:
@@ -229,7 +233,7 @@ def cmd_show(args, data: dict) -> int:
         print("\n".join(show_method(data)))
         return 0
     if key in ("entrances", "entrances_schema"):
-        print("\n".join(show_entrances(data)))
+        print("\n".join(show_entrances()))
         return 0
     kind = None
     if ":" in key:
@@ -324,55 +328,27 @@ def print_recommend(r: dict) -> None:
 
 # ---------------------------------------------------------------- brief
 
-def validate_entrances(rows: list[dict]) -> tuple[list[dict], list[str]]:
-    errors, out, seen = [], [], set()
-    for i, raw in enumerate(rows, 1):
-        where = f"entrances[{i}] {raw.get('fn', '?')}"
-        row = {k: raw.get(k) for k in ("fn", "name", "type", "category", "entry", "destination", "freq")}
-        for k in ("fn", "name", "type", "category", "entry", "destination", "freq"):
-            if row[k] in (None, ""):
-                errors.append(f"{where} 缺 {k}")
-        for k, allowed in (("type", TYPES9), ("category", CATEGORIES), ("entry", ENTRIES), ("freq", FREQS)):
-            if row[k] not in (None, "") and row[k] not in allowed:
-                errors.append(f"{where} 的 {k}={row[k]} 不在 {allowed}")
-        if row["fn"] in seen:
-            errors.append(f"{where} 的 fn 重复；一个功能一行")
-        seen.add(row["fn"])
-        for k in ("image", "limited", "summary"):
-            if raw.get(k):
-                row[k] = True
-        out.append(row)
-    return out, errors
-
-
 def make_brief(features: dict | None, entrances_doc: dict, type_id: str, data: dict, width: int = 375) -> dict:
     types = by_id(data["app_types"])
     if type_id not in types:
         raise SystemExit(f"未知应用类型 {type_id}；可选：{'、'.join(types)}")
     t = types[type_id]
-    rows, errors = validate_entrances(entrances_doc.get("entrances", []))
+    rows, errors, warnings = entrances_contract().check_entrances(entrances_doc, features)
     if errors:
         raise SystemExit("入口表有误（格式见 show entrances）：\n  " + "\n  ".join(errors))
     tabbar = entrances_doc.get("tabbar")
     if not tabbar:
         tabbar = [{"name": r["name"], "destination": r["destination"]} for r in rows if r["entry"] == "tab"]
-    warnings: list[str] = []
     brief_features: dict[str, Any] = {"total": 0, "frontend": 0, "modules": []}
     unmapped: list[dict] = []
     if features:
         fl = features.get("features", [])
         modules = {m["id"]: m["name"] for m in features.get("modules", [])}
         front = [f for f in fl if str(f.get("surface", "")).lower() not in {"web-admin", "admin", "platform", "backend", "agent"}]
-        known = {f["id"] for f in fl}
         mapped = {r["fn"] for r in rows}
         brief_features = {"total": len(fl), "frontend": len(front),
                           "modules": [{"id": mid, "name": name, "count": sum(1 for f in front if f.get("module") == mid)} for mid, name in modules.items()]}
         unmapped = [{"fn": f["id"], "name": f["name"]} for f in front if f["id"] not in mapped]
-        for r in rows:
-            if r["fn"] not in known:
-                warnings.append(f"入口表的 {r['fn']} 不在功能清单里：请 System 核对")
-        if unmapped:
-            warnings.append(f"功能清单里有 {len(unmapped)} 个前台功能没有入口行（可能是页内功能，也可能漏了）：请 System 确认，Design 不自行补入口")
     types_present = {r["type"] for r in rows}
     constraints = {k: find_density(data, k) for k in ("first_screen_modules_max", "page_modules_max", "dock_items_min", "dock_items_max", "dock_pages_max",
                                                     "marketing_modules_max", "banner_frames_max", "status_cards_max", "header_context_items_max", "scroller_items_max")}
@@ -448,6 +424,10 @@ def make_plan(brief: dict, data: dict, width: int | None = None) -> dict:
         if e["entry"] == "tab" or (d and d in tab_dests) or e["name"] in tab_names:
             reject(e, "tab-duplicate", "与标签栏重复：标签栏已有该目的地，首页不再放入口", "标签栏", "dropped")
             continue
+        if e["entry"] in {"sidebar", "in-page"}:
+            home = "侧栏" if e["entry"] == "sidebar" else "页内入口"
+            reject(e, e["entry"], f"{e['name']}归属{home}，首页不重复放入口", e["entry"])
+            continue
         if t9 == "account" or e["entry"] == "mine" and t9 != "order":
             if t9 == "account" and e.get("summary") and not buckets["summary"]:
                 buckets["summary"].append({"fn": e["fn"], "name": f"{e['name']}状态摘要", "type": "account", "destination": "", "zone": "status-card",
@@ -456,9 +436,6 @@ def make_plan(brief: dict, data: dict, width: int | None = None) -> dict:
             continue
         if t9 == "tool":
             reject(e, "tool", f"{e['name']}：低频工具与合规类，归我的或二级页", "mine-list")
-            continue
-        if e["entry"] == "in-page":
-            reject(e, "in-page", f"{e['name']}：System 归属为页内入口，首页不放", "in-page")
             continue
         if t9 == "context" or e["entry"] == "context":
             if len(buckets["context"]) >= cmax["header_context_items_max"]:
@@ -473,14 +450,7 @@ def make_plan(brief: dict, data: dict, width: int | None = None) -> dict:
                 buckets["search"].append(item_of(e, "search"))
             continue
         if t9 == "order":
-            if e["entry"] == "home":
-                if any(i.get("state_card") and i["type"] == "order" for i in buckets["status"]):
-                    reject(e, "order-state-card-once", "订单：首页只出一张进行中状态卡", "已有状态卡", "dropped")
-                elif take(e):
-                    reject(e, "order", f"{e['name']}：订单类，首页只出进行中订单的状态卡，不放全部订单入口（已改成状态卡）", "status-card（进行中状态卡）", "routed")
-                    buckets["status"].append(item_of(e, "status-card", name="进行中订单", state_card=True, why="订单：首页只出进行中状态卡"))
-            else:
-                reject(e, "order", f"{e['name']}：订单类，归订单标签或我的订单卡；首页只出进行中订单的状态卡（须 System 另给一行 status 类入口）", "订单标签或我的")
+            reject(e, "order", f"{e['name']}归属订单模块。首页继续办理入口以 System 提供的 status 行为准", e["entry"])
             continue
         if t9 == "status":
             if len(buckets["status"]) >= cmax["status_cards_max"]:
@@ -574,7 +544,14 @@ def make_plan(brief: dict, data: dict, width: int | None = None) -> dict:
         warnings.append(f"应用类型 {t['name']} 通常没有营销位，请核对这些入口的归属")
 
     type_modules = list(t["home"]["modules"])
-    ordered = sorted(modules.values(), key=lambda m: order_key(m["id"], type_modules))
+    ranks = {name: order_key(name, type_modules) for name in modules}
+    primary_ranks = [ranks[name] for name, module in modules.items() if module["zone"] in {"dock", "status-card"}]
+    if primary_ranks:
+        after_primary = max(primary_ranks) + 1
+        for name, module in modules.items():
+            if module["zone"] in {"banner", "marketing"}:
+                ranks[name] = max(ranks[name], after_primary)
+    ordered = sorted(modules.values(), key=lambda module: ranks[module["id"]])
     first_max = brief["constraints"].get("first_screen_modules_max") or t["home"]["first_screen_max"]
     for idx, m in enumerate(ordered):
         m["order"] = idx + 1

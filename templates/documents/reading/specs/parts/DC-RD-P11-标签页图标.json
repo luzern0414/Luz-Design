@@ -1,0 +1,16 @@
+{
+  "id": "DC-RD-P11",
+  "name": "标签页图标",
+  "use": "实心图标：主题主色圆角底加白色图案，由 new_session.py 的标签页图标函数生成并内联，一页一个，不用外部文件",
+  "fragment": {
+    "theme": "salon",
+    "icon": "ledger"
+  },
+  "used_in": [
+    "DC-RD-001",
+    "DC-RD-003",
+    "DC-RD-004",
+    "DC-RD-005",
+    "DC-RD-006"
+  ]
+}

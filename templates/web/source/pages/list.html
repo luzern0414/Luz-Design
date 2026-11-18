@@ -1,0 +1,486 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="navy" data-bg="none" data-ic-base="../../../../kit/assets/icons">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>商品管理</title>
+<link rel="icon" href="../../../../kit/assets/icons/flat/bag.webp">
+<link rel="stylesheet" href="../../../../kit/tokens.css">
+<link rel="stylesheet" href="../../../../kit/ui.css">
+<link rel="stylesheet" href="../../../../kit/kit.css">
+<link rel="stylesheet" href="../../../../kit/web.css">
+<style>
+  /* 侧栏标识、胶囊标签与表格的统一细节 */
+  .tag { height: 24px; padding: 0 var(--s-3); border-radius: var(--r-full); }
+  .tag--dot::before { content: ""; width: 6px; height: 6px; margin-right: 6px; border-radius: 50%; background: currentColor; }
+  .table th { height: 48px; }
+  .table td { height: 68px; padding-top: 0; padding-bottom: 0; }
+  .table tbody tr[aria-selected="true"] td:first-child { box-shadow: inset 3px 0 0 var(--action); }
+  .thumb { width: 48px; height: 48px; border-radius: var(--r-md); object-fit: cover; background: var(--zone); flex: none; box-shadow: 0 0 0 1px var(--line); }
+  .pname { display: flex; align-items: center; gap: var(--s-3); min-width: 0; }
+  .pname .one-line { font-weight: 600; }
+  .seg--chips .seg__item { background: var(--surface); box-shadow: inset 0 0 0 1px var(--line-strong); min-height: 40px; padding: 0 var(--s-5); }
+  .seg--chips .seg__item[aria-selected="true"] { background: var(--action); box-shadow: none; }
+  @media (hover: hover) { .seg--chips .seg__item[aria-selected="false"]:hover { background: var(--action-tint); } }
+
+  /* 本页专属：左表右详情的宽度、表格单元、详情卡与窄屏单页详情 */
+  @media (min-width: 1001px) { .split { grid-template-columns: minmax(0, 1fr) 340px; } }
+  @media (min-width: 1001px) and (max-width: 1280px) { .split { grid-template-columns: minmax(0, 1fr) 288px; } .table { min-width: 680px; } }
+  .split__list { overflow: visible; }
+  .toolbar { overflow: visible; min-height: 64px; }
+  .toolbar > * { flex: none; }
+  .bulk { display: flex; align-items: center; gap: var(--s-2); margin-left: auto; font-size: var(--fs-sm); color: var(--ink-2); }
+  .bulk b { font-weight: 600; color: var(--ink); }
+  .btn--warn { color: var(--danger); }
+  .price small { font-size: var(--fs-xs); }
+
+  .table { min-width: 720px; }
+  .table .c-chk { padding-left: var(--s-4); padding-right: 0; }
+  .stock { display: inline-grid; grid-template-columns: 28px 72px; column-gap: var(--s-2); align-items: center; justify-items: start; }
+  .stock__n { justify-self: end; font-variant-numeric: tabular-nums; }
+  .skrow { pointer-events: none; }
+  .skrow td > .skel { height: 16px; margin: 0 auto; }
+
+  /* 表头排序：当前排序列着色并显示方向，其余列只留淡色箭头 */
+  .thsort { display: inline-flex; align-items: center; gap: var(--s-1); min-height: 32px; padding: 0 var(--s-2); border-radius: var(--r-sm); font-weight: 600; color: inherit; }
+  .thsort::after { content: ""; width: 6px; height: 6px; border: solid currentColor; border-width: 0 1.6px 1.6px 0; transform: rotate(45deg) translateY(-2px); opacity: .35; }
+  .t-r .thsort { flex-direction: row-reverse; margin-right: calc(var(--s-2) * -1); }
+  @media (hover: hover) { .thsort:hover { background: var(--action-tint); } }
+  th[aria-sort="ascending"] .thsort, th[aria-sort="descending"] .thsort { color: var(--action-press); }
+  th[aria-sort="ascending"] .thsort::after, th[aria-sort="descending"] .thsort::after { opacity: 1; }
+  th[aria-sort="ascending"] .thsort::after { transform: rotate(225deg) translateY(-2px); }
+
+  /* 分页器 */
+  .pager__total { margin-right: auto; }
+  .drop--up .drop__menu { top: auto; bottom: calc(100% + 4px); transform-origin: bottom left; }
+  .pager .seg__item { background: var(--surface); box-shadow: inset 0 0 0 1px var(--line-strong); }
+  .pager .seg__item[aria-current="page"] { background: var(--action-tint); color: var(--action-press); font-weight: 600; box-shadow: inset 0 0 0 1px var(--action); }
+
+  /* 关联详情卡：相框式大图，名称原位修改 */
+  .dcard { overflow: hidden; }
+  .dcard__img { display: block; width: calc(100% - var(--s-6)); margin: var(--s-3) auto 0; aspect-ratio: 1 / 1; object-fit: cover; border-radius: var(--r-lg); background: var(--zone); }
+  .dcard__head { padding: var(--s-3) var(--s-5) 0; }
+  .namerow { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2); min-height: 44px; }
+  .namerow h3 { flex: 1; min-width: 0; font-size: var(--fs-lg); font-weight: 600; line-height: var(--lh-tight); }
+  .namerow .input { flex: 1 1 140px; min-width: 0; min-height: 40px; }
+  .dcard .kv { grid-template-columns: 64px minmax(0, 1fr); padding: var(--s-3) var(--s-5) var(--s-4); }
+  .dcard__acts { display: flex; gap: var(--s-2); padding: 0 var(--s-5) var(--s-5); }
+  .dsk { display: grid; gap: var(--s-3); padding: var(--s-5); }
+
+  /* 窄于 1000：点行进入单页详情，顶部左侧返回，列表与详情不并排也不上下堆叠 */
+  .main .subbar { margin: 0 calc(var(--s-8) * -1); padding: 0 var(--s-6); background: var(--action-tint); border-bottom-color: var(--action-edge); }
+  .subbar--detail { display: none; }
+  @media (max-width: 1000px) {
+    #pg:not([data-pane="detail"]) .split__detail { display: none; }
+    #pg[data-pane="detail"] .pg-chrome, #pg[data-pane="detail"] .split__list { display: none; }
+    #pg[data-pane="detail"] .subbar--detail { display: grid; }
+    #pg[data-pane="detail"] .split__detail { margin-top: var(--s-4); }
+    #pg[data-pane="detail"] .split__detail .section__head { display: none; }
+    .dcard { max-width: 520px; }
+  }
+  @media (max-width: 760px) { .main .subbar { margin: 0 calc(var(--s-4) * -1); padding: 0 var(--s-3); } }
+  .pg-seg { margin-top: var(--s-2); }
+  .swrow { display: flex; align-items: center; min-height: 44px; }
+  .form-grid { align-items: start; }
+  .form-acts { justify-content: flex-end; padding: 0 var(--s-5) var(--s-5); }
+
+  /* 新建页：左填写右预览 */
+  .form-wrap { display: grid; grid-template-columns: minmax(0, 720px) 280px; gap: var(--s-4); align-items: start; }
+  .form-wrap .section { margin-top: var(--s-4); }
+  .pv { overflow: hidden; }
+  .pv__img { display: block; width: calc(100% - var(--s-6)); margin: var(--s-3) auto 0; aspect-ratio: 1 / 1; object-fit: cover; border-radius: var(--r-lg); background: var(--zone); }
+  .pv__body { display: grid; gap: var(--s-2); padding: var(--s-3) var(--s-5) var(--s-5); }
+  .pv__name { font-size: var(--fs-lg); font-weight: 600; line-height: var(--lh-tight); }
+  .pv__foot { display: flex; align-items: center; justify-content: space-between; gap: var(--s-2); }
+  @media (max-width: 1100px) { .form-wrap { grid-template-columns: minmax(0, 1fr); } .pv-sec { display: none; } }
+</style>
+</head>
+<body class="web-body">
+<div class="web">
+  <!-- 左侧主导航：图文同行，当前项有背景与指示线；不放产品名 -->
+  <nav class="rail" data-cid="WB-NAV-001" data-name="左侧主导航" aria-label="主导航">
+    <img class="rail__logo" data-ic="bouquet" src="../../../../kit/assets/icons/flat/bouquet.webp" alt="">
+    <a class="rail__item" href="home.html"><img src="../../../../kit/assets/line/home.webp" alt=""><span>工作台</span></a>
+    <a class="rail__item" href="list.html" aria-current="page"><img src="../../../../kit/assets/line/list.webp" alt=""><span>列表</span></a>
+    <a class="rail__item" href="orders.html"><img src="../../../../kit/assets/line/archive.webp" alt=""><span>订单</span></a>
+    <a class="rail__item" href="agent.html"><img src="../../../../kit/assets/line/message.webp" alt=""><span>助手</span></a>
+    <span class="rail__sp"></span>
+    <a class="rail__item" href="mine.html"><img src="../../../../kit/assets/line/user.webp" alt=""><span>我的</span></a>
+  </nav>
+
+  <main class="main"><div class="main__in">
+
+    <!-- 主视图：顶部、状态分段、左表右详情；填写页是另一个独立视图 -->
+    <div class="view" id="pg" data-view="list" data-pane="list">
+
+      <!-- 窄屏单页详情的顶栏：返回只在左上 -->
+      <div class="subbar subbar--detail">
+        <button type="button" class="ibtn" id="paneBack" data-back data-tip="返回" aria-label="返回"><img src="../../../../kit/assets/line/back.webp" alt=""></button>
+        <h1 id="paneTitle" tabindex="-1">商品详情</h1>
+        <span></span>
+      </div>
+
+      <div class="pg-chrome">
+        <header class="head" data-cid="WB-LIST-001" data-name="页面顶部标题搜索">
+          <div class="head__row">
+            <h1>商品管理</h1>
+            <div class="head__acts">
+              <label class="search"><img src="../../../../kit/assets/line/search.webp" alt=""><input id="q" type="search" placeholder="搜索商品名称" aria-label="搜索商品名称" autocomplete="off"></label>
+            </div>
+          </div>
+        </header>
+        <!-- 状态分段：数量按全部商品统计，只改变下方列表 -->
+        <div class="seg seg--chips pg-seg" data-seg="status" role="tablist" aria-label="商品状态" data-cid="WB-LIST-002" data-name="状态分段筛选">
+          <button class="seg__item" data-key="all" aria-selected="true">全部<small data-n="all">0</small></button>
+          <button class="seg__item" data-key="on">在售<small data-n="on">0</small></button>
+          <button class="seg__item" data-key="off">下架<small data-n="off">0</small></button>
+          <button class="seg__item" data-key="out">缺货<small data-n="out">0</small></button>
+        </div>
+      </div>
+
+      <div class="split">
+        <section class="section split__list">
+          <div class="section__head"><h2>商品清单</h2>
+            <div class="section__acts"><button type="button" class="ibtn ibtn--tint" data-open="form" data-tip="新建商品" aria-label="新建商品"><img src="../../../../kit/assets/line/add.webp" alt=""></button></div>
+          </div>
+          <div class="card section__body">
+            <!-- 工具条：筛选单行；批量区只在有选中行时出现 -->
+            <div class="toolbar" data-cid="WB-LIST-003" data-name="筛选批量工具条">
+              <div class="drop" data-drop="cat"><button type="button" class="drop__btn">分类<b>全部</b></button><div class="drop__menu" role="listbox" aria-label="分类">
+                <button type="button" class="drop__opt" role="option" data-value="all" aria-selected="true">全部</button>
+                <button type="button" class="drop__opt" role="option" data-value="鲜花">鲜花</button>
+                <button type="button" class="drop__opt" role="option" data-value="绿植">绿植</button>
+                <button type="button" class="drop__opt" role="option" data-value="礼盒">礼盒</button>
+                <button type="button" class="drop__opt" role="option" data-value="花器">花器</button>
+              </div></div>
+              <div class="drop" data-drop="price"><button type="button" class="drop__btn">价格<b>不限</b></button><div class="drop__menu" role="listbox" aria-label="价格">
+                <button type="button" class="drop__opt" role="option" data-value="all" aria-selected="true">不限</button>
+                <button type="button" class="drop__opt" role="option" data-value="lt100">100 元以下</button>
+                <button type="button" class="drop__opt" role="option" data-value="r1">100 至 200 元</button>
+                <button type="button" class="drop__opt" role="option" data-value="r2">200 至 300 元</button>
+                <button type="button" class="drop__opt" role="option" data-value="gt300">300 元以上</button>
+              </div></div>
+              <div class="drop" data-drop="sort"><button type="button" class="drop__btn">排序<b>默认</b></button><div class="drop__menu" role="listbox" aria-label="排序">
+                <button type="button" class="drop__opt" role="option" data-value="none" aria-selected="true">默认</button>
+                <button type="button" class="drop__opt" role="option" data-value="price:1">价格升序</button>
+                <button type="button" class="drop__opt" role="option" data-value="price:-1">价格降序</button>
+                <button type="button" class="drop__opt" role="option" data-value="stock:1">库存升序</button>
+                <button type="button" class="drop__opt" role="option" data-value="stock:-1">库存降序</button>
+              </div></div>
+              <div class="bulk" id="bulk" hidden>
+                <span>已选 <b id="selN">0</b> 项</span>
+                <button type="button" class="btn btn--ghost btn--sm" id="bulkOff">下架</button>
+                <button type="button" class="btn btn--ghost btn--sm btn--warn" id="bulkDel">删除</button>
+              </div>
+            </div>
+
+            <div class="table-wrap" id="wrap" data-cid="WB-LIST-004" data-name="商品数据表格">
+              <table class="table">
+                <colgroup><col style="width:48px"><col><col style="width:80px"><col style="width:104px"><col style="width:148px"><col style="width:96px"></colgroup>
+                <thead><tr>
+                  <th class="c-chk"><span class="check" role="checkbox" aria-checked="false" aria-label="选择本页全部商品" id="chkAll"><img src="../../../../kit/assets/line/check.webp" alt=""></span></th>
+                  <th class="t-l">商品</th>
+                  <th>分类</th>
+                  <th class="t-r" aria-sort="none"><button type="button" class="thsort" data-sort="price">价格</button></th>
+                  <th aria-sort="none"><button type="button" class="thsort" data-sort="stock">库存</button></th>
+                  <th>状态</th>
+                </tr></thead>
+                <tbody id="rows"></tbody>
+              </table>
+            </div>
+
+            <div class="empty" id="empty" hidden>
+              <img data-ic="vase" src="../../../../kit/assets/icons/flat/vase.webp" alt="">
+              <p>无匹配商品</p>
+              <button type="button" class="btn btn--secondary btn--sm btn--pill" id="clear">清除筛选</button>
+            </div>
+
+            <div class="pager" id="pager" data-cid="WB-LIST-005" data-name="表格分页器" hidden>
+              <span class="pager__total" id="total">共 0 项</span>
+              <div class="drop drop--up" data-drop="size"><button type="button" class="drop__btn">每页<b>20</b>项</button><div class="drop__menu" role="listbox" aria-label="每页项数">
+                <button type="button" class="drop__opt" role="option" data-value="10">10</button>
+                <button type="button" class="drop__opt" role="option" data-value="20" aria-selected="true">20</button>
+                <button type="button" class="drop__opt" role="option" data-value="50">50</button>
+                <button type="button" class="drop__opt" role="option" data-value="100">100</button>
+              </div></div>
+              <button type="button" class="btn btn--ghost btn--sm" id="prev">上一页</button>
+              <div class="seg" id="pages" aria-label="页码"></div>
+              <button type="button" class="btn btn--ghost btn--sm" id="next">下一页</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- 关联详情：宽屏在右侧，选中行即更新；名称原位修改 -->
+        <section class="section split__detail">
+          <div class="section__head"><h2>商品详情</h2></div>
+          <div class="card section__body dcard" id="dcard" data-cid="WB-LIST-006" data-name="商品关联详情卡">
+            <div class="dsk"><div class="skel" style="height:200px"></div><div class="skel" style="height:24px;width:60%"></div><div class="skel" style="height:16px"></div><div class="skel" style="height:16px;width:80%"></div></div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- 独立填写页：顶部左侧返回，取消与保存相邻；右侧随填写更新预览 -->
+    <form class="view" id="pf" data-view="form" data-cid="WB-LIST-007" data-name="商品新建填写页" novalidate hidden>
+      <div class="subbar">
+        <button type="button" class="ibtn" data-back data-tip="返回" aria-label="返回"><img src="../../../../kit/assets/line/back.webp" alt=""></button>
+        <h1>新建商品</h1>
+        <span></span>
+      </div>
+      <div class="form-wrap">
+        <div class="form-page section">
+          <div class="section__head"><h2>商品信息</h2></div>
+          <div class="card section__body">
+           <div class="form-grid">
+            <div class="field span-2"><label class="field__label" for="f-name">商品名称</label><input class="input" id="f-name" name="name" maxlength="30" placeholder="请输入商品名称" autocomplete="off"><p class="field__err" id="e-name" hidden></p></div>
+            <div class="field"><label class="field__label" for="f-cat">分类</label>
+              <select class="select" id="f-cat" name="cat"><option value="">请选择分类</option><option>鲜花</option><option>绿植</option><option>礼盒</option><option>花器</option></select>
+              <p class="field__err" id="e-cat" hidden></p></div>
+            <div class="field"><label class="field__label" for="f-price">价格</label><input class="input" id="f-price" name="price" inputmode="decimal" placeholder="0.00" autocomplete="off"><p class="field__err" id="e-price" hidden></p></div>
+            <div class="field"><span class="field__label">库存</span><div class="wheel" data-min="0" data-max="200" data-value="50" data-name="stock" data-label="库存" data-unit="件"></div><p class="field__err" id="e-stock" hidden></p></div>
+            <div class="field"><span class="field__label">上架</span><div class="swrow"><button type="button" class="switch" id="f-on" role="switch" aria-checked="true" aria-label="上架"></button></div></div>
+            <div class="field span-2"><label class="field__label" for="f-desc">说明</label><textarea class="textarea" id="f-desc" name="desc" maxlength="200" placeholder="请输入商品说明"></textarea></div>
+           </div>
+           <div class="btn-group form-acts"><button type="button" class="btn btn--ghost" data-back>取消</button><button type="submit" class="btn btn--primary">保存</button></div>
+          </div>
+        </div>
+        <div class="section pv-sec" data-cid="WB-LIST-008" data-name="新建商品预览卡">
+          <div class="section__head"><h2>预览</h2></div>
+          <div class="card pv section__body">
+            <img class="pv__img" id="pvImg" src="../../../../kit/assets/photo/product-rose-red.webp" alt="">
+            <div class="pv__body"><p class="pv__name one-line" id="pvName">商品名称</p><div class="pv__foot"><span class="price" id="pvPrice"><small>¥</small>0.00</span><span class="tag tag--dot" id="pvTag" data-tone="success">在售</span></div></div>
+          </div>
+        </div>
+      </div>
+    </form>
+
+  </div></main>
+</div>
+<script src="../../../../kit/ui.js"></script>
+<script>
+  const $ = Lz.$, $$ = Lz.$$;
+  const IMG = n => `../../../../kit/assets/photo/product-${n}.webp`;
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const money = n => n.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const narrow = () => matchMedia('(max-width: 1000px)').matches;
+
+  /* 数据：图片、名称、分类、价格、库存、是否上架、月销量 */
+  const seed = [
+    ['rose-red', '红玫瑰花束 十一枝', '鲜花', 199, 86, 1, 412], ['rose-red', '红玫瑰花束 十九枝', '鲜花', 329, 24, 1, 188], ['rose-red', '红玫瑰花束 三十三枝', '鲜花', 569, 6, 1, 63],
+    ['peony-pink', '粉芍药花束 九枝', '鲜花', 239, 142, 1, 356], ['peony-pink', '粉芍药花束 十五枝', '鲜花', 369, 9, 1, 97], ['peony-pink', '粉芍药花束 二十枝', '鲜花', 459, 0, 1, 41],
+    ['sunflower', '向日葵花束 五枝', '鲜花', 159, 210, 1, 268], ['sunflower', '向日葵花束 十枝', '鲜花', 259, 4, 1, 84], ['sunflower', '向日葵花束 迷你款', '鲜花', 89, 120, 0, 36],
+    ['tulip-white', '白郁金香 十枝', '鲜花', 179, 58, 1, 224], ['tulip-white', '白郁金香 二十枝', '鲜花', 319, 32, 1, 71], ['tulip-white', '白郁金香 混色款', '鲜花', 199, 76, 0, 52],
+    ['hydrangea-blue', '蓝绣球盆栽', '绿植', 129, 64, 1, 193], ['hydrangea-blue', '蓝绣球盆栽 大盆', '绿植', 219, 21, 1, 58],
+    ['monstera', '龟背竹盆栽', '绿植', 159, 47, 1, 305], ['monstera', '龟背竹盆栽 大号', '绿植', 299, 12, 1, 76],
+    ['succulent', '多肉组合盆', '绿植', 89, 320, 1, 512], ['succulent', '多肉组合盆 双盆装', '绿植', 168, 0, 1, 94], ['succulent', '多肉组合盆 迷你款', '绿植', 49, 8, 1, 188],
+    ['giftbox', '花礼盒', '礼盒', 259, 33, 1, 276], ['giftbox', '花礼盒 尊享款', '礼盒', 399, 18, 1, 62], ['giftbox', '花礼盒 节日限定', '礼盒', 329, 14, 0, 22],
+    ['pampas-vase', '干花花瓶摆件', '花器', 129, 94, 1, 148], ['pampas-vase', '干花花瓶摆件 大号', '花器', 189, 52, 0, 33],
+  ];
+  let data = seed.map(([img, name, cat, price, stock, on, sales], i) => ({ id: i + 1, img, name, cat, price, stock, on: !!on, sales, desc: '' }));
+  let nextId = data.length + 1;
+  const catImg = { 鲜花: 'rose-red', 绿植: 'monstera', 礼盒: 'giftbox', 花器: 'pampas-vase' };
+
+  const stOf = p => (!p.on ? 'off' : p.stock === 0 ? 'out' : 'on');
+  const ST = { on: ['在售', 'success'], off: ['下架', ''], out: ['缺货', 'warning'] };
+  const RANGE = { all: [0, Infinity], lt100: [0, 100], r1: [100, 200], r2: [200, 300], gt300: [300, Infinity] };
+
+  const S = { seg: 'all', q: '', cat: 'all', price: 'all', sort: { key: '', dir: 1 }, size: 20, page: 1, sel: new Set(), cur: 1, shown: null, editing: false, loading: true, pageIds: [], y: 0 };
+  const el = { pg: $('#pg'), rows: $('#rows'), wrap: $('#wrap'), empty: $('#empty'), pager: $('#pager'), bulk: $('#bulk'), card: $('#dcard'), chkAll: $('#chkAll'), form: $('#pf') };
+  const byId = id => data.find(p => p.id === id);
+
+  const matches = p => {
+    const [lo, hi] = RANGE[S.price];
+    return (S.seg === 'all' || stOf(p) === S.seg) && (S.cat === 'all' || p.cat === S.cat) && p.price >= lo && p.price < hi && (!S.q || (p.name + p.cat).includes(S.q));
+  };
+  const view = () => { const a = data.filter(matches); if (S.sort.key) a.sort((x, y) => (x[S.sort.key] - y[S.sort.key]) * S.sort.dir); return a; };
+
+  /* 下拉的显示值在不触发筛选事件的情况下同步 */
+  function setDrop(name, val) {
+    const d = $(`[data-drop="${name}"]`), opts = $$('.drop__opt', d), o = opts.find(x => x.dataset.value === val);
+    opts.forEach(x => x.setAttribute('aria-selected', String(x === o)));
+    $('b', d).textContent = o.textContent; d.dataset.value = val;
+  }
+
+  const rowHtml = p => {
+    const st = ST[stOf(p)];
+    return `<tr data-id="${p.id}" tabindex="0" aria-selected="${p.id === S.cur}">
+      <td class="c-chk"><span class="check" role="checkbox" aria-checked="${S.sel.has(p.id)}" aria-label="选择 ${esc(p.name)}"><img src="../../../../kit/assets/line/check.webp" alt=""></span></td>
+      <td class="t-l"><span class="pname"><img class="thumb" src="${IMG(p.img)}" alt=""><span class="one-line">${esc(p.name)}</span></span></td>
+      <td>${esc(p.cat)}</td>
+      <td class="t-r"><span class="price"><small>¥</small>${money(p.price)}</span></td>
+      <td><span class="stock"><span class="stock__n">${p.stock}</span>${p.stock < 10 ? '<span class="tag tag--dot" data-tone="danger">库存预警</span>' : '<span></span>'}</span></td>
+      <td><span class="tag tag--dot" data-tone="${st[1]}">${st[0]}</span></td></tr>`;
+  };
+  const skeleton = () => Array.from({ length: 8 }, () => `<tr class="skrow"><td class="c-chk"><div class="skel" style="width:22px;height:22px"></div></td><td class="t-l"><div style="display:flex;align-items:center;gap:12px"><div class="skel" style="width:48px;height:48px;flex:none;border-radius:12px"></div><div class="skel" style="width:60%;margin:0"></div></div></td><td><div class="skel" style="width:40px"></div></td><td><div class="skel" style="width:64px"></div></td><td><div class="skel" style="width:48px"></div></td><td><div class="skel" style="width:48px"></div></td></tr>`).join('');
+
+  function counts() { $$('[data-n]').forEach(n => { const k = n.dataset.n; n.textContent = data.filter(p => k === 'all' || stOf(p) === k).length; }); }
+
+  function bulk() {
+    el.bulk.hidden = !S.sel.size; $('#selN').textContent = S.sel.size;
+    el.chkAll.setAttribute('aria-checked', String(S.pageIds.length > 0 && S.pageIds.every(id => S.sel.has(id))));
+  }
+
+  function renderPager(total, pages) {
+    $('#total').textContent = `共 ${total} 项`;
+    $('#prev').disabled = S.page <= 1; $('#next').disabled = S.page >= pages;
+    $('#pages').innerHTML = Array.from({ length: pages }, (_, i) => `<button type="button" class="seg__item" data-p="${i + 1}" aria-label="第 ${i + 1} 页"${i + 1 === S.page ? ' aria-current="page"' : ''}>${i + 1}</button>`).join('');
+  }
+
+  function render() {
+    counts();
+    $$('th[aria-sort]').forEach(th => { const k = $('[data-sort]', th).dataset.sort; th.setAttribute('aria-sort', S.sort.key === k ? (S.sort.dir > 0 ? 'ascending' : 'descending') : 'none'); });
+    setDrop('sort', S.sort.key ? `${S.sort.key}:${S.sort.dir}` : 'none');
+    if (S.loading) return;
+    const all = view(), ids = new Set(all.map(p => p.id));
+    S.sel = new Set([...S.sel].filter(id => ids.has(id)));
+    const pages = Math.max(1, Math.ceil(all.length / S.size)); S.page = Math.min(S.page, pages);
+    const rows = all.slice((S.page - 1) * S.size, S.page * S.size); S.pageIds = rows.map(p => p.id);
+    if (!ids.has(S.cur)) { S.cur = all.length ? all[0].id : null; S.editing = false; }
+    el.rows.innerHTML = rows.map(rowHtml).join(''); Lz.initToggles(el.rows);
+    el.wrap.hidden = !rows.length; el.empty.hidden = !!rows.length; el.pager.hidden = !all.length;
+    renderPager(all.length, pages); bulk(); renderDetail();
+  }
+
+  /* 关联详情卡：名称原位改，阅读态不显示保存取消 */
+  function renderDetail(force) {
+    if (S.loading || (!force && S.shown === S.cur)) return;
+    S.shown = S.cur; const p = byId(S.cur);
+    if (!p) { el.card.innerHTML = '<div class="empty"><img data-ic="bouquet" src="../../../../kit/assets/icons/flat/bouquet.webp" alt=""><p>未选择商品</p></div>'; return; }
+    const st = ST[stOf(p)];
+    const nameRow = S.editing
+      ? `<div class="namerow"><input class="input" id="nameIn" value="${esc(p.name)}" maxlength="30" aria-label="商品名称" autocomplete="off"><div class="btn-group"><button type="button" class="btn btn--primary btn--sm" data-act="save">保存</button><button type="button" class="btn btn--ghost btn--sm" data-act="cancel">取消</button></div></div><p class="field__err" id="nameErr" hidden>请输入商品名称</p>`
+      : `<div class="namerow"><h3 class="one-line">${esc(p.name)}</h3><button type="button" class="ibtn" data-act="rename" data-tip="修改名称" aria-label="修改名称"><img src="../../../../kit/assets/line/edit.webp" alt=""></button></div>`;
+    el.card.innerHTML = `<img class="dcard__img" src="${IMG(p.img)}" alt="">
+      <div class="dcard__head">${nameRow}</div>
+      <dl class="kv">
+        <dt>价格</dt><dd><span class="price"><small>¥</small>${money(p.price)}</span></dd>
+        <dt>库存</dt><dd>${p.stock} 件${p.stock < 10 ? ' <span class="tag tag--dot" data-tone="danger">库存预警</span>' : ''}</dd>
+        <dt>月销量</dt><dd>${p.sales} 件</dd>
+        <dt>分类</dt><dd>${esc(p.cat)}</dd>
+        <dt>状态</dt><dd><span class="tag tag--dot" data-tone="${st[1]}">${st[0]}</span></dd>
+        ${p.desc ? `<dt>说明</dt><dd>${esc(p.desc)}</dd>` : ''}
+      </dl>
+      <div class="dcard__acts"><button type="button" class="btn btn--secondary" data-act="toggle">${p.on ? '下架' : '上架'}</button><button type="button" class="btn btn--ghost btn--warn" data-act="del">删除</button></div>`;
+  }
+
+  function pick(id, enter) {
+    S.cur = id; S.editing = false;
+    $$('tr[data-id]', el.rows).forEach(tr => tr.setAttribute('aria-selected', String(+tr.dataset.id === id)));
+    renderDetail(true);
+    if (enter && narrow()) enterDetail();
+  }
+  function enterDetail() { S.y = scrollY; el.pg.dataset.pane = 'detail'; history.pushState({ pane: 'detail' }, ''); scrollTo(0, 0); $('#paneTitle').focus({ preventScroll: true }); }
+  function exitDetail() {
+    if (el.pg.dataset.pane !== 'detail') return;
+    el.pg.dataset.pane = 'list'; scrollTo(0, S.y);
+    const tr = $(`tr[data-id="${S.cur}"]`, el.rows); if (tr) tr.focus({ preventScroll: true });
+  }
+  $('#paneBack').addEventListener('click', () => { if (history.state && history.state.pane === 'detail') history.back(); else exitDetail(); });
+  addEventListener('popstate', exitDetail);
+  matchMedia('(max-width: 1000px)').addEventListener('change', e => { if (!e.matches) el.pg.dataset.pane = 'list'; });
+
+  /* 行：点击选中，勾选不选中 */
+  el.rows.addEventListener('click', e => { if (e.target.closest('.check')) return; const tr = e.target.closest('tr[data-id]'); if (tr) pick(+tr.dataset.id, true); });
+  el.rows.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.matches('tr[data-id]')) pick(+e.target.dataset.id, true); });
+  el.rows.addEventListener('lz:toggle', e => { const id = +e.target.closest('tr').dataset.id; e.target.getAttribute('aria-checked') === 'true' ? S.sel.add(id) : S.sel.delete(id); bulk(); });
+  el.chkAll.addEventListener('lz:toggle', () => {
+    const on = el.chkAll.getAttribute('aria-checked') === 'true';
+    S.pageIds.forEach(id => (on ? S.sel.add(id) : S.sel.delete(id)));
+    $$('.check', el.rows).forEach(c => c.setAttribute('aria-checked', String(on))); bulk();
+  });
+
+  /* 筛选：状态分段、下拉、搜索都只改变下方列表 */
+  document.addEventListener('lz:seg', e => { if (e.detail.group === 'status') { S.seg = e.detail.key; S.page = 1; render(); } });
+  document.addEventListener('lz:drop', e => {
+    const d = e.target.closest('[data-drop]'), v = e.detail.value, n = d.dataset.drop;
+    if (n === 'cat') S.cat = v; else if (n === 'price') S.price = v; else if (n === 'size') S.size = +v;
+    else if (n === 'sort') { const [key, dir] = v.split(':'); S.sort = v === 'none' ? { key: '', dir: 1 } : { key, dir: +dir }; }
+    S.page = 1; render();
+  });
+  $('#q').addEventListener('input', e => { S.q = e.target.value.trim(); S.page = 1; render(); });
+  $$('[data-sort]').forEach(b => b.addEventListener('click', () => { const k = b.dataset.sort; S.sort = S.sort.key === k ? { key: k, dir: -S.sort.dir } : { key: k, dir: 1 }; S.page = 1; render(); }));
+  $('#clear').addEventListener('click', () => {
+    S.q = ''; $('#q').value = ''; S.cat = 'all'; S.price = 'all'; setDrop('cat', 'all'); setDrop('price', 'all'); S.page = 1;
+    $('[data-seg="status"] .seg__item[data-key="all"]').click();
+  });
+
+  /* 分页 */
+  $('#pages').addEventListener('click', e => { const b = e.target.closest('[data-p]'); if (b) { S.page = +b.dataset.p; render(); } });
+  $('#prev').addEventListener('click', () => { S.page -= 1; render(); });
+  $('#next').addEventListener('click', () => { S.page += 1; render(); });
+
+  /* 批量：下架直接生效，删除先确认 */
+  $('#bulkOff').addEventListener('click', () => { const n = S.sel.size; data.forEach(p => { if (S.sel.has(p.id)) p.on = false; }); S.sel.clear(); S.shown = null; render(); Lz.toast(`已下架 ${n} 件商品`, 'success'); });
+  $('#bulkDel').addEventListener('click', async () => {
+    const n = S.sel.size;
+    if (!(await Lz.confirm({ title: `删除所选 ${n} 件商品`, ok: '删除', tone: 'danger' }))) return;
+    data = data.filter(p => !S.sel.has(p.id)); S.sel.clear(); S.shown = null; render(); Lz.toast(`已删除 ${n} 件商品`, 'success');
+  });
+
+  /* 详情卡的操作：改名、上下架、删除 */
+  el.card.addEventListener('click', async e => {
+    const b = e.target.closest('[data-act]'); if (!b) return; const p = byId(S.cur), a = b.dataset.act;
+    if (a === 'rename') { S.editing = true; renderDetail(true); const i = $('#nameIn'); i.focus(); i.select(); }
+    else if (a === 'cancel') { S.editing = false; renderDetail(true); }
+    else if (a === 'save') saveName();
+    else if (a === 'toggle') { p.on = !p.on; S.shown = null; render(); renderDetail(true); Lz.toast(p.on ? '已上架' : '已下架', 'success'); }
+    else if (a === 'del') {
+      if (!(await Lz.confirm({ title: `删除 ${p.name}`, ok: '删除', tone: 'danger' }))) return;
+      data = data.filter(x => x.id !== p.id); S.sel.delete(p.id); S.shown = null; render(); Lz.toast('已删除商品', 'success');
+      if (narrow()) { if (history.state && history.state.pane === 'detail') history.back(); else exitDetail(); }
+    }
+  });
+  el.card.addEventListener('keydown', e => {
+    if (!e.target.matches('#nameIn') || e.isComposing) return;
+    if (e.key === 'Enter') { e.preventDefault(); saveName(); }
+    if (e.key === 'Escape') { S.editing = false; renderDetail(true); }
+  });
+  el.card.addEventListener('input', e => { if (e.target.matches('#nameIn')) { e.target.removeAttribute('aria-invalid'); $('#nameErr').hidden = true; } });
+  function saveName() {
+    const i = $('#nameIn'), v = i.value.trim();
+    if (!v) { i.setAttribute('aria-invalid', 'true'); $('#nameErr').hidden = false; i.focus(); return; }
+    byId(S.cur).name = v; S.editing = false; S.shown = null; render(); renderDetail(true); Lz.toast('名称已更新', 'success');
+  }
+
+  /* 新建填写页：必填校验贴着字段，保存后新行排在最前并选中，返回恢复筛选与滚动 */
+  const F = { name: $('#f-name'), cat: $('#f-cat'), price: $('#f-price'), get stock() { return $('.wheel .input', el.form); }, desc: $('#f-desc'), on: $('#f-on') };
+  const setErr = (k, msg) => { F[k].setAttribute('aria-invalid', 'true'); F[k].setAttribute('aria-describedby', 'e-' + k); const p = $('#e-' + k); p.textContent = msg; p.hidden = false; };
+  const clearErr = k => { F[k].removeAttribute('aria-invalid'); $('#e-' + k) && ($('#e-' + k).hidden = true); };
+  function preview() {
+    $('#pvImg').src = IMG(catImg[F.cat.value] || 'rose-red');
+    $('#pvName').textContent = F.name.value.trim() || '商品名称';
+    const n = parseFloat(F.price.value); $('#pvPrice').innerHTML = `<small>¥</small>${Number.isFinite(n) && n >= 0 ? money(n) : '0.00'}`;
+    const on = F.on.getAttribute('aria-checked') === 'true', tag = $('#pvTag'); tag.textContent = on ? '在售' : '下架'; tag.dataset.tone = on ? 'success' : '';
+  }
+  function resetForm() {
+    ['name', 'cat', 'price', 'stock'].forEach(clearErr);
+    F.name.value = ''; F.cat.value = ''; F.price.value = ''; F.desc.value = ''; F.on.setAttribute('aria-checked', 'true');
+    F.stock.value = 50; $('.wheel__col', el.form).scrollTop = 50 * 44; preview();
+  }
+  document.addEventListener('lz:view', e => { if (e.detail.id === 'form') resetForm(); });
+  el.form.addEventListener('input', e => { const k = Object.keys(F).find(x => F[x] === e.target); if (k) clearErr(k); preview(); });
+  el.form.addEventListener('change', preview);
+  el.form.addEventListener('lz:toggle', preview);
+  el.form.addEventListener('submit', e => {
+    e.preventDefault(); const v = Lz.syncWheels(el.form); let bad = null;
+    const name = F.name.value.trim(), price = F.price.value.trim(), stock = String(F.stock.value).trim();
+    if (!name) { setErr('name', '请输入商品名称'); bad = bad || F.name; }
+    if (!F.cat.value) { setErr('cat', '请选择分类'); bad = bad || F.cat; }
+    if (!price) { setErr('price', '请输入价格'); bad = bad || F.price; }
+    else if (!/^\d+(\.\d{1,2})?$/.test(price) || +price <= 0) { setErr('price', '价格需大于 0，最多两位小数'); bad = bad || F.price; }
+    if (!/^\d+$/.test(stock)) { setErr('stock', '库存需为 0 以上的整数'); bad = bad || F.stock; }
+    if (bad) { bad.focus(); return; }
+    const item = { id: nextId++, img: catImg[F.cat.value], name, cat: F.cat.value, price: +price, stock: +stock, on: F.on.getAttribute('aria-checked') === 'true', sales: 0, desc: F.desc.value.trim() };
+    data.unshift(item); S.cur = item.id; S.shown = null; S.editing = false;
+    const at = view().findIndex(p => p.id === item.id); if (at >= 0) S.page = Math.floor(at / S.size) + 1;
+    render(); Lz.back(); Lz.toast('已新增商品', 'success');
+    const tr = $(`tr[data-id="${item.id}"]`, el.rows);
+    if (tr) { const r = tr.getBoundingClientRect(); if (r.top < 0 || r.bottom > innerHeight) tr.scrollIntoView({ block: 'nearest' }); }
+  });
+
+  /* 加载骨架 700 毫秒后出数 */
+  counts(); el.rows.innerHTML = skeleton();
+  setTimeout(() => { S.loading = false; render(); }, 700);
+</script>
+</body>
+</html>

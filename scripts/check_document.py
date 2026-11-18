@@ -22,8 +22,8 @@ FAMILY_PATTERNS = [
     (r"(?:生成|更新|修改|编制|导出|发布)于|最后(?:更新|修改)|(?:本(?:页面|页|文档|文|报告|表格|表|方案|清单)|此(?:页|文|表))[^。，,；;！？!?\n]{0,6}由[^。，,；;！？!?\n]{1,12}(?:生成|整理|撰写|编制|制作)|由\s*(?:AI|人工智能|Claude|ChatGPT|GPT|大模型|模型|智能体|AI\s?助手|Codex|Luz)[^。，,；;！？!?\n]{0,8}(?:生成|整理|撰写|编制|制作)|^\s*由[^。，,；;！？!?\n]{1,12}(?:生成|整理|撰写|编制|制作)\s*$|"
      r"编制人|制表人|审核人|作者[:：]|阅读(?:时长|时间)|字数[:：]|智能生成|人工智能生成|"
      r"Generated|Last updated|Created by|Powered by|Author:", "production metadata", False),
-    (r"数据来源|信息来源|来源[:：]|去重来源|来源(?:统计|数量|索引|目录)|\d+\s*个(?:来源|官方页面|网页|链接)|"
-     r"采集(?:日期|时间|状态|范围)|证据(?:部分|状态|等级)|部分获取|(?:资料|信息|来源|数据|内容|事实)(?:已核验|核验通过|校验通过|已校验)|"
+    (r"去重来源|来源(?:统计|数量|索引|目录)|\d+\s*个(?:来源|官方页面|网页|链接)|"
+     r"采集(?:日期|时间|状态|范围)|(?:资料|信息|来源|数据|内容|事实)(?:已核验|核验通过|校验通过|已校验)|"
      r"以官方(?:信息|公告)?为准|信息可能(?:不完整|有误|存在)|免责声明", "source metadata", False),
     (r"(?<![A-Za-z])raw/|单页\s*HTML|单页总结|本文件|[A-Za-z]:\\\S+|输出目录|源文件目录", "file metadata", False),
     (r"Design reference|设计参考|Luz Design|Admin SPEC|参考.{0,8}(?:规范|主题)(?:设计|制作)|"
@@ -47,7 +47,7 @@ FAMILY_PATTERNS = [(re.compile(p, re.I | re.M), family, short) for p, family, sh
 # blocks: a "label: value" line whose label holds the word, a footer, time or small element, or a short fragment that
 # is not a sentence (<= 80 characters, no sentence punctuation). Titles and body sentences may discuss them.
 META_TERMS = [
-    (re.compile(r"版本号|版本[:：]|提示词|(?:生成|更新|修改|编制|导出|发布)(?:时间|日期)", re.I), "production metadata"),
+    (re.compile(r"(?<!适用)版本号|(?<!适用)版本[:：]|提示词|(?:生成|更新|修改|编制|导出|发布)(?:时间|日期)", re.I), "production metadata"),
     (re.compile(r"官方页面|哈希|SHA-?256", re.I), "source metadata"),
 ]
 META_LABEL = re.compile(r"^\s*([^，。！？；：:\s][^，。！？；：:]{0,15}?)\s*[:：]")
@@ -59,7 +59,7 @@ EMOJI = re.compile(r"[\U0001F300-\U0001FAFF☀-➿⭐⭕■-◿]")
 # Unrequested accessory sections (file-design.html, 同类问题 for documents and slides).
 ACCESSORY_HEADING = re.compile(
     r"^(?:\S{0,4}[、.．]?\s*)?(?:摘要|前言|序言|编写(?:说明|目的)|阅读(?:指南|说明)|使用说明|修订记录|版本(?:信息|记录|历史)|"
-    r"更新(?:记录|日志)|免责声明|致谢|术语表|关于本(?:文档|报告|文)|本章小结|小结|参考来源|数据来源|附录说明)$")
+    r"更新(?:记录|日志)|免责声明|致谢|术语表|关于本(?:文档|报告|文)|本章小结|小结|附录说明)$")
 FILLER_SLIDE = re.compile(r"^(?:目录|议程|大纲|内容提要|谢谢|感谢|谢谢观看|感谢聆听|问答|答疑|结束|结语|关于我们|附录|Q\s*&\s*A|Thanks?|Agenda)[!！。]*$", re.I)
 GRAPHIC_SELECTOR = re.compile(r"svg|\.icon|frame|illustration|\.empty|chart|star|\.logo|face|ring|scan", re.I)
 # Solid fills are allowed on elements smaller than a line of text (visual-design.html 配色, 深色的使用范围). The size a rule
@@ -114,10 +114,19 @@ STATE_CLASSES = {"on", "off", "active", "current", "cur", "selected", "checked",
                  "hide", "hover", "focus", "is-active", "is-on", "is-selected", "is-checked"}
 
 
+STATE_SUFFIX = re.compile(r"-(?:on|off|active|current|cur|selected|checked|done|disabled|open|show|hide)$")
+
+
+def is_state_class(name: str) -> bool:
+    """on, active … and the same word behind a namespace (fl-on, k-active): a state of the element, not a kind of element."""
+    name = name.lower()
+    return name in STATE_CLASSES or bool(STATE_SUFFIX.search(name))
+
+
 def size_key(part: str) -> str:
     """A selector without attribute tests, pseudo-classes, pseudo-elements and state classes."""
     part = re.sub(r"\[[^\]]*\]|::?[\w-]+(?:\([^)]*\))?", "", part)
-    part = re.sub(r"\.([\w-]+)", lambda m: "" if m.group(1).lower() in STATE_CLASSES else m.group(0), part)
+    part = re.sub(r"\.([\w-]+)", lambda m: "" if is_state_class(m.group(1)) else m.group(0), part)
     return re.sub(r"\s+", " ", part).strip()
 
 
@@ -139,7 +148,7 @@ def class_nouns(compound: str) -> list[str]:
     state classes (on, active, selected …) name no object."""
     nouns = []
     for cls in re.findall(r"\.([\w-]+)", compound):
-        if cls.lower() in STATE_CLASSES:
+        if is_state_class(cls):
             continue
         segment = re.split(r"[-_]+", cls.lower().strip("-_"))[-1]
         nouns.append(re.sub(r"\d+$", "", segment))
@@ -160,6 +169,13 @@ def small_part(part: str, body: str, sizes: dict[str, tuple[float | None, float 
     height, width = declared_size(body)
     if height is None and width is None:
         height, width = sizes.get(size_key(part), (None, None))
+    if height is None and width is None:
+        # A modifier class names a variant of a base class that carries the size (<span class="tg tg-hot">: .tg-hot is a .tg): read the size of the base.
+        for cls in re.findall(r"\.([\w]+)-[\w-]+", subject):
+            base = sizes.get("." + cls)
+            if base and base != (None, None):
+                height, width = base
+                break
     if height is not None and height >= 32:
         return False                    # a container, whatever its class is called
     if height is not None and (height <= 20 or (width is not None and width <= 24 and height <= 24)):
@@ -429,9 +445,9 @@ def is_hard_stop(value: str) -> bool:
 
 
 # ---------------------------------------------------------------- Tab icon (every HTML mode)
-# Every delivered HTML carries its own browser-tab icon: <link rel="icon" href="data:image/svg+xml,...">, a flat line
-# pictogram of the page's subject in the theme's primary colour on a rounded tint square (visual-design.html 网页图标与品牌标识;
-# file-design.html, HTML 必备项). Missing, empty or an unfilled template placeholder is an error.
+# Every delivered HTML carries its own browser-tab icon: <link rel="icon" href="data:image/svg+xml,...">, a solid mark of the
+# page's subject (visual-design.html 网页图标与品牌标识; file-design.html, HTML 必备项). The colour is not prescribed; a colour plus
+# white (a white pictogram on a coloured rounded square) is preferred. Missing, empty or an unfilled template placeholder is an error.
 ICON_DRAWING = re.compile(r"<(?:path|rect|circle|line|polyline|polygon|ellipse)\b", re.I)
 
 
@@ -468,8 +484,8 @@ def tab_icon_findings(source: str) -> tuple[list[str], list[str]]:
     """(errors, warnings) for the page's browser-tab icon."""
     parser = _IconLinks()
     parser.feed(source)
-    hint = ('add <link rel="icon" href="data:image/svg+xml,..."> — the theme pictogram in the primary colour on a rounded '
-            "tint square (visual-design.html 网页图标与品牌标识)")
+    hint = ('add <link rel="icon" href="data:image/svg+xml,..."> — a solid mark, preferably a white pictogram on a rounded '
+            "square in one colour (visual-design.html 网页图标与品牌标识)")
     if not parser.links:
         return [f"no browser-tab icon: {hint}"], []
     usable = []
@@ -491,7 +507,7 @@ def tab_icon_findings(source: str) -> tuple[list[str], list[str]]:
 
 
 # ---------------------------------------------------------------- Dark theme blocks
-# visual-design.html 深色与浅色两套主题: a product front-end (--allow interface or website) carries a light and a dark theme. The rules of the dark theme sit in
+# 产品主题数量由需求决定；产品前端（--allow interface 或 website）已有深色主题时，其规则位于
 # a dark block: @media (prefers-color-scheme: dark), or a selector that applies only under a dark switch ([data-theme="dark"], html.dark, :root.dark, .dark,
 # [data-scheme=dark]). Dark fills and color-scheme: dark are the point of those blocks; the same fill in the default (light) theme is still a dark block on a
 # light page. Reading pages are documents and stay light: nothing is exempt there.
@@ -500,9 +516,6 @@ DARK_ATTR = re.compile(r"\[\s*data-(?:theme|scheme|mode|color-scheme|color-mode|
 DARK_CLASS = re.compile(r"^(?:html|:root|body|\*)?\.(?:dark|dark-mode|dark-theme|theme-dark)(?![\w-])", re.I)
 DARK_SHADOW_MAX_ALPHA = 0.5     # a black shadow on a dark ground is barely visible; levels there lean on lighter surfaces (check_contrast.MAX_DARK_LAYER_ALPHA)
 DARK_GROUND_VARIABLES = ("--bg", "--canvas", "--page", "--background", "--app-bg", "--bg-page", "--surface")
-NO_DARK_BLOCK = ("product front-end has no dark theme block: a product front-end needs a light and a dark theme (visual-design.html 深色与浅色两套主题): "
-                 "add the dark tokens under @media (prefers-color-scheme: dark) and :root[data-theme=\"dark\"] with the follow-system / light / dark switch. "
-                 "A built prototype whose styles come from scripts may not show them here: audit_rendered.py --scheme dark checks the page in the browser")
 DARK_SCHEME_IN_LIGHT = ("color-scheme: dark declared in the default (light) theme in {selector!r}: the default is light; declare it inside "
                         "@media (prefers-color-scheme: dark) or :root[data-theme=\"dark\"] (visual-design.html 深色与浅色两套主题)")
 
@@ -563,7 +576,14 @@ def resolve_in(variables: dict[str, str], name: str, depth: int = 0) -> str:
     return re.sub(r"var\((--[\w-]+)(?:\s*,\s*([^)]+))?\)", lambda m: resolve_in(variables, m.group(1), depth + 1) or (m.group(2) or ""), value)
 
 
-def check_html(path: Path, errors: list[str], warnings: list[str]) -> None:
+def check_html(path: Path, errors: list[str], warnings: list[str], *, session=None) -> None:
+    from ui_entry_policy import source_output_contract
+    try:
+        if source_output_contract(path, session) is not None:
+            return  # A registered UI package: its own contract and browser evidence apply.
+    except (OSError, ValueError) as exc:
+        errors.append('UI package contract: ' + str(exc))
+        return
     source = path.read_text(encoding="utf-8")
     icon_errors, icon_warnings = tab_icon_findings(source)
     errors.extend(icon_errors)
@@ -587,6 +607,8 @@ def check_html(path: Path, errors: list[str], warnings: list[str]) -> None:
         if after < len(tags) and "h2" in tags and tags[after] != "h2" and "showcase" not in ALLOWED:
             errors.append(f"text between the h1 and the first h2: {blocks[after][1][:40]!r}")
 
+    if not ALLOWED & {"shell", "interface"}:
+        errors.extend(document_navigation_errors(source))
     shell_reported: set[str] = set()
     for tag, text, ancestors, quoted in blocks:
         where = f"<{tag}>"
@@ -595,7 +617,8 @@ def check_html(path: Path, errors: list[str], warnings: list[str]) -> None:
             if tag in {"h2", "h3", "h4"}:
                 check_heading(text, where, errors)
         in_content = any(a in {"article", "section"} for a in ancestors)
-        shell = next((a for a in ancestors if a in {"nav", "aside"} or (a in {"header", "footer"} and not in_content)), None)
+        # Document chapter navigation is checked against actual heading targets above.
+        shell = next((a for a in ancestors if a == "aside" or (a in {"header", "footer"} and not in_content)), None)
         # An interface prototype is an application: its shell (nav, side bar, top bar) belongs to it.
         if shell and not ALLOWED & {"shell", "interface"} and shell not in shell_reported:
             shell_reported.add(shell)
@@ -615,9 +638,19 @@ def check_html(path: Path, errors: list[str], warnings: list[str]) -> None:
     rule_list = [(m, dark_rule(m, dark_spans)) for m in re.finditer(r"([^{}]*)\{([^{}]*)\}", css)]
     variables: dict[str, str] = {}
     dark_only: dict[str, str] = {}
+    conditional: dict[str, str] = {}
     for m, is_dark in rule_list:
+        # A variable that only an option sets (`#root[data-cfg-sidebar=dark] { --ad-side: … }`, `.hd[data-bg=image] { --ink: #fff }`) is unset in the default state: the
+        # page's default look must not be judged with the option's value, so such a definition counts only when nothing unconditional defines the name (a var() fallback then wins).
+        scoped = all("[" in part for part in m.group(1).split(",") if part.strip()) and not is_dark
         for name, value in re.findall(r"(--[\w-]+)\s*:\s*([^;{}]+)", m.group(2)):
-            (dark_only if is_dark else variables)[name] = value
+            if scoped:
+                conditional[name] = value
+            else:
+                (dark_only if is_dark else variables)[name] = value
+    for name, value in conditional.items():
+        if name.startswith("--t-") or name.startswith("--stage"):
+            variables.setdefault(name, value)      # per-theme data (--t-p-l …) and the stage ramp are the library's own data tables, read as before
     dark_variables = {**variables, **dark_only}
     scope = {"vars": variables}
 
@@ -654,12 +687,10 @@ def check_html(path: Path, errors: list[str], warnings: list[str]) -> None:
         if re.search(r"color-scheme\s*:\s*dark|prefers-color-scheme\s*:\s*dark", css, re.I) and "dark" not in ALLOWED:
             errors.append("dark color scheme declared")
     elif "dark" not in ALLOWED:
-        # A product front-end has a dark theme: the declaration belongs in a dark block, not in the default theme.
+        # 如有深色主题，其声明属于深色块；不要求页面额外提供第二套主题。
         for m, is_dark in rule_list:
             if not is_dark and re.search(r"(?:^|;)\s*color-scheme\s*:\s*dark\b", m.group(2), re.I):
                 errors.append(DARK_SCHEME_IN_LIGHT.format(selector=m.group(1).strip()[:40]))
-        if not any(is_dark for _, is_dark in rule_list) and not linked_dark_block(source, path):
-            warnings.append(NO_DARK_BLOCK)
     families: set[str] = set()
     icon_strokes: set[str] = set()
     bold_rules: list[tuple[str, str]] = []
@@ -743,6 +774,8 @@ def check_html(path: Path, errors: list[str], warnings: list[str]) -> None:
                     errors.append(f"decorative gradient in {selector[:40]!r}: use one flat colour (扁平线性风格)")
             for color in parse_colors(value):
                 lum = luminance(color)
+                if lum < 0.6 and translucent_scrim(selector, body, value):
+                    continue                     # a black veil over a photo or a page (modal mask, caption bar on a thumbnail): the picture shows through, it is not a dark block
                 if lum < 0.6 and brand_self and "interface" in ALLOWED:
                     # One brand card per screen may take a solid primary step: a hue, not a dark neutral, with white
                     # (or the declared) text at 4.5:1 (visual-design.html 配色, 品牌主卡; WCAG 1.4.3).
@@ -905,7 +938,7 @@ def check_html(path: Path, errors: list[str], warnings: list[str]) -> None:
     radii = {v for v in re.findall(r"border-radius\s*:\s*(\d+)px", css) if v not in {"0", "999", "9999", "50"}}
     if len(radii) > 4:
         warnings.append(f"inconsistent corner radii: {sorted(radii, key=int)} (tags 4, controls 8, cards 12, large cards and dialogs 16)")
-    # Templates are skeletons (SKILL.md, WORKFLOW.md): a page that keeps a template's whole style sheet or its default
+    # Templates are skeletons (SKILL.md): a page that keeps a template's whole style sheet or its default
     # :root palette was not designed for its content.
     page_style = re.sub(r"\s+", "", "\n".join(re.findall(r"<style[^>]*>(.*?)</style>", source, re.S | re.I)))
     for name, template_css in template_styles():
@@ -1193,6 +1226,38 @@ class TreeBuilder(HTMLParser):
             self.current.children.append(data)
 
 
+def document_navigation_errors(source: str) -> list[str]:
+    """Allow a long document's chapter navigation, never an arbitrary nav marker."""
+    tree = TreeBuilder()
+    tree.feed(source)
+    nodes = list(tree.root.elements())
+    headings = [n for n in nodes if n.tag in {"h2", "h3"} and not n.hidden]
+    identifiers: dict[str, list[Node]] = {}
+    for node in nodes:
+        if node.attrs.get("id"):
+            identifiers.setdefault(node.attrs["id"], []).append(node)
+    errors = []
+    for nav in (n for n in nodes if n.tag == "nav" and not n.hidden):
+        descendants = list(nav.elements())
+        links = [n for n in descendants if n.tag == "a" and not n.hidden]
+        labelled_by = nav.attrs.get("aria-labelledby", "").split()
+        named = bool(nav.attrs.get("aria-label", "").strip()) or bool(labelled_by and all(
+            len(identifiers.get(key, [])) == 1 and identifiers[key][0].text() for key in labelled_by))
+        valid = (len([n for n in headings if n.tag == "h2"]) > 8 and named and bool(links)
+                 and headings[0].pos < nav.pos
+                 and not any(n.tag in {"button", "input", "select", "textarea", "form", "details"} for n in descendants))
+        for link in links:
+            href = link.attrs.get("href", "")
+            targets = identifiers.get(href[1:], []) if href.startswith("#") and len(href) > 1 else []
+            target = targets[0] if len(targets) == 1 else None
+            heading_target = target and (target in headings or
+                (target.tag == "section" and any(n in headings for n in target.elements())))
+            valid = valid and bool(heading_target and not target.hidden)
+        if not valid:
+            errors.append(f"application shell <nav> or invalid chapter navigation in a document: {nav.text()[:30]!r}")
+    return errors
+
+
 def repeated_row_icons(source: str) -> set[int]:
     """Source offsets of <svg> icons that mark the kind of object in a repeated list row: the svg sits in one of two or more
     sibling rows of the same tag and class, every one of those rows carries the same drawing, and every row holds at
@@ -1324,6 +1389,32 @@ CONTROL_ICON_ROLES = {"navigation", "tablist", "tab", "menu", "menubar", "menuit
 CONTROL_INPUT_TYPES = {"button", "submit", "reset", "checkbox", "radio"}
 
 
+BUTTON_CLASS = re.compile(r"(?:^|[\s_-])(?:btn|button)(?:$|[\s_-])")
+
+
+def button_class_selector(part: str) -> bool:
+    """True when the subject (last compound) of a selector names a button class: .btn, .btn-p, .ad-btn.primary, .sa button.fav is a tag."""
+    compounds = re.split(r"\s*[\s>+~]\s*", re.sub(r"\[[^\]]*\]", "", part).strip())
+    subject = compounds[-1] if compounds and compounds[-1] else ""
+    if re.match(r"^button", subject, re.I):
+        return True
+    return any(BUTTON_CLASS.search(cls) for cls in re.findall(r"\.([\w-]+)", subject))
+
+
+def translucent_scrim(selector: str, body: str, value: str) -> bool:
+    """True for a translucent near-black fill (alpha 0.8 or less) on an overlay: a rule named mask, scrim, backdrop, overlay or veil, or one positioned absolutely
+    or fixed over what is behind it (caption bar on a photo, the veil under a dialog). Opaque or 0.9-alpha dark panels (tooltips, toasts) are not scrims."""
+    colours = parse_colors_alpha(value)
+    mix = re.search(r"color-mix\(\s*in\s+\w+\s*,\s*.+?\s(\d+(?:\.\d+)?)%\s*,\s*transparent\s*\)", value)
+    if mix:                                      # color-mix(in srgb, <veil colour> 55%, transparent): the veil colour at that share of its own alpha
+        colours = [(rgb, alpha * float(mix.group(1)) / 100) for rgb, alpha in colours[:1]]
+    if not colours or any(alpha > 0.8 or max(rgb) > 90 for rgb, alpha in colours):
+        return False
+    if re.search(r"mask|scrim|backdrop|overlay|veil", selector, re.I):
+        return True
+    return bool(re.search(r"(?:^|;)\s*position\s*:\s*(?:absolute|fixed)", body, re.I))
+
+
 def is_control(node: Node) -> bool:
     if node.tag == "button" or (node.attrs.get("role") or "").strip().lower() in CONTROL_ROLES:
         return True
@@ -1339,6 +1430,9 @@ def styles_controls(selector: str, root: Node) -> bool:
     matched = False
     for part in selector.split(","):
         part = re.sub(r"::?[\w-]+(?:\([^)]*\))?", "", part.strip())
+        if part and not any(match_selector(node, parse_selector(part) or []) for node in root.elements()) and button_class_selector(part):
+            matched = True            # markup built by a script is not in the static page: a selector naming the button class (.btn, .btn-p, .ad-btn.primary) is a control by its name
+            continue
         part = re.split(r"\s*[+~]\s*(?![^\[]*\])", part)[-1].strip()
         parts = parse_selector(part) if part else None
         if not parts:
@@ -1809,6 +1903,68 @@ def _check_xlsx_layout(sheet, where: str, header_index: int, rows, errors: list[
 
 XLSX_FAMILIES = {"宋体", "simsun", "微软雅黑", "microsoft yahei"}       # one of them per workbook; the check for a second family is below
 
+# 预算、人日与报价政策 (file-design.html 表格文件 › 工时、金额与报价): a client spreadsheet carries no workdays, amounts, unit prices, totals or quotation unless the
+# project asked for them in words. The words are read where a reader meets them: in the header row and in the label cells of summary rows (a short cell that is
+# nothing but 小计, 报价合计 …); a long sentence that mentions an amount is content and passes. A 合计 is money only beside money (a currency in the cell, the row or the
+# column header): "合计约 6.5 A" or a count of devices is not. The numbers themselves may only come from a human quotation: --allow quote / --allow workdays release the
+# words, and the workbook must then carry its evidence (make_xlsx.py writes it from the spec: who asked, in which words, who gave the figures, where it is written).
+# The word lists are data in estimate_terms.py, shared with the other Luz skills.
+ESTIMATE_LABEL_MAX = 10      # characters: longer cells are sentences, not a summary label
+
+
+def estimate_policy_errors(where: str, sheet, rows, header_index: int, description: str | None = None) -> list[str]:
+    import estimate_terms as et
+    allow_quote = "quote" in ALLOWED
+    allow_days = allow_quote or "workdays" in ALLOWED          # a quotation is built on workdays (the policy lets quote switch on only with workdays)
+    found_days: list[str] = []
+    found_quote: list[str] = []
+    header = rows[header_index]
+    header_text = {c.column: str(c.value).strip() for c in header if c.value not in (None, "")}
+
+    def cell_text(c) -> str:
+        fmt = str(getattr(c, "number_format", "") or "")
+        return f"{c.value} {fmt if re.search(r'[¥￥元]', fmt) else ''}".strip()
+
+    column_cells: dict[int, list[str]] = {}
+    for row in rows[header_index + 1:]:
+        for c in row:
+            if isinstance(c.value, str):
+                column_cells.setdefault(c.column, []).append(c.value)
+
+    for cell in header:
+        text = str(cell.value).strip() if isinstance(cell.value, str) else ""
+        if not text:
+            continue
+        column = text + " " + " ".join(column_cells.get(cell.column, [])[:6])
+        if et.is_workday_text(text):
+            found_days.append(f"{cell.coordinate} {text[:20]!r}")
+        if et.is_money_text(text, column_text=column):
+            found_quote.append(f"{cell.coordinate} {text[:20]!r}")
+    for row in rows[header_index + 1:]:
+        for cell in row:
+            text = cell.value.strip() if isinstance(cell.value, str) else ""
+            if not text or len(text) > ESTIMATE_LABEL_MAX:
+                continue
+            others = [c for c in row if c is not cell]
+            row_text = " ".join(cell_text(c) for c in others)
+            column = " ".join(header_text.get(c.column, "") for c in others if not isinstance(c.value, str) or re.fullmatch(r"[\d.,\s]+", c.value))
+            if et.is_workday_text(text):
+                found_days.append(f"{cell.coordinate} {text[:20]!r}")
+            if et.is_money_text(text, row_text=row_text, column_text=column):
+                found_quote.append(f"{cell.coordinate} {text[:20]!r}")
+    out: list[str] = []
+    if found_days and not allow_days:
+        out.append(f"{where} workday columns or rows ({', '.join(found_days[:4])}) but the project did not ask for workdays: a client spreadsheet lists functions only "
+                   "(模块、功能、说明、角色、基础/可选); pass --allow workdays only when config/documents.json estimate.workdays is on with its evidence, "
+                   "and every number then carries its estimate basis (file-design.html 表格文件 › 工时、金额与报价)")
+    if found_quote and not allow_quote:
+        out.append(f"{where} amount, unit price, total or quotation cells ({', '.join(found_quote[:4])}) but no quotation was asked for: leave them out; "
+                   "pass --allow quote only when estimate.quote is on and every figure comes from a quotation a person supplied (agents never fill a price)")
+    if (found_days or found_quote) and (allow_days or allow_quote) and not et.read_evidence(description):
+        out.append(f"{where} workdays or amounts are allowed (--allow quote or workdays) but the workbook carries no evidence for the switch: its description must read "
+                   f"'{et.EVIDENCE_PREFIX}要求人：…；原话：…' (make_xlsx.py writes it from the spec's estimate block: requested_by, request_note, and for a quote provided_by and evidence)")
+    return out
+
 
 def check_xlsx(path: Path, errors: list[str], warnings: list[str]) -> None:
     try:
@@ -1846,11 +2002,11 @@ def check_xlsx(path: Path, errors: list[str], warnings: list[str]) -> None:
             errors.append(f"{where} no header row found")
             continue
         for i in range(1, header_index):
-            subtitle = i == 1 and len(rows[i]) == 1 and rows[i][0].column == 1 and isinstance(rows[i][0].value, str) and len(rows[i][0].value) <= 80
-            if rows[i] and not subtitle:           # row 2 may be one grey subtitle line (who it is for, version, date)
+            if rows[i]:           # Explanatory subtitles are prohibited by the shared visible-copy rules.
                 errors.append(f"{where} row {i + 1} sits between the title and the header: {str(rows[i][0].value)[:30]!r}")
         header = rows[header_index]
         header_values = [str(c.value).strip() for c in header]
+        errors.extend(estimate_policy_errors(where, sheet, rows, header_index, book.properties.description))
         # Exported data speaks business Chinese, not database fields (file-design.html, 导出文件).
         fields = [v for v in header_values if re.fullmatch(r"[a-z][a-z0-9]*(?:_[a-z0-9]+)+|[a-z][a-z0-9]*(?:[A-Z][a-z0-9]*)+|[a-z][a-z0-9]{1,}", v)]
         if fields:
@@ -2089,17 +2245,17 @@ def check_docx(path: Path, errors: list[str], warnings: list[str]) -> None:
 def is_title_shape(shape) -> bool:
     """A slide title placeholder (title or centred title): its text is a heading, not a metadata line."""
     try:
-        return bool(shape.is_placeholder) and int(shape.placeholder_format.type) in (1, 3)
+        return bool(shape.is_placeholder) and int(shape.placeholder_format.type) in (1, 3, 5)
     except (AttributeError, ValueError, TypeError):
         return False
 
 
-PPTX_MARGIN = 0.05                 # file-design.html 演示文稿: margins of at least 5% of the slide width
+PPTX_MARGIN = 0.05                 # Recommended text margin as a fraction of slide width
 PPTX_SIZES = {18.0, 20.0, 28.0, 40.0}
 PAGE_NUMBER = re.compile(r"^[\s\d/第页共]+$")
 
 
-def check_pptx_shape(shape, deck, where: str, margin: float, errors: list[str], warnings: list[str]) -> None:
+def check_pptx_shape(shape, deck, where: str, margin: float, warnings: list[str]) -> None:
     """Margins, alternate text and table headers of one slide shape (file-design.html 演示文稿; Microsoft accessible presentations)."""
     try:
         left, top, width, height = shape.left, shape.top, shape.width, shape.height
@@ -2107,15 +2263,13 @@ def check_pptx_shape(shape, deck, where: str, margin: float, errors: list[str], 
         return
     if None in (left, top, width, height):
         return
-    background = width >= deck.slide_width * 0.95 and height >= deck.slide_height * 0.95
     text = shape.text_frame.text if shape.has_text_frame else ""
-    page_number = bool(text.strip()) and bool(PAGE_NUMBER.match(text))
-    if not background and not page_number:
+    on_canvas = left < deck.slide_width and top < deck.slide_height and left + width > 0 and top + height > 0
+    if text.strip() and on_canvas and not PAGE_NUMBER.match(text):
         slack = deck.slide_width * 0.005
         if left < margin - slack or top < margin - slack or deck.slide_width - (left + width) < margin - slack \
                 or deck.slide_height - (top + height) < margin - slack:
-            label = text.strip()[:20] or shape.name
-            errors.append(f"{where}: {label!r} reaches into the 5% page margin (keep margins of at least {margin / 914400:.2f} in)")
+            warnings.append(f"{where}: {text.strip()[:20]!r} reaches into the suggested 5% page margin")
     try:
         from pptx.enum.shapes import MSO_SHAPE_TYPE
         if shape.shape_type == MSO_SHAPE_TYPE.PICTURE:
@@ -2137,63 +2291,52 @@ def check_pptx(path: Path, errors: list[str], warnings: list[str]) -> None:
         errors.append("python-pptx is required: py -m pip install python-pptx")
         return
     deck = Presentation(str(path))
-    slide_area = deck.slide_width * deck.slide_height
     families: set[str] = set()
     titles: dict[str, int] = {}
     if deck.slide_height and abs(deck.slide_width / deck.slide_height - 16 / 9) > 0.01 and "ratio" not in ALLOWED:
-        errors.append(f"slide size {Emu(deck.slide_width).inches:.2f} x {Emu(deck.slide_height).inches:.2f} in is not 16:9 "
-                      "(Widescreen is 13.333 x 7.5 in; pass --allow ratio if the user asked for another size)")
+        warnings.append(f"slide size {Emu(deck.slide_width).inches:.2f} x {Emu(deck.slide_height).inches:.2f} in is not 16:9 "
+                        "(confirm the ratio for the actual venue or export medium)")
     margin = deck.slide_width * PPTX_MARGIN
     for number, slide in enumerate(deck.slides, 1):
         where = f"slide {number}"
-        fill = slide.background.fill if slide.background is not None else None
-        try:
-            if fill is not None and fill.type == 1 and luminance(hex_rgb(str(fill.fore_color.rgb))) < 0.6 and "dark" not in ALLOWED:
-                errors.append(f"{where}: dark slide background #{fill.fore_color.rgb}")
-        except (AttributeError, TypeError, ValueError):
-            pass
         texts = []
+        slide_titles = []
         for shape in slide.shapes:
-            try:
-                if shape.fill.type == 1 and shape.width * shape.height > slide_area * 0.1 and luminance(hex_rgb(str(shape.fill.fore_color.rgb))) < 0.6 and "dark" not in ALLOWED:
-                    errors.append(f"{where}: large dark shape #{shape.fill.fore_color.rgb}")
-            except (AttributeError, TypeError, ValueError):
-                pass
-            check_pptx_shape(shape, deck, where, margin, errors, warnings)
+            check_pptx_shape(shape, deck, where, margin, warnings)
             if not shape.has_text_frame:
                 continue
+            heading = is_title_shape(shape)
+            if heading and (heading_text := shape.text_frame.text.strip()):
+                slide_titles.append(heading_text)
             for paragraph in shape.text_frame.paragraphs:
                 text = "".join(run.text for run in paragraph.runs).strip()
                 if not text:
                     continue
                 texts.append(text)
-                check_text(text, where, errors, heading=is_title_shape(shape))
+                check_text(text, where, warnings, heading=heading)
                 for run in paragraph.runs:
                     if run.font.size is not None and Emu(run.font.size).pt < 18:
-                        errors.append(f"{where}: font {Emu(run.font.size).pt:g}pt below 18pt: {run.text[:20]!r}")
+                        warnings.append(f"{where}: font {Emu(run.font.size).pt:g}pt below 18pt: {run.text[:20]!r}")
                     elif run.font.size is not None and Emu(run.font.size).pt not in PPTX_SIZES:
                         warnings.append(f"{where}: font {Emu(run.font.size).pt:g}pt is off the scale 18/20/28/40: {run.text[:20]!r}")
                     if run.font.name:
                         families.add(run.font.name.lower())
         if not texts:
-            errors.append(f"{where}: slide carries no text conclusion")
+            warnings.append(f"{where}: slide has no editable text; check whether it needs a hidden title")
             continue
-        has_title = slide.shapes.title is not None and slide.shapes.title.has_text_frame
-        title = slide.shapes.title.text_frame.text.strip() if has_title else texts[0]
-        if not has_title:
+        title = slide_titles[0] if slide_titles else texts[0]
+        if not slide_titles:
             warnings.append(f"{where}: no title placeholder, so the outline and screen readers cannot name the slide (use a layout with a title)")
+        elif len(slide_titles) > 1:
+            warnings.append(f"{where}: multiple populated title placeholders; choose one main title")
         elif title in titles:
             warnings.append(f"{where}: the title repeats slide {titles[title]}: {title[:30]!r} (every slide gets its own title)")
         if title:
             titles.setdefault(title, number)
-        if number == 1 and title != texts[0]:
-            errors.append(f"{where}: the first line of the cover is not the title: {texts[0][:30]!r}")
         if "accessory" not in ALLOWED and FILLER_SLIDE.match(title):
-            errors.append(f"{where}: filler slide {title!r} (pass --allow accessory if the user asked for it)")
-        if number == 1 and len(texts) > 1 and "cover" not in ALLOWED:
-            errors.append(f"{where}: cover holds more than the title: {texts[1][:30]!r}")
+            warnings.append(f"{where}: check the purpose of slide {title!r}")
     if len(families) > 1:
-        errors.append(f"more than one font family: {sorted(families)}")
+        warnings.append(f"more than one font family: {sorted(families)}")
 
 
 # ---------------------------------------------------------------- Markdown
@@ -2228,8 +2371,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("files", nargs="+", type=Path)
     parser.add_argument("--allow", action="append", default=[], metavar="KIND",
                         help="interface (interface pages: product type scale and the application shell nav, aside, header), website (a website or landing page: implies interface, 14px floor and 40/48 first-screen titles), showcase (系统架构图册 PDF 的展示页；见 file-design.html 系统架构图册), or only for items the user explicitly asked for: multi-sheet, chart, accessory, cover, header, "
-                             "shell, dark, note, emoji, ratio (a deck that is not 16:9), paper (Word 论文版式 fonts: 宋体, 黑体, Times New Roman), official (Word 公文格式 fonts), or a text family (" + ", ".join(FAMILIES) + ")")
+                             "shell, dark, note, emoji, ratio (a deck that is not 16:9), quote (a spreadsheet with amount, unit price, total or quotation cells: only with a human-supplied quotation; implies workdays), workdays (a spreadsheet with workday columns), paper (Word 论文版式 fonts: 宋体, 黑体, Times New Roman), official (Word 公文格式 fonts), or a text family (" + ", ".join(FAMILIES) + ")")
     parser.add_argument("--allow-multi-sheet", action="store_true", help="same as --allow multi-sheet")
+    parser.add_argument("--session", help="Design session that owns a product runtime profile and its browser evidence")
     args = parser.parse_args(argv)
     ALLOWED.clear()
     ALLOWED.update(kind.strip() for value in args.allow for kind in value.split(","))
@@ -2245,7 +2389,7 @@ def main(argv: list[str] | None = None) -> int:
         if not path.is_file():
             errors.append("file not found")
         elif suffix in {".html", ".htm"}:
-            check_html(path, errors, warnings)
+            check_html(path, errors, warnings, session=args.session)
         elif suffix in {".xlsx", ".xlsm"}:
             check_xlsx(path, errors, warnings)
         elif suffix == ".docx":

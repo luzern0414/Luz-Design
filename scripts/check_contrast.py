@@ -22,6 +22,7 @@
   action 对 canvas / surface >= 3（WCAG 1.4.11）；actionText（品牌色文字与图标）在各层底与 actionTint 上 >= 4.5；accent 在 accentTint 与 surface 上 >= 4.5；
   状态色文字在 surface、各浮起面与自己的 Tint 上 >= 4.5，Fill 上的白字 >= 4.5；line 在 surface 上有区分（>= 1.2:1）；品牌色相、点缀色相与浅色映射相差 <= 12 度；
   shared.dark.elevation 五级：阴影只向下、两层、远处更大更柔，hairline 为白色 0.06–0.14，scrim 为黑色 0.55–0.70，焦点环与按钮底边同浅色
+- stage（每个主题必备，对应 visual-design.html “有序进度状态的色阶”）：起点色相、浅色与深色各 6 级；每级对各层底与自己的浅底标签 >= 4.5，相邻两级 OKLab ΔE×100 >= 3，彩度不递减且 <= 0.12，明度浅色不增、深色不减；与 scripts/stage_ramp.py 的算法一致
 - shadowTone（可选，阴影换成主题暗调时）：等于 scale 第 10 阶
 - shared.elevation（visual-design.html 层级与立体感）：level1–level4 每级两层外阴影，只向下（x = 0、y > 0），
   近处一层的偏移与模糊小于远处一层，颜色为深色（亮度 <= 0.05：中性深色或主题第 10 阶暗调），单层透明度 0–0.2；
@@ -415,6 +416,10 @@ def main(argv: list[str] | None = None) -> int:
         if len(solids) != len(set(solids)):
             rules.append(("modules 一个颜色只代表一个模块", False, "duplicate solid"))
         rules += dark_rules(name, t, shared)
+        import stage_ramp   # 有序进度状态的色阶（visual-design.html 有序进度状态的色阶）：每个主题都要带，且与算法一致
+        rules += stage_ramp.theme_rules(name, t, shared, data)
+        want = stage_ramp.theme_ramp(name, data)
+        rules.append(("stage 与 stage_ramp.py 的算法一致", t.get("stage") == want, "themes.json 里的 stage 要用 stage_ramp.py themes --write 重写" if t.get("stage") != want else ""))
         for label, ok, note in rules:
             failed = failed or not ok
             print(f"  {'PASS' if ok else 'FAIL'} {label:28} {note}")

@@ -1,0 +1,33 @@
+{
+  "id": "DC-XL-P08",
+  "name": "打印设置",
+  "use": "由生成器固定写入，spec 无需填写；本片段是交付前对照清单",
+  "fragment": {
+    "fixed_by_generator": {
+      "paper": "A4",
+      "orientation": "总列宽超过 100 个单位横向，否则纵向",
+      "fit": "缩放为一页宽",
+      "horizontal_center": true,
+      "repeat_header_row": 3,
+      "margins_inch": {
+        "left": 0.4,
+        "right": 0.4,
+        "top": 0.6,
+        "bottom": 0.6
+      },
+      "footer": "第 &P 页 / 共 &N 页"
+    }
+  },
+  "used_in": [
+    "DC-XL-001",
+    "DC-XL-002",
+    "DC-XL-003",
+    "DC-XL-004",
+    "DC-XL-005",
+    "DC-XL-006",
+    "DC-XL-007",
+    "DC-XL-008",
+    "DC-XL-009",
+    "DC-XL-010"
+  ]
+}

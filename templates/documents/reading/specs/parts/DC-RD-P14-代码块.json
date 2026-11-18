@@ -1,0 +1,12 @@
+{
+  "id": "DC-RD-P14",
+  "name": "代码块",
+  "use": "内容确实出现代码时使用，等宽字体，浅底圆角边框，14 至 16 像素",
+  "fragment": {
+    "type": "code",
+    "text": "POST /api/orders\n{ ... }"
+  },
+  "used_in": [
+    "DC-RD-006"
+  ]
+}

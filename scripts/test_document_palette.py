@@ -16,7 +16,7 @@ class DocumentPaletteTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             fills = []
             for theme in ("coffee", "pharmacy"):
-                out = make_xlsx.build({"title": "服务清单", "theme": theme,
+                out = make_xlsx._render_workbook({"title": "服务清单", "theme": theme,
                     "columns": [{"name": "类别", "merge": True}, {"name": "项目"}],
                     "rows": [["一类", "甲"], ["一类", "乙"], ["二类", "丙"]]}, Path(tmp) / (theme + ".xlsx"))
                 book = openpyxl.load_workbook(out)
@@ -30,7 +30,7 @@ class DocumentPaletteTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             fills = []
             for theme in ("coffee", "pharmacy"):
-                out = make_docx.build({"type": "report", "title": "服务清单", "theme": theme,
+                out = make_docx._render_document({"type": "report", "title": "服务清单", "theme": theme,
                     "sections": [{"heading": "项目", "table": {"header": ["名称", "内容"],
                         "rows": [["一项", "内容"]]}}]}, Path(tmp) / (theme + ".docx"))
                 cell = docx.Document(out).tables[0].cell(0, 0)

@@ -1,0 +1,206 @@
+{
+ "id": "DC-SL-003",
+ "name": "培训课件",
+ "theme": "rose",
+ "title": "花材养护基础培训",
+ "slides": [
+  {
+   "layout": "cover",
+   "title": "花材养护基础培训",
+   "image": "product-monstera"
+  },
+  {
+   "layout": "bullets",
+   "title": "花材到店先做三件事",
+   "image": "product-rose-red",
+   "numbered": true,
+   "points": [
+    "拆包检查花头与茎秆",
+    "剪去茎底2厘米",
+    "立即放入清水养护"
+   ]
+  },
+  {
+   "layout": "section",
+   "number": "01",
+   "title": "鲜花要先醒水再上架",
+   "image": "bg-floral",
+   "focus": [
+    0.8,
+    0.5
+   ]
+  },
+  {
+   "layout": "steps",
+   "title": "醒水流程分四步",
+   "steps": [
+    {
+     "head": "拆包",
+     "text": "去掉外包装"
+    },
+    {
+     "head": "剪口",
+     "text": "斜剪茎底"
+    },
+    {
+     "head": "浸泡",
+     "text": "浸入清水"
+    },
+    {
+     "head": "静置",
+     "text": "阴凉处放2小时"
+    }
+   ]
+  },
+  {
+   "layout": "image-text",
+   "title": "玫瑰要剪斜口吸水",
+   "image": "product-rose-red",
+   "side": "right",
+   "head": "红玫瑰",
+   "points": [
+    "茎底斜剪约45度",
+    "去掉水线以下的叶片",
+    "每天换水一次"
+   ]
+  },
+  {
+   "layout": "two-column",
+   "title": "常见做法对错对照",
+   "left": {
+    "head": "错误做法",
+    "points": [
+     "用手直接掰断茎秆",
+     "花瓶里长期不换水",
+     "放在暖气或阳光直射处"
+    ]
+   },
+   "right": {
+    "head": "正确做法",
+    "points": [
+     "用清洁剪刀斜剪茎底",
+     "水中加入花材营养液",
+     "放在阴凉通风处"
+    ]
+   }
+  },
+  {
+   "layout": "table",
+   "title": "常见花材养护要点",
+   "columns": [
+    {
+     "text": "花材",
+     "width": 1.2
+    },
+    {
+     "text": "水深"
+    },
+    {
+     "text": "换水"
+    },
+    {
+     "text": "适宜温度",
+     "width": 1.3
+    }
+   ],
+   "rows": [
+    [
+     "红玫瑰",
+     "10厘米",
+     "每天",
+     "18至22度"
+    ],
+    [
+     "粉芍药",
+     "8厘米",
+     "每天",
+     "15至20度"
+    ],
+    [
+     "向日葵",
+     "15厘米",
+     "每2天",
+     "18至24度"
+    ],
+    [
+     "白郁金香",
+     "6厘米",
+     "每天",
+     "10至18度"
+    ],
+    [
+     "白洋桔梗",
+     "10厘米",
+     "每2天",
+     "15至22度"
+    ]
+   ]
+  },
+  {
+   "layout": "section",
+   "number": "02",
+   "title": "绿植要看光照再浇水",
+   "image": "product-monstera"
+  },
+  {
+   "layout": "chart",
+   "title": "浇水间隔随季节变化",
+   "chart": {
+    "type": "column",
+    "caption": "浇水间隔 单位 天",
+    "categories": [
+     "春",
+     "夏",
+     "秋",
+     "冬"
+    ],
+    "series": [
+     {
+      "name": "龟背竹",
+      "values": [
+       7,
+       4,
+       6,
+       10
+      ]
+     },
+     {
+      "name": "多肉组合盆",
+      "values": [
+       12,
+       8,
+       12,
+       20
+      ]
+     }
+    ],
+    "number_format": "0"
+   },
+   "stat": {
+    "icon": "watering",
+    "label": "冬季多肉间隔",
+    "value": "20",
+    "unit": "天"
+   }
+  },
+  {
+   "layout": "quote",
+   "title": "顾客最在意花能养多久",
+   "image": "product-sunflower",
+   "quote": "买回家的花养了十天还很精神",
+   "who": "林晓",
+   "role": "金卡会员",
+   "mark": "marks/mark-001"
+  },
+  {
+   "layout": "end",
+   "title": "掌握三个动作就能上岗",
+   "image": "product-succulent",
+   "points": [
+    "醒水剪口换水",
+    "对照要点表检查花材",
+    "向顾客讲清养护方法"
+   ]
+  }
+ ]
+}

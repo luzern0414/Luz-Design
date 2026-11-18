@@ -9,5 +9,6 @@ __pycache__/
 .tmp-*/
 *.tmp
 
-# 原型生成物（scripts/build_prototype.py 的默认输出目录），不入库
+# 工程起点与浏览器检查的临时产物
 references/**/dist/
+.playwright-cli/

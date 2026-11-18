@@ -1,0 +1,28 @@
+{
+  "id": "DC-XL-P07",
+  "name": "条件色块",
+  "use": "条件格式只改底色标识状态，文字仍是黑色（样例后处理）",
+  "fragment": {
+    "decorate": {
+      "status_colors": [
+        {
+          "column": "设备状态",
+          "colors": {
+            "在用": "DFF2E4",
+            "维修中": "FFE699",
+            "闲置": "E8E8E8"
+          }
+        }
+      ]
+    }
+  },
+  "used_in": [
+    "DC-XL-003",
+    "DC-XL-004",
+    "DC-XL-005",
+    "DC-XL-006",
+    "DC-XL-007",
+    "DC-XL-008",
+    "DC-XL-009"
+  ]
+}

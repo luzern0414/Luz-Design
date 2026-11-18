@@ -20,6 +20,7 @@ from html.parser import HTMLParser
 from pathlib import Path
 from typing import Iterable
 from urllib.parse import unquote, urlparse
+from urllib.request import url2pathname
 
 SESSION_RE = re.compile(r"^(\d{3,})-(.+)$")
 # Output layout (check_output_layout.py session): the session root holds raw/ with every source and working file (brief,
@@ -32,7 +33,6 @@ SESSION_RE = re.compile(r"^(\d{3,})-(.+)$")
 RAW_DIR = "raw"
 OUTPUT_STANDARD = "2026-11-05"
 SUMMARY_PLACEHOLDER = "（填写）"
-PUBLISHABLE_STAGES = ("visual", "document")
 
 
 def work_dir(folder: Path) -> Path:
@@ -263,6 +263,12 @@ def local_links(text: str, html: bool = False) -> list[str]:
         target = target.split()[0].strip("<>")
         parsed = urlparse(target)
         if parsed.scheme in {"http", "https", "mailto", "tel", "data"} or target.startswith("#"):
+            continue
+        if parsed.scheme == 'file':
+            local = url2pathname(parsed.path)
+            if parsed.netloc and parsed.netloc.lower() != 'localhost':
+                local = '//' + parsed.netloc + '/' + local.lstrip('/\\')
+            result.append(local)
             continue
         result.append(unquote(target.split("#", 1)[0]))
     return [item for item in result if item]
@@ -524,6 +530,13 @@ def validate_light_html(path: Path, errors: list[str], min_px: float = 14.0) -> 
     root = parse_html(path, errors)
     if root is None:
         return None
+    from ui_entry_policy import source_output_contract
+    try:
+        if source_output_contract(path) is not None:
+            return root  # A registered UI package keeps its own verified files.
+    except (OSError, ValueError) as exc:
+        errors.append('UI package contract: ' + str(exc))
+        return root
     validate_html_top_contract(root, path.name, errors)
     body = first(root, "body")
     if body is None:
@@ -585,6 +598,15 @@ def poster_brief_has_evidence(session: Path) -> bool:
 def validate_stage_artifact(path: Path, artifact: str, errors: list[str]) -> None:
     root = validate_light_html(path, errors)
     if root is None:
+        return
+    from ui_entry_policy import source_output_contract
+    try:
+        if source_output_contract(path) is not None:
+            if artifact != 'document':
+                errors.append('a UI package belongs to document mode, not visual-board')
+            return
+    except (OSError, ValueError) as exc:
+        errors.append('UI package contract: ' + str(exc))
         return
     main = first(root, "main")
     if main is None or main.get("data-artifact") != artifact:
@@ -975,11 +997,13 @@ def validate(session: Path, strict: bool = False, notes: list[str] | None = None
             validate_stage_artifact(session / VISUAL_PATH, "visual-board", errors)
         if (session / DOCUMENT_PATH).is_file():
             validate_stage_artifact(session / DOCUMENT_PATH, "document", errors)
-        if (session / "02-visual").exists() and not poster_session:
-            errors.append("visual artifacts belong to a standalone poster session; the functional structure of a product interface belongs to Luz-System and its look is worked from the interface rule cards (context.py interface-visual) in a document session")
+        if (session / VISUAL_PATH).is_file() and not poster_session:
+            errors.append("a visual-board.html is standalone poster work; interface assets, prompts, tokens and candidate configurations belong in document session raw/02-visual without declaring poster mode")
         if poster_session and not poster_brief_has_evidence(session):
             errors.append("standalone poster BRIEF must record an explicit user poster task")
         for mode, mode_dir in MODE_DIRS.items():
+            if mode == "visual" and not (session / VISUAL_PATH).is_file():
+                continue  # UI assets in raw/02-visual are also used by document sessions.
             if (session / mode_dir).exists() and mode not in modes:
                 errors.append(f"{mode} artifacts exist but {mode} mode is not declared")
 

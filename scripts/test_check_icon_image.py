@@ -453,6 +453,47 @@ class PaletteTest(unittest.TestCase):
         self.assertEqual(run([])[0], 2)
 
 
+class TemplateIconAssetsTest(unittest.TestCase):
+    """模板库的彩色实心入口图标 kit/assets/solid：全部要通过默认阈值，换回高饱和原图或放进没压过饱和度的新图，这里会报错。
+    2026-11-05 校准：按 S 乘系数压到均值约 0.42、P90 不超过 0.62 后全过；阈值未动。"""
+
+    ICONS = HERE.parent / "kit" / "assets" / "solid"
+
+    def files(self) -> list[Path]:
+        return sorted(self.ICONS.glob("*.webp"))
+
+    def test_every_template_icon_passes_the_default_thresholds(self) -> None:
+        self.assertGreaterEqual(len(self.files()), 12, "模板库的彩色实心业务图标应不少于 12 个")
+        code, out, _ = run([str(self.ICONS), "-r"])
+        self.assertEqual(code, 0, out)
+        self.assertIn("check icon image: ok", out)
+        self.assertNotIn("超限", out)
+
+    def test_template_icons_are_judged_with_the_unchanged_default_limits(self) -> None:
+        # 样板图通过靠压低图标饱和度，不靠放宽阈值：默认上限仍是视觉规范里写的数
+        self.assertEqual((cii.DEFAULTS["max_mean"], cii.DEFAULTS["p90"], cii.DEFAULTS["hot_share"], cii.DEFAULTS["hot_s"], cii.DEFAULTS["max_hues"]),
+                         (0.45, 0.65, 0.03, 0.80, 2))
+
+    def test_icons_are_square_webp_with_a_transparent_background(self) -> None:
+        for path in self.files():
+            with Image.open(path) as im:
+                im.load()
+                self.assertEqual(im.format, "WEBP", path.name)
+                self.assertEqual(im.size[0], im.size[1], str(path))
+                alpha = im.convert("RGBA").getchannel("A")
+                low, high = alpha.getextrema()
+                self.assertEqual(low, 0, f"{path}：透明底被改掉了")
+                self.assertGreaterEqual(high, 128, str(path))
+
+    def test_template_icons_are_judged_on_the_icon_pixels_not_the_background(self) -> None:
+        # 度量只统计不透明像素：透明底占了一部分，统计像素应少于总像素，且图标没有退化成中性色
+        for path in self.files():
+            with Image.open(path) as im:
+                m = cii.analyze_image(im)
+            self.assertGreater(m.counted, 5000, str(path))
+            self.assertLess(m.counted, m.total * 0.9, str(path))
+
+
 class ThemeTokenTest(unittest.TestCase):
     def test_theme_colours_cover_light_dark_and_shared(self) -> None:
         colours = cii.load_theme_colors("xiangcai")
@@ -466,6 +507,65 @@ class ThemeTokenTest(unittest.TestCase):
     def test_every_theme_loads(self) -> None:
         for tid in THEMES:
             self.assertGreater(len(cii.load_theme_colors(tid)), 20, tid)
+
+
+class IconSetsTest(unittest.TestCase):
+    """soften_icon_image.py brings icons inside the limits and a folder of icons to a few hues; the template icon set stays inside the limits.
+    入口图标按“不同入口用不同低饱和主色”区分，所以模板库的图标只按单个图标的阈值验收，不要求整组不超过 3 个色相。"""
+
+    ROOT = HERE.parent / "kit" / "assets"
+    SETS = {
+        "solid icons": ROOT / "solid",
+    }
+
+    @staticmethod
+    def disc(hue: float, s: float = 1.0, v: float = 0.9, size: int = 60) -> Image.Image:
+        import colorsys
+        r, g, b = (round(c * 255) for c in colorsys.hsv_to_rgb(hue / 360, s, v))
+        im = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+        ImageDraw.Draw(im).ellipse((6, 6, size - 6, size - 6), fill=(r, g, b, 255))
+        return im
+
+    def test_a_saturated_icon_is_softened_inside_the_limits_with_hue_value_and_alpha_unchanged(self) -> None:
+        import numpy as np
+        import soften_icon_image as si
+        im = self.disc(8)
+        self.assertFalse(si.inside(cii.analyze_image(im), si.targets(0.03)))
+        k = si.fit(im, "PNG", si.targets(0.03))
+        self.assertLess(k, 1.0)
+        out = si.transform(im, k)
+        self.assertTrue(si.inside(cii.analyze_image(out), si.targets(0.03)))
+        a, b = np.asarray(im).astype(float), np.asarray(out).astype(float)
+        self.assertTrue((a[..., 3] == b[..., 3]).all(), "alpha is not touched")
+        ha, _, va = si.rgb_to_hsv(a[..., :3] / 255)
+        hb, _, vb = si.rgb_to_hsv(b[..., :3] / 255)
+        mask = a[..., 3] > 0
+        self.assertLess(abs(va - vb)[mask].max(), 0.01, "lightness is not touched")
+        self.assertLess(abs(((ha - hb) + 180) % 360 - 180)[mask].max(), 3, "hue is not touched")
+
+    def test_an_icon_that_already_passes_is_left_alone(self) -> None:
+        import soften_icon_image as si
+        self.assertEqual(si.fit(self.disc(210, s=0.3, v=0.9), "PNG", si.targets(0.03)), 1.0)
+
+    def test_the_hues_of_a_folder_are_pooled_and_snapped_to_the_wanted_number(self) -> None:
+        import soften_icon_image as si
+        images = [self.disc(h, s=0.5) for h in (5, 65, 125, 185, 245, 305)]
+        self.assertGreater(len(si.set_hue_families(images)), 3)
+        centres = si.hue_centres(images, 3)
+        self.assertEqual(len(centres), 3)
+        snapped = [si.transform(im, 1.0, centres) for im in images]
+        self.assertLessEqual(len(si.set_hue_families(snapped)), 3)
+
+    def test_every_icon_set_passes_the_limits(self) -> None:
+        import soften_icon_image as si
+        for name, folder in self.SETS.items():
+            with self.subTest(set=name):
+                files = sorted(folder.glob("*.webp"))
+                self.assertGreaterEqual(len(files), 6, f"{name}: icons missing in {folder}")
+                for f in files:
+                    m = cii.analyze_image(si.load(f))
+                    self.assertTrue(m.mean <= cii.DEFAULTS["max_mean"] and m.p90 <= cii.DEFAULTS["p90"] and m.hot_share <= cii.DEFAULTS["hot_share"]
+                                    and len(m.hues) <= cii.DEFAULTS["max_hues"], f"{f.name}: mean {m.mean:.2f} p90 {m.p90:.2f} hot {m.hot_share:.1%} hues {len(m.hues)}")
 
 
 if __name__ == "__main__":

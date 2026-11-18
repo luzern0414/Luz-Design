@@ -1,0 +1,1281 @@
+<!-- cat: TABL | 表格 -->
+<style>
+  /* 表格类：前缀 wb-tb-。表头居中，短值居中，长文本左对齐并缩进，金额右对齐；后台正文 14。
+     列宽用像素：各列都不小于内容宽度，容器放不下时表格容器内横向滚动，数字列不会被省略号截断 */
+  .wb-tb { overflow: hidden; }
+  .wb-tb--free { overflow: visible; }
+  .wb-tb .table-wrap { overflow-x: auto; scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
+  .wb-tb .table { border-collapse: separate; border-spacing: 0; font-size: var(--fs-sm); min-width: var(--min, 0); }
+  .wb-tb .table thead th { height: 44px; padding: 0 var(--s-2); background: var(--zone); color: var(--ink-2); font-size: var(--fs-sm); font-weight: 600; text-align: center; white-space: nowrap; }
+  .wb-tb .table thead th small { margin-left: 4px; font-size: var(--fs-xs); font-weight: 400; color: var(--ink-3); }
+  .wb-tb .table td { height: var(--rh, 52px); padding: 0 var(--s-2); border-top: 1px solid var(--line); font-size: var(--fs-sm); text-align: center; vertical-align: middle; }
+  .wb-tb .table tbody tr:first-child td, .wb-tb .table tbody:first-of-type tr:first-child td { border-top: 0; }
+  .wb-tb .table td.t-l { text-align: left; padding-left: var(--s-4); }
+  .wb-tb .table td.t-r { text-align: right; padding-right: var(--s-4); font-variant-numeric: tabular-nums; }
+  .wb-tb .table td.t-n { font-variant-numeric: tabular-nums; }
+  .wb-tb--dense .table thead th, .wb-tb--dense .table td { padding-left: 6px; padding-right: 6px; }
+  .wb-tb--dense .table td.t-l { padding-left: var(--s-3); }
+  .wb-tb--dense .table td.t-r { padding-right: var(--s-3); }
+  .wb-tb .table td.ov { overflow: visible; }
+  .wb-tb .table tbody tr { cursor: default; }
+  .wb-tb .table tbody tr[aria-selected="true"] { background: color-mix(in srgb, var(--action) 9%, var(--surface)); }
+  .wb-tb .table .none { color: var(--ink-3); }
+  .wb-tb .tag[data-tone="action"] { box-shadow: inset 0 0 0 1px var(--action-edge); }
+  .wb-tb--free > .table:first-child thead tr:first-child th:first-child { border-top-left-radius: calc(var(--r-lg) - 1px); }
+  .wb-tb--free > .table:first-child thead tr:first-child th:last-child { border-top-right-radius: calc(var(--r-lg) - 1px); }
+  .wb-tb .toolbar { min-height: 60px; padding: var(--s-3) var(--s-4); gap: var(--s-2); }
+  .wb-tb .toolbar .search { width: 220px; min-height: 36px; }
+  .wb-tb .toolbar .search input { height: 34px; font-size: var(--fs-sm); }
+  .wb-tb .toolbar .search img { width: 18px; height: 18px; }
+  .wb-tb .toolbar .drop__btn { min-height: 36px; }
+  .wb-tb .toolbar .btn--sm { min-height: 36px; }
+  #cat-tabl .demo__stage.wb-tb-vis { overflow: visible; }
+  #cat-tabl .btn[disabled] { box-shadow: none; }
+  .wb-tb-edit__row .input:focus-visible { outline: none; border-radius: var(--r-md); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ink) 8%, transparent); }
+  .wb-tb-foot { display: flex; align-items: center; gap: var(--s-3); min-height: 52px; padding: var(--s-2) var(--s-4); border-top: 1px solid var(--line); font-size: var(--fs-sm); color: var(--ink-3); }
+  .wb-tb-foot .sp { flex: 1; }
+  .wb-tb-foot b { font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
+
+  /* 对象单元：商品图与客户标识 */
+  .wb-tb-obj { display: flex; align-items: center; gap: var(--s-3); width: fit-content; max-width: 100%; min-width: 0; text-align: left; }
+  .wb-tb-obj img { width: 44px; height: 44px; border-radius: 10px; object-fit: cover; flex: none; box-shadow: 0 0 0 1px var(--line); }
+  .wb-tb-obj--round img { width: 40px; height: 40px; border-radius: 50%; }
+  .wb-tb-obj > span { display: grid; gap: 1px; min-width: 0; }
+  .wb-tb-obj b { font-weight: 600; font-size: var(--fs-sm); line-height: 1.35; }
+  .wb-tb-obj small { font-size: var(--fs-xs); color: var(--ink-3); line-height: 1.3; }
+  .wb-tb-vip { display: inline-flex; align-items: center; height: 20px; padding: 0 6px; border-radius: 6px; background: var(--accent-tint); color: var(--accent); font-size: var(--fs-xs); font-weight: 600; }
+  .wb-tb-low { color: var(--warning); font-weight: 600; }
+  .wb-tb-out { color: var(--danger); font-weight: 600; }
+  .wb-tb-neg { color: var(--danger); }
+  .wb-tb-up { color: var(--success); font-weight: 600; }
+  .wb-tb-down { color: var(--danger); font-weight: 600; }
+
+  /* 文字操作：行内直达 */
+  .wb-tb-ops { display: inline-flex; align-items: center; justify-content: center; gap: 2px; }
+  .wb-tb-link { min-height: 32px; padding: 0 var(--s-2); border-radius: var(--r-sm); font-size: var(--fs-sm); font-weight: 500; color: var(--action-press); white-space: nowrap; transition: background var(--dur-quick) var(--ease-out); }
+  .wb-tb-link--danger { color: var(--danger); }
+  .wb-tb-link[disabled] { color: var(--ink-3); pointer-events: none; }
+  @media (hover: hover) { .wb-tb-link:hover { background: var(--zone); } }
+
+  /* 勾选：沿用共用 check，补半选 */
+  .wb-tb .check[aria-checked="mixed"] { background: var(--action); border-color: var(--action); position: relative; }
+  .wb-tb .check[aria-checked="mixed"]::after { content: ""; width: 10px; height: 2px; border-radius: 1px; background: var(--surface); }
+  .wb-tb .check[aria-checked="mixed"] img { display: none; }
+  .wb-tb .table td.t-c1, .wb-tb .table th.t-c1 { padding: 0 0 0 var(--s-4); }
+  .wb-tb .table .t-c1 .check { display: flex; }
+  .wb-tb .table td .switch { display: block; margin: 0 auto; }
+
+  /* 表头排序 */
+  .wb-tb-sort { display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 0 var(--s-2); border-radius: var(--r-sm); font-weight: 600; color: inherit; transition: background var(--dur-quick) var(--ease-out), color var(--dur-quick) var(--ease-out); }
+  .wb-tb-sort small { margin: 0; }
+  @media (hover: hover) { .wb-tb-sort:hover { background: color-mix(in srgb, var(--action) 10%, transparent); } }
+  .wb-tb-caret { width: 7px; height: 7px; border: solid var(--ink-3); border-width: 0 1.6px 1.6px 0; transform: rotate(45deg) translate(-2px, -2px); opacity: .5; transition: transform var(--dur-base) var(--ease-out), opacity var(--dur-quick) var(--ease-out); }
+  th[aria-sort="descending"] .wb-tb-sort, th[aria-sort="ascending"] .wb-tb-sort { color: var(--action-press); }
+  th[aria-sort="descending"] .wb-tb-caret { opacity: 1; border-color: var(--action-press); }
+  th[aria-sort="ascending"] .wb-tb-caret { opacity: 1; border-color: var(--action-press); transform: rotate(225deg) translate(-2px, -2px); }
+  .wb-tb .table td.is-sorted { background: color-mix(in srgb, var(--action) 4%, var(--surface)); }
+
+  /* 列筛选：表头里的下拉 */
+  .wb-tb-fdrop .drop__btn { min-height: 32px; padding: 0 var(--s-2) 0 var(--s-3); background: transparent; color: var(--ink-2); font-weight: 600; }
+  .wb-tb-fdrop .drop__btn b { color: inherit; }
+  .wb-tb-fdrop[data-on="true"] .drop__btn { background: var(--surface); color: var(--action-press); box-shadow: inset 0 0 0 1px var(--action-edge); }
+  @media (hover: hover) { .wb-tb-fdrop .drop__btn:hover { background: color-mix(in srgb, var(--action) 10%, transparent); } }
+  .wb-tb-fdrop .drop__menu { left: 50%; margin-left: -64px; min-width: 128px; text-align: left; }
+
+  /* 斑马纹与密度 */
+  .wb-tb--zebra .table tbody tr:nth-child(even) td { background: color-mix(in srgb, var(--zone) 62%, var(--surface)); }
+  .wb-tb--zebra .table tbody tr:hover td { background: var(--zone); }
+  .wb-tb:has(.wb-tb-obj) { --rh: 60px; }
+  .wb-tb[data-density="s"] { --rh: 40px; }
+  .wb-tb[data-density="l"] { --rh: 72px; }
+  .wb-tb[data-density="s"] .wb-tb-obj img { width: 30px; height: 30px; border-radius: 8px; }
+  .wb-tb[data-density="l"] .wb-tb-obj img { width: 52px; height: 52px; }
+
+  /* 批量条：与工具条等高，出现时替换它 */
+  .wb-tb-batch { display: flex; align-items: center; gap: var(--s-2); min-height: 60px; padding: var(--s-3) var(--s-4); background: var(--action-tint); border-bottom: 1px solid var(--action-edge); font-size: var(--fs-sm); }
+  .wb-tb-batch b { font-weight: 700; color: var(--action-press); font-variant-numeric: tabular-nums; }
+  .wb-tb-batch .sp { flex: 1; }
+  .wb-tb-batch[hidden] { display: none; }
+
+  /* 行内展开 */
+  .wb-tb .ex-det > td { height: auto; padding: 0; border-top: 0; text-align: left; white-space: normal; }
+  .wb-tb .table tbody tr.ex-det:hover { background: transparent; }
+  .wb-tb .ex-row:has([aria-expanded="true"]) { background: var(--zone); }
+  .wb-tb-det { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: var(--s-5); }
+  .wb-tb-det img { width: 72px; height: 72px; border-radius: var(--r-md); object-fit: cover; box-shadow: 0 0 0 1px var(--line); }
+  .wb-tb-kv { display: grid; grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); gap: var(--s-3) var(--s-5); min-width: 0; }
+  .wb-tb-kv .wide { grid-column: 1 / -1; }
+  .wb-tb-kv dt { font-size: var(--fs-xs); color: var(--ink-3); }
+  .wb-tb-kv dd { margin-top: 2px; font-size: var(--fs-sm); color: var(--ink); }
+  .wb-tb .chev-btn { width: 32px; height: 32px; }
+
+  /* 固定列：滚动出现边缘阴影 */
+  .wb-tb-fix .table th:first-child, .wb-tb-fix .table td:first-child { position: sticky; left: 0; z-index: 2; background: var(--surface); }
+  .wb-tb-fix .table thead th:first-child { background: var(--zone); z-index: 3; }
+  .wb-tb-fix .table tbody tr:hover td:first-child { background: var(--zone); }
+  .wb-tb-fix[data-edge-l="true"] .table th:first-child, .wb-tb-fix[data-edge-l="true"] .table td:first-child { box-shadow: 10px 0 12px -10px color-mix(in srgb, var(--ink) 34%, transparent); }
+  .wb-tb-fixr .table th:last-child, .wb-tb-fixr .table td:last-child { position: sticky; right: 0; z-index: 2; background: var(--surface); }
+  .wb-tb-fixr .table thead th:last-child { background: var(--zone); z-index: 3; }
+  .wb-tb-fixr .table tbody tr:hover td:last-child { background: var(--zone); }
+  .wb-tb-fixr[data-edge-r="true"] .table th:last-child, .wb-tb-fixr[data-edge-r="true"] .table td:last-child { box-shadow: -10px 0 12px -10px color-mix(in srgb, var(--ink) 34%, transparent); }
+  .wb-tb-fix .table td:first-child { text-align: left; padding-left: var(--s-4); }
+
+  /* 原位编辑 */
+  .wb-tb-edit { display: inline-flex; align-items: center; justify-content: flex-end; gap: var(--s-2); width: 100%; font-variant-numeric: tabular-nums; }
+  .wb-tb-edit__btn { width: 28px; height: 28px; border-radius: var(--r-sm); opacity: .55; }
+  .wb-tb-edit__btn img { width: 16px; height: 16px; }
+  tr:hover .wb-tb-edit__btn, .wb-tb-edit__btn:focus-visible { opacity: 1; }
+  .wb-tb-edit__form { display: grid; gap: 4px; justify-items: end; }
+  .wb-tb-edit__row { display: inline-flex; align-items: center; gap: var(--s-2); }
+  .wb-tb-edit__row .input { width: 92px; min-height: 34px; padding: 0 var(--s-2); font-size: var(--fs-sm); text-align: right; font-variant-numeric: tabular-nums; }
+  .wb-tb-edit__row .btn--sm { min-height: 34px; }
+  .wb-tb-edit__err { font-size: var(--fs-xs); color: var(--danger); }
+  .wb-tb .table td.is-edit { height: 76px; }
+  @keyframes wb-tb-flash { from { background: color-mix(in srgb, var(--success) 18%, transparent); } to { background: transparent; } }
+  .wb-tb td.is-saved { animation: wb-tb-flash 1.2s var(--ease-out) both; }
+
+  /* 分页器 */
+  .wb-tb-pager { display: flex; align-items: center; gap: var(--s-3); padding: var(--s-3) var(--s-4); border-top: 1px solid var(--line); font-size: var(--fs-sm); color: var(--ink-2); white-space: nowrap; }
+  .wb-tb-pager > * { flex: none; }
+  .wb-tb-pager .sp { flex: 1 1 0; min-width: 0; }
+  .wb-tb--pg { min-width: 720px; }
+  .wb-tb-pager .drop__menu { top: auto; bottom: calc(100% + 4px); transform-origin: bottom left; }
+  .wb-tb--xp { min-width: 620px; }
+  .wb-tb-pager .drop__btn { min-height: 34px; }
+  .wb-tb-pages { display: inline-flex; align-items: center; gap: 4px; }
+  .wb-tb-pgb { flex: none; min-width: 32px; height: 32px; padding: 0 var(--s-2); border-radius: var(--r-sm); white-space: nowrap; font-size: var(--fs-sm); color: var(--ink-2); font-variant-numeric: tabular-nums; transition: background var(--dur-quick) var(--ease-out), color var(--dur-quick) var(--ease-out); }
+  @media (hover: hover) { .wb-tb-pgb:hover { background: var(--zone); } }
+  .wb-tb-pgb[aria-current="page"] { background: var(--action); color: var(--surface); font-weight: 600; }
+  .wb-tb-pgb[disabled] { color: var(--ink-3); opacity: .5; pointer-events: none; }
+  .wb-tb-pgb--txt { padding: 0 var(--s-3); }
+  .wb-tb-gap { min-width: 24px; text-align: center; color: var(--ink-3); }
+  .wb-tb-jump { display: inline-flex; align-items: center; gap: var(--s-2); }
+  .wb-tb-jump .input { width: 56px; min-height: 32px; padding: 0 var(--s-1); font-size: var(--fs-sm); text-align: center; font-variant-numeric: tabular-nums; }
+  .wb-tb-scroll { max-height: 312px; overflow: auto; scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
+  .wb-tb-scroll .table thead th { position: sticky; top: 0; z-index: 4; }
+  .wb-tb-scroll[data-edge-t="true"] .table thead th { border-bottom: 1px solid var(--line-strong); }
+  .wb-tb-mini { display: grid; }
+  .wb-tb-mini .row { min-height: 52px; padding: var(--s-2) var(--s-4); }
+  .wb-tb-mini .row__trail { align-items: flex-end; }
+
+  /* 树形 */
+  .wb-tb.wb-tb-tree .table td.t-l { padding-left: calc(var(--s-3) + var(--lvl, 0) * 18px); }
+  .wb-tb-share { display: flex; align-items: center; justify-content: center; gap: var(--s-2); }
+  .wb-tb-share .progress { width: 64px; height: 6px; }
+  .wb-tb-slot { display: inline-block; width: 44px; }
+  .wb-tb-mini .row__title { font-size: var(--fs-sm); }
+  .wb-tb-mini .row__meta { font-size: var(--fs-xs); }
+  .wb-tb-node { display: flex; align-items: center; gap: var(--s-2); width: fit-content; text-align: left; min-width: 0; }
+  .wb-tb-tog { width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; border-radius: var(--r-sm); flex: none; }
+  .wb-tb-tog { justify-content: center; }
+  .wb-tb-tog::after { margin-left: 0; transition: transform var(--dur-base) var(--ease-out); }
+  @media (hover: hover) { .wb-tb-tog:hover { background: var(--zone); } }
+  .wb-tb-sp { width: 28px; flex: none; }
+  .wb-tb-node img { width: 30px; height: 30px; border-radius: 8px; object-fit: cover; flex: none; box-shadow: 0 0 0 1px var(--line); }
+  .wb-tb-node b { font-weight: 600; }
+  .wb-tb-tree tr[data-lvl="0"] td { background: color-mix(in srgb, var(--zone) 50%, var(--surface)); }
+  .wb-tb-tree tr[data-lvl="0"] td:first-child b { font-size: var(--fs-md); }
+  .wb-tb-tree tr[hidden] { display: none; }
+
+  /* 汇总行 */
+  .wb-tb tfoot td { height: 56px; background: var(--zone); border-top: 1px solid var(--line-strong); font-weight: 600; font-size: var(--fs-sm); }
+  .wb-tb tfoot td.t-r b { color: var(--price); font-size: var(--fs-sm); }
+
+  /* 空与骨架 */
+  .wb-tb-empty { display: grid; justify-items: center; gap: var(--s-2); padding: var(--s-8) var(--s-4); color: var(--ink-3); font-size: var(--fs-sm); }
+  .wb-tb-empty img { width: 88px; height: 88px; object-fit: contain; }
+  .wb-tb-empty b { font-size: var(--fs-md); font-weight: 600; color: var(--ink); }
+  .wb-tb-empty .btn { margin-top: var(--s-2); }
+  .wb-tb .skel { height: 14px; display: block; margin: 0 auto; }
+  .wb-tb .table td .skel + .skel { margin-top: 6px; }
+
+  /* 列设置浮层 */
+  .wb-tb-cols .drop__btn { width: 36px; height: 36px; padding: 0; justify-content: center; border-radius: var(--r-md); background: var(--zone); }
+  .wb-tb-cols .drop__btn::after { display: none; }
+  .wb-tb-cols .drop__btn img { width: 20px; height: 20px; }
+  .wb-tb-cols .drop__menu { left: auto; right: 0; min-width: 200px; padding: var(--s-2); transform-origin: top right; }
+  .wb-tb-cols__head { display: flex; align-items: center; justify-content: space-between; padding: var(--s-1) var(--s-2) var(--s-2); font-size: var(--fs-sm); font-weight: 600; }
+  .wb-tb-cols__head button { font-size: var(--fs-sm); font-weight: 500; color: var(--action-press); }
+  .wb-tb-col { display: flex; align-items: center; gap: var(--s-3); width: 100%; min-height: 38px; padding: 0 var(--s-2); border-radius: var(--r-sm); font-size: var(--fs-sm); text-align: left; cursor: pointer; }
+  @media (hover: hover) { .wb-tb-col:hover { background: var(--zone); } }
+  .wb-tb-col[aria-disabled="true"] { opacity: .5; }
+
+  /* 导出按钮：看起来是次要按钮的下拉 */
+  .wb-tb-exp .drop__btn { min-height: 36px; padding: 0 var(--s-4); border-radius: var(--r-md); background: var(--action-tint); color: var(--action-press); font-weight: 600; box-shadow: inset 0 0 0 1px var(--action-edge); }
+  .wb-tb-exp .drop__btn::after { border-color: var(--action-press); }
+  .wb-tb-exp .drop__btn.is-loading { pointer-events: none; color: transparent; position: relative; }
+  .wb-tb-exp .drop__btn.is-loading::after { position: absolute; left: 50%; top: 50%; width: 16px; height: 16px; margin: -8px 0 0 -8px; border: 2px solid var(--action); border-color: var(--action) transparent var(--action) transparent; border-radius: 50%; transform: none; animation: lz-spin .8s linear infinite; }
+  .wb-tb-exp .drop__menu { left: auto; right: 0; min-width: 168px; transform-origin: top right; }
+  /* 更多菜单：行内重绘也能用，自带开合 */
+  .wb-tb-more { position: relative; display: inline-block; }
+  .wb-tb-more__btn { display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 0 var(--s-2); border-radius: var(--r-sm); font-size: var(--fs-sm); font-weight: 500; color: var(--action-press); }
+  .wb-tb-more__btn::after { content: ""; width: 6px; height: 6px; border: solid currentColor; border-width: 0 1.6px 1.6px 0; transform: rotate(45deg) translate(-1px, -2px); }
+  @media (hover: hover) { .wb-tb-more__btn:hover { background: var(--zone); } }
+  .wb-tb-more__menu { position: absolute; z-index: 30; top: calc(100% + 4px); right: 0; min-width: 132px; padding: var(--s-1); background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); box-shadow: var(--elev-3); opacity: 0; transform: scale(.96); transform-origin: top right; pointer-events: none; transition: opacity var(--dur-quick) var(--ease-out), transform var(--dur-quick) var(--ease-out); text-align: left; }
+  .wb-tb-more[data-open="true"] .wb-tb-more__menu { opacity: 1; transform: none; pointer-events: auto; }
+  .wb-tb-more[data-up="true"] .wb-tb-more__menu { top: auto; bottom: calc(100% + 4px); transform-origin: bottom right; }
+  .wb-tb-more__opt { display: block; width: 100%; min-height: 36px; padding: 0 var(--s-3); border-radius: var(--r-sm); text-align: left; font-size: var(--fs-sm); white-space: nowrap; }
+  @media (hover: hover) { .wb-tb-more__opt:hover { background: var(--zone); } }
+  .wb-tb-more__opt--danger { color: var(--danger); }
+
+  /* 多级表头与合并 */
+  .wb-tb .table thead th.grp { border-bottom: 1px solid var(--line-strong); background: color-mix(in srgb, var(--zone) 70%, var(--surface)); }
+  .wb-tb .table thead tr + tr th { background: var(--zone); }
+  .wb-tb .table thead th.edge, .wb-tb .table td.edge { border-left: 1px solid var(--line); }
+  .wb-tb .table tbody.grp:hover td { background: var(--zone); }
+  .wb-tb .table tbody.grp + tbody.grp td { border-top: 1px solid var(--line); }
+  .wb-tb .table tbody.grp tr:not(:first-child) td { border-top: 1px dashed var(--line); }
+  .wb-tb .table tbody.grp td.mg { border-left: 1px solid var(--line); }
+  .wb-tb .table td.mg:first-child { border-left: 0; }
+
+  /* 状态分段：六个分栏在最窄列宽里也要一行放下 */
+  #wb-tb-st .toolbar .seg__item { padding: 0 var(--s-2); }
+  #wb-tb-st .toolbar .seg { flex: 1; min-width: 0; }
+  #cat-tabl .wb-tb-note { padding: var(--s-3) var(--s-4); border-top: 1px solid var(--line); font-size: var(--fs-sm); color: var(--ink-3); }
+</style>
+
+<article class="demo" data-cid="WB-TABL-001" data-name="基础数据表格" data-cat="TABL">
+  <div class="demo__head"><span class="demo__name">基础数据表格</span></div>
+  <p class="demo__note">适合：订单与商品等纵向记录的常规展示</p>
+  <div class="demo__stage"><div class="card wb-tb"><div class="table-wrap"><table class="table" style="--min:440px">
+    <colgroup><col style="width:64px"><col style="width:48px"><col style="width:96px"><col style="width:88px"><col style="width:72px"><col style="width:72px"></colgroup>
+    <thead><tr><th>订单号</th><th>客户</th><th>商品</th><th>门店</th><th>金额<small>元</small></th><th>状态</th></tr></thead>
+    <tbody>
+      <tr><td class="t-n">20388</td><td>林晓</td><td class="t-l">红玫瑰花束</td><td>建国路店</td><td class="t-r">199.00</td><td><span class="tag" data-tone="warning">待付款</span></td></tr>
+      <tr><td class="t-n">20387</td><td>陈默</td><td class="t-l">粉芍药花束</td><td>徐汇滨江店</td><td class="t-r">239.00</td><td><span class="tag" data-tone="action">待发货</span></td></tr>
+      <tr><td class="t-n">20386</td><td>周岚</td><td class="t-l">蓝绣球盆栽</td><td>浦东世纪店</td><td class="t-r">258.00</td><td><span class="tag" data-tone="info">待收货</span></td></tr>
+      <tr><td class="t-n">20385</td><td>吴桐</td><td class="t-l">花礼盒</td><td>建国路店</td><td class="t-r">259.00</td><td><span class="tag" data-tone="success">已完成</span></td></tr>
+      <tr><td class="t-n">20384</td><td>郑一</td><td class="t-l">向日葵花束</td><td>浦东世纪店</td><td class="t-r">159.00</td><td><span class="tag" data-tone="danger">售后</span></td></tr>
+    </tbody>
+  </table></div></div></div>
+</article>
+
+<article class="demo" data-cid="WB-TABL-002" data-name="斑马纹表格" data-cat="TABL">
+  <div class="demo__head"><span class="demo__name">斑马纹表格</span></div>
+  <p class="demo__note">适合：行数较多需要横向对读的库存清单</p>
+  <div class="demo__stage"><div class="card wb-tb wb-tb--zebra"><div class="table-wrap"><table class="table" style="--min:380px">
+    <colgroup><col style="width:108px"><col style="width:48px"><col style="width:88px"><col style="width:64px"><col style="width:72px"></colgroup>
+    <thead><tr><th>商品</th><th>分类</th><th>门店</th><th>库存<small>件</small></th><th>单价<small>元</small></th></tr></thead>
+    <tbody>
+      <tr><td class="t-l">红玫瑰花束</td><td>鲜花</td><td>建国路店</td><td class="t-n">86</td><td class="t-r">199.00</td></tr>
+      <tr><td class="t-l">粉芍药花束</td><td>鲜花</td><td>徐汇滨江店</td><td class="t-n">42</td><td class="t-r">239.00</td></tr>
+      <tr><td class="t-l">蓝绣球盆栽</td><td>绿植</td><td>建国路店</td><td class="t-n">38</td><td class="t-r">129.00</td></tr>
+      <tr><td class="t-l">龟背竹盆栽</td><td>绿植</td><td>浦东世纪店</td><td class="t-n">27</td><td class="t-r">159.00</td></tr>
+      <tr><td class="t-l">干花花瓶摆件</td><td>花器</td><td>徐汇滨江店</td><td class="t-n">33</td><td class="t-r">129.00</td></tr>
+      <tr><td class="t-l">花礼盒</td><td>礼盒</td><td>建国路店</td><td class="t-n">45</td><td class="t-r">259.00</td></tr>
+    </tbody>
+  </table></div></div></div>
+</article>
+
+<article class="demo" data-cid="WB-TABL-003" data-name="表头排序表格" data-cat="TABL">
+  <div class="demo__head"><span class="demo__name">表头排序表格</span></div>
+  <p class="demo__note">适合：按销量库存单价快速排查的商品榜</p>
+  <div class="demo__stage"><div class="card wb-tb"><div class="table-wrap"><table class="table" id="wb-tb-sort" style="--min:384px">
+    <colgroup><col style="width:96px"><col style="width:96px"><col style="width:96px"><col style="width:96px"></colgroup>
+    <thead><tr>
+      <th aria-sort="none"><button type="button" class="wb-tb-sort" data-k="n">商品<i class="wb-tb-caret"></i></button></th>
+      <th aria-sort="none"><button type="button" class="wb-tb-sort" data-k="s">库存<small>件</small><i class="wb-tb-caret"></i></button></th>
+      <th aria-sort="descending"><button type="button" class="wb-tb-sort" data-k="q">销量<small>件</small><i class="wb-tb-caret"></i></button></th>
+      <th aria-sort="none"><button type="button" class="wb-tb-sort" data-k="p">单价<small>元</small><i class="wb-tb-caret"></i></button></th>
+    </tr></thead>
+    <tbody></tbody>
+  </table></div></div></div>
+</article>
+
+<article class="demo" data-cid="WB-TABL-004" data-name="列筛选表格" data-cat="TABL">
+  <div class="demo__head"><span class="demo__name">列筛选表格</span></div>
+  <p class="demo__note">适合：枚举列直接在表头选条件即时过滤</p>
+  <div class="demo__stage wb-tb-vis"><div class="card wb-tb wb-tb--free" id="wb-tb-cf">
+    <table class="table" style="width:100%">
+      <colgroup><col style="width:108px"><col style="width:76px"><col style="width:88px"><col style="width:64px"><col style="width:76px"></colgroup>
+      <thead><tr>
+        <th>商品</th>
+        <th><div class="drop wb-tb-fdrop" data-k="c"><button type="button" class="drop__btn" aria-label="按分类筛选"><b>分类</b></button><div class="drop__menu" role="listbox"><button type="button" class="drop__opt" data-value="" aria-selected="true">全部</button><button type="button" class="drop__opt" data-value="鲜花">鲜花</button><button type="button" class="drop__opt" data-value="绿植">绿植</button><button type="button" class="drop__opt" data-value="礼盒">礼盒</button><button type="button" class="drop__opt" data-value="花器">花器</button></div></div></th>
+        <th><div class="drop wb-tb-fdrop" data-k="m"><button type="button" class="drop__btn" aria-label="按门店筛选"><b>门店</b></button><div class="drop__menu" role="listbox"><button type="button" class="drop__opt" data-value="" aria-selected="true">全部</button><button type="button" class="drop__opt" data-value="建国路店">建国路店</button><button type="button" class="drop__opt" data-value="徐汇滨江店">徐汇滨江店</button><button type="button" class="drop__opt" data-value="浦东世纪店">浦东世纪店</button></div></div></th>
+        <th>库存<small>件</small></th>
+        <th><div class="drop wb-tb-fdrop" data-k="t"><button type="button" class="drop__btn" aria-label="按状态筛选"><b>状态</b></button><div class="drop__menu" role="listbox"><button type="button" class="drop__opt" data-value="" aria-selected="true">全部</button><button type="button" class="drop__opt" data-value="在售">在售</button><button type="button" class="drop__opt" data-value="售罄">售罄</button><button type="button" class="drop__opt" data-value="已下架">已下架</button></div></div></th>
+      </tr></thead>
+      <tbody></tbody>
+    </table>
+    <div class="wb-tb-foot"><span>筛选结果 <b data-n>8</b> 条</span><span class="sp"></span><button type="button" class="btn btn--text btn--sm" data-clear hidden>清除筛选</button></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-TABL-005" data-name="勾选批量表格" data-cat="TABL">
+  <div class="demo__head"><span class="demo__name">勾选批量表格</span></div>
+  <p class="demo__note">适合：多单一次处理的待发货队列</p>
+  <div class="demo__stage"><div class="card wb-tb" id="wb-tb-bat">
+    <div class="toolbar" data-bar="normal"><label class="search"><img src="../../kit/assets/line/search.webp" alt=""><input type="search" placeholder="搜索客户或商品" aria-label="搜索客户或商品" autocomplete="off"></label><span class="toolbar__sp"></span><span class="t-sub">共 <b data-total>6</b> 单</span></div>
+    <div class="wb-tb-batch" data-bar="batch" hidden><span>已选 <b data-n>0</b> 项</span><span class="sp"></span><button type="button" class="btn btn--primary btn--sm" data-act="ship">批量发货</button><button type="button" class="btn btn--secondary btn--sm" data-act="export">导出所选</button><button type="button" class="btn btn--text btn--sm" data-act="clear">取消选择</button></div>
+    <div class="table-wrap"><table class="table" style="--min:420px">
+      <colgroup><col style="width:44px"><col style="width:48px"><col style="width:96px"><col style="width:88px"><col style="width:72px"><col style="width:72px"></colgroup>
+      <thead><tr><th class="t-c1"><span class="check" role="checkbox" aria-checked="false" aria-label="全选当前列表" data-all><img src="../../kit/assets/line/check.webp" alt=""></span></th><th>客户</th><th>商品</th><th>门店</th><th>金额<small>元</small></th><th>状态</th></tr></thead>
+      <tbody></tbody>
+    </table></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-TABL-006" data-name="行内展开表格" data-cat="TABL">
+  <div class="demo__head"><span class="demo__name">行内展开表格</span></div>
+  <p class="demo__note">适合：不离开列表就看订单明细</p>
+  <div class="demo__stage"><div class="card wb-tb" id="wb-tb-ex"><div class="table-wrap"><table class="table" style="--min:400px">
+    <colgroup><col style="width:64px"><col style="width:48px"><col style="width:96px"><col style="width:72px"><col style="width:72px"><col style="width:48px"></colgroup>
+    <thead><tr><th>订单号</th><th>客户</th><th>商品</th><th>金额<small>元</small></th><th>状态</th><th class="t-c1"><span class="sr-only" data-allow-clip>展开</span></th></tr></thead>
+    <tbody>
+      <tr class="ex-row"><td class="t-n">20388</td><td>林晓</td><td class="t-l">红玫瑰花束</td><td class="t-r">199.00</td><td><span class="tag" data-tone="warning">待付款</span></td><td class="t-c1"><button type="button" class="ibtn chev-btn chev" data-expand="wb-tb-ex1" data-tip="展开明细" aria-label="展开订单 20388 明细"></button></td></tr>
+      <tr class="ex-det"><td colspan="6"><div class="expand" id="wb-tb-ex1"><div><div class="expand__body wb-tb-det"><img src="../../kit/assets/photo/product-rose-red.webp" alt=""><dl class="wb-tb-kv"><div><dt>数量</dt><dd>1 束</dd></div><div><dt>配送</dt><dd>极速配送</dd></div><div><dt>门店</dt><dd>建国路店</dd></div><div><dt>下单</dt><dd>刚刚</dd></div><div><dt>备注</dt><dd>附手写贺卡</dd></div><div class="wide"><dt>收货地址</dt><dd>静安区南京西路 1266 号</dd></div></dl><button type="button" class="btn btn--secondary btn--sm" data-toast="已打印小票">打印小票</button></div></div></div></td></tr>
+      <tr class="ex-row"><td class="t-n">20387</td><td>陈默</td><td class="t-l">粉芍药花束</td><td class="t-r">239.00</td><td><span class="tag" data-tone="action">待发货</span></td><td class="t-c1"><button type="button" class="ibtn chev-btn chev" data-expand="wb-tb-ex2" data-tip="展开明细" aria-label="展开订单 20387 明细"></button></td></tr>
+      <tr class="ex-det"><td colspan="6"><div class="expand" id="wb-tb-ex2"><div><div class="expand__body wb-tb-det"><img src="../../kit/assets/photo/product-peony-pink.webp" alt=""><dl class="wb-tb-kv"><div><dt>数量</dt><dd>1 束</dd></div><div><dt>配送</dt><dd>门店自提</dd></div><div><dt>门店</dt><dd>徐汇滨江店</dd></div><div><dt>下单</dt><dd>昨天</dd></div><div><dt>备注</dt><dd>无</dd></div><div class="wide"><dt>收货人</dt><dd>陈默</dd></div></dl><button type="button" class="btn btn--secondary btn--sm" data-toast="已打印小票">打印小票</button></div></div></div></td></tr>
+      <tr class="ex-row"><td class="t-n">20386</td><td>周岚</td><td class="t-l">蓝绣球盆栽</td><td class="t-r">258.00</td><td><span class="tag" data-tone="info">待收货</span></td><td class="t-c1"><button type="button" class="ibtn chev-btn chev" data-expand="wb-tb-ex3" data-tip="展开明细" aria-label="展开订单 20386 明细"></button></td></tr>
+      <tr class="ex-det"><td colspan="6"><div class="expand" id="wb-tb-ex3"><div><div class="expand__body wb-tb-det"><img src="../../kit/assets/photo/product-hydrangea-blue.webp" alt=""><dl class="wb-tb-kv"><div><dt>数量</dt><dd>2 盆</dd></div><div><dt>配送</dt><dd>极速配送</dd></div><div><dt>门店</dt><dd>浦东世纪店</dd></div><div><dt>下单</dt><dd>昨天</dd></div><div><dt>备注</dt><dd>放前台</dd></div><div class="wide"><dt>收货地址</dt><dd>浦东新区世纪大道 100 号</dd></div></dl><button type="button" class="btn btn--secondary btn--sm" data-toast="已打印小票">打印小票</button></div></div></div></td></tr>
+      <tr class="ex-row"><td class="t-n">20385</td><td>吴桐</td><td class="t-l">花礼盒</td><td class="t-r">259.00</td><td><span class="tag" data-tone="success">已完成</span></td><td class="t-c1"><button type="button" class="ibtn chev-btn chev" data-expand="wb-tb-ex4" data-tip="展开明细" aria-label="展开订单 20385 明细"></button></td></tr>
+      <tr class="ex-det"><td colspan="6"><div class="expand" id="wb-tb-ex4"><div><div class="expand__body wb-tb-det"><img src="../../kit/assets/photo/product-giftbox.webp" alt=""><dl class="wb-tb-kv"><div><dt>数量</dt><dd>1 盒</dd></div><div><dt>配送</dt><dd>极速配送</dd></div><div><dt>门店</dt><dd>建国路店</dd></div><div><dt>下单</dt><dd>3 天前</dd></div><div><dt>备注</dt><dd>无</dd></div><div class="wide"><dt>收货地址</dt><dd>黄浦区建国东路 18 号</dd></div></dl><button type="button" class="btn btn--secondary btn--sm" data-toast="已打印小票">打印小票</button></div></div></div></td></tr>
+    </tbody>
+  </table></div></div></div>
+</article>
+
+<article class="demo" data-cid="WB-TABL-007" data-name="固定首列表格" data-cat="TABL">
+  <div class="demo__head"><span class="demo__name">固定首列表格</span></div>
+  <p class="demo__note">适合：列很多时横向滚动仍能认出是哪件商品</p>
+  <div class="demo__stage"><div class="card wb-tb"><div class="table-wrap wb-tb-fix" data-edge-l="false"><table class="table" style="--min:848px">
+    <colgroup><col style="width:140px"><col style="width:76px"><col style="width:104px"><col style="width:112px"><col style="width:112px"><col style="width:96px"><col style="width:88px"><col style="width:120px"></colgroup>
+    <thead><tr><th>商品</th><th>分类</th><th>建国路店</th><th>徐汇滨江店</th><th>浦东世纪店</th><th>库存合计</th><th>单价<small>元</small></th><th>近 30 天销量</th></tr></thead>
+    <tbody>
+      <tr><td>红玫瑰花束</td><td>鲜花</td><td class="t-n">86</td><td class="t-n">64</td><td class="t-n">72</td><td class="t-n">222</td><td class="t-r">199.00</td><td class="t-n">1,240</td></tr>
+      <tr><td>粉芍药花束</td><td>鲜花</td><td class="t-n">42</td><td class="t-n">58</td><td class="t-n">36</td><td class="t-n">136</td><td class="t-r">239.00</td><td class="t-n">980</td></tr>
+      <tr><td>向日葵花束</td><td>鲜花</td><td class="t-n">64</td><td class="t-n wb-tb-out">0</td><td class="t-n">48</td><td class="t-n">112</td><td class="t-r">159.00</td><td class="t-n">860</td></tr>
+      <tr><td>蓝绣球盆栽</td><td>绿植</td><td class="t-n">38</td><td class="t-n">26</td><td class="t-n">31</td><td class="t-n">95</td><td class="t-r">129.00</td><td class="t-n">540</td></tr>
+      <tr><td>多肉组合盆</td><td>绿植</td><td class="t-n">120</td><td class="t-n">94</td><td class="t-n">88</td><td class="t-n">302</td><td class="t-r">89.00</td><td class="t-n">1,320</td></tr>
+      <tr><td>花礼盒</td><td>礼盒</td><td class="t-n">45</td><td class="t-n">37</td><td class="t-n">52</td><td class="t-n">134</td><td class="t-r">259.00</td><td class="t-n">880</td></tr>
+    </tbody>
+  </table></div></div></div>
+</article>
+
+<article class="demo" data-cid="WB-TABL-008" data-name="固定操作列表格" data-cat="TABL">
+  <div class="demo__head"><span class="demo__name">固定操作列表格</span></div>
+  <p class="demo__note">适合：字段很多时操作列始终贴右可点</p>
+  <div class="demo__stage"><div class="card wb-tb"><div class="table-wrap wb-tb-fixr" id="wb-tb-fr" data-edge-r="true"><table class="table" style="--min:800px">
+    <colgroup><col style="width:128px"><col style="width:72px"><col style="width:104px"><col style="width:80px"><col style="width:88px"><col style="width:88px"><col style="width:80px"><col style="width:160px"></colgroup>
+    <thead><tr><th>商品</th><th>分类</th><th>门店</th><th>库存<small>件</small></th><th>单价<small>元</small></th><th>状态</th><th>更新</th><th>操作</th></tr></thead>
+    <tbody>
+      <tr data-n="红玫瑰花束"><td class="t-l">红玫瑰花束</td><td>鲜花</td><td>建国路店</td><td class="t-n">86</td><td class="t-r">199.00</td><td><span class="tag" data-tone="success">在售</span></td><td>刚刚</td><td><span class="wb-tb-ops"><button type="button" class="wb-tb-link" data-op="edit">编辑</button><button type="button" class="wb-tb-link" data-op="off">下架</button><button type="button" class="wb-tb-link wb-tb-link--danger" data-op="del">删除</button></span></td></tr>
+      <tr data-n="粉芍药花束"><td class="t-l">粉芍药花束</td><td>鲜花</td><td>徐汇滨江店</td><td class="t-n">42</td><td class="t-r">239.00</td><td><span class="tag" data-tone="success">在售</span></td><td>昨天</td><td><span class="wb-tb-ops"><button type="button" class="wb-tb-link" data-op="edit">编辑</button><button type="button" class="wb-tb-link" data-op="off">下架</button><button type="button" class="wb-tb-link wb-tb-link--danger" data-op="del">删除</button></span></td></tr>
+      <tr data-n="蓝绣球盆栽"><td class="t-l">蓝绣球盆栽</td><td>绿植</td><td>浦东世纪店</td><td class="t-n">38</td><td class="t-r">129.00</td><td><span class="tag" data-tone="success">在售</span></td><td>昨天</td><td><span class="wb-tb-ops"><button type="button" class="wb-tb-link" data-op="edit">编辑</button><button type="button" class="wb-tb-link" data-op="off">下架</button><button type="button" class="wb-tb-link wb-tb-link--danger" data-op="del">删除</button></span></td></tr>
+      <tr data-n="干花花瓶摆件"><td class="t-l">干花花瓶摆件</td><td>花器</td><td>建国路店</td><td class="t-n">33</td><td class="t-r">129.00</td><td><span class="tag">已下架</span></td><td>3 天前</td><td><span class="wb-tb-ops"><button type="button" class="wb-tb-link" data-op="edit">编辑</button><button type="button" class="wb-tb-link" data-op="on">上架</button><button type="button" class="wb-tb-link wb-tb-link--danger" data-op="del">删除</button></span></td></tr>
+      <tr data-n="花礼盒"><td class="t-l">花礼盒</td><td>礼盒</td><td>徐汇滨江店</td><td class="t-n">45</td><td class="t-r">259.00</td><td><span class="tag" data-tone="success">在售</span></td><td>3 天前</td><td><span class="wb-tb-ops"><button type="button" class="wb-tb-link" data-op="edit">编辑</button><button type="button" class="wb-tb-link" data-op="off">下架</button><button type="button" class="wb-tb-link wb-tb-link--danger" data-op="del">删除</button></span></td></tr>
+    </tbody>
+  </table></div></div></div>
+</article>
+
+<article class="demo demo--wide" data-cid="WB-TABL-009" data-name="单元格原位编辑" data-cat="TABL">
+  <div class="demo__head"><span class="demo__name">单元格原位编辑</span></div>
+  <p class="demo__note">适合：改价与盘点库存时不离开列表</p>
+  <div class="demo__stage"><div class="card wb-tb" id="wb-tb-ed"><div class="table-wrap"><table class="table" style="--min:868px">
+    <colgroup><col style="width:120px"><col style="width:80px"><col style="width:120px"><col style="width:224px"><col style="width:224px"><col style="width:100px"></colgroup>
+    <thead><tr><th>商品</th><th>分类</th><th>门店</th><th>库存<small>件</small></th><th>单价<small>元</small></th><th>状态</th></tr></thead>
+    <tbody>
+      <tr data-n="红玫瑰花束"><td class="t-l">红玫瑰花束</td><td>鲜花</td><td>建国路店</td><td class="t-r" data-f="s" data-v="86"></td><td class="t-r" data-f="p" data-v="199.00"></td><td><span class="tag" data-tone="success">在售</span></td></tr>
+      <tr data-n="蓝绣球盆栽"><td class="t-l">蓝绣球盆栽</td><td>绿植</td><td>浦东世纪店</td><td class="t-r" data-f="s" data-v="38"></td><td class="t-r" data-f="p" data-v="129.00"></td><td><span class="tag" data-tone="success">在售</span></td></tr>
+      <tr data-n="多肉组合盆"><td class="t-l">多肉组合盆</td><td>绿植</td><td>徐汇滨江店</td><td class="t-r" data-f="s" data-v="120"></td><td class="t-r" data-f="p" data-v="89.00"></td><td><span class="tag" data-tone="success">在售</span></td></tr>
+      <tr data-n="花礼盒"><td class="t-l">花礼盒</td><td>礼盒</td><td>建国路店</td><td class="t-r" data-f="s" data-v="45"></td><td class="t-r" data-f="p" data-v="259.00"></td><td><span class="tag" data-tone="success">在售</span></td></tr>
+    </tbody>
+  </table></div></div></div>
+</article>
+
+<article class="demo demo--wide" data-cid="WB-TABL-010" data-name="完整分页器" data-cat="TABL">
+  <div class="demo__head"><span class="demo__name">完整分页器</span></div>
+  <p class="demo__note">适合：大列表按页浏览并可调每页条数</p>
+  <div class="demo__stage"><div class="card wb-tb wb-tb--pg" id="wb-tb-pg">
+    <div class="table-wrap wb-tb-scroll"><table class="table" style="--min:456px">
+      <colgroup><col style="width:64px"><col style="width:48px"><col style="width:112px"><col style="width:88px"><col style="width:72px"><col style="width:72px"></colgroup>
+      <thead><tr><th>订单号</th><th>客户</th><th>商品</th><th>门店</th><th>金额<small>元</small></th><th>状态</th></tr></thead>
+      <tbody></tbody>
+    </table></div>
+    <div class="wb-tb-pager">
+      <span>共 <b data-total>126</b> 条 <span data-range></span></span>
+      <div class="drop" id="wb-tb-pgsize"><button type="button" class="drop__btn" aria-label="每页条数">每页 <b></b></button><div class="drop__menu" role="listbox"><button type="button" class="drop__opt" data-value="10">10 条</button><button type="button" class="drop__opt" data-value="20" aria-selected="true">20 条</button><button type="button" class="drop__opt" data-value="50">50 条</button><button type="button" class="drop__opt" data-value="100">100 条</button></div></div>
+      <span class="sp"></span>
+      <nav class="wb-tb-pages" aria-label="分页"></nav>
+      <label class="wb-tb-jump">跳至<input class="input" inputmode="numeric" aria-label="跳转页码" autocomplete="off">页</label>
+    </div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-TABL-011" data-name="简洁翻页条" data-cat="TABL">
+  <div class="demo__head"><span class="demo__name">简洁翻页条</span></div>
+  <p class="demo__note">适合：数据量小只需前后翻页的简单列表</p>
+  <div class="demo__stage"><div class="card wb-tb" id="wb-tb-sp">
+    <div class="wb-tb-mini" aria-live="polite"></div>
+    <div class="wb-tb-pager"><button type="button" class="wb-tb-pgb wb-tb-pgb--txt" data-d="-1">上一页</button><span class="sp"></span><span>第 <b data-p>1</b> 页 共 <b data-n>7</b> 页</span><span class="sp"></span><button type="button" class="wb-tb-pgb wb-tb-pgb--txt" data-d="1">下一页</button></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-TABL-012" data-name="树形表格" data-cat="TABL">
+  <div class="demo__head"><span class="demo__name">树形表格</span></div>
+  <p class="demo__note">适合：分类到商品的层级清单与汇总</p>
+  <div class="demo__stage"><div class="card wb-tb wb-tb-tree" id="wb-tb-tr">
+    <div class="toolbar"><span class="t-sub">共 <b data-n>0</b> 个商品</span><span class="toolbar__sp"></span><button type="button" class="btn btn--secondary btn--sm" data-all="open">全部展开</button><button type="button" class="btn btn--secondary btn--sm" data-all="shut">全部收起</button></div>
+    <div class="table-wrap"><table class="table" style="--min:464px">
+      <colgroup><col style="width:204px"><col style="width:76px"><col style="width:64px"><col style="width:120px"></colgroup>
+      <thead><tr><th>名称</th><th>商品数<small>个</small></th><th>库存<small>件</small></th><th>库存占比</th></tr></thead>
+      <tbody></tbody>
+    </table></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-TABL-013" data-name="汇总行表格" data-cat="TABL">
+  <div class="demo__head"><span class="demo__name">汇总行表格</span></div>
+  <p class="demo__note">适合：订单明细与结算，合计随勾选更新</p>
+  <div class="demo__stage"><div class="card wb-tb" id="wb-tb-sm"><div class="table-wrap"><table class="table" style="--min:424px">
+    <colgroup><col style="width:44px"><col style="width:156px"><col style="width:72px"><col style="width:64px"><col style="width:88px"></colgroup>
+    <thead><tr><th class="t-c1"><span class="check" role="checkbox" aria-checked="mixed" aria-label="全选明细" data-all><img src="../../kit/assets/line/check.webp" alt=""></span></th><th>商品</th><th>单价<small>元</small></th><th>数量<small>件</small></th><th>小计<small>元</small></th></tr></thead>
+    <tbody>
+      <tr data-p="199" data-q="2"><td class="t-c1"><span class="check" role="checkbox" aria-checked="true" aria-label="选择红玫瑰花束" data-row><img src="../../kit/assets/line/check.webp" alt=""></span></td><td class="t-l"><span class="wb-tb-obj"><img src="../../kit/assets/photo/product-rose-red.webp" alt=""><span><b>红玫瑰花束</b><small>鲜花</small></span></span></td><td class="t-r">199.00</td><td class="t-n">2</td><td class="t-r" data-sub>398.00</td></tr>
+      <tr data-p="239" data-q="1"><td class="t-c1"><span class="check" role="checkbox" aria-checked="true" aria-label="选择粉芍药花束" data-row><img src="../../kit/assets/line/check.webp" alt=""></span></td><td class="t-l"><span class="wb-tb-obj"><img src="../../kit/assets/photo/product-peony-pink.webp" alt=""><span><b>粉芍药花束</b><small>鲜花</small></span></span></td><td class="t-r">239.00</td><td class="t-n">1</td><td class="t-r" data-sub>239.00</td></tr>
+      <tr data-p="129" data-q="1"><td class="t-c1"><span class="check" role="checkbox" aria-checked="true" aria-label="选择蓝绣球盆栽" data-row><img src="../../kit/assets/line/check.webp" alt=""></span></td><td class="t-l"><span class="wb-tb-obj"><img src="../../kit/assets/photo/product-hydrangea-blue.webp" alt=""><span><b>蓝绣球盆栽</b><small>绿植</small></span></span></td><td class="t-r">129.00</td><td class="t-n">1</td><td class="t-r" data-sub>129.00</td></tr>
+      <tr data-p="89" data-q="3"><td class="t-c1"><span class="check" role="checkbox" aria-checked="false" aria-label="选择多肉组合盆" data-row><img src="../../kit/assets/line/check.webp" alt=""></span></td><td class="t-l"><span class="wb-tb-obj"><img src="../../kit/assets/photo/product-succulent.webp" alt=""><span><b>多肉组合盆</b><small>绿植</small></span></span></td><td class="t-r">89.00</td><td class="t-n">3</td><td class="t-r" data-sub>267.00</td></tr>
+      <tr data-p="259" data-q="1"><td class="t-c1"><span class="check" role="checkbox" aria-checked="true" aria-label="选择花礼盒" data-row><img src="../../kit/assets/line/check.webp" alt=""></span></td><td class="t-l"><span class="wb-tb-obj"><img src="../../kit/assets/photo/product-giftbox.webp" alt=""><span><b>花礼盒</b><small>礼盒</small></span></span></td><td class="t-r">259.00</td><td class="t-n">1</td><td class="t-r" data-sub>259.00</td></tr>
+    </tbody>
+    <tfoot><tr><td></td><td class="t-l">已选合计</td><td></td><td class="t-n" data-tq>5</td><td class="t-r"><b data-ts>1,025.00</b></td></tr></tfoot>
+  </table></div></div></div>
+</article>
+
+<article class="demo" data-cid="WB-TABL-014" data-name="状态分段表格" data-cat="TABL">
+  <div class="demo__head"><span class="demo__name">状态分段表格</span></div>
+  <p class="demo__note">适合：按订单状态分栏处理并看各栏数量</p>
+  <div class="demo__stage"><div class="card wb-tb" id="wb-tb-st">
+    <div class="toolbar"><div class="seg" data-seg="wb-tb-st" data-seg-for="#wb-tb-st tbody" aria-label="订单状态"></div></div>
+    <div class="table-wrap"><table class="table" style="--min:364px">
+      <colgroup><col style="width:64px"><col style="width:48px"><col style="width:108px"><col style="width:72px"><col style="width:72px"></colgroup>
+      <thead><tr><th>订单号</th><th>客户</th><th>商品</th><th>金额<small>元</small></th><th>状态</th></tr></thead>
+      <tbody></tbody>
+    </table></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-TABL-015" data-name="头像列表格" data-cat="TABL">
+  <div class="demo__head"><span class="demo__name">头像列表格</span></div>
+  <p class="demo__note">适合：客户与员工等以人为对象的清单</p>
+  <div class="demo__stage"><div class="card wb-tb"><div class="table-wrap"><table class="table" style="--min:460px">
+    <colgroup><col style="width:140px"><col style="width:88px"><col style="width:64px"><col style="width:92px"><col style="width:76px"></colgroup>
+    <thead><tr><th>客户</th><th>门店</th><th>订单<small>单</small></th><th>累计消费<small>元</small></th><th>最近下单</th></tr></thead>
+    <tbody>
+      <tr><td class="t-l"><span class="wb-tb-obj wb-tb-obj--round"><img src="../../kit/assets/marks/mark-001.webp" alt=""><span><b>林晓</b><small><span class="wb-tb-vip">金卡会员</span></small></span></span></td><td>建国路店</td><td class="t-n">38</td><td class="t-r">12,860.00</td><td>刚刚</td></tr>
+      <tr><td class="t-l"><span class="wb-tb-obj wb-tb-obj--round"><img src="../../kit/assets/marks/mark-002.webp" alt=""><span><b>陈默</b><small>银卡会员</small></span></span></td><td>徐汇滨江店</td><td class="t-n">21</td><td class="t-r">6,420.00</td><td>昨天</td></tr>
+      <tr><td class="t-l"><span class="wb-tb-obj wb-tb-obj--round"><img src="../../kit/assets/marks/mark-003.webp" alt=""><span><b>周岚</b><small>普通会员</small></span></span></td><td>浦东世纪店</td><td class="t-n">9</td><td class="t-r">2,150.00</td><td>昨天</td></tr>
+      <tr><td class="t-l"><span class="wb-tb-obj wb-tb-obj--round"><img src="../../kit/assets/marks/mark-004.webp" alt=""><span><b>吴桐</b><small><span class="wb-tb-vip">金卡会员</span></small></span></span></td><td>建国路店</td><td class="t-n">33</td><td class="t-r">10,980.00</td><td>3 天前</td></tr>
+      <tr><td class="t-l"><span class="wb-tb-obj wb-tb-obj--round"><img src="../../kit/assets/marks/mark-005.webp" alt=""><span><b>郑一</b><small>普通会员</small></span></span></td><td>浦东世纪店</td><td class="t-n">5</td><td class="t-r">1,090.00</td><td>5 天前</td></tr>
+    </tbody>
+  </table></div></div></div>
+</article>
+
+<article class="demo" data-cid="WB-TABL-016" data-name="商品图列表格" data-cat="TABL">
+  <div class="demo__head"><span class="demo__name">商品图列表格</span></div>
+  <p class="demo__note">适合：带实拍图的商品清单与行内上下架</p>
+  <div class="demo__stage"><div class="card wb-tb" id="wb-tb-pr"><div class="table-wrap"><table class="table" style="--min:462px">
+    <colgroup><col style="width:164px"><col style="width:72px"><col style="width:80px"><col style="width:78px"><col style="width:68px"></colgroup>
+    <thead><tr><th>商品</th><th>单价<small>元</small></th><th>库存<small>件</small></th><th>月销量<small>件</small></th><th>上架</th></tr></thead>
+    <tbody>
+      <tr data-n="红玫瑰花束"><td class="t-l"><span class="wb-tb-obj"><img src="../../kit/assets/photo/product-rose-red.webp" alt=""><span><b>红玫瑰花束</b><small>鲜花</small></span></span></td><td class="t-r">199.00</td><td class="t-n">86</td><td class="t-n">1,240</td><td><button type="button" class="switch" role="switch" aria-checked="true" aria-label="红玫瑰花束上架"></button></td></tr>
+      <tr data-n="粉芍药花束"><td class="t-l"><span class="wb-tb-obj"><img src="../../kit/assets/photo/product-peony-pink.webp" alt=""><span><b>粉芍药花束</b><small>鲜花</small></span></span></td><td class="t-r">239.00</td><td class="t-n">42</td><td class="t-n">980</td><td><button type="button" class="switch" role="switch" aria-checked="true" aria-label="粉芍药花束上架"></button></td></tr>
+      <tr data-n="向日葵花束"><td class="t-l"><span class="wb-tb-obj"><img src="../../kit/assets/photo/product-sunflower.webp" alt=""><span><b>向日葵花束</b><small>鲜花</small></span></span></td><td class="t-r">159.00</td><td class="t-n"><span class="wb-tb-low">6</span> <span class="tag" data-tone="warning">库存低</span></td><td class="t-n">860</td><td><button type="button" class="switch" role="switch" aria-checked="true" aria-label="向日葵花束上架"></button></td></tr>
+      <tr data-n="龟背竹盆栽"><td class="t-l"><span class="wb-tb-obj"><img src="../../kit/assets/photo/product-monstera.webp" alt=""><span><b>龟背竹盆栽</b><small>绿植</small></span></span></td><td class="t-r">159.00</td><td class="t-n">27</td><td class="t-n">610</td><td><button type="button" class="switch" role="switch" aria-checked="true" aria-label="龟背竹盆栽上架"></button></td></tr>
+      <tr data-n="干花花瓶摆件"><td class="t-l"><span class="wb-tb-obj"><img src="../../kit/assets/photo/product-pampas-vase.webp" alt=""><span><b>干花花瓶摆件</b><small>花器</small></span></span></td><td class="t-r">129.00</td><td class="t-n">33</td><td class="t-n">410</td><td><button type="button" class="switch" role="switch" aria-checked="false" aria-label="干花花瓶摆件上架"></button></td></tr>
+    </tbody>
+  </table></div></div></div>
+</article>
+
+<article class="demo" data-cid="WB-TABL-017" data-name="金额列表格" data-cat="TABL">
+  <div class="demo__head"><span class="demo__name">金额列表格</span></div>
+  <p class="demo__note">适合：结算与对账，金额右对齐并可换单位</p>
+  <div class="demo__stage"><div class="card wb-tb wb-tb--dense" id="wb-tb-am">
+    <div class="toolbar"><span class="t-sub">单位</span><div class="btn-seg" role="group" aria-label="金额单位"><button type="button" aria-pressed="true" data-u="1">元</button><button type="button" aria-pressed="false" data-u="10000">万元</button></div></div>
+    <div class="table-wrap"><table class="table" style="--min:448px">
+      <colgroup><col style="width:84px"><col style="width:92px"><col style="width:84px"><col style="width:92px"><col style="width:96px"></colgroup>
+      <thead><tr><th>门店</th><th>销售额<small data-u>元</small></th><th>退款<small data-u>元</small></th><th>优惠<small data-u>元</small></th><th>净收入<small data-u>元</small></th></tr></thead>
+      <tbody>
+        <tr data-v="286450,8260,15830"><td>建国路店</td><td class="t-r"></td><td class="t-r wb-tb-neg"></td><td class="t-r wb-tb-neg"></td><td class="t-r"></td></tr>
+        <tr data-v="214780,5120,11240"><td>徐汇滨江店</td><td class="t-r"></td><td class="t-r wb-tb-neg"></td><td class="t-r wb-tb-neg"></td><td class="t-r"></td></tr>
+        <tr data-v="187320,3480,9960"><td>浦东世纪店</td><td class="t-r"></td><td class="t-r wb-tb-neg"></td><td class="t-r wb-tb-neg"></td><td class="t-r"></td></tr>
+      </tbody>
+      <tfoot><tr data-v="688550,16860,37030"><td>合计</td><td class="t-r"></td><td class="t-r wb-tb-neg"></td><td class="t-r wb-tb-neg"></td><td class="t-r"><b></b></td></tr></tfoot>
+    </table></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-TABL-018" data-name="操作列表格" data-cat="TABL">
+  <div class="demo__head"><span class="demo__name">操作列表格</span></div>
+  <p class="demo__note">适合：按状态给出行内直达操作与更多菜单</p>
+  <div class="demo__stage wb-tb-vis"><div class="card wb-tb wb-tb--free" id="wb-tb-op">
+    <table class="table" style="width:100%">
+      <colgroup><col style="width:64px"><col style="width:48px"><col style="width:72px"><col style="width:72px"><col style="width:168px"></colgroup>
+      <thead><tr><th>订单号</th><th>客户</th><th>金额<small>元</small></th><th>状态</th><th>操作</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-TABL-019" data-name="空数据表格" data-cat="TABL">
+  <div class="demo__head"><span class="demo__name">空数据表格</span></div>
+  <p class="demo__note">适合：搜索无结果与新店暂无数据的占位</p>
+  <div class="demo__stage"><div class="card wb-tb" id="wb-tb-em">
+    <div class="toolbar"><label class="search"><img src="../../kit/assets/line/search.webp" alt=""><input type="search" value="紫罗兰" placeholder="搜索商品或分类" aria-label="搜索商品或分类" autocomplete="off"></label></div>
+    <div class="table-wrap"><table class="table" style="--min:292px">
+      <colgroup><col style="width:108px"><col style="width:48px"><col style="width:64px"><col style="width:72px"></colgroup>
+      <thead><tr><th>商品</th><th>分类</th><th>库存<small>件</small></th><th>单价<small>元</small></th></tr></thead>
+      <tbody></tbody>
+    </table></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-TABL-020" data-name="骨架加载表格" data-cat="TABL">
+  <div class="demo__head"><span class="demo__name">骨架加载表格</span></div>
+  <p class="demo__note">适合：数据加载中保持行列位置不跳动</p>
+  <div class="demo__stage"><div class="card wb-tb" id="wb-tb-sk">
+    <div class="toolbar"><span class="t-sub" data-state>加载中</span><span class="toolbar__sp"></span><button type="button" class="btn btn--secondary btn--sm" data-reload>重新加载</button></div>
+    <div class="table-wrap"><table class="table" style="--min:352px" aria-busy="true">
+      <colgroup><col style="width:64px"><col style="width:48px"><col style="width:96px"><col style="width:72px"><col style="width:72px"></colgroup>
+      <thead><tr><th>订单号</th><th>客户</th><th>商品</th><th>金额<small>元</small></th><th>状态</th></tr></thead>
+      <tbody></tbody>
+    </table></div>
+  </div></div>
+</article>
+
+<article class="demo demo--wide" data-cid="WB-TABL-021" data-name="导出工具条" data-cat="TABL">
+  <div class="demo__head"><span class="demo__name">导出工具条</span></div>
+  <p class="demo__note">适合：搜索筛选与导出同排，按当前结果导出</p>
+  <div class="demo__stage wb-tb-vis"><div class="card wb-tb wb-tb--free wb-tb--xp" id="wb-tb-xp">
+    <div class="toolbar">
+      <label class="search"><img src="../../kit/assets/line/search.webp" alt=""><input type="search" placeholder="搜索客户或商品" aria-label="搜索客户或商品" autocomplete="off"></label>
+      <div class="drop" data-k="m"><button type="button" class="drop__btn" aria-label="门店">门店 <b></b></button><div class="drop__menu" role="listbox"><button type="button" class="drop__opt" data-value="" aria-selected="true">全部</button><button type="button" class="drop__opt" data-value="建国路店">建国路店</button><button type="button" class="drop__opt" data-value="徐汇滨江店">徐汇滨江店</button><button type="button" class="drop__opt" data-value="浦东世纪店">浦东世纪店</button></div></div>
+      <div class="drop" data-k="t"><button type="button" class="drop__btn" aria-label="状态">状态 <b></b></button><div class="drop__menu" role="listbox"><button type="button" class="drop__opt" data-value="" aria-selected="true">全部</button><button type="button" class="drop__opt" data-value="待付款">待付款</button><button type="button" class="drop__opt" data-value="待发货">待发货</button><button type="button" class="drop__opt" data-value="待收货">待收货</button><button type="button" class="drop__opt" data-value="已完成">已完成</button><button type="button" class="drop__opt" data-value="售后">售后</button></div></div>
+      <span class="toolbar__sp"></span>
+      <span class="t-sub">共 <b data-n>8</b> 单</span>
+      <div class="drop wb-tb-exp" data-k="x" data-placeholder><button type="button" class="drop__btn" aria-label="导出">导出</button><div class="drop__menu" role="listbox"><button type="button" class="drop__opt" data-value="cur">当前筛选结果</button><button type="button" class="drop__opt" data-value="all">全部订单</button></div></div>
+    </div>
+    <div class="table-wrap"><table class="table" style="--min:456px">
+      <colgroup><col style="width:64px"><col style="width:48px"><col style="width:112px"><col style="width:88px"><col style="width:72px"><col style="width:72px"></colgroup>
+      <thead><tr><th>订单号</th><th>客户</th><th>商品</th><th>门店</th><th>金额<small>元</small></th><th>状态</th></tr></thead>
+      <tbody></tbody>
+    </table></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-TABL-022" data-name="列设置表格" data-cat="TABL">
+  <div class="demo__head"><span class="demo__name">列设置表格</span></div>
+  <p class="demo__note">适合：字段多时让每位运营自选显示哪些列</p>
+  <div class="demo__stage wb-tb-vis"><div class="card wb-tb wb-tb--free" id="wb-tb-cs">
+    <div class="toolbar"><span class="t-sub">显示 <b data-n>6</b> 列</span><span class="toolbar__sp"></span>
+      <div class="drop wb-tb-cols"><button type="button" class="drop__btn" data-tip="列设置" aria-label="列设置"><img src="../../kit/assets/line/settings.webp" alt=""></button>
+        <div class="drop__menu"><div class="wb-tb-cols__head"><span>显示的列</span><button type="button" data-reset>恢复默认</button></div></div></div>
+    </div>
+    <table class="table" style="width:100%;table-layout:auto">
+      <thead><tr></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-TABL-023" data-name="密度切换表格" data-cat="TABL">
+  <div class="demo__head"><span class="demo__name">密度切换表格</span></div>
+  <p class="demo__note">适合：一屏看更多行或看清缩略图的切换</p>
+  <div class="demo__stage"><div class="card wb-tb" id="wb-tb-de" data-density="m">
+    <div class="toolbar"><span class="t-sub">行高</span><div class="btn-seg" role="group" aria-label="表格密度"><button type="button" aria-pressed="false" data-d="s">紧凑</button><button type="button" aria-pressed="true" data-d="m">默认</button><button type="button" aria-pressed="false" data-d="l">宽松</button></div></div>
+    <div class="table-wrap"><table class="table" style="--min:368px">
+      <colgroup><col style="width:160px"><col style="width:64px"><col style="width:72px"><col style="width:72px"></colgroup>
+      <thead><tr><th>商品</th><th>库存<small>件</small></th><th>单价<small>元</small></th><th>状态</th></tr></thead>
+      <tbody>
+        <tr><td class="t-l"><span class="wb-tb-obj"><img src="../../kit/assets/photo/product-rose-red.webp" alt=""><span><b>红玫瑰花束</b><small>鲜花</small></span></span></td><td class="t-n">86</td><td class="t-r">199.00</td><td><span class="tag" data-tone="success">在售</span></td></tr>
+        <tr><td class="t-l"><span class="wb-tb-obj"><img src="../../kit/assets/photo/product-tulip-white.webp" alt=""><span><b>白郁金香</b><small>鲜花</small></span></span></td><td class="t-n">51</td><td class="t-r">179.00</td><td><span class="tag" data-tone="success">在售</span></td></tr>
+        <tr><td class="t-l"><span class="wb-tb-obj"><img src="../../kit/assets/photo/product-monstera.webp" alt=""><span><b>龟背竹盆栽</b><small>绿植</small></span></span></td><td class="t-n">27</td><td class="t-r">159.00</td><td><span class="tag" data-tone="success">在售</span></td></tr>
+        <tr><td class="t-l"><span class="wb-tb-obj"><img src="../../kit/assets/photo/product-succulent.webp" alt=""><span><b>多肉组合盆</b><small>绿植</small></span></span></td><td class="t-n">0</td><td class="t-r">89.00</td><td><span class="tag" data-tone="warning">售罄</span></td></tr>
+        <tr><td class="t-l"><span class="wb-tb-obj"><img src="../../kit/assets/photo/product-giftbox.webp" alt=""><span><b>花礼盒</b><small>礼盒</small></span></span></td><td class="t-n">45</td><td class="t-r">259.00</td><td><span class="tag" data-tone="success">在售</span></td></tr>
+      </tbody>
+    </table></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-TABL-024" data-name="表头吸顶表格" data-cat="TABL">
+  <div class="demo__head"><span class="demo__name">表头吸顶表格</span></div>
+  <p class="demo__note">适合：固定高度内滚动长列表时表头不丢</p>
+  <div class="demo__stage"><div class="card wb-tb" id="wb-tb-hd">
+    <div class="table-wrap wb-tb-scroll" style="max-height:288px"><table class="table" style="--min:296px">
+      <colgroup><col style="width:64px"><col style="width:48px"><col style="width:112px"><col style="width:72px"></colgroup>
+      <thead><tr><th>订单号</th><th>客户</th><th>商品</th><th>金额<small>元</small></th></tr></thead>
+      <tbody></tbody>
+    </table></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-TABL-025" data-name="多级表头表格" data-cat="TABL">
+  <div class="demo__head"><span class="demo__name">多级表头表格</span></div>
+  <p class="demo__note">适合：本周与上周等成组指标的并列对比</p>
+  <div class="demo__stage"><div class="card wb-tb wb-tb--dense"><div class="table-wrap"><table class="table" style="--min:460px">
+    <colgroup><col style="width:84px"><col style="width:88px"><col style="width:60px"><col style="width:84px"><col style="width:60px"><col style="width:84px"></colgroup>
+    <thead>
+      <tr><th rowspan="2">门店</th><th colspan="2" class="grp edge">本周</th><th colspan="2" class="grp edge">上周</th><th rowspan="2" class="edge">环比</th></tr>
+      <tr><th class="edge">销售额<small>元</small></th><th>订单<small>单</small></th><th class="edge">销售额<small>元</small></th><th>订单<small>单</small></th></tr>
+    </thead>
+    <tbody>
+      <tr><td>建国路店</td><td class="t-r edge">42,860.00</td><td class="t-n">218</td><td class="t-r edge">39,120.00</td><td class="t-n">203</td><td class="edge"><span class="wb-tb-up">增长 9.6%</span></td></tr>
+      <tr><td>徐汇滨江店</td><td class="t-r edge">31,240.00</td><td class="t-n">164</td><td class="t-r edge">34,580.00</td><td class="t-n">181</td><td class="edge"><span class="wb-tb-down">下降 9.7%</span></td></tr>
+      <tr><td>浦东世纪店</td><td class="t-r edge">28,560.00</td><td class="t-n">149</td><td class="t-r edge">25,210.00</td><td class="t-n">132</td><td class="edge"><span class="wb-tb-up">增长 13.3%</span></td></tr>
+    </tbody>
+    <tfoot><tr><td>合计</td><td class="t-r edge">102,660.00</td><td class="t-n">531</td><td class="t-r edge">98,910.00</td><td class="t-n">516</td><td class="edge"><span class="wb-tb-up">增长 3.8%</span></td></tr></tfoot>
+  </table></div></div></div>
+</article>
+
+<article class="demo" data-cid="WB-TABL-026" data-name="合并单元格表格" data-cat="TABL">
+  <div class="demo__head"><span class="demo__name">合并单元格表格</span></div>
+  <p class="demo__note">适合：一单多品时订单信息纵向合并</p>
+  <div class="demo__stage"><div class="card wb-tb wb-tb--dense"><div class="table-wrap"><table class="table" style="--min:456px">
+    <colgroup><col style="width:56px"><col style="width:44px"><col style="width:92px"><col style="width:44px"><col style="width:64px"><col style="width:88px"><col style="width:68px"></colgroup>
+    <thead><tr><th>订单号</th><th>客户</th><th>商品</th><th>数量</th><th>小计<small>元</small></th><th>订单金额<small>元</small></th><th>状态</th></tr></thead>
+    <tbody class="grp">
+      <tr><td rowspan="2" class="t-n">20388</td><td rowspan="2">林晓</td><td class="t-l">红玫瑰花束</td><td class="t-n">1</td><td class="t-r">199.00</td><td rowspan="2" class="t-r mg">328.00</td><td rowspan="2" class="mg"><span class="tag" data-tone="warning">待付款</span></td></tr>
+      <tr><td class="t-l">蓝绣球盆栽</td><td class="t-n">1</td><td class="t-r">129.00</td></tr>
+    </tbody>
+    <tbody class="grp">
+      <tr><td class="t-n">20387</td><td>陈默</td><td class="t-l">粉芍药花束</td><td class="t-n">1</td><td class="t-r">239.00</td><td class="t-r mg">239.00</td><td class="mg"><span class="tag" data-tone="action">待发货</span></td></tr>
+    </tbody>
+    <tbody class="grp">
+      <tr><td rowspan="3" class="t-n">20386</td><td rowspan="3">周岚</td><td class="t-l">多肉组合盆</td><td class="t-n">2</td><td class="t-r">178.00</td><td rowspan="3" class="t-r mg">516.00</td><td rowspan="3" class="mg"><span class="tag" data-tone="info">待收货</span></td></tr>
+      <tr><td class="t-l">龟背竹盆栽</td><td class="t-n">1</td><td class="t-r">159.00</td></tr>
+      <tr><td class="t-l">白郁金香</td><td class="t-n">1</td><td class="t-r">179.00</td></tr>
+    </tbody>
+  </table></div></div></div>
+</article>
+
+<script>
+(function () {
+  const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const fmt = (n, d = 2) => n.toLocaleString('zh-CN', { minimumFractionDigits: d, maximumFractionDigits: d });
+  const icon = n => `../../kit/assets/icons/${Lz.iconSet()}/${n}.webp`;
+  const TONE = { 待付款: 'warning', 待发货: 'action', 待收货: 'info', 已完成: 'success', 售后: 'danger' };
+  const tag = s => `<span class="tag"${TONE[s] ? ` data-tone="${TONE[s]}"` : ''}>${s}</span>`;
+  const STORES = ['建国路店', '徐汇滨江店', '浦东世纪店'];
+  const ORD = [
+    ['20388', '林晓', '红玫瑰花束', '建国路店', 199, '待付款'], ['20387', '陈默', '粉芍药花束', '徐汇滨江店', 239, '待发货'],
+    ['20386', '周岚', '蓝绣球盆栽', '浦东世纪店', 258, '待收货'], ['20385', '吴桐', '花礼盒', '建国路店', 259, '已完成'],
+    ['20384', '郑一', '向日葵花束', '浦东世纪店', 159, '售后'], ['20383', '王宁', '龟背竹盆栽', '徐汇滨江店', 159, '已完成'],
+    ['20382', '赵悦', '白郁金香', '建国路店', 358, '待发货'], ['20381', '孙洁', '干花花瓶摆件', '浦东世纪店', 129, '待付款'],
+  ].map(([no, who, item, store, amt, st]) => ({ no, who, item, store, amt, st }));
+  const WHO = ['林晓', '陈默', '周岚', '吴桐', '郑一', '王宁', '赵悦', '孙洁'];
+  const GOODS = [['红玫瑰花束', 199], ['粉芍药花束', 239], ['向日葵花束', 159], ['白郁金香', 179], ['蓝绣球盆栽', 129], ['龟背竹盆栽', 159], ['多肉组合盆', 89], ['干花花瓶摆件', 129], ['花礼盒', 259]];
+  const STS = ['待付款', '待发货', '待收货', '已完成', '已完成', '已完成', '售后', '待发货', '已完成', '待收货'];
+  const gen = i => { const g = GOODS[(i * 5 + 2) % 9]; return { no: String(20400 - i), who: WHO[(i * 3 + 1) % 8], item: g[0], store: STORES[i % 3], amt: g[1] * (i % 4 === 3 ? 2 : 1), st: STS[(i * 7 + 3) % 10] }; };
+  const orderRow = o => `<tr><td class="t-n">${o.no}</td><td>${o.who}</td><td class="t-l">${o.item}</td><td class="t-r">${fmt(o.amt)}</td><td>${tag(o.st)}</td></tr>`;
+  const orderRowStore = o => `<tr><td class="t-n">${o.no}</td><td>${o.who}</td><td class="t-l">${o.item}</td><td>${o.store}</td><td class="t-r">${fmt(o.amt)}</td><td>${tag(o.st)}</td></tr>`;
+  const emptyRow = (cols, text, clear) => `<tr><td colspan="${cols}" style="height:auto;padding:0;border-top:0"><div class="wb-tb-empty"><img data-ic="vase" src="${icon('vase')}" alt=""><b>${text}</b>${clear ? `<button type="button" class="btn btn--secondary btn--sm" data-clear>${clear}</button>` : ''}</div></td></tr>`;
+
+  /* 003 表头排序：升序降序恢复三步循环 */
+  (() => {
+    const root = $('#wb-tb-sort'), body = $('tbody', root), ths = $$('thead th', root);
+    const R = [['红玫瑰花束', 86, 1240, 199], ['粉芍药花束', 42, 980, 239], ['向日葵花束', 64, 860, 159], ['蓝绣球盆栽', 38, 540, 129], ['多肉组合盆', 120, 1320, 89], ['花礼盒', 45, 880, 259]].map(([n, s, q, p]) => ({ n, s, q, p }));
+    let key = 'q', dir = -1;
+    const render = () => {
+      const rows = key ? [...R].sort((a, b) => key === 'n' ? dir * a.n.localeCompare(b.n, 'zh-CN') : dir * (a[key] - b[key])) : R;
+      const c = k => (key === k ? ' is-sorted' : '');
+      body.innerHTML = rows.map(r => `<tr><td class="t-l${c('n')}">${r.n}</td><td class="t-n${c('s')}">${r.s}</td><td class="t-n${c('q')}">${r.q.toLocaleString('zh-CN')}</td><td class="t-r${c('p')}">${fmt(r.p)}</td></tr>`).join('');
+      ths.forEach(th => { const k = $('.wb-tb-sort', th).dataset.k; th.setAttribute('aria-sort', k === key ? (dir > 0 ? 'ascending' : 'descending') : 'none'); });
+    };
+    $$('.wb-tb-sort', root).forEach(b => b.addEventListener('click', () => {
+      const k = b.dataset.k, first = k === 'n' ? 1 : -1;
+      if (key !== k) { key = k; dir = first; } else if (dir === first) dir = -first; else key = null;
+      render();
+    }));
+    render();
+  })();
+
+  /* 004 列筛选：表头下拉即时过滤 */
+  (() => {
+    const root = $('#wb-tb-cf'), body = $('tbody', root), n = $('[data-n]', root), clear = $('[data-clear]', root);
+    const R = [['红玫瑰花束', '鲜花', '建国路店', 86, '在售'], ['粉芍药花束', '鲜花', '徐汇滨江店', 42, '在售'], ['向日葵花束', '鲜花', '浦东世纪店', 0, '售罄'], ['蓝绣球盆栽', '绿植', '建国路店', 38, '在售'],
+      ['龟背竹盆栽', '绿植', '徐汇滨江店', 27, '在售'], ['多肉组合盆', '绿植', '浦东世纪店', 0, '售罄'], ['干花花瓶摆件', '花器', '建国路店', 33, '已下架'], ['花礼盒', '礼盒', '徐汇滨江店', 45, '在售']];
+    const f = { c: '', m: '', t: '' }, NAME = { c: '分类', m: '门店', t: '状态' }, TT = { 在售: 'success', 售罄: 'warning' };
+    const render = () => {
+      const rows = R.filter(r => (!f.c || r[1] === f.c) && (!f.m || r[2] === f.m) && (!f.t || r[4] === f.t));
+      body.innerHTML = rows.length ? rows.map(r => `<tr><td class="t-l">${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td class="t-n${r[3] === 0 ? ' wb-tb-out' : ''}">${r[3]}</td><td><span class="tag"${TT[r[4]] ? ` data-tone="${TT[r[4]]}"` : ''}>${r[4]}</span></td></tr>`).join('') : emptyRow(5, '没有符合条件的商品', '清除筛选');
+      n.textContent = rows.length; clear.hidden = !(f.c || f.m || f.t) || !rows.length;
+    };
+    root.addEventListener('lz:drop', e => {
+      const d = e.target.closest('.drop'), k = d.dataset.k; f[k] = e.detail.value;
+      $('b', d).textContent = f[k] || NAME[k]; d.dataset.on = String(!!f[k]); render();
+    });
+    const reset = () => { Object.keys(f).forEach(k => { f[k] = ''; }); $$('.drop', root).forEach(d => { $('b', d).textContent = NAME[d.dataset.k]; d.dataset.on = 'false'; $$('.drop__opt', d).forEach((o, i) => o.setAttribute('aria-selected', String(i === 0))); }); render(); };
+    root.addEventListener('click', e => { if (e.target.closest('[data-clear]')) reset(); });
+    render();
+  })();
+
+  /* 005 勾选批量：选中后批量条替换工具条 */
+  (() => {
+    const root = $('#wb-tb-bat'), body = $('tbody', root), all = $('[data-all]', root), nb = $('[data-bar="normal"]', root), bb = $('[data-bar="batch"]', root), inp = $('.search input', root);
+    const rows = [1, 6, 0, 2, 3, 4].map(i => ({ ...ORD[i], on: i === 1 || i === 6 })); let q = '';
+    const vis = () => rows.filter(r => !q || (r.who + r.item).includes(q));
+    const sync = () => {
+      const v = vis(), n = rows.filter(r => r.on).length, nv = v.filter(r => r.on).length;
+      all.setAttribute('aria-checked', nv === 0 ? 'false' : nv === v.length ? 'true' : 'mixed');
+      $$('tr[data-no]', body).forEach(tr => tr.setAttribute('aria-selected', String(rows.find(r => r.no === tr.dataset.no).on)));
+      $('[data-n]', bb).textContent = n; bb.hidden = n === 0; nb.hidden = n > 0; $('[data-total]', nb).textContent = v.length;
+    };
+    const render = first => {
+      body.innerHTML = vis().map(r => `<tr data-no="${r.no}"><td class="t-c1"><span class="check" role="checkbox" aria-checked="${r.on}" aria-label="选择订单 ${r.no}" data-row><img src="../../kit/assets/line/check.webp" alt=""></span></td><td>${r.who}</td><td class="t-l">${r.item}</td><td>${r.store}</td><td class="t-r">${fmt(r.amt)}</td><td>${tag(r.st)}</td></tr>`).join('') || emptyRow(6, '没有匹配的订单');
+      if (!first) Lz.initToggles(body);
+      sync();
+    };
+    root.addEventListener('lz:toggle', e => {
+      const el = e.target, on = el.getAttribute('aria-checked') === 'true';
+      if (el.matches('[data-all]')) { vis().forEach(r => { r.on = on; }); render(); }
+      else if (el.matches('[data-row]')) { rows.find(r => r.no === el.closest('tr').dataset.no).on = on; sync(); }
+    });
+    body.addEventListener('click', e => { if (e.target.closest('.check')) return; const c = e.target.closest('tr[data-no]'); if (c) $('.check', c).click(); });
+    inp.addEventListener('input', () => { q = inp.value.trim(); render(); });
+    bb.addEventListener('click', e => {
+      const b = e.target.closest('[data-act]'); if (!b) return; const sel = rows.filter(r => r.on);
+      if (b.dataset.act === 'clear') { rows.forEach(r => { r.on = false; }); render(); }
+      if (b.dataset.act === 'export') Lz.toast(`已导出 ${sel.length} 单`, 'success');
+      if (b.dataset.act === 'ship') { const t = sel.filter(r => r.st === '待发货'); t.forEach(r => { r.st = '待收货'; }); rows.forEach(r => { r.on = false; }); render(); Lz.toast(t.length ? `已发货 ${t.length} 单` : '所选订单没有待发货', t.length ? 'success' : 'neutral'); }
+    });
+    render(true);
+  })();
+
+  /* 006 行内展开：整行可点，明细紧邻该行下方 */
+  (() => {
+    const root = $('#wb-tb-ex');
+    root.addEventListener('click', e => { const tr = e.target.closest('.ex-row'); if (tr && !e.target.closest('button')) $('.chev', tr).click(); });
+  })();
+  document.addEventListener('click', e => { const b = e.target.closest('#cat-tabl [data-toast]'); if (b) Lz.toast(b.dataset.toast, 'success'); });
+
+  /* 007 008 固定列：滚动出现边缘阴影 */
+  $$('.wb-tb-fix, .wb-tb-fixr').forEach(w => {
+    const upd = () => { w.dataset.edgeL = String(w.scrollLeft > 1); w.dataset.edgeR = String(Math.ceil(w.scrollLeft + w.clientWidth) < w.scrollWidth - 1); };
+    w.addEventListener('scroll', upd, { passive: true }); new ResizeObserver(upd).observe(w); upd();
+  });
+  (() => {
+    const body = $('#wb-tb-fr tbody');
+    const setOn = (tr, on) => { const t = $('.tag', tr), b = $('[data-op="off"],[data-op="on"]', tr); t.textContent = on ? '在售' : '已下架'; if (on) t.dataset.tone = 'success'; else delete t.dataset.tone; b.textContent = on ? '下架' : '上架'; b.dataset.op = on ? 'off' : 'on'; };
+    body.addEventListener('click', async e => {
+      const b = e.target.closest('[data-op]'); if (!b) return; const tr = b.closest('tr'), name = tr.dataset.n, op = b.dataset.op;
+      if (op === 'edit') Lz.toast('进入' + name + '编辑页');
+      if (op === 'on') { setOn(tr, true); Lz.toast('已上架', 'success'); }
+      if (op === 'off' && await Lz.confirm({ title: '下架' + name, ok: '下架', tone: 'danger' })) { setOn(tr, false); Lz.toast('已下架', 'success'); }
+      if (op === 'del' && await Lz.confirm({ title: '删除' + name, ok: '删除', tone: 'danger' })) { tr.remove(); Lz.toast('已删除', 'success'); }
+    });
+  })();
+
+  /* 009 原位编辑：改价需二次确认，库存直接保存 */
+  (() => {
+    const body = $('#wb-tb-ed tbody');
+    const CFG = {
+      p: { label: '单价', unit: '元', ok: v => /^\d+(\.\d{1,2})?$/.test(v) && +v > 0 && +v <= 9999, err: '请输入 0 到 9999 之间的金额', f: v => fmt(+v), ask: true },
+      s: { label: '库存', unit: '件', ok: v => /^\d+$/.test(v) && +v <= 99999, err: '请输入不超过 99999 的整数', f: v => String(+v), ask: false },
+    };
+    const show = td => {
+      const c = CFG[td.dataset.f]; td.classList.remove('is-edit');
+      td.innerHTML = `<div class="wb-tb-edit"><span>${c.f(td.dataset.v)}</span><button type="button" class="ibtn wb-tb-edit__btn" data-edit data-tip="修改${c.label}" aria-label="修改${td.parentNode.dataset.n}${c.label}"><img src="../../kit/assets/line/edit.webp" alt=""></button></div>`;
+    };
+    const edit = td => {
+      $$('td.is-edit', body).forEach(show);
+      const c = CFG[td.dataset.f]; td.classList.add('is-edit');
+      td.innerHTML = `<div class="wb-tb-edit__form"><div class="wb-tb-edit__row"><input class="input" value="${td.dataset.v}" inputmode="${td.dataset.f === 'p' ? 'decimal' : 'numeric'}" aria-label="${c.label}" autocomplete="off"><button type="button" class="btn btn--primary btn--sm" data-save>保存</button><button type="button" class="btn btn--ghost btn--sm" data-cancel>取消</button></div><span class="wb-tb-edit__err" role="alert" hidden></span></div>`;
+      const i = $('input', td); i.focus(); i.select();
+    };
+    const back = td => { show(td); $('[data-edit]', td).focus(); };
+    const save = async td => {
+      const i = $('input', td), v = i.value.trim(), c = CFG[td.dataset.f], err = $('.wb-tb-edit__err', td), old = td.dataset.v;
+      if (!c.ok(v)) { i.setAttribute('aria-invalid', 'true'); err.textContent = c.err; err.hidden = false; i.focus(); return; }
+      if (+v === +old) { back(td); return; }
+      if (c.ask && !(await Lz.confirm({ title: '修改' + td.parentNode.dataset.n + c.label, body: `${c.f(old)} ${c.unit} 改为 ${c.f(v)} ${c.unit}`, ok: '确认修改' }))) { i.focus(); return; }
+      td.dataset.v = c.f(v); back(td); td.classList.add('is-saved'); setTimeout(() => td.classList.remove('is-saved'), 1300); Lz.toast('已保存', 'success');
+    };
+    body.addEventListener('click', e => {
+      const td = e.target.closest('td[data-f]'); if (!td) return;
+      if (e.target.closest('[data-edit]')) edit(td); else if (e.target.closest('[data-save]')) save(td); else if (e.target.closest('[data-cancel]')) back(td);
+    });
+    body.addEventListener('keydown', e => {
+      const td = e.target.closest('td[data-f]'); if (!td || e.target.tagName !== 'INPUT' || e.isComposing) return;
+      if (e.key === 'Enter') { e.preventDefault(); save(td); } else if (e.key === 'Escape') back(td);
+    });
+    body.addEventListener('input', e => { if (e.target.tagName !== 'INPUT') return; const td = e.target.closest('td'); e.target.removeAttribute('aria-invalid'); $('.wb-tb-edit__err', td).hidden = true; });
+    $$('td[data-f]', body).forEach(show);
+  })();
+
+  /* 010 完整分页器：每页条数、页码省略、跳页 */
+  (() => {
+    const root = $('#wb-tb-pg'), body = $('tbody', root), nav = $('.wb-tb-pages', root), jump = $('.wb-tb-jump input', root), wrap = $('.wb-tb-scroll', root), range = $('[data-range]', root);
+    const TOTAL = 126; let size = 20, page = 1;
+    const pages = () => Math.ceil(TOTAL / size);
+    const render = () => {
+      const n = pages(); page = Math.min(Math.max(1, page), n);
+      const from = (page - 1) * size, to = Math.min(TOTAL, from + size);
+      body.innerHTML = Array.from({ length: to - from }, (_, k) => orderRowStore(gen(from + k))).join('');
+      range.textContent = `第 ${from + 1} 至 ${to} 条`; wrap.scrollTop = 0;
+      const set = [...new Set([1, n, page - 1, page, page + 1])].filter(x => x >= 1 && x <= n).sort((a, b) => a - b), seq = [];
+      set.forEach((x, i) => { if (i && x - set[i - 1] > 1) seq.push(0); seq.push(x); });
+      nav.innerHTML = `<button type="button" class="wb-tb-pgb wb-tb-pgb--txt" data-p="prev"${page === 1 ? ' disabled' : ''}>上一页</button>` + seq.map(x => x ? `<button type="button" class="wb-tb-pgb" data-p="${x}"${x === page ? ' aria-current="page"' : ''} aria-label="第 ${x} 页">${x}</button>` : '<span class="wb-tb-gap" aria-hidden="true">…</span>').join('') + `<button type="button" class="wb-tb-pgb wb-tb-pgb--txt" data-p="next"${page === n ? ' disabled' : ''}>下一页</button>`;
+    };
+    nav.addEventListener('click', e => { const b = e.target.closest('[data-p]'); if (!b) return; const p = b.dataset.p; page = p === 'prev' ? page - 1 : p === 'next' ? page + 1 : +p; render(); const k = $(`[data-p="${p}"]:not([disabled])`, nav) || $('[aria-current="page"]', nav); if (k) k.focus(); });
+    root.addEventListener('lz:drop', e => { if (e.target.id !== 'wb-tb-pgsize') return; const first = (page - 1) * size; size = +e.detail.value; page = Math.floor(first / size) + 1; render(); });
+    jump.addEventListener('keydown', e => { if (e.key !== 'Enter' || e.isComposing) return; const n = parseInt(jump.value, 10); if (Number.isNaN(n)) return; page = n; render(); jump.value = ''; });
+    $('[data-total]', root).textContent = TOTAL; render();
+  })();
+
+  /* 011 简洁翻页条 */
+  (() => {
+    const root = $('#wb-tb-sp'), list = $('.wb-tb-mini', root), PER = 3, N = Math.ceil(21 / PER); let page = 1;
+    const render = () => {
+      list.innerHTML = Array.from({ length: PER }, (_, k) => gen((page - 1) * PER + k)).map(o => `<div class="row"><div class="row__main"><p class="row__title">订单 ${o.no} ${o.who}</p><p class="row__meta">${o.item} ${o.store}</p></div><div class="row__trail"><span class="price"><small>¥</small>${fmt(o.amt)}</span>${tag(o.st)}</div></div>`).join('');
+      $('[data-p]', root).textContent = page; $('[data-n]', root).textContent = N;
+      $('[data-d="-1"]', root).disabled = page === 1; $('[data-d="1"]', root).disabled = page === N;
+    };
+    root.addEventListener('click', e => { const b = e.target.closest('[data-d]'); if (!b) return; page += +b.dataset.d; render(); });
+    render();
+  })();
+
+  /* 012 树形表格：逐级展开收起，汇总向上累加 */
+  (() => {
+    const root = $('#wb-tb-tr'), body = $('tbody', root);
+    const T = [
+      { n: '鲜花', k: [{ n: '花束', k: [['红玫瑰花束', 86, 'rose-red'], ['粉芍药花束', 42, 'peony-pink'], ['向日葵花束', 64, 'sunflower'], ['白郁金香', 51, 'tulip-white']] }] },
+      { n: '绿植', k: [{ n: '盆栽', k: [['蓝绣球盆栽', 38, 'hydrangea-blue'], ['龟背竹盆栽', 27, 'monstera'], ['多肉组合盆', 120, 'succulent']] }] },
+      { n: '礼盒', k: [['花礼盒', 45, 'giftbox']] },
+      { n: '花器', k: [['干花花瓶摆件', 33, 'pampas-vase']] },
+    ];
+    const norm = (x, lvl, parent, out) => {
+      const id = out.length, leaf = Array.isArray(x), node = leaf ? { n: x[0], stock: x[1], img: x[2], leaf: true, cnt: 1 } : { n: x.n, stock: 0, cnt: 0 };
+      Object.assign(node, { id, lvl, parent }); out.push(node);
+      if (!leaf) x.k.forEach(c => { const s = norm(c, lvl + 1, id, out); node.stock += s.stock; node.cnt += s.cnt; });
+      return node;
+    };
+    const rows = []; T.forEach(x => norm(x, 0, -1, rows));
+    const total = rows.filter(r => r.lvl === 0).reduce((s, r) => s + r.stock, 0);
+    const open = new Set([0, 1]);
+    body.innerHTML = rows.map(r => `<tr data-id="${r.id}" data-p="${r.parent}" data-lvl="${r.lvl}"><td class="t-l" style="--lvl:${r.lvl}"><span class="wb-tb-node">${r.leaf ? `<i class="wb-tb-sp"></i><img src="../../kit/assets/photo/product-${r.img}.webp" alt=""><span>${r.n}</span>` : `<button type="button" class="chev wb-tb-tog" aria-expanded="${open.has(r.id)}" aria-label="展开或收起${r.n}" data-tog></button><b>${r.n}</b>`}</span></td><td class="t-n">${r.cnt}</td><td class="t-n">${r.stock}</td><td><span class="wb-tb-share"><span class="progress" style="--v:${(r.stock / total * 100).toFixed(1)}%"><i></i></span><span class="t-n">${Math.round(r.stock / total * 100)}%</span></span></td></tr>`).join('');
+    $('[data-n]', root).textContent = rows.filter(r => r.leaf).length;
+    const trs = $$('tr', body), byId = id => trs[id];
+    const refresh = () => trs.forEach(tr => { const p = byId(+tr.dataset.p); tr.hidden = !!p && (p.hidden || $('[data-tog]', p).getAttribute('aria-expanded') !== 'true'); });
+    body.addEventListener('click', e => { const b = e.target.closest('[data-tog]'); if (!b) return; b.setAttribute('aria-expanded', String(b.getAttribute('aria-expanded') !== 'true')); refresh(); });
+    root.addEventListener('click', e => { const b = e.target.closest('[data-all]'); if (!b) return; $$('[data-tog]', body).forEach(t => t.setAttribute('aria-expanded', String(b.dataset.all === 'open'))); refresh(); });
+    refresh();
+  })();
+
+  /* 013 汇总行：合计随勾选更新 */
+  (() => {
+    const root = $('#wb-tb-sm'), rows = $$('tbody tr', root), all = $('[data-all]', root);
+    const calc = () => {
+      let q = 0, s = 0, n = 0;
+      rows.forEach(tr => { const on = $('[data-row]', tr).getAttribute('aria-checked') === 'true'; tr.setAttribute('aria-selected', String(on)); if (on) { n++; q += +tr.dataset.q; s += tr.dataset.p * tr.dataset.q; } });
+      $('[data-tq]', root).textContent = q; $('[data-ts]', root).textContent = fmt(s);
+      all.setAttribute('aria-checked', n === 0 ? 'false' : n === rows.length ? 'true' : 'mixed');
+    };
+    root.addEventListener('lz:toggle', e => { if (e.target.matches('[data-all]')) { const on = e.target.getAttribute('aria-checked'); $$('[data-row]', root).forEach(c => c.setAttribute('aria-checked', on)); } calc(); });
+    root.addEventListener('click', e => { if (e.target.closest('.check')) return; const tr = e.target.closest('tbody tr'); if (tr) $('[data-row]', tr).click(); });
+    calc();
+  })();
+
+  /* 014 状态分段：分栏计数，分段只影响下方行 */
+  (() => {
+    const root = $('#wb-tb-st'), seg = $('.seg', root), body = $('tbody', root), names = ['待付款', '待发货', '待收货', '已完成', '售后'];
+    body.innerHTML = ORD.map(o => orderRow(o).replace('<tr>', `<tr data-cat="${o.st}">`)).join('');
+    seg.innerHTML = `<button type="button" class="seg__item" data-key="all" aria-selected="true">全部<small>${ORD.length}</small></button>` + names.map(s => `<button type="button" class="seg__item" data-key="${s}" aria-selected="false">${s}<small>${ORD.filter(o => o.st === s).length}</small></button>`).join('');
+  })();
+
+  /* 017 金额列：单位切换，退款与优惠为负 */
+  (() => {
+    const root = $('#wb-tb-am'); let unit = 1;
+    const cell = v => unit === 1 ? fmt(v) : fmt(Math.round(v / 100) / 100);
+    const draw = () => {
+      $$('tr[data-v]', root).forEach(tr => {
+        const [s, r, d] = tr.dataset.v.split(',').map(Number), t = $$('td', tr);
+        t[1].textContent = cell(s); t[2].textContent = '-' + cell(r); t[3].textContent = '-' + cell(d); (t[4].querySelector('b') || t[4]).textContent = cell(s - r - d);
+      });
+      $$('small[data-u]', root).forEach(x => { x.textContent = unit === 1 ? '元' : '万元'; });
+    };
+    $$('.btn-seg button', root).forEach(b => b.addEventListener('click', () => { unit = +b.dataset.u; $$('.btn-seg button', root).forEach(x => x.setAttribute('aria-pressed', String(x === b))); draw(); }));
+    draw();
+  })();
+
+  /* 018 操作列：按状态给操作，更多菜单自带开合 */
+  (() => {
+    const root = $('#wb-tb-op'), body = $('tbody', root), rows = ORD.slice(0, 5).map(o => ({ ...o }));
+    const ACT = { 待付款: [['pay', '催付']], 待发货: [['ship', '发货']], 待收货: [['track', '物流']], 已完成: [], 售后: [['deal', '处理']], 已作废: [] };
+    const render = () => {
+      body.innerHTML = rows.map((r, i) => `<tr data-no="${r.no}"><td class="t-n">${r.no}</td><td>${r.who}</td><td class="t-r">${fmt(r.amt)}</td><td>${tag(r.st)}</td><td class="ov"><span class="wb-tb-ops"><button type="button" class="wb-tb-link" data-op="view">查看</button>${ACT[r.st].map(([k, t]) => `<button type="button" class="wb-tb-link" data-op="${k}">${t}</button>`).join('') || '<span class="wb-tb-slot"></span>'}${r.st === '已作废' ? '' : `<span class="wb-tb-more" data-up="${i >= rows.length - 2}"><button type="button" class="wb-tb-more__btn" aria-haspopup="menu" aria-expanded="false">更多</button><div class="wb-tb-more__menu" role="menu" inert><button type="button" class="wb-tb-more__opt" role="menuitem" data-op="print">打印订单</button><button type="button" class="wb-tb-more__opt wb-tb-more__opt--danger" role="menuitem" data-op="void">作废订单</button></div></span>`}</span></td></tr>`).join('');
+    };
+    const shut = except => $$('.wb-tb-more[data-open="true"]', root).forEach(m => { if (m !== except) { m.dataset.open = 'false'; $('.wb-tb-more__btn', m).setAttribute('aria-expanded', 'false'); $('.wb-tb-more__menu', m).inert = true; } });
+    root.addEventListener('click', async e => {
+      const mb = e.target.closest('.wb-tb-more__btn');
+      if (mb) { e.stopPropagation(); const m = mb.parentNode, o = m.dataset.open !== 'true'; shut(m); m.dataset.open = String(o); mb.setAttribute('aria-expanded', String(o)); $('.wb-tb-more__menu', m).inert = !o; return; }
+      const b = e.target.closest('[data-op]'); if (!b) return; const r = rows.find(x => x.no === b.closest('tr').dataset.no), op = b.dataset.op; shut();
+      if (op === 'view') Lz.toast('查看订单 ' + r.no);
+      if (op === 'pay') Lz.toast('已提醒' + r.who + '付款', 'success');
+      if (op === 'ship') { r.st = '待收货'; render(); Lz.toast('已发货', 'success'); }
+      if (op === 'track') Lz.toast('查看订单 ' + r.no + ' 物流');
+      if (op === 'deal') Lz.toast('进入售后处理页');
+      if (op === 'print') Lz.toast('已打印订单 ' + r.no, 'success');
+      if (op === 'void' && await Lz.confirm({ title: '作废订单 ' + r.no, ok: '作废', tone: 'danger' })) { r.st = '已作废'; render(); Lz.toast('已作废', 'success'); }
+    });
+    document.addEventListener('click', e => { if (!e.target.closest('.wb-tb-more')) shut(); });
+    root.addEventListener('keydown', e => { if (e.key === 'Escape') { const m = e.target.closest('.wb-tb-more'); shut(); if (m) $('.wb-tb-more__btn', m).focus(); } });
+    render();
+  })();
+
+  /* 019 空数据：无匹配时给出清除入口 */
+  (() => {
+    const root = $('#wb-tb-em'), inp = $('input', root), body = $('tbody', root);
+    const P = [['红玫瑰花束', '鲜花', 86, 199], ['粉芍药花束', '鲜花', 42, 239], ['蓝绣球盆栽', '绿植', 38, 129], ['龟背竹盆栽', '绿植', 27, 159], ['干花花瓶摆件', '花器', 33, 129]];
+    const render = () => { const k = inp.value.trim(), r = P.filter(p => !k || p[0].includes(k) || p[1].includes(k)); body.innerHTML = r.length ? r.map(p => `<tr><td class="t-l">${p[0]}</td><td>${p[1]}</td><td class="t-n">${p[2]}</td><td class="t-r">${fmt(p[3])}</td></tr>`).join('') : emptyRow(4, '没有找到相关商品', '清除搜索'); };
+    inp.addEventListener('input', render);
+    root.addEventListener('click', e => { if (e.target.closest('[data-clear]')) { inp.value = ''; render(); inp.focus(); } });
+    render();
+  })();
+
+  /* 020 骨架加载：骨架保持行列位置，完成后换成内容 */
+  (() => {
+    const root = $('#wb-tb-sk'), body = $('tbody', root), tbl = $('table', root), btn = $('[data-reload]', root), st = $('[data-state]', root); let timer;
+    const sk = () => Array.from({ length: 5 }, () => '<tr aria-hidden="true"><td><span class="skel" style="width:48px"></span></td><td><span class="skel" style="width:36px"></span></td><td class="t-l"><span class="skel" style="width:84px;margin:0"></span></td><td class="t-r"><span class="skel" style="width:56px;margin:0 0 0 auto"></span></td><td><span class="skel" style="width:52px;height:22px;border-radius:7px"></span></td></tr>').join('');
+    const load = () => {
+      tbl.setAttribute('aria-busy', 'true'); body.innerHTML = sk(); btn.disabled = true; st.textContent = '加载中'; clearTimeout(timer);
+      timer = setTimeout(() => { body.innerHTML = ORD.slice(0, 5).map(orderRow).join(''); tbl.setAttribute('aria-busy', 'false'); btn.disabled = false; st.textContent = '已加载 5 条'; }, 1600);
+    };
+    btn.addEventListener('click', load); load();
+  })();
+
+  /* 021 导出工具条：搜索与筛选改变结果，导出按当前结果生成表格文件 */
+  (() => {
+    const root = $('#wb-tb-xp'), body = $('tbody', root), inp = $('.search input', root), n = $('[data-n]', root), f = { m: '', t: '' };
+    const view = () => { const k = inp.value.trim(); return ORD.filter(o => (!f.m || o.store === f.m) && (!f.t || o.st === f.t) && (!k || (o.who + o.item).includes(k))); };
+    const render = () => { const v = view(); body.innerHTML = v.length ? v.map(o => `<tr><td class="t-n">${o.no}</td><td>${o.who}</td><td class="t-l">${o.item}</td><td>${o.store}</td><td class="t-r">${fmt(o.amt)}</td><td>${tag(o.st)}</td></tr>`).join('') : emptyRow(6, '没有匹配的订单'); n.textContent = v.length; };
+    const save = list => {
+      const csv = '﻿' + [['订单号', '客户', '商品', '门店', '金额（元）', '状态'], ...list.map(o => [o.no, o.who, o.item, o.store, o.amt.toFixed(2), o.st])].map(r => r.join(',')).join('\r\n');
+      const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' })); a.download = '订单导出.csv'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    };
+    inp.addEventListener('input', render);
+    root.addEventListener('lz:drop', e => {
+      const d = e.target.closest('.drop'), k = d.dataset.k;
+      if (k !== 'x') { f[k] = e.detail.value; render(); return; }
+      const btn = $('.drop__btn', d), list = e.detail.value === 'all' ? ORD : view();
+      $$('.drop__opt', d).forEach(o => o.setAttribute('aria-selected', 'false')); btn.classList.add('is-loading');
+      setTimeout(() => { btn.classList.remove('is-loading'); save(list); Lz.toast(`已导出 ${list.length} 条订单`, 'success'); }, 900);
+    });
+    render();
+  })();
+
+  /* 022 列设置：勾选显示列，至少保留两列 */
+  (() => {
+    const root = $('#wb-tb-cs'), head = $('thead tr', root), body = $('tbody', root), menu = $('.drop__menu', root), cnt = $('[data-n]', root);
+    const C = [['订单号', 't-n', o => o.no], ['客户', '', o => o.who], ['商品', 't-l', o => o.item], ['门店', '', o => o.store], ['金额', 't-r', o => fmt(o.amt), '元'], ['状态', '', o => tag(o.st)]];
+    const on = C.map(() => true), R = ORD.slice(0, 5);
+    const draw = () => {
+      head.innerHTML = C.map((c, i) => on[i] ? `<th>${c[0]}${c[3] ? `<small>${c[3]}</small>` : ''}</th>` : '').join('');
+      body.innerHTML = R.map(o => `<tr>${C.map((c, i) => on[i] ? `<td class="${c[1]}">${c[2](o)}</td>` : '').join('')}</tr>`).join('');
+      cnt.textContent = on.filter(Boolean).length;
+      $$('.wb-tb-col', menu).forEach((el, i) => { el.setAttribute('aria-checked', String(on[i])); $('.check', el).setAttribute('aria-checked', String(on[i])); });
+    };
+    menu.insertAdjacentHTML('beforeend', C.map((c, i) => `<div class="wb-tb-col" role="checkbox" aria-checked="true" data-i="${i}"><span class="check" aria-checked="true" aria-hidden="true"><img src="../../kit/assets/line/check.webp" alt=""></span>${c[0]}</div>`).join(''));
+    menu.addEventListener('click', e => e.stopPropagation());
+    menu.addEventListener('lz:toggle', e => {
+      const el = e.target.closest('.wb-tb-col'), i = +el.dataset.i, v = el.getAttribute('aria-checked') === 'true';
+      if (!v && on.filter(Boolean).length <= 2) { Lz.toast('至少显示 2 列'); } else on[i] = v;
+      draw();
+    });
+    $('[data-reset]', menu).addEventListener('click', () => { on.fill(true); draw(); });
+    draw();
+  })();
+
+  /* 023 密度切换 */
+  (() => {
+    const root = $('#wb-tb-de');
+    $$('.btn-seg button', root).forEach(b => b.addEventListener('click', () => { root.dataset.density = b.dataset.d; $$('.btn-seg button', root).forEach(x => x.setAttribute('aria-pressed', String(x === b))); }));
+  })();
+
+  /* 024 表头吸顶：滚动后表头带投影 */
+  (() => {
+    const root = $('#wb-tb-hd'), w = $('.wb-tb-scroll', root);
+    $('tbody', root).innerHTML = Array.from({ length: 14 }, (_, i) => { const o = gen(i + 2); return `<tr><td class="t-n">${o.no}</td><td>${o.who}</td><td class="t-l">${o.item}</td><td class="t-r">${fmt(o.amt)}</td></tr>`; }).join('');
+    w.addEventListener('scroll', () => { w.dataset.edgeT = String(w.scrollTop > 1); }, { passive: true });
+  })();
+
+  /* 016 行内上下架：下架需居中确认，上架一键生效 */
+  (() => {
+    const root = $('#wb-tb-pr');
+    const guard = async e => {
+      const sw = e.target.closest('.switch'); if (!sw || sw.getAttribute('aria-checked') !== 'true') return;
+      if (e.type === 'keydown' && e.key !== ' ' && e.key !== 'Enter') return;
+      e.stopPropagation(); e.preventDefault();
+      if (await Lz.confirm({ title: '下架' + sw.closest('tr').dataset.n, ok: '下架', tone: 'danger' })) { sw.setAttribute('aria-checked', 'false'); Lz.toast('已下架', 'success'); }
+    };
+    root.addEventListener('click', guard, true); root.addEventListener('keydown', guard, true);
+    root.addEventListener('lz:toggle', e => { if (e.target.getAttribute('aria-checked') === 'true') Lz.toast('已上架', 'success'); });
+  })();
+
+  /* 下拉：收起时选项不进入焦点顺序，方向键移动 */
+  $$('#cat-tabl .drop').forEach(d => { const m = $('.drop__menu', d); const s = () => { m.inert = d.dataset.open !== 'true'; }; new MutationObserver(s).observe(d, { attributes: true, attributeFilter: ['data-open'] }); s(); });
+  document.addEventListener('keydown', e => {
+    const d = e.target.closest && e.target.closest('#cat-tabl .drop'); if (!d || !['ArrowDown', 'ArrowUp'].includes(e.key)) return;
+    const opts = $$('.drop__opt', d); if (!opts.length) return; e.preventDefault();
+    if (d.dataset.open !== 'true') { $('.drop__btn', d).click(); setTimeout(() => (opts.find(o => o.getAttribute('aria-selected') === 'true') || opts[0]).focus(), 0); return; }
+    const i = opts.indexOf(document.activeElement); opts[Math.max(0, Math.min(opts.length - 1, i + (e.key === 'ArrowDown' ? 1 : -1)))].focus();
+  });
+})();
+</script>
+
+<style>
+  /* 新增表格组件：前缀 wb-tbn-，沿用 wb-tb 的表格、工具条与列宽规则 */
+
+  /* 拖拽排序行：点阵手柄、拖动中的行抬起并跟随指针，其余行让位 */
+  .wb-tb .table td.wb-tbn-hd { width: 44px; padding: 0 0 0 var(--s-2); }
+  .wb-tbn-grip { display: inline-grid; place-items: center; width: 32px; height: 32px; border-radius: var(--r-sm); cursor: grab; touch-action: none; transition: background var(--dur-quick) var(--ease-out); }
+  .wb-tbn-grip::before { content: ""; width: 14px; height: 21px; background: radial-gradient(circle, var(--ink-3) 1.6px, transparent 2.1px) 0 0 / 7px 7px; transition: opacity var(--dur-quick) var(--ease-out); }
+  @media (hover: hover) { .wb-tbn-grip:hover { background: var(--zone); } }
+  .wb-tbn-grip[aria-pressed="true"] { background: var(--action-soft); }
+  .wb-tbn-grip[aria-pressed="true"]::before { background-image: radial-gradient(circle, var(--action-press) 1.6px, transparent 2.1px); }
+  .wb-tbn-dr .wb-tb-foot { min-height: 60px; }
+  .wb-tbn-dr.is-dragging { cursor: grabbing; user-select: none; }
+  .wb-tbn-dr.is-dragging .wb-tbn-grip { cursor: grabbing; }
+  .wb-tbn-dr .table tbody tr { position: relative; }
+  .wb-tbn-dr .table tbody tr.is-drag { z-index: 3; }
+  .wb-tbn-dr .table tbody tr.is-drag td { background: var(--surface); border-top-color: var(--action-edge); box-shadow: 0 12px 16px -10px color-mix(in srgb, var(--ink) 32%, transparent), 0 -12px 16px -10px color-mix(in srgb, var(--ink) 18%, transparent); }
+  .wb-tbn-dr .table tbody tr.is-pick td { background: var(--action-tint); }
+  .wb-tbn-dr[data-dirty="true"] .wb-tbn-st { color: var(--action-press); font-weight: 600; }
+  .wb-tbn-dr .toolbar .t-sub { min-width: 0; white-space: nowrap; }
+
+  /* 甘特排期条：时间轴等分，条的起止按天吸附 */
+  .wb-tbn-gt__wrap { overflow-x: auto; scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
+  .wb-tbn-gt__in { min-width: 920px; --nm: 196px; --days: 21; }
+  .wb-tbn-gt__hd, .wb-tbn-gt__row { display: grid; grid-template-columns: var(--nm) minmax(0, 1fr); }
+  .wb-tbn-gt__hd { background: var(--zone); border-bottom: 1px solid var(--line-strong); }
+  .wb-tbn-gt__hd .nm { position: sticky; left: 0; z-index: 5; display: flex; align-items: center; padding: 0 var(--s-4); background: var(--zone); font-size: var(--fs-sm); font-weight: 600; color: var(--ink-2); }
+  .wb-tbn-gt__hd .mo { display: block; padding: var(--s-2) var(--s-3) 0; font-size: var(--fs-xs); font-weight: 600; color: var(--ink-3); }
+  .wb-tbn-gt__ds { display: grid; grid-template-columns: repeat(var(--days), minmax(0, 1fr)); }
+  .wb-tbn-gt__d { display: grid; justify-items: center; gap: 2px; padding: var(--s-1) 0 var(--s-2); font-size: var(--fs-xs); color: var(--ink-3); line-height: 1.2; }
+  .wb-tbn-gt__d b { display: grid; place-items: center; min-width: 24px; height: 24px; border-radius: var(--r-full); font-size: var(--fs-sm); font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .wb-tbn-gt__d[data-we="true"] i, .wb-tbn-gt__d[data-we="true"] b { color: var(--ink-3); font-weight: 400; }
+  .wb-tbn-gt__d[aria-current="date"] b { background: var(--action); color: var(--surface); }
+  .wb-tbn-gt__d i { font-style: normal; }
+  .wb-tbn-gt__bd { position: relative; }
+  .wb-tbn-gt__cols { position: absolute; top: 0; bottom: 0; left: var(--nm); right: 0; display: grid; grid-template-columns: repeat(var(--days), minmax(0, 1fr)); pointer-events: none; }
+  .wb-tbn-gt__cols i { border-left: 1px solid var(--line); }
+  .wb-tbn-gt__cols i[data-we="true"] { background: color-mix(in srgb, var(--zone) 55%, transparent); }
+  .wb-tbn-gt__cols i[data-now="true"] { background: var(--action-tint); box-shadow: inset 2px 0 0 var(--action-edge); }
+  .wb-tbn-gt__row { position: relative; min-height: 56px; }
+  .wb-tbn-gt__row + .wb-tbn-gt__row { border-top: 1px solid var(--line); }
+  .wb-tbn-gt__row .nm { position: sticky; left: 0; z-index: 4; display: flex; align-items: center; gap: var(--s-3); padding: 0 var(--s-4); background: var(--surface); border-right: 1px solid var(--line); min-width: 0; }
+  .wb-tbn-gt__row .nm img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; flex: none; background: var(--zone); }
+  .wb-tbn-gt__row .nm span { display: grid; gap: 1px; min-width: 0; }
+  .wb-tbn-gt__row .nm b { font-size: var(--fs-sm); font-weight: 600; line-height: 1.35; white-space: nowrap; }
+  .wb-tbn-gt__row .nm small { font-size: var(--fs-xs); color: var(--ink-3); line-height: 1.3; }
+  .wb-tbn-gt__trk { position: relative; z-index: 1; }
+  .wb-tbn-bar { --d: var(--days); position: absolute; top: 12px; height: 32px; left: calc(var(--s) / var(--d) * 100% + 2px); width: calc(var(--n) / var(--d) * 100% - 4px); display: flex; align-items: center; justify-content: center; border-radius: var(--r-sm); font-size: var(--fs-sm); font-weight: 600; white-space: nowrap; touch-action: none; cursor: grab; user-select: none; transition: left var(--dur-quick) var(--ease-out), width var(--dur-quick) var(--ease-out), box-shadow var(--dur-quick) var(--ease-out); }
+  .wb-tbn-bar[data-st="live"] { background: var(--action); color: var(--surface); }
+  .wb-tbn-bar[data-st="todo"] { background: var(--action-tint); color: var(--action-press); box-shadow: inset 0 0 0 1px var(--action); }
+  .wb-tbn-bar[data-st="done"] { background: var(--zone); color: var(--ink-3); box-shadow: inset 0 0 0 1px var(--line-strong); }
+  .wb-tbn-bar[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--action); z-index: 2; }
+  .wb-tbn-gt.is-dragging .wb-tbn-bar { transition: none; cursor: grabbing; }
+  .wb-tbn-gt.is-dragging { user-select: none; }
+  .wb-tbn-bar .rz { position: absolute; top: 0; bottom: 0; width: 10px; cursor: ew-resize; }
+  .wb-tbn-bar .rz.l { left: 0; }
+  .wb-tbn-bar .rz.r { right: 0; }
+  .wb-tbn-bar .rz::after { content: ""; position: absolute; top: 9px; bottom: 9px; left: 4px; width: 2px; border-radius: 1px; background: currentColor; opacity: 0; transition: opacity var(--dur-quick) var(--ease-out); }
+  @media (hover: hover) { .wb-tbn-bar:hover .rz::after { opacity: .55; } }
+  .wb-tbn-bar[aria-pressed="true"] .rz::after { opacity: .55; }
+  .wb-tbn-gt .toolbar { gap: var(--s-4); }
+  .wb-tbn-key { display: inline-flex; align-items: center; gap: var(--s-2); font-size: var(--fs-sm); color: var(--ink-2); white-space: nowrap; }
+  .wb-tbn-key i { width: 12px; height: 12px; border-radius: 4px; }
+  .wb-tbn-key i[data-st="live"] { background: var(--action); }
+  .wb-tbn-key i[data-st="todo"] { background: var(--action-tint); box-shadow: inset 0 0 0 1px var(--action); }
+  .wb-tbn-key i[data-st="done"] { background: var(--zone); box-shadow: inset 0 0 0 1px var(--line-strong); }
+  .wb-tbn-gt__rd { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--fs-sm); color: var(--ink-2); }
+  .wb-tbn-gt__rd b { font-weight: 600; color: var(--ink); }
+
+  /* 虚拟滚动表格：只渲染可视行，上下用占位行撑出总高度 */
+  .wb-tbn-vt .wb-tb-scroll { height: 320px; max-height: none; }
+  .wb-tbn-vt .wb-tb-scroll:focus-visible { outline-offset: -2px; }
+  .wb-tbn-vt .table td.sp { padding: 0; border-top: 0; height: 0; }
+  .wb-tbn-vt .table tbody tr { cursor: default; }
+  .wb-tbn-vt__sw { display: inline-flex; align-items: center; gap: var(--s-2); font-size: var(--fs-sm); color: var(--ink-2); }
+  .wb-tbn-vt .wb-tb-foot .btn--sm { min-height: 32px; }
+</style>
+
+<article class="demo" data-cid="WB-TABL-027" data-name="拖拽排序行" data-cat="TABL">
+  <div class="demo__head"><span class="demo__name">拖拽排序行</span></div>
+  <p class="demo__note">适合：调整分类、轮播与菜单顺序，行首拖动手柄</p>
+  <div class="demo__stage"><div class="card wb-tb wb-tbn-dr" id="wb-tbn-dr" data-dirty="false">
+    <div class="toolbar"><span class="t-sub wb-tbn-st" data-st aria-live="polite">共 5 个分类</span><span class="toolbar__sp"></span><button type="button" class="btn btn--text btn--sm" data-reset disabled>恢复</button><button type="button" class="btn btn--primary btn--sm" data-save disabled>保存顺序</button></div>
+    <div class="table-wrap"><table class="table" style="--min:420px">
+      <colgroup><col style="width:44px"><col style="width:64px"><col style="width:136px"><col style="width:84px"><col style="width:92px"></colgroup>
+      <thead><tr><th><span class="sr-only" data-allow-clip>拖动手柄</span></th><th>顺序</th><th>分类名称</th><th>商品数<small>款</small></th><th>状态</th></tr></thead>
+      <tbody>
+        <tr data-id="a"><td class="wb-tbn-hd"><button type="button" class="wb-tbn-grip" aria-pressed="false" aria-label="拖动排序 鲜花束" data-tip="拖动排序"></button></td><td class="t-n"><span class="num">1</span></td><td class="t-l">鲜花束</td><td class="t-n">128</td><td><span class="tag" data-tone="success">展示中</span></td></tr>
+        <tr data-id="b"><td class="wb-tbn-hd"><button type="button" class="wb-tbn-grip" aria-pressed="false" aria-label="拖动排序 绿植盆栽" data-tip="拖动排序"></button></td><td class="t-n"><span class="num">2</span></td><td class="t-l">绿植盆栽</td><td class="t-n">46</td><td><span class="tag" data-tone="success">展示中</span></td></tr>
+        <tr data-id="c"><td class="wb-tbn-hd"><button type="button" class="wb-tbn-grip" aria-pressed="false" aria-label="拖动排序 花礼盒" data-tip="拖动排序"></button></td><td class="t-n"><span class="num">3</span></td><td class="t-l">花礼盒</td><td class="t-n">32</td><td><span class="tag" data-tone="success">展示中</span></td></tr>
+        <tr data-id="d"><td class="wb-tbn-hd"><button type="button" class="wb-tbn-grip" aria-pressed="false" aria-label="拖动排序 花瓶花器" data-tip="拖动排序"></button></td><td class="t-n"><span class="num">4</span></td><td class="t-l">花瓶花器</td><td class="t-n">28</td><td><span class="tag" data-tone="success">展示中</span></td></tr>
+        <tr data-id="e"><td class="wb-tbn-hd"><button type="button" class="wb-tbn-grip" aria-pressed="false" aria-label="拖动排序 养护用品" data-tip="拖动排序"></button></td><td class="t-n"><span class="num">5</span></td><td class="t-l">养护用品</td><td class="t-n">21</td><td><span class="tag">已隐藏</span></td></tr>
+      </tbody>
+    </table></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-TABL-029" data-name="虚拟滚动表格" data-cat="TABL">
+  <div class="demo__head"><span class="demo__name">虚拟滚动表格</span></div>
+  <p class="demo__note">适合：数万行对账数据只渲染可视行</p>
+  <div class="demo__stage"><div class="card wb-tb wb-tbn-vt" id="wb-tbn-vt" style="--rh: 44px">
+    <div class="toolbar"><span class="t-sub">共 <b data-total>50,000</b> 行</span><span class="toolbar__sp"></span><span class="wb-tbn-vt__sw">仅看差异<button type="button" class="switch" role="switch" aria-checked="false" aria-label="仅看差异" data-diff></button></span></div>
+    <div class="table-wrap wb-tb-scroll" tabindex="0" role="region" aria-label="对账流水"><table class="table" style="--min:456px" aria-label="对账流水">
+      <colgroup><col style="width:104px"><col style="width:96px"><col style="width:88px"><col style="width:96px"><col style="width:72px"></colgroup>
+      <thead><tr><th>流水号</th><th>门店</th><th>渠道</th><th>金额<small>元</small></th><th>状态</th></tr></thead>
+      <tbody data-body></tbody>
+    </table></div>
+    <div class="wb-tb-foot"><span>第 <b data-from>1</b> 至 <b data-to>8</b> 行，渲染 <b data-r>0</b> 行</span><span class="sp"></span><div class="btn-group"><button type="button" class="btn btn--secondary btn--sm" data-go="first">首行</button><button type="button" class="btn btn--secondary btn--sm" data-go="mid">中间</button><button type="button" class="btn btn--secondary btn--sm" data-go="last">末行</button></div></div>
+  </div></div>
+</article>
+
+<article class="demo demo--span2" data-cid="WB-TABL-028" data-name="甘特排期条" data-cat="TABL">
+  <div class="demo__head"><span class="demo__name">甘特排期条</span></div>
+  <p class="demo__note">适合：课程与排班在时间轴上按条展示起止</p>
+  <div class="demo__stage"><div class="card wb-tb wb-tbn-gt" id="wb-tbn-gt">
+    <div class="toolbar"><span class="wb-tbn-key"><i data-st="live"></i>进行中</span><span class="wb-tbn-key"><i data-st="todo"></i>未开始</span><span class="wb-tbn-key"><i data-st="done"></i>已结束</span><span class="toolbar__sp"></span><span class="wb-tbn-gt__rd" data-rd data-allow-ellipsis aria-live="polite"></span></div>
+    <div class="wb-tbn-gt__wrap"><div class="wb-tbn-gt__in">
+      <div class="wb-tbn-gt__hd"><span class="nm">花艺课程</span><div><span class="mo">11 月</span><div class="wb-tbn-gt__ds" data-days></div></div></div>
+      <div class="wb-tbn-gt__bd"><div class="wb-tbn-gt__cols" data-cols></div><div data-rows></div></div>
+    </div></div>
+  </div></div>
+</article>
+
+<script>
+(function () {
+  const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const fmt = (n, d = 2) => n.toLocaleString('zh-CN', { minimumFractionDigits: d, maximumFractionDigits: d });
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* 027 拖拽排序行：指针拖手柄，行跟随指针，越过邻行一半就换位；键盘按空格拿起，上下键换位，空格放下，Esc 取消 */
+  (() => {
+    const root = $('#wb-tbn-dr'); if (!root) return;
+    const body = $('tbody', root), save = $('[data-save]', root), reset = $('[data-reset]', root), st = $('[data-st]', root);
+    const rows = () => [...body.rows], initial0 = rows().map(r => r.dataset.id); let initial = initial0.slice(), drag = null, pick = null;
+    const name = r => r.children[2].textContent;
+    const renum = () => rows().forEach((r, i) => { $('.num', r).textContent = i + 1; });
+    const dirty = () => rows().some((r, i) => r.dataset.id !== initial[i]);
+    const sync = msg => { const d = dirty(); save.disabled = !d; reset.disabled = !d; root.dataset.dirty = String(d); st.textContent = msg || (d ? '顺序已调整，尚未保存' : `共 ${rows().length} 个分类`); };
+    const tops = () => new Map(rows().map(r => [r, r.getBoundingClientRect().top]));
+    const flip = (before, skip) => { if (reduce) return; rows().forEach(r => { if (r === skip) return; const dy = before.get(r) - r.getBoundingClientRect().top; if (dy) r.animate([{ transform: `translateY(${dy}px)` }, { transform: 'none' }], { duration: 180, easing: 'cubic-bezier(.22, 1, .36, 1)' }); }); };
+    const swap = (tr, dir) => { const rs = rows(), i = rs.indexOf(tr), j = i + dir; if (j < 0 || j >= rs.length) return null; const before = tops(); if (dir < 0) body.insertBefore(rs[j], tr.nextElementSibling); else body.insertBefore(rs[j], tr); return before; };
+
+    body.addEventListener('pointerdown', e => {
+      const h = e.target.closest('.wb-tbn-grip'); if (!h || e.button || pick) return;
+      e.preventDefault(); const tr = h.closest('tr'); h.setPointerCapture(e.pointerId);
+      drag = { tr, y0: e.clientY, h }; tr.classList.add('is-drag'); root.classList.add('is-dragging');
+    });
+    body.addEventListener('pointermove', e => {
+      if (!drag) return; const tr = drag.tr; tr.style.transform = `translateY(${e.clientY - drag.y0}px)`;
+      for (let k = 0; k < 3; k++) {
+        const rs = rows(), i = rs.indexOf(tr), r = tr.getBoundingClientRect(), mid = r.top + r.height / 2;
+        const up = rs[i - 1], down = rs[i + 1]; let dir = 0;
+        if (up) { const u = up.getBoundingClientRect(); if (mid < u.top + u.height / 2) dir = -1; }
+        if (!dir && down) { const d = down.getBoundingClientRect(); if (mid > d.top + d.height / 2) dir = 1; }
+        if (!dir) break;
+        const t0 = tr.offsetTop, before = swap(tr, dir); drag.y0 += tr.offsetTop - t0; tr.style.transform = `translateY(${e.clientY - drag.y0}px)`; flip(before, tr);
+      }
+    });
+    const end = () => {
+      if (!drag) return; const { tr, h } = drag; drag = null;
+      const m = /translateY\((-?[\d.]+)px\)/.exec(tr.style.transform), cur = m ? +m[1] : 0; tr.style.transform = '';
+      if (cur && !reduce) tr.animate([{ transform: `translateY(${cur}px)` }, { transform: 'none' }], { duration: 160, easing: 'cubic-bezier(.22, 1, .36, 1)' });
+      tr.classList.remove('is-drag'); root.classList.remove('is-dragging'); renum();
+      sync(`已将“${name(tr)}”放到第 ${rows().indexOf(tr) + 1} 位`); h.blur();
+    };
+    body.addEventListener('pointerup', end); body.addEventListener('pointercancel', end);
+
+    body.addEventListener('keydown', e => {
+      const h = e.target.closest('.wb-tbn-grip'); if (!h) return; const tr = h.closest('tr');
+      if (e.key === ' ' || e.key === 'Enter') {
+        e.preventDefault();
+        if (pick && pick.tr === tr) { pick = null; h.setAttribute('aria-pressed', 'false'); tr.classList.remove('is-pick'); sync(`已将“${name(tr)}”放到第 ${rows().indexOf(tr) + 1} 位`); }
+        else if (!pick) { pick = { tr, from: rows().indexOf(tr) }; h.setAttribute('aria-pressed', 'true'); tr.classList.add('is-pick'); st.textContent = `已拿起“${name(tr)}”，用上下键移动，空格放下`; }
+        return;
+      }
+      if (!pick || pick.tr !== tr) return;
+      if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+        e.preventDefault(); const before = swap(tr, e.key === 'ArrowUp' ? -1 : 1); if (before) { flip(before, null); renum(); h.focus(); st.textContent = `“${name(tr)}”在第 ${rows().indexOf(tr) + 1} 位`; }
+      } else if (e.key === 'Escape') {
+        e.preventDefault(); const rs = rows(), to = pick.from; pick = null; h.setAttribute('aria-pressed', 'false'); tr.classList.remove('is-pick');
+        const before = tops(); body.insertBefore(tr, rs.filter(r => r !== tr)[to] || null); flip(before, null); renum(); h.focus(); sync();
+      }
+    });
+    body.addEventListener('focusout', e => { const h = e.target.closest('.wb-tbn-grip'); if (h && pick && pick.tr === h.closest('tr') && !body.contains(e.relatedTarget)) { pick.tr.classList.remove('is-pick'); h.setAttribute('aria-pressed', 'false'); pick = null; sync(); } });
+    save.addEventListener('click', () => { initial = rows().map(r => r.dataset.id); sync('顺序已保存'); Lz.toast('分类顺序已保存', 'success'); });
+    reset.addEventListener('click', () => { const before = tops(), byId = Object.fromEntries(rows().map(r => [r.dataset.id, r])); initial.forEach(id => body.appendChild(byId[id])); flip(before, null); renum(); sync(); });
+  })();
+
+  /* 029 虚拟滚动表格：五万行只渲染可视行加缓冲；仅看差异时总行数随之变化 */
+  (() => {
+    const root = $('#wb-tbn-vt'); if (!root) return;
+    const sc = $('.wb-tb-scroll', root), body = $('[data-body]', root), table = $('table', root), sw = $('[data-diff]', root);
+    const el = { total: $('[data-total]', root), from: $('[data-from]', root), to: $('[data-to]', root), r: $('[data-r]', root) };
+    const STORES = ['建国路店', '徐汇滨江店', '浦东世纪店'], CH = ['微信支付', '支付宝', '现金', '银联卡'], ALL = 50000, DIFF = Math.floor((ALL - 1 - 5) / 17) + 1, BUF = 4;
+    let diff = false, N = ALL, H = 45, a = -1, b = -1;
+    const real = i => (diff ? 5 + 17 * i : i);
+    const rowHtml = i => { const g = real(i), bad = g % 17 === 5, amt = (2000 + (g * 3737) % 48000) / 100; return `<tr aria-rowindex="${i + 2}"><td class="t-n">${60000000 + g}</td><td>${STORES[g % 3]}</td><td>${CH[g % 4]}</td><td class="t-r">${fmt(amt)}</td><td>${bad ? '<span class="tag" data-tone="danger">差异</span>' : '<span class="tag" data-tone="success">已对平</span>'}</td></tr>`; };
+    const spacer = h => `<tr aria-hidden="true"><td class="sp" colspan="5" style="height:${h}px"></td></tr>`;
+    const measure = () => { body.innerHTML = spacer(0) + rowHtml(0); const r = body.rows[1].getBoundingClientRect().height; if (r > 20) H = r; };
+    const draw = force => {
+      const vh = sc.clientHeight, head = $('thead', root).offsetHeight, top = sc.scrollTop;
+      const first = clamp(Math.floor(top / H), 0, N - 1), last = clamp(Math.ceil((top + vh - head) / H), 1, N);
+      el.from.textContent = fmt(first + 1, 0); el.to.textContent = fmt(Math.min(N, Math.max(first + 1, last)), 0);
+      const s = clamp(first - BUF, 0, N - 1), e = clamp(last + BUF, 0, N);
+      if (!force && s === a && e === b) return; a = s; b = e;
+      body.innerHTML = spacer(s * H) + Array.from({ length: e - s }, (_, k) => rowHtml(s + k)).join('') + spacer((N - e) * H);
+      el.r.textContent = e - s;
+    };
+    table.setAttribute('aria-rowcount', String(N + 1));
+    sc.addEventListener('scroll', () => requestAnimationFrame(() => draw()), { passive: true });
+    $$('[data-go]', root).forEach(btn => btn.addEventListener('click', () => { const k = btn.dataset.go; sc.scrollTop = k === 'first' ? 0 : k === 'mid' ? (N / 2) * H : N * H; draw(); }));
+    sw.addEventListener('lz:toggle', () => { diff = sw.getAttribute('aria-checked') === 'true'; N = diff ? DIFF : ALL; table.setAttribute('aria-rowcount', String(N + 1)); el.total.textContent = fmt(N, 0); sc.scrollTop = 0; draw(true); });
+    new ResizeObserver(() => draw(true)).observe(sc);
+    measure(); draw(true);
+  })();
+
+  /* 028 甘特排期条：点条选中并读出起止；拖条整体平移、拖两端改起止，按天吸附；方向键平移，配合 Shift 改天数 */
+  (() => {
+    const root = $('#wb-tbn-gt'); if (!root) return;
+    const D = 21, TODAY = 7, WK = ['一', '二', '三', '四', '五', '六', '日'], mark = n => `../../kit/assets/marks/mark-${String(n).padStart(3, '0')}.webp`;
+    const C = [{ n: '插花入门班', w: '周岚', m: 3, s: 0, l: 7 }, { n: '手捧花进阶班', w: '陈默', m: 2, s: 3, l: 8 }, { n: '绿植养护工作坊', w: '林晓', m: 1, s: 7, l: 3 }, { n: '婚礼花艺定制', w: '吴桐', m: 4, s: 9, l: 10 }, { n: '干花制作体验', w: '郑一', m: 5, s: 14, l: 4 }, { n: '节日花环课', w: '王宁', m: 6, s: 17, l: 4 }];
+    const day = i => `11月${2 + i}日`, iso = i => `2026-11-${String(2 + i).padStart(2, '0')}`, tm = i => `<time datetime="${iso(i)}" data-business-date="${iso(i)}">${day(i)}</time>`, stOf = c => (c.s + c.l - 1 < TODAY ? 'done' : c.s > TODAY ? 'todo' : 'live');
+    $('[data-days]', root).innerHTML = Array.from({ length: D }, (_, i) => `<span class="wb-tbn-gt__d" data-we="${i % 7 > 4}"${i === TODAY ? ' aria-current="date"' : ''}><i>${WK[i % 7]}</i><b>${2 + i}</b></span>`).join('');
+    $('[data-cols]', root).innerHTML = Array.from({ length: D }, (_, i) => `<i data-we="${i % 7 > 4}" data-now="${i === TODAY}"></i>`).join('');
+    const host = $('[data-rows]', root), rd = $('[data-rd]', root), inner = $('.wb-tbn-gt__in', root);
+    host.innerHTML = C.map((c, i) => `<div class="wb-tbn-gt__row"><div class="nm"><img src="${mark(c.m)}" alt=""><span><b>${c.n}</b><small>讲师 ${c.w}</small></span></div><div class="wb-tbn-gt__trk"><button type="button" class="wb-tbn-bar" data-i="${i}" aria-pressed="false"><i class="rz l" aria-hidden="true"></i><span></span><i class="rz r" aria-hidden="true"></i></button></div></div>`).join('');
+    const bars = $$('.wb-tbn-bar', root); let sel = 1;
+    const paint = i => { const c = C[i], bar = bars[i]; bar.style.setProperty('--s', c.s); bar.style.setProperty('--n', c.l); bar.dataset.st = stOf(c); $('span', bar).textContent = c.l + ' 天'; bar.setAttribute('aria-label', `${c.n}，${day(c.s)}至${day(c.s + c.l - 1)}，共 ${c.l} 天，可左右方向键调整`); };
+    const read = () => { const c = C[sel]; rd.innerHTML = `<b>${c.n}</b>　${tm(c.s)}至${tm(c.s + c.l - 1)}，共 ${c.l} 天`; };
+    const choose = i => { sel = i; bars.forEach((b, k) => b.setAttribute('aria-pressed', String(k === i))); read(); };
+    C.forEach((_, i) => paint(i)); choose(sel);
+    let drag = null;
+    root.addEventListener('pointerdown', e => {
+      const bar = e.target.closest('.wb-tbn-bar'); if (!bar || e.button) return; e.preventDefault(); bar.focus({ preventScroll: true });
+      const i = +bar.dataset.i, c = C[i], trk = bar.parentElement.getBoundingClientRect();
+      drag = { i, bar, x0: e.clientX, s0: c.s, l0: c.l, dw: trk.width / D, mode: e.target.closest('.rz.l') ? 'l' : e.target.closest('.rz.r') ? 'r' : 'move', moved: false };
+      bar.setPointerCapture(e.pointerId); choose(i);
+    });
+    root.addEventListener('pointermove', e => {
+      if (!drag) return; const dd = Math.round((e.clientX - drag.x0) / drag.dw), c = C[drag.i];
+      if (dd && !drag.moved) { drag.moved = true; root.classList.add('is-dragging'); }
+      if (drag.mode === 'move') c.s = clamp(drag.s0 + dd, 0, D - drag.l0);
+      else if (drag.mode === 'l') { c.s = clamp(drag.s0 + dd, 0, drag.s0 + drag.l0 - 1); c.l = drag.l0 - (c.s - drag.s0); }
+      else c.l = clamp(drag.l0 + dd, 1, D - drag.s0);
+      paint(drag.i); read();
+    });
+    const end = () => { if (!drag) return; const moved = drag.moved; drag = null; root.classList.remove('is-dragging'); if (moved) Lz.toast('排期已调整', 'success'); };
+    root.addEventListener('pointerup', end); root.addEventListener('pointercancel', end);
+    root.addEventListener('keydown', e => {
+      const bar = e.target.closest('.wb-tbn-bar'); if (!bar) return; const i = +bar.dataset.i, c = C[i], d = { ArrowLeft: -1, ArrowRight: 1 }[e.key];
+      if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); choose(i); return; }
+      if (!d) return; e.preventDefault(); choose(i);
+      if (e.shiftKey) c.l = clamp(c.l + d, 1, D - c.s); else c.s = clamp(c.s + d, 0, D - c.l);
+      paint(i); read();
+    });
+    inner.style.setProperty('--days', D);
+  })();
+})();
+</script>

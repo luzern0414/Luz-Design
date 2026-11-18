@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="zh-CN" data-ui-surface="app"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>任务清单</title><link rel="icon" type="image/webp" href="artwork/solid-tasks.webp"><link rel="stylesheet" href="vendor/vant.css"><link rel="stylesheet" href="vendor/element-plus.css"><link rel="stylesheet" href="style.css?v=0b95f1a9ff07"><link rel="stylesheet" href="shared/typography.css?v=010a178285bf"><link rel="stylesheet" href="shared/interaction.css"></head>
+<body><div id="app" v-cloak>
+<header v-if="!creating" class="masthead page-hero" data-page-top><div class="page-heading"><h1>任务概览</h1><span class="total">{{scoped.length}}<small>项</small></span></div></header><main>
+  <ui-form-page v-if="creating" heading="新建任务" @close="closeNew" class="editor">
+    <van-form @submit="create"><van-field v-model="draft" name="title" label="名称" aria-label="任务名称" maxlength="12" :rules="[{validator:validName,message:'请输入简短中文名称'}]"></van-field>
+    <fieldset class="category-fields"><legend>分类</legend><div><button v-for="c in categories.slice(1)" type="button" :aria-pressed="newCategory===c.name" :class="{selected:newCategory===c.name}" @click="newCategory=c.name">{{c.name}}</button></div></fieldset>
+    <div class="form-actions" data-action-group><van-button class="text-action" native-type="button" aria-label="取消" @click="closeNew">取消</van-button><van-button class="text-action confirm-action" native-type="submit" aria-label="保存任务">保存</van-button></div></van-form>
+  </ui-form-page>
+<ui-section v-if="!creating" heading="任务清单" body-class="task-list"><template #actions><ui-action v-if="tab==='pending'" class="create-button" icon-only icon="action-add" label="新建任务" @click="openNew"></ui-action></template><div class="task-filters"><input v-model="query" aria-label="搜索当前清单" placeholder="搜索任务" type="search"><select v-model="category" aria-label="分类筛选"><option v-for="c in categories" :value="c.name">{{c.name}}</option></select></div>
+    <article v-for="task in shown" :key="task.id" class="task" :class="{expanded:expandedId===task.id}">
+      <div class="task-row"><button class="task-content" @click="expandedId=expandedId===task.id?null:task.id" :aria-expanded="expandedId===task.id" :aria-controls="'task-detail-'+task.id"><h2 :aria-label="task.title">{{task.title}}</h2><span class="task-category">{{task.category}}</span></button><button class="task-action text-action" @click="toggle(task)" :aria-label="(tab==='pending'?'完成':'恢复')+task.title">{{tab==='pending'?'完成':'恢复'}}</button></div>
+      <dl v-if="expandedId===task.id" :id="'task-detail-'+task.id" class="inline-detail"><div><dt>所属清单</dt><dd>{{task.category}}</dd></div><div><dt>任务状态</dt><dd>{{task.done?'已完成':'待处理'}}</dd></div></dl>
+    </article>
+    <div v-if="!shown.length" class="empty"><img src="artwork/archive.webp" alt=""><h2>{{query?'无匹配任务':'暂无任务'}}</h2></div>
+  </ui-section>
+  <p v-if="saveError" class="save-error" role="alert">保存失败</p>
+</main>
+<van-tabbar v-if="!creating" v-model="tab" class="bottom-tabs" :border="false" :fixed="true" :safe-area-inset-bottom="true" aria-label="主导航" @change="changeTab">
+  <van-tabbar-item name="pending"><span>待办</span><template #icon><img src="artwork/list.webp" alt=""></template></van-tabbar-item>
+  <van-tabbar-item name="done"><span>完成</span><template #icon><img src="artwork/archive.webp" alt=""></template></van-tabbar-item>
+</van-tabbar>
+<p class="sr-only" role="status">{{announcement}}</p>
+</div><script src="vendor/vue.global.prod.js"></script><script src="vendor/vant.min.js"></script><script src="vendor/element-plus.js"></script><script src="shared/interaction.js"></script><script src="app.js?v=e77850062a4a"></script></body></html>

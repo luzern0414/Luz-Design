@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="navy" data-bg="none" data-ic-base="../../../../kit/assets/icons">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>花材选购</title>
+<link rel="icon" href="../../../../kit/assets/icons/flat/bouquet.webp">
+<link rel="stylesheet" href="../../../../kit/tokens.css">
+<link rel="stylesheet" href="../../../../kit/ui.css">
+<link rel="stylesheet" href="../../../../kit/kit.css">
+<link rel="stylesheet" href="../../../../kit/app.css">
+<style>
+  /* 本页专属：搜索区、分类筛选条、商品行与就近展开、详情页 */
+  .top { padding-bottom: var(--s-4); background: linear-gradient(180deg, var(--action) 0%, color-mix(in srgb, var(--action) 90%, white) 100%); }
+
+  /* 分类与筛选：放在顶部平面区之外的白底条里，只控制下方列表；滚动时停在顶端 */
+  .subnav { position: sticky; top: 0; z-index: 25; margin: 0 calc(var(--s-4) * -1); padding: var(--s-3) var(--s-4) var(--s-3); background: var(--surface); border-bottom: 1px solid var(--line); }
+  .subnav .seg { margin: -2px calc(var(--s-4) * -1) 0; padding: 2px var(--s-4) 8px; scroll-padding-inline: var(--s-4); }
+  .subnav .seg__item { padding: 0 var(--s-3); }
+  .subnav .filter { margin-top: var(--s-1); }
+  .filter__sw { display: inline-flex; align-items: center; gap: var(--s-2); margin-left: auto; font-size: var(--fs-sm); color: var(--ink-2); white-space: nowrap; }
+
+  .btn--sm { --btn-h: 32px; }
+  .list-wrap { margin-top: var(--s-4); }
+
+  /* 商品行：左图右文，价格在左下、加购在右下，展开按钮在右上 */
+  .item { position: relative; }
+  .item + .item > .prow::before { content: ""; position: absolute; top: 0; left: var(--s-4); right: 0; border-top: 1px solid var(--line); }
+  .prow { display: grid; grid-template-columns: 84px minmax(0, 1fr) auto; column-gap: var(--s-3); align-items: stretch; padding: var(--s-3) var(--s-4); }
+  .prow__pic { position: relative; width: 84px; height: 84px; overflow: hidden; border-radius: var(--r-md); background: var(--zone); box-shadow: inset 0 0 0 1px var(--line); }
+  .prow__pic img { width: 100%; height: 100%; object-fit: cover; }
+  .prow__flag { position: absolute; left: 0; top: 0; height: 20px; border-radius: 0 0 var(--r-sm) 0; }
+  .item[data-stock="0"] .prow__pic img { opacity: .5; }
+  .prow__main { display: grid; align-content: space-between; min-width: 0; }
+  .prow__price { font-size: var(--fs-xl); font-weight: 700; line-height: 1; }
+  .prow__trail { display: grid; align-content: space-between; justify-items: end; gap: var(--s-2); }
+  .prow__chev { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 32px; margin: -4px -6px 0 0; border-radius: var(--r-sm); }
+  .prow__chev:active { background: var(--zone); }
+  .xp { display: grid; gap: var(--s-4); }
+  .xp__row { display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: var(--s-3); }
+  .xp .wheel .input { width: 64px; }
+
+  .sk { grid-template-columns: 84px minmax(0, 1fr) auto; }
+  .sk__img { width: 84px; height: 84px; border-radius: var(--r-md); }
+  .sk__txt { display: grid; align-content: space-between; gap: var(--s-2); }
+  .sk__txt .skel:nth-child(1) { height: 16px; width: 70%; }
+  .sk__txt .skel:nth-child(2) { height: 12px; width: 46%; }
+  .sk__txt .skel:nth-child(3) { height: 22px; width: 34%; }
+  .sk__btn { align-self: end; width: 56px; height: 32px; border-radius: var(--r-full); }
+
+  button.more { width: 100%; color: var(--action-press); font-weight: 600; }
+  button.more[disabled] { background: none; color: var(--ink-3); }
+
+  /* 详情页：整幅花卉实拍，白底信息层叠在图下沿 */
+  .subbar h1 { min-width: 0; }
+  .dimg { width: calc(100% + var(--s-4) * 2); max-width: none; margin: 0 calc(var(--s-4) * -1); aspect-ratio: 1; object-fit: cover; background: var(--zone); }
+  .dsheet { position: relative; margin: -28px calc(var(--s-4) * -1) 0; padding: var(--s-5) var(--s-4) 1px; background: var(--bg); border-radius: var(--r-xl) var(--r-xl) 0 0; }
+  .dhead { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); padding: 0 var(--s-1); }
+  .dprice { font-size: var(--fs-3xl); font-weight: 700; line-height: var(--lh-tight); }
+  .dtags { display: flex; align-items: center; gap: var(--s-2); }
+  .kv .row__trail { font-size: var(--fs-md); color: var(--ink); }
+  .kv .row__main .t-sub { font-size: var(--fs-md); }
+  .dsum { display: grid; gap: 2px; }
+  .dsum .price { font-size: var(--fs-xl); line-height: 1; }
+</style>
+</head>
+<body class="app-body">
+<div class="app">
+
+  <!-- 列表页：顶部只放搜索；分类与单行筛选在其下的白底条里，只控制下方列表 -->
+  <div data-view="list">
+    <main class="page view">
+      <header class="top" data-cid="AP-LIST-001" data-name="顶部搜索栏">
+        <div class="top__row">
+          <label class="search"><img src="../../../../kit/assets/line/search.webp" alt=""><input type="search" id="q" placeholder="搜索花束、绿植、礼盒" aria-label="搜索花束、绿植、礼盒"></label>
+          <button class="ibtn" id="scan" data-tip="扫码" aria-label="扫码"><img src="../../../../kit/assets/line/scan.webp" alt=""></button>
+        </div>
+      </header>
+
+      <div class="subnav" data-cid="AP-LIST-009" data-name="分类筛选条">
+        <div class="seg" role="tablist" aria-label="商品分类" data-seg="cat">
+          <button class="seg__item" data-key="all" aria-selected="true">全部<small>12</small></button>
+          <button class="seg__item" data-key="flower" aria-selected="false">鲜花<small>7</small></button>
+          <button class="seg__item" data-key="plant" aria-selected="false">绿植<small>3</small></button>
+          <button class="seg__item" data-key="gift" aria-selected="false">礼盒<small>1</small></button>
+          <button class="seg__item" data-key="vase" aria-selected="false">花器<small>1</small></button>
+        </div>
+        <div class="filter" role="group" aria-label="筛选">
+          <div class="drop" id="drop-sort">
+            <button class="drop__btn"><span>排序</span><b>综合</b></button>
+            <div class="drop__menu" role="listbox" aria-label="排序方式">
+              <button class="drop__opt" role="option" data-value="def" aria-selected="true">综合</button>
+              <button class="drop__opt" role="option" data-value="sales" aria-selected="false">销量</button>
+              <button class="drop__opt" role="option" data-value="price" aria-selected="false">价格</button>
+            </div>
+          </div>
+          <div class="drop" id="drop-price">
+            <button class="drop__btn"><span>价格</span><b>不限</b></button>
+            <div class="drop__menu" role="listbox" aria-label="价格区间">
+              <button class="drop__opt" role="option" data-value="all" aria-selected="true">不限</button>
+              <button class="drop__opt" role="option" data-value="low" aria-selected="false">100 以下</button>
+              <button class="drop__opt" role="option" data-value="mid" aria-selected="false">100 至 200</button>
+              <button class="drop__opt" role="option" data-value="high" aria-selected="false">200 以上</button>
+            </div>
+          </div>
+          <div class="filter__sw"><span id="sw-l">仅看有货</span><button class="switch" id="sw-stock" role="switch" aria-checked="false" aria-labelledby="sw-l"></button></div>
+        </div>
+      </div>
+
+      <div class="list-wrap">
+        <!-- 首次加载骨架 -->
+        <div class="card list" id="skel" aria-hidden="true" data-cid="AP-LIST-004" data-name="列表加载骨架">
+          <div class="row sk"><div class="skel sk__img"></div><div class="sk__txt"><div class="skel"></div><div class="skel"></div><div class="skel"></div></div><div class="skel sk__btn"></div></div>
+          <div class="row sk"><div class="skel sk__img"></div><div class="sk__txt"><div class="skel"></div><div class="skel"></div><div class="skel"></div></div><div class="skel sk__btn"></div></div>
+          <div class="row sk"><div class="skel sk__img"></div><div class="sk__txt"><div class="skel"></div><div class="skel"></div><div class="skel"></div></div><div class="skel sk__btn"></div></div>
+          <div class="row sk"><div class="skel sk__img"></div><div class="sk__txt"><div class="skel"></div><div class="skel"></div><div class="skel"></div></div><div class="skel sk__btn"></div></div>
+        </div>
+
+        <div class="card list" id="list" hidden data-cid="AP-LIST-002" data-name="商品紧凑列表"></div>
+
+        <!-- 筛选无结果：对象与动作 -->
+        <div class="empty" id="empty" hidden data-cid="AP-LIST-005" data-name="筛选空结果">
+          <img class="ic ic--xl" data-ic="bag" src="../../../../kit/assets/icons/flat/bag.webp" alt="">
+          <p class="t-h">暂无商品</p>
+          <button class="btn btn--secondary btn--pill" id="reset">清除筛选</button>
+        </div>
+
+        <div data-cid="AP-LIST-006" data-name="加载更多提示">
+          <button class="more" id="more" hidden>加载更多</button>
+          <p class="more" id="end" hidden>已到底</p>
+        </div>
+      </div>
+    </main>
+
+    <nav class="tabbar" data-cid="AP-NAV-001" data-name="底部主导航" aria-label="主导航">
+      <a class="tabbar__item" href="home.html"><img src="../../../../kit/assets/line/home.webp" alt=""><span>首页</span></a>
+      <a class="tabbar__item" href="list.html" aria-current="page"><img src="../../../../kit/assets/line/list.webp" alt=""><span>分类</span></a>
+      <a class="tabbar__item" href="orders.html"><img src="../../../../kit/assets/line/archive.webp" alt=""><span>订单</span></a>
+      <a class="tabbar__item" href="agent.html"><img src="../../../../kit/assets/line/message.webp" alt=""><span>助手</span></a>
+      <a class="tabbar__item" href="mine.html"><img src="../../../../kit/assets/line/user.webp" alt=""><span>我的</span></a>
+    </nav>
+  </div>
+
+  <!-- 独立详情页：左上返回，返回后恢复来源行的焦点与滚动位置 -->
+  <div data-view="detail" hidden>
+    <header class="subbar">
+      <button class="ibtn" data-back data-tip="返回" aria-label="返回"><img src="../../../../kit/assets/line/back.webp" alt=""></button>
+      <h1 class="one-line" id="d-title"></h1>
+    </header>
+    <main class="page view has-actionbar" data-cid="AP-LIST-007" data-name="商品详情页">
+      <img class="dimg" id="d-img" alt="">
+      <div class="dsheet">
+        <div class="dhead">
+          <span class="price dprice"><small>¥</small><span id="d-price"></span></span>
+          <div class="dtags"><span class="tag" id="d-stock"></span><span class="t-sub" id="d-sales"></span></div>
+        </div>
+        <section class="section">
+          <div class="section__head"><h2>规格</h2></div>
+          <div class="seg section__body" role="tablist" aria-label="规格" data-seg="dspec" id="d-spec"></div>
+        </section>
+        <section class="section">
+          <div class="section__head"><h2>参数</h2></div>
+          <div class="card list kv section__body" id="d-params"></div>
+        </section>
+      </div>
+    </main>
+    <div class="actionbar" data-cid="AP-LIST-008" data-name="详情底部操作栏">
+      <p class="dsum"><span class="t-sub">小计</span><span class="price"><small>¥</small><span id="d-sum"></span></span></p>
+      <div class="btn-group">
+        <button class="btn btn--secondary" id="d-cart">加入购物车</button>
+        <button class="btn btn--primary" id="d-buy">立即购买</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 商品行：紧凑行加就近展开，规格与数量在该行正下方 -->
+<template id="tpl-item">
+  <div class="item" data-cid="AP-LIST-003" data-name="商品展开行">
+    <div class="row prow">
+      <div class="prow__pic"><img data-f="img" alt=""><span class="tag prow__flag" data-f="flag" hidden></span></div>
+      <div class="row__main prow__main">
+        <div><p class="row__title one-line" data-f="name"></p><p class="row__meta one-line" data-f="meta"></p></div>
+        <p class="price prow__price"><small>¥</small><span data-f="price"></span></p>
+      </div>
+      <div class="prow__trail">
+        <button class="chev prow__chev" data-f="toggle" data-tip="展开规格" aria-label="展开规格"></button>
+        <button class="btn btn--soft btn--sm btn--pill" data-f="cart">加购</button>
+      </div>
+    </div>
+    <div class="expand" data-f="panel" data-open="false" inert>
+      <div><div class="expand__body xp">
+        <div class="field" role="group" aria-label="规格"><span class="field__label">规格</span><div class="seg" role="tablist" data-f="specs"></div></div>
+        <div class="xp__row">
+          <div class="field" role="group" aria-label="数量"><span class="field__label">数量</span><div class="wheel" data-min="1" data-max="9" data-value="1" data-unit="件" data-label="数量"></div></div>
+          <button class="btn btn--primary" data-f="detail" data-open="detail">查看详情</button>
+        </div>
+      </div></div>
+    </div>
+  </div>
+</template>
+
+<script src="../../../../kit/ui.js"></script>
+<script>
+  /* 数据：花间集在售商品；前 9 件首屏出现，其余 3 件由加载更多追加 */
+  const CATS = { flower: '鲜花', plant: '绿植', gift: '礼盒', vase: '花器' };
+  const P = [
+    { id: 'p1', name: '红玫瑰花束', img: 'product-rose-red', cat: 'flower', price: 199, sales: 3280, stock: true, flag: ['热卖', 'price'], attr: '牛皮纸包装', specs: ['十一支', '十九支', '三十三支'], si: 1, params: [['花材', '厄瓜多尔红玫瑰'], ['花语', '热烈的爱'], ['保鲜', '7 天']] },
+    { id: 'p2', name: '粉芍药花束', img: 'product-peony-pink', cat: 'flower', price: 239, sales: 2460, stock: true, flag: ['新品', 'action'], attr: '雪梨纸包装', specs: ['五支', '九支', '十一支'], si: 1, params: [['花材', '粉芍药 尤加利'], ['花语', '温柔的心意'], ['保鲜', '5 天']] },
+    { id: 'p3', name: '向日葵花束', img: 'product-sunflower', cat: 'flower', price: 159, sales: 2112, stock: true, attr: '麻绳包扎', specs: ['三支', '六支', '九支'], si: 1, params: [['花材', '向日葵 小雏菊'], ['花语', '阳光与希望'], ['保鲜', '6 天']] },
+    { id: 'p4', name: '白郁金香', img: 'product-tulip-white', cat: 'flower', price: 179, sales: 1860, stock: true, attr: '素雅包装', specs: ['十支', '二十支', '三十支'], si: 0, params: [['花材', '荷兰郁金香'], ['花语', '纯净的祝福'], ['保鲜', '5 天']] },
+    { id: 'p5', name: '蓝绣球盆栽', img: 'product-hydrangea-blue', cat: 'plant', price: 129, sales: 980, stock: true, attr: '陶瓷盆', specs: ['小号', '中号', '大号'], si: 1, params: [['花盆', '手作陶瓷盆'], ['光照', '明亮散射光'], ['浇水', '每周 2 次']] },
+    { id: 'p6', name: '龟背竹盆栽', img: 'product-monstera', cat: 'plant', price: 159, sales: 2860, stock: true, flag: ['热卖', 'price'], attr: '白色陶瓷盆', specs: ['中号', '大号'], si: 0, params: [['花盆', '白色陶瓷盆'], ['光照', '半阴'], ['浇水', '每周 1 次']] },
+    { id: 'p7', name: '多肉组合盆', img: 'product-succulent', cat: 'plant', price: 89, sales: 2214, stock: true, attr: '赤陶盆', specs: ['小盆', '中盆', '大盆'], si: 1, params: [['品种', '六种多肉'], ['光照', '充足日照'], ['浇水', '每两周 1 次']] },
+    { id: 'p8', name: '干花花瓶摆件', img: 'product-pampas-vase', cat: 'vase', price: 129, sales: 1907, stock: false, flag: ['缺货', 'danger'], attr: '手作陶瓶', specs: ['矮款', '高款'], si: 0, params: [['材质', '手作陶瓶'], ['花材', '蒲苇 干花'], ['保存', '一年以上']] },
+    { id: 'p9', name: '花礼盒', img: 'product-giftbox', cat: 'gift', price: 259, sales: 1530, stock: true, attr: '牛皮纸礼盒', specs: ['经典款', '升级款', '尊享款'], si: 0, params: [['花材', '玫瑰 洋桔梗'], ['包装', '牛皮纸礼盒'], ['配送', '同城 2 小时']] },
+    { id: 'p10', name: '红粉混搭花束', img: 'bouquet-rose', cat: 'flower', price: 219, sales: 1760, stock: true, flag: ['新品', 'action'], attr: '粉色包装', specs: ['十一支', '十九支'], si: 0, params: [['花材', '红玫瑰 粉玫瑰'], ['花语', '倾心相伴'], ['保鲜', '7 天']] },
+    { id: 'p11', name: '黄郁金香花束', img: 'bouquet-tulip', cat: 'flower', price: 169, sales: 1120, stock: true, attr: '奶油包装', specs: ['十支', '二十支'], si: 0, params: [['花材', '荷兰郁金香'], ['花语', '明朗的喜悦'], ['保鲜', '5 天']] },
+    { id: 'p12', name: '白洋桔梗花束', img: 'bouquet-white', cat: 'flower', price: 149, sales: 690, stock: true, attr: '绿色包装', specs: ['九支', '十五支'], si: 0, params: [['花材', '白洋桔梗'], ['花语', '真诚不变'], ['保鲜', '8 天']] },
+  ];
+  P.forEach((p, i) => { p.ord = i; p.qty = 1; p.node = null; });
+  const byId = Object.fromEntries(P.map(p => [p.id, p]));
+  const PAGE = 9, STEP = 3;
+  const state = { cat: 'all', sort: 'def', price: 'all', stock: false, q: '', limit: PAGE, detail: null };
+  let loading = true;
+
+  const { $, $$ } = Lz;
+  const list = $('#list'), empty = $('#empty'), moreBtn = $('#more'), endTip = $('#end'), tpl = $('#tpl-item');
+  const money = n => n.toLocaleString('zh-CN');
+  const metaOf = p => `${p.specs[p.si]} · ${p.attr}`;
+  const inPrice = p => ({ all: true, low: p.price < 100, mid: p.price >= 100 && p.price <= 200, high: p.price > 200 })[state.price];
+  const matches = p => (state.cat === 'all' || p.cat === state.cat) && (!state.stock || p.stock) && inPrice(p) && (!state.q || p.name.includes(state.q));
+  const cmp = (a, b) => state.sort === 'sales' ? b.sales - a.sales : state.sort === 'price' ? a.price - b.price : a.ord - b.ord;
+
+  /* 分类数量由数据得出 */
+  $$('.subnav .seg__item small').forEach(s => { const k = s.parentElement.dataset.key; s.textContent = k === 'all' ? P.length : P.filter(p => p.cat === k).length; });
+
+  /* 由模板生成一行：只有第一行保留组件编号，其余去掉 */
+  let first = true;
+  function makeItem(p) {
+    const n = tpl.content.firstElementChild.cloneNode(true);
+    if (!first) { n.removeAttribute('data-cid'); n.removeAttribute('data-name'); } first = false;
+    const f = k => n.querySelector(`[data-f="${k}"]`);
+    n.dataset.id = p.id; n.dataset.cat = p.cat; n.dataset.stock = p.stock ? '1' : '0';
+    f('img').src = `../../../../kit/assets/photo/${p.img}.webp`;
+    f('name').textContent = p.name; f('meta').textContent = metaOf(p); f('price').textContent = p.price;
+    if (p.flag) { const t = f('flag'); t.hidden = false; t.textContent = p.flag[0]; t.dataset.tone = p.flag[1]; }
+    const cart = f('cart');
+    if (p.stock) cart.addEventListener('click', () => Lz.toast('已加入购物车', 'success')); else { cart.textContent = '缺货'; cart.disabled = true; }
+    const panel = f('panel'); panel.id = 'ex-' + p.id; f('toggle').dataset.expand = panel.id;
+    f('detail').dataset.key = p.id;
+    p.specs.forEach((s, i) => { const b = document.createElement('button'); b.className = 'seg__item'; b.dataset.key = i; b.textContent = s; b.setAttribute('aria-selected', String(i === p.si)); f('specs').appendChild(b); });
+    f('specs').dataset.seg = 'sp-' + p.id; f('specs').setAttribute('aria-label', p.name + '规格');
+    n.querySelector('.wheel').dataset.name = 'qty-' + p.id;
+    if (p.id === 'p1') panel.dataset.open = 'true';
+    return n;
+  }
+  function mount(p) {
+    const n = makeItem(p); p.node = n; list.appendChild(n);
+    Lz.initSeg(n); Lz.initExpand(n); Lz.initWheels(n);
+    syncPanel(n.querySelector('.expand'));
+    return n;
+  }
+  /* 收起的面板不进入焦点顺序，也不对读屏可见 */
+  function syncPanel(panel) {
+    const open = panel.dataset.open === 'true'; panel.inert = !open;
+    const t = $(`[data-expand="${panel.id}"]`); if (t) { const label = open ? '收起规格' : '展开规格'; t.setAttribute('aria-label', label); t.dataset.tip = label; }
+  }
+  document.addEventListener('click', e => { const b = e.target.closest('[data-expand]'); if (b) syncPanel(document.getElementById(b.dataset.expand)); });
+
+  /* 渲染：筛选、排序、分页都作用于下方列表，顶部不变 */
+  function render({ reveal = false } = {}) {
+    if (loading) return;
+    const rows = P.filter(matches).sort(cmp), shown = rows.slice(0, state.limit), set = new Set(shown);
+    const fresh = [];
+    shown.forEach(p => { if (!p.node) { mount(p); fresh.push(p.node); } });
+    const want = [...shown, ...P.filter(p => p.node && !set.has(p))].map(p => p.node);
+    if (want.some((n, i) => list.children[i] !== n)) want.forEach(n => list.appendChild(n));
+    P.forEach(p => {
+      if (!p.node) return;
+      const wasHidden = p.node.hidden; p.node.hidden = !set.has(p);
+      if (wasHidden && !p.node.hidden) p.node.querySelectorAll('.wheel .input').forEach(i => i.dispatchEvent(new Event('input')));
+    });
+    if (reveal) fresh.forEach((n, i) => { n.classList.add('reveal'); n.style.setProperty('--i', i); requestAnimationFrame(() => (n.dataset.in = '')); });
+    list.hidden = rows.length === 0; empty.hidden = rows.length > 0;
+    moreBtn.hidden = !(rows.length > state.limit); endTip.hidden = !(rows.length > 0 && rows.length <= state.limit);
+  }
+  const refilter = () => { state.limit = PAGE; render(); };
+
+  /* 首次进入：4 行骨架约 700ms */
+  setTimeout(() => { loading = false; $('#skel').hidden = true; list.hidden = false; render(); }, 700);
+
+  /* 分类、下拉、开关、搜索 */
+  document.addEventListener('lz:seg', e => {
+    const { group, key } = e.detail;
+    if (group === 'cat') { state.cat = key; refilter(); }
+    else if (group === 'dspec') { const p = byId[state.detail]; if (p) setSpec(p, +key); }
+    else if (group.startsWith('sp-')) { const p = byId[group.slice(3)]; if (p) setSpec(p, +key); }
+  });
+  function setSpec(p, i) {
+    p.si = i;
+    if (p.node) { $('[data-f="meta"]', p.node).textContent = metaOf(p); $$('[data-f="specs"] .seg__item', p.node).forEach(b => b.setAttribute('aria-selected', String(+b.dataset.key === i))); }
+  }
+  document.addEventListener('lz:drop', e => { const v = e.detail.value; if (e.target.id === 'drop-sort') state.sort = v; else if (e.target.id === 'drop-price') state.price = v; refilter(); });
+  $('#sw-stock').addEventListener('lz:toggle', e => { state.stock = e.target.getAttribute('aria-checked') === 'true'; refilter(); });
+  $('#q').addEventListener('input', e => { state.q = e.target.value.trim(); refilter(); });
+  $('#scan').addEventListener('click', () => { $('#q').value = '红玫瑰'; state.q = '红玫瑰'; refilter(); Lz.toast('已识别商品', 'success'); });
+  $('#reset').addEventListener('click', () => {
+    $('#q').value = ''; state.q = '';
+    $('.seg__item[data-key="all"]').click();
+    $('#drop-sort .drop__opt[data-value="def"]').click(); $('#drop-price .drop__opt[data-value="all"]').click();
+    const sw = $('#sw-stock'); if (sw.getAttribute('aria-checked') === 'true') sw.click();
+  });
+  /* 打开一个下拉时收起另一个 */
+  document.addEventListener('click', e => $$('.drop[data-open="true"]').forEach(d => { if (!d.contains(e.target)) { d.dataset.open = 'false'; $('.drop__btn', d).setAttribute('aria-expanded', 'false'); } }), true);
+
+  /* 数量：滚轮或手输都记在该商品上 */
+  document.addEventListener('lz:wheel', e => { const item = e.target.closest('.item'); if (item) byId[item.dataset.id].qty = e.detail.value; });
+
+  /* 加载更多：追加 3 行，错峰出现，追加完显示已到底 */
+  moreBtn.addEventListener('click', () => {
+    moreBtn.disabled = true; moreBtn.textContent = '加载中';
+    setTimeout(() => { moreBtn.disabled = false; moreBtn.textContent = '加载更多'; state.limit += STEP; render({ reveal: true }); }, 450);
+  });
+
+  /* 详情页：进入前填好内容，返回由 Lz 恢复来源行焦点与滚动位置 */
+  document.addEventListener('click', e => {
+    const o = e.target.closest('[data-open="detail"]'); if (!o) return;
+    const p = byId[o.dataset.key]; if (!p) return;
+    state.detail = p.id;
+    $('#d-title').textContent = p.name;
+    const img = $('#d-img'); img.src = `../../../../kit/assets/photo/${p.img}.webp`; img.alt = p.name;
+    $('#d-price').textContent = p.price;
+    const st = $('#d-stock'); st.textContent = p.stock ? '有货' : '缺货'; st.dataset.tone = p.stock ? 'success' : 'danger';
+    $('#d-sales').textContent = `已售 ${money(p.sales)} 件`;
+    const spec = $('#d-spec'); spec.replaceChildren();
+    p.specs.forEach((s, i) => { const b = document.createElement('button'); b.className = 'seg__item'; b.dataset.key = i; b.textContent = s; b.setAttribute('aria-selected', String(i === p.si)); spec.appendChild(b); });
+    Lz.initSeg(spec.parentElement);
+    const rows = [['数量', `${p.qty} 件`], ['分类', CATS[p.cat]], ...p.params];
+    $('#d-params').replaceChildren(...rows.map(([k, v]) => { const r = document.createElement('div'); r.className = 'row'; r.innerHTML = '<div class="row__main"><span class="t-sub"></span></div><div class="row__trail"><span></span></div>'; r.querySelector('.t-sub').textContent = k; r.querySelector('.row__trail span').textContent = v; return r; }));
+    $('#d-sum').textContent = money(p.price * p.qty);
+    ['#d-cart', '#d-buy'].forEach(s => { $(s).disabled = !p.stock; });
+  }, true);
+  $('#d-cart').addEventListener('click', () => Lz.toast('已加入购物车', 'success'));
+  $('#d-buy').addEventListener('click', () => Lz.toast('已提交订单', 'success'));
+</script>
+</body>
+</html>

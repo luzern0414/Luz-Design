@@ -53,9 +53,16 @@ def approval_errors(work: Path, stage: str, source: Path) -> list[str]:
     return sorted(set(errors))
 
 
-def document_errors(source: Path, allow: list[str] | None) -> list[str]:
+def document_errors(source: Path, allow: list[str] | None, *, session=None, delivery_target=None) -> list[str]:
     """check_document.py on the page that is about to be published; --allow passes on what the user asked for."""
     import check_document
+    from ui_entry_policy import html_delivery_contract
+    try:
+        contract = html_delivery_contract(source, session=session, allow=allow, delivery_target=delivery_target)
+    except (OSError, ValueError) as exc:
+        return [f'UI admission: {exc}']
+    if contract['kind'] in {'frontend-ui', 'component-ui'}:
+        return []  # Deterministic reconstruction and current browser proof are required.
     saved = set(check_document.ALLOWED)
     check_document.ALLOWED.clear()
     check_document.ALLOWED.update(kind.strip() for value in (allow or []) for kind in value.split(",") if kind.strip())
@@ -63,7 +70,7 @@ def document_errors(source: Path, allow: list[str] | None) -> list[str]:
         check_document.ALLOWED.add("interface")
     errors: list[str] = []
     try:
-        check_document.check_html(source, errors, [])
+        check_document.check_html(source, errors, [], session=session)
     finally:
         check_document.ALLOWED.clear()
         check_document.ALLOWED.update(saved)
@@ -93,9 +100,29 @@ def publish(folder: Path, stage: str, allow: list[str] | None = None, as_name: s
     project_target = project_page_target(link, as_name) if link else None
     errors: list[str] = []
     # Work starts from a current rule card and the BRIEF names the rules it applied (scripts/context.py).
-    from crawl_gate import crawl_errors
+    from crawl_gate import require_session_preflight, record_template_output
+    from template_library import require_selected
+    from new_session import session_page_template_errors
     from style_match import session_style_errors
-    errors.extend(crawl_errors(folder, caller="luz-design"))
+    template_id = {"visual": "design-visual-board", "document": "design-document-page"}.get(stage, "reading-html")
+    try:
+        source_context = require_session_preflight(folder, source)
+        session_template = template_id in {"design-visual-board", "design-document-page"}
+        require_selected(source_context["template_root"], source_context["caller"], source_context["stage"], source,
+                         template_id, phase="pre" if session_template else "post")
+        if session_template:
+            errors.extend(session_page_template_errors(source, template_id))
+        context = require_session_preflight(folder, project_target or final_html(folder), template_id=template_id)
+    except ValueError as exc:
+        errors.append(str(exc))
+    from ui_entry_policy import html_delivery_contract
+    try:
+        contract = html_delivery_contract(source, session=folder, allow=allow,
+                                          delivery_target=project_target or final_html(folder))
+        if contract['kind'] in {'frontend-ui', 'component-ui'}:
+            errors.append('界面包必须保持完整文件树；通过普通汇总页链接界面包，不能只复制入口 HTML')
+    except (OSError, ValueError) as exc:
+        errors.append(str(exc))
     allowed = {kind.strip() for value in (allow or []) for kind in value.split(",") if kind.strip()}
     errors.extend(session_style_errors(folder, required=bool(allowed & {"interface", "website"})))
     from validate_session import rule_card_errors, sediment_errors
@@ -109,11 +136,14 @@ def publish(folder: Path, stage: str, allow: list[str] | None = None, as_name: s
     from check_document import tab_icon_findings
     errors.extend(tab_icon_findings(source.read_text(encoding="utf-8"))[0])
     # The page passes the document checks, and an approval stage is approved for exactly this artifact.
-    errors.extend(e for e in document_errors(source, allow) if e not in errors)
+    errors.extend(e for e in document_errors(source, allow, session=folder,
+                  delivery_target=project_target or final_html(folder)) if e not in errors)
     if stage in APPROVED_STAGES:
         errors.extend(approval_errors(work, stage, source))
     if errors:
         raise ValueError("stage artifact fails the HTML contract: " + "; ".join(errors))
+    record_template_output(source_context, source, template_id,
+                           generator=f"Luz-Design/scripts/new_session.py:{stage}; publish.py shell/document checks")
     manifest_path = work / "99-delivery" / "MANIFEST.json"
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     record = {
@@ -133,6 +163,7 @@ def publish(folder: Path, stage: str, allow: list[str] | None = None, as_name: s
             {"path": relative, "sha256": sha256_file(project_target), **record}]
         manifest["project"] = link
         manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        record_template_output(context, project_target, template_id, generator=f"Luz-Design/scripts/publish.py:{stage}")
         return project_target
     for item in folder.iterdir():
         if item.is_file() and item.suffix.lower() == ".html" and item != final_html(folder):
@@ -153,6 +184,7 @@ def publish(folder: Path, stage: str, allow: list[str] | None = None, as_name: s
         print(f"NOTE {message}", file=sys.stderr)
     manifest["final"] = {"path": target.name, "sha256": sha256_file(target), **record}
     manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    record_template_output(context, target, template_id, generator=f"Luz-Design/scripts/publish.py:{stage}")
     return target
 
 

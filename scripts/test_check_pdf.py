@@ -143,6 +143,15 @@ class PdfCheckTest(unittest.TestCase):
         errors, _ = run(make_pdf(self.folder, "one.pdf", pages=1), fonts="any")
         self.assertEqual(errors, [])
 
+    def test_bookmark_without_a_destination_does_not_count_as_navigation(self) -> None:
+        source = make_pdf(self.folder, 'source.pdf', pages=2)
+        target = self.folder / 'broken-outline.pdf'
+        with fitz.open(source) as doc:
+            doc.set_toc([[1, '没有目的地的标题', -1]])
+            doc.save(target)
+        errors, _ = run(target, fonts='any')
+        self.assertTrue(having(errors, 'bookmark destination'), errors)
+
     def test_page_limit_and_mixed_sizes(self) -> None:
         errors, _ = run(make_pdf(self.folder, pages=3, toc=True), fonts="any", max_pages=2)
         self.assertTrue(having(errors, "more than the limit"))

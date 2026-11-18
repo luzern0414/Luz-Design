@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="luz-design-tokens" content="{{TOKEN_SOURCE}}">
+<title>{{TITLE}}</title>
+{{FAVICON}}
+<style>
+:root{color-scheme:light;{{TOKENS_CSS}}}
+{{SHELL_CSS}}</style>
+</head>
+<body>
+<main class="doc">
+<h1>{{TITLE}}</h1>
+<section id="find"><h2>按条件查找</h2>
+<form class="filters" role="search" onsubmit="return false"><input id="search-input" type="search" aria-label="关键词" placeholder="功能编号、名称或关键词"><select id="module-filter" aria-label="模块"><option value="">全部模块</option>{{MODULE_OPTIONS}}</select></form>
+<p id="count" aria-live="polite">共 {{FUNCTION_COUNT}} 个功能</p>
+</section>
+<section id="result-policy"><h2>闭环结果落点</h2>{{RESULT_POLICY}}</section>
+{{MODULES}}
+</main>
+<script>
+(() => {
+  const functions = [...document.querySelectorAll('.fn')];
+  const modules = [...document.querySelectorAll('.module')];
+  const q = document.getElementById('search-input');
+  const moduleFilter = document.getElementById('module-filter');
+  const count = document.getElementById('count');
+  const apply = () => {
+    const text = q.value.trim().toLowerCase();
+    let shown = 0;
+    for (const fn of functions) {
+      const match = (!text || fn.dataset.search.includes(text)) && (!moduleFilter.value || fn.dataset.module === moduleFilter.value);
+      fn.hidden = !match;
+      if (match) shown += 1;
+    }
+    for (const module of modules) module.hidden = !module.querySelector('.fn:not([hidden])');
+    count.textContent = shown === functions.length ? `共 ${functions.length} 个功能` : `${shown} / ${functions.length} 个功能`;
+  };
+  for (const control of [q, moduleFilter]) control.addEventListener('input', apply);
+  const openTarget = () => { const target = location.hash && document.getElementById(location.hash.slice(1)); if (target && target.tagName === 'DETAILS') target.open = true; };
+  addEventListener('hashchange', openTarget);
+  openTarget();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+{
+  "id": "DC-XL-P09",
+  "name": "冻结窗格",
+  "use": "默认冻结到表头行下方和开头的分组名称列；要多冻结几列写 freeze",
+  "fragment": {
+    "freeze": 1
+  },
+  "used_in": [
+    "DC-XL-001",
+    "DC-XL-002",
+    "DC-XL-003",
+    "DC-XL-004",
+    "DC-XL-005",
+    "DC-XL-006",
+    "DC-XL-007",
+    "DC-XL-008",
+    "DC-XL-009",
+    "DC-XL-010"
+  ]
+}

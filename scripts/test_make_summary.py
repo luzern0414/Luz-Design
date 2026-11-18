@@ -3,6 +3,7 @@ import contextlib
 import io
 import json
 import re
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -10,10 +11,15 @@ from pathlib import Path
 import check_document
 import check_output_layout
 import make_summary
+import new_session
 import sync_md_type
 from validate_session import validate_light_html
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.append(str(ROOT.parent / "Luz-Crawl" / "scripts"))
+from test_crawl_preflight import complete_fixture
+from test_summary_entry_gates import design_manifest
+import pytest
 SPEC = {
     "title": "门店销售表",
     "sections": [
@@ -27,12 +33,84 @@ SPEC = {
 }
 
 
+@pytest.mark.parametrize("existing", [False, True])
+def test_design_summary_stage_override_cannot_write_or_replace_output(tmp_path, existing):
+    """The audit reproducer had only architecture evidence for a design link."""
+    session, state, deliver = tmp_path / "001-design", tmp_path / "state", tmp_path / "deliver"
+    state.mkdir()
+    (state / "project.json").write_text(json.dumps({
+        "deliver_root": str(deliver), "current_stage": "design",
+        "stages": [{"id": "design", "owner": "luz-design"},
+                   {"id": "architecture", "owner": "luz-system"}],
+        "crawl": {"evidence_index": "00-crawl"},
+    }), encoding="utf-8")
+    design_manifest(session, {"state_root": str(state), "deliver_root": str(deliver), "stage": "design"})
+    complete_fixture(state, "luz-design", "architecture")
+    spec = tmp_path / "spec.json"
+    spec.write_text(json.dumps(SPEC), encoding="utf-8")
+    output = session / f"{session.name}.html"
+    if existing:
+        output.write_bytes(b"previous approved summary")
+    before = {path: path.read_bytes() for path in session.rglob("*") if path.is_file()}
+    assert make_summary.main([str(spec), str(session)]) != 0
+    assert make_summary.main([str(spec), str(session), "--stage", "architecture"]) != 0
+    assert {path: path.read_bytes() for path in session.rglob("*") if path.is_file()} == before
+
+
 def quiet(function, *args):
     with contextlib.redirect_stdout(io.StringIO()):
         return function(*args)
 
 
 class RenderTest(unittest.TestCase):
+    def test_long_document_navigation_reaches_every_heading_and_escapes_titles(self):
+        page = make_summary.render({'title': '审计', 'sections': [
+            {'title': title, 'text': '已核对。'} for title in ['总结', '问题', '依据', '<原文>', '限制', '验证', '范围', '参考', '后续']]})
+        self.assertIn('<nav aria-label="本页目录">', page)
+        for index in range(1, 10):
+            self.assertIn(f'href="#section-{index}"', page)
+            self.assertIn(f'id="section-{index}" tabindex="-1"', page)
+        self.assertIn('&lt;原文&gt;</a>', page)
+        self.assertNotIn('<原文>', page)
+        self.assertLess(page.index('</section>'), page.index('<nav'))
+        self.assertEqual(check_document.document_navigation_errors(page), [])
+
+    def test_navigation_cannot_hide_application_links_controls_or_missing_targets(self):
+        sections = [{'title': f'章节 {index}', 'text': '已核对。'} for index in range(9)]
+        page = make_summary.render({'title': '审计', 'sections': sections})
+        for changed in [
+            page.replace('href="#section-1"', 'href="https://example.org/settings"', 1),
+            page.replace('href="#section-1"', 'href="#missing"', 1),
+            page.replace('</nav>', '<button>保存</button></nav>', 1),
+            page.replace('aria-label="本页目录"', '', 1),
+            page.replace('id="section-2"', 'id="section-1"', 1),
+        ]:
+            with self.subTest(changed=changed[:40]):
+                self.assertTrue(check_document.document_navigation_errors(changed))
+
+    def test_a_nav_label_alone_does_not_allow_a_short_application_menu(self):
+        page = '<h1>任务</h1><h2 id="settings">设置</h2><nav aria-label="本页目录"><a href="#settings">设置</a></nav>'
+        self.assertTrue(check_document.document_navigation_errors(page))
+
+    def test_reference_links_are_real_escaped_links(self):
+        page = make_summary.render({'title': '依据', 'sections': [{'title': '来源', 'table': {
+            'columns': ['原文'], 'rows': [[{'text': '<官方文档>', 'href': 'https://example.org/doc?a=1&b=2'}]],
+            'caption': '表 1 原文'}}]})
+        self.assertIn('href="https://example.org/doc?a=1&amp;b=2"', page)
+        self.assertIn('&lt;官方文档&gt;</a>', page)
+        self.assertNotIn('<官方文档>', page)
+
+    def test_links_cannot_execute_code_or_escape_the_task_tree(self):
+        for url in ['javascript:alert(1)', 'data:text/html,hello', '//evil.example/path', '../private.txt',
+                    'https://user:secret@example.org', 'https://example.org/\ncontrol']:
+            with self.subTest(url=url), self.assertRaises(ValueError):
+                make_summary.render({'title': '依据', 'sections': [{'title': '来源', 'text': {'text': 'open', 'href': url}}]})
+
+    def test_narrative_sections_can_use_paragraphs_without_forced_tables(self):
+        page = make_summary.render({'title': '决定', 'sections': [{'title': '采用理由', 'paragraphs': ['前提。', '取舍。']}]})
+        self.assertIn('<p>前提。</p><p>取舍。</p>', page)
+        self.assertNotIn('<table>', page)
+
     def test_first_line_is_the_one_title_and_each_section_has_one_titled_table(self):
         page = make_summary.render(SPEC)
         self.assertEqual(len(re.findall(r"<h1\b", page)), 1)
@@ -47,7 +125,7 @@ class RenderTest(unittest.TestCase):
     def test_page_head_follows_the_reading_page_contract(self):
         page = make_summary.render(SPEC)
         self.assertIn('<html lang="zh-CN">', page)
-        self.assertIn('<link rel="icon" href="data:image/svg+xml,', page)
+        self.assertIn('<link rel="icon" href="data:image/webp;base64,', page)
         self.assertIn("<title>门店销售表</title>", page)
         self.assertNotRegex(page, r"(?i)user-scalable|maximum-scale")
         self.assertIn("color-scheme: light", page)
@@ -85,7 +163,8 @@ class RenderTest(unittest.TestCase):
 
 class WrittenPageTest(unittest.TestCase):
     def make(self, base: Path, name="001-门店销售表") -> tuple[Path, Path]:
-        session = base / name
+        session = new_session.create_session(base, name.split("-", 1)[1], ["document"], cards=["reading-html"])
+        complete_fixture(session, "luz-design", "summary")
         spec = base / "spec.json"
         spec.write_text(json.dumps(SPEC, ensure_ascii=False), encoding="utf-8")
         return session, spec
@@ -110,7 +189,7 @@ class WrittenPageTest(unittest.TestCase):
     def test_check_with_project_link_refuses_a_deliverable_left_in_the_root(self):
         with tempfile.TemporaryDirectory() as temp:
             session, spec = self.make(Path(temp))
-            session.mkdir()
+            session.mkdir(exist_ok=True)
             (session / "门店销售表.xlsx").write_bytes(b"x")
             self.assertEqual(quiet(make_summary.main, [str(spec), str(session), "--check"]), 0)
             self.assertEqual(quiet(make_summary.main, [str(spec), str(session), "--check", "--project-linked"]), 1)

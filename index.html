@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="zh-CN" data-ic-base="kit/assets/icons">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>模板库</title>
+<link rel="icon" href="kit/assets/icons/flat/bouquet.webp">
+<link rel="stylesheet" href="kit/tokens.css">
+<link rel="stylesheet" href="kit/ui.css">
+<link rel="stylesheet" href="kit/kit.css">
+<link rel="stylesheet" href="kit/web.css">
+<style>
+  /* 模板库首页：四个文件夹的入口与全部编号索引，不属于任何一端的产品界面 */
+  body { background: var(--bg); }
+  .wrap { max-width: 1280px; margin: 0 auto; padding: 0 var(--s-6) var(--s-12); }
+  .top { position: relative; isolation: isolate; margin: 0 calc(var(--s-6) * -1); padding: var(--s-8) var(--s-6) var(--s-6); background: linear-gradient(180deg, var(--action-tint) 0%, var(--bg) 100%); }
+  .top::after { content: ""; position: absolute; inset: 0; z-index: -1; background: url(kit/assets/photo/pattern-petals.webp) right top / 360px; opacity: .32; -webkit-mask-image: linear-gradient(90deg, transparent 40%, #000 100%); mask-image: linear-gradient(90deg, transparent 40%, #000 100%); pointer-events: none; }
+  .top__row { display: flex; align-items: center; justify-content: space-between; gap: var(--s-4); flex-wrap: wrap; }
+  .brand { display: flex; align-items: center; gap: var(--s-4); }
+  .brand img { width: 56px; height: 56px; object-fit: contain; }
+  .brand h1 { font-size: var(--fs-3xl); font-weight: 700; line-height: var(--lh-tight); white-space: nowrap; }
+  .top .search { width: 360px; max-width: 100%; }
+  .lead { margin-top: var(--s-3); display: flex; gap: var(--s-2); flex-wrap: wrap; }
+  .lead .tag { height: 26px; }
+  .doors { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s-5); margin-top: var(--s-6); }
+  .door { display: grid; grid-template-rows: 240px auto; overflow: hidden; padding: 0; }
+  .door__view { position: relative; overflow: hidden; background: var(--zone); }
+  .door__view iframe { position: absolute; border: 0; pointer-events: none; background: var(--bg); transform-origin: top left; }
+  .door[data-door="app"] iframe { width: 390px; height: 844px; left: 50%; top: 14px; transform: scale(.27) translateX(-195px); }
+  .door[data-door="web"] iframe { width: 1440px; height: 900px; left: 0; top: 0; transform: scale(.205); }
+  .door[data-door="poster"] iframe { width: 1080px; height: 1440px; left: 50%; top: 12px; transform: scale(.155) translateX(-540px); }
+  .door[data-door="document"] iframe { width: 1440px; height: 900px; left: 0; top: 0; transform: scale(.205); }
+  .door__shot { display: grid; place-items: center; height: 100%; background: linear-gradient(160deg, var(--action-tint), var(--zone)); }
+  .door__shot img { width: 108px; height: 108px; object-fit: contain; filter: drop-shadow(0 12px 16px rgba(74, 44, 56, .16)); }
+  .door__body { display: grid; gap: var(--s-2); padding: var(--s-4) var(--s-5) var(--s-5); }
+  .door__title { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-2); }
+  .door__title h2 { font-size: var(--fs-xl); font-weight: 700; line-height: var(--lh-tight); }
+  .door__title span { font-size: var(--fs-sm); color: var(--ink-3); }
+  .door__body p { font-size: var(--fs-sm); color: var(--ink-3); line-height: 1.6; min-height: 3.2em; }
+  .door__go { display: flex; gap: var(--s-2); margin-top: var(--s-2); flex-wrap: wrap; }
+  .ids .table td, .ids .table th { padding: var(--s-2) var(--s-4); }
+  .ids .table td.id { font-variant-numeric: tabular-nums; letter-spacing: .02em; }
+  .ids__bar { display: flex; align-items: center; justify-content: space-between; gap: var(--s-4); flex-wrap: wrap; padding: var(--s-3) var(--s-4); }
+  .ids .pager { justify-content: space-between; }
+  .use { margin-top: var(--s-4); padding: var(--s-4) var(--s-5); display: grid; gap: var(--s-2); }
+  .use code { font-size: var(--fs-sm); background: var(--zone); padding: 2px 8px; border-radius: var(--r-sm); }
+  @media (max-width: 1100px) { .doors { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 560px) { .doors { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body class="web-body">
+<div class="wrap">
+  <header class="top">
+    <div class="top__row">
+      <div class="brand"><img data-ic="bouquet" src="kit/assets/icons/flat/bouquet.webp" alt=""><h1>模板库</h1></div>
+      <label class="search"><img src="kit/assets/line/search.webp" alt=""><input id="q" type="search" placeholder="搜索编号、名称或用途" aria-label="搜索编号、名称或用途"></label>
+    </div>
+    <div class="lead" id="lead"></div>
+  </header>
+
+  <section class="section">
+    <div class="section__head"><h2>四个文件夹</h2></div>
+    <div class="doors" id="doors"></div>
+  </section>
+
+  <section class="section ids">
+    <div class="section__head"><h2>全部编号</h2></div>
+    <div class="card section__body" style="overflow:hidden">
+      <div class="ids__bar">
+        <div class="seg" data-seg="kind" id="kindseg"><button class="seg__item" data-key="all" aria-selected="true">全部</button><button class="seg__item" data-key="app">移动端</button><button class="seg__item" data-key="web">网页后台</button><button class="seg__item" data-key="poster">海报</button><button class="seg__item" data-key="prompt">提示词</button><button class="seg__item" data-key="document">文件</button></div>
+        <div class="seg" data-seg="size"><button class="seg__item" data-key="10">10</button><button class="seg__item" data-key="20" aria-selected="true">20</button><button class="seg__item" data-key="50">50</button><button class="seg__item" data-key="100">100</button></div>
+      </div>
+      <div class="table-wrap"><table class="table">
+        <colgroup><col style="width:18%"><col style="width:34%"><col style="width:18%"><col style="width:16%"><col style="width:14%"></colgroup>
+        <thead><tr><th class="t-l">编号</th><th class="t-l">名称</th><th>类别</th><th>所属</th><th>操作</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table></div>
+      <div class="pager"><span id="count"></span><div class="btn-group"><button class="btn btn--ghost btn--sm" id="prev">上一页</button><span id="page" class="t-num"></span><button class="btn btn--ghost btn--sm" id="next">下一页</button></div></div>
+    </div>
+    <div class="card use">
+      <p class="row__title">按编号取用</p>
+      <p class="row__meta">查看某个编号的代码或文件：<code>py -X utf8 scripts/template_registry.py show AP-BTN-004</code></p>
+      <p class="row__meta">按类别或词列出：<code>py -X utf8 scripts/template_registry.py list --kind app --cat BTN</code></p>
+    </div>
+  </section>
+</div>
+<script src="kit/registry.js"></script>
+<script src="kit/ui.js"></script>
+<script>
+  const R = window.LZ_REGISTRY || { components: [], posters: [], prompts: [], documents: [] };
+  const KIND = { app: '移动端', web: '网页后台', poster: '海报', prompt: '提示词', document: '文件' };
+  const DOC = { word: '文字文档', excel: '表格文件', slides: '幻灯片', pdf: 'PDF', reading: '阅读网页' };
+  const rows = [
+    ...R.components.map(c => ({ id: c.id, name: c.name, kind: c.end, cat: c.catName || '页面块', from: c.page === 'components' ? '组件库' : '完整页面', file: c.file })),
+    ...R.posters.map(p => ({ id: p.id, name: p.name, kind: 'poster', cat: p.use, from: p.size, file: p.file })),
+    ...R.prompts.map(p => ({ id: p.id, name: p.name, kind: 'prompt', cat: p.cat, from: p.ratio + ' ' + p.resolution, file: 'templates/poster/poster.html' })),
+    ...R.documents.map(d => ({ id: d.id, name: d.name, kind: 'document', cat: DOC[d.type] || d.type, from: d.part ? '可复用块' : '模板', file: d.folder + '/' + (d.file || '') })),
+  ];
+  const count = k => rows.filter(r => r.kind === k).length;
+  const ps = R.posters[0] ? R.posters[0].file : '';
+  const DOORS = [
+    { key: 'app', name: '移动端', href: 'templates/app/app.html', n: count('app'), unit: '个组件与页面块', text: '一个 html，两个 tab：首页、列表、订单、我的、智能体五个整页，加按钮、背景、卡片、入口、导航、表单、列表行、数据、反馈、智能体、动效细分组件。主题色 24 种可自选，背景与图标形态可换。', view: 'templates/app/source/pages/home.html' },
+    { key: 'web', name: '网页后台', href: 'templates/web/web.html', n: count('web'), unit: '个组件与页面块', text: '一个 html，两个 tab：工作台、列表、订单、我的、智能体五个整页，加布局壳、表格、表单、图表、反馈、智能体等细分组件。主题色 24 种可自选，背景与图标形态可换。', view: 'templates/web/source/pages/home.html' },
+    { key: 'poster', name: '海报', href: 'templates/poster/poster.html', n: count('poster'), unit: '个模板', text: '一个 html，两个 tab：十二个固定画布海报与六十条提示词；可换主题色、可导出图片，生成背景与主视觉后放进模板。', view: ps, extra: [['提示词库', 'templates/poster/poster.html', count('prompt') + ' 条']] },
+    { key: 'document', name: '文件', href: 'templates/documents/documents.html', n: count('document'), unit: '个模板与块', text: '文字文档、表格文件、幻灯片、PDF 与阅读网页的基础模板，带规格文件、样例与生成检查命令。', view: 'templates/documents/documents.html' },
+  ];
+  const state = { kind: 'all', q: '', page: 0, size: 20 };
+
+  document.getElementById('lead').innerHTML = DOORS.map(d => `<span class="tag" data-tone="action">${d.name} ${d.n}</span>`).join('');
+  document.getElementById('doors').innerHTML = DOORS.map(d => `<article class="card door" data-door="${d.key}">
+    <a class="door__view" href="${d.href}" aria-label="${d.name}">${d.view ? `<iframe src="${d.view}" loading="lazy" tabindex="-1" aria-hidden="true"></iframe>` : `<div class="door__shot"><img src="${d.icon}" alt=""></div>`}</a>
+    <div class="door__body"><div class="door__title"><h2>${d.name}</h2><span>${d.n} ${d.unit}</span></div><p>${d.text}</p>
+    <div class="door__go"><a class="btn btn--primary btn--sm" href="${d.href}">进入${d.name}</a>${(d.extra || []).map(e => `<a class="btn btn--tint btn--sm" href="${e[1]}">${e[0]} ${e[2]}</a>`).join('')}</div></div></article>`).join('');
+
+  function filtered() {
+    const q = state.q.trim().toLowerCase();
+    return rows.filter(r => (state.kind === 'all' || r.kind === state.kind) && (!q || (r.id + ' ' + r.name + ' ' + r.cat).toLowerCase().includes(q)));
+  }
+  function draw() {
+    const list = filtered(), pages = Math.max(1, Math.ceil(list.length / state.size));
+    state.page = Math.min(state.page, pages - 1);
+    const slice = list.slice(state.page * state.size, state.page * state.size + state.size);
+    document.getElementById('rows').innerHTML = slice.map(r => `<tr><td class="t-l id">${r.id}</td><td class="t-l">${r.name}</td><td>${r.cat}</td><td>${KIND[r.kind]} ${r.from}</td><td><button class="btn btn--tint btn--sm" data-copy="${r.id}">复制编号</button></td></tr>`).join('')
+      || '<tr><td colspan="5"><div class="empty"><img data-ic="vase" src="kit/assets/icons/flat/vase.webp" alt=""><span>没有匹配的编号</span></div></td></tr>';
+    document.getElementById('count').textContent = `共 ${list.length} 个`;
+    document.getElementById('page').textContent = `${state.page + 1} / ${pages}`;
+    document.getElementById('prev').disabled = state.page === 0;
+    document.getElementById('next').disabled = state.page >= pages - 1;
+  }
+  document.addEventListener('lz:seg', e => {
+    if (e.detail.group === 'kind') state.kind = e.detail.key;
+    if (e.detail.group === 'size') state.size = +e.detail.key;
+    state.page = 0; draw();
+  });
+  document.getElementById('q').addEventListener('input', e => { state.q = e.target.value; state.page = 0; draw(); });
+  document.getElementById('prev').addEventListener('click', () => { state.page--; draw(); });
+  document.getElementById('next').addEventListener('click', () => { state.page++; draw(); });
+  document.getElementById('rows').addEventListener('click', async e => {
+    const b = e.target.closest('[data-copy]'); if (!b) return;
+    try { await navigator.clipboard.writeText(b.dataset.copy); Lz.toast('已复制 ' + b.dataset.copy, 'success'); } catch (err) { Lz.toast('复制失败', 'danger'); }
+  });
+  draw();
+</script>
+</body>
+</html>

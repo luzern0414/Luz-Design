@@ -1,0 +1,7 @@
+Use case: product-mockup
+Asset type: a polished commerce reference image for a mobile storefront
+Primary request: One airy bouquet of white lisianthus, tiny white daisies and fresh eucalyptus in a natural pale sage paper wrap with an ivory ribbon. Product centered, entire bouquet visible. Pale mint background, soft daylight and natural contact shadow. No vase, no hand.
+Style/medium: high quality photorealistic editorial product photography
+Text: none. All product packaging must be entirely blank.
+Constraints: no text, no typography, no logo, no brand, no watermark, no UI, no buttons, no collage, no border. A single coherent image.
+These are fictional visual examples for an internal HTML reference, not images of real branded products.

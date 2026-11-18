@@ -1,6 +1,4 @@
-"""check_document.py and the dark theme (visual-design.html 深色与浅色两套主题): a product front-end carries a light and a dark theme, so the dark fills and
-color-scheme: dark inside a dark block are the theme, not a violation; the same fills in the default theme still are; a reading page stays light; a product
-page with no dark block gets a warning."""
+"""产品主题按任务选择：不强制补深色；已有主题的颜色范围与对比度仍须检查。"""
 from __future__ import annotations
 
 import sys
@@ -134,15 +132,12 @@ class ReadingPageTest(unittest.TestCase):
 
 
 class MissingDarkBlockTest(unittest.TestCase):
-    def test_a_product_page_without_a_dark_block_gets_a_warning_not_an_error(self) -> None:
+    def test_a_product_page_without_a_dark_block_needs_no_extra_theme(self) -> None:
         for allow in (("interface",), ("interface", "website")):
             with self.subTest(allow=allow):
                 errors, warnings = run(".card{background:#fff;padding:16px}", allow)
-                self.assertTrue(having(warnings, NO_BLOCK), warnings)
+                self.assertFalse(having(warnings, NO_BLOCK), warnings)
                 self.assertFalse(having(errors, NO_BLOCK))
-                text = having(warnings, NO_BLOCK)[0]
-                self.assertIn("audit_rendered.py --scheme dark", text)
-                self.assertIn("深色与浅色两套主题", text)
 
     def test_any_dark_block_silences_it(self) -> None:
         for css in ("@media (prefers-color-scheme: dark){ :root{--bg:#121212} }", ':root[data-theme="dark"]{--bg:#121212}', "html.dark{--bg:#121212}"):
@@ -189,10 +184,10 @@ class DarkValuesTest(unittest.TestCase):
         css = "@media (prefers-color-scheme: dark){ .btn-primary{background:#E4E4E7;color:#18181B} }"
         self.assertFalse(having(run(css)[0], "washed-out"))
 
-    def test_a_linked_local_style_sheet_with_a_dark_block_counts_as_the_dark_theme(self) -> None:
+    def test_a_linked_style_sheet_does_not_make_a_second_theme_mandatory(self) -> None:
         sheet = "@media (prefers-color-scheme: dark){ :root:not([data-theme=\"light\"]){ color-scheme: dark; --bg: #121212 } }"
         page = PAGE.replace("<style>", '<link rel="stylesheet" href="shared/ui.css"><style>')
-        for body, expected in ((sheet, False), (".card{background:#fff}", True)):
+        for body in (sheet, ".card{background:#fff}"):
             with tempfile.TemporaryDirectory() as tmp:
                 (Path(tmp) / "shared").mkdir()
                 (Path(tmp) / "shared" / "ui.css").write_text(body, encoding="utf-8")
@@ -206,7 +201,7 @@ class DarkValuesTest(unittest.TestCase):
                     cd.check_html(path, errors, warnings)
                 finally:
                     cd.ALLOWED.clear()
-                self.assertEqual(bool(having(warnings, "no dark theme block")), expected, (body, warnings))
+                self.assertFalse(having(warnings, NO_BLOCK), (body, warnings))
 
 
 if __name__ == "__main__":

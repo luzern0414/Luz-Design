@@ -35,9 +35,8 @@ TARGETS = [
     ("Luz-System", "references/guidelines.css", "block"),
     ("Luz-System", "references/md-type.css", "file"),
     ("Luz-System", "references/templates.txt", "block"),
-    ("Luz-Dev", "assets/shared/luz-reading.css", "block"),
+    ("Luz-Design", "templates/documents/reading/dev/shared/luz-reading.css", "block"),
     ("Luz-Crawl", "lib/formal-report.css", "block"),
-    ("Luz-Writing", "assets/01-article-template.html", "block"),
     ("Luz-Project", "scripts/reading_style.py", "block"),
     # 汇总页生成器：每个技能一份同样的脚本，样式块随母本同步
     ("Luz-Design", "scripts/make_summary.py", "block"),

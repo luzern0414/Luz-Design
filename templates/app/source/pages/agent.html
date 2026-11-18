@@ -1,0 +1,457 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="navy" data-bg="none" data-ic-base="../../../../kit/assets/icons">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>花店助手会话</title>
+<link rel="icon" href="../../../../kit/assets/icons/flat/bouquet.webp">
+<link rel="stylesheet" href="../../../../kit/tokens.css">
+<link rel="stylesheet" href="../../../../kit/ui.css">
+<link rel="stylesheet" href="../../../../kit/kit.css">
+<link rel="stylesheet" href="../../../../kit/app.css">
+<link rel="stylesheet" href="../../../../kit/agent.css">
+<style>
+  /* 本页专属：固定输入栏、会话标题、骨架、附件条、产物展开 */
+  body.app-body { --toast-bottom: calc(var(--tabbar-h, 66px) + var(--composer-h, 200px) + var(--s-2)); }
+  .btn--sm { --btn-h: 32px; }
+  .page--chat { padding-bottom: calc(var(--tabbar-h, 66px) + var(--composer-h, 200px) + var(--s-3)); }
+  .top--chat { position: sticky; top: 0; z-index: 30; padding-bottom: var(--s-3); background: linear-gradient(160deg, var(--action-press) 0%, var(--action) 100%); }
+  .top--chat h1 { flex: 1; min-width: 0; font-size: var(--fs-2xl); font-weight: 700; line-height: var(--lh-tight); }
+
+  /* 输入栏：固定在底栏上方，不透明，内容区按它的高度预留 */
+  .composer { position: fixed; z-index: 45; left: 50%; bottom: var(--tabbar-h, 66px); width: min(100%, 430px); transform: translateX(-50%); display: grid; gap: var(--s-2); padding: var(--s-2) var(--s-4) var(--s-3); background: var(--bg); border-top: 1px solid var(--line); }
+  .composer .suggest { margin: 0 calc(var(--s-4) * -1); padding: 0 var(--s-4); }
+  @media (max-height: 680px) { .composer .suggest { display: none; } }
+  .qbar { display: flex; align-items: center; gap: var(--s-2); }
+  .qbar .tag { height: 28px; font-size: var(--fs-sm); }
+  .prompt textarea { display: block; }
+  .prompt textarea:focus-visible { outline: none; }
+  .prompt:focus-within { border-color: var(--action); }
+  .prompt__bar .btn { --btn-h: 40px; }
+  .prompt__bar .btn--pill { padding: 0 var(--s-5); }
+  .prompt__bar .btn--sm { padding: 0 var(--s-3); }
+  .prompt__bar .btn[data-mode="stop"] { background: var(--ink); color: var(--surface); box-shadow: none; }
+  .ibtn[aria-pressed="true"] { background: var(--action-tint); }
+  .suggest button { border-color: var(--action-edge); color: var(--action-press); background: var(--action-tint); }
+  .files { display: flex; flex-wrap: wrap; gap: var(--s-2); }
+  .chip { display: inline-flex; align-items: center; gap: var(--s-1); max-width: 100%; min-height: 32px; padding: 0 var(--s-1) 0 var(--s-3); border-radius: var(--r-full); background: var(--zone); font-size: var(--fs-sm); }
+  .chip .ibtn { width: 28px; height: 28px; }
+  .chip .ibtn img { width: 14px; height: 14px; }
+
+  /* 对话：智能体头像带浅主色描边，用户气泡浅主色底 */
+  .msg__avatar { border: 2px solid var(--action-edge); background: var(--surface); }
+  .msg--user .bubble { box-shadow: inset 0 0 0 1px var(--action-edge); }
+  .think { box-shadow: var(--elev-1); }
+
+  /* 加载骨架：保留消息的位置关系 */
+  .chat > #skel { display: grid; gap: var(--s-5); }
+  .chat:not([data-loading]) > #skel, .chat[data-loading] > :not(#skel) { display: none; }
+  .skel--ava { width: 36px; height: 36px; border-radius: 50%; }
+
+  /* 消息内部 */
+  .io__k { margin-right: var(--s-2); font-weight: 600; color: var(--ink-3); }
+  .tool__io p + p { margin-top: 2px; }
+  .tools .btn { margin-left: var(--s-1); }
+  .artifact { row-gap: 0; box-shadow: var(--elev-1); }
+  .artifact > .expand { grid-column: 1 / -1; }
+  .diff { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); min-height: 44px; border-top: 1px solid var(--line); font-size: var(--fs-sm); color: var(--ink-2); }
+  .diff__n { font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .artifact > .expand > div > .diff:first-child { margin-top: var(--s-3); }
+  .approval .btn-group { justify-content: flex-end; }
+  .approval__res { display: none; align-items: center; gap: var(--s-2); font-size: var(--fs-sm); color: var(--ink-2); }
+  .approval[data-state="done"] .approval__res { display: flex; }
+  .approval[data-state="done"] .btn-group { display: none; }
+  .files-in-bubble { display: flex; flex-wrap: wrap; gap: var(--s-1); margin-top: var(--s-2); }
+  .empty--chat { padding-top: var(--s-12); }
+  .empty--chat .ic { width: 120px; height: 120px; }
+  #hist { margin-top: var(--s-4); }
+  #hist .row__lead { border-radius: 50%; background: var(--zone); }
+</style>
+
+</head>
+<body class="app-body">
+<div class="app">
+  <main class="page page--chat">
+    <!-- 对话视图：顶部平面区只放会话标题与两个图标操作，不重复底栏名称 -->
+    <div data-view="chat">
+      <header class="top top--chat" data-cid="AP-AGNT-001" data-name="会话顶部栏">
+        <div class="top__row">
+          <h1 class="one-line" id="sess-title">库存核对</h1>
+          <button class="ibtn" id="new-sess" data-tip="新会话" aria-label="新会话"><img src="../../../../kit/assets/line/add.webp" alt=""></button>
+          <button class="ibtn" data-open="history" data-tip="历史会话" aria-label="历史会话"><img src="../../../../kit/assets/line/list.webp" alt=""></button>
+        </div>
+      </header>
+
+      <!-- 消息流：读屏礼貌播报，生成中 aria-busy 避免逐字朗读 -->
+      <div class="chat" id="chat" aria-live="polite" aria-busy="true" aria-label="消息" role="log" data-loading>
+        <div id="skel" aria-hidden="true" data-cid="AP-AGNT-013" data-name="对话加载骨架">
+          <div class="skel" style="height:44px;width:58%;justify-self:end;border-radius:var(--r-xl)"></div>
+          <div class="msg">
+            <div class="skel skel--ava"></div>
+            <div class="msg__body"><div class="skel" style="height:44px"></div><div class="skel" style="height:16px;width:92%"></div><div class="skel" style="height:16px;width:70%"></div><div class="skel" style="height:72px"></div></div>
+          </div>
+        </div>
+
+        <!-- 已完成的一轮会话：用户提问，智能体思考、调用工具、回答、产物、任务、审批 -->
+        <div class="msg msg--user" data-cid="AP-AGNT-002" data-name="用户消息气泡">
+          <div class="bubble"><p>核对上周三家门店的订单与库存差异</p></div>
+        </div>
+        <article class="msg">
+          <img class="msg__avatar" src="../../../../kit/assets/marks/mark-007.webp" alt="">
+          <div class="msg__body">
+            <div class="think" data-cid="AP-AGNT-003" data-name="思考过程折叠">
+              <button class="think__head" data-expand="th-seed" aria-expanded="false"><span>已思考 6 秒</span></button>
+              <div class="expand" id="th-seed"><div>
+                <ul class="think__steps">
+                  <li data-state="done"><span>读取三家门店订单表</span></li>
+                  <li data-state="done"><span>逐笔比对订单与库存</span></li>
+                  <li data-state="done"><span>汇总差异并生成结果</span></li>
+                </ul>
+              </div></div>
+            </div>
+
+            <div data-cid="AP-AGNT-004" data-name="工具调用标签">
+              <div class="tools">
+                <button class="tool" data-state="done" aria-expanded="false" aria-controls="io-seed-1" aria-label="查询订单 已完成">查询订单</button>
+                <button class="tool" data-state="fail" aria-expanded="false" aria-controls="io-seed-2" aria-label="核对库存 失败">核对库存</button>
+                <button class="btn btn--secondary btn--sm btn--pill" data-retry data-after="3 处差异合计 6 件，已写入核对结果。">重试</button>
+              </div>
+              <div class="tool__io" id="io-seed-1" hidden><p><span class="io__k">输入</span>三家门店 近七日</p><p><span class="io__k">输出</span>128 笔订单</p></div>
+              <div class="tool__io" id="io-seed-2" hidden><p><span class="io__k">输入</span>128 笔订单</p><p><span class="io__k">输出</span><span data-out data-ok="3 处库存差异">接口超时</span></p></div>
+            </div>
+
+            <p class="bubble" data-cid="AP-AGNT-005" data-name="流式回答文本">已比对三家门店 128 笔订单<button class="cite" data-tip="订单表 第 3 页" aria-label="引用 1 订单表">1</button>，发现 3 处库存与订单不符，其中 2 处重复扣减<button class="cite" data-tip="库存明细 第 12 行" aria-label="引用 2 库存明细">2</button>。</p>
+
+            <div data-cid="AP-AGNT-006" data-name="产物文件卡">
+              <div class="artifact">
+                <img class="task__ic" src="../../../../kit/assets/solid/biz-review.webp" alt="">
+                <div><p class="row__title one-line">核对结果</p><p class="row__meta">3 处差异 · 刚刚</p></div>
+                <button class="btn btn--secondary btn--sm btn--pill" data-expand="art-seed">打开</button>
+                <div class="expand" id="art-seed"><div>
+                  <div class="diff"><span>红玫瑰花束 重复扣减</span><span class="diff__n">2 件</span></div>
+                  <div class="diff"><span>龟背竹盆栽 重复扣减</span><span class="diff__n">1 件</span></div>
+                  <div class="diff"><span>多肉组合盆 数量不符</span><span class="diff__n">3 件</span></div>
+                </div></div>
+              </div>
+            </div>
+
+            <div class="card list" data-cid="AP-AGNT-007" data-name="任务状态行">
+              <div class="task"><img class="task__ic" data-ic="bouquet" src="../../../../kit/assets/icons/flat/bouquet.webp" alt=""><div><p class="row__title one-line">补回重复扣减</p><p class="row__meta">2 处</p></div><span class="tag" data-tone="action">进行中</span></div>
+              <div class="task"><img class="task__ic" data-ic="pin" src="../../../../kit/assets/icons/flat/pin.webp" alt=""><div><p class="row__title one-line">通知门店核对</p><p class="row__meta">3 家门店</p></div><span class="tag">待处理</span></div>
+              <div class="task"><img class="task__ic" data-ic="vase" src="../../../../kit/assets/icons/flat/vase.webp" alt=""><div><p class="row__title one-line">回写库存数量</p><p class="row__meta">128 笔</p></div><span class="tag" data-tone="success">已完成</span></div>
+            </div>
+
+            <div class="approval" data-cid="AP-AGNT-008" data-name="审批确认卡">
+              <p class="approval__q">确认 2 处重复扣减的处理方式</p>
+              <div class="approval__opts" role="radiogroup" aria-label="处理方式">
+                <button class="opt" role="radio" aria-checked="true"><span class="check" aria-checked="true" aria-hidden="true"><img src="../../../../kit/assets/line/check.webp" alt=""></span>补回库存</button>
+                <button class="opt" role="radio" aria-checked="false"><span class="check" aria-checked="false" aria-hidden="true"><img src="../../../../kit/assets/line/check.webp" alt=""></span>转人工核对</button>
+                <button class="opt" role="radio" aria-checked="false"><span class="check" aria-checked="false" aria-hidden="true"><img src="../../../../kit/assets/line/check.webp" alt=""></span>暂不处理</button>
+              </div>
+              <div class="btn-group"><button class="btn btn--ghost" data-act="reject">拒绝</button><button class="btn btn--primary" data-act="approve">批准</button></div>
+              <div class="approval__res"><span class="tag" data-tone="success">已批准</span><span data-res></span></div>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <!-- 空会话：用图与一个建议问法，不写说明 -->
+      <div class="empty empty--chat" id="empty" hidden data-cid="AP-AGNT-012" data-name="空会话占位">
+        <img class="ic" data-ic="bouquet" src="../../../../kit/assets/icons/flat/bouquet.webp" alt="">
+        <button class="btn btn--secondary btn--pill" id="empty-q">核对订单库存</button>
+      </div>
+    </div>
+
+    <!-- 历史会话：独立页面，返回恢复对话位置 -->
+    <div data-view="history" hidden>
+      <header class="subbar">
+        <button class="ibtn" data-back data-tip="返回" aria-label="返回"><img src="../../../../kit/assets/line/back.webp" alt=""></button>
+        <h1>历史会话</h1>
+      </header>
+      <div class="card list section__body" id="hist" data-cid="AP-AGNT-014" data-name="历史会话列表"></div>
+    </div>
+  </main>
+
+  <!-- 输入栏：固定在底栏上方，排队标签、建议问法与输入框 -->
+  <div class="composer" id="composer">
+    <div class="qbar" id="qbar" hidden data-cid="AP-AGNT-011" data-name="排队提示标签">
+      <span class="tag" data-tone="warning" id="qtag">排队 1 条</span>
+      <button class="btn btn--secondary btn--sm btn--pill" id="qclear">清空</button>
+    </div>
+    <div class="suggest" aria-label="建议问法" data-cid="AP-AGNT-009" data-name="建议问法条">
+      <button data-q="核对上周三家门店的订单与库存差异">核对订单库存</button>
+      <button data-q="汇总本周退款金额">汇总退款金额</button>
+      <button data-q="查看库存低于安全线的花材">查看库存缺口</button>
+      <button data-q="导出核对结果文件">导出核对结果</button>
+    </div>
+    <form class="prompt" id="form" data-cid="AP-AGNT-010" data-name="对话输入栏">
+      <div class="files" id="files" hidden></div>
+      <textarea id="ta" rows="1" placeholder="输入消息" aria-label="输入消息" enterkeyhint="send"></textarea>
+      <div class="prompt__bar">
+        <button type="button" class="ibtn" id="attach" data-tip="添加附件" aria-label="添加附件"><img src="../../../../kit/assets/line/upload.webp" alt=""></button>
+        <button type="button" class="ibtn" id="mic" data-tip="语音输入" aria-label="语音输入" aria-pressed="false"><img src="../../../../kit/assets/line/mic.webp" alt=""></button>
+        <span class="dots" id="mic-dots" hidden aria-hidden="true"><i></i><i></i><i></i></span>
+        <span class="prompt__sp"></span>
+        <button type="button" class="btn btn--secondary btn--sm btn--pill" id="queue-btn" hidden>排队</button>
+        <button type="submit" class="btn btn--primary btn--pill" id="send" data-mode="send" disabled>发送</button>
+      </div>
+      <input type="file" id="file" hidden multiple>
+    </form>
+  </div>
+
+  <!-- 底部主导航：外层全宽贴底，不透明，覆盖安全区 -->
+  <nav class="tabbar" data-cid="AP-NAV-001" data-name="底部主导航" aria-label="主导航">
+    <a class="tabbar__item" href="home.html"><img src="../../../../kit/assets/line/home.webp" alt=""><span>首页</span></a>
+    <a class="tabbar__item" href="list.html"><img src="../../../../kit/assets/line/list.webp" alt=""><span>分类</span></a>
+    <a class="tabbar__item" href="orders.html"><img src="../../../../kit/assets/line/archive.webp" alt=""><span>订单</span></a>
+    <a class="tabbar__item" href="agent.html" aria-current="page"><img src="../../../../kit/assets/line/message.webp" alt=""><span>助手</span></a>
+    <a class="tabbar__item" href="mine.html"><img src="../../../../kit/assets/line/user.webp" alt=""><span>我的</span></a>
+  </nav>
+</div>
+<script src="../../../../kit/ui.js"></script>
+<script>
+(() => {
+  const { $, $$ } = Lz;
+  const root = document.documentElement;
+  const chat = $('#chat'), form = $('#form'), ta = $('#ta'), send = $('#send'), queueBtn = $('#queue-btn');
+  const composer = $('#composer'), qbar = $('#qbar'), empty = $('#empty'), filesBox = $('#files'), fileIn = $('#file');
+  const AGENT = '../../../../kit/assets/marks/mark-007.webp';
+  const ABORT = Symbol('abort');
+  let uid = 0, run = null, queue = [], attached = [], rounds = 0;
+  const id = p => p + (++uid);
+  const el = html => { const t = document.createElement('template'); t.innerHTML = html.trim(); return t.content.firstElementChild; };
+
+  /* ── 布局：输入栏与底栏的高度写入变量，内容区与轻提示据此避让 ── */
+  const ro = new ResizeObserver(() => {
+    root.style.setProperty('--tabbar-h', $('.tabbar').offsetHeight + 'px');
+    root.style.setProperty('--composer-h', composer.offsetHeight + 'px');
+  });
+  ro.observe($('.tabbar')); ro.observe(composer);
+
+  /* 贴底跟随：用户上滑后停止跟随 */
+  let follow = true;
+  const atBottom = () => innerHeight + scrollY >= root.scrollHeight - 120;
+  addEventListener('scroll', () => { follow = atBottom(); }, { passive: true });
+  const toBottom = () => scrollTo(0, root.scrollHeight);
+  new MutationObserver(() => { if (follow) toBottom(); }).observe(chat, { childList: true, subtree: true, characterData: true });
+
+  /* ── 脚本化回答：两套轮流使用 ── */
+  const SCRIPTS = [
+    { steps: ['读取三家门店订单表', '逐笔比对订单与库存', '汇总差异并生成结果'],
+      tools: [{ n: '查询订单', i: '三家门店 近七日', o: '128 笔订单' }, { n: '核对库存', i: '128 笔订单', o: '3 处库存差异' }],
+      text: ['已比对三家门店 128 笔订单', { c: ['订单表 第 3 页', 1] }, '，发现 3 处库存与订单不符', { c: ['库存明细 第 12 行', 2] }, '，差异合计 6 件。'],
+      ask: { q: '确认 2 处重复扣减的处理方式', opts: ['补回库存', '转人工核对', '暂不处理'], group: '处理方式' } },
+    { steps: ['读取本周退款申请', '核对支付流水', '汇总退款金额'],
+      tools: [{ n: '查询退款', i: '本周 全部门店', o: '14 笔申请' }, { n: '核对流水', i: '14 笔申请', o: '12 笔一致' }],
+      text: ['本周共 14 笔退款申请', { c: ['退款申请单 第 1 页', 1] }, '，12 笔与支付流水一致', { c: ['支付流水 第 5 页', 2] }, '，另 2 笔金额待确认。'],
+      ask: { q: '确认 2 笔待确认退款的处理方式', opts: ['先行退款', '联系顾客核实', '暂缓处理'], group: '处理方式' } }
+  ];
+
+  /* ── 构件：用户气泡、智能体消息、思考、工具、回答、审批 ── */
+  function userMsg(text, files = []) {
+    const m = el('<div class="msg msg--user"><div class="bubble"><p></p></div></div>');
+    $('p', m).textContent = text;
+    if (files.length) { const f = el('<div class="files-in-bubble"></div>'); files.forEach(n => { const t = el('<span class="tag"></span>'); t.textContent = n; f.append(t); }); $('.bubble', m).append(f); }
+    chat.append(m); return m;
+  }
+  function agentMsg() {
+    const m = el(`<article class="msg"><img class="msg__avatar" src="${AGENT}" alt=""><div class="msg__body"></div></article>`);
+    chat.append(m); return $('.msg__body', m);
+  }
+  const dots = '<span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>';
+  function thinkEl(steps, secs) {
+    const tid = id('th'), done = secs != null;
+    const t = el(`<div class="think"><button class="think__head" data-expand="${tid}"><span>${done ? '已思考 ' + secs + ' 秒' : dots + '<span> 思考中</span>'}</span></button><div class="expand" id="${tid}" data-open="${!done}"><div><ul class="think__steps">${steps.map(s => `<li data-state="${done ? 'done' : ''}"><span>${s}</span></li>`).join('')}</ul></div></div></div>`);
+    return t;
+  }
+  const setStep = (li, state) => { li.dataset.state = state; const d = $('.dots', li); if (d) d.remove(); if (state === 'now') $('span', li).insertAdjacentHTML('beforeend', ' ' + dots); };
+  function finishThink(think, t0) {
+    $$('.think__steps li', think).forEach(li => { const d = $('.dots', li); if (d) d.remove(); });
+    const secs = Math.max(1, Math.round((performance.now() - t0) / 1000));
+    const head = $('.think__head', think); head.innerHTML = `<span>已思考 ${secs} 秒</span>`;
+    $('.expand', think).dataset.open = 'false'; head.setAttribute('aria-expanded', 'false');
+  }
+  const toolLabel = b => b.setAttribute('aria-label', b.textContent + ' ' + { run: '进行中', done: '已完成', fail: '失败' }[b.dataset.state]);
+  function toolsEl() { return el('<div><div class="tools"></div></div>'); }
+  function toolEl(wrap, t, state = 'run') {
+    const iid = id('io');
+    const b = el(`<button class="tool" data-state="${state}" aria-expanded="false" aria-controls="${iid}"></button>`); b.textContent = t.n; toolLabel(b);
+    const io = el(`<div class="tool__io" id="${iid}" hidden><p><span class="io__k">输入</span></p><p><span class="io__k">输出</span><span data-out></span></p></div>`);
+    $('p', io).append(t.i); $('[data-out]', io).textContent = state === 'run' ? '进行中' : t.o; $('[data-out]', io).dataset.ok = t.o;
+    $('.tools', wrap).append(b); wrap.append(io); return b;
+  }
+  function setTool(b, state, out) {
+    b.dataset.state = state; toolLabel(b);
+    const io = document.getElementById(b.getAttribute('aria-controls')), o = io && $('[data-out]', io);
+    if (o) o.textContent = out != null ? out : state === 'done' ? o.dataset.ok : o.textContent;
+  }
+  const citeEl = ([tip, n]) => { const c = el(`<button class="cite" data-tip="${tip}" aria-label="引用 ${n} ${tip}">${n}</button>`); return c; };
+  function askEl(a) {
+    const opts = a.opts.map((o, i) => `<button class="opt" role="radio" aria-checked="${i === 0}"><span class="check" aria-checked="${i === 0}" aria-hidden="true"><img src="../../../../kit/assets/line/check.webp" alt=""></span>${o}</button>`).join('');
+    return el(`<div class="approval"><p class="approval__q">${a.q}</p><div class="approval__opts" role="radiogroup" aria-label="${a.group}">${opts}</div><div class="btn-group"><button class="btn btn--ghost" data-act="reject">拒绝</button><button class="btn btn--primary" data-act="approve">批准</button></div><div class="approval__res"><span class="tag"></span><span data-res></span></div></div>`);
+  }
+
+  /* ── 运行控制：可中断的等待与流式输出 ── */
+  const sleep = ms => Promise.race([new Promise(r => setTimeout(r, Lz.reduce ? 0 : ms)), run.halt]).then(() => { if (run.aborted) throw ABORT; });
+  async function say(target, text) {
+    const done = Lz.stream(target, text, 60), node = target.lastChild;
+    await Promise.race([done, run.halt]);
+    if (run.aborted) { if (node && node.nodeType === 3) node.replaceWith(document.createTextNode(node.data)); target.classList.remove('is-streaming'); throw ABORT; }
+  }
+  async function sayParts(target, parts) { for (const p of parts) { if (typeof p === 'string') await say(target, p); else target.append(citeEl(p.c)); } }
+
+  function setBusy(b) {
+    chat.setAttribute('aria-busy', String(b)); sync();
+  }
+  function sync() {
+    const has = ta.value.trim().length > 0, busy = !!run;
+    send.dataset.mode = busy ? 'stop' : 'send';
+    send.textContent = busy ? '停止' : '发送';
+    send.classList.toggle('btn--primary', !busy);
+    send.disabled = !busy && !has;
+    queueBtn.hidden = !(busy && has);
+  }
+  const renderQueue = () => { qbar.hidden = queue.length === 0; $('#qtag').textContent = `排队 ${queue.length} 条`; };
+  const renderEmpty = () => { empty.hidden = chat.hasAttribute('data-loading') || chat.children.length > 0; };
+
+  function finalizeAbort() {
+    $$('.tool[data-state="run"]', chat).forEach(b => setTool(b, 'fail', '已中断'));
+    $$('.think', chat).forEach(t => { if ($('.think__head .dots', t)) finishThink(t, run.t0); });
+  }
+  async function exec(fn) {
+    let release; run = { aborted: false, t0: performance.now(), halt: new Promise(r => (release = r)) }; run.release = release;
+    setBusy(true);
+    try { await fn(); } catch (e) { if (e !== ABORT) throw e; finalizeAbort(); }
+    run = null; setBusy(false);
+    if (queue.length) { const n = queue.shift(); renderQueue(); startRound(n.text, n.files); }
+  }
+  const stop = () => { if (run) { run.aborted = true; run.release(); } };
+
+  async function round(text, files) {
+    const S = SCRIPTS[rounds++ % SCRIPTS.length];
+    userMsg(text, files); renderEmpty();
+    const body = agentMsg();
+    const t0 = performance.now(), think = thinkEl(S.steps); body.append(think); Lz.initExpand(think);
+    for (const li of $$('.think__steps li', think)) { setStep(li, 'now'); await sleep(650); setStep(li, 'done'); }
+    finishThink(think, t0);
+    const wrap = toolsEl(); body.append(wrap);
+    for (const t of S.tools) { const b = toolEl(wrap, t); await sleep(900); setTool(b, 'done'); }
+    const bubble = el('<p class="bubble"></p>'); body.append(bubble);
+    await sayParts(bubble, S.text);
+    body.append(askEl(S.ask));
+  }
+  function startRound(text, files = []) {
+    const s = cur(); if (s.title === '新会话') { s.title = text.replace(/[，。、？！：；,.?!:;\s]/g, '').slice(0, 8) || '新会话'; $('#sess-title').textContent = s.title; }
+    exec(() => round(text, files));
+  }
+
+  /* ── 发送：空输入不可发；生成中同一按钮变停止，再输入的内容进入队列 ── */
+  function submit() {
+    const text = ta.value.trim(); if (!text) return;
+    const files = [...attached]; ta.value = ''; ta.style.height = ''; attached = []; renderFiles(); sync();
+    if (run) { queue.push({ text, files }); renderQueue(); return; }
+    startRound(text, files);
+  }
+  form.addEventListener('submit', e => { e.preventDefault(); if (run && send.dataset.mode === 'stop') stop(); else submit(); });
+  queueBtn.addEventListener('click', submit);
+  ta.addEventListener('input', () => { ta.style.height = 'auto'; ta.style.height = Math.min(ta.scrollHeight, 160) + 'px'; sync(); });
+  ta.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing && e.keyCode !== 229) { e.preventDefault(); submit(); } });
+  $('#qclear').addEventListener('click', () => { queue = []; renderQueue(); Lz.toast('已清空排队'); });
+  $$('.suggest button').forEach(b => b.addEventListener('click', () => { ta.value = b.dataset.q; submit(); }));
+  $('#empty-q').addEventListener('click', () => { ta.value = '核对上周三家门店的订单与库存差异'; submit(); });
+
+  /* 附件与语音 */
+  function renderFiles() {
+    filesBox.hidden = attached.length === 0; filesBox.replaceChildren();
+    attached.forEach((n, i) => {
+      const c = el('<span class="chip"><span class="one-line"></span><button type="button" class="ibtn" data-tip="移除附件"><img src="../../../../kit/assets/line/close.webp" alt=""></button></span>');
+      $('.one-line', c).textContent = n; const x = $('.ibtn', c); x.setAttribute('aria-label', '移除附件 ' + n);
+      x.addEventListener('click', () => { attached.splice(i, 1); renderFiles(); });
+      filesBox.append(c);
+    });
+  }
+  $('#attach').addEventListener('click', () => fileIn.click());
+  fileIn.addEventListener('change', () => { attached.push(...[...fileIn.files].map(f => f.name)); fileIn.value = ''; renderFiles(); });
+  const mic = $('#mic'); let micTimer = null;
+  mic.addEventListener('click', () => {
+    const on = mic.getAttribute('aria-pressed') !== 'true';
+    mic.setAttribute('aria-pressed', String(on)); $('#mic-dots').hidden = !on; clearTimeout(micTimer);
+    if (on) micTimer = setTimeout(() => { mic.setAttribute('aria-pressed', 'false'); $('#mic-dots').hidden = true; ta.value = (ta.value ? ta.value + ' ' : '') + '汇总本周退款金额'; ta.dispatchEvent(new Event('input')); ta.focus(); }, Lz.reduce ? 0 : 1600);
+  });
+
+  /* ── 消息内交互：委托到消息容器，会话切换后仍有效 ── */
+  chat.addEventListener('click', e => {
+    const tool = e.target.closest('.tool');
+    if (tool) { const io = document.getElementById(tool.getAttribute('aria-controls')), open = io.hidden; io.hidden = !open; tool.setAttribute('aria-expanded', String(open)); return; }
+    const ex = e.target.closest('.artifact [data-expand]');
+    if (ex) { setTimeout(() => { ex.textContent = ex.getAttribute('aria-expanded') === 'true' ? '收起' : '打开'; }, 0); return; }
+    const opt = e.target.closest('.opt');
+    if (opt) { $$('.opt', opt.parentElement).forEach(o => { const on = o === opt; o.setAttribute('aria-checked', String(on)); $('.check', o).setAttribute('aria-checked', String(on)); }); return; }
+    const act = e.target.closest('[data-act]');
+    if (act) {
+      const card = act.closest('.approval'), ok = act.dataset.act === 'approve', pick = $('.opt[aria-checked="true"]', card);
+      const tag = $('.approval__res .tag', card); tag.textContent = ok ? '已批准' : '已拒绝'; tag.dataset.tone = ok ? 'success' : 'danger';
+      $('[data-res]', card).textContent = ok && pick ? pick.textContent : '';
+      card.dataset.state = 'done'; Lz.toast(ok ? '已批准' : '已拒绝', ok ? 'success' : 'neutral'); return;
+    }
+    const retry = e.target.closest('[data-retry]');
+    if (retry) {
+      const chip = $('.tool[data-state="fail"]', retry.parentElement), after = retry.dataset.after, body = retry.closest('.msg__body'); retry.remove();
+      exec(async () => {
+        setTool(chip, 'run', '进行中'); await sleep(900); setTool(chip, 'done'); Lz.toast(chip.textContent + '已完成', 'success');
+        if (after) { const p = el('<p class="bubble"></p>'), bs = $$('.bubble', body); bs[bs.length - 1].after(p); await say(p, after); }
+      });
+    }
+  });
+
+  /* ── 会话：新建、历史、切换；每个会话的消息节点原样保存 ── */
+  const sessions = [
+    { id: 's1', title: '库存核对', mark: 'mark-004', time: '刚刚', frag: null },
+    { id: 's2', title: '缺货盘点', mark: 'mark-009', time: '昨天', frag: null, build: () => {
+      userMsg('盘点三家门店的库存缺口'); const b = agentMsg();
+      b.append(thinkEl(['读取库存表', '对照安全库存'], 3));
+      const w = toolsEl(); b.append(w); toolEl(w, { n: '查询库存', i: '三家门店 全部商品', o: '6 个商品低于安全线' }, 'done');
+      const p = el('<p class="bubble"></p>'); b.append(p);
+      p.append('三家门店共 6 个商品低于安全库存', citeEl(['库存表 第 2 页', 1]), '，补货清单已整理。'); Lz.initExpand(b);
+    } },
+    { id: 's3', title: '退款复核', mark: 'mark-011', time: '前天', frag: null, build: () => {
+      userMsg('复核本周退款申请'); const b = agentMsg();
+      b.append(thinkEl(['读取退款申请', '核对支付流水'], 4));
+      const w = toolsEl(); b.append(w); toolEl(w, { n: '查询退款', i: '本周 全部门店', o: '14 笔申请' }, 'done');
+      const p = el('<p class="bubble"></p>'); b.append(p);
+      p.append('14 笔退款申请已复核', citeEl(['退款申请单 第 1 页', 1]), '，全部与流水一致。'); Lz.initExpand(b);
+    } }
+  ];
+  let curId = 's1';
+  const cur = () => sessions.find(s => s.id === curId);
+  function leave() { const s = cur(); s.frag = document.createDocumentFragment(); while (chat.firstChild) s.frag.append(chat.firstChild); }
+  function enter(s) {
+    curId = s.id; $('#sess-title').textContent = s.title;
+    if (s.frag) { chat.append(s.frag); s.frag = null; } else if (s.build) { s.build(); s.build = null; }
+    renderEmpty(); follow = true; toBottom();
+  }
+  function switchTo(s) {
+    if (run) stop(); queue = []; renderQueue();
+    if (s.id !== curId) { leave(); enter(s); }
+  }
+  $('#new-sess').addEventListener('click', () => {
+    if (!chat.hasAttribute('data-loading') && chat.children.length === 0 && cur().title === '新会话') { Lz.toast('已是新会话'); return; }
+    const s = { id: id('sess'), title: '新会话', mark: 'mark-013', time: '刚刚', frag: null };
+    sessions.unshift(s); switchTo(s); $('#ta').focus({ preventScroll: true });
+  });
+  function renderHistory() {
+    $('#hist').replaceChildren(...sessions.map(s => {
+      const r = el(`<button class="row row--link" data-sid="${s.id}"><img class="row__lead" src="../../../../kit/assets/marks/${s.mark}.webp" alt=""><div class="row__main"><p class="row__title one-line"></p><p class="row__meta">${s.time}</p></div><div class="row__trail">${s.id === curId ? '<span class="tag" data-tone="action">当前</span>' : ''}</div></button>`);
+      $('.row__title', r).textContent = s.title; return r;
+    }));
+  }
+  document.addEventListener('lz:view', e => { composer.hidden = e.detail.id !== 'chat'; if (e.detail.id === 'history') renderHistory(); });
+  $('#hist').addEventListener('click', e => { const r = e.target.closest('[data-sid]'); if (!r) return; Lz.back(); switchTo(sessions.find(s => s.id === r.dataset.sid)); });
+
+  /* ── 首屏：骨架 500 毫秒后显示会话 ── */
+  sync();
+  setTimeout(() => { chat.removeAttribute('data-loading'); chat.setAttribute('aria-busy', 'false'); $('#skel').remove(); renderEmpty(); toBottom(); }, Lz.reduce ? 0 : 500);
+})();
+</script>
+</body>
+</html>

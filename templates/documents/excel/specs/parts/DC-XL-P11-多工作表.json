@@ -1,0 +1,24 @@
+{
+  "id": "DC-XL-P11",
+  "name": "多工作表",
+  "use": "用户要求按用途拆分时才分表，每个工作表自带标题、表头与数据；检查时加 --allow multi-sheet",
+  "fragment": {
+    "sheets": [
+      {
+        "title": "业务逻辑确认",
+        "sheet": "业务逻辑确认",
+        "columns": [],
+        "rows": []
+      },
+      {
+        "title": "需要提供的资料",
+        "sheet": "需要提供的资料",
+        "columns": [],
+        "rows": []
+      }
+    ]
+  },
+  "used_in": [
+    "DC-XL-003"
+  ]
+}

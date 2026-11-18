@@ -1,0 +1,1408 @@
+<!-- cat: DATA | 数据 -->
+<style>
+  /* 数据类组件专属样式：前缀 dat-。颜色只取令牌，字号只取字阶 */
+  .dat-card { display: grid; gap: var(--s-3); padding: var(--s-4); }
+  .dat-head { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); min-height: 32px; }
+  .dat-title { font-size: var(--fs-md); font-weight: 600; line-height: var(--lh-tight); }
+  .dat-unit { margin-top: 2px; font-size: var(--fs-sm); color: var(--ink-3); }
+  .dat-read { min-height: 22px; font-size: var(--fs-sm); color: var(--ink-2); font-variant-numeric: tabular-nums; }
+  .dat-read b { font-weight: 600; color: var(--ink); }
+  .dat-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--s-2) var(--s-3); }
+  .dat-num { display: flex; align-items: baseline; gap: var(--s-1); font-variant-numeric: tabular-nums; }
+  .dat-num b { font-size: var(--fs-2xl); font-weight: 700; line-height: 1; }
+  .dat-num span { font-size: var(--fs-sm); color: var(--ink-3); }
+  /* 分段切换自带阴影留白：上下左右对称，再用负外距收回，行内居中才准 */
+  .dat-card .seg { padding: 14px 12px; margin: -14px -12px; }
+  .dat-card .dat-seg--c { justify-content: safe center; }
+  .dat-card .seg__item { min-height: 32px; padding: 0 var(--s-3); }
+
+  /* 001 三栏指标面板 */
+  .dat-panel { overflow: hidden; }
+  .dat-panel .stat { position: relative; padding: var(--s-4) var(--s-1); transition: background var(--dur-quick) var(--ease-out); }
+  .dat-panel .stat__val { white-space: nowrap; }
+  .dat-panel .stat::after { content: ""; position: absolute; left: 28%; right: 28%; bottom: 0; height: 3px; border-radius: 3px 3px 0 0; background: var(--action); transform: scaleX(0); transition: transform var(--dur-base) var(--ease-spring); }
+  .dat-panel .stat[aria-pressed="true"] { background: var(--action-tint); }
+  .dat-panel .stat[aria-pressed="true"]::after { transform: scaleX(1); }
+
+  /* 003 条形图 */
+  .dat-bars.bars { height: 172px; padding-top: var(--s-2); }
+  .dat-bars .bars__bar { flex: none; height: calc(var(--h, 0%) * .69); width: min(30px, 72%); background: color-mix(in srgb, var(--action) 18%, var(--surface)); box-shadow: none; border-radius: 8px 8px 3px 3px; transition: background var(--dur-quick) var(--ease-out); }
+  .dat-bars .bars__col { cursor: pointer; gap: 6px; }
+  .dat-bars .bars__col[aria-current="true"] .bars__bar { background: var(--action); }
+  .dat-bars .bars__col[aria-current="true"] { color: var(--ink); font-weight: 600; }
+  .dat-v { font-size: var(--fs-xs); font-variant-numeric: tabular-nums; color: var(--ink-3); }
+  .dat-bars .bars__col[aria-current="true"] .dat-v { color: var(--action-press); font-weight: 600; }
+
+  /* 004 环形占比 */
+  .dat-donut-wrap { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-4) var(--s-5); }
+  .dat-donut { --c1: var(--action); --c2: var(--accent); --c3: var(--info); position: relative; flex: none; width: 128px; height: 128px; border-radius: 50%; background: conic-gradient(var(--k1, var(--c1)) 0 var(--p1), var(--k2, var(--c2)) var(--p1) var(--p2), var(--k3, var(--c3)) var(--p2) 100%); transition: background var(--dur-base) var(--ease-out); }
+  .dat-donut::after { content: ""; position: absolute; inset: 22%; border-radius: 50%; background: var(--surface); box-shadow: 0 0 0 1px var(--line); }
+  .dat-donut__c { position: absolute; inset: 0; z-index: 1; display: grid; place-content: center; text-align: center; }
+  .dat-donut__c b { font-size: var(--fs-xl); font-weight: 700; line-height: 1.1; font-variant-numeric: tabular-nums; }
+  .dat-donut__c span { font-size: var(--fs-xs); color: var(--ink-3); }
+  .dat-donut[data-sel="1"] { --k2: color-mix(in srgb, var(--c2) 22%, var(--surface)); --k3: color-mix(in srgb, var(--c3) 22%, var(--surface)); }
+  .dat-donut[data-sel="2"] { --k1: color-mix(in srgb, var(--c1) 22%, var(--surface)); --k3: color-mix(in srgb, var(--c3) 22%, var(--surface)); }
+  .dat-donut[data-sel="3"] { --k1: color-mix(in srgb, var(--c1) 22%, var(--surface)); --k2: color-mix(in srgb, var(--c2) 22%, var(--surface)); }
+  .dat-legend { display: grid; flex: 1 1 150px; min-width: 150px; gap: var(--s-1); }
+  .dat-legend button { display: flex; align-items: center; gap: var(--s-2); width: 100%; min-height: 40px; padding: 0 var(--s-2); border-radius: var(--r-sm); font-size: var(--fs-sm); color: var(--ink-2); text-align: left; white-space: nowrap; transition: background var(--dur-quick) var(--ease-out); }
+  .dat-legend button[aria-pressed="true"] { background: var(--zone); color: var(--ink); font-weight: 600; }
+  .dat-legend i { width: 10px; height: 10px; border-radius: 3px; background: var(--c); flex: none; }
+  .dat-legend em { margin-left: auto; font-style: normal; font-variant-numeric: tabular-nums; }
+
+  /* 006 进度环：自定义属性做过渡，百分比平滑增长 */
+  @property --dat-p { syntax: "<percentage>"; inherits: false; initial-value: 0%; }
+  .dat-ring-wrap { display: flex; align-items: center; justify-content: center; gap: var(--s-5); }
+  .dat-ring { position: relative; flex: none; display: grid; place-items: center; width: 116px; height: 116px; border-radius: 50%; background: conic-gradient(var(--action) var(--dat-p), var(--zone) 0); transition: --dat-p var(--dur-slow) var(--ease-out); }
+  .dat-ring::before { content: ""; position: absolute; inset: 11px; border-radius: 50%; background: var(--surface); }
+  .dat-ring__c { position: relative; font-size: var(--fs-xl); font-weight: 700; font-variant-numeric: tabular-nums; }
+  .dat-ring[data-full] { background: conic-gradient(var(--success) var(--dat-p), var(--zone) 0); }
+
+  /* 007 目标进度：超过 100% 仍显示真实值 */
+  .dat-goal { position: relative; height: 12px; border-radius: var(--r-full); background: var(--zone); overflow: hidden; }
+  .dat-goal > i { display: block; height: 100%; width: var(--v, 0%); border-radius: inherit; background: var(--action); transition: width var(--dur-slow) var(--ease-out), background var(--dur-base) var(--ease-out); }
+  .dat-goal[data-over] > i { background: var(--success); }
+  .dat-goal__scale { display: flex; justify-content: space-between; font-size: var(--fs-xs); color: var(--ink-3); font-variant-numeric: tabular-nums; }
+
+  /* 008 热度格 */
+  .dat-heat { display: grid; grid-template-columns: 36px repeat(7, 1fr); gap: 6px; align-items: center; }
+  .dat-heat__h, .dat-heat__r { font-size: var(--fs-xs); color: var(--ink-3); text-align: center; }
+  .dat-cell { height: 38px; border-radius: 8px; background: color-mix(in srgb, var(--action) calc(var(--l, 0) * 17% + 6%), var(--surface)); box-shadow: inset 0 0 0 1px var(--line); transition: transform var(--dur-quick) var(--ease-out), box-shadow var(--dur-quick) var(--ease-out); }
+  .dat-cell[data-none] { background: transparent; box-shadow: inset 0 0 0 1.5px var(--line-strong); background-image: repeating-linear-gradient(135deg, transparent 0 5px, var(--line) 5px 6px); }
+  .dat-cell[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--action); }
+  .dat-scale { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2); font-size: var(--fs-xs); color: var(--ink-3); }
+  .dat-scale span { white-space: nowrap; }
+  .dat-scale i { width: 20px; height: 10px; border-radius: 3px; background: color-mix(in srgb, var(--action) calc(var(--l) * 17% + 6%), var(--surface)); box-shadow: inset 0 0 0 1px var(--line); }
+  .dat-scale i[data-none] { background-image: repeating-linear-gradient(135deg, transparent 0 3px, var(--line-strong) 3px 4px); }
+
+  /* 009 排行条 */
+  .dat-rank { display: grid; gap: var(--s-1); }
+  .dat-rank__row { display: grid; grid-template-columns: 20px 40px 1fr; align-items: center; column-gap: var(--s-3); width: 100%; padding: var(--s-2); border-radius: var(--r-md); text-align: left; transition: background var(--dur-quick) var(--ease-out); }
+  .dat-rank__row[aria-pressed="true"] { background: var(--action-tint); }
+  .dat-rank__n { font-size: var(--fs-md); font-weight: 600; text-align: center; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+  .dat-rank__row[data-top] .dat-rank__n { color: var(--accent); }
+  .dat-rank__img { width: 40px; height: 40px; border-radius: var(--r-sm); object-fit: cover; background: var(--zone); }
+  .dat-rank__top { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-2); margin-bottom: 6px; font-size: var(--fs-sm); }
+  .dat-rank__top b { font-weight: 600; font-variant-numeric: tabular-nums; }
+  .dat-rank .progress { height: 6px; }
+
+  /* 010 迷你趋势 */
+  .dat-spark { display: grid; grid-template-columns: repeat(auto-fit, minmax(124px, 1fr)); align-items: end; gap: var(--s-3); }
+  .dat-spark canvas { display: block; width: 100%; height: 56px; touch-action: none; cursor: crosshair; }
+  .dat-big { white-space: nowrap; font-size: var(--fs-2xl); font-weight: 700; line-height: 1.1; font-variant-numeric: tabular-nums; }
+  .dat-big small { margin-left: 2px; font-size: var(--fs-sm); font-weight: 400; color: var(--ink-3); }
+
+  /* 011 漏斗 */
+  .dat-fun { display: grid; gap: 6px; }
+  .dat-fun__row { display: grid; grid-template-columns: 76px 1fr 56px; align-items: center; column-gap: var(--s-2); min-height: 44px; width: 100%; padding: 0 var(--s-1); border-radius: var(--r-sm); text-align: left; font-size: var(--fs-sm); }
+  .dat-fun__bar { justify-self: center; width: var(--w); height: 36px; border-radius: 8px; background: color-mix(in srgb, var(--action) calc(100% - var(--k) * 17%), var(--surface)); transition: width var(--dur-slow) var(--ease-out), box-shadow var(--dur-quick) var(--ease-out); }
+  .dat-fun__row[aria-pressed="true"] .dat-fun__bar { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--action); }
+  .dat-fun__v { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .dat-fun__v small { display: block; font-size: var(--fs-xs); font-weight: 400; color: var(--ink-3); }
+
+  /* 012 对比条 */
+  .dat-cmp { display: grid; gap: var(--s-3); }
+  .dat-cmp__row { display: grid; grid-template-columns: 44px 1fr 72px; align-items: center; column-gap: var(--s-3); font-size: var(--fs-sm); }
+  .dat-cmp__row b { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .dat-cmp__track { height: 14px; border-radius: var(--r-full); background: var(--zone); overflow: hidden; }
+  .dat-cmp__track i { display: block; height: 100%; width: var(--v, 0%); border-radius: inherit; background: var(--action); transition: width var(--dur-slow) var(--ease-out); }
+  .dat-cmp__row[data-prev] .dat-cmp__track i { background: color-mix(in srgb, var(--action) 34%, var(--surface)); }
+  .dat-cmp__row[data-prev] { color: var(--ink-3); }
+
+  /* 013 数字翻牌 */
+  .dat-flip { display: inline-flex; align-items: center; gap: 4px; font-size: var(--fs-3xl); font-weight: 700; font-variant-numeric: tabular-nums; }
+  .dat-flip__d { position: relative; width: .76em; height: 1.4em; overflow: hidden; border-radius: 8px; background: var(--surface); box-shadow: var(--elev-1), inset 0 0 0 1px var(--line); }
+  .dat-flip__d::after { content: ""; position: absolute; left: 0; right: 0; top: 50%; border-top: 1px solid var(--line); }
+  .dat-flip__s { display: block; transition: transform var(--dur-slow) var(--ease-spring); }
+  .dat-flip__s span { display: block; height: 1.4em; line-height: 1.4em; text-align: center; }
+  .dat-flip__sep { color: var(--ink-3); }
+  .dat-center { display: grid; justify-items: center; gap: var(--s-2); padding: var(--s-3) 0 var(--s-1); }
+
+  /* 014 余额 */
+  .dat-bal { display: flex; align-items: baseline; gap: var(--s-1); font-size: var(--fs-3xl); font-weight: 700; line-height: 1.1; font-variant-numeric: tabular-nums; }
+  .dat-bal small { font-size: var(--fs-md); font-weight: 400; color: var(--ink-3); }
+
+  /* 015 日程完成度 */
+  .dat-sched { display: grid; grid-template-columns: 64px 1fr; align-items: center; column-gap: var(--s-4); }
+  .dat-mini { position: relative; display: grid; place-items: center; width: 64px; height: 64px; border-radius: 50%; background: conic-gradient(var(--action) var(--dat-p), var(--zone) 0); transition: --dat-p var(--dur-slow) var(--ease-out); }
+  .dat-mini::before { content: ""; position: absolute; inset: 7px; border-radius: 50%; background: var(--surface); }
+  .dat-mini span { position: relative; font-size: var(--fs-sm); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .dat-sched__list { margin: 0 calc(var(--s-4) * -1) calc(var(--s-4) * -1); border-top: 1px solid var(--line); }
+  .dat-sched__list .row { min-height: 48px; padding-block: var(--s-2); cursor: pointer; }
+  .dat-sched__list .row[aria-checked="true"] .row__title { color: var(--ink-3); text-decoration: line-through; }
+  .dat-sched__list .row[aria-checked="true"] .check { background: var(--action); border-color: var(--action); }
+  .dat-sched__list .row[aria-checked="true"] .check img { opacity: 1; transform: none; }
+
+  /* 016 库存水位 */
+  .dat-stock { position: relative; height: 14px; margin: var(--s-4) 0 var(--s-1); border-radius: var(--r-full); background: var(--zone); }
+  .dat-stock > i { display: block; height: 100%; width: var(--v, 0%); border-radius: inherit; background: var(--danger); transition: width var(--dur-slow) var(--ease-out), background var(--dur-base) var(--ease-out); }
+  .dat-stock[data-ok] > i { background: var(--success); }
+  .dat-stock__line { position: absolute; top: -6px; bottom: -6px; left: var(--m); width: 2px; background: var(--ink); border-radius: 2px; }
+  .dat-stock__line span { position: absolute; bottom: calc(100% + 2px); left: 50%; transform: translateX(-50%); font-size: var(--fs-xs); color: var(--ink-2); white-space: nowrap; }
+</style>
+
+<article class="demo" data-cid="AP-DATA-001" data-name="三栏指标面板" data-cat="DATA">
+  <div class="demo__head"><span class="demo__name">三栏指标面板</span></div>
+  <p class="demo__note">适合：首页与经营页顶部的核心指标</p>
+  <div class="demo__stage">
+    <div class="card stats dat-panel" role="group" aria-label="经营指标">
+      <button class="stat" aria-pressed="true"><span class="stat__label">订单量</span><span class="stat__val"><span data-to="1286">1,286</span><small>单</small></span><span class="stat__delta" data-tone="up">增长 8%</span></button>
+      <button class="stat" aria-pressed="false"><span class="stat__label">销售额</span><span class="stat__val"><span data-to="36420">36,420</span><small>元</small></span><span class="stat__delta" data-tone="up">增长 5%</span></button>
+      <button class="stat" aria-pressed="false"><span class="stat__label">客单价</span><span class="stat__val"><span data-to="28.3">28.3</span><small>元</small></span><span class="stat__delta" data-tone="down">下降 3%</span></button>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-DATA-002" data-name="折线趋势图" data-cat="DATA">
+  <div class="demo__head"><span class="demo__name">折线趋势图</span></div>
+  <p class="demo__note">适合：按日期看走势，缺失日保持断开</p>
+  <div class="demo__stage">
+    <div class="card dat-card">
+      <div class="dat-head">
+        <div><p class="dat-title">近七天走势</p><p class="dat-unit" data-unit>订单量 单位 单</p></div>
+        <div class="seg" data-seg="dat-line" aria-label="指标">
+          <button class="seg__item" data-key="orders" aria-selected="true">订单量</button>
+          <button class="seg__item" data-key="sales" aria-selected="false">销售额</button>
+        </div>
+      </div>
+      <div class="chart"><canvas role="img" aria-label="近七天订单量折线图"></canvas></div>
+      <p class="dat-read" role="status"></p>
+      <ul class="sr-only" data-dom></ul>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-DATA-003" data-name="条形对比图" data-cat="DATA">
+  <div class="demo__head"><span class="demo__name">条形对比图</span></div>
+  <p class="demo__note">适合：品类、门店之间的数量比较，点选看明细</p>
+  <div class="demo__stage">
+    <div class="card dat-card">
+      <div class="dat-head"><div><p class="dat-title">品类销量</p><p class="dat-unit">单位 件</p></div></div>
+      <div class="bars dat-bars" role="group" aria-label="品类销量">
+        <button class="bars__col" style="--h:100%;--i:0" data-name="鲜花" data-v="412" aria-current="true" aria-label="鲜花 412 件"><span class="dat-v">412</span><span class="bars__bar"></span><span>鲜花</span></button>
+        <button class="bars__col" style="--h:65%;--i:1" data-name="绿植" data-v="268" aria-label="绿植 268 件"><span class="dat-v">268</span><span class="bars__bar"></span><span>绿植</span></button>
+        <button class="bars__col" style="--h:48%;--i:2" data-name="礼盒" data-v="196" aria-label="礼盒 196 件"><span class="dat-v">196</span><span class="bars__bar"></span><span>礼盒</span></button>
+        <button class="bars__col" style="--h:30%;--i:3" data-name="花器" data-v="124" aria-label="花器 124 件"><span class="dat-v">124</span><span class="bars__bar"></span><span>花器</span></button>
+        <button class="bars__col" style="--h:21%;--i:4" data-name="种苗" data-v="86" aria-label="种苗 86 件"><span class="dat-v">86</span><span class="bars__bar"></span><span>种苗</span></button>
+      </div>
+      <p class="dat-read" role="status"></p>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-DATA-004" data-name="环形占比图" data-cat="DATA">
+  <div class="demo__head"><span class="demo__name">环形占比图</span></div>
+  <p class="demo__note">适合：同一总体下互斥项目的构成</p>
+  <div class="demo__stage">
+    <div class="card dat-card">
+      <div class="dat-head"><div><p class="dat-title">订单渠道</p><p class="dat-unit">共 1,286 单</p></div></div>
+      <div class="dat-donut-wrap">
+        <div class="dat-donut" style="--p1:45%;--p2:80%" data-sel="1" role="img" aria-label="订单渠道占比 线上 45% 门店 35% 到家 20%"><div class="dat-donut__c"><b data-val>45%</b><span data-lab>线上</span></div></div>
+        <div class="dat-legend" role="group" aria-label="渠道">
+          <button aria-pressed="true" data-k="1" data-v="45%" data-l="线上"><i style="--c:var(--action)"></i>线上<em>579 单</em></button>
+          <button aria-pressed="false" data-k="2" data-v="35%" data-l="门店"><i style="--c:var(--accent)"></i>门店<em>450 单</em></button>
+          <button aria-pressed="false" data-k="3" data-v="20%" data-l="到家"><i style="--c:var(--info)"></i>到家<em>257 单</em></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-DATA-005" data-name="线性进度条" data-cat="DATA">
+  <div class="demo__head"><span class="demo__name">线性进度条</span></div>
+  <p class="demo__note">适合：备货、履约这类单项任务的推进</p>
+  <div class="demo__stage">
+    <div class="card dat-card">
+      <div class="dat-head"><span class="dat-title">备货进度</span><span class="tag" data-tone="action" data-tag>进行中</span></div>
+      <div class="dat-num"><b data-n>36</b><span>/ 48 件</span></div>
+      <div class="progress" role="progressbar" aria-label="备货进度" aria-valuemin="0" aria-valuemax="48" aria-valuenow="36"><i style="--v:75%"></i></div>
+      <div class="dat-row"><span class="dat-read" role="status" data-read>已备 75%</span><div class="btn-group"><button class="btn btn--secondary btn--sm" data-add>备一件</button><button class="btn btn--ghost btn--sm" data-reset>重置</button></div></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-DATA-006" data-name="圆环进度" data-cat="DATA">
+  <div class="demo__head"><span class="demo__name">圆环进度</span></div>
+  <p class="demo__note">适合：各门店配送完成率这类百分比</p>
+  <div class="demo__stage">
+    <div class="card dat-card">
+      <div class="dat-ring-wrap">
+        <div class="dat-ring" style="--dat-p:76%" role="img" aria-label="配送完成率 76%"><span class="dat-ring__c" data-val>76%</span></div>
+        <div><p class="dat-title">配送完成率</p><p class="dat-unit" data-sub>已送达 38 单 共 50 单</p></div>
+      </div>
+      <div class="seg dat-seg--c" data-seg="dat-ring" aria-label="门店">
+        <button class="seg__item" data-key="0" aria-selected="true">建国路店</button>
+        <button class="seg__item" data-key="1" aria-selected="false">徐汇滨江店</button>
+        <button class="seg__item" data-key="2" aria-selected="false">浦东世纪店</button>
+      </div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-DATA-007" data-name="目标达成进度" data-cat="DATA">
+  <div class="demo__head"><span class="demo__name">目标达成进度</span></div>
+  <p class="demo__note">适合：销售目标，超过百分之百显示真实达成值</p>
+  <div class="demo__stage">
+    <div class="card dat-card">
+      <div class="dat-head"><span class="dat-title">月度销售目标</span><span class="tag" data-tone="action" data-pct>达成 76%</span></div>
+      <div class="dat-num"><b data-done>68,400</b><span>元 目标 90,000 元</span></div>
+      <div class="dat-goal" role="progressbar" aria-label="目标达成" aria-valuemin="0" aria-valuemax="100" aria-valuenow="76"><i style="--v:76%"></i></div>
+      <div class="dat-goal__scale"><span>0</span><span>90,000 元</span></div>
+      <div class="dat-row"><span class="dat-read" role="status" data-read>距目标还差 21,600 元</span><div class="btn-group"><button class="btn btn--secondary btn--sm" data-add>记一笔</button><button class="btn btn--ghost btn--sm" data-reset>重置</button></div></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-DATA-008" data-name="热度格图" data-cat="DATA">
+  <div class="demo__head"><span class="demo__name">热度格图</span></div>
+  <p class="demo__note">适合：按星期与时段看订单密度，缺失格留空</p>
+  <div class="demo__stage">
+    <div class="card dat-card">
+      <div class="dat-head"><div><p class="dat-title">时段订单</p><p class="dat-unit">单位 单</p></div></div>
+      <div class="dat-heat" role="group" aria-label="星期与时段订单热度" data-grid></div>
+      <div class="dat-scale"><span>少</span><i style="--l:0"></i><i style="--l:1"></i><i style="--l:2"></i><i style="--l:3"></i><i style="--l:4"></i><i style="--l:5"></i><span>多</span><i data-none style="--l:0"></i><span>暂无数据</span></div>
+      <p class="dat-read" role="status"></p>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-DATA-009" data-name="商品排行条" data-cat="DATA">
+  <div class="demo__head"><span class="demo__name">商品排行条</span></div>
+  <p class="demo__note">适合：商品销量与销售额的榜单</p>
+  <div class="demo__stage">
+    <div class="card dat-card">
+      <div class="dat-head"><span class="dat-title">热销榜</span>
+        <div class="seg" data-seg="dat-rank" aria-label="排序指标">
+          <button class="seg__item" data-key="qty" aria-selected="true">销量</button>
+          <button class="seg__item" data-key="amt" aria-selected="false">销售额</button>
+        </div>
+      </div>
+      <div class="dat-rank" data-list></div>
+      <p class="dat-read" role="status"></p>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-DATA-010" data-name="迷你趋势卡" data-cat="DATA">
+  <div class="demo__head"><span class="demo__name">迷你趋势卡</span></div>
+  <p class="demo__note">适合：指标卡内的小型走势，滑过读取单日值</p>
+  <div class="demo__stage">
+    <div class="card dat-card">
+      <div class="dat-head"><span class="dat-title">销售额</span>
+        <div class="seg" data-seg="dat-spark" aria-label="范围">
+          <button class="seg__item" data-key="7" aria-selected="true">近七天</button>
+          <button class="seg__item" data-key="14" aria-selected="false">近十四天</button>
+        </div>
+      </div>
+      <div class="dat-spark">
+        <div><p class="dat-big"><span data-total>36,420</span><small>元</small></p><p class="stat__delta" data-tone="up" data-delta>较前七天 增长 24%</p></div>
+        <canvas role="img" aria-label="销售额迷你趋势" tabindex="0"></canvas>
+      </div>
+      <ul class="sr-only" data-dom></ul>
+      <p class="dat-read" role="status"></p>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-DATA-011" data-name="转化漏斗图" data-cat="DATA">
+  <div class="demo__head"><span class="demo__name">转化漏斗图</span></div>
+  <p class="demo__note">适合：从浏览到支付的逐步转化</p>
+  <div class="demo__stage">
+    <div class="card dat-card">
+      <div class="dat-head"><div><p class="dat-title">下单转化</p><p class="dat-unit">单位 人</p></div></div>
+      <div class="dat-fun" role="group" aria-label="下单转化漏斗" data-fun></div>
+      <p class="dat-read" role="status"></p>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-DATA-012" data-name="本周上周对比条" data-cat="DATA">
+  <div class="demo__head"><span class="demo__name">本周上周对比条</span></div>
+  <p class="demo__note">适合：同一指标两个周期的并排比较</p>
+  <div class="demo__stage">
+    <div class="card dat-card">
+      <div class="dat-head"><span class="dat-title">周期对比</span><span class="tag" data-tone="success" data-delta>增长 8%</span></div>
+      <div class="seg" data-seg="dat-cmp" aria-label="指标">
+        <button class="seg__item" data-key="orders" aria-selected="true">订单量</button>
+        <button class="seg__item" data-key="sales" aria-selected="false">销售额</button>
+        <button class="seg__item" data-key="avg" aria-selected="false">客单价</button>
+      </div>
+      <div class="dat-cmp">
+        <div class="dat-cmp__row"><span>本周</span><div class="dat-cmp__track"><i data-bar="now" style="--v:0%"></i></div><b data-vnow>1,286</b></div>
+        <div class="dat-cmp__row" data-prev><span>上周</span><div class="dat-cmp__track"><i data-bar="prev" style="--v:0%"></i></div><b data-vprev>1,190</b></div>
+      </div>
+      <p class="dat-read" role="status"></p>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-DATA-013" data-name="数字翻牌" data-cat="DATA">
+  <div class="demo__head"><span class="demo__name">数字翻牌</span></div>
+  <p class="demo__note">适合：订单总数这类持续累加的数字</p>
+  <div class="demo__stage">
+    <div class="card dat-card">
+      <div class="dat-center">
+        <span class="stat__label">累计订单 单位 单</span>
+        <div class="dat-flip" role="img" aria-label="累计订单 12,860 单" data-flip></div>
+      </div>
+      <div class="dat-row" style="justify-content:center"><button class="btn btn--secondary btn--sm" data-step="1">加一单</button><button class="btn btn--secondary btn--sm" data-step="100">加百单</button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-DATA-014" data-name="余额数字入场" data-cat="DATA">
+  <div class="demo__head"><span class="demo__name">余额数字入场</span></div>
+  <p class="demo__note">适合：余额与积分的入场滚动，可隐藏</p>
+  <div class="demo__stage">
+    <div class="card dat-card">
+      <span class="t-sub">账户余额</span>
+      <p class="dat-bal"><small>¥</small><span data-bal>2,860.50</span></p>
+      <div class="btn-group"><button class="btn btn--secondary btn--sm" data-topup>充值 100 元</button><button class="btn btn--ghost btn--sm" data-hide aria-pressed="false">隐藏</button><button class="btn btn--text btn--sm" data-replay>重新滚动</button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-DATA-015" data-name="日程完成度" data-cat="DATA">
+  <div class="demo__head"><span class="demo__name">日程完成度</span></div>
+  <p class="demo__note">适合：营业前清单与班次待办的完成情况</p>
+  <div class="demo__stage">
+    <div class="card dat-card">
+      <div class="dat-sched">
+        <div class="dat-mini" style="--dat-p:60%" role="img" aria-label="完成度 60%"><span data-pct>60%</span></div>
+        <div><p class="dat-title">营业前准备</p><p class="dat-unit" role="status">已完成 <span data-n>3</span> 项 共 5 项</p></div>
+      </div>
+      <div class="dat-sched__list" role="group" aria-label="营业前清单">
+        <div class="row" role="checkbox" aria-checked="true"><span class="check" aria-hidden="true"><img src="../../kit/assets/line/check.webp" alt=""></span><div class="row__main"><p class="row__title one-line">擦拭花桶</p></div></div>
+        <div class="row" role="checkbox" aria-checked="true"><span class="check" aria-hidden="true"><img src="../../kit/assets/line/check.webp" alt=""></span><div class="row__main"><p class="row__title one-line">补充鲜花</p></div></div>
+        <div class="row" role="checkbox" aria-checked="true"><span class="check" aria-hidden="true"><img src="../../kit/assets/line/check.webp" alt=""></span><div class="row__main"><p class="row__title one-line">核对库存</p></div></div>
+        <div class="row" role="checkbox" aria-checked="false"><span class="check" aria-hidden="true"><img src="../../kit/assets/line/check.webp" alt=""></span><div class="row__main"><p class="row__title one-line">摆放价签</p></div></div>
+        <div class="row" role="checkbox" aria-checked="false"><span class="check" aria-hidden="true"><img src="../../kit/assets/line/check.webp" alt=""></span><div class="row__main"><p class="row__title one-line">开启收银</p></div></div>
+      </div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-DATA-016" data-name="库存水位条" data-cat="DATA">
+  <div class="demo__head"><span class="demo__name">库存水位条</span></div>
+  <p class="demo__note">适合：库存与安全线的对照，低于安全线转红</p>
+  <div class="demo__stage">
+    <div class="card dat-card">
+      <div class="dat-head"><span class="dat-title">红玫瑰花束</span><span class="tag" data-tone="danger" data-tag>低于安全线</span></div>
+      <div class="dat-num"><b data-n>18</b><span>件 满仓 60 件</span></div>
+      <div class="dat-stock" style="--m:50%;--v:30%" role="progressbar" aria-label="库存水位" aria-valuemin="0" aria-valuemax="60" aria-valuenow="18"><i></i><span class="dat-stock__line"><span>安全线 30</span></span></div>
+      <div class="dat-row"><span class="dat-read" role="status" data-read>还差 12 件到安全线</span><div class="btn-group"><button class="btn btn--secondary btn--sm" data-in>补货 12 件</button><button class="btn btn--ghost btn--sm" data-out>出库 6 件</button></div></div>
+    </div>
+  </div>
+</article>
+
+<script>
+(function () {
+  const { $, $$ } = Lz;
+  const D = cid => document.querySelector(`[data-cid="${cid}"]`);
+  const nf = n => Math.round(n).toLocaleString('zh-CN');
+  const nf2 = n => n.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const onTheme = fn => new MutationObserver(fn).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  const seg = (root, fn) => root.addEventListener('lz:seg', e => fn(e.detail.key));
+  /* 从旧值滚到新值；系统要求减少动态时直接给终值 */
+  const tween = (el, from, to, fmt = nf, ms = 600) => {
+    if (Lz.reduce) { el.textContent = fmt(to); return; }
+    const t0 = performance.now();
+    const step = t => { const p = Math.min(1, (t - t0) / ms), e = 1 - Math.pow(1 - p, 3); el.textContent = fmt(from + (to - from) * e); if (p < 1) requestAnimationFrame(step); };
+    requestAnimationFrame(step);
+  };
+
+  /* 001 三栏指标：选中的指标重新计数 */
+  (() => {
+    const stats = $$('.stat', D('AP-DATA-001'));
+    stats.forEach(s => s.addEventListener('click', () => { stats.forEach(x => x.setAttribute('aria-pressed', String(x === s))); Lz.count($('[data-to]', s)); }));
+  })();
+
+  /* 002 折线图：缺口断开，点选与方向键读数；换指标时重建画布，换主题时重绘 */
+  (() => {
+    const root = D('AP-DATA-002'), L = ['一', '二', '三', '四', '五', '六', '日'], RL = L.map(x => '周' + x);
+    const S = { orders: { name: '订单量', u: '单', v: [128, 142, 135, null, 181, 176, 204] }, sales: { name: '销售额', u: '元', v: [3580, 3920, 3760, null, 5240, 5030, 5860] } };
+    let key = 'orders', canvas = $('canvas', root);
+    const mount = () => {
+      const s = S[key], n = canvas.cloneNode(false); canvas.replaceWith(n); canvas = n; canvas.setAttribute('aria-label', `近七天${s.name}折线图`);
+      $('[data-unit]', root).textContent = `${s.name} 单位 ${s.u}`;
+      $('[data-dom]', root).innerHTML = s.v.map((v, i) => `<li>${RL[i]} ${v == null ? '暂无数据' : nf(v) + ' ' + s.u}</li>`).join('');
+      Lz.line(canvas, { labels: L, readLabels: RL, values: s.v, unit: ' ' + s.u, read: $('.dat-read', root) });
+    };
+    seg(root, k => { key = k; mount(); });
+    onTheme(mount); mount();
+  })();
+
+  /* 003 条形图：悬浮与点选都在同区显示明细 */
+  (() => {
+    const root = D('AP-DATA-003'), cols = $$('.bars__col', root), read = $('.dat-read', root), total = cols.reduce((a, c) => a + +c.dataset.v, 0);
+    const pick = c => { cols.forEach(x => x.removeAttribute('aria-current')); c.setAttribute('aria-current', 'true'); read.innerHTML = `<b>${c.dataset.name}</b> 销量 ${c.dataset.v} 件 占 ${Math.round(c.dataset.v / total * 100)}%`; };
+    cols.forEach(c => { c.addEventListener('click', () => pick(c)); c.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') pick(c); }); c.addEventListener('focus', () => pick(c)); });
+    pick(cols[0]);
+  })();
+
+  /* 004 环形占比：点图例，其余扇区变浅，中心显示该项 */
+  (() => {
+    const root = D('AP-DATA-004'), donut = $('.dat-donut', root), bs = $$('.dat-legend button', root);
+    bs.forEach(b => b.addEventListener('click', () => {
+      bs.forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+      donut.dataset.sel = b.dataset.k; $('[data-val]', root).textContent = b.dataset.v; $('[data-lab]', root).textContent = b.dataset.l;
+    }));
+  })();
+
+  /* 005 线性进度 */
+  (() => {
+    const root = D('AP-DATA-005'), n = $('[data-n]', root), bar = $('.progress', root), tag = $('[data-tag]', root), read = $('[data-read]', root), add = $('[data-add]', root), MAX = 48, START = 36;
+    let v = START;
+    const paint = () => {
+      const p = Math.round(v / MAX * 100); n.textContent = v; bar.firstElementChild.style.setProperty('--v', p + '%'); bar.setAttribute('aria-valuenow', v);
+      read.textContent = `已备 ${p}%`; const done = v >= MAX; tag.textContent = done ? '已备齐' : '进行中'; tag.dataset.tone = done ? 'success' : 'action'; add.disabled = done;
+    };
+    add.addEventListener('click', () => { v = Math.min(MAX, v + 1); paint(); });
+    $('[data-reset]', root).addEventListener('click', () => { v = START; paint(); });
+  })();
+
+  /* 006 圆环进度：切换门店，百分比平滑过渡 */
+  (() => {
+    const root = D('AP-DATA-006'), ring = $('.dat-ring', root), data = [[38, 50], [29, 40], [45, 45]];
+    seg(root, k => {
+      const [d, t] = data[+k], p = Math.round(d / t * 100);
+      ring.style.setProperty('--dat-p', p + '%'); ring.toggleAttribute('data-full', p >= 100); ring.setAttribute('aria-label', `配送完成率 ${p}%`);
+      $('[data-val]', root).textContent = p + '%'; $('[data-sub]', root).textContent = `已送达 ${d} 单 共 ${t} 单`;
+    });
+  })();
+
+  /* 007 目标进度：进度条封顶，数字与百分比保持真实值 */
+  (() => {
+    const root = D('AP-DATA-007'), GOAL = 90000, START = 68400, done = $('[data-done]', root), pct = $('[data-pct]', root), bar = $('.dat-goal', root), read = $('[data-read]', root);
+    let v = START;
+    const paint = (from, to) => {
+      tween(done, from, to); const p = Math.round(to / GOAL * 100), over = to >= GOAL;
+      pct.textContent = (over ? '已超额 ' : '达成 ') + p + '%'; pct.dataset.tone = over ? 'success' : 'action';
+      bar.firstElementChild.style.setProperty('--v', Math.min(100, p) + '%'); bar.toggleAttribute('data-over', over); bar.setAttribute('aria-valuenow', Math.min(100, p));
+      read.textContent = over ? `超出目标 ${nf(to - GOAL)} 元` : `距目标还差 ${nf(GOAL - to)} 元`;
+    };
+    $('[data-add]', root).addEventListener('click', () => { const nv = v + 8000; paint(v, nv); v = nv; if (v >= GOAL && v - 8000 < GOAL) Lz.toast('目标已达成', 'success'); });
+    $('[data-reset]', root).addEventListener('click', () => { paint(v, START); v = START; });
+  })();
+
+  /* 008 热度格：null 表示暂无数据，不画成零 */
+  (() => {
+    const root = D('AP-DATA-008'), grid = $('[data-grid]', root), read = $('.dat-read', root);
+    const days = ['一', '二', '三', '四', '五', '六', '日'], bands = ['上午', '下午', '晚上'];
+    const V = [[12, 14, 11, 15, 22, 38, 41], [18, 21, 19, 24, 31, 52, 57], [9, 13, 10, null, 27, 44, 36]], MAX = 57;
+    let html = '<span></span>' + days.map(d => `<span class="dat-heat__h">${d}</span>`).join('');
+    bands.forEach((b, r) => { html += `<span class="dat-heat__r">${b}</span>`; V[r].forEach((v, c) => { html += v == null ? `<button class="dat-cell" data-none data-r="${r}" data-c="${c}" aria-pressed="false" aria-label="周${days[c]} ${b} 暂无数据"></button>` : `<button class="dat-cell" style="--l:${Math.max(1, Math.ceil(v / MAX * 5))}" data-r="${r}" data-c="${c}" aria-pressed="false" aria-label="周${days[c]} ${b} ${v} 单"></button>`; }); });
+    grid.innerHTML = html;
+    const cells = $$('.dat-cell', grid);
+    const pick = el => { cells.forEach(x => x.setAttribute('aria-pressed', String(x === el))); const r = +el.dataset.r, c = +el.dataset.c, v = V[r][c]; read.innerHTML = `<b>周${days[c]} ${bands[r]}</b> ${v == null ? '暂无数据' : v + ' 单'}`; };
+    cells.forEach(c => { c.addEventListener('click', () => pick(c)); c.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') pick(c); }); c.addEventListener('focus', () => pick(c)); });
+    pick(cells[cells.length - 2]);
+  })();
+
+  /* 009 排行条：切换指标后重新排序，行位移用 FLIP 过渡 */
+  (() => {
+    const root = D('AP-DATA-009'), list = $('[data-list]', root), read = $('.dat-read', root);
+    const P = [
+      { n: '向日葵花束', img: 'product-sunflower', q: 268, p: 159 }, { n: '红玫瑰花束', img: 'product-rose-red', q: 210, p: 199 },
+      { n: '粉芍药花束', img: 'product-peony-pink', q: 186, p: 239 }, { n: '白郁金香', img: 'product-tulip-white', q: 142, p: 179 }, { n: '蓝绣球盆栽', img: 'product-hydrangea-blue', q: 96, p: 129 }
+    ];
+    let metric = 'qty', sel = P[0].n;
+    const val = p => metric === 'qty' ? p.q : p.q * p.p, txt = p => metric === 'qty' ? `${nf(p.q)} 件` : `${nf(p.q * p.p)} 元`;
+    const rows = new Map();
+    P.forEach(p => { const b = document.createElement('button'); b.className = 'dat-rank__row'; b.setAttribute('aria-pressed', 'false'); b.innerHTML = `<span class="dat-rank__n"></span><img class="dat-rank__img" src="../../kit/assets/photo/${p.img}.webp" alt=""><div><div class="dat-rank__top"><span class="one-line">${p.n}</span><b></b></div><div class="progress"><i></i></div></div>`; b.addEventListener('click', () => { sel = p.n; paint(false); }); rows.set(p.n, b); list.append(b); });
+    function paint(animate) {
+      const sorted = [...P].sort((a, b) => val(b) - val(a)), max = val(sorted[0]), total = P.reduce((a, p) => a + val(p), 0);
+      const before = new Map([...rows].map(([k, el]) => [k, el.getBoundingClientRect().top]));
+      sorted.forEach((p, i) => { const el = rows.get(p.n); list.append(el); el.toggleAttribute('data-top', i < 3); $('.dat-rank__n', el).textContent = i + 1; $('b', el).textContent = txt(p); $('.progress i', el).style.setProperty('--v', (val(p) / max * 100) + '%'); el.setAttribute('aria-pressed', String(p.n === sel)); });
+      if (animate && !Lz.reduce) rows.forEach((el, k) => { const dy = before.get(k) - el.getBoundingClientRect().top; if (dy) el.animate([{ transform: `translateY(${dy}px)` }, { transform: 'none' }], { duration: 320, easing: 'cubic-bezier(.22,1,.36,1)' }); });
+      const p = P.find(x => x.n === sel); read.innerHTML = `<b>${p.n}</b> ${metric === 'qty' ? '销量' : '销售额'} ${txt(p)} 占 ${Math.round(val(p) / total * 100)}%`;
+    }
+    seg(root, k => { metric = k; paint(true); }); paint(false);
+  })();
+
+  /* 010 迷你趋势：自绘画布，指针与方向键读取单日值 */
+  (() => {
+    const root = D('AP-DATA-010'), canvas = $('canvas', root), read = $('.dat-read', root);
+    const prev = [3800, 3900, 4100, 4000, 4350, 4500, 4650], cur = [4200, 4680, 5120, 4890, 5360, 5800, 6370], ALL = prev.concat(cur);
+    let range = 7, active = 6;
+    const vals = () => range === 7 ? cur : ALL;
+    const draw = () => {
+      const v = vals(), ctx = canvas.getContext('2d'), dpr = devicePixelRatio || 1, w = canvas.clientWidth, h = canvas.clientHeight; canvas.width = w * dpr; canvas.height = h * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, w, h);
+      const max = Math.max(...v), min = Math.min(...v), x = i => 6 + (w - 12) * i / (v.length - 1), y = n => 8 + (h - 16) * (1 - (n - min * .94) / (max - min * .94));
+      const g = ctx.createLinearGradient(0, 0, 0, h); g.addColorStop(0, css('--action-edge')); g.addColorStop(1, css('--surface'));
+      ctx.beginPath(); v.forEach((n, i) => i ? ctx.lineTo(x(i), y(n)) : ctx.moveTo(x(i), y(n))); ctx.lineTo(x(v.length - 1), h); ctx.lineTo(x(0), h); ctx.closePath(); ctx.fillStyle = g; ctx.fill();
+      ctx.beginPath(); v.forEach((n, i) => i ? ctx.lineTo(x(i), y(n)) : ctx.moveTo(x(i), y(n))); ctx.strokeStyle = css('--action'); ctx.lineWidth = 2; ctx.lineJoin = 'round'; ctx.stroke();
+      ctx.beginPath(); ctx.arc(x(active), y(v[active]), 4.5, 0, 7); ctx.fillStyle = css('--surface'); ctx.fill(); ctx.lineWidth = 2; ctx.stroke();
+      const back = v.length - 1 - active; read.innerHTML = `<b>${back === 0 ? '最近一天' : '前 ' + back + ' 天'}</b> ${nf(v[active])} 元`;
+    };
+    const pick = cx => { const r = canvas.getBoundingClientRect(), n = vals().length; active = Math.min(n - 1, Math.max(0, Math.round((cx - r.left - 6) / (r.width - 12) * (n - 1)))); draw(); };
+    canvas.addEventListener('pointermove', e => pick(e.clientX)); canvas.addEventListener('pointerdown', e => pick(e.clientX));
+    canvas.addEventListener('keydown', e => { const d = { ArrowRight: 1, ArrowLeft: -1 }[e.key]; if (!d) return; e.preventDefault(); active = Math.min(vals().length - 1, Math.max(0, active + d)); draw(); });
+    const dom = () => { const v = vals(); $('[data-dom]', root).innerHTML = v.map((n, i) => `<li>${i === v.length - 1 ? '最近一天' : '前 ' + (v.length - 1 - i) + ' 天'} ${nf(n)} 元</li>`).join(''); };
+    seg(root, k => {
+      range = +k; dom(); active = vals().length - 1; const sum = vals().reduce((a, n) => a + n, 0); tween($('[data-total]', root), 0, sum, nf, 500);
+      const d = $('[data-delta]', root); d.hidden = range !== 7; draw();
+    });
+    new ResizeObserver(draw).observe(canvas); onTheme(draw); dom(); draw();
+  })();
+
+  /* 011 漏斗：点选阶段，读取占上一步的转化 */
+  (() => {
+    const root = D('AP-DATA-011'), box = $('[data-fun]', root), read = $('.dat-read', root);
+    const S = [['浏览商品', 5200], ['加入购物车', 1820], ['提交订单', 640], ['完成支付', 512]];
+    box.innerHTML = S.map(([n, v], i) => `<button class="dat-fun__row" aria-pressed="${i === 0}" data-i="${i}" aria-label="${n} ${nf(v)} 人"><span>${n}</span><span class="dat-fun__bar" style="--w:${Math.max(10, v / S[0][1] * 100)}%;--k:${i}"></span><span class="dat-fun__v">${nf(v)}${i ? `<small>${(v / S[i - 1][1] * 100).toFixed(1)}%</small>` : ''}</span></button>`).join('');
+    const rows = $$('.dat-fun__row', box);
+    const pick = i => { rows.forEach((r, j) => r.setAttribute('aria-pressed', String(i === j))); const [n, v] = S[i]; read.innerHTML = i ? `<b>${n}</b> ${nf(v)} 人 占上一步 ${(v / S[i - 1][1] * 100).toFixed(1)}% 占浏览 ${(v / S[0][1] * 100).toFixed(1)}%` : `<b>${n}</b> ${nf(v)} 人 全部访客`; };
+    rows.forEach((r, i) => { r.addEventListener('click', () => pick(i)); r.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') pick(i); }); });
+    pick(3);
+  })();
+
+  /* 012 对比条：两个周期的值按同一比例尺画条 */
+  (() => {
+    const root = D('AP-DATA-012'), read = $('.dat-read', root);
+    const M = { orders: { n: '订单量', now: 1286, prev: 1190, u: '单', f: nf }, sales: { n: '销售额', now: 36420, prev: 34680, u: '元', f: nf }, avg: { n: '客单价', now: 28.3, prev: 29.1, u: '元', f: n => n.toFixed(1) } };
+    const bars = { now: $('[data-bar="now"]', root), prev: $('[data-bar="prev"]', root) };
+    seg(root, k => {
+      const m = M[k], max = Math.max(m.now, m.prev), d = (m.now - m.prev) / m.prev * 100, up = d >= 0;
+      bars.now.style.setProperty('--v', m.now / max * 100 + '%'); bars.prev.style.setProperty('--v', m.prev / max * 100 + '%');
+      $('[data-vnow]', root).textContent = m.f(m.now) + ' ' + m.u; $('[data-vprev]', root).textContent = m.f(m.prev) + ' ' + m.u;
+      const t = $('.tag[data-delta]', root); t.textContent = (up ? '增长 ' : '下降 ') + Math.abs(Math.round(d)) + '%'; t.dataset.tone = up ? 'success' : 'danger';
+      read.innerHTML = `<b>${m.n}</b> 本周比上周${up ? '多' : '少'} ${m.f(Math.abs(m.now - m.prev))} ${m.u}`;
+    });
+  })();
+
+  /* 013 数字翻牌：每位数字一列滚轴，进位时先滚到第二圈再无动画归位 */
+  (() => {
+    const root = D('AP-DATA-013'), flip = $('[data-flip]', root), DIGITS = 5; let n = 12860;
+    const cols = [];
+    for (let i = 0; i < DIGITS; i++) {
+      if (i === 2) flip.insertAdjacentHTML('beforeend', '<span class="dat-flip__sep">,</span>');
+      const d = document.createElement('span'); d.className = 'dat-flip__d'; d.innerHTML = '<span class="dat-flip__s">' + Array.from({ length: 20 }, (_, k) => `<span>${k % 10}</span>`).join('') + '</span>'; flip.append(d); cols.push($('.dat-flip__s', d));
+    }
+    const digits = v => String(v).padStart(DIGITS, '0').split('').map(Number);
+    const go = (v, prevV) => {
+      const nd = digits(v), od = prevV == null ? nd : digits(prevV);
+      cols.forEach((c, i) => {
+        const wrap = nd[i] < od[i], target = wrap ? 10 + nd[i] : nd[i], em = 1.4;
+        const set = pos => { c.style.transform = `translateY(${-pos * em}em)`; };
+        if (prevV == null) { c.style.transition = 'none'; set(nd[i]); requestAnimationFrame(() => { c.style.transition = ''; }); return; }
+        c.style.transition = ''; set(target);
+        if (wrap) { const snap = () => { c.style.transition = 'none'; set(nd[i]); requestAnimationFrame(() => { c.style.transition = ''; }); }; Lz.reduce ? snap() : c.addEventListener('transitionend', snap, { once: true }); }
+      });
+      flip.setAttribute('aria-label', `累计订单 ${nf(v)} 单`);
+    };
+    go(n);
+    $$('[data-step]', root).forEach(b => b.addEventListener('click', () => { const o = n; n = Math.min(99999, n + +b.dataset.step); go(n, o); }));
+  })();
+
+  /* 014 余额：入场时从 0 滚到当前值，充值滚到新值，可隐藏 */
+  (() => {
+    const root = D('AP-DATA-014'), el = $('[data-bal]', root), hide = $('[data-hide]', root); let bal = 2860.5, hidden = false;
+    $('[data-topup]', root).addEventListener('click', () => { const o = bal; bal += 100; if (!hidden) tween(el, o, bal, nf2); Lz.toast('已充值 100 元', 'success'); });
+    hide.addEventListener('click', () => { hidden = !hidden; hide.setAttribute('aria-pressed', String(hidden)); hide.textContent = hidden ? '显示' : '隐藏'; el.textContent = hidden ? '****' : nf2(bal); });
+    $('[data-replay]', root).addEventListener('click', () => { if (hidden) hide.click(); tween(el, 0, bal, nf2, 800); });
+    const o = new IntersectionObserver(es => { if (es[0].isIntersecting) { o.disconnect(); tween(el, 0, bal, nf2, 800); } }); o.observe(el);
+  })();
+
+  /* 015 日程完成度：勾选后环与计数同步 */
+  (() => {
+    const root = D('AP-DATA-015'), rows = $$('.row', root), ring = $('.dat-mini', root);
+    const paint = () => { const n = rows.filter(r => r.getAttribute('aria-checked') === 'true').length, p = Math.round(n / rows.length * 100); ring.style.setProperty('--dat-p', p + '%'); $('[data-pct]', root).textContent = p + '%'; $('[data-n]', root).textContent = n; ring.setAttribute('aria-label', `完成度 ${p}%`); };
+    root.addEventListener('lz:toggle', paint);
+  })();
+
+  /* 016 库存水位：安全线固定，水位变化时颜色与标签跟着变 */
+  (() => {
+    const root = D('AP-DATA-016'), MAXV = 60, SAFE = 30, bar = $('.dat-stock', root), n = $('[data-n]', root), tag = $('[data-tag]', root), read = $('[data-read]', root), inb = $('[data-in]', root), outb = $('[data-out]', root); let v = 18;
+    const paint = () => {
+      n.textContent = v; bar.style.setProperty('--v', v / MAXV * 100 + '%'); bar.setAttribute('aria-valuenow', v); const ok = v >= SAFE; bar.toggleAttribute('data-ok', ok);
+      tag.textContent = ok ? '库存充足' : '低于安全线'; tag.dataset.tone = ok ? 'success' : 'danger'; read.textContent = ok ? `高出安全线 ${v - SAFE} 件` : `还差 ${SAFE - v} 件到安全线`;
+      inb.disabled = v >= MAXV; outb.disabled = v <= 0;
+    };
+    inb.addEventListener('click', () => { v = Math.min(MAXV, v + 12); paint(); }); outb.addEventListener('click', () => { v = Math.max(0, v - 6); paint(); });
+  })();
+})();
+</script>
+
+<article class="demo" data-cid="AP-DATA-017" data-name="倒计时数字块" data-cat="DATA">
+  <div class="demo__head"><span class="demo__name">倒计时数字块</span></div>
+  <p class="demo__note">适合：限时抢购与待支付剩余时间的时分秒块</p>
+  <div class="demo__stage">
+    <div class="card dat-card">
+      <div class="dat-head"><div><p class="dat-title" data-title>红玫瑰限时价</p><p class="dat-unit" data-sub>距结束</p></div><span class="tag" data-tone="action" data-tag>进行中</span></div>
+      <div class="dat-cd" role="timer" aria-label="剩余时间" data-box></div>
+      <div class="seg dat-seg--c" data-seg="dat-cd" aria-label="倒计时场景">
+        <button class="seg__item" data-key="rush" aria-selected="true">限时抢购</button>
+        <button class="seg__item" data-key="pay" aria-selected="false">待支付</button>
+        <button class="seg__item" data-key="pre" aria-selected="false">新品预售</button>
+      </div>
+      <div class="dat-row" style="justify-content:flex-end"><div class="btn-group"><button class="btn btn--secondary btn--sm" data-ff>快进十分钟</button><button class="btn btn--ghost btn--sm" data-reset>重置</button></div></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-DATA-018" data-name="半环仪表盘" data-cat="DATA">
+  <div class="demo__head"><span class="demo__name">半环仪表盘</span></div>
+  <p class="demo__note">适合：完成度与评分在半环刻度上读数</p>
+  <div class="demo__stage">
+    <div class="card dat-card">
+      <div class="dat-head"><div><p class="dat-title">建国路店</p><p class="dat-unit" data-unit>服务评分 范围 0 至 5 分</p></div></div>
+      <div class="seg dat-seg--c" data-seg="dat-gg" aria-label="指标">
+        <button class="seg__item" data-key="score" aria-selected="true">评分</button>
+        <button class="seg__item" data-key="ontime" aria-selected="false">准时率</button>
+        <button class="seg__item" data-key="sales" aria-selected="false">完成度</button>
+      </div>
+      <canvas class="dat-gg" role="img" aria-label="服务评分半环仪表盘" tabindex="0"></canvas>
+      <p class="dat-read dat-read--kv" role="status"></p>
+      <ul class="sr-only" data-dom></ul>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-DATA-019" data-name="月历日程标记" data-cat="DATA">
+  <div class="demo__head"><span class="demo__name">月历日程标记</span></div>
+  <p class="demo__note">适合：预约日与签到日在月历上以圆点标出</p>
+  <div class="demo__stage">
+    <div class="card dat-card">
+      <div class="dat-cal__nav">
+        <button class="ibtn dat-flipx" aria-label="上个月" data-tip="上个月" data-prev><span class="chev"></span></button>
+        <p class="dat-title" data-title>2026年11月</p>
+        <button class="ibtn" aria-label="下个月" data-tip="下个月" data-next><span class="chev"></span></button>
+      </div>
+      <div class="dat-cal__w" aria-hidden="true"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+      <div class="dat-cal__g" role="group" aria-label="月历" data-grid></div>
+      <div class="dat-cal__lg"><span><i data-t="a"></i>预约</span><span><i data-t="s"></i>签到</span></div>
+      <p class="dat-read" role="status"></p>
+      <div class="dat-cal__l" data-list></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-DATA-020" data-name="渐变面积趋势图" data-cat="DATA">
+  <div class="demo__head"><span class="demo__name">渐变面积趋势图</span></div>
+  <p class="demo__note">适合：营收与客流的起伏用填充面积表达</p>
+  <div class="demo__stage">
+    <div class="card dat-card">
+      <div class="dat-head">
+        <div><p class="dat-title" data-title>近十四天营收</p><p class="dat-unit" data-unit>单位 元</p></div>
+        <div class="seg" data-seg="dat-ar" aria-label="指标"><button class="seg__item" data-key="sales" aria-selected="true">营收</button><button class="seg__item" data-key="flow" aria-selected="false">客流</button></div>
+      </div>
+      <div class="dat-num"><b data-total>0</b><span data-sum>元</span></div>
+      <canvas class="dat-ar" role="img" aria-label="近十四天营收面积图" tabindex="0"></canvas>
+      <p class="dat-read" role="status"></p>
+      <ul class="sr-only" data-dom></ul>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-DATA-021" data-name="窄屏数据表格" data-cat="DATA">
+  <div class="demo__head"><span class="demo__name">窄屏数据表格</span></div>
+  <p class="demo__note">适合：窄屏展示多列对账数据并可横滑</p>
+  <div class="demo__stage">
+    <div class="card dat-tbc">
+      <div class="dat-tbc__h"><div><p class="dat-title">门店对账</p><p class="dat-unit">金额单位 元</p></div><span class="tag" data-tone="warning" data-n></span></div>
+      <div class="dat-tb" data-s="start">
+        <div class="dat-tb__sc" tabindex="0" role="region" aria-label="门店对账数据">
+          <table class="dat-tb__t">
+            <thead><tr>
+              <th scope="col">门店</th>
+              <th scope="col" aria-sort="none"><button class="dat-tb__b" data-k="orders">订单数<span class="chev"></span></button></th>
+              <th scope="col" aria-sort="none"><button class="dat-tb__b" data-k="sales">销售额<span class="chev"></span></button></th>
+              <th scope="col" aria-sort="none"><button class="dat-tb__b" data-k="refund">退款额<span class="chev"></span></button></th>
+              <th scope="col" aria-sort="none"><button class="dat-tb__b" data-k="avg">客单价<span class="chev"></span></button></th>
+              <th scope="col" aria-sort="none"><button class="dat-tb__b" data-k="margin">毛利率<span class="chev"></span></button></th>
+              <th scope="col">对账</th>
+            </tr></thead>
+            <tbody data-body></tbody>
+            <tfoot data-foot></tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-DATA-022" data-name="能力雷达图" data-cat="DATA">
+  <div class="demo__head"><span class="demo__name">能力雷达图</span></div>
+  <p class="demo__note">适合：服务评分多维度对比，图例可切换门店</p>
+  <div class="demo__stage">
+    <div class="card dat-card">
+      <div class="dat-head"><div><p class="dat-title">服务评分对比</p><p class="dat-unit">六个维度 满分 5 分 每圈 1 分</p></div></div>
+      <canvas class="dat-rd" role="img" aria-label="三家门店服务评分雷达图" tabindex="0"></canvas>
+      <div class="dat-rd__lg" role="group" aria-label="门店" data-lg></div>
+      <p class="dat-read dat-read--kv" role="status"></p>
+      <ul class="sr-only" data-dom></ul>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-DATA-023" data-name="价格数字展示" data-cat="DATA">
+  <div class="demo__head"><span class="demo__name">价格数字展示</span></div>
+  <p class="demo__note">适合：价格整数与小数不同字号，含划线价与千分位</p>
+  <div class="demo__stage">
+    <div class="card dat-card dat-pc">
+      <div class="dat-pc__top"><img class="dat-pc__img" src="../../kit/assets/photo/product-peony-pink.webp" alt=""><div><p class="dat-title">粉芍药花束</p><p class="dat-unit">雾粉包装纸</p></div></div>
+      <div class="seg" data-seg="dat-pc" aria-label="规格">
+        <button class="seg__item" data-key="0" aria-selected="false">9 枝</button>
+        <button class="seg__item" data-key="1" aria-selected="true">19 枝</button>
+        <button class="seg__item" data-key="2" aria-selected="false">33 枝</button>
+      </div>
+      <div class="dat-pc__main">
+        <div class="dat-pc__line"><span class="dat-pc__v" data-sz="lg" data-v></span><s class="dat-pc__o" data-o></s></div>
+        <div class="dat-pc__sw"><span>会员价</span><button class="switch" role="switch" aria-checked="false" aria-label="会员价"></button></div>
+      </div>
+      <p class="dat-read" role="status" data-read></p>
+      <div class="dat-pc__mini">
+        <div class="dat-pc__c"><span class="dat-unit">多肉组合盆</span><span class="dat-pc__v" data-sz="sm"><small class="dat-pc__s">¥</small><b class="dat-pc__i">89</b><small class="dat-pc__d">.00</small><small class="dat-pc__q">起</small></span></div>
+        <div class="dat-pc__c"><span class="dat-unit">花礼盒</span><span class="dat-pc__v" data-sz="sm"><small class="dat-pc__s">¥</small><b class="dat-pc__i">1,288</b><small class="dat-pc__d">.00</small></span></div>
+        <div class="dat-pc__c"><span class="dat-unit">蓝绣球盆栽</span><span class="dat-pc__na">暂无报价</span></div>
+      </div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-DATA-024" data-name="堆叠条形图" data-cat="DATA">
+  <div class="demo__head"><span class="demo__name">堆叠条形图</span></div>
+  <p class="demo__note">适合：各分类占总量并列比较</p>
+  <div class="demo__stage">
+    <div class="card dat-card">
+      <div class="dat-head">
+        <div><p class="dat-title">门店品类销售额</p><p class="dat-unit">本月 单位 元</p></div>
+        <div class="seg" data-seg="dat-sb" aria-label="显示方式"><button class="seg__item" data-key="abs" aria-selected="true">金额</button><button class="seg__item" data-key="pct" aria-selected="false">占比</button></div>
+      </div>
+      <div class="dat-sb__lg" role="group" aria-label="品类" data-lg></div>
+      <div class="dat-sb" role="group" aria-label="门店品类销售额" data-chart></div>
+      <p class="dat-read" role="status"></p>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-DATA-025" data-name="迷你柱形图" data-cat="DATA">
+  <div class="demo__head"><span class="demo__name">迷你柱形图</span></div>
+  <p class="demo__note">适合：指标卡内几天的小柱状走势</p>
+  <div class="demo__stage">
+    <div class="card dat-card">
+      <div class="dat-head"><div><p class="dat-title">近七天指标</p><p class="dat-unit">按日汇总</p></div></div>
+      <div class="dat-mb" data-list></div>
+      <p class="dat-read" role="status"></p>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-DATA-026" data-name="趋势箭头标记" data-cat="DATA">
+  <div class="demo__head"><span class="demo__name">趋势箭头标记</span></div>
+  <p class="demo__note">适合：同比环比的涨跌小箭头配百分比</p>
+  <div class="demo__stage">
+    <div class="card dat-card">
+      <div class="dat-head"><span class="dat-title">经营指标</span><div class="seg" data-seg="dat-ta" aria-label="比较口径"><button class="seg__item" data-key="mom" aria-selected="true">环比</button><button class="seg__item" data-key="yoy" aria-selected="false">同比</button></div></div>
+      <div class="dat-ta" role="group" aria-label="指标变化" data-list></div>
+      <p class="dat-read" role="status"></p>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-DATA-027" data-name="周日历条" data-cat="DATA">
+  <div class="demo__head"><span class="demo__name">周日历条</span></div>
+  <p class="demo__note">适合：横向一周日期条切换当天排期</p>
+  <div class="demo__stage">
+    <div class="card dat-card">
+      <div class="dat-cal__nav">
+        <button class="ibtn dat-flipx" aria-label="上一周" data-tip="上一周" data-prev><span class="chev"></span></button>
+        <p class="dat-title" data-title>11月9日至11月15日</p>
+        <button class="ibtn" aria-label="下一周" data-tip="下一周" data-next><span class="chev"></span></button>
+      </div>
+      <div class="dat-wk" role="group" aria-label="一周日期" data-strip></div>
+      <p class="dat-read" role="status"></p>
+      <div class="dat-cal__l" data-list></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-DATA-028" data-name="活动圆环" data-cat="DATA">
+  <div class="demo__head"><span class="demo__name">活动圆环</span></div>
+  <p class="demo__note">适合：多项目标以同心圆环展示完成度</p>
+  <div class="demo__stage">
+    <div class="card dat-card">
+      <div class="dat-head"><div><p class="dat-title">门店日目标</p><p class="dat-unit">建国路店</p></div></div>
+      <div class="dat-act">
+        <canvas class="dat-act__c" role="img" aria-label="门店日目标同心圆环" tabindex="0"></canvas>
+        <div class="dat-act__l" role="group" aria-label="目标项目" data-lg></div>
+      </div>
+      <p class="dat-read" role="status"></p>
+      <div class="dat-row" style="justify-content:flex-end"><div class="btn-group"><button class="btn btn--secondary btn--sm" data-add>记一单</button><button class="btn btn--ghost btn--sm" data-reset>重置</button></div></div>
+    </div>
+  </div>
+</article>
+
+<style>
+/* 新增数据组件（二批）：017 倒计时 cd、018 半环仪表 gg、019 月历 cal、020 面积 ar、021 表格 tb、022 雷达 rd、023 价格 pc、024 堆叠条 sb、025 迷你柱 mb、026 趋势箭头 ta、027 周条 wk、028 圆环 act */
+.dat-flipx { transform: scaleX(-1); }
+.dat-flipx:active { transform: scaleX(-1) scale(.92); }
+.dat-card .ibtn[disabled] { opacity: .35; pointer-events: none; }
+.dat-card canvas { display: block; width: 100%; touch-action: pan-y; }
+
+/* 017 倒计时数字块 */
+.dat-cd { display: flex; align-items: flex-start; justify-content: center; gap: var(--s-2); padding: var(--s-1) 0; }
+.dat-cd__g { display: grid; justify-items: center; gap: 6px; }
+.dat-cd__n { display: grid; place-items: center; width: 52px; height: 56px; border-radius: var(--r-md); background: var(--action-tint); color: var(--action-press); font-size: var(--fs-2xl); font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; box-shadow: inset 0 0 0 1px var(--action-edge); transition: background var(--dur-base) var(--ease-out), color var(--dur-base) var(--ease-out); }
+.dat-cd__u { font-size: var(--fs-xs); color: var(--ink-3); }
+.dat-cd__c { flex: none; width: 8px; height: 56px; background: radial-gradient(circle 2.5px at 50% 36%, var(--ink-3) 98%, transparent), radial-gradient(circle 2.5px at 50% 64%, var(--ink-3) 98%, transparent); }
+.dat-cd[data-st="urgent"] .dat-cd__n { background: var(--danger-tint); color: color-mix(in srgb, var(--danger) 80%, black); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--danger) 24%, transparent); }
+.dat-cd[data-st="end"] .dat-cd__n { background: var(--zone); color: var(--ink-3); box-shadow: none; }
+.dat-card .seg.dat-seg--c .seg__item { padding: 0 var(--s-3); }
+
+/* 018 半环仪表盘 */
+.dat-gg { height: 176px; cursor: pointer; }
+.dat-read--kv { display: flex; gap: 6px; }
+.dat-read--kv b { flex: none; }
+
+/* 019 月历日程标记 与 027 周日历条共用的导航、明细 */
+.dat-cal__nav { display: grid; grid-template-columns: 40px 1fr 40px; align-items: center; }
+.dat-cal__nav .dat-title { text-align: center; font-variant-numeric: tabular-nums; }
+.dat-cal__w, .dat-cal__g { display: grid; grid-template-columns: repeat(7, 1fr); }
+.dat-cal__w { font-size: var(--fs-xs); color: var(--ink-3); text-align: center; }
+.dat-cal__d { display: grid; align-content: center; justify-items: center; gap: 3px; height: 46px; border-radius: var(--r-md); transition: background var(--dur-quick) var(--ease-out); }
+.dat-cal__n { display: grid; place-items: center; width: 30px; height: 26px; border-radius: 9px; font-size: var(--fs-sm); font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1; }
+.dat-cal__d[aria-current="date"] .dat-cal__n { box-shadow: inset 0 0 0 1.5px var(--action); }
+.dat-cal__d[aria-pressed="true"] .dat-cal__n { background: var(--action); color: var(--surface); box-shadow: none; }
+@media (hover: hover) { .dat-cal__d:hover:not([aria-pressed="true"]) { background: var(--zone); } }
+.dat-cal__dots { display: flex; gap: 3px; height: 6px; }
+.dat-cal__dots i, .dat-cal__lg i { flex: none; width: 6px; height: 6px; border-radius: 50%; }
+.dat-cal__dots i[data-t="a"], .dat-cal__lg i[data-t="a"], .dat-cal__r i[data-t="a"] { background: var(--action); }
+.dat-cal__dots i[data-t="s"], .dat-cal__lg i[data-t="s"], .dat-cal__r i[data-t="s"] { background: var(--surface); box-shadow: inset 0 0 0 1.5px var(--accent); }
+.dat-cal__lg { display: flex; justify-content: center; gap: var(--s-5); font-size: var(--fs-xs); color: var(--ink-3); }
+.dat-cal__lg span { display: inline-flex; align-items: center; gap: 6px; }
+.dat-cal__l { display: grid; margin: 0 calc(var(--s-4) * -1) calc(var(--s-4) * -1); border-top: 1px solid var(--line); }
+.dat-cal__r { display: flex; align-items: center; gap: var(--s-3); min-height: 48px; padding: var(--s-2) var(--s-4); font-size: var(--fs-sm); }
+.dat-cal__r + .dat-cal__r { border-top: 1px solid var(--line); }
+.dat-cal__r i[data-t] { flex: none; width: 8px; height: 8px; border-radius: 50%; }
+.dat-cal__r i[data-t="s"] { box-shadow: inset 0 0 0 2px var(--accent); }
+.dat-cal__r .tag { margin-left: auto; }
+.dat-cal__r .dat-cal__s { margin-left: auto; font-size: var(--fs-xs); font-weight: 600; color: var(--ink-3); }
+.dat-cal__t { min-width: 42px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.dat-cal__e { padding: var(--s-4); text-align: center; font-size: var(--fs-sm); color: var(--ink-3); }
+
+/* 020 渐变面积趋势图 */
+.dat-ar { height: 172px; cursor: crosshair; }
+
+/* 021 窄屏数据表格 */
+.dat-tbc { overflow: hidden; }
+.dat-tbc__h { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); padding: var(--s-4) var(--s-4) var(--s-3); }
+.dat-tb { position: relative; }
+.dat-tb::after { content: ""; position: absolute; top: 0; right: 0; bottom: 0; width: 28px; pointer-events: none; background: linear-gradient(to left, color-mix(in srgb, var(--ink) 9%, transparent), transparent); opacity: 1; transition: opacity var(--dur-base) var(--ease-out); }
+.dat-tb[data-s="end"]::after { opacity: 0; }
+.dat-tb__sc { overflow-x: auto; scrollbar-width: thin; }
+.dat-tb__sc:focus-visible { outline-offset: -2px; border-radius: 0; }
+.dat-tb__t { width: 100%; min-width: 660px; border-collapse: separate; border-spacing: 0; font-size: var(--fs-sm); font-variant-numeric: tabular-nums; }
+.dat-tb__t th, .dat-tb__t td { height: 48px; padding: 0 var(--s-3); border-top: 1px solid var(--line); text-align: center; white-space: nowrap; }
+.dat-tb__t th { height: 40px; background: var(--zone); font-size: var(--fs-xs); font-weight: 600; color: var(--ink-2); }
+.dat-tb__t td.r { text-align: right; padding-right: var(--s-5); }
+.dat-tb__t tfoot td { background: var(--action-tint); font-weight: 600; }
+.dat-tb__t td:first-child, .dat-tb__t th:first-child { position: sticky; left: 0; z-index: 1; min-width: 104px; background: var(--surface); font-weight: 600; }
+.dat-tb__t th:first-child { background: var(--zone); }
+.dat-tb__t tfoot td:first-child { background: var(--action-tint); }
+.dat-tb__t td:first-child::after, .dat-tb__t th:first-child::after { content: ""; position: absolute; top: 0; bottom: 0; right: -10px; width: 10px; pointer-events: none; background: linear-gradient(to right, color-mix(in srgb, var(--ink) 9%, transparent), transparent); opacity: 0; transition: opacity var(--dur-base) var(--ease-out); }
+.dat-tb:not([data-s="start"]) .dat-tb__t td:first-child::after, .dat-tb:not([data-s="start"]) .dat-tb__t th:first-child::after { opacity: 1; }
+.dat-tb__b { display: inline-flex; align-items: center; gap: 4px; min-height: 32px; font-size: inherit; font-weight: inherit; color: inherit; }
+.dat-tb__b .chev::after { width: 6px; height: 6px; margin: 0; border-width: 0 1.6px 1.6px 0; opacity: 0; transform: rotate(45deg) translateY(-2px); transition: opacity var(--dur-quick) var(--ease-out), transform var(--dur-base) var(--ease-out); }
+th[aria-sort="descending"] .chev::after { opacity: 1; }
+th[aria-sort="ascending"] .chev::after { opacity: 1; transform: rotate(-135deg) translateY(-2px); }
+@media (hover: hover) { th[aria-sort="none"] .dat-tb__b:hover .chev::after { opacity: .5; } }
+
+/* 022 能力雷达图 */
+.dat-rd { height: 288px; cursor: pointer; }
+.dat-rd__lg { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--s-1) var(--s-2); }
+.dat-rd__lg button { display: inline-flex; align-items: center; gap: var(--s-2); min-height: 40px; padding: 0 var(--s-2); border-radius: var(--r-sm); font-size: var(--fs-sm); color: var(--ink-3); white-space: nowrap; transition: background var(--dur-quick) var(--ease-out); }
+.dat-rd__lg button[aria-pressed="true"] { background: var(--zone); color: var(--ink); font-weight: 600; }
+.dat-rd__lg i { flex: none; width: 22px; height: 0; border-top: 3px solid var(--c); }
+.dat-rd__lg i[data-d="dash"] { border-top-style: dashed; }
+.dat-rd__lg i[data-d="dot"] { border-top-style: dotted; }
+.dat-rd__lg button[aria-pressed="false"] i { opacity: .35; }
+
+/* 023 价格数字展示 */
+.dat-pc__top { display: flex; align-items: center; gap: var(--s-3); }
+.dat-pc__img { width: 48px; height: 48px; flex: none; border-radius: var(--r-md); object-fit: cover; background: var(--zone); }
+.dat-pc__main { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--s-3); padding-top: var(--s-1); }
+.dat-pc__line { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--s-1) var(--s-2); min-width: 0; }
+.dat-pc__v { display: inline-flex; align-items: baseline; color: var(--price); font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.1; white-space: nowrap; }
+.dat-pc__v[data-sz="lg"] { font-size: var(--fs-3xl); }
+.dat-pc__v[data-sz="sm"] { font-size: var(--fs-md); }
+.dat-pc__v > small { font-weight: 600; }
+.dat-pc__s { margin-right: 2px; font-size: max(.5em, var(--fs-xs)); }
+.dat-pc__d { font-size: max(.55em, var(--fs-xs)); }
+.dat-pc__q { margin-left: 3px; font-size: var(--fs-xs); font-weight: 400; color: var(--ink-3); }
+.dat-pc__o { font-size: var(--fs-sm); color: var(--ink-3); font-variant-numeric: tabular-nums; text-decoration: line-through; }
+.dat-pc__sw { display: flex; align-items: center; gap: var(--s-2); flex: none; font-size: var(--fs-sm); color: var(--ink-2); }
+.dat-pc__mini { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s-2); margin: 0 calc(var(--s-4) * -1) calc(var(--s-4) * -1); padding: var(--s-3) var(--s-4); border-top: 1px solid var(--line); }
+.dat-pc__c { display: grid; align-content: start; justify-items: center; gap: 4px; text-align: center; }
+.dat-pc__c .dat-unit { margin: 0; white-space: nowrap; }
+.dat-pc__na { font-size: var(--fs-sm); color: var(--ink-3); line-height: 1.6; }
+
+/* 024 堆叠条形图 */
+.dat-sb__lg { display: flex; flex-wrap: wrap; gap: var(--s-1) var(--s-2); }
+.dat-sb__lg button { display: inline-flex; align-items: center; gap: var(--s-2); min-height: 40px; padding: 0 var(--s-2); border-radius: var(--r-sm); font-size: var(--fs-sm); color: var(--ink-3); white-space: nowrap; transition: background var(--dur-quick) var(--ease-out); }
+.dat-sb__lg button[aria-pressed="true"] { background: var(--zone); color: var(--ink); font-weight: 600; }
+.dat-sb__lg button[aria-pressed="false"] i { opacity: .35; }
+.dat-sb__lg i { flex: none; width: 10px; height: 10px; border-radius: 3px; background: var(--c); }
+.dat-sb { display: grid; gap: var(--s-3); }
+.dat-sb__r { display: grid; gap: 6px; }
+.dat-sb__h { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-2); font-size: var(--fs-sm); }
+.dat-sb__h b { font-weight: 600; font-variant-numeric: tabular-nums; }
+.dat-sb__bar { display: flex; height: 30px; border-radius: 8px; overflow: hidden; background: var(--zone); }
+.dat-sb__s { flex: none; width: var(--w, 0%); height: 100%; background: var(--c); border-right: 2px solid var(--surface); transition: width var(--dur-slow) var(--ease-out), opacity var(--dur-quick) var(--ease-out); }
+.dat-sb__s:last-child { border-right: 0; }
+.dat-sb__s[aria-pressed="true"] { box-shadow: inset 0 0 0 2px var(--ink); }
+
+/* 025 迷你柱形图 */
+.dat-mb { display: grid; margin: 0 calc(var(--s-4) * -1); }
+.dat-mb__r { display: grid; grid-template-columns: minmax(0, 1fr) 128px; align-items: center; gap: var(--s-4); padding: var(--s-3) var(--s-4); }
+.dat-mb__r + .dat-mb__r { border-top: 1px solid var(--line); }
+.dat-mb__n { font-size: var(--fs-sm); color: var(--ink-3); }
+.dat-mb__v { display: flex; align-items: baseline; gap: 2px; font-size: var(--fs-xl); font-weight: 700; line-height: 1.2; font-variant-numeric: tabular-nums; }
+.dat-mb__v small { font-size: var(--fs-sm); font-weight: 400; color: var(--ink-3); }
+.dat-mb canvas { height: 56px; cursor: crosshair; }
+
+/* 026 趋势箭头标记 */
+.dat-ta { display: grid; margin: 0 calc(var(--s-4) * -1); }
+.dat-ta__r { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: var(--s-3); min-height: 52px; padding: var(--s-2) var(--s-4); text-align: left; transition: background var(--dur-quick) var(--ease-out); }
+.dat-ta__r + .dat-ta__r { border-top: 1px solid var(--line); }
+.dat-ta__r[aria-pressed="true"] { background: var(--action-tint); }
+.dat-ta__n { font-size: var(--fs-sm); color: var(--ink-2); white-space: nowrap; }
+.dat-ta__v { font-size: var(--fs-md); font-weight: 600; font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+.dat-ta__v small { margin-left: 2px; font-size: var(--fs-xs); font-weight: 400; color: var(--ink-3); }
+.dat-ta__m { --c: var(--ink-2); --t: var(--zone); display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-width: 88px; height: 24px; padding: 0 var(--s-2); border-radius: 7px; background: var(--t); color: var(--c); font-size: var(--fs-xs); font-weight: 600; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.dat-ta__m[data-t="good"] { --c: var(--success); --t: var(--success-tint); }
+.dat-ta__m[data-t="bad"] { --c: color-mix(in srgb, var(--danger) 80%, black); --t: var(--danger-tint); }
+.dat-ta__a { flex: none; display: grid; place-items: center; width: 10px; height: 10px; }
+.dat-ta__a::after { content: ""; width: 6px; height: 6px; border: solid currentColor; border-width: 0 2px 2px 0; transform: rotate(45deg) translate(-1px, -1px); transition: transform var(--dur-base) var(--ease-spring); }
+.dat-ta__a[data-d="up"]::after { transform: rotate(-135deg) translate(-1px, -1px); }
+.dat-ta__a[data-d="flat"]::after { width: 8px; height: 0; border-width: 0 0 2px 0; transform: none; }
+
+/* 027 周日历条 */
+.dat-wk { display: grid; grid-template-columns: repeat(7, 1fr); touch-action: pan-y; }
+.dat-wk__d { display: grid; align-content: center; justify-items: center; gap: 2px; height: 70px; border-radius: var(--r-md); transition: background var(--dur-quick) var(--ease-out); }
+.dat-wk__w { font-size: var(--fs-xs); color: var(--ink-3); }
+.dat-wk__d[aria-pressed="true"] { background: var(--action); color: var(--surface); }
+.dat-wk__d[aria-pressed="true"] .dat-wk__w { color: var(--surface); opacity: .85; }
+.dat-wk__d[aria-pressed="true"] .dat-cal__n { background: none; box-shadow: none; }
+.dat-wk__d .dat-cal__n { width: 32px; height: 28px; font-size: var(--fs-md); }
+.dat-wk__d[aria-current="date"]:not([aria-pressed="true"]) .dat-cal__n { box-shadow: inset 0 0 0 1.5px var(--action); }
+.dat-wk__d[data-past] .dat-cal__n { color: var(--ink-3); }
+.dat-wk__d[aria-pressed="true"][data-past] .dat-cal__n { color: var(--surface); }
+.dat-wk__d[aria-pressed="true"] .dat-cal__dots i[data-t="a"] { background: var(--surface); }
+.dat-wk__rest { height: 6px; font-size: var(--fs-xs); line-height: 6px; color: var(--ink-3); }
+.dat-wk__d[aria-pressed="true"] .dat-wk__rest { color: var(--surface); }
+@media (hover: hover) { .dat-wk__d:hover:not([aria-pressed="true"]) { background: var(--zone); } }
+.dat-cal__r .dat-cal__s[data-s="done"] { color: var(--success); }
+
+/* 028 活动圆环 */
+.dat-act { display: flex; align-items: center; gap: var(--s-3); }
+.dat-act .dat-act__c { flex: none; width: 140px; height: 140px; cursor: pointer; }
+.dat-act__l { display: grid; flex: 1; min-width: 0; gap: var(--s-1); }
+.dat-act__l button { display: grid; grid-template-columns: 1fr auto; align-items: center; column-gap: var(--s-2); min-height: 44px; padding: 2px var(--s-2); border-radius: var(--r-sm); text-align: left; transition: background var(--dur-quick) var(--ease-out); }
+.dat-act__l button[aria-pressed="true"] { background: var(--zone); }
+.dat-act__k { display: flex; align-items: center; gap: var(--s-2); font-size: var(--fs-sm); color: var(--ink-2); white-space: nowrap; }
+.dat-act__k i { flex: none; width: 10px; height: 10px; border-radius: 3px; background: var(--c); }
+.dat-act__l b { font-size: var(--fs-sm); font-weight: 600; font-variant-numeric: tabular-nums; }
+.dat-act__l small { grid-column: 1 / -1; padding-left: 18px; font-size: var(--fs-xs); color: var(--ink-3); font-variant-numeric: tabular-nums; white-space: nowrap; }
+</style>
+
+<script>
+(function () {
+  const { $, $$ } = Lz;
+  const D = cid => document.querySelector(`[data-cid="${cid}"]`);
+  const nf = n => Math.round(n).toLocaleString('zh-CN');
+  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const mixc = (token, pct, base = 'transparent') => `color-mix(in srgb, ${css(token)} ${pct}%, ${base})`;
+  const pad = n => String(n).padStart(2, '0');
+  const onTheme = fn => new MutationObserver(fn).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  const seg = (root, fn) => root.addEventListener('lz:seg', e => fn(e.detail.key));
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  const WKN = ['日', '一', '二', '三', '四', '五', '六'];
+  /* 按设备像素比准备画布并清空，返回上下文与逻辑尺寸 */
+  const fit = cv => {
+    const dpr = devicePixelRatio || 1, w = cv.clientWidth, h = cv.clientHeight, W = Math.round(w * dpr), H = Math.round(h * dpr);
+    if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
+    const ctx = cv.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, w, h); return { ctx, w, h };
+  };
+  const font = (px, wt = 400) => `${wt} ${px}px ${css('--font')}`;
+  const ease = t => 1 - Math.pow(1 - t, 3);
+  /* 把 from 缓动到 to，每帧回调当前值；系统要求减少动态时直接给终值 */
+  const run = (from, to, ms, fn) => { if (Lz.reduce) { fn(to); return; } const t0 = performance.now(); const step = t => { const p = Math.min(1, (t - t0) / ms); fn(from + (to - from) * ease(p)); if (p < 1) requestAnimationFrame(step); }; requestAnimationFrame(step); };
+
+  /* 017 倒计时：按结束时刻计时，快进只改结束时刻；剩余不足五分钟转红，归零后按钮停用 */
+  (() => {
+    const root = D('AP-DATA-017'), box = $('[data-box]', root), tag = $('[data-tag]', root), ff = $('[data-ff]', root);
+    const SC = {
+      rush: { t: '红玫瑰限时价', s: '距结束', ms: ((2 * 60 + 15) * 60 + 30) * 1000, tags: ['进行中', '即将结束', '已结束'], step: 600000, lab: '快进十分钟', u: ['h', 'm', 's'] },
+      pay: { t: '订单待支付', s: '订单 1286', ms: (14 * 60 + 59) * 1000, tags: ['待支付', '即将关闭', '已关闭'], step: 120000, lab: '快进两分钟', u: ['h', 'm', 's'] },
+      pre: { t: '新品预售', s: '距开售', ms: (((2 * 24 + 5) * 60 + 20) * 60 + 10) * 1000, tags: ['预热中', '即将开售', '已开售'], step: 86400000, lab: '快进一天', u: ['d', 'h', 'm', 's'] }
+    };
+    const UN = { d: '天', h: '时', m: '分', s: '秒' };
+    let key = 'rush', end = 0;
+    const build = () => {
+      const sc = SC[key]; $('[data-title]', root).textContent = sc.t; $('[data-sub]', root).textContent = sc.s; ff.textContent = sc.lab;
+      box.innerHTML = sc.u.map((u, i) => `${i ? '<i class="dat-cd__c"></i>' : ''}<div class="dat-cd__g"><b class="dat-cd__n" data-u="${u}">00</b><span class="dat-cd__u">${UN[u]}</span></div>`).join('');
+      box.dataset.st = '';
+    };
+    const paint = () => {
+      const sc = SC[key], ms = Math.max(0, end - Date.now()), s = Math.ceil(ms / 1000), v = { d: Math.floor(s / 86400), h: Math.floor(s % 86400 / 3600), m: Math.floor(s % 3600 / 60), s: s % 60 };
+      sc.u.forEach(u => { const el = $(`[data-u="${u}"]`, box), t = pad(v[u]); if (el.textContent !== t) el.textContent = t; });
+      const st = ms === 0 ? 'end' : ms < 300000 ? 'urgent' : 'go';
+      if (box.dataset.st !== st) { box.dataset.st = st; const i = { go: 0, urgent: 1, end: 2 }[st]; tag.textContent = sc.tags[i]; tag.dataset.tone = ['action', 'danger', ''][i]; ff.disabled = st === 'end'; }
+      box.setAttribute('aria-label', st === 'end' ? sc.tags[2] : `剩余${v.d ? v.d + '天' : ''}${v.h}时${v.m}分${v.s}秒`);
+    };
+    const start = () => { end = Date.now() + SC[key].ms; build(); paint(); };
+    seg(root, k => { key = k; start(); });
+    ff.addEventListener('click', () => { end -= SC[key].step; paint(); });
+    $('[data-reset]', root).addEventListener('click', start);
+    setInterval(paint, 250); start();
+  })();
+
+  /* 018 半环仪表盘：指针靠近目标线或键盘左右键切换读取当前值与目标线，换指标时弧线扫过去 */
+  (() => {
+    const root = D('AP-DATA-018'), cv = $('canvas', root), read = $('.dat-read', root);
+    const M = {
+      score: { n: '服务评分', s: '服务评分', u: '分', lo: 0, hi: 5, v: 4.8, t: 4.5, f: n => n.toFixed(1), rng: '服务评分 范围 0 至 5 分', gap: d => Math.abs(d).toFixed(1) + ' 分' },
+      ontime: { n: '配送准时率', s: '准时率', u: '%', lo: 0, hi: 100, v: 91, t: 96, f: n => String(Math.round(n)), rng: '配送准时率 范围 0 至 100%', gap: d => Math.abs(Math.round(d)) + ' 个百分点' },
+      sales: { n: '日销目标完成度', s: '完成度', u: '%', lo: 0, hi: 100, v: 76, t: 70, f: n => String(Math.round(n)), rng: '日销售额 已售 6,840 元 目标 9,000 元', gap: d => Math.abs(Math.round(d)) + ' 个百分点', extra: ' 已售 6,840 元' }
+    };
+    let key = 'score', sel = 'value', shown = M.score.v;
+    const text = () => {
+      const m = M[key], d = m.v - m.t;
+      return sel === 'value'
+        ? `<b>${m.s}</b> <span>${m.f(m.v)}${m.u} ${d === 0 ? '与目标持平' : (d > 0 ? '高出目标 ' : '低于目标 ') + m.gap(d)}</span>`
+        : `<b>目标线</b> <span>${m.f(m.t)}${m.u} ${d >= 0 ? '已达成' : '未达成 还差 ' + m.gap(d)}</span>`;
+    };
+    const draw = () => {
+      const { ctx, w, h } = fit(cv), m = M[key], cx = w / 2, cy = h - 28, lw = 18, R = Math.min(w / 2 - 30, h - 62), frac = v => (v - m.lo) / (m.hi - m.lo), ang = f => Math.PI + f * Math.PI;
+      ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.arc(cx, cy, R, Math.PI, 2 * Math.PI); ctx.strokeStyle = css('--zone'); ctx.lineWidth = lw; ctx.stroke();
+      for (let i = 0; i <= 10; i++) { const a = ang(i / 10), r1 = R - lw / 2 - 5, r2 = r1 - (i % 5 ? 4 : 8); ctx.beginPath(); ctx.moveTo(cx + Math.cos(a) * r1, cy + Math.sin(a) * r1); ctx.lineTo(cx + Math.cos(a) * r2, cy + Math.sin(a) * r2); ctx.strokeStyle = css('--line-strong'); ctx.lineWidth = 1.5; ctx.stroke(); }
+      const ok = m.v >= m.t, col = css(ok ? '--action' : '--warning'), fv = clamp(frac(shown), 0, 1);
+      if (fv > 0) { ctx.beginPath(); ctx.arc(cx, cy, R, Math.PI, ang(fv)); ctx.strokeStyle = col; ctx.lineWidth = lw; ctx.stroke(); }
+      const ta = ang(frac(m.t)), tw = sel === 'target' ? 4 : 2.5, t1 = R - lw / 2 - 3, t2 = R + lw / 2 + 5;
+      ctx.beginPath(); ctx.moveTo(cx + Math.cos(ta) * t1, cy + Math.sin(ta) * t1); ctx.lineTo(cx + Math.cos(ta) * t2, cy + Math.sin(ta) * t2); ctx.strokeStyle = css('--ink'); ctx.lineWidth = tw; ctx.lineCap = 'butt'; ctx.stroke(); ctx.lineCap = 'round';
+      const ka = ang(fv); ctx.beginPath(); ctx.arc(cx + Math.cos(ka) * R, cy + Math.sin(ka) * R, sel === 'value' ? 8 : 6, 0, 7); ctx.fillStyle = css('--surface'); ctx.fill(); ctx.lineWidth = 3; ctx.strokeStyle = col; ctx.stroke();
+      ctx.textAlign = 'center'; ctx.fillStyle = css('--ink');
+      const num = m.f(shown), unit = m.u; ctx.font = font(28, 700); const w1 = ctx.measureText(num).width; ctx.font = font(14); const w2 = ctx.measureText(unit).width;
+      const x0 = cx - (w1 + w2 + 2) / 2; ctx.textAlign = 'left'; ctx.font = font(28, 700); ctx.fillText(num, x0, cy - 6); ctx.font = font(14); ctx.fillStyle = css('--ink-3'); ctx.fillText(unit, x0 + w1 + 2, cy - 6);
+      ctx.textAlign = 'center'; ctx.font = font(14); ctx.fillText(m.n, cx, cy + 18);
+      ctx.font = font(12); ctx.fillStyle = css('--ink-3'); ctx.textAlign = 'center'; ctx.fillText(String(m.lo), cx - R, cy + 22); ctx.fillText(String(m.hi), cx + R, cy + 22);
+    };
+    const info = () => {
+      const m = M[key]; $('[data-unit]', root).textContent = m.rng; cv.setAttribute('aria-label', `${m.n}半环仪表盘 当前 ${m.f(m.v)}${m.u} 目标 ${m.f(m.t)}${m.u} 范围 ${m.lo} 至 ${m.hi}`);
+      $('[data-dom]', root).innerHTML = `<li>${m.n} 当前 ${m.f(m.v)}${m.u}${m.extra || ''}</li><li>目标 ${m.f(m.t)}${m.u}</li>`; read.innerHTML = text();
+    };
+    const pick = (x, y) => {
+      const r = cv.getBoundingClientRect(), m = M[key], px = x - r.left - r.width / 2, py = y - r.top - (r.height - 28), a = Math.atan2(py, px), ta = Math.PI + (m.t - m.lo) / (m.hi - m.lo) * Math.PI;
+      const near = Math.abs(((a - ta + 3 * Math.PI) % (2 * Math.PI)) - Math.PI) < .12 && Math.hypot(px, py) > 40; sel = near ? 'target' : 'value'; read.innerHTML = text(); draw();
+    };
+    cv.addEventListener('pointermove', e => pick(e.clientX, e.clientY)); cv.addEventListener('pointerdown', e => pick(e.clientX, e.clientY));
+    cv.addEventListener('keydown', e => { if (!['ArrowLeft', 'ArrowRight'].includes(e.key)) return; e.preventDefault(); sel = sel === 'value' ? 'target' : 'value'; read.innerHTML = text(); draw(); });
+    seg(root, k => { const from = shown; key = k; sel = 'value'; info(); run(from, M[k].v, 520, v => { shown = v; draw(); }); });
+    new ResizeObserver(draw).observe(cv); onTheme(draw); info(); run(M.score.lo, M.score.v, 700, v => { shown = v; draw(); });
+  })();
+
+  /* 019 月历日程标记：预约为实心点，签到为空心点；方向键移动日期，翻月停在第一个或同号日 */
+  (() => {
+    const root = D('AP-DATA-019'), grid = $('[data-grid]', root), title = $('[data-title]', root), list = $('[data-list]', root), read = $('.dat-read', root), prev = $('[data-prev]', root), next = $('[data-next]', root);
+    const NOW = '2026-11-09', MIN = 10, MAX = 12;
+    const key = (y, m, d) => `${y}-${pad(m)}-${pad(d)}`;
+    const EV = {
+      '2026-10-08': [['10:00', '花艺沙龙', 6]], '2026-10-15': [['10:00', '花艺沙龙', 7]], '2026-10-22': [['10:00', '花艺沙龙', 6]], '2026-10-24': [['14:00', '上门花艺布置', 2]], '2026-10-29': [['10:00', '花艺沙龙', 8]],
+      '2026-11-05': [['10:00', '花艺沙龙', 6]], '2026-11-12': [['10:00', '花艺沙龙', 6], ['14:30', '鲜花订阅配送', 3]], '2026-11-14': [['11:00', '婚礼花艺试做', 2]], '2026-11-19': [['10:00', '花艺沙龙', 5]], '2026-11-21': [['15:00', '生日花束定制', 1]], '2026-11-26': [['10:00', '花艺沙龙', 6]],
+      '2026-12-03': [['10:00', '花艺沙龙', 4]], '2026-12-10': [['10:00', '花艺沙龙', 3]], '2026-12-17': [['10:00', '花艺沙龙', 2]], '2026-12-24': [['10:00', '花艺沙龙', 8], ['14:00', '圣诞花环课', 8]]
+    };
+    const SIGN = new Set([...[1, 2, 3, 5, 6, 7, 8, 9, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 26, 27, 28, 29, 30].map(d => key(2026, 10, d)), ...[1, 2, 4, 5, 6, 7, 8, 9].map(d => key(2026, 11, d))]);
+    let y = 2026, m = 11, sel = '2026-11-12';
+    const dayN = () => new Date(y, m, 0).getDate(), wdOf = d => (new Date(y, m - 1, d).getDay() + 6) % 7;
+    const detail = () => {
+      const [, mm, dd] = sel.split('-').map(Number), ev = EV[sel] || [], s = SIGN.has(sel), wd = WKN[new Date(y, mm - 1, dd).getDay()];
+      read.innerHTML = `<b>${mm}月${dd}日 周${wd}</b> 预约 ${ev.length} 个${sel <= NOW ? (s ? ' 已签到' : ' 未签到') : ''}`;
+      const html = ev.map(([t, n, p]) => `<div class="dat-cal__r"><i data-t="a"></i><span class="dat-cal__t">${t}</span><span class="one-line">${n}</span><span class="tag">${p} 人</span></div>`).join('') + (s ? '<div class="dat-cal__r"><i data-t="s"></i><span>签到</span><span class="dat-cal__s" data-s="done">已完成</span></div>' : '');
+      list.innerHTML = html || '<p class="dat-cal__e">当日没有预约与签到</p>';
+    };
+    const render = () => {
+      title.textContent = `${y}年${m}月`; prev.disabled = m <= MIN; next.disabled = m >= MAX;
+      let h = '<span></span>'.repeat(wdOf(1));
+      for (let d = 1; d <= dayN(); d++) {
+        const k = key(y, m, d), a = (EV[k] || []).length, s = SIGN.has(k);
+        h += `<button class="dat-cal__d" data-k="${k}" aria-pressed="${k === sel}" tabindex="${k === sel ? 0 : -1}"${k === NOW ? ' aria-current="date"' : ''} aria-label="${m}月${d}日 周${WKN[(wdOf(d) + 1) % 7]}${a ? ' 预约 ' + a + ' 个' : ''}${s ? ' 已签到' : ''}"><span class="dat-cal__n">${d}</span><span class="dat-cal__dots">${a ? '<i data-t="a"></i>' : ''}${s ? '<i data-t="s"></i>' : ''}</span></button>`;
+      }
+      grid.innerHTML = h; detail();
+    };
+    const pick = (k, focus) => {
+      sel = k; $$('.dat-cal__d', grid).forEach(b => { const on = b.dataset.k === k; b.setAttribute('aria-pressed', String(on)); b.tabIndex = on ? 0 : -1; if (on && focus) b.focus(); }); detail();
+    };
+    const go = d => { m += d; const day = Math.min(+sel.slice(-2), dayN()); sel = key(y, m, day); render(); };
+    grid.addEventListener('click', e => { const b = e.target.closest('.dat-cal__d'); if (b) pick(b.dataset.k); });
+    grid.addEventListener('keydown', e => {
+      const d = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -7, ArrowDown: 7 }[e.key]; if (!d) return; e.preventDefault();
+      const n = clamp(+sel.slice(-2) + d, 1, dayN()); pick(key(y, m, n), true);
+    });
+    prev.addEventListener('click', () => go(-1)); next.addEventListener('click', () => go(1)); render();
+  })();
+
+  /* 020 渐变面积：缺失日断开，指针与方向键读取单日并给出较前一日的变化 */
+  (() => {
+    const root = D('AP-DATA-020'), cv = $('canvas', root), read = $('.dat-read', root);
+    const days = Array.from({ length: 14 }, (_, i) => new Date(2026, 9, 27 + i)), LB = days.map(d => `${d.getMonth() + 1}月${d.getDate()}日`), WK = days.map(d => '周' + WKN[d.getDay()]);
+    const S = {
+      sales: { n: '营收', u: '元', v: [5120, 5480, 5360, 6190, 7840, 8260, 5240, null, 5410, 5630, 6320, 8080, 8520, 5460] },
+      flow: { n: '客流', u: '人', v: [212, 230, 224, 262, 331, 352, 218, null, 226, 239, 268, 339, 361, 229] }
+    };
+    let key = 'sales', active = 13;
+    const niceStep = r => { const p = Math.pow(10, Math.floor(Math.log10(r))), f = r / p; return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 2.5 ? 2.5 : f <= 5 ? 5 : 10) * p; };
+    const text = () => {
+      const s = S[key], v = s.v[active], p = active ? s.v[active - 1] : null;
+      if (v == null) return `<b>${LB[active]} ${WK[active]}</b> 当日休息 暂无数据`;
+      const dl = !active ? '' : p == null ? '前一日暂无数据' : `较前一日 ${v >= p ? '增长 ' : '下降 '}${Math.abs(Math.round((v - p) / p * 100))}%`;
+      return `<b>${LB[active]} ${WK[active]}</b> ${nf(v)} ${s.u} ${dl}`.trim();
+    };
+    const draw = () => {
+      const { ctx, w, h } = fit(cv), s = S[key], v = s.v, pd = { l: 42, r: 12, t: 10, b: 24 }, nums = v.filter(x => x != null), max = Math.max(...nums), step = niceStep(max / 4), top = step * Math.ceil(max / step);
+      const X = i => pd.l + (w - pd.l - pd.r) * i / (v.length - 1), Y = n => pd.t + (h - pd.t - pd.b) * (1 - n / top), base = h - pd.b;
+      ctx.font = font(12); ctx.textBaseline = 'middle';
+      for (let k = 0; k * step <= top; k++) { const y = Y(k * step); ctx.beginPath(); ctx.moveTo(pd.l, y); ctx.lineTo(w - pd.r, y); ctx.strokeStyle = css(k ? '--line' : '--line-strong'); ctx.lineWidth = 1; ctx.stroke(); ctx.fillStyle = css('--ink-3'); ctx.textAlign = 'right'; ctx.fillText(nf(k * step), pd.l - 6, y); }
+      ctx.textBaseline = 'alphabetic'; ctx.textAlign = 'center';
+      [0, 6, 13].forEach(i => { ctx.textAlign = i === 0 ? 'left' : i === 13 ? 'right' : 'center'; ctx.fillStyle = css('--ink-3'); ctx.fillText(LB[i], i === 0 ? pd.l : X(i), h - 6); });
+      const runs = []; let cur = null; v.forEach((n, i) => { if (n == null) { cur = null; return; } if (!cur) { cur = []; runs.push(cur); } cur.push(i); });
+      const g = ctx.createLinearGradient(0, pd.t, 0, base); g.addColorStop(0, mixc('--action', 36)); g.addColorStop(1, mixc('--action', 2));
+      runs.forEach(r => {
+        if (r.length < 2) return;
+        ctx.beginPath(); ctx.moveTo(X(r[0]), base); r.forEach(i => ctx.lineTo(X(i), Y(v[i]))); ctx.lineTo(X(r[r.length - 1]), base); ctx.closePath(); ctx.fillStyle = g; ctx.fill();
+        ctx.beginPath(); r.forEach((i, k) => k ? ctx.lineTo(X(i), Y(v[i])) : ctx.moveTo(X(i), Y(v[i]))); ctx.strokeStyle = css('--action'); ctx.lineWidth = 2; ctx.lineJoin = 'round'; ctx.stroke();
+      });
+      ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.moveTo(X(active), pd.t); ctx.lineTo(X(active), base); ctx.strokeStyle = css('--line-strong'); ctx.lineWidth = 1; ctx.stroke(); ctx.setLineDash([]);
+      v.forEach((n, i) => { if (n == null) return; ctx.beginPath(); ctx.arc(X(i), Y(n), i === active ? 5 : 2.5, 0, 7); ctx.fillStyle = i === active ? css('--action') : css('--surface'); ctx.fill(); ctx.lineWidth = i === active ? 2.5 : 1.5; ctx.strokeStyle = i === active ? css('--surface') : css('--action'); ctx.stroke(); });
+      read.innerHTML = text();
+    };
+    const info = () => {
+      const s = S[key], nums = s.v.filter(x => x != null);
+      $('[data-title]', root).textContent = `近十四天${s.n}`; $('[data-unit]', root).textContent = `单位 ${s.u}`; $('[data-total]', root).textContent = nf(nums.reduce((a, n) => a + n, 0)); $('[data-sum]', root).textContent = `${s.u} 合计 ${nums.length} 个营业日`;
+      cv.setAttribute('aria-label', `近十四天${s.n}面积图 单位${s.u}`);
+      $('[data-dom]', root).innerHTML = s.v.map((n, i) => `<li>${LB[i]} ${WK[i]} ${n == null ? '暂无数据' : nf(n) + ' ' + s.u}</li>`).join('');
+    };
+    const pick = x => { const r = cv.getBoundingClientRect(); active = clamp(Math.round((x - r.left - 42) / (r.width - 54) * 13), 0, 13); draw(); };
+    cv.addEventListener('pointermove', e => pick(e.clientX)); cv.addEventListener('pointerdown', e => pick(e.clientX));
+    cv.addEventListener('keydown', e => { const d = { ArrowLeft: -1, ArrowRight: 1 }[e.key]; if (!d) return; e.preventDefault(); active = clamp(active + d, 0, 13); draw(); });
+    seg(root, k => { key = k; info(); draw(); });
+    new ResizeObserver(draw).observe(cv); onTheme(draw); info(); draw();
+  })();
+
+  /* 021 窄屏表格：首列固定，横滑时左右出现阴影；表头点按排序，再点反向，第三次还原 */
+  (() => {
+    const root = D('AP-DATA-021'), body = $('[data-body]', root), foot = $('[data-foot]', root), wrap = $('.dat-tb', root), sc = $('.dat-tb__sc', root), ths = $$('th[aria-sort]', root);
+    const R = [
+      { n: '建国路店', orders: 486, sales: 13860, refund: 320, margin: 62, st: ['已对平', 'success'] },
+      { n: '徐汇滨江店', orders: 372, sales: 10990, refund: 180, margin: 60, st: ['已对平', 'success'] },
+      { n: '浦东世纪店', orders: 428, sales: 12150, refund: 560, margin: 58, st: ['差异 20 元', 'danger'] },
+      { n: '静安嘉里店', orders: 276, sales: 8420, refund: 0, margin: 63, st: ['待核对', 'warning'] }
+    ];
+    R.forEach(r => { r.avg = r.sales / r.orders; });
+    const tot = { orders: 0, sales: 0, refund: 0, mw: 0 }; R.forEach(r => { tot.orders += r.orders; tot.sales += r.sales; tot.refund += r.refund; tot.mw += r.margin * r.sales; });
+    let sort = { k: '', dir: 0 };
+    const cell = r => `<tr><td>${r.n}</td><td>${nf(r.orders)}</td><td class="r">${nf(r.sales)}</td><td class="r">${nf(r.refund)}</td><td class="r">${r.avg.toFixed(1)}</td><td>${r.margin}%</td><td><span class="tag" data-tone="${r.st[1]}">${r.st[0]}</span></td></tr>`;
+    const paint = () => {
+      const rows = R.slice(); if (sort.dir) rows.sort((a, b) => (a[sort.k] - b[sort.k]) * sort.dir);
+      body.innerHTML = rows.map(cell).join('');
+      foot.innerHTML = `<tr><td>合计</td><td>${nf(tot.orders)}</td><td class="r">${nf(tot.sales)}</td><td class="r">${nf(tot.refund)}</td><td class="r">${(tot.sales / tot.orders).toFixed(1)}</td><td>${Math.round(tot.mw / tot.sales)}%</td><td></td></tr>`;
+      ths.forEach(th => { const k = $('[data-k]', th).dataset.k; th.setAttribute('aria-sort', sort.k === k && sort.dir ? (sort.dir > 0 ? 'ascending' : 'descending') : 'none'); });
+    };
+    ths.forEach(th => $('[data-k]', th).addEventListener('click', () => {
+      const k = $('[data-k]', th).dataset.k; if (sort.k !== k) sort = { k, dir: -1 }; else sort.dir = sort.dir === -1 ? 1 : sort.dir === 1 ? 0 : -1; paint();
+    }));
+    const edge = () => { wrap.dataset.s = sc.scrollLeft <= 1 ? 'start' : sc.scrollLeft + sc.clientWidth >= sc.scrollWidth - 1 ? 'end' : 'mid'; };
+    sc.addEventListener('scroll', edge, { passive: true }); new ResizeObserver(edge).observe(sc);
+    $('[data-n]', root).textContent = `${R.filter(r => r.st[1] !== 'success').length} 家待处理`; paint(); edge();
+  })();
+
+  /* 022 能力雷达：指针或方向键选中维度，读数列出当前显示的各店；图例可显示隐藏，至少留一家 */
+  (() => {
+    const root = D('AP-DATA-022'), cv = $('canvas', root), read = $('.dat-read', root), lg = $('[data-lg]', root);
+    const DIM = ['鲜度', '包装', '配送', '服务', '价格', '售后'];
+    const S = [
+      { n: '建国路店', c: '--action', d: '', mk: 'circle', v: [4.9, 4.2, 3.6, 4.8, 3.4, 4.5] },
+      { n: '徐汇滨江店', c: '--accent', d: 'dash', mk: 'square', v: [4.3, 4.8, 4.7, 3.9, 3.8, 3.6] },
+      { n: '浦东世纪店', c: '--info', d: 'dot', mk: 'diamond', v: [3.9, 3.7, 4.1, 4.4, 4.6, 4.2] }
+    ];
+    const on = [true, true, true]; let ax = 0;
+    lg.innerHTML = S.map((s, i) => `<button aria-pressed="true" data-i="${i}"><i style="--c:var(${s.c})" data-d="${s.d}"></i>${s.n}</button>`).join('');
+    const text = () => `<b>${DIM[ax]}</b> <span>${S.map((s, i) => on[i] ? `${s.n} ${s.v[ax].toFixed(1)}` : '').filter(Boolean).join(' ')} 分</span>`;
+    const marker = (ctx, mk, x, y, r) => { ctx.beginPath(); if (mk === 'circle') ctx.arc(x, y, r, 0, 7); else if (mk === 'square') ctx.rect(x - r, y - r, 2 * r, 2 * r); else { ctx.moveTo(x, y - r - 1); ctx.lineTo(x + r + 1, y); ctx.lineTo(x, y + r + 1); ctx.lineTo(x - r - 1, y); ctx.closePath(); } };
+    const draw = () => {
+      const { ctx, w, h } = fit(cv), cx = w / 2, cy = h / 2 + 2, R = Math.min(w / 2 - 50, h / 2 - 34), n = DIM.length, ang = i => -Math.PI / 2 + i * 2 * Math.PI / n, pt = (i, v) => [cx + Math.cos(ang(i)) * R * v / 5, cy + Math.sin(ang(i)) * R * v / 5];
+      for (let k = 1; k <= 5; k++) { ctx.beginPath(); for (let i = 0; i < n; i++) { const [x, y] = pt(i, k); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); } ctx.closePath(); ctx.strokeStyle = css(k === 5 ? '--line-strong' : '--line'); ctx.lineWidth = 1; ctx.setLineDash([]); ctx.stroke(); }
+      for (let i = 0; i < n; i++) { const [x, y] = pt(i, 5); ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(x, y); ctx.strokeStyle = css(i === ax ? '--ink-3' : '--line'); ctx.lineWidth = i === ax ? 1.5 : 1; ctx.stroke(); }
+            S.forEach((s, si) => {
+        if (!on[si]) return; const col = css(s.c);
+        ctx.beginPath(); s.v.forEach((v, i) => { const [x, y] = pt(i, v); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }); ctx.closePath();
+        ctx.globalAlpha = .09; ctx.fillStyle = col; ctx.fill(); ctx.globalAlpha = 1; ctx.setLineDash(s.d === 'dash' ? [7, 4] : s.d === 'dot' ? [2, 3] : []); ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.lineJoin = 'round'; ctx.stroke(); ctx.setLineDash([]);
+        s.v.forEach((v, i) => { const [x, y] = pt(i, v); marker(ctx, s.mk, x, y, i === ax ? 5 : 3.4); ctx.fillStyle = i === ax ? col : css('--surface'); ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = col; ctx.stroke(); });
+      });
+      ctx.textBaseline = 'middle'; DIM.forEach((d, i) => { const a = ang(i), x = cx + Math.cos(a) * (R + 20), y = cy + Math.sin(a) * (R + 18); ctx.font = font(14, i === ax ? 700 : 400); ctx.fillStyle = css(i === ax ? '--ink' : '--ink-2'); ctx.textAlign = Math.abs(Math.cos(a)) < .2 ? 'center' : Math.cos(a) > 0 ? 'left' : 'right'; ctx.fillText(d, x + (Math.abs(Math.cos(a)) < .2 ? 0 : Math.cos(a) > 0 ? -6 : 6), y); });
+      read.innerHTML = text();
+    };
+    const info = () => { $('[data-dom]', root).innerHTML = DIM.map((d, i) => `<li>${d} ${S.map(s => `${s.n} ${s.v[i].toFixed(1)}`).join(' ')} 分</li>`).join(''); cv.setAttribute('aria-label', `三家门店服务评分雷达图 ${DIM.join(' ')} 满分 5 分`); };
+    const pick = (x, y) => { const r = cv.getBoundingClientRect(), dx = x - r.left - r.width / 2, dy = y - r.top - r.height / 2 - 2; if (Math.hypot(dx, dy) < 16) return; const a = (Math.atan2(dy, dx) + Math.PI / 2 + 2 * Math.PI) % (2 * Math.PI); ax = Math.round(a / (2 * Math.PI / DIM.length)) % DIM.length; draw(); };
+    cv.addEventListener('pointermove', e => pick(e.clientX, e.clientY)); cv.addEventListener('pointerdown', e => pick(e.clientX, e.clientY));
+    cv.addEventListener('keydown', e => { const d = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key]; if (!d) return; e.preventDefault(); ax = (ax + d + DIM.length) % DIM.length; draw(); });
+    lg.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; const i = +b.dataset.i; if (on[i] && on.filter(Boolean).length === 1) return; on[i] = !on[i]; b.setAttribute('aria-pressed', String(on[i])); draw(); });
+    new ResizeObserver(draw).observe(cv); onTheme(draw); info(); draw();
+  })();
+
+  /* 023 价格数字：整数大、符号与小数小，千分位；选规格或切会员价时价格与划线价一起变 */
+  (() => {
+    const root = D('AP-DATA-023'), big = $('[data-v]', root), old = $('[data-o]', root), read = $('[data-read]', root), sw = $('.switch', root);
+    const SP = [{ n: '9 枝', p: 159, o: 199 }, { n: '19 枝', p: 239, o: 299 }, { n: '33 枝', p: 398, o: 498 }];
+    const fmt2 = v => v.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const html = v => { const [i, d] = fmt2(v).split('.'); return `<small class="dat-pc__s">¥</small><b class="dat-pc__i">${i}</b><small class="dat-pc__d">.${d}</small>`; };
+    let k = 1;
+    const paint = () => {
+      const s = SP[k], member = sw.getAttribute('aria-checked') === 'true', p = member ? Math.round(s.p * 90) / 100 : s.p;
+      big.innerHTML = html(p); old.textContent = '¥' + fmt2(s.o); read.innerHTML = `<b>${s.n}${member ? ' 会员价' : ''}</b> ¥${fmt2(p)} 比原价省 ¥${fmt2(s.o - p)}`;
+    };
+    seg(root, key => { k = +key; paint(); }); sw.addEventListener('lz:toggle', paint); paint();
+  })();
+
+  /* 024 堆叠条形：金额与占比两种显示，图例可关某个品类；悬浮、焦点、点按都在下方读数 */
+  (() => {
+    const root = D('AP-DATA-024'), chart = $('[data-chart]', root), lg = $('[data-lg]', root), read = $('.dat-read', root);
+    const CAT = [['鲜花', 'var(--action)'], ['绿植', 'var(--accent)'], ['礼盒', 'var(--info)'], ['花器', 'color-mix(in srgb, var(--ink-3) 70%, var(--surface))']];
+    const ST = [['建国路店', [42600, 15800, 11200, 6400]], ['徐汇滨江店', [31500, 18900, 8300, 5300]], ['浦东世纪店', [35400, 12100, 15800, 4700]]];
+    const on = [true, true, true, true]; let mode = 'abs', sel = [0, 0];
+    lg.innerHTML = CAT.map((c, i) => `<button aria-pressed="true" data-i="${i}"><i style="--c:${c[1]}"></i>${c[0]}</button>`).join('');
+    chart.innerHTML = ST.map((s, r) => `<div class="dat-sb__r"><div class="dat-sb__h"><span>${s[0]}</span><b data-t></b></div><div class="dat-sb__bar">${CAT.map((c, i) => `<button class="dat-sb__s" style="--c:${c[1]}" data-r="${r}" data-i="${i}" aria-pressed="false"></button>`).join('')}</div></div>`).join('');
+    const segs = $$('.dat-sb__s', chart), tot = r => ST[r][1].reduce((a, v, i) => a + (on[i] ? v : 0), 0);
+    const txt = (r, i) => `${ST[r][0]} ${CAT[i][0]} ${nf(ST[r][1][i])} 元 占该店 ${Math.round(ST[r][1][i] / ST[r][1].reduce((a, v) => a + v, 0) * 100)}%`;
+    const paint = () => {
+      const max = Math.max(...ST.map((_, r) => tot(r)));
+      segs.forEach(b => { const r = +b.dataset.r, i = +b.dataset.i, v = on[i] ? ST[r][1][i] : 0; b.style.setProperty('--w', (mode === 'abs' ? v / max : v / tot(r)) * 100 + '%'); b.disabled = !on[i]; b.setAttribute('aria-label', txt(r, i)); b.setAttribute('aria-pressed', String(r === sel[0] && i === sel[1])); });
+      $$('[data-t]', chart).forEach((el, r) => { el.textContent = `${nf(tot(r))} 元`; });
+      read.innerHTML = `<b>${ST[sel[0]][0]} ${CAT[sel[1]][0]}</b> ${nf(ST[sel[0]][1][sel[1]])} 元 占该店 ${Math.round(ST[sel[0]][1][sel[1]] / ST[sel[0]][1].reduce((a, v) => a + v, 0) * 100)}%`;
+    };
+    const pick = b => { sel = [+b.dataset.r, +b.dataset.i]; paint(); };
+    segs.forEach(b => { b.addEventListener('click', () => pick(b)); b.addEventListener('focus', () => pick(b)); b.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse' && !b.disabled) pick(b); }); });
+    lg.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; const i = +b.dataset.i; if (on[i] && on.filter(Boolean).length === 1) return; on[i] = !on[i]; b.setAttribute('aria-pressed', String(on[i])); if (!on[sel[1]]) sel[1] = on.indexOf(true); paint(); });
+    seg(root, k => { mode = k; paint(); }); paint();
+  })();
+
+  /* 025 迷你柱形：每行一个画布，指针或方向键选某一天，共用下方读数 */
+  (() => {
+    const root = D('AP-DATA-025'), list = $('[data-list]', root), read = $('.dat-read', root);
+    const days = Array.from({ length: 7 }, (_, i) => '周' + WKN[new Date(2026, 10, 3 + i).getDay()]);
+    const MS = [
+      { n: '订单量', u: '单', v: [158, 171, 166, 182, 205, 236, 168], prev: 1190 },
+      { n: '销售额', u: '元', v: [4120, 4380, 4260, 5090, 6040, 7140, 5390], prev: 34680 },
+      { n: '新增会员', u: '人', v: [6, 7, 5, 8, 10, 13, 9], prev: 62 }
+    ];
+    list.innerHTML = MS.map(m => { const s = m.v.reduce((a, n) => a + n, 0), d = Math.round((s - m.prev) / m.prev * 100); return `<div class="dat-mb__r"><div><p class="dat-mb__n">${m.n}</p><p class="dat-mb__v"><span>${nf(s)}</span><small>${m.u}</small></p><p class="stat__delta" data-tone="${d >= 0 ? 'up' : 'down'}">较前七天 ${d >= 0 ? '增长 ' : '下降 '}${Math.abs(d)}%</p></div><canvas role="img" tabindex="0" aria-label="${m.n}近七天柱形图 单位${m.u}"></canvas><ul class="sr-only">${m.v.map((n, i) => `<li>${days[i]} ${nf(n)} ${m.u}</li>`).join('')}</ul></div>`; }).join('');
+    const cvs = $$('canvas', list), act = MS.map(m => m.v.length - 1);
+    const draw = i => {
+      const { ctx, w, h } = fit(cvs[i]), v = MS[i].v, max = Math.max(...v), gap = 5, bw = (w - gap * (v.length - 1)) / v.length;
+      v.forEach((n, k) => { const bh = Math.max(3, (h - 4) * n / max), x = k * (bw + gap), y = h - bh; ctx.beginPath(); ctx.roundRect(x, y, bw, bh, [4, 4, 1, 1]); ctx.fillStyle = k === act[i] ? css('--action') : mixc('--action', 22, css('--surface')); ctx.fill(); });
+    };
+    const say = i => { read.innerHTML = `<b>${MS[i].n} ${days[act[i]]}</b> ${nf(MS[i].v[act[i]])} ${MS[i].u}`; };
+    const set = (i, k) => { MS.forEach((_, j) => { if (j !== i) { act[j] = MS[j].v.length - 1; draw(j); } }); act[i] = clamp(k, 0, 6); draw(i); say(i); };
+    cvs.forEach((cv, i) => {
+      const pick = x => { const r = cv.getBoundingClientRect(); set(i, Math.floor((x - r.left) / r.width * 7)); };
+      cv.addEventListener('pointermove', e => pick(e.clientX)); cv.addEventListener('pointerdown', e => pick(e.clientX));
+      cv.addEventListener('keydown', e => { const d = { ArrowLeft: -1, ArrowRight: 1 }[e.key]; if (!d) return; e.preventDefault(); set(i, act[i] + d); });
+      new ResizeObserver(() => draw(i)).observe(cv);
+    });
+    onTheme(() => cvs.forEach((_, i) => draw(i))); cvs.forEach((_, i) => draw(i)); say(0);
+  })();
+
+  /* 026 趋势箭头：好坏看指标性质，退款率下降是好事；持平用横线，箭头翻转带过渡 */
+  (() => {
+    const root = D('AP-DATA-026'), list = $('[data-list]', root), read = $('.dat-read', root);
+    const M = [
+      { n: '订单量', u: '单', v: 1286, f: nf, p: { mom: 1190, yoy: 1090 }, good: 1 },
+      { n: '销售额', u: '元', v: 36420, f: nf, p: { mom: 34680, yoy: 32500 }, good: 1 },
+      { n: '客单价', u: '元', v: 28.3, f: n => n.toFixed(1), p: { mom: 29.1, yoy: 29.8 }, good: 1 },
+      { n: '退款率', u: '%', v: 2.1, f: n => n.toFixed(1), p: { mom: 2.6, yoy: 1.8 }, good: -1, rate: 1 },
+      { n: '会员评分', u: '分', v: 4.8, f: n => n.toFixed(1), p: { mom: 4.8, yoy: 4.7 }, good: 1 }
+    ];
+    let k = 'mom', sel = 0;
+    const calc = m => { const p = m.p[k], d = m.v - p, pc = d / p * 100, flat = m.rate ? Math.abs(d) < .05 : Math.abs(pc) < .5, dir = flat ? 'flat' : d > 0 ? 'up' : 'down'; return { d, pc, dir, tone: flat ? '' : (d * m.good > 0 ? 'good' : 'bad'), txt: flat ? '持平' : m.rate ? `${d > 0 ? '上升' : '下降'} ${Math.abs(d).toFixed(1)} 个百分点` : `${d > 0 ? '增长' : '下降'} ${Math.abs(Math.round(pc))}%` }; };
+    list.innerHTML = M.map((m, i) => `<button class="dat-ta__r" data-i="${i}" aria-pressed="false"><span class="dat-ta__n">${m.n}</span><span class="dat-ta__v">${m.f(m.v)}<small>${m.u}</small></span><span class="dat-ta__m"><i class="dat-ta__a"></i><span></span></span></button>`).join('');
+    const rows = $$('.dat-ta__r', list);
+    const paint = () => {
+      M.forEach((m, i) => { const c = calc(m), r = rows[i], mk = $('.dat-ta__m', r); mk.dataset.t = c.tone; $('.dat-ta__a', mk).dataset.d = c.dir; $('span', mk).textContent = c.txt; r.setAttribute('aria-label', `${m.n} ${m.f(m.v)}${m.u} ${c.txt}`); r.setAttribute('aria-pressed', String(i === sel)); });
+      const m = M[sel], c = calc(m), lab = k === 'mom' ? '上周' : '去年同期', dd = m.rate ? Math.abs(c.d).toFixed(1) + ' 个百分点' : m.f(Math.abs(c.d)) + ' ' + m.u;
+      read.innerHTML = `<b>${m.n}</b> 本期 ${m.f(m.v)} ${m.u} ${lab} ${m.f(m.p[k])} ${m.u} ${c.dir === 'flat' ? '无变化' : (c.d > 0 ? '多 ' : '少 ') + dd}`;
+    };
+    rows.forEach((r, i) => r.addEventListener('click', () => { sel = i; paint(); }));
+    seg(root, key => { k = key; paint(); }); paint();
+  })();
+
+  /* 027 周日历条：横向滑动或点两侧箭头换周，方向键逐日移动；休息日不带圆点 */
+  (() => {
+    const root = D('AP-DATA-027'), strip = $('[data-strip]', root), title = $('[data-title]', root), list = $('[data-list]', root), read = $('.dat-read', root), prev = $('[data-prev]', root), next = $('[data-next]', root);
+    const NOW = new Date(2026, 10, 9, 14, 0), WEEKS = 3, addDays = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
+    const kk = d => `${d.getMonth() + 1}-${d.getDate()}`;
+    const EV = {
+      '11-2': [['09:00', '花材到货验收']], '11-3': [['14:00', '绿植养护上门']], '11-5': [['10:00', '花艺沙龙', 6]], '11-7': [['11:00', '婚礼花艺试做', 2]],
+      '11-9': [['09:30', '花材到货验收'], ['15:00', '会员花束定制', 1]], '11-10': [['14:00', '企业订花配送', 4]], '11-12': [['10:00', '花艺沙龙', 6], ['14:30', '鲜花订阅配送', 3]], '11-14': [['11:00', '婚礼花艺试做', 2]], '11-15': [['10:00', '亲子插花课', 8]],
+      '11-16': [['09:00', '花材到货验收']], '11-18': [['14:00', '绿植养护上门']], '11-19': [['10:00', '花艺沙龙', 5]], '11-21': [['15:00', '生日花束定制', 1]], '11-22': [['10:00', '亲子插花课', 8]]
+    };
+    const REST = new Set(['11-11', '11-17']);
+    let wk = 1, sel = new Date(2026, 10, 12);
+    const days = () => Array.from({ length: 7 }, (_, i) => new Date(2026, 10, 2 + wk * 7 + i));
+    const detail = () => {
+      const ev = EV[kk(sel)] || [], rest = REST.has(kk(sel));
+      read.innerHTML = `<b>${sel.getMonth() + 1}月${sel.getDate()}日 周${WKN[sel.getDay()]}</b> ${rest ? '休息日' : '排期 ' + ev.length + ' 项'}`;
+      list.innerHTML = rest ? '<p class="dat-cal__e">休息日没有排期</p>' : ev.map(([t, n, p]) => { const at = new Date(sel.getFullYear(), sel.getMonth(), sel.getDate(), +t.slice(0, 2), +t.slice(3)), done = at < NOW; return `<div class="dat-cal__r"><i data-t="a"></i><span class="dat-cal__t">${t}</span><span class="one-line">${n}${p ? ' ' + p + ' 人' : ''}</span><span class="dat-cal__s"${done ? ' data-s="done"' : ''}>${done ? '已完成' : '待开始'}</span></div>`; }).join('') || '<p class="dat-cal__e">当日没有排期</p>';
+    };
+    const render = () => {
+      const ds = days(); title.textContent = `${ds[0].getMonth() + 1}月${ds[0].getDate()}日至${ds[6].getMonth() + 1}月${ds[6].getDate()}日`; prev.disabled = wk <= 0; next.disabled = wk >= WEEKS - 1;
+      strip.innerHTML = ds.map(d => { const k = kk(d), n = (EV[k] || []).length, on = d.toDateString() === sel.toDateString(), past = d < new Date(NOW.getFullYear(), NOW.getMonth(), NOW.getDate()), rest = REST.has(k);
+        return `<button class="dat-wk__d" data-t="${d.getTime()}" aria-pressed="${on}" tabindex="${on ? 0 : -1}"${d.toDateString() === NOW.toDateString() ? ' aria-current="date"' : ''}${past ? ' data-past' : ''} aria-label="${d.getMonth() + 1}月${d.getDate()}日 周${WKN[d.getDay()]}${rest ? ' 休息日' : n ? ' 排期 ' + n + ' 项' : ' 无排期'}"><span class="dat-wk__w">${WKN[d.getDay()]}</span><span class="dat-cal__n">${d.getDate()}</span>${rest ? '<span class="dat-wk__rest">休</span>' : `<span class="dat-cal__dots">${'<i data-t="a"></i>'.repeat(Math.min(n, 3))}</span>`}</button>`; }).join('');
+      detail();
+    };
+    const move = (dir, anim) => { const nw = clamp(wk + dir, 0, WEEKS - 1); if (nw === wk) return; wk = nw; sel = addDays(sel, dir * 7); render(); if (anim && !Lz.reduce) strip.animate([{ transform: `translateX(${dir * 28}px)`, opacity: .2 }, { transform: 'none', opacity: 1 }], { duration: 220, easing: 'cubic-bezier(.22,1,.36,1)' }); };
+    const choose = (t, focus) => { sel = new Date(+t); $$('.dat-wk__d', strip).forEach(b => { const on = +b.dataset.t === +t; b.setAttribute('aria-pressed', String(on)); b.tabIndex = on ? 0 : -1; if (on && focus) b.focus(); }); detail(); };
+    let sx = 0, sy = 0, swiped = false;
+    strip.addEventListener('pointerdown', e => { sx = e.clientX; sy = e.clientY; swiped = false; });
+    strip.addEventListener('pointerup', e => { const dx = e.clientX - sx, dy = e.clientY - sy; if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.5) { swiped = true; move(dx < 0 ? 1 : -1, true); } });
+    strip.addEventListener('click', e => { if (swiped) { swiped = false; return; } const b = e.target.closest('.dat-wk__d'); if (b) choose(b.dataset.t); });
+    strip.addEventListener('keydown', e => {
+      const d = { ArrowLeft: -1, ArrowRight: 1 }[e.key]; if (!d) return; e.preventDefault();
+      const t = addDays(sel, d), w2 = Math.floor(Math.round((t - new Date(2026, 10, 2)) / 864e5) / 7); if (w2 < 0 || w2 > WEEKS - 1) return;
+      if (w2 !== wk) { wk = w2; sel = t; render(); $('[aria-pressed="true"]', strip).focus(); } else choose(t.getTime(), true);
+    });
+    prev.addEventListener('click', () => move(-1, true)); next.addEventListener('click', () => move(1, true)); render();
+  })();
+
+  /* 028 活动圆环：三圈同心，满一圈后继续绕第二圈并显示真实百分比；点圈、图例或方向键选中一项 */
+  (() => {
+    const root = D('AP-DATA-028'), cv = $('canvas', root), read = $('.dat-read', root), lg = $('[data-lg]', root), addB = $('[data-add]', root);
+    const START = [['订单量', '单', 36, 50, '--action'], ['销售额', '元', 6840, 9000, '--accent'], ['新增会员', '人', 12, 10, '--info']];
+    const R = START.map(s => ({ n: s[0], u: s[1], v: s[2], g: s[3], c: s[4] })); let sel = 0, k = 0;
+    lg.innerHTML = R.map((r, i) => `<button aria-pressed="${i === 0}" data-i="${i}"><span class="dat-act__k"><i style="--c:var(${r.c})"></i>${r.n}</span><b></b><small></small></button>`).join('');
+    const bs = $$('button', lg), pc = r => r.v / r.g;
+    const say = () => { const r = R[sel], p = Math.round(pc(r) * 100); read.innerHTML = `<b>${r.n}</b> ${nf(r.v)} ${r.u} 目标 ${nf(r.g)} ${r.u} ${r.v >= r.g ? (r.v > r.g ? '超出 ' + nf(r.v - r.g) + ' ' + r.u + ' ' : '') + '达成 ' + p + '%' : '完成 ' + p + '% 还差 ' + nf(r.g - r.v) + ' ' + r.u}`; };
+    const text = () => { R.forEach((r, i) => { $('b', bs[i]).textContent = Math.round(pc(r) * 100) + '%'; $('small', bs[i]).textContent = `${nf(r.v)} / ${nf(r.g)} ${r.u}`; bs[i].setAttribute('aria-pressed', String(i === sel)); }); cv.setAttribute('aria-label', '门店日目标同心圆环 ' + R.map(r => `${r.n} ${nf(r.v)} ${r.u} 目标 ${nf(r.g)} ${r.u} 完成 ${Math.round(pc(r) * 100)}%`).join(' ')); addB.disabled = R[0].v >= 99; say(); };
+    const draw = () => {
+      const { ctx, w, h } = fit(cv), cx = w / 2, cy = h / 2, lw = 13, rad = [62, 45, 28]; ctx.lineCap = 'round';
+      R.forEach((r, i) => {
+        const col = css(r.c), f = k * pc(r), dim = i !== sel ? .38 : 1;
+        ctx.globalAlpha = 1; ctx.beginPath(); ctx.arc(cx, cy, rad[i], 0, 7); ctx.strokeStyle = mixc(r.c, 16); ctx.lineWidth = lw; ctx.stroke();
+        ctx.globalAlpha = dim; const a0 = -Math.PI / 2;
+        if (f > 0) { ctx.beginPath(); ctx.arc(cx, cy, rad[i], a0, a0 + Math.min(f, 1) * 2 * Math.PI - (f >= 1 ? .0001 : 0)); ctx.strokeStyle = col; ctx.lineWidth = lw; ctx.stroke(); }
+        if (f > 1) { ctx.beginPath(); ctx.arc(cx, cy, rad[i], a0, a0 + Math.min(f - 1, 1) * 2 * Math.PI); ctx.strokeStyle = mixc(r.c, 62, 'black'); ctx.lineWidth = lw; ctx.stroke(); }
+      });
+      ctx.globalAlpha = 1; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = css('--ink'); ctx.font = font(14, 700); ctx.fillText(Math.round(pc(R[sel]) * 100) + '%', cx, cy + 1);
+    };
+    const set = i => { sel = ((i % 3) + 3) % 3; text(); draw(); };
+    bs.forEach((b, i) => b.addEventListener('click', () => set(i)));
+    const hit = (x, y) => { const r = cv.getBoundingClientRect(), d = Math.hypot(x - r.left - r.width / 2, y - r.top - r.height / 2), i = [62, 45, 28].findIndex(q => Math.abs(d - q) <= 9); if (i >= 0) set(i); };
+    cv.addEventListener('pointermove', e => { if (e.pointerType === 'mouse') hit(e.clientX, e.clientY); }); cv.addEventListener('pointerdown', e => hit(e.clientX, e.clientY));
+    cv.addEventListener('keydown', e => { const d = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 }[e.key]; if (!d) return; e.preventDefault(); set(sel + d); });
+    addB.addEventListener('click', () => { R[0].v += 1; R[1].v += 190; text(); draw(); });
+    $('[data-reset]', root).addEventListener('click', () => { R.forEach((r, i) => { r.v = START[i][2]; }); k = 1; text(); draw(); });
+    new ResizeObserver(draw).observe(cv); onTheme(draw); text(); run(0, 1, 800, v => { k = v; draw(); });
+  })();
+})();
+</script>

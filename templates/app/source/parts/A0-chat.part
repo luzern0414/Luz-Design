@@ -1,0 +1,1340 @@
+<!-- cat: CHAT | 智能体 -->
+<style>
+  .cht-log:empty { display: none; }
+  /* 智能体组件专属样式：前缀 cht-，基础结构来自共用的对话样式 */
+  .cht-wrap { display: grid; gap: var(--s-3); }
+  .cht-card { display: grid; gap: var(--s-3); padding: var(--s-4); }
+  .cht-chat.chat { padding: 0; gap: var(--s-4); }
+  .cht-bar { display: flex; align-items: center; justify-content: space-between; gap: var(--s-2); }
+  .cht-bar--end { justify-content: flex-end; }
+  .cht-acts { display: flex; align-items: center; gap: var(--s-1); }
+  .cht-acts .btn--text { min-height: 32px; font-size: var(--fs-sm); color: var(--ink-3); }
+  .cht-acts .btn--text:hover { color: var(--action-press); }
+  .msg__body > .cht-acts { margin-left: calc(var(--s-2) * -1); }
+  .cht-user > .cht-acts { margin-right: var(--s-2); }
+  .cht-user { display: grid; justify-items: end; gap: var(--s-1); max-width: 88%; }
+  .cht-user .bubble { max-width: 100%; }
+  .cht-user[data-editing] { width: 100%; max-width: 100%; }
+  .cht-edit { display: grid; gap: var(--s-2); width: 100%; }
+  .cht-edit .textarea { min-height: 72px; }
+  .cht-in { animation: lz-rise var(--dur-slow) var(--ease-out) both; }
+  /* 用户气泡：共用底色与舞台几乎同色，这里加深一档 */
+  [data-cid^="AP-CHAT"] .msg--user .bubble { background: var(--action-edge); }
+  .cht-ava { width: 36px; height: 36px; border-radius: 50%; }
+  .cht-note { padding: var(--s-2) 0; font-size: var(--fs-sm); color: var(--ink-3); text-align: center; }
+  [data-cid^="AP-CHAT"] .skel { background: linear-gradient(100deg, color-mix(in srgb, var(--action) 11%, var(--surface)) 30%, color-mix(in srgb, var(--action) 4%, var(--surface)) 50%, color-mix(in srgb, var(--action) 11%, var(--surface)) 70%) 0 0 / 200% 100%; animation: lz-shimmer 1.4s linear infinite; }
+
+  /* 思考过程与工具 */
+  .cht-think .think { box-shadow: var(--elev-1); }
+  .cht-tools .tool { min-height: 36px; }
+  .cht-tools .tool[data-state="wait"]::before { background: var(--line-strong); }
+  .cht-io { margin-top: var(--s-2); background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); }
+  .cht-io p + p { margin-top: 2px; }
+  .cht-k { margin-right: var(--s-2); font-weight: 600; color: var(--ink-3); }
+
+  /* 审批 */
+  .cht-appr .approval { box-shadow: var(--elev-1); }
+  .cht-appr .btn-group { justify-content: flex-end; }
+  .cht-appr__res { display: none; align-items: center; gap: var(--s-2); font-size: var(--fs-sm); color: var(--ink-2); }
+  .cht-appr .approval[data-state="done"] .cht-appr__res { display: flex; }
+  .cht-appr .approval[data-state="done"] .btn-group { display: none; }
+  .cht-appr .approval[data-state="done"] { opacity: 1; pointer-events: auto; }
+
+  /* 任务行 */
+  .cht-task { width: 100%; text-align: left; cursor: pointer; transition: background var(--dur-quick) var(--ease-out); }
+  .cht-task:hover { background: var(--zone); }
+  .cht-task .tag { min-width: 56px; justify-content: center; }
+  .cht-task .tag[data-tone="action"] { background: var(--action-edge); }
+  .cht-task__t { min-width: 0; }
+
+  /* 产物 */
+  .cht-art { grid-template-columns: auto 1fr auto; row-gap: 0; box-shadow: var(--elev-1); }
+  .cht-art > .expand { grid-column: 1 / -1; }
+  .cht-diff { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); min-height: 44px; border-top: 1px solid var(--line); font-size: var(--fs-sm); color: var(--ink-2); }
+  .cht-art > .expand > div > .cht-diff:first-child { margin-top: var(--s-3); }
+  .cht-diff .price { font-size: var(--fs-md); }
+
+  /* 引用 */
+  .cht-cite-wrap .cite { background: var(--action-edge); cursor: pointer; transition: background var(--dur-quick) var(--ease-out), color var(--dur-quick) var(--ease-out); }
+  .cht-cite-wrap .cite[aria-pressed="true"] { background: var(--action); color: var(--surface); }
+  .cht-src { display: grid; grid-template-columns: auto 1fr; align-items: center; column-gap: var(--s-3); padding: var(--s-3); border-radius: var(--r-md); background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); }
+  .cht-src img { width: 36px; height: 36px; object-fit: contain; }
+  .cht-src[hidden] { display: none; }
+
+  /* 输入栏、建议、附件 */
+  .cht-log { display: grid; gap: var(--s-3); min-height: 56px; align-content: end; }
+  .cht-chip { display: inline-flex; align-items: center; gap: var(--s-1); max-width: 100%; min-height: 32px; padding: 0 var(--s-1) 0 var(--s-3); border-radius: var(--r-full); background: var(--zone); font-size: var(--fs-sm); animation: lz-pop var(--dur-slow) var(--ease-spring) both; }
+  .cht-chip .ibtn { width: 28px; height: 28px; }
+  .cht-chip .ibtn img { width: 14px; height: 14px; }
+  .cht-files { display: flex; flex-wrap: wrap; gap: var(--s-2); }
+  .cht-sug .suggest { padding-bottom: 2px; }
+  .cht-sug .suggest:not([data-end]) { mask-image: linear-gradient(90deg, var(--ink) calc(100% - 32px), transparent); }
+  .cht-sug .suggest button[aria-pressed="true"] { background: var(--action-tint); color: var(--action-press); border-color: var(--action-edge); font-weight: 600; }
+  .cht-prompt .prompt { box-shadow: var(--elev-1); }
+
+  /* 排队 */
+  .cht-q { display: grid; gap: var(--s-2); }
+  .cht-q__row { display: flex; align-items: center; gap: var(--s-3); min-height: 44px; padding: 0 var(--s-3); border-radius: var(--r-md); background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); font-size: var(--fs-sm); }
+  .cht-q__row span:first-child { flex: 1; min-width: 0; }
+
+  /* 空会话 */
+  .cht-empty { display: grid; justify-items: center; gap: var(--s-3); padding: var(--s-1) 0; text-align: center; }
+  .cht-empty__art { position: relative; display: grid; place-items: center; width: 132px; height: 112px; }
+  .cht-empty__art::before { content: ""; position: absolute; inset: 4px 10px 0; border-radius: 50%; background: radial-gradient(closest-side, var(--action-tint) 55%, transparent 100%); }
+  .cht-empty__art img { position: relative; width: 88px; height: 88px; object-fit: contain; filter: drop-shadow(0 8px 10px color-mix(in srgb, var(--ink) 14%, transparent)); }
+  .cht-empty .suggest { flex-wrap: wrap; justify-content: center; overflow: visible; }
+
+  /* 失败 */
+  .cht-fail { display: flex; align-items: center; gap: var(--s-2); }
+
+  /* 历史会话 */
+  .cht-hist .row { cursor: pointer; }
+  .cht-hist .row .row__lead { border-radius: 50%; }
+  .cht-hist .row[aria-current="true"] { background: var(--action-tint); }
+  .cht-hist .row[aria-current="true"] .row__title { color: var(--action-press); }
+
+  /* 上下文用量 */
+  .cht-ctx { display: flex; height: 12px; border-radius: var(--r-full); background: var(--zone); overflow: hidden; gap: 2px; }
+  .cht-ctx i { display: block; height: 100%; width: var(--w, 0%); background: var(--c); transition: width var(--dur-slow) var(--ease-out); }
+  .cht-ctx i:first-child { border-radius: var(--r-full) 0 0 var(--r-full); }
+  .cht-legend { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s-2); }
+  .cht-legend div { display: grid; gap: 2px; font-size: var(--fs-sm); color: var(--ink-3); }
+  .cht-legend b { font-size: var(--fs-md); font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .cht-legend i { display: inline-block; width: 10px; height: 10px; margin-right: 6px; border-radius: 3px; background: var(--c); }
+  .cht-num { display: flex; align-items: baseline; gap: var(--s-1); }
+  .cht-num b { font-size: var(--fs-2xl); font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+  .cht-num span { font-size: var(--fs-sm); color: var(--ink-3); }
+
+  /* 停止钮 */
+  .cht-stop[data-mode="stop"] { background: var(--ink); color: var(--bg); box-shadow: none; }
+  .cht-run { display: none; align-items: center; gap: var(--s-2); font-size: var(--fs-sm); color: var(--ink-2); }
+  .cht-run[data-on] { display: inline-flex; }
+</style>
+
+<article class="demo" data-cid="AP-CHAT-001" data-name="用户消息气泡" data-cat="CHAT">
+  <div class="demo__head"><span class="demo__name">用户消息气泡</span></div>
+  <p class="demo__note">适合：用户发出的提问，可复制可编辑</p>
+  <div class="demo__stage">
+    <div class="chat cht-chat">
+      <div class="msg msg--user">
+        <div class="cht-user">
+          <div class="bubble" data-bubble><p>核对上周三家门店的对账差异</p></div>
+          <div class="cht-edit" data-editbox hidden><textarea class="textarea" aria-label="修改消息"></textarea><div class="btn-group" style="justify-content:flex-end"><button class="btn btn--ghost btn--sm" data-cancel>取消</button><button class="btn btn--primary btn--sm" data-save>保存</button></div></div>
+          <div class="cht-acts" data-acts><button class="btn btn--text btn--sm" data-copy>复制</button><button class="btn btn--text btn--sm" data-edit>编辑</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-CHAT-002" data-name="智能体回答气泡" data-cat="CHAT">
+  <div class="demo__head"><span class="demo__name">智能体回答气泡</span></div>
+  <p class="demo__note">适合：智能体的文字回答，带头像与重新生成</p>
+  <div class="demo__stage">
+    <div class="chat cht-chat">
+      <article class="msg">
+        <img class="msg__avatar" src="../../kit/assets/marks/mark-007.webp" alt="">
+        <div class="msg__body">
+          <p class="bubble" data-bubble>已比对三家门店 128 笔订单，发现 3 笔金额不一致，差额合计 286.50 元。</p>
+          <div class="cht-acts"><button class="btn btn--text btn--sm" data-copy>复制</button><button class="btn btn--text btn--sm" data-regen>重新生成</button></div>
+        </div>
+      </article>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-CHAT-003" data-name="思考过程折叠" data-cat="CHAT">
+  <div class="demo__head"><span class="demo__name">思考过程折叠</span></div>
+  <p class="demo__note">适合：展示推理步骤，进行中展开，完成后收起</p>
+  <div class="demo__stage">
+    <div class="cht-wrap cht-think">
+      <div class="think">
+        <button class="think__head" data-expand="cht-th-1" aria-expanded="false"><span data-head>已思考 6 秒</span></button>
+        <div class="expand" id="cht-th-1"><div>
+          <ul class="think__steps">
+            <li data-state="done"><span>读取三家门店对账单</span></li>
+            <li data-state="done"><span>逐笔比对订单金额</span></li>
+            <li data-state="done"><span>汇总差异并生成结果</span></li>
+          </ul>
+        </div></div>
+      </div>
+      <div class="cht-bar cht-bar--end"><button class="btn btn--secondary btn--sm" data-play>重新思考</button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-CHAT-004" data-name="工具调用标签" data-cat="CHAT">
+  <div class="demo__head"><span class="demo__name">工具调用标签</span></div>
+  <p class="demo__note">适合：显示调用了哪些工具及状态</p>
+  <div class="demo__stage">
+    <div class="cht-wrap cht-tools">
+      <div>
+        <div class="tools">
+          <button class="tool" data-state="done" aria-expanded="false" aria-controls="cht-io-1">查询订单</button>
+          <button class="tool" data-state="run" aria-expanded="false" aria-controls="cht-io-2">汇总金额</button>
+          <button class="tool" data-state="wait" aria-expanded="false" aria-controls="cht-io-3">导出文件</button>
+        </div>
+        <div class="tool__io cht-io" id="cht-io-1" hidden><p><span class="cht-k">输入</span>三家门店 近七日</p><p><span class="cht-k">输出</span><span data-out>128 笔订单</span></p></div>
+        <div class="tool__io cht-io" id="cht-io-2" hidden><p><span class="cht-k">输入</span>128 笔订单</p><p><span class="cht-k">输出</span><span data-out>进行中</span></p></div>
+        <div class="tool__io cht-io" id="cht-io-3" hidden><p><span class="cht-k">输入</span>对账结果</p><p><span class="cht-k">输出</span><span data-out>等待中</span></p></div>
+      </div>
+      <div class="cht-bar cht-bar--end"><button class="btn btn--secondary btn--sm" data-run>继续运行</button><button class="btn btn--ghost btn--sm" data-reset>重置</button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-CHAT-005" data-name="流式文字气泡" data-cat="CHAT">
+  <div class="demo__head"><span class="demo__name">流式文字气泡</span></div>
+  <p class="demo__note">适合：回答逐字出现，带光标，可随时停止</p>
+  <div class="demo__stage">
+    <div class="cht-wrap">
+      <article class="msg">
+        <img class="msg__avatar" src="../../kit/assets/marks/mark-007.webp" alt="">
+        <div class="msg__body"><p class="bubble" data-bubble aria-live="polite">本周共 14 笔退款申请，12 笔与支付流水一致，另 2 笔金额待确认。</p></div>
+      </article>
+      <div class="cht-bar"><span class="tag" data-tone="success" data-tag>已完成</span><div class="btn-group"><button class="btn btn--secondary btn--sm" data-play>播放</button><button class="btn btn--ghost btn--sm" data-stop disabled>停止</button></div></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-CHAT-006" data-name="审批确认卡" data-cat="CHAT">
+  <div class="demo__head"><span class="demo__name">审批确认卡</span></div>
+  <p class="demo__note">适合：执行有影响的动作前让用户批准</p>
+  <div class="demo__stage">
+    <div class="cht-wrap cht-appr">
+      <div class="approval">
+        <p class="approval__q">确认 2 笔重复扣款的退款方式</p>
+        <div class="approval__opts" role="radiogroup" aria-label="退款方式">
+          <button class="opt" role="radio" aria-checked="true"><span class="check" aria-checked="true" aria-hidden="true"><img src="../../kit/assets/line/check.webp" alt=""></span>原路退回</button>
+          <button class="opt" role="radio" aria-checked="false"><span class="check" aria-checked="false" aria-hidden="true"><img src="../../kit/assets/line/check.webp" alt=""></span>退回门店余额</button>
+          <button class="opt" role="radio" aria-checked="false"><span class="check" aria-checked="false" aria-hidden="true"><img src="../../kit/assets/line/check.webp" alt=""></span>转人工处理</button>
+        </div>
+        <div class="btn-group"><button class="btn btn--ghost" data-act="reject">拒绝</button><button class="btn btn--primary" data-act="approve">批准</button></div>
+        <div class="cht-appr__res"><span class="tag" data-tag>已批准</span><span data-res></span><button class="btn btn--text btn--sm" data-reset style="margin-left:auto">重置</button></div>
+      </div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-CHAT-007" data-name="任务状态行" data-cat="CHAT">
+  <div class="demo__head"><span class="demo__name">任务状态行</span></div>
+  <p class="demo__note">适合：智能体拆出的待办，点一行推进状态</p>
+  <div class="demo__stage">
+    <div class="card list">
+      <button class="task cht-task" data-s="1"><img class="task__ic" src="../../kit/assets/solid/bill.webp" alt=""><div class="cht-task__t"><p class="row__title one-line">补录重复扣款</p><p class="row__meta">2 笔</p></div><span class="tag" data-tone="action">进行中</span></button>
+      <button class="task cht-task" data-s="0"><img class="task__ic" src="../../kit/assets/solid/biz-store.webp" alt=""><div class="cht-task__t"><p class="row__title one-line">通知门店核对</p><p class="row__meta">3 家门店</p></div><span class="tag">待处理</span></button>
+      <button class="task cht-task" data-s="2"><img class="task__ic" src="../../kit/assets/solid/order.webp" alt=""><div class="cht-task__t"><p class="row__title one-line">回写订单状态</p><p class="row__meta">128 笔</p></div><span class="tag" data-tone="success">已完成</span></button>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-CHAT-008" data-name="产物文件卡" data-cat="CHAT">
+  <div class="demo__head"><span class="demo__name">产物文件卡</span></div>
+  <p class="demo__note">适合：智能体生成的结果文件，就近展开看明细</p>
+  <div class="demo__stage">
+    <div class="artifact cht-art">
+      <img class="task__ic" src="../../kit/assets/solid/biz-review.webp" alt="">
+      <div><p class="row__title one-line">对账结果</p><p class="row__meta">3 笔差异 刚刚</p></div>
+      <button class="btn btn--secondary btn--sm" data-expand="cht-art-1">打开</button>
+      <div class="expand" id="cht-art-1"><div>
+        <div class="cht-diff"><span>单号 10321 重复扣款</span><span class="price"><small>¥</small>128.00</span></div>
+        <div class="cht-diff"><span>单号 10377 重复扣款</span><span class="price"><small>¥</small>98.50</span></div>
+        <div class="cht-diff"><span>单号 10402 金额不符</span><span class="price"><small>¥</small>60.00</span></div>
+      </div></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-CHAT-009" data-name="引用来源角标" data-cat="CHAT">
+  <div class="demo__head"><span class="demo__name">引用来源角标</span></div>
+  <p class="demo__note">适合：回答中的数字角标，点开就近看出处</p>
+  <div class="demo__stage">
+    <div class="cht-wrap cht-cite-wrap">
+      <p class="bubble">已比对三家门店 128 笔订单<button class="cite" data-tip="对账单 第 3 页" aria-label="引用 1 对账单" aria-pressed="false" data-i="0">1</button>，发现 3 笔金额不一致，其中 2 笔为重复扣款<button class="cite" data-tip="订单明细 第 12 行" aria-label="引用 2 订单明细" aria-pressed="false" data-i="1">2</button>。</p>
+      <div class="cht-src" role="status" hidden><img src="../../kit/assets/solid/biz-notes.webp" alt=""><div><p class="row__title" data-name>对账单</p><p class="row__meta" data-where>第 3 页 三家门店汇总</p></div></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-CHAT-010" data-name="对话输入栏" data-cat="CHAT">
+  <div class="demo__head"><span class="demo__name">对话输入栏</span></div>
+  <p class="demo__note">适合：多行输入，空内容不可发送，回车发送</p>
+  <div class="demo__stage">
+    <div class="cht-wrap cht-prompt">
+      <div class="cht-log" data-log></div>
+      <form class="prompt" data-form>
+        <div class="cht-files" data-files hidden></div>
+        <textarea rows="1" placeholder="输入消息" aria-label="输入消息" enterkeyhint="send"></textarea>
+        <div class="prompt__bar">
+          <button type="button" class="ibtn" data-attach data-tip="添加附件" aria-label="添加附件"><img src="../../kit/assets/line/upload.webp" alt=""></button>
+          <button type="button" class="ibtn" data-mic data-tip="语音输入" aria-label="语音输入" aria-pressed="false"><img src="../../kit/assets/line/mic.webp" alt=""></button>
+          <span class="dots" data-dots hidden aria-hidden="true"><i></i><i></i><i></i></span>
+          <span class="prompt__sp"></span>
+          <button type="submit" class="btn btn--primary" data-send disabled>发送</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-CHAT-011" data-name="建议问法条" data-cat="CHAT">
+  <div class="demo__head"><span class="demo__name">建议问法条</span></div>
+  <p class="demo__note">适合：输入栏上方的一键问法，横向滑动</p>
+  <div class="demo__stage">
+    <div class="cht-wrap cht-sug">
+      <div class="cht-log" data-log></div>
+      <div class="suggest" aria-label="建议问法">
+        <button aria-pressed="false" data-q="核对上周三家门店的对账差异">核对对账差异</button>
+        <button aria-pressed="false" data-q="汇总本周退款金额">汇总退款金额</button>
+        <button aria-pressed="false" data-q="查看库存低于安全线的商品">查看库存缺口</button>
+        <button aria-pressed="false" data-q="导出对账结果文件">导出对账结果</button>
+      </div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-CHAT-012" data-name="排队提示条" data-cat="CHAT">
+  <div class="demo__head"><span class="demo__name">排队提示条</span></div>
+  <p class="demo__note">适合：智能体生成中，用户追加的问题排队等待</p>
+  <div class="demo__stage">
+    <div class="cht-wrap">
+      <div class="cht-bar"><span class="tag" data-tone="warning" data-tag>排队 2 条</span><div class="btn-group"><button class="btn btn--secondary btn--sm" data-add>再问一条</button><button class="btn btn--ghost btn--sm" data-clear>清空</button></div></div>
+      <div class="cht-q" data-list aria-label="排队中的问题">
+        <div class="cht-q__row"><span class="one-line">汇总本周退款金额</span><span class="tag">第 1 位</span></div>
+        <div class="cht-q__row"><span class="one-line">查看库存缺口</span><span class="tag">第 2 位</span></div>
+      </div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-CHAT-013" data-name="空会话占位" data-cat="CHAT">
+  <div class="demo__head"><span class="demo__name">空会话占位</span></div>
+  <p class="demo__note">适合：新会话没有消息时给出问法</p>
+  <div class="demo__stage">
+    <div class="card cht-card">
+      <div class="cht-empty" data-empty>
+        <div class="cht-empty__art"><img data-ic="bouquet" src="../../kit/assets/icons/flat/bouquet.webp" alt=""></div>
+        <div class="suggest"><button data-q="核对上周三家门店的对账差异">核对对账差异</button><button data-q="汇总本周退款金额">汇总退款金额</button></div>
+      </div>
+      <div class="chat cht-chat" data-chat hidden></div>
+      <div class="cht-bar cht-bar--end" data-reset hidden><button class="btn btn--text btn--sm">新会话</button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-CHAT-014" data-name="失败重试气泡" data-cat="CHAT">
+  <div class="demo__head"><span class="demo__name">失败重试气泡</span></div>
+  <p class="demo__note">适合：回答中断后保留已生成内容，一键继续</p>
+  <div class="demo__stage">
+    <div class="chat cht-chat">
+      <article class="msg">
+        <img class="msg__avatar" src="../../kit/assets/marks/mark-007.webp" alt="">
+        <div class="msg__body">
+          <p class="bubble" data-bubble>本周共 14 笔退款申请，12 笔与支付流水一致</p>
+          <div class="cht-fail" data-fail><span class="tag" data-tone="danger">生成中断</span><button class="btn btn--secondary btn--sm" data-retry>重试</button></div>
+        </div>
+      </article>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-CHAT-015" data-name="历史会话行" data-cat="CHAT">
+  <div class="demo__head"><span class="demo__name">历史会话行</span></div>
+  <p class="demo__note">适合：会话列表，标出当前会话与最后一条消息</p>
+  <div class="demo__stage">
+    <div class="card list cht-hist" role="listbox" aria-label="历史会话">
+      <div class="row" role="option" tabindex="0" aria-current="true" aria-selected="true" data-n="对账核对"><img class="row__lead" src="../../kit/assets/marks/mark-012.webp" alt=""><div class="row__main"><p class="row__title one-line">对账核对</p><p class="row__meta one-line">已比对三家门店 128 笔订单</p></div><div class="row__trail"><span>刚刚</span></div></div>
+      <div class="row" role="option" tabindex="0" aria-selected="false" data-n="库存盘点"><img class="row__lead" src="../../kit/assets/marks/mark-015.webp" alt=""><div class="row__main"><p class="row__title one-line">库存盘点</p><p class="row__meta one-line">6 个商品低于安全线</p></div><div class="row__trail"><span>昨天</span></div></div>
+      <div class="row" role="option" tabindex="0" aria-selected="false" data-n="退款汇总"><img class="row__lead" src="../../kit/assets/marks/mark-018.webp" alt=""><div class="row__main"><p class="row__title one-line">退款汇总</p><p class="row__meta one-line">本周共 14 笔退款申请</p></div><div class="row__trail"><span>昨天</span></div></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-CHAT-016" data-name="上下文用量条" data-cat="CHAT">
+  <div class="demo__head"><span class="demo__name">上下文用量条</span></div>
+  <p class="demo__note">适合：会话占用的上下文，接近上限转警告</p>
+  <div class="demo__stage">
+    <div class="card cht-card">
+      <div class="cht-bar"><div class="cht-num"><b data-total>62%</b><span>已用</span></div><span class="tag" data-tone="success" data-tag>空间充足</span></div>
+      <div class="cht-ctx" role="img" aria-label="上下文用量 62%"><i style="--w:38%;--c:var(--action)"></i><i style="--w:16%;--c:var(--accent)"></i><i style="--w:8%;--c:var(--info)"></i></div>
+      <div class="cht-legend"><div><span><i style="--c:var(--action)"></i>对话</span><b data-v="0">38%</b></div><div><span><i style="--c:var(--accent)"></i>文件</span><b data-v="1">16%</b></div><div><span><i style="--c:var(--info)"></i>工具</span><b data-v="2">8%</b></div></div>
+      <div class="cht-bar cht-bar--end"><button class="btn btn--secondary btn--sm" data-add>追加对话</button><button class="btn btn--ghost btn--sm" data-zip>压缩上下文</button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-CHAT-017" data-name="生成中停止钮" data-cat="CHAT">
+  <div class="demo__head"><span class="demo__name">生成中停止钮</span></div>
+  <p class="demo__note">适合：发送钮在生成时变为停止，随时中断回答</p>
+  <div class="demo__stage">
+    <div class="cht-wrap cht-prompt">
+      <div class="chat cht-chat" data-reply hidden>
+        <div class="msg msg--user cht-in"><div class="bubble"><p data-ask></p></div></div>
+        <article class="msg cht-in">
+          <img class="msg__avatar" src="../../kit/assets/marks/mark-007.webp" alt="">
+          <div class="msg__body"><p class="bubble" aria-live="polite"></p></div>
+        </article>
+      </div>
+      <form class="prompt" data-form>
+        <textarea rows="1" placeholder="输入消息" aria-label="输入消息" enterkeyhint="send"></textarea>
+        <div class="prompt__bar">
+          <span class="cht-run" data-run role="status"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>生成中</span>
+          <span class="tag" data-tag hidden></span>
+          <span class="prompt__sp"></span>
+          <button type="submit" class="btn btn--primary cht-stop" data-mode="send">发送</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-CHAT-018" data-name="对话加载骨架" data-cat="CHAT">
+  <div class="demo__head"><span class="demo__name">对话加载骨架</span></div>
+  <p class="demo__note">适合：会话历史加载时，保留消息的位置关系</p>
+  <div class="demo__stage">
+    <div class="cht-wrap">
+      <div class="chat cht-chat" data-skel aria-busy="true" aria-label="消息加载中">
+        <div class="skel" style="height:44px;width:58%;justify-self:end;border-radius:var(--r-xl)"></div>
+        <div class="msg"><div class="skel cht-ava"></div><div class="msg__body"><div class="skel" style="height:44px"></div><div class="skel" style="height:16px;width:92%"></div><div class="skel" style="height:16px;width:70%"></div><div class="skel" style="height:64px"></div></div></div>
+      </div>
+      <div class="chat cht-chat" data-real hidden>
+        <div class="msg msg--user cht-in"><div class="bubble"><p>核对上周三家门店的对账差异</p></div></div>
+        <article class="msg cht-in"><img class="msg__avatar" src="../../kit/assets/marks/mark-007.webp" alt=""><div class="msg__body"><p class="bubble">已比对三家门店 128 笔订单，发现 3 笔金额不一致。</p></div></article>
+      </div>
+      <div class="cht-bar cht-bar--end"><button class="btn btn--secondary btn--sm" data-toggle>载入消息</button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-CHAT-019" data-name="附件标签条" data-cat="CHAT">
+  <div class="demo__head"><span class="demo__name">附件标签条</span></div>
+  <p class="demo__note">适合：输入栏里待发送的附件，可逐个移除</p>
+  <div class="demo__stage">
+    <div class="card cht-card">
+      <div class="cht-files" data-files aria-label="已添加的附件"></div>
+      <p class="cht-note" data-empty hidden>暂无附件</p>
+      <div class="cht-bar cht-bar--end"><button class="btn btn--secondary btn--sm" data-add>添加附件</button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-CHAT-020" data-name="消息操作条" data-cat="CHAT">
+  <div class="demo__head"><span class="demo__name">消息操作条</span></div>
+  <p class="demo__note">适合：回答下方的复制、重新生成与点赞按钮条</p>
+  <div class="demo__stage">
+    <div class="chat cht-chat">
+      <article class="msg">
+        <img class="msg__avatar" src="../../kit/assets/marks/mark-007.webp" alt="">
+        <div class="msg__body">
+          <p class="bubble" data-bubble>已比对三家门店 128 笔订单，发现 3 笔金额不一致，差额合计 286.50 元。</p>
+          <div class="cht-ac-wrap">
+            <div class="cht-ac" role="toolbar" aria-label="回答操作">
+              <button class="cht-ac__btn" data-cp>复制</button>
+              <button class="cht-ac__btn" data-regen>重新生成</button>
+              <span class="cht-ac__sep" aria-hidden="true"></span>
+              <button class="cht-ac__btn" data-vote="up" aria-pressed="false">有用</button>
+              <button class="cht-ac__btn" data-vote="down" aria-pressed="false" aria-expanded="false" aria-controls="cht-ac-why">没用</button>
+            </div>
+            <div class="expand" id="cht-ac-why"><div>
+              <div class="cht-ac__why" role="group" aria-label="不满意的原因"><button aria-pressed="false">不准确</button><button aria-pressed="false">不相关</button><button aria-pressed="false">太啰嗦</button><button aria-pressed="false">其他</button></div>
+            </div></div>
+          </div>
+        </div>
+      </article>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-CHAT-021" data-name="来源引用列表" data-cat="CHAT">
+  <div class="demo__head"><span class="demo__name">来源引用列表</span></div>
+  <p class="demo__note">适合：回答末尾可展开的参考来源列表</p>
+  <div class="demo__stage">
+    <div class="chat cht-chat cht-ref-wrap">
+      <article class="msg">
+        <img class="msg__avatar" src="../../kit/assets/marks/mark-007.webp" alt="">
+        <div class="msg__body">
+          <p class="bubble">已比对三家门店 128 笔订单<button class="cite" aria-label="来源 1 三家门店对账单" aria-pressed="false">1</button>，发现 3 笔金额不一致<button class="cite" aria-label="来源 2 订单明细" aria-pressed="false">2</button>，其中 2 笔为重复扣款<button class="cite" aria-label="来源 3 支付流水" aria-pressed="false">3</button>。</p>
+          <div class="cht-ref">
+            <button class="cht-ref__head" data-expand="cht-ref-1"><span class="cht-ref__stack" aria-hidden="true"><img src="../../kit/assets/solid/biz-review.webp" alt=""><img src="../../kit/assets/solid/order.webp" alt=""><img src="../../kit/assets/solid/bill.webp" alt=""></span><span>3 个参考来源</span><span class="chev" aria-hidden="true"></span></button>
+            <div class="expand" id="cht-ref-1"><div>
+              <ol class="cht-ref__list" aria-label="参考来源">
+                <li><button class="cht-ref__row" aria-expanded="false" aria-controls="cht-ref-q1"><span class="cite" aria-hidden="true">1</span><span class="cht-ref__main"><span class="row__title one-line">三家门店对账单</span><span class="row__meta one-line">第 3 页</span></span><span class="chev" aria-hidden="true"></span></button><p class="cht-ref__quote" id="cht-ref-q1" hidden>三家门店本周共 128 笔订单，汇总金额 41,326.00 元。</p></li>
+                <li><button class="cht-ref__row" aria-expanded="false" aria-controls="cht-ref-q2"><span class="cite" aria-hidden="true">2</span><span class="cht-ref__main"><span class="row__title one-line">订单明细</span><span class="row__meta one-line">第 12 行</span></span><span class="chev" aria-hidden="true"></span></button><p class="cht-ref__quote" id="cht-ref-q2" hidden>单号 10321 与 10377 重复扣款，金额 128.00 元与 98.50 元。</p></li>
+                <li><button class="cht-ref__row" aria-expanded="false" aria-controls="cht-ref-q3"><span class="cite" aria-hidden="true">3</span><span class="cht-ref__main"><span class="row__title one-line">支付流水</span><span class="row__meta one-line">第 40 行</span></span><span class="chev" aria-hidden="true"></span></button><p class="cht-ref__quote" id="cht-ref-q3" hidden>单号 10402 实收与订单金额相差 60.00 元。</p></li>
+              </ol>
+            </div></div>
+          </div>
+        </div>
+      </article>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-CHAT-022" data-name="计划步骤卡" data-cat="CHAT">
+  <div class="demo__head"><span class="demo__name">计划步骤卡</span></div>
+  <p class="demo__note">适合：智能体先列出计划步骤并标注已完成与进行中</p>
+  <div class="demo__stage">
+    <div class="card cht-card cht-pl">
+      <div class="cht-bar"><p class="card__title">处理重复扣款</p><span class="tag" data-tone="action" data-tag>进行中</span></div>
+      <div class="cht-pl__sum"><div class="progress" role="img" aria-label="计划进度" data-bar><i style="--v:40%"></i></div><span class="cht-pl__cnt t-num"><span data-num>2</span> / 5</span></div>
+      <ol class="cht-pl__list" aria-label="计划步骤">
+        <li class="cht-pl__step" data-state="done" data-done="用时 3 秒" data-doing="正在读取对账单"><span class="cht-pl__dot" aria-hidden="true"><img class="cht-pl__ok" src="../../kit/assets/line/check.webp" alt=""><img class="cht-pl__no" src="../../kit/assets/line/close.webp" alt=""></span><div class="cht-pl__txt"><p class="cht-pl__name">读取三家门店对账单</p><p class="cht-pl__meta">用时 3 秒</p></div><span class="tag" data-tone="success">已完成</span></li>
+        <li class="cht-pl__step" data-state="done" data-done="用时 6 秒" data-doing="正在比对 128 笔订单"><span class="cht-pl__dot" aria-hidden="true"><img class="cht-pl__ok" src="../../kit/assets/line/check.webp" alt=""><img class="cht-pl__no" src="../../kit/assets/line/close.webp" alt=""></span><div class="cht-pl__txt"><p class="cht-pl__name">逐笔比对订单金额</p><p class="cht-pl__meta">用时 6 秒</p></div><span class="tag" data-tone="success">已完成</span></li>
+        <li class="cht-pl__step" data-state="now" data-done="标出 2 笔重复扣款" data-doing="已标出 1 笔重复扣款"><span class="cht-pl__dot" aria-hidden="true"><img class="cht-pl__ok" src="../../kit/assets/line/check.webp" alt=""><img class="cht-pl__no" src="../../kit/assets/line/close.webp" alt=""></span><div class="cht-pl__txt"><p class="cht-pl__name">标出重复扣款订单</p><p class="cht-pl__meta">已标出 1 笔重复扣款</p></div><span class="tag" data-tone="action">进行中</span></li>
+        <li class="cht-pl__step" data-state="wait" data-done="已通知 3 家门店" data-doing="正在发送通知" data-fail="建国路店暂时无法联系"><span class="cht-pl__dot" aria-hidden="true"><img class="cht-pl__ok" src="../../kit/assets/line/check.webp" alt=""><img class="cht-pl__no" src="../../kit/assets/line/close.webp" alt=""></span><div class="cht-pl__txt"><p class="cht-pl__name">通知三家门店核对</p><p class="cht-pl__meta" hidden></p></div><span class="tag">待开始</span></li>
+        <li class="cht-pl__step" data-state="wait" data-done="已回写 128 笔订单" data-doing="正在回写订单"><span class="cht-pl__dot" aria-hidden="true"><img class="cht-pl__ok" src="../../kit/assets/line/check.webp" alt=""><img class="cht-pl__no" src="../../kit/assets/line/close.webp" alt=""></span><div class="cht-pl__txt"><p class="cht-pl__name">回写订单状态</p><p class="cht-pl__meta" hidden></p></div><span class="tag">待开始</span></li>
+      </ol>
+      <div class="cht-bar cht-bar--end"><button class="btn btn--ghost btn--sm" data-reset>重置</button><button class="btn btn--secondary btn--sm" data-next>下一步</button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-CHAT-023" data-name="澄清问答卡" data-cat="CHAT">
+  <div class="demo__head"><span class="demo__name">澄清问答卡</span></div>
+  <p class="demo__note">适合：逐题提问，支持单选、多选、填写与跳过</p>
+  <div class="demo__stage">
+    <div class="cht-wrap">
+      <div class="approval cht-qa">
+        <div class="cht-qa__prog" aria-hidden="true"><i data-s="now"></i><i></i><i></i></div>
+        <div class="cht-qa__body" data-body>
+          <div class="cht-bar"><span class="cht-qa__pos" data-pos>第 1 题 共 3 题</span><span class="tag" data-kind>单选</span></div>
+          <section data-q="0">
+            <p class="approval__q" id="cht-qa-t0">选择对账时间段</p>
+            <div class="approval__opts" role="radiogroup" aria-labelledby="cht-qa-t0">
+              <button type="button" class="opt" role="radio" aria-checked="false"><span class="check" aria-hidden="true"><img src="../../kit/assets/line/check.webp" alt=""></span>上周</button>
+              <button type="button" class="opt" role="radio" aria-checked="false"><span class="check" aria-hidden="true"><img src="../../kit/assets/line/check.webp" alt=""></span>本月</button>
+              <button type="button" class="opt" role="radio" aria-checked="false"><span class="check" aria-hidden="true"><img src="../../kit/assets/line/check.webp" alt=""></span>本季度</button>
+            </div>
+          </section>
+          <section data-q="1" hidden>
+            <p class="approval__q" id="cht-qa-t1">选择需要核对的门店</p>
+            <div class="approval__opts" role="group" aria-labelledby="cht-qa-t1">
+              <div class="opt" role="checkbox" aria-checked="false"><span class="check" aria-hidden="true"><img src="../../kit/assets/line/check.webp" alt=""></span>建国路店</div>
+              <div class="opt" role="checkbox" aria-checked="false"><span class="check" aria-hidden="true"><img src="../../kit/assets/line/check.webp" alt=""></span>徐汇滨江店</div>
+              <div class="opt" role="checkbox" aria-checked="false"><span class="check" aria-hidden="true"><img src="../../kit/assets/line/check.webp" alt=""></span>浦东世纪店</div>
+            </div>
+          </section>
+          <section data-q="2" hidden>
+            <p class="approval__q" id="cht-qa-t2">补充其他要求</p>
+            <textarea class="textarea" rows="3" aria-labelledby="cht-qa-t2" placeholder="选填"></textarea>
+          </section>
+          <div class="cht-qa__foot"><button type="button" class="btn btn--text" data-skip>跳过</button><span class="cht-qa__sp"></span><button type="button" class="btn btn--ghost" data-prev hidden>上一题</button><button type="button" class="btn btn--primary" data-next disabled>下一题</button></div>
+        </div>
+        <div class="cht-qa__done" data-sum hidden>
+          <div class="cht-bar"><p class="approval__q">已提交回答</p><span class="tag" data-tone="success">已提交</span></div>
+          <dl class="cht-qa__list" data-list></dl>
+          <div class="cht-bar cht-bar--end"><button type="button" class="btn btn--ghost btn--sm" data-redo>重新回答</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-CHAT-024" data-name="对话代码块" data-cat="CHAT">
+  <div class="demo__head"><span class="demo__name">对话代码块</span></div>
+  <p class="demo__note">适合：回答中的配置或代码片段，带复制按钮</p>
+  <div class="demo__stage">
+    <div class="cht-cd" role="region" aria-label="对账配置">
+      <div class="cht-cd__bar"><span class="cht-cd__name">对账配置</span><button class="btn btn--text btn--sm" data-cp>复制</button></div>
+      <pre class="cht-cd__pre" id="cht-cd-pre" data-open="false" style="--n:13" tabindex="0" aria-label="配置内容，可左右滑动"><code>
+<span class="cht-cd__ln" style="--d:0"><span class="cht-cd__t"><span class="k">对账配置</span>：</span></span>
+<span class="cht-cd__ln" style="--d:1"><span class="cht-cd__t"><span class="k">范围</span>：<span class="v">上周</span></span></span>
+<span class="cht-cd__ln" style="--d:1"><span class="cht-cd__t"><span class="k">门店</span>：</span></span>
+<span class="cht-cd__ln" style="--d:2"><span class="cht-cd__t"><span class="d">-</span> <span class="v">建国路店</span></span></span>
+<span class="cht-cd__ln" style="--d:2"><span class="cht-cd__t"><span class="d">-</span> <span class="v">徐汇滨江店</span></span></span>
+<span class="cht-cd__ln" style="--d:2"><span class="cht-cd__t"><span class="d">-</span> <span class="v">浦东世纪店</span></span></span>
+<span class="cht-cd__ln" style="--d:1"><span class="cht-cd__t"><span class="k">差异阈值</span>：<span class="n">0.01</span> <span class="v">元</span></span></span>
+<span class="cht-cd__ln" style="--d:1"><span class="cht-cd__t"><span class="k">重复扣款</span>：<span class="v">自动标记</span></span></span>
+<span class="cht-cd__ln" style="--d:1"><span class="cht-cd__t"><span class="k">通知</span>：</span></span>
+<span class="cht-cd__ln" style="--d:2"><span class="cht-cd__t"><span class="k">方式</span>：<span class="v">站内消息</span></span></span>
+<span class="cht-cd__ln" style="--d:2"><span class="cht-cd__t"><span class="k">对象</span>：<span class="v">店长</span></span></span>
+<span class="cht-cd__ln" style="--d:1"><span class="cht-cd__t"><span class="k">汇总文件</span>：<span class="v">对账结果表，按门店分页并附差异明细与重复扣款标记</span></span></span>
+<span class="cht-cd__ln" style="--d:1"><span class="cht-cd__t"><span class="k">保留天数</span>：<span class="n">90</span> <span class="v">天</span></span></span>
+</code></pre>
+      <button class="cht-cd__more" data-more aria-expanded="false" aria-controls="cht-cd-pre">展开全部 13 行</button>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-CHAT-025" data-name="文件树结构卡" data-cat="CHAT">
+  <div class="demo__head"><span class="demo__name">文件树结构卡</span></div>
+  <p class="demo__note">适合：展示智能体生成的目录与文件树</p>
+  <div class="demo__stage">
+    <div class="card cht-card cht-ft">
+      <div class="cht-bar"><p class="card__title">生成的文件</p><div class="btn-group"><button class="btn btn--text btn--sm" data-all="open">全部展开</button><button class="btn btn--text btn--sm" data-all="close">全部收起</button></div></div>
+      <ul class="cht-ft__tree" role="tree" aria-label="生成的文件">
+        <li role="none">
+          <div class="cht-ft__row" role="treeitem" aria-level="1" aria-expanded="true" tabindex="0" style="--d:1"><span class="chev" aria-hidden="true"></span><img src="../../kit/assets/line/folder.webp" alt=""><span class="cht-ft__name one-line">对账结果</span></div>
+          <ul role="group">
+            <li role="none">
+              <div class="cht-ft__row" role="treeitem" aria-level="2" aria-expanded="true" tabindex="-1" style="--d:2"><span class="chev" aria-hidden="true"></span><img src="../../kit/assets/line/folder.webp" alt=""><span class="cht-ft__name one-line">门店明细</span></div>
+              <ul role="group">
+                <li role="none"><div class="cht-ft__row" role="treeitem" aria-level="3" aria-selected="false" tabindex="-1" style="--d:3"><span class="cht-ft__sp" aria-hidden="true"></span><img src="../../kit/assets/solid/solid-tasks.webp" alt=""><span class="cht-ft__name one-line">建国路店对账表</span><span class="tag" data-tone="success">新增</span></div></li>
+                <li role="none"><div class="cht-ft__row" role="treeitem" aria-level="3" aria-selected="false" tabindex="-1" style="--d:3"><span class="cht-ft__sp" aria-hidden="true"></span><img src="../../kit/assets/solid/solid-tasks.webp" alt=""><span class="cht-ft__name one-line">徐汇滨江店对账表</span><span class="tag" data-tone="success">新增</span></div></li>
+                <li role="none"><div class="cht-ft__row" role="treeitem" aria-level="3" aria-selected="false" tabindex="-1" style="--d:3"><span class="cht-ft__sp" aria-hidden="true"></span><img src="../../kit/assets/solid/solid-tasks.webp" alt=""><span class="cht-ft__name one-line">浦东世纪店对账表</span><span class="tag" data-tone="success">新增</span></div></li>
+              </ul>
+            </li>
+            <li role="none"><div class="cht-ft__row" role="treeitem" aria-level="2" aria-selected="false" tabindex="-1" style="--d:2"><span class="cht-ft__sp" aria-hidden="true"></span><img src="../../kit/assets/solid/biz-review.webp" alt=""><span class="cht-ft__name one-line">差异汇总</span><span class="tag" data-tone="success">新增</span></div></li>
+            <li role="none"><div class="cht-ft__row" role="treeitem" aria-level="2" aria-selected="false" tabindex="-1" style="--d:2"><span class="cht-ft__sp" aria-hidden="true"></span><img src="../../kit/assets/solid/bill.webp" alt=""><span class="cht-ft__name one-line">重复扣款清单</span><span class="tag" data-tone="warning">修改</span></div></li>
+          </ul>
+        </li>
+        <li role="none">
+          <div class="cht-ft__row" role="treeitem" aria-level="1" aria-expanded="false" tabindex="-1" style="--d:1"><span class="chev" aria-hidden="true"></span><img src="../../kit/assets/line/folder.webp" alt=""><span class="cht-ft__name one-line">处理记录</span></div>
+          <ul role="group" hidden>
+            <li role="none"><div class="cht-ft__row" role="treeitem" aria-level="2" aria-selected="false" tabindex="-1" style="--d:2"><span class="cht-ft__sp" aria-hidden="true"></span><img src="../../kit/assets/solid/biz-notes.webp" alt=""><span class="cht-ft__name one-line">退款处理日志</span></div></li>
+            <li role="none"><div class="cht-ft__row" role="treeitem" aria-level="2" aria-selected="false" tabindex="-1" style="--d:2"><span class="cht-ft__sp" aria-hidden="true"></span><img src="../../kit/assets/solid/biz-notes.webp" alt=""><span class="cht-ft__name one-line">门店通知记录</span></div></li>
+          </ul>
+        </li>
+      </ul>
+      <div class="cht-ft__foot"><div class="cht-ft__sel" data-sel aria-live="polite"><p class="row__title one-line" data-name>未选择文件</p><p class="row__meta one-line" data-path hidden></p></div><button class="btn btn--secondary btn--sm" data-openfile disabled>打开</button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-CHAT-026" data-name="对话检查点" data-cat="CHAT">
+  <div class="demo__head"><span class="demo__name">对话检查点</span></div>
+  <p class="demo__note">适合：对话中标记可回退的节点，恢复后丢弃其后消息</p>
+  <div class="demo__stage">
+    <div class="cht-wrap cht-cp">
+      <div class="chat cht-chat" data-flow>
+        <div class="msg msg--user"><div class="bubble"><p>核对上周三家门店的对账差异</p></div></div>
+        <article class="msg"><img class="msg__avatar" src="../../kit/assets/marks/mark-007.webp" alt=""><div class="msg__body"><p class="bubble">已比对 128 笔订单，发现 3 笔差异。</p></div></article>
+        <div class="cht-cp__mark" data-n="1"><span class="tag" data-tone="info">检查点 1</span><button class="btn btn--text btn--sm" data-restore>恢复到此处</button><span class="cht-cp__cur">当前位置</span></div>
+        <div class="msg msg--user"><div class="bubble"><p>导出对账结果</p></div></div>
+        <article class="msg"><img class="msg__avatar" src="../../kit/assets/marks/mark-007.webp" alt=""><div class="msg__body"><p class="bubble">对账结果已生成，共 3 笔差异。</p></div></article>
+        <div class="cht-cp__mark" data-n="2"><span class="tag" data-tone="info">检查点 2</span><button class="btn btn--text btn--sm" data-restore>恢复到此处</button><span class="cht-cp__cur">当前位置</span></div>
+        <div class="msg msg--user"><div class="bubble"><p>通知三家门店核对</p></div></div>
+      </div>
+      <div class="cht-cp__note" data-note role="status" hidden><span data-text></span><button class="btn btn--text btn--sm" data-undo>撤销</button></div>
+      <div class="cht-bar cht-bar--end"><button class="btn btn--secondary btn--sm" data-mark>标记检查点</button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-CHAT-027" data-name="模型选择条" data-cat="CHAT">
+  <div class="demo__head"><span class="demo__name">模型选择条</span></div>
+  <p class="demo__note">适合：输入框内选择运行的模型与思考强度</p>
+  <div class="demo__stage">
+    <div class="cht-wrap cht-prompt">
+      <form class="prompt cht-md" data-form>
+        <textarea rows="1" placeholder="输入消息" aria-label="输入消息" enterkeyhint="send"></textarea>
+        <div class="cht-md__foot">
+          <div class="cht-md__bar">
+            <button type="button" class="drop__btn" data-pick="model" aria-haspopup="listbox" aria-expanded="false" aria-controls="cht-md-p">模型 <b>花间二号</b></button>
+            <button type="button" class="drop__btn" data-pick="effort" aria-haspopup="listbox" aria-expanded="false" aria-controls="cht-md-p">思考 <b>中</b></button>
+            <span class="prompt__sp"></span>
+            <button type="submit" class="btn btn--primary" data-send disabled>发送</button>
+          </div>
+          <div class="expand" id="cht-md-p"><div>
+            <div class="cht-md__menu" role="listbox" aria-label="选择模型" data-menu="model">
+              <button type="button" class="cht-md__opt" role="option" aria-selected="false" data-i="0"><span class="cht-md__name">花间轻量</span><span class="cht-md__meta">速度快</span><img src="../../kit/assets/line/check.webp" alt=""></button>
+              <button type="button" class="cht-md__opt" role="option" aria-selected="false" data-i="1"><span class="cht-md__name">花间一号</span><span class="cht-md__meta">均衡</span><img src="../../kit/assets/line/check.webp" alt=""></button>
+              <button type="button" class="cht-md__opt" role="option" aria-selected="true" data-i="2"><span class="cht-md__name">花间二号</span><span class="cht-md__meta">推理强</span><img src="../../kit/assets/line/check.webp" alt=""></button>
+            </div>
+            <div class="cht-md__menu cht-md__menu--row" role="listbox" aria-label="选择思考强度" data-menu="effort" hidden>
+              <button type="button" class="cht-md__eff" role="option" aria-selected="false" data-i="0">关闭</button>
+              <button type="button" class="cht-md__eff" role="option" aria-selected="false" data-i="1">低</button>
+              <button type="button" class="cht-md__eff" role="option" aria-selected="true" data-i="2">中</button>
+              <button type="button" class="cht-md__eff" role="option" aria-selected="false" data-i="3">高</button>
+            </div>
+          </div></div>
+        </div>
+      </form>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-CHAT-028" data-name="子智能体卡片" data-cat="CHAT">
+  <div class="demo__head"><span class="demo__name">子智能体卡片</span></div>
+  <p class="demo__note">适合：展示委派给子智能体的任务与结果</p>
+  <div class="demo__stage">
+    <div class="card cht-card cht-sa" data-state="done">
+      <div class="cht-sa__head">
+        <img class="avatar avatar--mark" src="../../kit/assets/marks/mark-021.webp" alt="">
+        <div class="cht-sa__who"><p class="row__title one-line">对账子智能体</p><p class="row__meta one-line">核对三家门店对账差异</p></div>
+        <span class="tag" data-tone="success" data-tag>已完成</span>
+      </div>
+      <div class="cht-sa__main">
+        <div class="cht-sa__prog" data-prog hidden><div class="progress" role="img" aria-label="子任务进度"><i style="--v:10%"></i></div><p class="cht-sa__now" data-now>读取三家门店对账单</p></div>
+        <p class="cht-sa__res" data-res>发现 3 笔金额不一致，差额合计 286.50 元，其中 2 笔为重复扣款。</p>
+        <div class="expand" id="cht-sa-1"><div>
+          <ul class="think__steps cht-sa__steps" aria-label="执行过程">
+            <li data-state="done"><span>读取三家门店对账单</span></li>
+            <li data-state="done"><span>逐笔比对订单金额</span></li>
+            <li data-state="done"><span>汇总差异并生成结果</span></li>
+          </ul>
+        </div></div>
+      </div>
+      <div class="cht-bar"><span class="cht-sa__meta" data-meta>用时 8 秒</span><div class="btn-group"><button class="btn btn--text btn--sm" data-expand="cht-sa-1">查看过程<span class="chev" aria-hidden="true"></span></button><button class="btn btn--secondary btn--sm" data-act>重新委派</button></div></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-CHAT-029" data-name="回到最新消息钮" data-cat="CHAT">
+  <div class="demo__head"><span class="demo__name">回到最新消息钮</span></div>
+  <p class="demo__note">适合：长对话向上翻阅时一键回到最新回复</p>
+  <div class="demo__stage">
+    <div class="cht-wrap cht-bt">
+      <div class="cht-bt__box">
+        <div class="cht-bt__view" tabindex="0" role="log" aria-label="对话记录">
+          <div class="chat cht-chat">
+            <div class="msg msg--user"><div class="bubble"><p>核对上周三家门店的对账差异</p></div></div>
+            <article class="msg"><img class="msg__avatar" src="../../kit/assets/marks/mark-007.webp" alt=""><div class="msg__body"><p class="bubble">已比对 128 笔订单，发现 3 笔差异。</p></div></article>
+            <div class="msg msg--user"><div class="bubble"><p>差异在哪几家门店</p></div></div>
+            <article class="msg"><img class="msg__avatar" src="../../kit/assets/marks/mark-007.webp" alt=""><div class="msg__body"><p class="bubble">建国路店 2 笔，浦东世纪店 1 笔。</p></div></article>
+            <div class="msg msg--user"><div class="bubble"><p>导出对账结果</p></div></div>
+            <article class="msg"><img class="msg__avatar" src="../../kit/assets/marks/mark-007.webp" alt=""><div class="msg__body"><p class="bubble">对账结果已生成，共 3 笔差异。</p></div></article>
+            <div class="msg msg--user"><div class="bubble"><p>汇总本周退款金额</p></div></div>
+            <article class="msg"><img class="msg__avatar" src="../../kit/assets/marks/mark-007.webp" alt=""><div class="msg__body"><p class="bubble">本周共 14 笔退款，合计 1,862.00 元。</p></div></article>
+            <div class="msg msg--user"><div class="bubble"><p>查看库存低于安全线的商品</p></div></div>
+            <article class="msg"><img class="msg__avatar" src="../../kit/assets/marks/mark-007.webp" alt=""><div class="msg__body"><p class="bubble">6 个商品低于安全线，其中 2 个已断货。</p></div></article>
+            <div class="msg msg--user"><div class="bubble"><p>通知门店核对重复扣款</p></div></div>
+            <article class="msg"><img class="msg__avatar" src="../../kit/assets/marks/mark-007.webp" alt=""><div class="msg__body"><p class="bubble">已通知 3 家门店，等待回复。</p></div></article>
+          </div>
+        </div>
+        <button class="cht-bt__jump" data-jump hidden><span class="cht-bt__arr" aria-hidden="true"></span>回到最新<span class="tag" data-tone="action" data-n hidden></span></button>
+      </div>
+      <div class="cht-bar cht-bar--end"><button class="btn btn--secondary btn--sm" data-reply>收到新回复</button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-CHAT-030" data-name="系统通知条" data-cat="CHAT">
+  <div class="demo__head"><span class="demo__name">系统通知条</span></div>
+  <p class="demo__note">适合：对话中的系统级提示，如额度与连接状态</p>
+  <div class="demo__stage">
+    <div class="cht-wrap">
+      <div class="cht-nts" data-list role="region" aria-label="系统通知">
+        <div class="cht-nt" data-tone="warning" data-kind="quota" role="status"><span class="cht-nt__dot" aria-hidden="true"></span><div class="cht-nt__t"><p class="row__title one-line" data-t>额度已用 92%</p><p class="row__meta one-line" data-m>剩余 8 次调用</p></div><button class="btn btn--white btn--sm" data-do>申请额度</button><button class="ibtn" data-close data-tip="关闭通知" aria-label="关闭通知"><img src="../../kit/assets/line/close.webp" alt=""></button></div>
+        <div class="cht-nt" data-tone="danger" data-kind="conn" role="status"><span class="cht-nt__dot" aria-hidden="true"></span><div class="cht-nt__t"><p class="row__title one-line" data-t>连接已断开</p><p class="row__meta one-line" data-m>回答暂时无法送达</p></div><button class="btn btn--white btn--sm" data-do>重连</button><button class="ibtn" data-close data-tip="关闭通知" aria-label="关闭通知"><img src="../../kit/assets/line/close.webp" alt=""></button></div>
+        <div class="cht-nt" data-tone="info" data-kind="model" role="status"><span class="cht-nt__dot" aria-hidden="true"></span><div class="cht-nt__t"><p class="row__title one-line" data-t>已切换到花间一号</p><p class="row__meta one-line" data-m>后续回答使用新模型</p></div><button class="ibtn" data-close data-tip="关闭通知" aria-label="关闭通知"><img src="../../kit/assets/line/close.webp" alt=""></button></div>
+      </div>
+      <p class="cht-note" data-empty hidden>暂无系统通知</p>
+      <div class="cht-bar cht-bar--end"><button class="btn btn--secondary btn--sm" data-reset>重置通知</button></div>
+    </div>
+  </div>
+</article>
+
+
+<script>
+(function () {
+  const { $, $$ } = Lz;
+  const D = cid => document.querySelector(`[data-cid="${cid}"]`);
+  const sleep = ms => new Promise(r => setTimeout(r, Lz.reduce ? 0 : ms));
+  const el = html => { const t = document.createElement('template'); t.innerHTML = html.trim(); return t.content.firstElementChild; };
+  const AVATAR = '../../kit/assets/marks/mark-007.webp';
+  const copy = async text => { try { await navigator.clipboard.writeText(text); Lz.toast('已复制', 'success'); } catch (e) { Lz.toast('复制失败', 'danger'); } };
+  const userBubble = text => { const m = el('<div class="msg msg--user cht-in"><div class="bubble"><p></p></div></div>'); $('p', m).textContent = text; return m; };
+  const agentBubble = () => el(`<article class="msg cht-in"><img class="msg__avatar" src="${AVATAR}" alt=""><div class="msg__body"><p class="bubble"></p></div></article>`);
+  const setOpen = (btn, open) => { const p = document.getElementById(btn.getAttribute('aria-controls')); p.dataset.open = String(open); p.inert = !open; btn.setAttribute('aria-expanded', String(open)); };
+  const chipEl = (name, remove) => { const c = el('<span class="cht-chip"><span class="one-line"></span><button type="button" class="ibtn"><img src="../../kit/assets/line/close.webp" alt=""></button></span>'); $('.one-line', c).textContent = name; const x = $('.ibtn', c); x.setAttribute('aria-label', '移除附件 ' + name); x.dataset.tip = '移除附件'; x.addEventListener('click', () => remove(c)); return c; };
+
+  /* 001 用户气泡：复制，原位编辑，保存后原位更新 */
+  (() => {
+    const r = D('AP-CHAT-001'), bubble = $('[data-bubble]', r), p = $('p', bubble), box = $('[data-editbox]', r), ta = $('textarea', box), acts = $('[data-acts]', r);
+    const user = bubble.parentElement, close = () => { box.hidden = true; bubble.hidden = false; acts.hidden = false; user.removeAttribute('data-editing'); };
+    $('[data-copy]', r).addEventListener('click', () => copy(p.textContent));
+    $('[data-edit]', r).addEventListener('click', () => { ta.value = p.textContent; bubble.hidden = true; acts.hidden = true; box.hidden = false; user.setAttribute('data-editing', ''); ta.focus(); });
+    $('[data-cancel]', r).addEventListener('click', close);
+    $('[data-save]', r).addEventListener('click', () => { const v = ta.value.trim(); if (v) p.textContent = v; close(); Lz.toast('已修改', 'success'); });
+  })();
+
+  /* 002 智能体气泡：重新生成会重新流式输出 */
+  (() => {
+    const r = D('AP-CHAT-002'), b = $('[data-bubble]', r), text = b.textContent, regen = $('[data-regen]', r);
+    $('[data-copy]', r).addEventListener('click', () => copy(b.textContent));
+    regen.addEventListener('click', async () => { regen.disabled = true; b.textContent = ''; await Lz.stream(b, text, 40); regen.disabled = false; });
+  })();
+
+  /* 003 思考：逐步从进行中变为完成，结束后收起 */
+  (() => {
+    const r = D('AP-CHAT-003'), head = $('.think__head', r), label = $('[data-head]', r), steps = $$('.think__steps li', r), btn = $('[data-play]', r);
+    const dots = '<span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>';
+    btn.addEventListener('click', async () => {
+      btn.disabled = true; setOpen(head, true); label.innerHTML = dots + '<span> 思考中</span>'; steps.forEach(li => { li.dataset.state = ''; }); const t0 = performance.now();
+      for (const li of steps) { li.dataset.state = 'now'; await sleep(650); li.dataset.state = 'done'; }
+      label.textContent = '已思考 ' + Math.max(1, Math.round((performance.now() - t0) / 1000)) + ' 秒'; await sleep(500); setOpen(head, false); btn.disabled = false;
+    });
+  })();
+
+  /* 004 工具：点开看输入输出；继续运行推进状态 */
+  (() => {
+    const r = D('AP-CHAT-004'), tools = $$('.tool', r), NAMES = { done: '已完成', run: '进行中', fail: '失败', wait: '等待中' };
+    const label = b => b.setAttribute('aria-label', b.textContent + ' ' + NAMES[b.dataset.state]);
+    const set = (b, st, out) => { b.dataset.state = st; label(b); const o = $('[data-out]', document.getElementById(b.getAttribute('aria-controls'))); if (out) o.textContent = out; };
+    tools.forEach(b => { label(b); b.addEventListener('click', () => { const io = document.getElementById(b.getAttribute('aria-controls')), open = io.hidden; io.hidden = !open; b.setAttribute('aria-expanded', String(open)); }); });
+    const run = $('[data-run]', r);
+    run.addEventListener('click', async () => {
+      run.disabled = true;
+      if (tools[1].dataset.state === 'run') { await sleep(800); set(tools[1], 'done', '差额合计 286.50 元'); }
+      set(tools[2], 'run', '进行中'); await sleep(1000); set(tools[2], 'fail', '接口超时'); Lz.toast('导出文件失败', 'danger'); run.disabled = false;
+    });
+    $('[data-reset]', r).addEventListener('click', () => { set(tools[0], 'done'); set(tools[1], 'run', '进行中'); set(tools[2], 'wait', '等待中'); run.disabled = false; });
+  })();
+
+  /* 005 流式文字：播放与停止 */
+  (() => {
+    const r = D('AP-CHAT-005'), b = $('[data-bubble]', r), full = b.textContent, tag = $('[data-tag]', r), play = $('[data-play]', r), stop = $('[data-stop]', r); let job = null;
+    const state = (txt, tone) => { tag.textContent = txt; tag.dataset.tone = tone; };
+    play.addEventListener('click', async () => {
+      if (job) job.cancel(); b.textContent = ''; state('生成中', 'action'); play.disabled = true; stop.disabled = false;
+      const mine = job = Lz.stream(b, full, 28); await mine; if (job === mine) { state(stop.dataset.stopped ? '已停止' : '已完成', stop.dataset.stopped ? 'warning' : 'success'); delete stop.dataset.stopped; job = null; play.disabled = false; stop.disabled = true; }
+    });
+    stop.addEventListener('click', () => { if (job) { stop.dataset.stopped = '1'; job.cancel(); } });
+  })();
+
+  /* 006 审批：选方案，批准或拒绝后原位出结果 */
+  (() => {
+    const r = D('AP-CHAT-006'), card = $('.approval', r), opts = $$('.opt', r);
+    opts.forEach(o => o.addEventListener('click', () => opts.forEach(x => { const on = x === o; x.setAttribute('aria-checked', String(on)); $('.check', x).setAttribute('aria-checked', String(on)); })));
+    $$('[data-act]', r).forEach(b => b.addEventListener('click', () => {
+      const ok = b.dataset.act === 'approve', pick = opts.find(o => o.getAttribute('aria-checked') === 'true'), tag = $('[data-tag]', r);
+      tag.textContent = ok ? '已批准' : '已拒绝'; tag.dataset.tone = ok ? 'success' : 'danger'; $('[data-res]', r).textContent = ok ? pick.textContent : ''; card.dataset.state = 'done'; Lz.toast(ok ? '已批准' : '已拒绝', ok ? 'success' : 'neutral');
+    }));
+    $('[data-reset]', r).addEventListener('click', () => { card.removeAttribute('data-state'); });
+  })();
+
+  /* 007 任务行：点一行在三种状态间轮换 */
+  (() => {
+    const S = [['待处理', ''], ['进行中', 'action'], ['已完成', 'success']];
+    $$('.cht-task', D('AP-CHAT-007')).forEach(row => row.addEventListener('click', () => { const i = (+row.dataset.s + 1) % 3, t = $('.tag', row); row.dataset.s = i; t.textContent = S[i][0]; if (S[i][1]) t.dataset.tone = S[i][1]; else t.removeAttribute('data-tone'); }));
+  })();
+
+  /* 008 产物：展开后按钮文字跟着变 */
+  (() => { const b = $('[data-expand]', D('AP-CHAT-008')); b.addEventListener('click', () => setTimeout(() => { b.textContent = b.getAttribute('aria-expanded') === 'true' ? '收起' : '打开'; }, 0)); })();
+
+  /* 009 引用：点角标在气泡下方就近显示出处，再点收起 */
+  (() => {
+    const r = D('AP-CHAT-009'), cites = $$('.cite', r), box = $('.cht-src', r), SRC = [['对账单', '第 3 页 三家门店汇总'], ['订单明细', '第 12 行 重复扣款两笔']];
+    cites.forEach(c => c.addEventListener('click', () => {
+      const on = c.getAttribute('aria-pressed') !== 'true'; cites.forEach(x => x.setAttribute('aria-pressed', 'false'));
+      if (on) { c.setAttribute('aria-pressed', 'true'); const s = SRC[+c.dataset.i]; $('[data-name]', box).textContent = s[0]; $('[data-where]', box).textContent = s[1]; }
+      box.hidden = !on;
+    }));
+  })();
+
+  /* 010 输入栏：自动增高，空内容不可发，回车发送；附件与语音 */
+  (() => {
+    const r = D('AP-CHAT-010'), form = $('[data-form]', r), ta = $('textarea', r), send = $('[data-send]', r), log = $('[data-log]', r), files = $('[data-files]', r), mic = $('[data-mic]', r), dots = $('[data-dots]', r); let n = 0, timer;
+    const sync = () => { send.disabled = ta.value.trim() === '' && files.children.length === 0; };
+    const submit = () => { const t = ta.value.trim(); if (!t && !files.children.length) return; log.append(userBubble(t || '已发送附件')); while (log.children.length > 2) log.firstElementChild.remove(); ta.value = ''; ta.style.height = ''; files.replaceChildren(); files.hidden = true; sync(); };
+    ta.addEventListener('input', () => { ta.style.height = 'auto'; ta.style.height = Math.min(ta.scrollHeight, 160) + 'px'; sync(); });
+    ta.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing && e.keyCode !== 229) { e.preventDefault(); submit(); } });
+    form.addEventListener('submit', e => { e.preventDefault(); submit(); });
+    $('[data-attach]', r).addEventListener('click', () => { files.hidden = false; files.append(chipEl(['对账单表格', '退款明细文档', '库存数据表'][n++ % 3], c => { c.remove(); files.hidden = !files.children.length; sync(); })); sync(); });
+    mic.addEventListener('click', () => { const on = mic.getAttribute('aria-pressed') !== 'true'; mic.setAttribute('aria-pressed', String(on)); dots.hidden = !on; clearTimeout(timer); if (on) timer = setTimeout(() => { mic.setAttribute('aria-pressed', 'false'); dots.hidden = true; ta.value = (ta.value ? ta.value + ' ' : '') + '汇总本周退款金额'; ta.dispatchEvent(new Event('input')); ta.focus(); }, Lz.reduce ? 0 : 1600); });
+    sync();
+  })();
+
+  /* 011 建议问法：点一条，问法进入气泡 */
+  (() => {
+    const r = D('AP-CHAT-011'), log = $('[data-log]', r), bs = $$('.suggest button', r);
+    bs.forEach(b => b.addEventListener('click', () => { bs.forEach(x => x.setAttribute('aria-pressed', String(x === b))); log.replaceChildren(userBubble(b.dataset.q)); }));
+    const strip = $('.suggest', r), edge = () => strip.toggleAttribute('data-end', strip.scrollLeft + strip.clientWidth >= strip.scrollWidth - 2);
+    strip.addEventListener('scroll', edge, { passive: true }); window.addEventListener('resize', edge); edge();
+  })();
+
+  /* 012 排队：追加与清空，序号跟着变 */
+  (() => {
+    const r = D('AP-CHAT-012'), list = $('[data-list]', r), tag = $('[data-tag]', r), POOL = ['导出对账结果', '核对库存缺口', '汇总门店销量', '查看退款进度'];
+    const paint = () => { const rows = $$('.cht-q__row', list); rows.forEach((row, i) => { $('.tag', row).textContent = `第 ${i + 1} 位`; }); tag.textContent = rows.length ? `排队 ${rows.length} 条` : '队列为空'; tag.dataset.tone = rows.length ? 'warning' : ''; if (!rows.length) tag.removeAttribute('data-tone'); };
+    $('[data-add]', r).addEventListener('click', () => { if (list.children.length >= 5) { Lz.toast('最多排队 5 条'); return; } const row = el('<div class="cht-q__row cht-in"><span class="one-line"></span><span class="tag"></span></div>'); $('.one-line', row).textContent = POOL[list.children.length % POOL.length]; list.append(row); paint(); });
+    $('[data-clear]', r).addEventListener('click', () => { list.replaceChildren(); paint(); Lz.toast('已清空排队'); });
+  })();
+
+  /* 013 空会话：点问法进入对话，新会话回到空态 */
+  (() => {
+    const r = D('AP-CHAT-013'), empty = $('[data-empty]', r), chat = $('[data-chat]', r), reset = $('[data-reset]', r);
+    $$('.suggest button', r).forEach(b => b.addEventListener('click', async () => {
+      empty.hidden = true; chat.hidden = false; reset.hidden = false; chat.replaceChildren(userBubble(b.dataset.q)); const a = agentBubble(); chat.append(a); await Lz.stream($('.bubble', a), '好的，已开始处理。', 40);
+    }));
+    $('.btn', reset).addEventListener('click', () => { empty.hidden = false; chat.hidden = true; reset.hidden = true; chat.replaceChildren(); });
+  })();
+
+  /* 014 失败重试：继续把中断的回答生成完 */
+  (() => {
+    const r = D('AP-CHAT-014'), b = $('[data-bubble]', r), fail = $('[data-fail]', r), btn = $('[data-retry]', r), rest = '，另 2 笔金额待确认。';
+    btn.addEventListener('click', async () => { btn.classList.add('is-loading'); await sleep(900); btn.classList.remove('is-loading'); fail.hidden = true; await Lz.stream(b, rest, 30); Lz.toast('已重新生成', 'success'); });
+  })();
+
+  /* 015 历史会话：点选或回车切换当前会话 */
+  (() => {
+    const rows = $$('.row', D('AP-CHAT-015'));
+    const pick = row => { rows.forEach(x => { const on = x === row; on ? x.setAttribute('aria-current', 'true') : x.removeAttribute('aria-current'); x.setAttribute('aria-selected', String(on)); }); };
+    rows.forEach(row => { row.addEventListener('click', () => pick(row)); row.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(row); } }); });
+  })();
+
+  /* 016 上下文用量：追加对话占用上升，接近上限转警告，压缩后回落 */
+  (() => {
+    const r = D('AP-CHAT-016'), segs = $$('.cht-ctx i', r), vals = $$('[data-v]', r), total = $('[data-total]', r), tag = $('[data-tag]', r), bar = $('.cht-ctx', r), add = $('[data-add]', r); let v = [38, 16, 8];
+    const paint = () => {
+      const sum = v.reduce((a, n) => a + n, 0); segs.forEach((s, i) => s.style.setProperty('--w', v[i] + '%')); vals.forEach((e, i) => { e.textContent = v[i] + '%'; }); total.textContent = sum + '%'; bar.setAttribute('aria-label', `上下文用量 ${sum}%`);
+      const st = sum >= 90 ? ['接近上限', 'danger'] : sum >= 75 ? ['建议压缩', 'warning'] : ['空间充足', 'success']; tag.textContent = st[0]; tag.dataset.tone = st[1]; add.disabled = sum >= 98;
+    };
+    add.addEventListener('click', () => { v[0] = Math.min(v[0] + 12, 98 - v[1] - v[2]); paint(); });
+    $('[data-zip]', r).addEventListener('click', () => { v = [12, 10, 4]; paint(); Lz.toast('已压缩上下文', 'success'); });
+  })();
+
+  /* 017 停止钮：发送后变停止，点停止或自然结束后复原 */
+  (() => {
+    const r = D('AP-CHAT-017'), form = $('[data-form]', r), ta = $('textarea', form), btn = $('.cht-stop', r), reply = $('[data-reply]', r), ask = $('[data-ask]', reply), bubble = $('.msg:not(.msg--user) .bubble', reply), run = $('[data-run]', r), tag = $('[data-tag]', r), TEXT = '本周共 14 笔退款申请，12 笔与支付流水一致，另 2 笔金额待确认，已记入待办。'; let job = null, stopped = false;
+    async function start() {
+      stopped = false; ask.textContent = ta.value.trim() || '汇总本周退款金额'; ta.value = ''; reply.hidden = false; bubble.textContent = ''; tag.hidden = true; run.setAttribute('data-on', ''); btn.dataset.mode = 'stop'; btn.textContent = '停止'; btn.classList.remove('btn--primary');
+      const mine = job = Lz.stream(bubble, TEXT, 16); await mine;
+      run.removeAttribute('data-on'); btn.dataset.mode = 'send'; btn.textContent = '发送'; btn.classList.add('btn--primary'); tag.hidden = false; tag.textContent = stopped ? '已停止' : '已完成'; tag.dataset.tone = stopped ? 'warning' : 'success'; job = null;
+    }
+    form.addEventListener('submit', e => { e.preventDefault(); if (job) { stopped = true; job.cancel(); } else start(); });
+    ta.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing && e.keyCode !== 229) { e.preventDefault(); if (!job) start(); } });
+  })();
+
+  /* 018 对话骨架：载入后骨架让位给真实消息 */
+  (() => {
+    const r = D('AP-CHAT-018'), skel = $('[data-skel]', r), real = $('[data-real]', r), btn = $('[data-toggle]', r); let loaded = false;
+    btn.addEventListener('click', async () => {
+      if (loaded) { loaded = false; real.hidden = true; skel.hidden = false; btn.textContent = '载入消息'; return; }
+      btn.disabled = true; await sleep(900); skel.hidden = true; real.hidden = false; loaded = true; btn.disabled = false; btn.textContent = '重新加载';
+    });
+  })();
+
+  /* 019 附件：添加与逐个移除，空时给空状态 */
+  (() => {
+    const r = D('AP-CHAT-019'), box = $('[data-files]', r), empty = $('[data-empty]', r), NAMES = ['对账单表格', '退款明细文档', '库存数据表', '门店照片']; let n = 0;
+    const paint = () => { empty.hidden = box.children.length > 0; };
+    const add = () => box.append(chipEl(NAMES[n++ % NAMES.length], c => { c.remove(); paint(); }));
+    add(); add(); paint();
+    $('[data-add]', r).addEventListener('click', () => { if (box.children.length >= 4) { Lz.toast('最多添加 4 个附件'); return; } add(); paint(); });
+  })();
+})();
+</script>
+
+<style>
+  /* 新增组件的专属样式：前缀 cht-，每个组件一个子前缀 */
+
+  /* 020 消息操作条 */
+  .cht-ac-wrap { margin-left: calc(var(--s-2) * -1); }
+  .cht-ac { display: flex; align-items: center; gap: 2px; }
+  .cht-ac__sep { flex: none; width: 1px; height: 16px; margin: 0 var(--s-1); background: var(--line-strong); }
+  .cht-ac__btn { display: inline-flex; align-items: center; justify-content: center; min-height: 32px; padding: 0 var(--s-2); border-radius: var(--r-sm); font-size: var(--fs-sm); line-height: 1; white-space: nowrap; color: var(--ink-3); transition: background var(--dur-quick) var(--ease-out), color var(--dur-quick) var(--ease-out); }
+  .cht-ac__btn[data-cp] { min-width: 58px; }
+  @media (hover: hover) { .cht-ac__btn:hover { background: var(--zone); color: var(--action-press); } }
+  .cht-ac__btn[aria-pressed="true"] { background: var(--action-soft); color: var(--action-press); font-weight: 600; }
+  .cht-ac__btn[data-done] { color: var(--success); font-weight: 600; }
+  .cht-ac__btn:disabled { opacity: .45; pointer-events: none; }
+  .cht-ac__why { display: flex; gap: var(--s-2); padding: var(--s-2) var(--s-2) 2px; }
+  .cht-ac__why button { flex: none; min-height: 32px; padding: 0 var(--s-3); border: 1px solid var(--line); border-radius: var(--r-full); background: var(--surface); font-size: var(--fs-sm); color: var(--ink-2); white-space: nowrap; transition: background var(--dur-quick) var(--ease-out), color var(--dur-quick) var(--ease-out); }
+  @media (hover: hover) { .cht-ac__why button:hover { background: var(--zone); } }
+  .cht-ac__why button[aria-pressed="true"] { background: var(--action-tint); color: var(--action-press); border-color: var(--action-edge); font-weight: 600; }
+
+  /* 021 来源引用列表 */
+  .cht-ref-wrap .cite { background: var(--action-edge); cursor: pointer; transition: background var(--dur-quick) var(--ease-out), color var(--dur-quick) var(--ease-out); }
+  .cht-ref-wrap .cite[aria-pressed="true"] { background: var(--action); color: var(--surface); }
+  .cht-ref { border-radius: var(--r-md); background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); overflow: hidden; }
+  .cht-ref__head { display: flex; align-items: center; gap: var(--s-2); width: 100%; min-height: 44px; padding: 0 var(--s-3); font-size: var(--fs-sm); font-weight: 600; color: var(--ink-2); text-align: left; transition: background var(--dur-quick) var(--ease-out); }
+  @media (hover: hover) { .cht-ref__head:hover, .cht-ref__row:hover { background: var(--zone); } }
+  .cht-ref__head .chev { margin-left: auto; }
+  .cht-ref__stack { display: flex; }
+  .cht-ref__stack img { width: 24px; height: 24px; padding: 3px; margin-left: -8px; border-radius: 50%; object-fit: contain; background: var(--surface); box-shadow: 0 0 0 2px var(--surface), inset 0 0 0 1px var(--line); }
+  .cht-ref__stack img:first-child { margin-left: 0; }
+  .cht-ref__list { border-top: 1px solid var(--line); }
+  .cht-ref__list li + li { border-top: 1px solid var(--line); }
+  .cht-ref__row { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; column-gap: var(--s-3); width: 100%; min-height: 52px; padding: var(--s-2) var(--s-3); text-align: left; transition: background var(--dur-quick) var(--ease-out); }
+  .cht-ref__row .cite { margin: 0; vertical-align: baseline; }
+  .cht-ref__row[aria-current="true"] { background: var(--action-tint); }
+  .cht-ref__row[aria-current="true"] .cite { background: var(--action); color: var(--surface); }
+  .cht-ref__main { display: grid; min-width: 0; }
+  .cht-ref__main .row__meta { margin-top: 2px; }
+  .cht-ref__quote { margin: 0 var(--s-3) var(--s-3); padding: var(--s-2) var(--s-3); border-radius: var(--r-sm); background: var(--zone); font-size: var(--fs-sm); line-height: var(--lh-body); color: var(--ink-2); animation: lz-fade var(--dur-base) var(--ease-out) both; }
+
+  /* 022 计划步骤卡 */
+  .cht-pl__sum { display: flex; align-items: center; gap: var(--s-3); }
+  .cht-pl__sum .progress { flex: 1; }
+  .cht-pl__cnt { flex: none; font-size: var(--fs-sm); font-weight: 600; color: var(--ink-2); }
+  .cht-pl__list { display: grid; }
+  .cht-pl__step { position: relative; display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; align-items: start; column-gap: var(--s-3); padding-bottom: var(--s-4); }
+  .cht-pl__step:last-child { padding-bottom: 0; }
+  .cht-pl__step::before { content: ""; position: absolute; left: 10px; top: 24px; bottom: 2px; border-left: 2px solid var(--line-strong); }
+  .cht-pl__step:last-child::before { display: none; }
+  .cht-pl__step[data-state="done"]::before { border-left-color: var(--success); }
+  .cht-pl__dot { display: grid; place-items: center; width: 22px; height: 22px; border: 2px solid var(--line-strong); border-radius: 50%; background: var(--surface); }
+  .cht-pl__dot img { grid-area: 1 / 1; width: 12px; height: 12px; filter: invert(1); opacity: 0; transition: opacity var(--dur-quick) var(--ease-out); }
+  .cht-pl__step[data-state="done"] .cht-pl__dot { background: var(--success); border-color: var(--success); }
+  .cht-pl__step[data-state="done"] .cht-pl__ok, .cht-pl__step[data-state="fail"] .cht-pl__no { opacity: 1; }
+  .cht-pl__step[data-state="now"] .cht-pl__dot { border-color: var(--action-edge); border-top-color: var(--action); animation: lz-spin .9s linear infinite; }
+  .cht-pl__step[data-state="fail"] .cht-pl__dot { background: var(--danger); border-color: var(--danger); }
+  .cht-pl__step[data-state="fail"]::before { border-left-color: var(--danger); }
+  .cht-pl__name { font-size: var(--fs-md); font-weight: 600; line-height: 22px; }
+  .cht-pl__step[data-state="wait"] .cht-pl__name { font-weight: 400; color: var(--ink-3); }
+  .cht-pl__meta { margin-top: 2px; font-size: var(--fs-sm); color: var(--ink-3); }
+  .cht-pl__step[data-state="fail"] .cht-pl__meta { color: var(--danger); }
+
+  /* 023 澄清问答卡 */
+  .cht-qa { gap: var(--s-4); }
+  .cht-qa__prog { display: flex; gap: var(--s-1); }
+  .cht-qa__prog i { flex: 1; height: 4px; border-radius: var(--r-full); background: var(--line-strong); transition: background var(--dur-base) var(--ease-out); }
+  .cht-qa__prog i[data-s="done"] { background: var(--action); }
+  .cht-qa__prog i[data-s="now"] { background: var(--action-edge); }
+  .cht-qa__prog i[data-s="skip"] { background: var(--ink-3); opacity: .45; }
+  .cht-qa__body { display: grid; gap: var(--s-4); }
+  .cht-qa__body section { display: grid; gap: var(--s-3); }
+  .cht-qa__pos { font-size: var(--fs-sm); color: var(--ink-3); }
+  .cht-qa .opt { width: 100%; cursor: pointer; font-size: var(--fs-md); }
+  @media (hover: hover) { .cht-qa .opt:not([aria-checked="true"]):hover { background: var(--zone); } }
+  .cht-qa .opt[role="checkbox"] .check { border-radius: 6px; }
+  .cht-qa .opt[aria-checked="true"] .check { background: var(--action); border-color: var(--action); }
+  .cht-qa .opt[aria-checked="true"] .check img { opacity: 1; transform: none; }
+  .cht-qa .textarea { min-height: 88px; }
+  .cht-qa__foot { display: flex; align-items: center; gap: var(--s-2); }
+  .cht-qa__sp { flex: 1; }
+  .cht-qa__done { display: grid; gap: var(--s-3); }
+  .cht-qa__list { display: grid; }
+  .cht-qa__list div { display: grid; grid-template-columns: 64px minmax(0, 1fr); align-items: baseline; column-gap: var(--s-3); padding: var(--s-2) 0; border-top: 1px solid var(--line); }
+  .cht-qa__list dt { font-size: var(--fs-sm); color: var(--ink-3); }
+  .cht-qa__list dd { font-size: var(--fs-md); font-weight: 600; overflow-wrap: anywhere; }
+  .cht-qa__list dd[data-skip] { font-weight: 400; color: var(--ink-3); }
+
+  /* 024 对话代码块 */
+  .cht-cd { border-radius: var(--r-md); background: var(--surface); box-shadow: inset 0 0 0 1px var(--line), var(--elev-1); overflow: hidden; }
+  .cht-cd__bar { display: flex; align-items: center; justify-content: space-between; gap: var(--s-2); min-height: 44px; padding: 0 var(--s-2) 0 var(--s-4); background: var(--zone); border-bottom: 1px solid var(--line); }
+  .cht-cd__name { font-size: var(--fs-sm); font-weight: 600; color: var(--ink-2); }
+  .cht-cd__bar .btn--text[data-done] { color: var(--success); }
+  .cht-cd__pre { margin: 0; overflow-x: auto; overflow-y: hidden; max-height: calc(22px * 8 + var(--s-3) + 4px); font-size: var(--fs-sm); line-height: 22px; white-space: normal; counter-reset: ln; scrollbar-width: thin; transition: max-height var(--dur-slow) var(--ease-out); }
+  .cht-cd__pre[data-open="true"] { max-height: calc(22px * var(--n, 13) + var(--s-6)); }
+  .cht-cd__pre code { display: block; width: max-content; min-width: 100%; padding: var(--s-3) 0; font: inherit; }
+  .cht-cd__ln { display: block; white-space: pre; counter-increment: ln; }
+  .cht-cd__ln::before { content: counter(ln); position: sticky; left: 0; display: inline-block; width: 40px; margin-right: var(--s-3); padding-right: var(--s-3); text-align: right; font-variant-numeric: tabular-nums; color: var(--ink-3); background: var(--surface); }
+  .cht-cd__t { padding: 0 var(--s-4) 0 calc(var(--d, 0) * 1.4em); }
+  .cht-cd__t .k { font-weight: 600; color: var(--action-press); }
+  .cht-cd__t .n { color: var(--info); }
+  .cht-cd__t .d { color: var(--ink-3); }
+  .cht-cd__more { display: block; width: 100%; min-height: 40px; border-top: 1px solid var(--line); font-size: var(--fs-sm); font-weight: 600; color: var(--action-press); transition: background var(--dur-quick) var(--ease-out); }
+  @media (hover: hover) { .cht-cd__more:hover { background: var(--zone); } }
+
+  /* 025 文件树结构卡 */
+  .cht-ft__tree, .cht-ft__tree ul { display: grid; gap: 2px; }
+  .cht-ft__tree ul[role="group"] { animation: lz-fade var(--dur-base) var(--ease-out) both; }
+  .cht-ft__row { display: flex; align-items: center; gap: var(--s-2); min-height: 40px; padding: 0 var(--s-2) 0 calc(var(--s-2) + (var(--d, 1) - 1) * 20px); border-radius: var(--r-sm); font-size: var(--fs-md); cursor: pointer; transition: background var(--dur-quick) var(--ease-out); }
+  @media (hover: hover) { .cht-ft__row:hover { background: var(--zone); } }
+  .cht-ft__row img { flex: none; width: 20px; height: 20px; object-fit: contain; }
+  .cht-ft__row .chev, .cht-ft__sp { flex: none; width: 9px; }
+  .cht-ft__name { flex: 1; min-width: 0; }
+  .cht-ft__row[aria-expanded] .cht-ft__name { font-weight: 600; }
+  .cht-ft__row[aria-selected="true"] { background: var(--action-tint); box-shadow: inset 0 0 0 1px var(--action-edge); }
+  .cht-ft__row[aria-selected="true"] .cht-ft__name { font-weight: 600; color: var(--action-press); }
+  .cht-ft__foot { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); min-height: 44px; padding-top: var(--s-3); border-top: 1px solid var(--line); }
+  .cht-ft__sel { min-width: 0; }
+  .cht-ft__sel .row__title[data-name]:not([data-picked]) { font-weight: 400; color: var(--ink-3); }
+
+  /* 026 对话检查点 */
+  .cht-cp__mark { display: flex; align-items: center; gap: var(--s-2); min-height: 32px; }
+  .cht-cp__mark::before, .cht-cp__mark::after { content: ""; flex: 1; border-top: 1px dashed var(--line-strong); }
+  .cht-cp__mark .tag { flex: none; }
+  .cht-cp__cur { display: none; font-size: var(--fs-sm); font-weight: 600; color: var(--action-press); white-space: nowrap; }
+  .cht-cp__mark[data-cur] .cht-cp__cur { display: inline; }
+  .cht-cp__mark[data-cur] [data-restore] { display: none; }
+  .cht-cp__note { display: flex; align-items: center; justify-content: space-between; gap: var(--s-2); min-height: 44px; padding: 0 var(--s-2) 0 var(--s-3); border-radius: var(--r-md); background: var(--zone); font-size: var(--fs-sm); color: var(--ink-2); }
+
+  /* 027 模型选择条 */
+  .cht-md__foot { display: grid; }
+  .cht-md__bar { display: flex; align-items: center; gap: var(--s-2); }
+  .drop__btn[aria-expanded="true"]::after { transform: rotate(225deg) translateY(2px); }
+  .cht-md .drop__btn[aria-expanded="true"] { background: var(--action-soft); }
+  .cht-md .drop__btn { flex: none; white-space: nowrap; }
+  .cht-md .drop__btn[disabled] { opacity: .5; pointer-events: none; }
+  .cht-md__menu { display: grid; gap: 2px; margin-top: var(--s-2); padding-top: var(--s-2); border-top: 1px solid var(--line); animation: lz-fade var(--dur-base) var(--ease-out) both; }
+  .cht-md__menu--row { grid-auto-flow: column; grid-auto-columns: 1fr; gap: var(--s-2); }
+  .cht-md__opt { display: grid; grid-template-columns: minmax(0, 1fr) auto 18px; align-items: center; column-gap: var(--s-3); min-height: 44px; padding: 0 var(--s-3); border-radius: var(--r-md); text-align: left; transition: background var(--dur-quick) var(--ease-out); }
+  @media (hover: hover) { .cht-md__opt:hover, .cht-md__eff:hover { background: var(--zone); } }
+  .cht-md__name { font-size: var(--fs-md); font-weight: 600; }
+  .cht-md__meta { font-size: var(--fs-sm); color: var(--ink-3); }
+  .cht-md__opt img { width: 18px; height: 18px; opacity: 0; }
+  .cht-md__opt[aria-selected="true"], .cht-md__eff[aria-selected="true"] { background: var(--action-tint); }
+  .cht-md__opt[aria-selected="true"] img { opacity: 1; }
+  .cht-md__opt[aria-selected="true"] .cht-md__name, .cht-md__eff[aria-selected="true"] { color: var(--action-press); }
+  .cht-md__eff { min-height: 40px; border-radius: var(--r-md); background: var(--zone); font-size: var(--fs-sm); color: var(--ink-2); transition: background var(--dur-quick) var(--ease-out); }
+  .cht-md__eff[aria-selected="true"] { background: var(--action); color: var(--surface); font-weight: 600; }
+
+  /* 028 子智能体卡片 */
+  .cht-sa__head { display: flex; align-items: center; gap: var(--s-3); }
+  .cht-sa__who { flex: 1; min-width: 0; }
+  .cht-sa__main { display: grid; }
+  .cht-sa__res { padding: var(--s-3); border-radius: var(--r-md); background: var(--zone); font-size: var(--fs-sm); line-height: var(--lh-body); color: var(--ink-2); }
+  .cht-sa[data-state="fail"] .cht-sa__res { background: var(--danger-tint); color: color-mix(in srgb, var(--danger) 80%, black); }
+  .cht-sa__prog { display: grid; gap: var(--s-2); padding: var(--s-3); border-radius: var(--r-md); background: var(--zone); }
+  .cht-sa__prog .progress { background: var(--surface); }
+  .cht-sa__now { display: flex; align-items: center; gap: var(--s-2); font-size: var(--fs-sm); color: var(--ink-2); }
+  .cht-sa__now::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--action); animation: lz-blink 1s infinite; }
+  .cht-sa__steps { padding: var(--s-3) var(--s-1) 0; }
+  .cht-sa__steps li[data-state="fail"]::before { background: var(--danger); }
+  .cht-sa__meta { font-size: var(--fs-sm); color: var(--ink-3); white-space: nowrap; }
+
+  /* 029 回到最新消息钮 */
+  .cht-bt__box { position: relative; }
+  .cht-bt__view { height: 264px; padding: var(--s-4) var(--s-3); overflow-y: auto; border-radius: var(--r-md); background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); scrollbar-width: thin; overscroll-behavior: contain; }
+  .cht-bt__view .chat { padding: 0; gap: var(--s-4); }
+  .cht-bt__jump { position: absolute; left: 50%; bottom: var(--s-3); transform: translateX(-50%); display: inline-flex; align-items: center; gap: var(--s-2); min-height: 36px; padding: 0 var(--s-4); border-radius: var(--r-full); background: var(--surface); box-shadow: inset 0 0 0 1px var(--line-strong), var(--elev-2); font-size: var(--fs-sm); font-weight: 600; color: var(--action-press); white-space: nowrap; animation: lz-fade var(--dur-quick) var(--ease-out) both; }
+  @media (hover: hover) { .cht-bt__jump:hover { background: var(--action-tint); } }
+  .cht-bt__arr { width: 7px; height: 7px; border: solid currentColor; border-width: 0 1.6px 1.6px 0; transform: rotate(45deg) translateY(-2px); }
+
+  /* 030 系统通知条 */
+  .cht-nts { display: grid; gap: var(--s-2); }
+  .cht-nts:empty { display: none; }
+  .cht-nt { --c: var(--ink-3); --c-bg: var(--zone); display: flex; align-items: center; gap: var(--s-3); min-height: 60px; padding: var(--s-2) var(--s-2) var(--s-2) var(--s-4); border-radius: var(--r-md); background: var(--c-bg); animation: lz-rise var(--dur-slow) var(--ease-out) both; }
+  .cht-nt[data-tone="warning"] { --c: var(--warning); --c-bg: var(--warning-tint); }
+  .cht-nt[data-tone="danger"] { --c: var(--danger); --c-bg: var(--danger-tint); }
+  .cht-nt[data-tone="success"] { --c: var(--success); --c-bg: var(--success-tint); }
+  .cht-nt[data-tone="info"] { --c: var(--info); --c-bg: var(--info-tint); }
+  .cht-nt[data-leave] { animation: lz-toast-out var(--dur-quick) var(--ease-out) both; }
+  .cht-nt__dot { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
+  .cht-nt[data-busy] .cht-nt__dot { animation: lz-blink 1s infinite; }
+  .cht-nt__t { flex: 1; min-width: 0; }
+  .cht-nt .btn--white[disabled] { background: var(--surface); color: var(--ink-3); opacity: .7; }
+  .cht-nt .ibtn { flex: none; width: 32px; height: 32px; }
+  .cht-nt .ibtn img { width: 14px; height: 14px; }
+</style>
+
+<script>
+(function () {
+  const { $, $$ } = Lz;
+  const D = cid => document.querySelector(`[data-cid="${cid}"]`);
+  const sleep = ms => new Promise(r => setTimeout(r, Lz.reduce ? 0 : ms));
+  const el = html => { const t = document.createElement('template'); t.innerHTML = html.trim(); return t.content.firstElementChild; };
+  const AVATAR = '../../kit/assets/marks/mark-007.webp';
+  const setTone = (node, tone) => { if (tone) node.dataset.tone = tone; else node.removeAttribute('data-tone'); };
+  const setOpen = (panel, btn, on) => { panel.dataset.open = String(on); panel.inert = !on; if (btn) btn.setAttribute('aria-expanded', String(on)); };
+  const copyText = async text => {
+    try { await navigator.clipboard.writeText(text); return true; } catch (e) { /* 改用选中复制 */ }
+    try { const t = document.createElement('textarea'); t.value = text; t.setAttribute('readonly', ''); t.style.cssText = 'position:fixed;opacity:0;pointer-events:none'; document.body.append(t); t.select(); const ok = document.execCommand('copy'); t.remove(); return ok; } catch (e) { return false; }
+  };
+
+  /* 020 消息操作条：复制变已复制；有用与没用互斥，没用就近展开原因；重新生成后清空评价 */
+  (() => {
+    const r = D('AP-CHAT-020'), b = $('[data-bubble]', r), copyBtn = $('[data-cp]', r), regen = $('[data-regen]', r), up = $('[data-vote="up"]', r), down = $('[data-vote="down"]', r), panel = $('.expand', r), reasons = $$('.cht-ac__why button', r), bar = $$('.cht-ac__btn', r);
+    const TEXT = [b.textContent, '三家门店 128 笔订单中有 3 笔金额不一致，差额合计 286.50 元，其中 2 笔为重复扣款。']; let v = 0, timer;
+    const press = (btn, on) => btn.setAttribute('aria-pressed', String(on));
+    panel.inert = true;
+    copyBtn.addEventListener('click', async () => {
+      const ok = await copyText(b.textContent); clearTimeout(timer);
+      if (!ok) { Lz.toast('复制失败', 'danger'); return; }
+      copyBtn.textContent = '已复制'; copyBtn.setAttribute('data-done', '');
+      timer = setTimeout(() => { copyBtn.textContent = '复制'; copyBtn.removeAttribute('data-done'); }, 1600);
+    });
+    up.addEventListener('click', () => { const on = up.getAttribute('aria-pressed') !== 'true'; press(up, on); press(down, false); reasons.forEach(x => press(x, false)); setOpen(panel, down, false); if (on) Lz.toast('已记录反馈', 'success'); });
+    down.addEventListener('click', () => { const on = down.getAttribute('aria-pressed') !== 'true'; press(down, on); press(up, false); if (!on) reasons.forEach(x => press(x, false)); setOpen(panel, down, on); });
+    reasons.forEach(x => x.addEventListener('click', () => { reasons.forEach(y => press(y, y === x)); Lz.toast('已记录反馈', 'success'); setTimeout(() => setOpen(panel, down, false), 280); }));
+    regen.addEventListener('click', async () => {
+      bar.forEach(x => { x.disabled = true; }); [up, down, ...reasons].forEach(x => press(x, false)); setOpen(panel, down, false);
+      regen.textContent = '生成中'; b.textContent = ''; v = (v + 1) % TEXT.length;
+      await Lz.stream(b, TEXT[v], 40); regen.textContent = '重新生成'; bar.forEach(x => { x.disabled = false; });
+    });
+  })();
+
+  /* 021 来源引用列表：展开看全部来源，点一条就近看摘录；点正文角标直接定位 */
+  (() => {
+    const r = D('AP-CHAT-021'), head = $('.cht-ref__head', r), panel = $('.expand', r), rows = $$('.cht-ref__row', r), cites = $$('.cite[aria-pressed]', r);
+    const show = i => {
+      rows.forEach((row, k) => { const on = k === i; row.setAttribute('aria-expanded', String(on)); if (on) row.setAttribute('aria-current', 'true'); else row.removeAttribute('aria-current'); document.getElementById(row.getAttribute('aria-controls')).hidden = !on; });
+      cites.forEach((c, k) => c.setAttribute('aria-pressed', String(k === i)));
+    };
+    rows.forEach((row, i) => row.addEventListener('click', () => show(row.getAttribute('aria-expanded') === 'true' ? -1 : i)));
+    cites.forEach((c, i) => c.addEventListener('click', () => { if (c.getAttribute('aria-pressed') === 'true') { show(-1); return; } setOpen(panel, head, true); show(i); }));
+  })();
+
+  /* 022 计划步骤卡：下一步推进进行中的步骤；第四步首次失败，可重试 */
+  (() => {
+    const r = D('AP-CHAT-022'), steps = $$('.cht-pl__step', r), bar = $('[data-bar] > i', r), box = $('[data-bar]', r), tag = $('[data-tag]', r), count = $('[data-num]', r), next = $('[data-next]', r);
+    const INIT = ['done', 'done', 'now', 'wait', 'wait'], LABEL = { done: ['已完成', 'success'], now: ['进行中', 'action'], wait: ['待开始', ''], fail: ['失败', 'danger'] };
+    let S = [...INIT], failedOnce = false;
+    const paint = () => {
+      steps.forEach((li, i) => {
+        li.dataset.state = S[i]; const [t, tone] = LABEL[S[i]], tg = $('.tag', li), m = $('.cht-pl__meta', li);
+        tg.textContent = t; setTone(tg, tone);
+        m.textContent = S[i] === 'done' ? li.dataset.done : S[i] === 'now' ? li.dataset.doing : S[i] === 'fail' ? li.dataset.fail : ''; m.hidden = !m.textContent;
+      });
+      const n = S.filter(s => s === 'done').length, all = n === S.length, bad = S.includes('fail');
+      bar.style.setProperty('--v', (n / S.length * 100) + '%'); count.textContent = n; box.setAttribute('aria-label', `计划进度 ${n} 共 ${S.length} 步`);
+      tag.textContent = all ? '已完成' : bad ? '遇到问题' : '进行中'; setTone(tag, all ? 'success' : bad ? 'danger' : 'action');
+      next.textContent = bad ? '重试' : '下一步'; next.disabled = all;
+    };
+    next.addEventListener('click', () => {
+      let i = S.indexOf('now'); if (i < 0) i = S.indexOf('fail'); if (i < 0) return;
+      if (i === 3 && !failedOnce) { failedOnce = true; S[i] = 'fail'; paint(); Lz.toast('通知门店失败', 'danger'); return; }
+      S[i] = 'done'; if (i + 1 < S.length) S[i + 1] = 'now'; paint();
+    });
+    $('[data-reset]', r).addEventListener('click', () => { S = [...INIT]; failedOnce = false; paint(); });
+    paint();
+  })();
+
+  /* 023 澄清问答卡：逐题单选、多选、填写，每题可跳过；提交后看汇总，可重新回答 */
+  (() => {
+    const r = D('AP-CHAT-023'), qs = $$('[data-q]', r), segs = $$('.cht-qa__prog i', r), pos = $('[data-pos]', r), kind = $('[data-kind]', r), skip = $('[data-skip]', r), prev = $('[data-prev]', r), next = $('[data-next]', r), body = $('[data-body]', r), sum = $('[data-sum]', r), list = $('[data-list]', r);
+    const KIND = ['单选', '多选', '选填'], KEY = ['时间段', '门店', '补充'], radios = $$('[role="radio"]', qs[0]), boxes = $$('[role="checkbox"]', qs[1]), ta = $('textarea', qs[2]);
+    let i = 0; const skipped = [false, false, false];
+    const answer = k => k === 0 ? radios.filter(o => o.getAttribute('aria-checked') === 'true').map(o => o.textContent.trim()) : k === 1 ? boxes.filter(o => o.getAttribute('aria-checked') === 'true').map(o => o.textContent.trim()) : ta.value.trim() ? [ta.value.trim()] : [];
+    const paint = () => {
+      qs.forEach((q, k) => { q.hidden = k !== i; });
+      segs.forEach((s, k) => { s.dataset.s = k < i ? (skipped[k] ? 'skip' : 'done') : k === i ? 'now' : ''; });
+      pos.textContent = `第 ${i + 1} 题 共 3 题`; kind.textContent = KIND[i]; prev.hidden = i === 0;
+      next.textContent = i === 2 ? '提交' : '下一题'; next.disabled = i < 2 && answer(i).length === 0;
+    };
+    const finish = () => {
+      list.replaceChildren(...KEY.map((k, n) => { const a = skipped[n] ? [] : answer(n), row = el('<div><dt></dt><dd></dd></div>'); $('dt', row).textContent = k; const dd = $('dd', row); dd.textContent = a.length ? a.join('、') : (skipped[n] ? '已跳过' : '未填写'); if (!a.length) dd.setAttribute('data-skip', ''); return row; }));
+      body.hidden = true; sum.hidden = false; segs.forEach((s, k) => { s.dataset.s = skipped[k] ? 'skip' : 'done'; });
+    };
+    const go = () => { if (i === 2) { finish(); return; } i++; paint(); };
+    radios.forEach(o => o.addEventListener('click', () => { radios.forEach(x => x.setAttribute('aria-checked', String(x === o))); paint(); }));
+    r.addEventListener('lz:toggle', paint);
+    ta.addEventListener('input', paint);
+    next.addEventListener('click', () => { skipped[i] = false; go(); });
+    skip.addEventListener('click', () => {
+      skipped[i] = true; if (i === 0) radios.forEach(x => x.setAttribute('aria-checked', 'false')); else if (i === 1) boxes.forEach(x => x.setAttribute('aria-checked', 'false')); else ta.value = '';
+      go();
+    });
+    prev.addEventListener('click', () => { if (i > 0) { i--; skipped[i] = false; paint(); } });
+    $('[data-redo]', r).addEventListener('click', () => { i = 0; skipped.fill(false); sum.hidden = true; body.hidden = false; paint(); });
+    paint();
+  })();
+
+  /* 024 代码块：复制整段，已复制提示；超过八行先折叠，左右可滑动 */
+  (() => {
+    const r = D('AP-CHAT-024'), btn = $('[data-cp]', r), lines = $$('.cht-cd__ln', r), pre = $('.cht-cd__pre', r), more = $('[data-more]', r); let timer;
+    btn.addEventListener('click', async () => {
+      const text = lines.map(l => '  '.repeat(+l.style.getPropertyValue('--d') || 0) + l.textContent.trim()).join('\n'), ok = await copyText(text); clearTimeout(timer);
+      if (!ok) { Lz.toast('复制失败', 'danger'); return; }
+      btn.textContent = '已复制'; btn.setAttribute('data-done', ''); timer = setTimeout(() => { btn.textContent = '复制'; btn.removeAttribute('data-done'); }, 1600);
+    });
+    more.addEventListener('click', () => { const on = pre.dataset.open !== 'true'; pre.dataset.open = String(on); more.setAttribute('aria-expanded', String(on)); more.textContent = on ? '收起' : `展开全部 ${lines.length} 行`; });
+  })();
+
+  /* 025 文件树：点文件夹展开收起，点文件选中；方向键走树，右键展开，左键收起 */
+  (() => {
+    const r = D('AP-CHAT-025'), tree = $('[role="tree"]', r), name = $('[data-name]', r), path = $('[data-path]', r), openBtn = $('[data-openfile]', r);
+    const all = () => $$('[role="treeitem"]', tree), visible = () => all().filter(x => !x.closest('[role="group"][hidden]'));
+    const group = row => { const g = row.nextElementSibling; return g && g.matches('[role="group"]') ? g : null; };
+    const fold = (row, on) => { const g = group(row); if (!g) return; row.setAttribute('aria-expanded', String(on)); g.hidden = !on; };
+    const focusRow = row => { all().forEach(x => { x.tabIndex = x === row ? 0 : -1; }); row.focus(); };
+    const parentOf = row => { const g = row.closest('[role="group"]'); return g ? g.previousElementSibling : null; };
+    const pick = row => {
+      all().forEach(x => { if (x.hasAttribute('aria-selected')) x.setAttribute('aria-selected', String(x === row)); });
+      const trail = []; for (let p = parentOf(row); p; p = parentOf(p)) trail.unshift($('.cht-ft__name', p).textContent);
+      name.textContent = $('.cht-ft__name', row).textContent; name.setAttribute('data-picked', ''); path.textContent = trail.join(' '); path.hidden = false; openBtn.disabled = false;
+    };
+    const act = row => { if (row.hasAttribute('aria-expanded')) fold(row, row.getAttribute('aria-expanded') !== 'true'); else pick(row); };
+    tree.addEventListener('click', e => { const row = e.target.closest('[role="treeitem"]'); if (!row) return; focusRow(row); act(row); });
+    tree.addEventListener('keydown', e => {
+      const row = e.target.closest('[role="treeitem"]'); if (!row) return; const vis = visible(), i = vis.indexOf(row), exp = row.getAttribute('aria-expanded');
+      const to = x => { if (x) { e.preventDefault(); focusRow(x); } };
+      if (e.key === 'ArrowDown') to(vis[i + 1]); else if (e.key === 'ArrowUp') to(vis[i - 1]); else if (e.key === 'Home') to(vis[0]); else if (e.key === 'End') to(vis[vis.length - 1]);
+      else if (e.key === 'ArrowRight') { e.preventDefault(); if (exp === 'false') fold(row, true); else if (exp === 'true') to(vis[i + 1]); }
+      else if (e.key === 'ArrowLeft') { e.preventDefault(); if (exp === 'true') fold(row, false); else to(parentOf(row)); }
+      else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); act(row); }
+    });
+    $$('[data-all]', r).forEach(b => b.addEventListener('click', () => all().forEach(x => { if (x.hasAttribute('aria-expanded')) fold(x, b.dataset.all === 'open'); })));
+    openBtn.addEventListener('click', () => Lz.toast('已打开 ' + name.textContent));
+  })();
+
+  /* 026 检查点：恢复前居中确认，恢复后丢弃其后消息并可撤销；也可在末尾再标记检查点 */
+  (() => {
+    const r = D('AP-CHAT-026'), flow = $('[data-flow]', r), note = $('[data-note]', r), text = $('[data-text]', note), mark = $('[data-mark]', r); let removed = [], at = null;
+    const marks = () => $$('.cht-cp__mark', flow);
+    const clearCur = () => marks().forEach(m => { m.removeAttribute('data-cur'); setTone($('.tag', m), 'info'); });
+    flow.addEventListener('click', async e => {
+      const b = e.target.closest('[data-restore]'); if (!b) return;
+      const m = b.closest('.cht-cp__mark'), after = [...flow.children].slice([...flow.children].indexOf(m) + 1), n = after.filter(x => x.classList.contains('msg')).length;
+      if (!after.length) return;
+      const ok = await Lz.confirm({ title: `恢复到${$('.tag', m).textContent}`, body: `此处之后的 ${n} 条消息会被丢弃`, ok: '恢复', cancel: '取消' }); if (!ok) return;
+      removed = after; at = m; after.forEach(x => x.remove()); clearCur(); m.setAttribute('data-cur', ''); setTone($('.tag', m), 'action');
+      text.textContent = `已丢弃 ${n} 条消息`; note.hidden = false;
+    });
+    $('[data-undo]', r).addEventListener('click', () => { if (!at) return; flow.append(...removed); removed = []; at = null; clearCur(); note.hidden = true; Lz.toast('已撤销恢复'); });
+    mark.addEventListener('click', () => {
+      const last = flow.lastElementChild; if (last && last.classList.contains('cht-cp__mark') && !last.hasAttribute('data-cur')) { Lz.toast('此处已有检查点'); return; }
+      if (marks().length >= 4) { Lz.toast('最多 4 个检查点'); return; }
+      note.hidden = true; removed = []; at = null; clearCur();
+      flow.append(el(`<div class="cht-cp__mark cht-in" data-n="${marks().length + 1}"><span class="tag" data-tone="info">检查点 ${marks().length + 1}</span><button class="btn btn--text btn--sm" data-restore>恢复到此处</button><span class="cht-cp__cur">当前位置</span></div>`));
+    });
+  })();
+
+  /* 027 模型选择条：两个菜单就近内嵌展开；轻量模型不支持思考，强度固定为关闭并置灰 */
+  (() => {
+    const r = D('AP-CHAT-027'), form = $('[data-form]', r), ta = $('textarea', form), send = $('[data-send]', r), panel = $('.expand', r), btns = { model: $('[data-pick="model"]', r), effort: $('[data-pick="effort"]', r) }, menus = { model: $('[data-menu="model"]', r), effort: $('[data-menu="effort"]', r) };
+    const MODELS = [['花间轻量', false], ['花间一号', true], ['花间二号', true]], EFF = ['关闭', '低', '中', '高']; let m = 2, e = 2, cur = null;
+    panel.inert = true;
+    const mark = (menu, i) => $$('[role="option"]', menu).forEach((o, k) => o.setAttribute('aria-selected', String(k === i)));
+    const paint = () => {
+      $('b', btns.model).textContent = MODELS[m][0]; const think = MODELS[m][1];
+      btns.effort.disabled = !think; $('b', btns.effort).textContent = think ? EFF[e] : '关闭'; mark(menus.model, m); mark(menus.effort, e);
+    };
+    const show = k => {
+      if (k === cur || !k) { cur = null; setOpen(panel, null, false); } else { cur = k; setOpen(panel, null, true); }
+      Object.keys(menus).forEach(x => { menus[x].hidden = x !== cur; btns[x].setAttribute('aria-expanded', String(x === cur)); });
+    };
+    Object.keys(btns).forEach(k => btns[k].addEventListener('click', () => show(k)));
+    $$('[role="option"]', menus.model).forEach(o => o.addEventListener('click', () => { const was = MODELS[m][1]; m = +o.dataset.i; if (!MODELS[m][1]) e = 0; else if (!was) e = 2; paint(); show(null); btns.model.focus(); }));
+    $$('[role="option"]', menus.effort).forEach(o => o.addEventListener('click', () => { e = +o.dataset.i; paint(); show(null); btns.effort.focus(); }));
+    form.addEventListener('keydown', ev => { if (ev.key === 'Escape' && cur) { const k = cur; show(null); btns[k].focus(); } });
+    const sync = () => { send.disabled = ta.value.trim() === ''; };
+    const submit = () => { if (send.disabled) return; ta.value = ''; ta.style.height = ''; sync(); Lz.toast(`已用${MODELS[m][0]}发送`, 'success'); };
+    ta.addEventListener('input', () => { ta.style.height = 'auto'; ta.style.height = Math.min(ta.scrollHeight, 160) + 'px'; sync(); });
+    ta.addEventListener('keydown', ev => { if (ev.key === 'Enter' && !ev.shiftKey && !ev.isComposing && ev.keyCode !== 229) { ev.preventDefault(); submit(); } });
+    form.addEventListener('submit', ev => { ev.preventDefault(); submit(); });
+    paint(); sync();
+  })();
+
+  /* 028 子智能体：重新委派后逐步执行，可中途停止；第一次委派在第二步失败，点重试后成功 */
+  (() => {
+    const r = D('AP-CHAT-028'), card = $('.cht-sa', r), tag = $('[data-tag]', r), prog = $('[data-prog]', r), bar = $('.progress > i', r), now = $('[data-now]', r), res = $('[data-res]', r), meta = $('[data-meta]', r), act = $('[data-act]', r), steps = $$('.think__steps li', r), proc = $('[data-expand]', r), panel = $('.expand', r);
+    const NAMES = steps.map(li => li.textContent.trim()), VIEW = { run: ['进行中', 'action'], done: ['已完成', 'success'], fail: ['失败', 'danger'], stop: ['已停止', 'warning'] };
+    let runs = 0, token = 0;
+    const view = st => {
+      card.dataset.state = st; tag.textContent = VIEW[st][0]; setTone(tag, VIEW[st][1]); prog.hidden = st !== 'run'; res.hidden = st !== 'done' && st !== 'fail';
+      act.textContent = st === 'run' ? '停止' : st === 'fail' ? '重试' : '重新委派'; act.className = 'btn btn--sm ' + (st === 'run' ? 'btn--ghost' : 'btn--secondary');
+    };
+    async function start() {
+      const my = ++token; runs++; const failing = runs === 1, t0 = performance.now();
+      view('run'); setOpen(panel, proc, true); steps.forEach(li => { li.dataset.state = ''; }); meta.textContent = '共 3 步';
+      for (let k = 0; k < steps.length; k++) {
+        steps[k].dataset.state = 'now'; now.textContent = NAMES[k]; bar.style.setProperty('--v', (k / steps.length * 100 + 8) + '%');
+        await sleep(900); if (my !== token) return;
+        if (failing && k === 1) { steps[k].dataset.state = 'fail'; res.textContent = '第 2 步调用订单查询超时，已保留前一步结果。'; meta.textContent = '已中断'; view('fail'); return; }
+        steps[k].dataset.state = 'done';
+      }
+      res.textContent = '发现 3 笔金额不一致，差额合计 286.50 元，其中 2 笔为重复扣款。'; meta.textContent = `用时 ${Math.max(1, Math.round((performance.now() - t0) / 1000))} 秒`; view('done');
+    }
+    act.addEventListener('click', () => { if (card.dataset.state === 'run') { token++; meta.textContent = '已停止'; view('stop'); } else start(); });
+    view('done');
+  })();
+
+  /* 029 回到最新：向上翻阅超过一屏出现按钮；翻阅时来新回复累计数量；点按钮回到底部 */
+  (() => {
+    const r = D('AP-CHAT-029'), view = $('.cht-bt__view', r), flow = $('.chat', view), jump = $('[data-jump]', r), badge = $('[data-n]', r), add = $('[data-reply]', r);
+    const NEW = ['对账结果已回写到三家门店', '已同步 128 笔订单状态', '退款进度已更新', '库存缺口清单已生成']; let unread = 0, k = 0, ready = false;
+    const gap = () => view.scrollHeight - view.scrollTop - view.clientHeight;
+    const sync = () => { const far = gap() > 48; if (!far) unread = 0; jump.hidden = !far; badge.hidden = unread === 0; badge.textContent = unread + ' 条新回复'; };
+    view.addEventListener('scroll', sync, { passive: true });
+    jump.addEventListener('click', () => { view.scrollTo({ top: view.scrollHeight, behavior: Lz.reduce ? 'auto' : 'smooth' }); view.focus({ preventScroll: true }); });
+    add.addEventListener('click', () => {
+      const atEnd = gap() <= 48, m = el(`<article class="msg cht-in"><img class="msg__avatar" src="${AVATAR}" alt=""><div class="msg__body"><p class="bubble"></p></div></article>`);
+      $('.bubble', m).textContent = NEW[k++ % NEW.length]; flow.append(m);
+      if (atEnd) view.scrollTop = view.scrollHeight; else { unread++; sync(); }
+    });
+    new ResizeObserver(() => { if (!ready && view.clientHeight > 0) { ready = true; view.scrollTop = view.scrollHeight * 0.42; } sync(); }).observe(view);
+  })();
+
+  /* 030 系统通知条：额度可申请，断线可重连，逐条关闭，全部关闭显示空态 */
+  (() => {
+    const r = D('AP-CHAT-030'), list = $('[data-list]', r), empty = $('[data-empty]', r), INIT = list.innerHTML;
+    const paint = () => { empty.hidden = list.children.length > 0; };
+    const fill = (n, tone, t, m) => { n.dataset.tone = tone; $('[data-t]', n).textContent = t; $('[data-m]', n).textContent = m; };
+    list.addEventListener('click', async e => {
+      const n = e.target.closest('.cht-nt'); if (!n) return;
+      if (e.target.closest('[data-close]')) { n.setAttribute('data-leave', ''); setTimeout(() => { n.remove(); paint(); }, Lz.reduce ? 0 : 160); return; }
+      const b = e.target.closest('[data-do]'); if (!b) return;
+      if (n.dataset.kind === 'quota') { fill(n, 'success', '额度申请已提交', '审核通过后自动生效'); b.remove(); return; }
+      b.disabled = true; n.setAttribute('data-busy', ''); fill(n, 'warning', '正在重连', '第 1 次尝试'); await sleep(1300);
+      if (!n.isConnected) return; n.removeAttribute('data-busy'); fill(n, 'success', '已恢复连接', '可继续对话'); b.remove();
+    });
+    $('[data-reset]', r).addEventListener('click', () => { list.innerHTML = INIT; paint(); });
+    paint();
+  })();
+})();
+</script>

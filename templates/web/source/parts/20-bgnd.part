@@ -1,0 +1,531 @@
+<!-- cat: BGND | 背景 -->
+<style>
+  /* 背景类：前缀 wb-bg-。每个演示是一块排了真实内容的小样，文字只落在高对比的底上 */
+  #cat-bgnd .demo__stage { padding: 0; border: 0; background: transparent; }
+  #cat-bgnd .gallery { align-items: stretch; }
+  #cat-bgnd .demo { min-width: 0; }
+  #cat-bgnd .badge { min-width: 18px; height: 18px; font-size: var(--fs-xs); line-height: 18px; }
+  #cat-bgnd .btn--primary:not([disabled]), #cat-bgnd .btn--danger:not([disabled]) { color: var(--surface); }
+  #cat-bgnd .btn--danger-soft:not([disabled]), #cat-bgnd .tag[data-tone="danger"] { color: color-mix(in srgb, var(--danger) 82%, var(--ink)); }
+  .wb-bg-f { position: relative; isolation: isolate; min-height: 196px; padding: var(--s-5); border-radius: var(--r-md); overflow: hidden; border: 1px solid var(--line); }
+  .wb-bg-f--0 { padding: 0; }
+  .wb-bg-f--0 > .wb-bg-brand, .wb-bg-f--0 > .wb-bg-soft, .wb-bg-f--0 > .wb-bg-over, .wb-bg-f--0 > .wb-bg-glass, .wb-bg-f--0 > .wb-bg-scene, .wb-bg-f--0 > .wb-bg-tex { min-height: 196px; }
+  .wb-bg-f--c { display: grid; place-items: center; }
+  .wb-bg-f--c .empty { padding: 0; }
+  .wb-bg-f--mid { display: grid; align-content: center; gap: var(--s-3); }
+  .wb-bg-f--zone { padding: 0; background: var(--zone); }
+  .wb-bg-body { padding: var(--s-5); }
+  .wb-bg-grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-3); }
+  .wb-bg-grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-3); }
+  .wb-bg-kpi { display: grid; gap: var(--s-1); padding: var(--s-4); }
+  .wb-bg-kpi .stat__label { font-size: var(--fs-sm); color: var(--ink-3); }
+  .wb-bg-num { font-size: var(--fs-xl); font-weight: 700; line-height: var(--lh-tight); font-variant-numeric: tabular-nums; }
+  .wb-bg-num small { margin-left: 2px; font-size: var(--fs-sm); font-weight: 400; color: var(--ink-3); }
+  .wb-bg-num small:first-child { margin: 0 2px 0 0; }
+  .wb-bg-h { font-size: var(--fs-lg); font-weight: 600; line-height: var(--lh-tight); }
+  .wb-bg-ord { display: grid; grid-template-columns: 44px minmax(0, 1fr) 72px 64px; align-items: center; gap: var(--s-3); min-height: 64px; }
+  .wb-bg-ord .price { text-align: right; }
+  .wb-bg-ord .tag { justify-self: center; }
+  .wb-bg-ord + .wb-bg-ord { border-top: 1px solid var(--line); }
+  .wb-bg-ord img.thumb { width: 44px; height: 44px; border-radius: var(--r-sm); object-fit: cover; }
+  .wb-bg-ord__t { font-size: var(--fs-md); font-weight: 600; line-height: var(--lh-tight); }
+  .wb-bg-ord__m { font-size: var(--fs-sm); color: var(--ink-3); }
+
+  /* 顶栏 */
+  .wb-bg-topbar { display: flex; align-items: center; gap: var(--s-3); min-height: 64px; padding: 0 var(--s-5); background: var(--surface); border-bottom: 1px solid var(--line); box-shadow: var(--elev-1); }
+  .wb-bg-crumb { display: inline-flex; align-items: center; gap: var(--s-2); margin-right: auto; font-size: var(--fs-md); color: var(--ink-3); }
+  .wb-bg-crumb b { font-weight: 600; color: var(--ink); }
+  .wb-bg-topbar .search { width: 220px; min-height: 40px; }
+  .wb-bg-who { display: inline-flex; align-items: center; gap: var(--s-2); font-size: var(--fs-sm); font-weight: 600; }
+  .wb-bg-who img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
+
+  /* 侧栏 */
+  .wb-bg-side { display: grid; grid-template-columns: 88px minmax(0, 1fr); min-height: 220px; }
+  .wb-bg-side .rail { position: static; height: auto; min-height: 100%; }
+  .wb-bg-side .rail--mist { background: linear-gradient(180deg, var(--action-tint) 0%, var(--bg) 100%); }
+  .wb-bg-side__main { display: grid; align-content: start; gap: var(--s-4); padding: var(--s-5); }
+  .wb-bg-side__main h3 { font-size: var(--fs-xl); font-weight: 700; line-height: var(--lh-tight); }
+
+  /* 页头 */
+  .wb-bg-head { position: relative; isolation: isolate; display: flex; align-items: center; justify-content: space-between; gap: var(--s-4); padding: var(--s-6) var(--s-6) var(--s-5); background: linear-gradient(180deg, var(--action-tint) 0%, var(--bg) 100%); }
+  .wb-bg-head::after { content: ""; position: absolute; inset: 0; z-index: -1; background: url(../../kit/assets/photo/pattern-petals.webp) right top / 340px; opacity: .35; -webkit-mask-image: linear-gradient(90deg, transparent 35%, var(--ink) 100%); mask-image: linear-gradient(90deg, transparent 35%, var(--ink) 100%); pointer-events: none; }
+  .wb-bg-head h1 { font-size: var(--fs-3xl); font-weight: 700; line-height: var(--lh-tight); white-space: nowrap; }
+  .wb-bg-head .search { width: 240px; }
+  .wb-bg-under { padding: var(--s-4) var(--s-6) var(--s-6); background: var(--bg); }
+
+  /* 登录 */
+  .wb-bg-login { display: flex; align-items: center; padding: var(--s-5) var(--s-8); }
+  .wb-bg-login--c { justify-content: center; }
+  .wb-bg-lcard { color: var(--ink); display: grid; gap: var(--s-4); width: 320px; padding: var(--s-6); box-shadow: var(--elev-3); }
+  .wb-bg-grad { background: linear-gradient(135deg, var(--action-press) 0%, var(--action) 100%); color: var(--surface); }
+
+  /* 卡片带底、色带 */
+  .wb-bg-ocard { max-width: 420px; margin: 0 auto; overflow: hidden; }
+  .wb-bg-ocard__body { display: grid; grid-template-columns: 56px minmax(0, 1fr) auto; align-items: center; gap: var(--s-3); padding: var(--s-4) var(--s-5); }
+  .wb-bg-ocard__body img { width: 56px; height: 56px; border-radius: var(--r-md); object-fit: cover; }
+  .wb-bg-ocard__foot { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); padding: var(--s-3) var(--s-5); background: var(--zone); border-top: 1px solid var(--line); }
+  .wb-bg-band { border-radius: var(--r-lg); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 18%, transparent); display: flex; align-items: center; gap: var(--s-4); padding: var(--s-4) var(--s-5); }
+  .wb-bg-band p { font-size: var(--fs-md); font-weight: 600; line-height: var(--lh-tight); }
+  .wb-bg-band__sp { flex: 1; }
+  .wb-bg-band .tag { flex: none; }
+  .wb-bg-brand { display: grid; align-content: center; gap: var(--s-2); min-height: 168px; padding: var(--s-5); }
+  .wb-bg-brand .wb-bg-big { font-size: var(--fs-3xl); font-weight: 700; line-height: var(--lh-tight); font-variant-numeric: tabular-nums; }
+  .wb-bg-brand .wb-bg-lab { font-size: var(--fs-md); }
+  .wb-bg-brand .btn { justify-self: start; margin-top: var(--s-2); }
+  .wb-bg-brand img.wb-bg-pic { position: absolute; right: var(--s-6); top: 50%; width: 148px; height: 148px; border-radius: var(--r-lg); object-fit: cover; transform: translateY(-50%) rotate(4deg); border: 3px solid color-mix(in srgb, var(--surface) 90%, transparent); box-shadow: var(--elev-3); }
+
+  /* 分区底 */
+  .wb-bg-zone { display: grid; gap: var(--s-3); padding: var(--s-5); }
+  .wb-bg-set { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); min-height: 56px; padding: 0 var(--s-5); }
+  .wb-bg-set + .wb-bg-set { border-top: 1px solid var(--line); }
+  .wb-bg-set span { font-size: var(--fs-md); }
+
+  /* 纹理底上的内容卡 */
+  .wb-bg-tex { display: grid; align-content: center; min-height: 176px; padding: var(--s-5); }
+  .wb-bg-tex .card { max-width: 400px; width: 100%; margin: 0 auto; }
+  .wb-bg-mini { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; align-items: center; gap: var(--s-3); min-height: 60px; padding: var(--s-2) var(--s-4); }
+  .wb-bg-mini + .wb-bg-mini { border-top: 1px solid var(--line); }
+  .wb-bg-mini img { width: 44px; height: 44px; border-radius: var(--r-sm); object-fit: cover; }
+  .wb-bg-mini p { font-size: var(--fs-md); font-weight: 600; line-height: var(--lh-tight); }
+  .wb-bg-mini p small { display: block; font-size: var(--fs-sm); font-weight: 400; color: var(--ink-3); }
+  .wb-bg-bars { display: grid; gap: var(--s-3); padding: var(--s-4) var(--s-5); }
+  .wb-bg-bar { display: grid; grid-template-columns: 48px minmax(0, 1fr) 56px; align-items: center; gap: var(--s-3); font-size: var(--fs-sm); color: var(--ink-2); }
+  .wb-bg-bar b { text-align: right; font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .wb-bg-vip { display: grid; grid-template-columns: 48px minmax(0, 1fr) auto; align-items: center; gap: var(--s-3); padding: var(--s-4) var(--s-5); }
+  .wb-bg-vip img { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; }
+  .wb-bg-vip p { font-size: var(--fs-md); font-weight: 600; line-height: var(--lh-tight); }
+  .wb-bg-vip small { display: block; font-size: var(--fs-sm); font-weight: 400; color: var(--ink-3); }
+
+  /* 图案叠加、渐变与照片 */
+  .wb-bg-over { isolation: isolate; display: flex; align-items: center; justify-content: space-between; gap: var(--s-4); min-height: 168px; padding: var(--s-5) var(--s-6); background: linear-gradient(135deg, var(--action-press) 0%, var(--action) 100%); color: var(--surface); }
+  .wb-bg-over__txt { display: grid; gap: var(--s-2); }
+  .wb-bg-over .wb-bg-big { font-size: var(--fs-3xl); font-weight: 700; line-height: var(--lh-tight); font-variant-numeric: tabular-nums; }
+  .wb-bg-soft { display: grid; align-content: center; gap: var(--s-4); min-height: 168px; padding: var(--s-5); }
+  .wb-bg-soft h3 { font-size: var(--fs-xl); font-weight: 700; line-height: var(--lh-tight); }
+  .wb-bg-glass { display: grid; align-content: center; justify-items: start; gap: var(--s-2); min-height: 176px; padding: var(--s-5); }
+  .wb-bg-glass .wb-bg-pane { display: grid; justify-items: start; gap: var(--s-2); max-width: 340px; padding: var(--s-5); border-radius: var(--r-lg); background: color-mix(in srgb, var(--surface) 90%, transparent); box-shadow: var(--elev-2); }
+  .wb-bg-glass h3 { font-size: var(--fs-xl); font-weight: 700; line-height: var(--lh-tight); }
+  .wb-bg-scene { position: relative; display: grid; align-content: center; justify-items: start; gap: var(--s-2); min-height: 176px; padding: var(--s-5); color: var(--surface); }
+  .wb-bg-scene::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, color-mix(in srgb, var(--action-press) 96%, transparent) 0%, color-mix(in srgb, var(--action-press) 90%, transparent) 44%, transparent 76%); }
+  .wb-bg-scene h3 { max-width: 44%; font-size: var(--fs-2xl); font-weight: 700; line-height: var(--lh-tight); }
+  .wb-bg-scene p { max-width: 44%; font-size: var(--fs-md); }
+  .wb-bg-scene .btn { margin-top: var(--s-2); }
+
+  /* 遮罩 */
+  .wb-bg-scrim { position: relative; display: grid; align-content: space-between; min-height: 288px; padding: var(--s-5); background: var(--bg); }
+  .wb-bg-chip { display: flex; align-items: center; justify-content: space-between; gap: var(--s-2); padding: var(--s-3) var(--s-4); }
+  .wb-bg-chip .stat__label { font-size: var(--fs-sm); color: var(--ink-3); white-space: nowrap; }
+  .wb-bg-chip .wb-bg-num { font-size: var(--fs-md); white-space: nowrap; }
+  .wb-bg-scrim::after { content: ""; position: absolute; inset: 0; background: var(--scrim); }
+  .wb-bg-box { position: absolute; z-index: 1; left: 50%; top: 50%; width: min(300px, calc(100% - var(--s-8))); padding: var(--s-5); border-radius: var(--r-xl); background: var(--surface); box-shadow: var(--elev-4); transform: translate(-50%, -50%); }
+
+  /* 背景效果：左边是名称，右边是价格与动作，效果铺满整张卡 */
+  .wb-bg-fx { display: flex; align-items: center; justify-content: space-between; gap: var(--s-4); min-height: 100px; padding: var(--s-5) var(--s-6); }
+  .wb-bg-fx h3 { font-size: var(--fs-xl); font-weight: 700; line-height: var(--lh-tight); }
+  .wb-bg-fx__tail { display: flex; align-items: center; gap: var(--s-4); flex: none; }
+  .wb-bg-mini--flush { padding: 0; }
+</style>
+
+<article class="demo" data-cid="WB-BGND-001" data-name="后台页底" data-cat="BGND">
+  <div class="demo__head"><span class="demo__name">后台页底</span></div>
+  <p class="demo__note">适合：整个后台的最底层，米白托住白卡</p>
+  <div class="demo__stage is-plain"><div class="wb-bg-f bg-page">
+    <div class="wb-bg-grid3">
+      <div class="card wb-bg-kpi"><span class="stat__label">销售额</span><span class="wb-bg-num"><small>¥</small>128,640</span></div>
+      <div class="card wb-bg-kpi"><span class="stat__label">订单数</span><span class="wb-bg-num">1,286<small>单</small></span></div>
+      <div class="card wb-bg-kpi"><span class="stat__label">客单价</span><span class="wb-bg-num"><small>¥</small>99.6</span></div>
+    </div>
+    <div class="card" style="margin-top: var(--s-3)"><div class="wb-bg-mini"><img src="../../kit/assets/photo/product-rose-red.webp" alt=""><p>红玫瑰花束<small>已售 2,860 件</small></p><span class="price"><small>¥</small>199</span></div></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-BGND-002" data-name="内容区白底" data-cat="BGND">
+  <div class="demo__head"><span class="demo__name">内容区白底</span></div>
+  <p class="demo__note">适合：表格、详情等需要长时间阅读的区域</p>
+  <div class="demo__stage is-plain"><div class="wb-bg-f bg-surface">
+    <h3 class="wb-bg-h">最新订单</h3>
+    <div class="wb-bg-ord"><img class="thumb" src="../../kit/assets/photo/product-peony-pink.webp" alt=""><div><p class="wb-bg-ord__t">粉芍药花束</p><p class="wb-bg-ord__m">林晓 建国路店</p></div><span class="price"><small>¥</small>239</span><span class="tag" data-tone="warning">待发货</span></div>
+    <div class="wb-bg-ord"><img class="thumb" src="../../kit/assets/photo/product-succulent.webp" alt=""><div><p class="wb-bg-ord__t">多肉组合盆</p><p class="wb-bg-ord__m">陈默 徐汇滨江店</p></div><span class="price"><small>¥</small>89</span><span class="tag" data-tone="success">已完成</span></div>
+    <div class="wb-bg-ord"><img class="thumb" src="../../kit/assets/photo/product-giftbox.webp" alt=""><div><p class="wb-bg-ord__t">花礼盒</p><p class="wb-bg-ord__m">王芳 浦东世纪店</p></div><span class="price"><small>¥</small>259</span><span class="tag" data-tone="info">待收货</span></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-BGND-003" data-name="顶栏白底" data-cat="BGND">
+  <div class="demo__head"><span class="demo__name">顶栏白底</span></div>
+  <p class="demo__note">适合：全局顶栏，白底加发丝线与轻阴影</p>
+  <div class="demo__stage is-plain"><div class="wb-bg-f wb-bg-f--0 bg-page">
+    <header class="wb-bg-topbar">
+      <span class="wb-bg-crumb">商品<i class="chev"></i><b>花束</b></span>
+      <label class="search"><img src="../../kit/assets/line/search.webp" alt=""><input type="search" placeholder="搜索订单或客户" aria-label="搜索订单或客户"></label>
+      <button class="ibtn" data-tip="消息" aria-label="消息"><img src="../../kit/assets/line/message.webp" alt=""><span class="badge">3</span></button>
+      <span class="wb-bg-who"><img src="../../kit/assets/marks/mark-015.webp" alt="">周岚</span>
+    </header>
+    <div class="wb-bg-body"><div class="wb-bg-grid3"><div class="card wb-bg-kpi"><span class="stat__label">库存预警</span><span class="wb-bg-num">6<small>件</small></span></div><div class="card wb-bg-kpi"><span class="stat__label">待发货</span><span class="wb-bg-num">12<small>单</small></span></div><div class="card wb-bg-kpi"><span class="stat__label">待收货</span><span class="wb-bg-num">8<small>单</small></span></div></div></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-BGND-004" data-name="侧栏米白底" data-cat="BGND">
+  <div class="demo__head"><span class="demo__name">侧栏米白底</span></div>
+  <p class="demo__note">适合：上图下字的主导航，右侧发丝线分隔</p>
+  <div class="demo__stage is-plain"><div class="wb-bg-f wb-bg-f--0 bg-surface"><div class="wb-bg-side">
+    <nav class="rail" aria-label="侧栏小样" data-wb-rail>
+      <button class="rail__item" aria-current="page"><img src="../../kit/assets/line/home.webp" alt=""><span>工作台</span></button>
+      <button class="rail__item"><img src="../../kit/assets/line/archive.webp" alt=""><span>订单</span></button>
+      <button class="rail__item"><img src="../../kit/assets/line/list.webp" alt=""><span>商品</span></button>
+      <span class="rail__sp"></span>
+      <button class="rail__item"><img src="../../kit/assets/line/settings.webp" alt=""><span>设置</span></button>
+    </nav>
+    <div class="wb-bg-side__main"><h3>经营概览</h3>
+      <div class="wb-bg-grid2"><div class="card wb-bg-kpi"><span class="stat__label">销售额</span><span class="wb-bg-num"><small>¥</small>128,640</span></div><div class="card wb-bg-kpi"><span class="stat__label">订单数</span><span class="wb-bg-num">1,286<small>单</small></span></div></div>
+      <div class="card"><div class="wb-bg-mini"><img src="../../kit/assets/photo/product-rose-red.webp" alt=""><p>红玫瑰花束<small>已售 2,860 件</small></p><span class="price"><small>¥</small>199</span></div><div class="wb-bg-mini"><img src="../../kit/assets/photo/product-peony-pink.webp" alt=""><p>粉芍药花束<small>已售 1,920 件</small></p><span class="price"><small>¥</small>239</span></div></div>
+    </div>
+  </div></div></div>
+</article>
+
+<article class="demo" data-cid="WB-BGND-005" data-name="侧栏渐变底" data-cat="BGND">
+  <div class="demo__head"><span class="demo__name">侧栏渐变底</span></div>
+  <p class="demo__note">适合：顶部带一抹主色的侧栏</p>
+  <div class="demo__stage is-plain"><div class="wb-bg-f wb-bg-f--0 bg-surface"><div class="wb-bg-side">
+    <nav class="rail rail--mist" aria-label="侧栏渐变小样" data-wb-rail>
+      <button class="rail__item" aria-current="page"><img src="../../kit/assets/line/home.webp" alt=""><span>工作台</span></button>
+      <button class="rail__item"><img src="../../kit/assets/line/archive.webp" alt=""><span>订单</span></button>
+      <button class="rail__item"><img src="../../kit/assets/line/list.webp" alt=""><span>商品</span></button>
+      <span class="rail__sp"></span>
+      <button class="rail__item"><img src="../../kit/assets/line/settings.webp" alt=""><span>设置</span></button>
+    </nav>
+    <div class="wb-bg-side__main"><h3>库存概览</h3>
+      <div class="wb-bg-grid2"><div class="card wb-bg-kpi"><span class="stat__label">在售商品</span><span class="wb-bg-num">128<small>款</small></span></div><div class="card wb-bg-kpi"><span class="stat__label">库存预警</span><span class="wb-bg-num">6<small>件</small></span></div></div>
+      <div class="card"><div class="wb-bg-mini"><img src="../../kit/assets/photo/product-monstera.webp" alt=""><p>龟背竹盆栽<small>库存 24 件</small></p><span class="price"><small>¥</small>159</span></div><div class="wb-bg-mini"><img src="../../kit/assets/photo/product-succulent.webp" alt=""><p>多肉组合盆<small>库存 61 件</small></p><span class="price"><small>¥</small>89</span></div></div>
+    </div>
+  </div></div></div>
+</article>
+
+<article class="demo" data-cid="WB-BGND-006" data-name="页头花瓣底" data-cat="BGND">
+  <div class="demo__head"><span class="demo__name">页头花瓣底</span></div>
+  <p class="demo__note">适合：每个页面顶部的平面区</p>
+  <div class="demo__stage is-plain"><div class="wb-bg-f wb-bg-f--0 bg-page">
+    <header class="wb-bg-head"><h1>商品列表</h1><label class="search"><img src="../../kit/assets/line/search.webp" alt=""><input type="search" placeholder="搜索商品名称" aria-label="搜索商品名称"></label></header>
+    <div class="wb-bg-under"><div class="wb-bg-grid3"><div class="card wb-bg-kpi"><span class="stat__label">在售商品</span><span class="wb-bg-num">128<small>款</small></span></div><div class="card wb-bg-kpi"><span class="stat__label">待上架</span><span class="wb-bg-num">12<small>款</small></span></div><div class="card wb-bg-kpi"><span class="stat__label">已下架</span><span class="wb-bg-num">6<small>款</small></span></div></div></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-BGND-007" data-name="登录页照片底" data-cat="BGND">
+  <div class="demo__head"><span class="demo__name">登录页照片底</span></div>
+  <p class="demo__note">适合：登录页整页背景，花卉实拍加白色表单卡</p>
+  <div class="demo__stage is-plain"><div class="wb-bg-f wb-bg-f--0 bg-photo-floral"><div class="wb-bg-login">
+    <form class="card wb-bg-lcard" onsubmit="return false" data-wb-login>
+      <h2 class="t-h">账号登录</h2>
+      <label class="field"><span class="field__label">账号</span><input class="input" value="周岚" aria-label="账号"></label>
+      <label class="field"><span class="field__label">密码</span><input class="input" type="password" value="88888888" aria-label="密码"></label>
+      <button class="btn btn--primary btn--block" type="submit">登录</button>
+    </form>
+  </div></div></div>
+</article>
+
+<article class="demo" data-cid="WB-BGND-008" data-name="登录页渐变底" data-cat="BGND">
+  <div class="demo__head"><span class="demo__name">登录页渐变底</span></div>
+  <p class="demo__note">适合：主色渐变加花瓣纹理的登录与引导页</p>
+  <div class="demo__stage is-plain"><div class="wb-bg-f wb-bg-f--0 wb-bg-grad pattern-over"><div class="wb-bg-login wb-bg-login--c">
+    <form class="card wb-bg-lcard" onsubmit="return false" data-wb-login>
+      <h2 class="t-h">账号登录</h2>
+      <label class="field"><span class="field__label">账号</span><input class="input" value="周岚" aria-label="账号"></label>
+      <label class="field"><span class="field__label">密码</span><input class="input" type="password" value="88888888" aria-label="密码"></label>
+      <button class="btn btn--primary btn--block" type="submit">登录</button>
+    </form>
+  </div></div></div>
+</article>
+
+<article class="demo" data-cid="WB-BGND-009" data-name="空白页底" data-cat="BGND">
+  <div class="demo__head"><span class="demo__name">空白页底</span></div>
+  <p class="demo__note">适合：没有数据的整页，纯白留出呼吸</p>
+  <div class="demo__stage is-plain"><div class="wb-bg-f wb-bg-f--c bg-surface">
+    <div class="empty"><img data-ic="vase" src="../../kit/assets/icons/flat/vase.webp" alt=""><span>暂无商品</span><button class="btn btn--outline btn--sm" data-wb-toast="请选择商品文件">导入商品</button></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-BGND-010" data-name="卡片带底" data-cat="BGND">
+  <div class="demo__head"><span class="demo__name">卡片带底</span></div>
+  <p class="demo__note">适合：卡片底部承载合计与动作的浅色带</p>
+  <div class="demo__stage is-plain"><div class="wb-bg-f wb-bg-f--mid bg-page">
+    <div class="card wb-bg-ocard">
+      <div class="wb-bg-ocard__body"><img src="../../kit/assets/photo/product-rose-red.webp" alt=""><div><p class="wb-bg-ord__t">红玫瑰花束</p><p class="wb-bg-ord__m">订单 0215 林晓</p></div><span class="tag" data-tone="warning">待发货</span></div>
+      <div class="wb-bg-ocard__foot"><span class="wb-bg-ord__m">实付<span class="price" style="margin-left: var(--s-2)"><small>¥</small>199</span></span><button class="btn btn--primary btn--sm" data-wb-toast="已发货">发货</button></div>
+    </div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-BGND-011" data-name="辅色强调带" data-cat="BGND">
+  <div class="demo__head"><span class="demo__name">辅色强调带</span></div>
+  <p class="demo__note">适合：活动与会员的通栏提醒</p>
+  <div class="demo__stage is-plain"><div class="wb-bg-f wb-bg-f--mid bg-surface">
+    <div class="bg-accent wb-bg-band"><span class="tag" data-tone="warning">活动</span><p>春日花展报名中</p><span class="wb-bg-band__sp"></span><button class="btn btn--accent btn--sm" data-wb-toast="已打开报名">去报名</button></div>
+    <div class="wb-bg-mini wb-bg-mini--flush"><img src="../../kit/assets/photo/product-tulip-white.webp" alt=""><p>白郁金香<small>报名商品</small></p><span class="price"><small>¥</small>179</span></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-BGND-012" data-name="品牌深色带" data-cat="BGND">
+  <div class="demo__head"><span class="demo__name">品牌深色带</span></div>
+  <p class="demo__note">适合：每屏至多一块的品牌强调区</p>
+  <div class="demo__stage is-plain"><div class="wb-bg-f wb-bg-f--0 bg-hero-deep"><div class="wb-bg-brand">
+    <span class="wb-bg-lab">本月销售额</span><span class="wb-bg-big"><small style="font-size: var(--fs-lg); margin-right: 2px">¥</small>386,420</span>
+    <button class="btn btn--white btn--sm" data-wb-toast="已打开报表">查看报表</button>
+    <img class="wb-bg-pic" src="../../kit/assets/photo/bouquet-rose.webp" alt="">
+  </div></div></div>
+</article>
+
+<article class="demo" data-cid="WB-BGND-013" data-name="品牌浅渐变底" data-cat="BGND">
+  <div class="demo__head"><span class="demo__name">品牌浅渐变底</span></div>
+  <p class="demo__note">适合：大号标题加图片的通栏横幅</p>
+  <div class="demo__stage is-plain"><div class="wb-bg-f wb-bg-f--0 bg-hero"><div class="wb-bg-brand" style="max-width: 62%">
+    <span class="wb-bg-big">周期订花</span>
+    <span class="tag" style="background: var(--surface); color: var(--action-press); justify-self: start">已开通 36 家门店</span>
+    <img class="wb-bg-pic" src="../../kit/assets/photo/bouquet-white.webp" alt="">
+  </div></div></div>
+</article>
+
+<article class="demo" data-cid="WB-BGND-014" data-name="分区浅底" data-cat="BGND">
+  <div class="demo__head"><span class="demo__name">分区浅底</span></div>
+  <p class="demo__note">适合：设置页里把几组白卡归在一个区域</p>
+  <div class="demo__stage is-plain"><div class="wb-bg-f wb-bg-f--zone"><div class="wb-bg-zone">
+    <div class="card"><div class="wb-bg-set"><span>新订单提醒</span><button class="switch" role="switch" aria-checked="true" aria-label="新订单提醒"></button></div><div class="wb-bg-set"><span>库存预警提醒</span><button class="switch" role="switch" aria-checked="true" aria-label="库存预警提醒"></button></div></div>
+    <div class="card"><div class="wb-bg-set"><span>营业状态</span><button class="switch" role="switch" aria-checked="false" aria-label="营业状态"></button></div></div>
+  </div></div></div>
+</article>
+
+<article class="demo" data-cid="WB-BGND-015" data-name="花瓣纹理底" data-cat="BGND">
+  <div class="demo__head"><span class="demo__name">花瓣纹理底</span></div>
+  <p class="demo__note">适合：会员与活动页的低对比铺底</p>
+  <div class="demo__stage is-plain"><div class="wb-bg-f wb-bg-f--0 bg-petals"><div class="wb-bg-tex">
+    <div class="card wb-bg-vip"><img src="../../kit/assets/marks/mark-003.webp" alt=""><div><p>林晓</p><small>金卡会员 累计消费 ¥ 6,280</small></div><span class="tag" data-tone="warning">金卡</span></div>
+  </div></div></div>
+</article>
+
+<article class="demo" data-cid="WB-BGND-016" data-name="叶片纹理底" data-cat="BGND">
+  <div class="demo__head"><span class="demo__name">叶片纹理底</span></div>
+  <p class="demo__note">适合：绿植与养护类页面的铺底</p>
+  <div class="demo__stage is-plain"><div class="wb-bg-f wb-bg-f--0 bg-leaves"><div class="wb-bg-tex">
+    <div class="card"><div class="wb-bg-mini"><img src="../../kit/assets/photo/product-monstera.webp" alt=""><p>龟背竹盆栽<small>库存 24 件</small></p><span class="price"><small>¥</small>159</span></div><div class="wb-bg-mini"><img src="../../kit/assets/photo/product-succulent.webp" alt=""><p>多肉组合盆<small>库存 61 件</small></p><span class="price"><small>¥</small>89</span></div></div>
+  </div></div></div>
+</article>
+
+<article class="demo" data-cid="WB-BGND-017" data-name="波纹纹理底" data-cat="BGND">
+  <div class="demo__head"><span class="demo__name">波纹纹理底</span></div>
+  <p class="demo__note">适合：数据与报表页的冷静铺底</p>
+  <div class="demo__stage is-plain"><div class="wb-bg-f wb-bg-f--0 bg-waves"><div class="wb-bg-tex">
+    <div class="card"><div class="wb-bg-bars">
+      <div class="wb-bg-bar"><span>鲜花</span><div class="progress"><i style="--v: 78%"></i></div><b>78%</b></div>
+      <div class="wb-bg-bar"><span>绿植</span><div class="progress"><i style="--v: 46%"></i></div><b>46%</b></div>
+      <div class="wb-bg-bar"><span>礼盒</span><div class="progress"><i style="--v: 31%"></i></div><b>31%</b></div>
+    </div></div>
+  </div></div></div>
+</article>
+
+<article class="demo" data-cid="WB-BGND-018" data-name="图案叠加色底" data-cat="BGND">
+  <div class="demo__head"><span class="demo__name">图案叠加色底</span></div>
+  <p class="demo__note">适合：主色底上叠一层花瓣纹理</p>
+  <div class="demo__stage is-plain"><div class="wb-bg-f wb-bg-f--0"><div class="wb-bg-over pattern-over">
+    <div class="wb-bg-over__txt"><span>金卡会员</span><span class="wb-bg-big">1,286</span><span>累计会员数</span></div>
+    <button class="btn btn--white btn--sm" data-wb-toast="已打开会员">查看会员</button>
+  </div></div></div>
+</article>
+
+<article class="demo" data-cid="WB-BGND-019" data-name="雾粉渐变底" data-cat="BGND">
+  <div class="demo__head"><span class="demo__name">雾粉渐变底</span></div>
+  <p class="demo__note">适合：概览区由上向下淡出的底</p>
+  <div class="demo__stage is-plain"><div class="wb-bg-f wb-bg-f--0 bg-mist"><div class="wb-bg-soft">
+    <h3>本周经营</h3>
+    <div class="wb-bg-grid3"><div class="card wb-bg-kpi"><span class="stat__label">销售额</span><span class="wb-bg-num"><small>¥</small>58,320</span></div><div class="card wb-bg-kpi"><span class="stat__label">订单数</span><span class="wb-bg-num">612<small>单</small></span></div><div class="card wb-bg-kpi"><span class="stat__label">新增会员</span><span class="wb-bg-num">84<small>人</small></span></div></div>
+  </div></div></div>
+</article>
+
+<article class="demo" data-cid="WB-BGND-020" data-name="柔光渐变底" data-cat="BGND">
+  <div class="demo__head"><span class="demo__name">柔光渐变底</span></div>
+  <p class="demo__note">适合：左上角带一团主色柔光的页底</p>
+  <div class="demo__stage is-plain"><div class="wb-bg-f wb-bg-f--0 bg-glow"><div class="wb-bg-soft">
+    <h3>门店营业</h3>
+    <div class="wb-bg-grid3"><div class="card wb-bg-kpi"><span class="stat__label">建国路店</span><span class="wb-bg-num">52<small>单</small></span></div><div class="card wb-bg-kpi"><span class="stat__label">徐汇滨江店</span><span class="wb-bg-num">38<small>单</small></span></div><div class="card wb-bg-kpi"><span class="stat__label">浦东世纪店</span><span class="wb-bg-num">45<small>单</small></span></div></div>
+  </div></div></div>
+</article>
+
+<article class="demo" data-cid="WB-BGND-021" data-name="暖米渐变底" data-cat="BGND">
+  <div class="demo__head"><span class="demo__name">暖米渐变底</span></div>
+  <p class="demo__note">适合：商品与活动页偏暖的底</p>
+  <div class="demo__stage is-plain"><div class="wb-bg-f wb-bg-f--0 bg-warm"><div class="wb-bg-soft">
+    <h3>节日礼盒</h3>
+    <div class="card"><div class="wb-bg-mini"><img src="../../kit/assets/photo/product-giftbox.webp" alt=""><p>花礼盒<small>库存 36 件</small></p><span class="price"><small>¥</small>259</span></div></div>
+  </div></div></div>
+</article>
+
+<article class="demo" data-cid="WB-BGND-022" data-name="绿植照片底" data-cat="BGND">
+  <div class="demo__head"><span class="demo__name">绿植照片底</span></div>
+  <p class="demo__note">适合：养护与绿植专题，文字落在白色面板上</p>
+  <div class="demo__stage is-plain"><div class="wb-bg-f wb-bg-f--0 bg-photo-green"><div class="wb-bg-glass"><div class="wb-bg-pane">
+    <h3>绿植盆栽</h3><span class="wb-bg-ord__m">在售 36 款</span><button class="btn btn--primary btn--sm" data-wb-toast="已打开绿植">查看绿植</button>
+  </div></div></div></div>
+</article>
+
+<article class="demo" data-cid="WB-BGND-023" data-name="场景照片横幅" data-cat="BGND">
+  <div class="demo__head"><span class="demo__name">场景照片横幅</span></div>
+  <p class="demo__note">适合：活动首图，左侧压一层深主色承载文字</p>
+  <div class="demo__stage is-plain"><div class="wb-bg-f wb-bg-f--0 bg-photo-scene"><div class="wb-bg-scene">
+    <h3>春日花展</h3><p>报名进行中</p><button class="btn btn--white btn--sm" data-wb-toast="已打开报名">去报名</button>
+  </div></div></div>
+</article>
+
+<article class="demo" data-cid="WB-BGND-024" data-name="弹层遮罩底" data-cat="BGND">
+  <div class="demo__head"><span class="demo__name">弹层遮罩底</span></div>
+  <p class="demo__note">适合：确认框后面压暗页面的遮罩</p>
+  <div class="demo__stage is-plain"><div class="wb-bg-f wb-bg-f--0"><div class="wb-bg-scrim">
+    <div class="wb-bg-grid3"><div class="card wb-bg-chip"><span class="stat__label">销售额</span><span class="wb-bg-num"><small>¥</small>128,640</span></div><div class="card wb-bg-chip"><span class="stat__label">订单数</span><span class="wb-bg-num">1,286<small>单</small></span></div><div class="card wb-bg-chip"><span class="stat__label">客单价</span><span class="wb-bg-num"><small>¥</small>99.6</span></div></div>
+    <div class="wb-bg-grid3"><div class="card wb-bg-chip"><span class="stat__label">待发货</span><span class="wb-bg-num">12<small>单</small></span></div><div class="card wb-bg-chip"><span class="stat__label">待收货</span><span class="wb-bg-num">8<small>单</small></span></div><div class="card wb-bg-chip"><span class="stat__label">库存预警</span><span class="wb-bg-num">6<small>件</small></span></div></div>
+    <div class="wb-bg-box"><h3 class="dialog__title">确认暂停营业</h3><div class="dialog__acts"><button class="btn btn--ghost" data-wb-toast="已取消">取消</button><button class="btn btn--primary" data-wb-toast="已暂停营业">暂停</button></div></div>
+  </div></div></div>
+</article>
+
+<article class="demo" data-cid="WB-BGND-025" data-name="柔光效果底" data-cat="BGND">
+  <div class="demo__head"><span class="demo__name">柔光效果底</span></div>
+  <p class="demo__note">适合：个人中心、会员页顶部的柔和光晕，不抢内容</p>
+  <div class="demo__stage is-plain"><div class="card bg-tint bgfx bgfx--glow wb-bg-fx"><div><h3>春日花礼</h3><p class="t-sub">同城当日配送</p></div><div class="wb-bg-fx__tail"><span class="price"><small>¥</small>159</span><button class="btn btn--primary btn--sm btn--pill" data-wb-toast="已打开花礼">去选花</button></div></div></div>
+</article>
+
+<article class="demo" data-cid="WB-BGND-026" data-name="点阵效果底" data-cat="BGND">
+  <div class="demo__head"><span class="demo__name">点阵效果底</span></div>
+  <p class="demo__note">适合：数据看板、工具页的安静纹理</p>
+  <div class="demo__stage is-plain"><div class="card bg-tint bgfx bgfx--dots wb-bg-fx"><div><h3>春日花礼</h3><p class="t-sub">同城当日配送</p></div><div class="wb-bg-fx__tail"><span class="price"><small>¥</small>159</span><button class="btn btn--primary btn--sm btn--pill" data-wb-toast="已打开花礼">去选花</button></div></div></div>
+</article>
+
+<article class="demo" data-cid="WB-BGND-027" data-name="网格效果底" data-cat="BGND">
+  <div class="demo__head"><span class="demo__name">网格效果底</span></div>
+  <p class="demo__note">适合：后台与工具类页头，强调秩序感</p>
+  <div class="demo__stage is-plain"><div class="card bg-tint bgfx bgfx--grid wb-bg-fx"><div><h3>春日花礼</h3><p class="t-sub">同城当日配送</p></div><div class="wb-bg-fx__tail"><span class="price"><small>¥</small>159</span><button class="btn btn--primary btn--sm btn--pill" data-wb-toast="已打开花礼">去选花</button></div></div></div>
+</article>
+
+<article class="demo" data-cid="WB-BGND-028" data-name="斜纹效果底" data-cat="BGND">
+  <div class="demo__head"><span class="demo__name">斜纹效果底</span></div>
+  <p class="demo__note">适合：活动与促销的轻动感底纹</p>
+  <div class="demo__stage is-plain"><div class="card bg-tint bgfx bgfx--lines wb-bg-fx"><div><h3>春日花礼</h3><p class="t-sub">同城当日配送</p></div><div class="wb-bg-fx__tail"><span class="price"><small>¥</small>159</span><button class="btn btn--primary btn--sm btn--pill" data-wb-toast="已打开花礼">去选花</button></div></div></div>
+</article>
+
+<article class="demo" data-cid="WB-BGND-029" data-name="同心圆效果底" data-cat="BGND">
+  <div class="demo__head"><span class="demo__name">同心圆效果底</span></div>
+  <p class="demo__note">适合：品牌卡、会员卡的角落点缀</p>
+  <div class="demo__stage is-plain"><div class="card bg-tint bgfx bgfx--rings wb-bg-fx"><div><h3>春日花礼</h3><p class="t-sub">同城当日配送</p></div><div class="wb-bg-fx__tail"><span class="price"><small>¥</small>159</span><button class="btn btn--primary btn--sm btn--pill" data-wb-toast="已打开花礼">去选花</button></div></div></div>
+</article>
+
+<article class="demo" data-cid="WB-BGND-030" data-name="跟随全局效果底" data-cat="BGND">
+  <div class="demo__head"><span class="demo__name">跟随全局效果底</span></div>
+  <p class="demo__note">适合：页头与大卡随外壳的背景选项一起换</p>
+  <div class="demo__stage is-plain"><div class="card bg-tint bgfx wb-bg-fx"><div><h3>春日花礼</h3><p class="t-sub">同城当日配送</p></div><div class="wb-bg-fx__tail"><span class="price"><small>¥</small>159</span><button class="btn btn--primary btn--sm btn--pill" data-wb-toast="已打开花礼">去选花</button></div></div></div>
+</article>
+
+<script>
+(function () {
+  const root = document.getElementById('cat-bgnd'); if (!root) return;
+  const $$ = (s, r = root) => [...r.querySelectorAll(s)];
+  $$('[data-wb-toast]').forEach(b => b.addEventListener('click', () => Lz.toast(b.dataset.wbToast, 'success')));
+  $$('[data-wb-login]').forEach(f => f.addEventListener('submit', e => { e.preventDefault(); Lz.toast('登录成功', 'success'); }));
+  $$('[data-wb-rail]').forEach(r => $$('.rail__item', r).forEach(i => i.addEventListener('click', () => $$('.rail__item', r).forEach(x => { if (x === i) x.setAttribute('aria-current', 'page'); else x.removeAttribute('aria-current'); }))));
+})();
+</script>
+
+<article class="demo" data-cid="WB-BGND-031" data-name="页面水印" data-cat="BGND">
+  <div class="demo__head"><span class="demo__name">页面水印</span></div>
+  <p class="demo__note">适合：后台敏感页叠加账号尾号水印防截图外传</p>
+  <div class="demo__stage is-plain"><div class="wb-bg-f wb-bg-f--0 bg-surface wb-bg-wm" id="wb-bg-wm" data-on="true">
+    <div class="wb-bg-wm__bar">
+      <h3 class="wb-bg-h">会员资料</h3>
+      <div class="wb-bg-wm__ctl">
+        <div class="btn-seg" role="group" aria-label="水印密度"><button aria-pressed="false" data-d="loose">疏</button><button aria-pressed="true" data-d="mid">中</button><button aria-pressed="false" data-d="dense">密</button></div>
+        <span class="wb-bg-sw"><span>水印</span><button class="switch" role="switch" aria-checked="true" aria-label="页面水印"></button></span>
+      </div>
+    </div>
+    <div class="wb-bg-wm__rows">
+      <div class="wb-bg-wm__row"><img class="avatar" src="../../kit/assets/marks/mark-003.webp" alt=""><div><p class="wb-bg-ord__t">林晓</p><p class="wb-bg-ord__m">金卡会员</p></div><span class="wb-bg-wm__tel">138****6618</span><span class="price"><small>¥</small>6,280</span></div>
+      <div class="wb-bg-wm__row"><img class="avatar" src="../../kit/assets/marks/mark-008.webp" alt=""><div><p class="wb-bg-ord__t">陈默</p><p class="wb-bg-ord__m">银卡会员</p></div><span class="wb-bg-wm__tel">139****2057</span><span class="price"><small>¥</small>3,460</span></div>
+      <div class="wb-bg-wm__row"><img class="avatar" src="../../kit/assets/marks/mark-012.webp" alt=""><div><p class="wb-bg-ord__t">王芳</p><p class="wb-bg-ord__m">金卡会员</p></div><span class="wb-bg-wm__tel">136****8821</span><span class="price"><small>¥</small>5,910</span></div>
+    </div>
+    <div class="wb-bg-wm__layer" aria-hidden="true"></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-BGND-032" data-name="滚动边缘渐隐" data-cat="BGND">
+  <div class="demo__head"><span class="demo__name">滚动边缘渐隐</span></div>
+  <p class="demo__note">适合：限高滚动区上下边缘渐隐提示还有内容</p>
+  <div class="demo__stage is-plain"><div class="wb-bg-f wb-bg-f--0 bg-surface" id="wb-bg-fd">
+    <div class="wb-bg-fd__bar"><h3 class="wb-bg-h">最新订单</h3><span class="wb-bg-sw"><span>边缘渐隐</span><button class="switch" role="switch" aria-checked="true" aria-label="边缘渐隐"></button></span></div>
+    <div class="wb-bg-fd__scroll" tabindex="0" role="region" aria-label="订单列表" data-fade="true">
+      <div class="wb-bg-ord"><img class="thumb" src="../../kit/assets/photo/product-rose-red.webp" alt=""><div><p class="wb-bg-ord__t">红玫瑰花束</p><p class="wb-bg-ord__m">林晓 建国路店</p></div><span class="price"><small>¥</small>199</span><span class="tag" data-tone="warning">待发货</span></div>
+      <div class="wb-bg-ord"><img class="thumb" src="../../kit/assets/photo/product-peony-pink.webp" alt=""><div><p class="wb-bg-ord__t">粉芍药花束</p><p class="wb-bg-ord__m">陈默 徐汇滨江店</p></div><span class="price"><small>¥</small>239</span><span class="tag" data-tone="info">待收货</span></div>
+      <div class="wb-bg-ord"><img class="thumb" src="../../kit/assets/photo/product-giftbox.webp" alt=""><div><p class="wb-bg-ord__t">花礼盒</p><p class="wb-bg-ord__m">王芳 浦东世纪店</p></div><span class="price"><small>¥</small>259</span><span class="tag" data-tone="success">已完成</span></div>
+      <div class="wb-bg-ord"><img class="thumb" src="../../kit/assets/photo/product-hydrangea-blue.webp" alt=""><div><p class="wb-bg-ord__t">蓝绣球盆栽</p><p class="wb-bg-ord__m">周岚 建国路店</p></div><span class="price"><small>¥</small>129</span><span class="tag" data-tone="warning">待发货</span></div>
+      <div class="wb-bg-ord"><img class="thumb" src="../../kit/assets/photo/product-sunflower.webp" alt=""><div><p class="wb-bg-ord__t">向日葵花束</p><p class="wb-bg-ord__m">李强 徐汇滨江店</p></div><span class="price"><small>¥</small>159</span><span class="tag" data-tone="success">已完成</span></div>
+      <div class="wb-bg-ord"><img class="thumb" src="../../kit/assets/photo/product-succulent.webp" alt=""><div><p class="wb-bg-ord__t">多肉组合盆</p><p class="wb-bg-ord__m">赵敏 浦东世纪店</p></div><span class="price"><small>¥</small>89</span><span class="tag" data-tone="info">待收货</span></div>
+      <div class="wb-bg-ord"><img class="thumb" src="../../kit/assets/photo/product-monstera.webp" alt=""><div><p class="wb-bg-ord__t">龟背竹盆栽</p><p class="wb-bg-ord__m">孙悦 建国路店</p></div><span class="price"><small>¥</small>159</span><span class="tag" data-tone="success">已完成</span></div>
+      <div class="wb-bg-ord"><img class="thumb" src="../../kit/assets/photo/product-tulip-white.webp" alt=""><div><p class="wb-bg-ord__t">白郁金香</p><p class="wb-bg-ord__m">吴桐 徐汇滨江店</p></div><span class="price"><small>¥</small>179</span><span class="tag" data-tone="success">已完成</span></div>
+    </div>
+  </div></div>
+</article>
+
+<style>
+  /* 新增：页面水印、滚动边缘渐隐 */
+  @property --wb-ft { syntax: "<number>"; inherits: false; initial-value: 0; }
+  @property --wb-fb { syntax: "<number>"; inherits: false; initial-value: 1; }
+  .wb-bg-sw { display: inline-flex; align-items: center; gap: var(--s-2); font-size: var(--fs-sm); color: var(--ink-2); white-space: nowrap; }
+
+  .wb-bg-wm { position: relative; }
+  .wb-bg-wm__bar { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); min-height: 60px; padding: var(--s-3) var(--s-5) var(--s-1); }
+  .wb-bg-wm__ctl { display: flex; align-items: center; gap: var(--s-4); }
+  .wb-bg-wm__rows { padding: 0 var(--s-5) var(--s-2); }
+  .wb-bg-wm__row { display: grid; grid-template-columns: 40px minmax(0, 1fr) 108px 72px; align-items: center; gap: var(--s-3); min-height: 62px; }
+  .wb-bg-wm__row + .wb-bg-wm__row { border-top: 1px solid var(--line); }
+  .wb-bg-wm__row .avatar { width: 40px; height: 40px; }
+  .wb-bg-wm__row .price { text-align: right; }
+  .wb-bg-wm__tel { text-align: center; font-size: var(--fs-sm); color: var(--ink-2); font-variant-numeric: tabular-nums; }
+  .wb-bg-wm__layer { position: absolute; inset: 0; z-index: 2; pointer-events: none; background-repeat: repeat; transition: opacity var(--dur-base) var(--ease-out); }
+  .wb-bg-wm[data-on="false"] .wb-bg-wm__layer { opacity: 0; }
+
+  .wb-bg-fd__bar { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); min-height: 60px; padding: var(--s-3) var(--s-5) var(--s-1); }
+  .wb-bg-fd__scroll { --wb-ft: 0; --wb-fb: 1; height: 200px; padding: 0 var(--s-5); overflow-y: auto; scrollbar-width: none; overscroll-behavior: contain; transition: --wb-ft var(--dur-base) var(--ease-out), --wb-fb var(--dur-base) var(--ease-out); }
+  .wb-bg-fd__scroll::-webkit-scrollbar { display: none; }
+  .wb-bg-fd__scroll:focus-visible { outline-offset: -3px; border-radius: var(--r-md); }
+  .wb-bg-fd__scroll[data-fade="true"] { -webkit-mask-image: linear-gradient(to bottom, transparent 0, var(--ink) calc(var(--wb-ft) * 44px), var(--ink) calc(100% - var(--wb-fb) * 44px), transparent 100%); mask-image: linear-gradient(to bottom, transparent 0, var(--ink) calc(var(--wb-ft) * 44px), var(--ink) calc(100% - var(--wb-fb) * 44px), transparent 100%); }
+</style>
+
+<script>
+(function () {
+  const root = document.getElementById('cat-bgnd'); if (!root) return;
+  const $ = (s, r = root) => r.querySelector(s), $$ = (s, r = root) => [...r.querySelectorAll(s)];
+
+  /* 页面水印：账号尾号铺成斜向平铺图，不挡操作；疏密与开关都即时生效，换主题时重画 */
+  const wm = $('#wb-bg-wm');
+  if (wm) {
+    const layer = $('.wb-bg-wm__layer', wm), sw = $('[role="switch"]', wm), seg = $$('.btn-seg button', wm);
+    const sizes = { loose: [288, 196], mid: [220, 150], dense: [164, 112] };
+    let dens = 'mid';
+    const ink = () => { const p = document.createElement('i'); p.style.color = 'var(--ink)'; document.body.appendChild(p); const c = getComputedStyle(p).color; p.remove(); return c; };
+    const draw = () => {
+      const [tw, th] = sizes[dens], k = 2, c = document.createElement('canvas'); c.width = tw * k; c.height = th * k;
+      const g = c.getContext('2d'); if (!g) return;
+      g.scale(k, k); g.translate(tw / 2, th / 2); g.rotate(-22 * Math.PI / 180);
+      g.fillStyle = ink(); g.globalAlpha = 0.12; g.textAlign = 'center'; g.textBaseline = 'middle';
+      g.font = '600 14px ' + getComputedStyle(document.body).fontFamily;
+      g.fillText('周岚 尾号 6618', 0, -10); g.fillText('建国路店', 0, 12);
+      layer.style.backgroundImage = 'url(' + c.toDataURL() + ')'; layer.style.backgroundSize = tw + 'px ' + th + 'px';
+    };
+    seg.forEach(b => b.addEventListener('click', () => { dens = b.dataset.d; seg.forEach(x => x.setAttribute('aria-pressed', String(x === b))); draw(); }));
+    sw.addEventListener('lz:toggle', () => { wm.dataset.on = sw.getAttribute('aria-checked'); });
+    document.addEventListener('lz:skin', () => requestAnimationFrame(draw));
+    draw();
+  }
+
+  /* 滚动边缘渐隐：顶端不渐隐，滚下去上沿渐隐；没到底下沿渐隐，到底就消失 */
+  const fd = $('#wb-bg-fd');
+  if (fd) {
+    const sc = $('.wb-bg-fd__scroll', fd), sw = $('[role="switch"]', fd);
+    const sync = () => { sc.style.setProperty('--wb-ft', sc.scrollTop > 2 ? 1 : 0); sc.style.setProperty('--wb-fb', sc.scrollTop + sc.clientHeight < sc.scrollHeight - 2 ? 1 : 0); };
+    sc.addEventListener('scroll', sync, { passive: true });
+    sw.addEventListener('lz:toggle', () => { sc.dataset.fade = sw.getAttribute('aria-checked'); });
+    new ResizeObserver(sync).observe(sc); sync();
+  }
+})();
+</script>

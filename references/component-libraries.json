@@ -1,5 +1,6 @@
 {
-  "version": "2026-11-04.v3",
+  "version": "2026-11-06.v4",
+  "runtimeVerification": "类名/标签前缀与 data-cid 只用于初筛，不证明真实组件实例。正式开源组件模板必须核对锁定的依赖、许可证和框架组件身份；Vant 适配器用实际 Vue 实例的 type 与 Vant 导出对象比较。luz-kit（本库 HTML 模板）是内部原型参考，不能满足接入成熟开源组件的要求。每个业务需求仍须采集当前官方正文；注册表历史核验不能代替本次 Crawl。",
   "note": "前端组件库注册表。规则：每个前端（后台、小程序、网站、H5）在设计开始前从这里选一个组件库，一个前端一个库，不混用；按钮、表单、表格、对话框、导航等控件一律是该库的真实组件，不手写 HTML/CSS 自造控件，自定义只限布局与组合、按主题令牌换色、由库的原子组件拼成的业务块（visual-design.html 二、排版基础 › 组件与组件库）。prefix 是该库渲染出的类名（或自定义元素标签）前缀，scripts/audit_rendered.py --library 按它判断一个控件是不是来自库；theme 是该库官方的换色方式，主题库 themes.json 的令牌通过它落到组件上；surfaces 是适用的前端：admin 后台、website 网站、h5 手机网页、miniapp 小程序。新增一个库要先用 Luz-Crawl 读它的官方文档，再写 docs、theme、prefix，并在 verified 写核验日期。 类名前缀（prefix）来自各库的通行写法，还没有在官方文档页里逐一核对：第一次用审计脚本跑真实渲染页时核对，不对就改这里。verified 为空表示还没有核对过官方文档。 dark 是该库的暗色接入方式（visual-design.html 一、视觉基础 › 深色与浅色两套主题：产品前端同时有浅色与深色两套主题，库的暗色机制与页面的 data-theme 必须同步），darkSource 写依据：登记已有的事实、用户给出的写法或官方文档核验日期；dark 为空表示还没有核对，先读官方文档再填，不得凭记忆假设。 带 attr 字段的库（luz-kit，仓库自有）不按类名前缀核对，按组件根上的该属性（data-cid，值是组件编号）核对：audit_rendered.py --library luz-kit 要求每个控件落在带该属性的组件根里，组件种类按不同的属性值计；它的 prefix 是组件根类（mpcard003、adtbl001）的前缀，docs 指向仓库内文档。",
   "libraries": {
     "element-plus": {
@@ -125,14 +126,20 @@
       "prefix": [
         "van-"
       ],
-      "theme": "ConfigProvider 全局配置与 CSS 变量",
-      "dark": "ConfigProvider 的 theme 属性取 dark（Vant 4）；自定义的 CSS 变量在深色下另设一份；切换时同时改 theme 与页面的 data-theme",
-      "darkSource": "登记已有“支持深色模式”，theme 属性写法为用户 2026-11-04 提供，未对官方文档逐项核对",
+      "theme": "真实 Vue 组件以 app.use 注册；ConfigProvider 的 theme-vars、theme-vars-light/dark 覆盖主题，基础变量需 theme-vars-scope=global 或根作用域。可配置模板同时映射页面和组件变量。",
+      "dark": "ConfigProvider theme=dark 切换组件；它不会单独改变页面文字与背景，页面变量、data-theme 与 color-scheme 必须同步。浅深两套颜色分别测量对比度。",
+      "darkSource": "2026-11-06 用 Luz-Crawl 阅读官方 ConfigProvider 正文（SRC-002），明确基础变量的全局作用域，以及 theme=dark 不会自动改变页面背景和文字；真实离线模板验证了主题与页面同步。",
       "license": "MIT",
       "docs": "https://vant-ui.github.io/vant/#/zh-CN",
       "fit": "手机网页与 H5 商城、会员、点餐类页面，移动端控件最全",
-      "verified": "2026-11-03",
-      "seen": "4.9.22，Vue 3，MIT，长期支持，支持深色模式与按需引入"
+      "verified": "2026-11-06",
+      "seen": "本地固定 vue@3.5.22 与 vant@4.9.22，来自 npm tarball，保留 MIT 原文及文件哈希。真实 Vue 组件身份、离线行为、复制/导入/重建已核验。此次只实现 h5，不能标记为微信原生小程序。",
+      "source": "https://vant-ui.github.io/vant/#/en-US/config-provider",
+      "verification": {
+        "runtime": "LuzStudio.proof() 比较实际 Vue component.type 与 Vant exports",
+        "delivery": "scripts/frontend.py seal/review/check + check_document.py --allow interface",
+        "scope": "当前官方 ConfigProvider 正文；未宣称逐页核验 Vant 全部 API"
+      }
     },
     "tdesign-miniprogram": {
       "name": "TDesign 小程序版",
@@ -200,53 +207,23 @@
       "seen": "微信官方设计团队的基础样式库，视觉与微信原生一致"
     },
     "luz-kit": {
-      "name": "Luz 组件模板库",
+      "name": "Luz 模板库",
       "stack": "原生 HTML、CSS 与 JS，无框架依赖",
       "surfaces": [
-        "miniapp",
         "h5",
-        "admin"
+        "admin",
+        "website"
       ],
-      "prefix": [
-        "mphdr",
-        "mpent",
-        "mpcard",
-        "mpprc",
-        "mpbtn",
-        "mpnav",
-        "mpform",
-        "mpfb",
-        "mpmkt",
-        "mpgoods",
-        "mpord",
-        "mpmem",
-        "mpcont",
-        "mplist",
-        "mpstate",
-        "mpsvc",
-        "adtbl",
-        "adflt",
-        "adform",
-        "adctrl",
-        "addata",
-        "adchart",
-        "adnav",
-        "adfb",
-        "adstate",
-        "adflow",
-        "adcomm",
-        "admgmt",
-        "adpage"
-      ],
+      "prefix": [],
       "attr": "data-cid",
-      "theme": "主题令牌 --p --pd --pt --pm --ga --gb --p-rgb，文字用 --p-text（浅色 = --pd）与 --p-fg（浅色 = --p）；kit.js 的 THEMES 有 8 套低饱和主题（雾粉、珊瑚、暖橙、草绿、青碧、天蓝、紫藤、石墨），每套有浅色与深色两组值，applyTheme(el, id) 只写 data-lt 属性，kit.css 按元素所在的外观选一组；换色只改这些变量，组件 CSS 不写死主色",
-      "dark": "已做，浅色是默认。<html> 或任意祖先带类 dark 为深色，带类 light 强制浅色，都没有则跟随系统（prefers-color-scheme: dark）；data-theme=\"dark\"/\"light\" 与同名类等价，color-scheme 同步声明；kit.js 的 setAppearance('system'|'light'|'dark') 设置并记到 localStorage 的 luz-theme，库页面工具栏有“外观”三选一。组件的背景、文字、边框、阴影、遮罩与状态色一律是令牌（--card --soft --n1…n12 --line --ink…--ink7 --ok --ok-bg --ok-fill --sh06 --mask 等，浅色值等于原来写死的值，深色值由 tools/tokens.py 生成），静态检查禁止写死。深色下 303 个组件的文字、图标与占位对比度全库实测，只剩 1 个有理由的例外（AD-STATE-002 的装饰数字）；例外清单与取值见 README“深色”一节",
-      "darkSource": "2026-11-04 在本库内做成并实测：令牌化后用 Playwright 逐个文本节点量对比度（桌面 1500、手机 390，8 套主题，系统跟随与类两种触发）；取值思路借自 references/themes.json 的 shared.dark 与各主题 dark 映射和 scripts/make_dark.py（同色相，明度按对比度目标求解）；未参照外部文档",
+      "theme": "令牌在 kit/tokens.css，由 references/themes.json 生成（scripts/sync_template_tokens.py）；页面用 data-theme 切换主题，组件样式只引用变量，不写死主色",
+      "dark": "未做。模板库只有浅色；卡片不做深色底，需要深色须用户对硬规则例外二次确认",
+      "darkSource": "硬规则：卡片以白色为主，禁止过深卡片",
       "license": "项目自有",
-      "docs": "references/component-library/README.md",
-      "fit": "要出带编号、可直接演示的原型：小程序 160 个、后台 143 个可交互组件，凭编号（如 MP-CARD-003、AD-TBL-001）取源码；三栏原型模板的页面由它拼装。与 Element Plus、Vant 并存：要接真实代码用它们，同一个原型只选一个库",
-      "verified": "2026-11-04",
-      "seen": "本仓库 references/component-library：303 个组件（MP 160、AD 143），静态检查与 Playwright 实测通过，含深色全库对比度与浅色逐像素回归；按组件根上的 data-cid 核对（audit_rendered.py --library luz-kit），不按类名前缀"
+      "docs": "references/design/components.md",
+      "fit": "内部布局与业务组合参考：App 与 Web 各六页（首页、列表、订单、我的、智能体、卡片画廊）带编号的可交互组件，可按编号取源码（scripts/template_registry.py）。它是自有 HTML、CSS、JS，不是 Vant、Element Plus 或微信原生运行时。用户要求成熟开源组件时，按目标端真实库重做控件适配并验证，不能仅改标签或 data-cid。",
+      "verified": "2026-11-09",
+      "seen": "本仓库 templates/app 与 templates/web：按组件根上的 data-cid 核对（audit_rendered.py --library luz-kit），不按类名前缀"
     }
   }
 }

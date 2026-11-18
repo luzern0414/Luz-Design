@@ -1,0 +1,15 @@
+{
+  "id": "DC-RD-P08",
+  "name": "引用块",
+  "use": "逐字照录的第三方文字放在引用容器内并标语言，后接来源序号；引用标记不用于自己写的文字",
+  "fragment": {
+    "type": "quote",
+    "lang": "en",
+    "text": "Reference guides are technical descriptions of the machinery and how to operate it. Reference material is information-oriented.",
+    "cite": "[^1]"
+  },
+  "used_in": [
+    "DC-RD-005",
+    "DC-RD-006"
+  ]
+}

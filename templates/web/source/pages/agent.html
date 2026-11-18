@@ -1,0 +1,572 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="navy" data-bg="none" data-ic-base="../../../../kit/assets/icons">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>经营问答</title>
+<link rel="icon" href="../../../../kit/assets/icons/flat/bouquet.webp">
+<link rel="stylesheet" href="../../../../kit/tokens.css">
+<link rel="stylesheet" href="../../../../kit/ui.css">
+<link rel="stylesheet" href="../../../../kit/kit.css">
+<link rel="stylesheet" href="../../../../kit/web.css">
+<link rel="stylesheet" href="../../../../kit/agent.css">
+<style>
+  /* 侧栏标识、胶囊标签与表格的统一细节 */
+  .tag { height: 24px; padding: 0 var(--s-3); border-radius: var(--r-full); }
+  .tag--dot::before { content: ""; width: 6px; height: 6px; margin-right: 6px; border-radius: 50%; background: currentColor; }
+  /* 本页专属：三栏工作台，左会话、中对话、右过程产物引用；宽屏各栏内部滚动，输入区固定在对话底部 */
+  :root { --toast-bottom: 8px; }
+  .ag { display: grid; grid-template-columns: 240px minmax(0, 1fr) 320px; gap: var(--s-4); height: calc(100vh - 144px); min-height: 600px; margin-top: var(--s-2); }
+  .ag__col { position: relative; display: flex; flex-direction: column; min-width: 0; min-height: 0; margin-top: 0; }
+  .ag__col > .section__body { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+  .ag__head h2 { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+
+  /* 左栏：会话搜索与列表 */
+  .ag__find { flex: none; padding: var(--s-3); border-bottom: 1px solid var(--line); }
+  .ag__list { flex: 1; min-height: 0; overflow-y: auto; }
+  .ag__list .row__title, .ag__list .row__meta { display: block; }
+  .ag__list .row__title { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .ag__list .row { min-height: 68px; }
+  .ag__list .row__lead { width: 40px; height: 40px; border-radius: 0; object-fit: contain; filter: drop-shadow(0 4px 6px color-mix(in srgb, var(--ink) 14%, transparent)); }
+  .ag__list .row[aria-current="true"] { background: var(--action-tint); box-shadow: inset 3px 0 0 var(--action); }
+  .ag__list .row[aria-current="true"] .row__title { color: var(--action-press); }
+  .ag__dropbtn { display: none; }
+
+  /* 中栏：消息流与输入区 */
+  .ag__log { flex: 1; min-height: 0; overflow-y: auto; padding: 0 var(--s-5); overscroll-behavior: contain; }
+  .ag__foot { flex: none; display: grid; gap: var(--s-3); padding: var(--s-3) var(--s-4) var(--s-4); border-top: 1px solid var(--line); background: var(--surface); }
+  .ag__foot .prompt { box-shadow: none; border-radius: var(--r-xl); }
+  .msg__avatar { box-shadow: 0 0 0 1px var(--line); background: var(--surface); }
+  .ag__files { display: flex; flex-wrap: wrap; gap: var(--s-2); }
+  .ag__files .tool { padding-right: var(--s-1); }
+  .ag__files .tool::before { display: none; }
+  .ag__files .tool span { max-width: 180px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .ag__files .ibtn { width: 28px; height: 28px; }
+  .ag__files .ibtn img { width: 14px; height: 14px; }
+  .prompt__bar { flex-wrap: wrap; }
+  .prompt:focus-within { border-color: var(--ink-2); }
+  .prompt textarea:focus-visible { outline: none; }
+  #mic[aria-pressed="true"] { background: var(--action-tint); }
+  .ag__state { padding: var(--s-4) 0; }
+  .chat:has(.ag__empty) { min-height: 100%; align-content: center; }
+  .ag__skel { display: grid; gap: var(--s-5); padding: var(--s-4) 0; }
+  .ag__skel .msg__body > .skel { height: 20px; }
+
+  /* 对话内的原语：工具调用的输入输出、产物预览、任务卡 */
+  .msg__body > * { min-width: 0; }
+  .msg__body > .tag { justify-self: start; }
+  .msg--user .tag { margin-top: var(--s-1); }
+  .msg--user[data-queued] .bubble { opacity: .6; }
+  .toolset { display: grid; }
+  .tool { cursor: pointer; }
+  .tool small { font-size: var(--fs-xs); color: var(--ink-3); }
+  .tool[aria-expanded="true"] { background: var(--zone); border-color: var(--line-strong); }
+  .io { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--s-1) var(--s-3); }
+  .io dt { color: var(--ink-3); }
+  .io dd { margin: 0; color: var(--ink); }
+  .io__bar { margin-top: var(--s-3); }
+  .cite { cursor: pointer; }
+  .cite.is-hit { background: var(--action); color: var(--bg); }
+  .artifact .expand { grid-column: 1 / -1; }
+  .art__prev { margin-top: var(--s-3); border-top: 1px solid var(--line); overflow-x: auto; }
+  .art__prev .table { font-size: var(--fs-sm); }
+  .art__prev .table th, .art__prev .table td { padding: var(--s-2) var(--s-3); }
+  .art__prev .table tbody tr { cursor: default; }
+  .taskcard .task__ic { width: 32px; height: 32px; }
+  .task > div, .artifact > div { min-width: 0; }
+  .task .row__title, .task .row__meta, .artifact .row__title, .artifact .row__meta { display: block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .approval .tag { justify-self: start; height: 28px; padding: 0 var(--s-3); font-size: var(--fs-sm); }
+  .opt:focus-visible { outline-offset: -2px; }
+
+  /* 右栏：分段切换三个面板，下方为上下文用量 */
+  .ag__seg { flex: none; padding: var(--s-3); border-bottom: 1px solid var(--line); }
+  .ag__seg .seg { padding: 3px; border-radius: var(--r-full); background: var(--zone); box-shadow: inset 0 0 0 1px var(--action-edge); }
+  .ag__seg .seg__item { flex: 1; min-height: 32px; padding: 0 var(--s-2); background: transparent; }
+  .ag__seg .seg__item[aria-selected="true"] { background: var(--action); }
+  .ag__panels { flex: 1; min-height: 0; overflow-y: auto; }
+  .ag__stack { display: grid; gap: var(--s-2); padding: var(--s-3); }
+  .ag__panels .row__title, .ag__panels .row__meta { display: block; }
+  .ag__panels .row[aria-current="true"] { background: var(--action-tint); }
+  .ag__panels .task__ic { width: 32px; height: 32px; }
+  .ag__panels .empty { padding: var(--s-6) var(--s-4); }
+  .ag__panels .empty img { width: 72px; height: 72px; }
+  .ctx { display: grid; gap: var(--s-2); padding: var(--s-4); }
+  .ctx__top { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-3); }
+
+  @media (max-width: 1280px) { .ag { grid-template-columns: 228px minmax(0, 1fr) 264px; } .ag__list .row { padding-left: var(--s-3); padding-right: var(--s-3); } }
+  /* 窄屏：左栏收为会话下拉，右栏排在对话之下，不遮挡输入区 */
+  @media (max-width: 1100px) {
+    .ag { grid-template-columns: minmax(0, 1fr); height: auto; min-height: 0; gap: var(--s-3); }
+    .ag__side > .section__head h2 { display: none; }
+    .ag__dropbtn { display: inline-flex; width: 100%; min-height: 44px; justify-content: space-between; font-size: var(--fs-md); }
+    .ag__dropbtn b { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+    .ag__side > .section__body { display: none; position: absolute; z-index: 30; left: 0; right: 0; top: 48px; max-height: min(60vh, 420px); box-shadow: var(--elev-3); }
+    .ag__side[data-open="true"] > .section__body { display: flex; }
+    .ag__main { height: min(78vh, 720px); min-height: 520px; }
+    .ag__main > .section__head { display: none; }
+    .ag__main > .section__body { margin-top: 0; }
+    .ag__panels { max-height: 360px; flex: none; }
+    .ag__rail > .section__body { flex: none; }
+  }
+  @media (max-width: 760px) {
+    .msg { grid-template-columns: minmax(0, 1fr); }
+    .msg__avatar { display: none; }
+    .ag__log { padding: 0 var(--s-3); }
+    .ag__foot { padding: var(--s-2) var(--s-3) var(--s-3); }
+    .msg--user .bubble { max-width: 94%; }
+  }
+</style>
+</head>
+<body class="web-body">
+<div class="web">
+  <!-- 左侧主导航：图文同行，当前项有背景与指示线；不放产品名 -->
+  <nav class="rail" data-cid="WB-NAV-001" data-name="左侧主导航" aria-label="主导航">
+    <img class="rail__logo" data-ic="bouquet" src="../../../../kit/assets/icons/flat/bouquet.webp" alt="">
+    <a class="rail__item" href="home.html"><img src="../../../../kit/assets/line/home.webp" alt=""><span>工作台</span></a>
+    <a class="rail__item" href="list.html"><img src="../../../../kit/assets/line/list.webp" alt=""><span>列表</span></a>
+    <a class="rail__item" href="orders.html"><img src="../../../../kit/assets/line/archive.webp" alt=""><span>订单</span></a>
+    <a class="rail__item" href="agent.html" aria-current="page"><img src="../../../../kit/assets/line/message.webp" alt=""><span>助手</span></a>
+    <span class="rail__sp"></span>
+    <a class="rail__item" href="mine.html"><img src="../../../../kit/assets/line/user.webp" alt=""><span>我的</span></a>
+  </nav>
+
+  <main class="main"><div class="main__in">
+    <!-- 页面顶部：平面区，标题单行，右侧只放新会话 -->
+    <header class="head" data-cid="WB-AGNT-001" data-name="页面顶部标题新会话">
+      <div class="head__row">
+        <h1>经营问答</h1>
+        <div class="head__acts">
+          <button class="ibtn ibtn--round" id="newConv" data-tip="新会话" aria-label="新会话"><img src="../../../../kit/assets/line/add.webp" alt=""></button>
+        </div>
+      </div>
+    </header>
+
+    <div class="ag">
+      <!-- 左栏：会话历史，选中态，搜索过滤；窄屏收为下拉 -->
+      <section class="section ag__col ag__side" id="side" data-cid="WB-AGNT-002" data-name="会话历史卡">
+        <div class="section__head">
+          <h2>会话</h2>
+          <button type="button" class="drop__btn ag__dropbtn" id="dropbtn" aria-haspopup="listbox" aria-expanded="false" aria-controls="sidecard" aria-label="切换会话"><b id="curLabel"></b></button>
+        </div>
+        <div class="card section__body" id="sidecard">
+          <div class="ag__find"><label class="search"><img src="../../../../kit/assets/line/search.webp" alt=""><input type="search" id="find" placeholder="搜索会话" aria-label="搜索会话"></label></div>
+          <div class="ag__list" id="convlist"></div>
+        </div>
+      </section>
+
+      <!-- 中栏：对话与输入 -->
+      <section class="section ag__col ag__main">
+        <div class="section__head ag__head"><h2 id="convTitle"></h2><span class="tag" data-tone="action" id="gen" hidden>生成中</span></div>
+        <div class="card section__body">
+          <div class="ag__log" id="log" role="log" aria-live="polite" aria-busy="false" aria-label="对话" tabindex="0" data-cid="WB-AGNT-003" data-name="对话消息流"></div>
+          <div class="ag__foot">
+            <div class="suggest" data-cid="WB-AGNT-004" data-name="建议问法横滑条" aria-label="建议问法">
+              <button type="button">汇总本周配送超时订单</button>
+              <button type="button">对比上周会员复购率</button>
+              <button type="button">列出库存预警商品</button>
+              <button type="button">检查支付流水差异</button>
+            </div>
+            <form class="prompt" id="composer" autocomplete="off" data-cid="WB-AGNT-005" data-name="提问输入栏">
+              <div class="ag__files" id="files" hidden></div>
+              <textarea id="q" rows="1" placeholder="输入问题" aria-label="输入问题"></textarea>
+              <div class="prompt__bar">
+                <button type="button" class="ibtn" id="attach" data-tip="添加附件" aria-label="添加附件"><img src="../../../../kit/assets/line/upload.webp" alt=""></button>
+                <input type="file" id="file" hidden>
+                <button type="button" class="ibtn" id="mic" data-tip="语音输入" aria-label="语音输入" aria-pressed="false"><img src="../../../../kit/assets/line/mic.webp" alt=""></button>
+                <span class="prompt__sp"></span>
+                <span class="tag" data-tone="warning" id="queue" role="status" hidden>排队 0 条</span>
+                <button type="button" class="btn btn--ghost" id="stop" hidden>停止</button>
+                <button type="submit" class="btn btn--primary" id="send" disabled>发送</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <!-- 右栏：过程、产物、引用三个面板，随对话推进更新 -->
+      <section class="section ag__col ag__rail" data-cid="WB-AGNT-006" data-name="过程产物引用面板">
+        <div class="section__head"><h2>运行记录</h2></div>
+        <div class="card section__body">
+          <div class="ag__seg"><div class="seg" data-seg="rp" id="rpseg" aria-label="记录类别">
+            <button class="seg__item" data-key="proc" aria-selected="true">过程<small data-n="proc">0</small></button>
+            <button class="seg__item" data-key="art">产物<small data-n="art">0</small></button>
+            <button class="seg__item" data-key="ref">引用<small data-n="ref">0</small></button>
+          </div></div>
+          <div class="ag__panels">
+            <div data-panel="rp" data-key="proc" id="rp-proc"><div class="empty"><img data-ic="seedling" src="../../../../kit/assets/icons/flat/seedling.webp" alt=""><p>暂无过程</p></div></div>
+            <div data-panel="rp" data-key="art" id="rp-art" hidden><div class="empty"><img data-ic="giftbox" src="../../../../kit/assets/icons/flat/giftbox.webp" alt=""><p>暂无产物</p></div></div>
+            <div data-panel="rp" data-key="ref" id="rp-ref" hidden><div class="empty"><img data-ic="giftcard" src="../../../../kit/assets/icons/flat/giftcard.webp" alt=""><p>暂无引用</p></div></div>
+          </div>
+        </div>
+        <div class="section" data-cid="WB-AGNT-007" data-name="上下文用量卡">
+          <div class="section__head"><h2>上下文</h2></div>
+          <div class="card section__body ctx">
+            <div class="ctx__top"><span class="stat__label">已用</span><span class="stat__val" id="ctxv">0<small>%</small></span></div>
+            <div class="progress" role="progressbar" aria-label="上下文用量" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="ctxp"><i id="ctxb"></i></div>
+            <p class="row__meta" id="ctxm">已读取 0 条记录</p>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div></main>
+</div>
+<script src="../../../../kit/ui.js"></script>
+<script>
+  const { $, $$ } = Lz;
+  const SOLID = n => `../../../../kit/assets/solid/${n}.webp`;
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const el = html => { const t = document.createElement('template'); t.innerHTML = html.trim(); return t.content.firstElementChild; };
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  const STOP = Symbol('stop');
+  let uid = 0; const nid = p => p + (++uid);
+
+  /* 回答脚本：思考步骤、工具调用、带引用的流式回答、产物、任务、审批；每个会话与每轮模拟都取自这里 */
+  const SPEC = {
+    recon: {
+      secs: 8, read: 1684,
+      steps: ['确定对账范围为本周线上订单', '读取订单与支付流水', '逐笔比对金额并标出差异'],
+      tools: [
+        { n: '查询订单', i: 'order', in: '本周线上订单', out: '读取 842 单', s: '0.8 秒' },
+        { n: '汇总金额', i: 'bill', in: '订单金额与支付流水', out: '订单 12.86 万元 流水 12.82 万元', s: '0.4 秒' },
+        { n: '生成图表', i: 'layout', in: '差异金额按日分布', out: '已生成 1 张图表', s: '1.1 秒', err: '图表服务连接超时' },
+      ],
+      text: [{ t: '本周线上订单共 842 单，订单金额与支付流水相差 3 笔，合计 ¥417.00' }, { c: 0 }, { t: '，其中 2 笔属于微信延迟入账' }, { c: 1 }, { t: '，仅 1 笔仍需人工核实。' }],
+      refs: [{ t: '订单系统', m: '本周线上订单' }, { t: '支付平台', m: '流水明细' }],
+      art: { n: '对账结果', m: '差异 3 笔 合计 ¥417.00', i: 'bill', cols: ['订单', '金额', '原因'], rows: [['10382', '¥199.00', '微信延迟入账'], ['10517', '¥159.00', '微信延迟入账'], ['10890', '¥59.00', '银行退回']] },
+      task: [{ n: '跟进 1 笔待核实差异', m: '林晓 负责', tone: 'warning', tag: '待处理' }, { n: '补记 2 笔延迟入账', m: '系统已处理', tone: 'success', tag: '已完成' }],
+      appr: { q: '标记 3 笔差异订单为待核实', opts: ['仅标记差异订单', '标记并通知财务'], done: '标记差异订单' },
+    },
+    delivery: {
+      secs: 6, read: 518,
+      steps: ['确定统计范围为本周同城配送', '读取配送单与签收时间'],
+      tools: [
+        { n: '查询配送', i: 'order', in: '本周同城配送单', out: '读取 518 单', s: '0.6 秒' },
+        { n: '统计时效', i: 'biz-demo', in: '配送单耗时', out: '平均 38 分钟 超时 12 单', s: '0.3 秒' },
+        { n: '生成图表', i: 'layout', in: '超时订单按时段分布', out: '已生成 1 张图表', s: '0.9 秒', err: '图表服务连接超时' },
+      ],
+      text: [{ t: '本周同城配送共 518 单，平均送达 38 分钟，其中 12 单超过 60 分钟' }, { c: 0 }, { t: '，超时集中在周六下午' }, { c: 1 }, { t: '，其余订单均按时送达。' }],
+      refs: [{ t: '配送系统', m: '本周配送单明细' }, { t: '骑手定位', m: '签收时间记录' }],
+      art: { n: '配送超时清单', m: '12 单超过 60 分钟', i: 'solid-content', cols: ['订单', '耗时', '原因'], rows: [['10466', '78 分钟', '骑手接单延迟'], ['10613', '72 分钟', '天气影响'], ['10705', '65 分钟', '地址有误']] },
+      task: [{ n: '联系 3 位超时订单客户', m: '陈默 负责', tone: 'warning', tag: '待处理' }, { n: '同步骑手排班调整', m: '已通知调度', tone: 'success', tag: '已完成' }],
+      appr: { q: '向超时订单发放补偿券', opts: ['每单 10 元券', '每单 20 元券'], done: '发放补偿券' },
+    },
+    stock: {
+      secs: 5, read: 86,
+      steps: ['确定预警线为库存 10 件以下', '读取在售商品库存'],
+      tools: [
+        { n: '查询库存', i: 'biz-store', in: '全部在售商品', out: '读取 86 款', s: '0.5 秒' },
+        { n: '汇总销量', i: 'biz-review', in: '近 7 日销量', out: '已汇总 86 款', s: '0.7 秒' },
+      ],
+      text: [{ t: '共 5 款商品低于预警线，其中红玫瑰花束三十三枝仅剩 6 件' }, { c: 0 }, { t: '，按近 7 日销量约 2 天售罄' }, { c: 1 }, { t: '。' }],
+      refs: [{ t: '库存系统', m: '实时库存' }, { t: '销售记录', m: '近 7 日销量' }],
+      art: { n: '库存预警清单', m: '5 款低于预警线', i: 'solid-content', cols: ['商品', '库存', '日均销量'], rows: [['红玫瑰花束 三十三枝', '6 件', '3 件'], ['粉芍药花束 十五枝', '9 件', '2 件'], ['向日葵花束 十枝', '4 件', '2 件']] },
+      task: [{ n: '通知花材采购补货', m: '吴桐 负责', tone: 'warning', tag: '待处理' }],
+      appr: { q: '向采购发起补货提醒', opts: ['仅红玫瑰花束', '全部 5 款'], done: '发起补货提醒' },
+    },
+    repeat: {
+      secs: 4, read: 316,
+      steps: ['确定对比周期为本周与上周', '读取会员下单记录'],
+      tools: [{ n: '统计复购', i: 'biz-customer', in: '会员二次下单人数', out: '本周 38.6% 上周 36.1%', s: '0.6 秒' }],
+      text: [{ t: '本周会员复购率为 38.6%，较上周的 36.1% 提升 2.5 个点' }, { c: 0 }, { t: '，新增会员 316 人，较上周下降 3.2%' }, { c: 1 }, { t: '。' }],
+      refs: [{ t: '订单系统', m: '会员下单' }, { t: '会员系统', m: '新增会员数' }],
+    },
+  };
+  const pickSpec = text => /配送|送达|骑手|超时/.test(text) ? SPEC.delivery : /库存|缺货|补货|预警/.test(text) ? SPEC.stock : /复购|会员|新客/.test(text) ? SPEC.repeat : SPEC.recon;
+
+  /* 会话：初次打开时按 spec 渲染既有的一轮问答；c3 首次打开模拟加载失败；图标按主题当前风格取 */
+  const ICON = n => `../../../../kit/assets/icons/${Lz.iconSet()}/${n}.webp`;
+  const convs = [
+    { id: 'c1', title: '本周对账结果核对', time: '刚刚', q: '核对本周线上订单与支付流水的差异', spec: 'recon', used: 18, icon: 'wallet' },
+    { id: 'c2', title: '本周配送时效统计', time: '昨天', q: '汇总本周配送超时订单', spec: 'delivery', used: 22, failTool: 2, apprDone: true, icon: 'scooter' },
+    { id: 'c3', title: '库存预警商品清单', time: '3 天前', q: '列出库存预警商品', spec: 'stock', used: 15, failOnce: true, icon: 'plant' },
+    { id: 'c4', title: '会员复购率周对比', time: '上周', q: '对比上周会员复购率', spec: 'repeat', used: 9, icon: 'heart' },
+  ];
+  convs.forEach(c => { c.read = 0; });
+  let cur = null, stuck = true;
+  const log = $('#log'), ta = $('#q'), sendBtn = $('#send'), stopBtn = $('#stop'), queueTag = $('#queue');
+  const RP = { proc: $('#rp-proc'), art: $('#rp-art'), ref: $('#rp-ref') };
+  const attachments = [];
+
+  /* ── 左栏：会话列表与搜索 ── */
+  function renderList() {
+    const kw = $('#find').value.trim(), box = $('#convlist');
+    const rows = convs.filter(c => !kw || c.title.includes(kw));
+    box.innerHTML = rows.length ? rows.map(c => `<button type="button" class="row" data-conv="${c.id}" aria-current="${cur && c.id === cur.id}"><img class="row__lead" data-ic="${c.icon}" src="${ICON(c.icon)}" alt=""><span class="row__main"><span class="row__title">${esc(c.title)}</span><span class="row__meta">${c.time}</span></span><span class="row__trail">${c.busy ? '<span class="tag" data-tone="action">生成中</span>' : ''}</span></button>`).join('')
+      : `<div class="empty"><img data-ic="vase" src="${ICON('vase')}" alt=""><p>无匹配会话</p><button type="button" class="btn btn--secondary btn--sm btn--pill" data-clear>清空搜索</button></div>`;
+  }
+  function renderHead() { $('#convTitle').textContent = cur.title; $('#curLabel').textContent = cur.title; }
+  function closeSide() { $('#side').dataset.open = 'false'; $('#dropbtn').setAttribute('aria-expanded', 'false'); }
+
+  /* ── 右栏：三个面板按会话切换，计数与上下文同步 ── */
+  function showRp(c) {
+    Object.entries(RP).forEach(([k, box]) => {
+      $$(':scope > :not(.empty)', box).forEach(n => { n.hidden = !(c && c.rp && n === c.rp[k] && n.children.length); });
+      const n = c && c.rp ? c.rp[k].children.length : 0;
+      $('.empty', box).hidden = n > 0;
+      $(`[data-n="${k}"]`).textContent = n;
+    });
+    const pct = c ? Math.round(c.used) : 0;
+    $('#ctxv').innerHTML = `${pct}<small>%</small>`; $('#ctxb').style.setProperty('--v', pct + '%');
+    $('#ctxp').setAttribute('aria-valuenow', pct);
+    $('#ctxm').textContent = `已读取 ${(c ? c.read : 0).toLocaleString('zh-CN')} 条记录`;
+  }
+  const touchRp = c => { if (c === cur) showRp(c); };
+
+  /* ── 对话元素：思考、工具、回答、产物、任务、审批 ── */
+  function mkThink(fast) {
+    const id = nid('th');
+    const node = el(`<div class="think" data-cid="WB-AGNT-008" data-name="思考过程折叠"><button type="button" class="think__head" data-toggle="${id}" aria-expanded="${!fast}"><span class="dots" aria-hidden="true"${fast ? ' hidden' : ''}><i></i><i></i><i></i></span><span data-t>${fast ? '已思考' : '思考中'}</span></button><div class="expand" id="${id}" data-open="${!fast}"${fast ? ' inert' : ''}><div><ul class="think__steps"></ul></div></div></div>`);
+    const ul = $('ul', node);
+    return {
+      node, finished: false,
+      add(text) { const p = $('li[data-state="now"]', ul); if (p) p.dataset.state = 'done'; ul.appendChild(el(`<li data-state="${fast ? 'done' : 'now'}"><span>${text}</span></li>`)); },
+      done(secs) {
+        const p = $('li[data-state="now"]', ul); if (p) p.dataset.state = 'done';
+        $('.dots', node).hidden = true; $('[data-t]', node).textContent = `已思考 ${secs} 秒`;
+        const x = $('.expand', node); x.dataset.open = 'false'; x.inert = true; $('.think__head', node).setAttribute('aria-expanded', 'false'); this.finished = true;
+      },
+    };
+  }
+  function mkTools() { const node = el('<div class="toolset" data-cid="WB-AGNT-009" data-name="工具调用行"><div class="tools"></div></div>'); return { node, row: $('.tools', node) }; }
+  function addTool(c, ts, t, state) {
+    const id = nid('tl'), px = nid('tx');
+    const pill = el(`<button type="button" class="tool" data-toggle="${px}" aria-expanded="false"><span>${t.n}</span><small></small></button>`);
+    const panel = el(`<div class="expand" id="${px}" inert><div><div class="tool__io"><dl class="io"><dt>输入</dt><dd>${esc(t.in)}</dd><dt>输出</dt><dd data-out></dd></dl><div class="io__bar" data-bar hidden><button type="button" class="btn btn--secondary btn--sm btn--pill" data-retry>重试</button></div></div></div></div>`);
+    const row = el(`<div class="task"><img class="task__ic" src="${SOLID(t.i)}" alt=""><div><p class="row__title">${t.n}</p><p class="row__meta">${esc(t.in)}</p></div><span class="tag" data-t></span></div>`);
+    ts.row.appendChild(pill); ts.node.appendChild(panel); c.rp.proc.appendChild(row);
+    const rec = { id, c, t, pill, panel, row, state: '' }; c.tools[id] = rec; panel.dataset.tid = id;
+    setTool(rec, state); return rec;
+  }
+  function setTool(rec, state, err) {
+    const { pill, panel, row, t } = rec; rec.state = state; pill.dataset.state = state;
+    $('small', pill).textContent = state === 'run' ? '运行中' : state === 'fail' ? '失败' : t.s;
+    $('[data-out]', panel).textContent = state === 'run' ? '运行中' : state === 'fail' ? (err || t.err || '连接超时') : t.out;
+    $('[data-bar]', panel).hidden = state !== 'fail';
+    const tag = $('[data-t]', row); tag.textContent = state === 'run' ? '运行中' : state === 'fail' ? '失败' : '已完成';
+    tag.dataset.tone = state === 'run' ? 'action' : state === 'fail' ? 'danger' : 'success';
+    touchRp(rec.c);
+  }
+  const citeEl = n => `<button type="button" class="cite" data-ref="${n}" aria-label="查看引用 ${n}">${n}</button>`;
+  function addRef(c, r) {
+    const n = ++c.refs;
+    c.rp.ref.appendChild(el(`<button type="button" class="row" data-ref="${n}"><span class="cite">${n}</span><span class="row__main"><span class="row__title">${r.t}</span><span class="row__meta">${r.m}</span></span></button>`));
+    touchRp(c); return n;
+  }
+  function artEl(a) {
+    const id = nid('ar'), al = ['', 't-r', 't-l'];
+    return el(`<div class="artifact" data-cid="WB-AGNT-011" data-name="产物结果卡"><img class="task__ic" src="${SOLID(a.i)}" alt=""><div><p class="row__title">${a.n}</p><p class="row__meta">${a.m}</p></div><button type="button" class="btn btn--secondary btn--sm btn--pill" data-toggle="${id}" data-on="收起" data-off="打开" aria-expanded="false">打开</button><div class="expand" id="${id}" inert><div><div class="art__prev"><table class="table"><colgroup><col style="width:30%"><col style="width:28%"><col style="width:42%"></colgroup><thead><tr>${a.cols.map((h, i) => `<th class="${al[i]}">${h}</th>`).join('')}</tr></thead><tbody>${a.rows.map(r => `<tr>${r.map((v, i) => `<td class="${al[i]}">${v}</td>`).join('')}</tr>`).join('')}</tbody></table></div></div></div></div>`);
+  }
+  function taskEl(list) {
+    return el(`<div class="card list taskcard" data-cid="WB-AGNT-012" data-name="跟进任务行">${list.map(t => `<div class="task"><img class="task__ic" src="${SOLID('solid-tasks')}" alt=""><div><p class="row__title">${t.n}</p><p class="row__meta">${t.m}</p></div><span class="tag" data-tone="${t.tone}">${t.tag}</span></div>`).join('')}</div>`);
+  }
+  function apprEl(a, done) {
+    const state = done ? 'done' : 'pending';
+    return el(`<div class="approval" data-cid="WB-AGNT-013" data-name="审批确认卡" data-state="${state}"><p class="approval__q">${a.q}</p><div class="approval__opts" role="radiogroup" aria-label="处理方式">${a.opts.map((o, i) => `<button type="button" class="opt" role="radio" aria-checked="${i === 0}" tabindex="${i === 0 ? 0 : -1}"><span class="check" aria-checked="${i === 0}"><img src="../../../../kit/assets/line/check.webp" alt=""></span>${o}</button>`).join('')}</div>${done ? `<span class="tag" data-tone="success">已批准 ${a.opts[0]}</span>` : '<div class="btn-group" data-acts><button type="button" class="btn btn--ghost btn--sm" data-act="reject">拒绝</button><button type="button" class="btn btn--primary btn--sm" data-act="approve">批准</button></div>'}</div>`);
+  }
+  const userEl = (text, files, queued) => el(`<div class="msg msg--user"${queued ? ' data-queued' : ''}><div class="bubble">${esc(text)}</div>${files.map(f => `<span class="tag">${esc(f)}</span>`).join('')}${queued ? '<span class="tag" data-tone="warning" data-q>排队中</span>' : ''}</div>`);
+
+  /* 一轮回答：快速模式直接铺出既有内容；实时模式按 思考 → 工具 → 流式文字 → 产物 → 任务 → 审批 推进，可随时停止 */
+  async function play(c, spec, o = {}) {
+    const fast = !!o.fast, run = o.run || { stopped: false, stopP: Promise.resolve() };
+    const wait = async ms => { if (fast) return; await Promise.race([sleep(ms), run.stopP]); if (run.stopped) throw STOP; };
+    const msg = el(`<div class="msg"><img class="msg__avatar" src="../../../../kit/assets/marks/mark-023.webp" alt=""><div class="msg__body"></div></div>`);
+    const body = $('.msg__body', msg); c.pane.appendChild(msg);
+    const t0 = Date.now(), think = mkThink(fast); body.appendChild(think.node);
+    const secs = () => fast ? spec.secs : Math.max(1, Math.round((Date.now() - t0) / 1000));
+    try {
+      for (let i = 0; i < spec.steps.length; i++) { await wait(i ? 650 : 500); think.add(spec.steps[i]); }
+      await wait(600); think.done(secs());
+
+      const ts = mkTools(); body.appendChild(ts.node);
+      for (let i = 0; i < spec.tools.length; i++) {
+        const rec = addTool(c, ts, spec.tools[i], 'run');
+        await wait(700); setTool(rec, fast && o.failTool === i ? 'fail' : 'done');
+      }
+
+      await wait(300);
+      const bubble = el('<div class="bubble" data-cid="WB-AGNT-010" data-name="流式回答气泡"></div>'); body.appendChild(bubble);
+      for (const seg of spec.text) {
+        if (seg.c !== undefined) { bubble.appendChild(el(citeEl(addRef(c, spec.refs[seg.c])))); continue; }
+        if (fast) { bubble.appendChild(document.createTextNode(seg.t)); continue; }
+        const sp = Lz.stream(bubble, seg.t, 60);
+        run.freeze = () => { sp.cancel(); bubble.classList.remove('is-streaming'); };
+        await Promise.race([sp, run.stopP]); if (run.stopped) throw STOP;
+      }
+      if (spec.art) { await wait(350); body.appendChild(artEl(spec.art)); c.rp.art.appendChild(artEl(spec.art)); touchRp(c); }
+      if (spec.task) { await wait(250); body.appendChild(taskEl(spec.task)); }
+      if (spec.appr) { await wait(350); body.appendChild(apprEl(spec.appr, o.apprDone)); }
+      if (!fast) { c.used = Math.min(96, c.used + 7); c.read += spec.read; touchRp(c); }
+    } catch (e) {
+      if (e !== STOP) throw e;
+      Object.values(c.tools).filter(r => r.state === 'run').forEach(r => setTool(r, 'fail', '已停止'));
+      if (!think.finished) think.done(secs());
+      body.appendChild(el('<span class="tag">已停止</span>'));
+    }
+  }
+
+  /* ── 会话面板：每个会话一个独立面板，切换只显示隐藏，后台生成不受影响 ── */
+  function ensurePane(c) {
+    if (c.pane) return;
+    c.pane = el(`<div class="chat" data-conv="${c.id}" hidden></div>`); log.appendChild(c.pane);
+    c.rp = { proc: el('<div class="list" hidden></div>'), art: el('<div class="ag__stack" hidden></div>'), ref: el('<div class="list" hidden></div>') };
+    Object.entries(c.rp).forEach(([k, n]) => RP[k].appendChild(n));
+    c.tools = {}; c.refs = 0; c.queue = []; c.read = c.read || 0;
+  }
+  const clearState = () => $$('.ag__state', log).forEach(n => n.remove());
+  function showState(node) { $$('.chat', log).forEach(p => (p.hidden = true)); clearState(); node.classList.add('ag__state'); log.appendChild(node); showRp(null); sync(); }
+  const skelEl = () => el(`<div class="ag__skel" data-cid="WB-AGNT-015" data-name="对话加载骨架" role="status" aria-label="加载中"><div class="msg msg--user"><div class="skel" style="width:46%;height:44px"></div></div><div class="msg"><div class="skel msg__avatar"></div><div class="msg__body"><div class="skel" style="height:44px"></div><div class="skel" style="width:32%;height:32px"></div><div class="skel" style="width:88%"></div><div class="skel" style="width:64%"></div><div class="skel" style="height:64px"></div></div></div></div>`);
+  const failEl = c => el(`<div class="empty" data-cid="WB-AGNT-016" data-name="加载失败重试态" role="alert"><img data-ic="shears" src="${ICON('shears')}" alt=""><p>会话加载失败</p><button type="button" class="btn btn--secondary btn--pill" data-reload="${c.id}">重试</button></div>`);
+  const emptyEl = () => el(`<div class="empty ag__empty" data-cid="WB-AGNT-014" data-name="空会话空态"><img data-ic="bouquet" src="${ICON('bouquet')}" alt=""><button type="button" class="btn btn--secondary btn--pill" data-ask>汇总本周配送超时订单</button></div>`);
+
+  async function build(c) {
+    ensurePane(c);
+    c.pane.appendChild(userEl(c.q, [], false));
+    await play(c, SPEC[c.spec], { fast: true, failTool: c.failTool, apprDone: c.apprDone });
+  }
+  function show(c) {
+    clearState(); $$('.chat', log).forEach(p => (p.hidden = p !== c.pane));
+    showRp(c); sync();
+    requestAnimationFrame(() => { log.scrollTop = c.scroll == null ? log.scrollHeight : c.scroll; stuck = log.scrollHeight - log.scrollTop - log.clientHeight < 80; });
+  }
+  function select(id) {
+    const c = convs.find(x => x.id === id); if (!c) return;
+    if (cur && cur.pane && !cur.pane.hidden) cur.scroll = log.scrollTop;
+    cur = c; closeSide(); renderList(); renderHead();
+    if (c.pane) { show(c); return; }
+    showState(skelEl());
+    if (c.loading) return; c.loading = true;
+    setTimeout(async () => {
+      c.loading = false; if (cur !== c) return;
+      if (c.failOnce) { c.failOnce = false; showState(failEl(c)); return; }
+      await build(c); c.read = SPEC[c.spec].read; if (cur === c) show(c);
+    }, 450);
+  }
+
+  function newConv() {
+    const fresh = convs.find(c => c.fresh);
+    if (fresh) { select(fresh.id); ta.focus(); return; }
+    const c = { id: nid('n'), title: '新会话', time: '刚刚', fresh: true, used: 0, read: 0, icon: 'bouquet' };
+    convs.unshift(c); ensurePane(c); c.pane.appendChild(emptyEl()); select(c.id); ta.focus();
+  }
+
+  /* ── 输入区：发送、停止、排队 ── */
+  function sync() {
+    const c = cur, busy = !!(c && c.busy), has = ta.value.trim().length > 0, q = c && c.queue ? c.queue.length : 0;
+    ta.disabled = !(c && c.pane);
+    sendBtn.hidden = busy && !has; sendBtn.disabled = !has || ta.disabled;
+    stopBtn.hidden = !busy;
+    queueTag.hidden = !q; queueTag.textContent = `排队 ${q} 条`;
+    log.setAttribute('aria-busy', String(busy)); $('#gen').hidden = !busy;
+  }
+  const syncBusy = () => { renderList(); sync(); };
+  const autosize = () => { ta.style.height = 'auto'; ta.style.height = Math.min(ta.scrollHeight, 160) + 'px'; };
+  const mkRun = () => { const r = { stopped: false }; r.stopP = new Promise(res => { r.stop = () => { r.stopped = true; if (r.freeze) r.freeze(); res(); }; }); return r; };
+
+  async function turn(c, text) {
+    c.busy = true; c.run = mkRun(); syncBusy();
+    try { await play(c, pickSpec(text), { run: c.run }); } finally { c.busy = false; c.run = null; }
+    syncBusy(); touchRp(c);
+    const next = c.queue.shift();
+    if (next) { $('[data-q]', next.u).remove(); next.u.removeAttribute('data-queued'); sync(); turn(c, next.text); }
+  }
+  function post(c, text) {
+    const files = attachments.splice(0); renderFiles();
+    $$('.ag__empty', c.pane).forEach(n => n.remove());
+    if (c.fresh) { c.fresh = false; c.title = text.length > 16 ? text.slice(0, 16) : text; renderHead(); }
+    c.time = '刚刚'; renderList();
+    const u = userEl(text, files, c.busy); c.pane.appendChild(u); stuck = true;
+    if (c.busy) { c.queue.push({ text, u }); sync(); } else turn(c, text);
+  }
+  function submit() { const text = ta.value.trim(); if (!text || !cur || !cur.pane) return; ta.value = ''; autosize(); post(cur, text); sync(); }
+
+  $('#composer').addEventListener('submit', e => { e.preventDefault(); submit(); });
+  ta.addEventListener('input', () => { autosize(); sync(); });
+  ta.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing && e.keyCode !== 229) { e.preventDefault(); submit(); } });
+  stopBtn.addEventListener('click', () => { if (cur && cur.run) { cur.run.stop(); Lz.toast('已停止'); } });
+
+  /* 附件与语音：附件作为标签随提问发出；语音用浏览器自带识别，不支持时提示 */
+  function renderFiles() {
+    const box = $('#files'); box.hidden = !attachments.length;
+    box.innerHTML = attachments.map((f, i) => `<span class="tool"><span>${esc(f)}</span><button type="button" class="ibtn" data-rmfile="${i}" data-tip="移除附件" aria-label="移除附件"><img src="../../../../kit/assets/line/close.webp" alt=""></button></span>`).join('');
+  }
+  $('#attach').addEventListener('click', () => $('#file').click());
+  $('#file').addEventListener('change', e => { const f = e.target.files[0]; if (f) { attachments.push(f.name); renderFiles(); } e.target.value = ''; });
+  let rec = null;
+  $('#mic').addEventListener('click', () => {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) { Lz.toast('当前浏览器不支持语音输入', 'danger'); return; }
+    if (rec) { rec.stop(); return; }
+    rec = new SR(); rec.lang = 'zh-CN';
+    rec.onresult = e => { ta.value += e.results[0][0].transcript; autosize(); sync(); };
+    rec.onerror = () => Lz.toast('语音输入失败', 'danger');
+    rec.onend = () => { rec = null; $('#mic').setAttribute('aria-pressed', 'false'); };
+    try { rec.start(); $('#mic').setAttribute('aria-pressed', 'true'); } catch (err) { rec = null; Lz.toast('语音输入失败', 'danger'); }
+  });
+
+  /* ── 事件：会话、展开、引用、重试、审批 ── */
+  document.addEventListener('click', e => {
+    const x = e.target.closest('[data-toggle]');
+    if (x) {
+      const p = document.getElementById(x.dataset.toggle); if (!p) return;
+      const open = p.dataset.open !== 'true'; p.dataset.open = String(open); p.inert = !open; x.setAttribute('aria-expanded', String(open));
+      if (x.dataset.on) x.textContent = open ? x.dataset.on : x.dataset.off;
+      if (open) setTimeout(() => p.scrollIntoView({ block: 'nearest', behavior: Lz.reduce ? 'auto' : 'smooth' }), 240);
+      return;
+    }
+    const row = e.target.closest('[data-conv].row'); if (row) { select(row.dataset.conv); return; }
+    if (e.target.closest('#dropbtn')) { const o = $('#side').dataset.open !== 'true'; $('#side').dataset.open = String(o); $('#dropbtn').setAttribute('aria-expanded', String(o)); return; }
+    if (e.target.closest('[data-clear]')) { $('#find').value = ''; renderList(); return; }
+    const rl = e.target.closest('[data-reload]'); if (rl) { select(rl.dataset.reload); return; }
+    const ask = e.target.closest('[data-ask]'); if (ask) { post(cur, ask.textContent.trim()); sync(); return; }
+    const sg = e.target.closest('.suggest button'); if (sg && cur && cur.pane) { post(cur, sg.textContent.trim()); sync(); return; }
+    const rm = e.target.closest('[data-rmfile]'); if (rm) { attachments.splice(+rm.dataset.rmfile, 1); renderFiles(); return; }
+    const rt = e.target.closest('[data-retry]'); if (rt) { retry(rt); return; }
+    const ct = e.target.closest('.msg .cite'); if (ct) { $('#rpseg [data-key="ref"]').click(); hit(cur, ct.dataset.ref, 'row'); return; }
+    const rr = e.target.closest('#rp-ref .row'); if (rr) { hit(cur, rr.dataset.ref, 'cite'); return; }
+    const op = e.target.closest('.approval .opt'); if (op) { pick(op); return; }
+    const ac = e.target.closest('.approval [data-act]'); if (ac) { decide(ac); return; }
+    if (!e.target.closest('#side')) closeSide();
+  });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeSide(); $('#dropbtn').focus({ preventScroll: true }); } });
+  $('#find').addEventListener('input', renderList);
+  $('#newConv').addEventListener('click', newConv);
+
+  async function retry(btn) {
+    const rec = cur.tools[btn.closest('.expand').dataset.tid]; if (!rec) return;
+    setTool(rec, 'run'); await sleep(900); setTool(rec, 'done'); Lz.toast('已重试', 'success');
+  }
+  function hit(c, n, focus) {
+    $$('.cite', c.pane).forEach(x => x.classList.toggle('is-hit', x.dataset.ref === n));
+    $$('.row', c.rp.ref).forEach(x => x.setAttribute('aria-current', String(x.dataset.ref === n)));
+    const t = focus === 'row' ? $(`.row[data-ref="${n}"]`, c.rp.ref) : $(`.cite[data-ref="${n}"]`, c.pane);
+    if (t) t.scrollIntoView({ block: 'nearest', behavior: Lz.reduce ? 'auto' : 'smooth' });
+  }
+  function pick(opt) {
+    $$('.opt', opt.parentElement).forEach(o => { const on = o === opt; o.setAttribute('aria-checked', String(on)); o.tabIndex = on ? 0 : -1; $('.check', o).setAttribute('aria-checked', String(on)); });
+    opt.focus();
+  }
+  function decide(btn) {
+    const card = btn.closest('.approval'), ok = btn.dataset.act === 'approve', c = convs.find(x => x.id === card.closest('.chat').dataset.conv);
+    const label = $('.opt[aria-checked="true"]', card).textContent.trim();
+    card.dataset.state = 'done'; card.dataset.result = ok ? 'approve' : 'reject';
+    $('[data-acts]', card).replaceWith(el(`<span class="tag" data-tone="${ok ? 'success' : 'danger'}">${ok ? '已批准 ' + label : '已拒绝'}</span>`));
+    Lz.toast(ok ? '已批准' : '已拒绝', ok ? 'success' : 'neutral');
+    if (ok) { c.rp.proc.appendChild(el(`<div class="task"><img class="task__ic" src="${SOLID('solid-tasks')}" alt=""><div><p class="row__title">${esc(label)}</p><p class="row__meta">审批通过后执行</p></div><span class="tag" data-tone="success">已完成</span></div>`)); touchRp(c); }
+  }
+  document.addEventListener('keydown', e => {
+    const opt = e.target.closest && e.target.closest('.approval .opt'); if (!opt) return;
+    const d = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 }[e.key]; if (!d) return;
+    const all = $$('.opt', opt.parentElement), n = all[(all.indexOf(opt) + d + all.length) % all.length]; e.preventDefault(); pick(n);
+  });
+
+  /* 自动跟随到底部；用户上滑查看历史时不拉回 */
+  log.addEventListener('scroll', () => { stuck = log.scrollHeight - log.scrollTop - log.clientHeight < 80; });
+  new MutationObserver(() => { if (stuck && cur && cur.pane && !cur.pane.hidden) log.scrollTop = log.scrollHeight; }).observe(log, { childList: true, subtree: true, characterData: true });
+  /* 运行时生成的组件同一编号只保留第一处标记 */
+  let tagging = 0;
+  new MutationObserver(() => { cancelAnimationFrame(tagging); tagging = requestAnimationFrame(() => { const seen = new Set(); $$('[data-cid]').forEach(n => { if (seen.has(n.dataset.cid)) { n.removeAttribute('data-cid'); n.removeAttribute('data-name'); } else seen.add(n.dataset.cid); }); }); }).observe(document.querySelector('.ag'), { childList: true, subtree: true });
+
+  document.addEventListener('DOMContentLoaded', () => { renderList(); select('c1'); });
+</script>
+</body>
+</html>

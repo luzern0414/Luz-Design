@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="navy" data-bg="none" data-ic-base="../../../../kit/assets/icons">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>花间集</title>
+<link rel="icon" href="../../../../kit/assets/icons/flat/bouquet.webp">
+<link rel="stylesheet" href="../../../../kit/tokens.css">
+<link rel="stylesheet" href="../../../../kit/ui.css">
+<link rel="stylesheet" href="../../../../kit/kit.css">
+<link rel="stylesheet" href="../../../../kit/app.css">
+<style>
+  /* 本页专属：横幅、券面、排行 */
+  .hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(90px, 40%); align-items: center; gap: var(--s-3); min-height: 148px; margin-top: var(--s-3); padding: var(--s-5); overflow: hidden; border-radius: var(--r-lg); background: var(--action); border: 1px solid color-mix(in srgb, var(--surface) 32%, transparent); color: var(--surface); }
+  .hero h2 { font-size: var(--fs-2xl); font-weight: 700; line-height: var(--lh-tight); }
+  .hero__img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: var(--r-md); }
+  .hero__txt { display: grid; justify-items: start; gap: var(--s-2); }
+  .hero__txt p { font-size: var(--fs-sm); opacity: .94; }
+  .top { padding-bottom: var(--s-5); }
+  .home-stack { border-block-start: 0; border-start-start-radius: 0; border-start-end-radius: 0; }
+  .home-stack .hscroll { margin-inline: 0; padding-block-end: var(--s-4); }
+  .coupon { display: grid; grid-template-columns: auto 1fr auto; align-items: center; column-gap: var(--s-4); padding: var(--s-4) var(--s-4) var(--s-4) var(--s-5); }
+  .coupon__amt { display: flex; align-items: baseline; gap: 2px; }
+  .coupon__amt .price { font-size: var(--fs-2xl); line-height: 1; font-weight: 700; }
+  .rank { font-size: var(--fs-lg); font-weight: 700; width: 24px; text-align: center; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+  .rank[data-top] { color: var(--accent); }
+  .product__img { aspect-ratio: 1 / 1; }
+</style>
+</head>
+<body class="app-body">
+<div class="app">
+  <main class="page">
+    <!-- 顶部：平面区，以深主色承托定位、搜索与横幅；不放产品名，不重复底栏名称 -->
+    <header class="top" data-cid="AP-HOME-001" data-name="顶部定位搜索横幅">
+      <div class="top__row">
+        <button class="loc" aria-label="切换门店"><img src="../../../../kit/assets/line/location.webp" alt=""><span class="one-line">建国路店 营业至 21:00</span></button>
+        <span class="top__sp"></span>
+        <button class="ibtn" data-tip="消息" aria-label="消息"><img src="../../../../kit/assets/line/message.webp" alt=""><span class="badge">3</span></button>
+      </div>
+      <div class="top__row">
+        <label class="search"><img src="../../../../kit/assets/line/search.webp" alt=""><input type="search" placeholder="搜索花束、绿植、礼盒" aria-label="搜索花束、绿植、礼盒"></label>
+        <button class="ibtn" data-tip="扫码" aria-label="扫码"><img src="../../../../kit/assets/line/scan.webp" alt=""></button>
+      </div>
+      <a class="hero" href="list.html" aria-label="春日鲜花节">
+        <div class="hero__txt"><h2>把春天带回家</h2><p>同城 2 小时送达</p><span class="btn btn--sm btn--white">去选花</span></div>
+        <img class="hero__img" src="../../../../kit/assets/photo/bouquet-rose.webp" alt="">
+      </a>
+    </header>
+
+    <!-- 金刚入口：只放要分发的业务线，每个入口一个目的地；图标风格由 data-icons 切换 -->
+    <nav class="entries card entries-card" data-preserve-icons data-theme="rose" data-cid="AP-HOME-002" data-name="金刚入口八宫格" aria-label="业务入口">
+      <a class="entry" href="list.html"><img data-ic="bouquet" src="../../../../kit/assets/icons/flat/bouquet.webp" alt=""><span>同城鲜花</span></a>
+      <a class="entry" href="list.html"><img data-ic="giftbox" src="../../../../kit/assets/icons/flat/giftbox.webp" alt=""><span>节日礼盒</span></a>
+      <a class="entry" href="list.html"><img data-ic="plant" src="../../../../kit/assets/icons/flat/plant.webp" alt=""><span>绿植盆栽</span></a>
+      <a class="entry" href="list.html"><img data-ic="vase" src="../../../../kit/assets/icons/flat/vase.webp" alt=""><span>周期订花</span></a>
+      <a class="entry" href="list.html"><img data-ic="shears" src="../../../../kit/assets/icons/flat/shears.webp" alt=""><span>花艺定制</span></a>
+      <a class="entry" href="list.html"><img data-ic="seedling" src="../../../../kit/assets/icons/flat/seedling.webp" alt=""><span>种苗花籽</span></a>
+      <a class="entry" href="list.html"><img data-ic="watering" src="../../../../kit/assets/icons/flat/watering.webp" alt=""><span>养护用品</span></a>
+      <a class="entry" href="list.html"><img data-ic="scooter" src="../../../../kit/assets/icons/flat/scooter.webp" alt=""><span>极速配送</span></a>
+    </nav>
+
+    <div class="card-stack home-stack">
+      <!-- 新人礼券：领取后整块收起 -->
+      <div class="expand" id="coupon-wrap" data-open="true">
+        <div>
+          <section class="card section" data-cid="AP-HOME-003" data-name="礼券领取卡">
+            <div class="section__head"><h2>新人礼券</h2></div>
+            <div class="coupon section__body">
+              <img class="compact-icon" data-icon-tone="peach" src="../../../../kit/assets/line/archive.webp" alt="">
+              <div><div class="coupon__amt"><span class="price"><small>¥</small>20</span></div><p class="row__meta">满 99 元可用</p></div>
+              <button class="btn btn--primary btn--sm" id="claim">立即领取</button>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <section class="card section" data-cid="AP-HOME-004" data-name="横滑商品卡">
+        <div class="section__head"><h2>当季热卖</h2></div>
+        <div class="hscroll section__body">
+          <a class="card product card--press" href="list.html"><img class="product__img" src="../../../../kit/assets/photo/product-rose-red.webp" alt=""><div class="product__body"><span class="product__name one-line">红玫瑰花束</span><div class="product__foot"><span class="price"><small>¥</small>199</span><span class="tag" data-tone="price">热卖</span></div></div></a>
+          <a class="card product card--press" href="list.html"><img class="product__img" src="../../../../kit/assets/photo/product-peony-pink.webp" alt=""><div class="product__body"><span class="product__name one-line">粉芍药花束</span><div class="product__foot"><span class="price"><small>¥</small>239</span><span class="tag" data-tone="action">新品</span></div></div></a>
+          <a class="card product card--press" href="list.html"><img class="product__img" src="../../../../kit/assets/photo/product-sunflower.webp" alt=""><div class="product__body"><span class="product__name one-line">向日葵花束</span><div class="product__foot"><span class="price"><small>¥</small>159</span></div></div></a>
+          <a class="card product card--press" href="list.html"><img class="product__img" src="../../../../kit/assets/photo/product-tulip-white.webp" alt=""><div class="product__body"><span class="product__name one-line">白郁金香</span><div class="product__foot"><span class="price"><small>¥</small>179</span></div></div></a>
+          <a class="card product card--press" href="list.html"><img class="product__img" src="../../../../kit/assets/photo/product-hydrangea-blue.webp" alt=""><div class="product__body"><span class="product__name one-line">蓝绣球盆栽</span><div class="product__foot"><span class="price"><small>¥</small>129</span></div></div></a>
+        </div>
+      </section>
+
+      <section class="card section" data-cid="AP-HOME-005" data-name="排行榜列表">
+        <div class="section__head"><h2>热销榜</h2></div>
+        <div class="list section__body">
+          <div class="row"><span class="rank" data-top>1</span><img class="row__lead row__lead--lg" src="../../../../kit/assets/photo/product-monstera.webp" alt=""><div class="row__main"><p class="row__title one-line">龟背竹盆栽</p><p class="row__meta">已售 2860 件</p></div><div class="row__trail"><span class="price"><small>¥</small>159</span><button class="btn btn--secondary btn--xs" data-cart="龟背竹盆栽">加购</button></div></div>
+          <div class="row"><span class="rank" data-top>2</span><img class="row__lead row__lead--lg" src="../../../../kit/assets/photo/product-succulent.webp" alt=""><div class="row__main"><p class="row__title one-line">多肉组合盆</p><p class="row__meta">已售 2214 件</p></div><div class="row__trail"><span class="price"><small>¥</small>89</span><button class="btn btn--secondary btn--xs" data-cart="多肉组合盆">加购</button></div></div>
+          <div class="row"><span class="rank" data-top>3</span><img class="row__lead row__lead--lg" src="../../../../kit/assets/photo/product-pampas-vase.webp" alt=""><div class="row__main"><p class="row__title one-line">干花花瓶摆件</p><p class="row__meta">已售 1907 件</p></div><div class="row__trail"><span class="price"><small>¥</small>129</span><button class="btn btn--secondary btn--xs" data-cart="干花花瓶摆件">加购</button></div></div>
+          <div class="row"><span class="rank">4</span><img class="row__lead row__lead--lg" src="../../../../kit/assets/photo/product-giftbox.webp" alt=""><div class="row__main"><p class="row__title one-line">花礼盒</p><p class="row__meta">已售 1530 件</p></div><div class="row__trail"><span class="price"><small>¥</small>259</span><button class="btn btn--secondary btn--xs" data-cart="花礼盒">加购</button></div></div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- 底部主导航：外层全宽贴底，不透明，覆盖安全区 -->
+  <nav class="tabbar" data-cid="AP-NAV-001" data-name="底部主导航" aria-label="主导航">
+    <a class="tabbar__item" href="home.html" aria-current="page"><img src="../../../../kit/assets/line/home.webp" alt=""><span>首页</span></a>
+    <a class="tabbar__item" href="list.html"><img src="../../../../kit/assets/line/list.webp" alt=""><span>分类</span></a>
+    <a class="tabbar__item" href="orders.html"><img src="../../../../kit/assets/line/archive.webp" alt=""><span>订单</span></a>
+    <a class="tabbar__item" href="agent.html"><img src="../../../../kit/assets/line/message.webp" alt=""><span>助手</span></a>
+    <a class="tabbar__item" href="mine.html"><img src="../../../../kit/assets/line/user.webp" alt=""><span>我的</span></a>
+  </nav>
+</div>
+<script src="../../../../kit/ui.js"></script>
+<script>
+  document.getElementById('claim').addEventListener('click', () => {
+    document.getElementById('coupon-wrap').dataset.open = 'false';
+    Lz.toast('已领取', 'success');
+  });
+  document.querySelectorAll('[data-cart]').forEach(b => b.addEventListener('click', () => Lz.toast('已加入购物车', 'success')));
+</script>
+</body>
+</html>

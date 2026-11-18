@@ -103,6 +103,37 @@ class RenderedTest(unittest.TestCase):
         self.assertNotEqual(code, 0)
 
 
+@unittest.skipUnless(browser_available(), "needs playwright and Microsoft Edge")
+class StageRampTest(unittest.TestCase):
+    """The ordered-progress ramp (visual-design.html 有序进度状态的色阶) is the one chromatic exception: its own --stage tokens on data-stage elements."""
+
+    RAMP = ":root{--stage-1:#5a6f7a;--stage-2:#48637b;--stage-4:#3c4679;--stage-5:#3f3674;--stage-6:#43236b}"
+
+    def page(self, body: str) -> str:
+        return f"<style>{self.RAMP}</style>{body}"
+
+    def test_the_ramp_colours_on_stage_elements_are_not_an_off_theme_hue(self) -> None:
+        body = ("<p><span data-stage-set='depth' data-stage='5' data-stage-n='5' style='color:#43236b'>后续跟进</span></p>"
+                "<p><span data-stage-set='depth' data-stage='3' data-stage-n='5' style='color:#3c4679'>二轮</span></p>"
+                "<div data-stage-set='depth' data-stage='5' data-stage-n='5' style='color:#43236b'>后续跟进 <i style='display:block;height:12px;width:200px;background:currentColor'></i></div>")
+        code, out = audit(self.page(body))
+        self.assertEqual((code, out.strip()), (0, "audit palette: ok"), out)
+
+    def test_the_same_purple_anywhere_else_is_still_reported(self) -> None:
+        code, out = audit(self.page("<p style='color:#43236b'>不是色阶的紫色文字</p>"))
+        self.assertEqual(code, 1)
+        self.assertIn("not a hue of theme b2b-graphite", out)
+
+    def test_a_stage_element_in_a_colour_that_is_not_a_stage_token_is_reported(self) -> None:
+        code, out = audit(self.page("<p data-stage-set='depth' data-stage='5' data-stage-n='5' style='color:#6d28d9'>后续跟进</p>"))
+        self.assertEqual(code, 1)
+        self.assertIn("not a hue of theme b2b-graphite", out)
+
+    def test_a_page_without_stage_tokens_gets_no_exception(self) -> None:
+        code, out = audit("<p data-stage-set='depth' data-stage='5' style='color:#43236b'>后续跟进</p>")
+        self.assertEqual(code, 1)
+
+
 DUAL = ("<!doctype html><html lang='zh-CN'><meta charset='utf-8'><title>t</title><style>:root{color-scheme:light dark}body{margin:0;background:#fafafa;color:#18181b;font:16px sans-serif}"
         ".chip{display:inline-block;padding:2px 8px;background:#eff6ff;color:#2563eb}"
         "@media (prefers-color-scheme: dark){body{background:#09090b;color:#e4e4e7}.chip{background:#172554;color:#60a5fa}%s}"

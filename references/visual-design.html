@@ -12,7 +12,7 @@
 <!-- SECTION:scope:START id=scope data-rule-id=visual-scope -->
 <section id="scope" data-rule-id="visual-scope" aria-labelledby="scope-heading">
 <h2 id="scope-heading" class="section-heading"><svg class="icon-linear section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3"/><circle cx="12" cy="12" r="3"/></svg><span>适用范围</span></h2>
-<p>本页是所有产出共用的视觉与排版底线：扁平线性风格、配色与主题色、字体字号、图标与插画、层级与立体感、动效、间距与层级、文字纪律；同时规定独立视觉产出：海报、品牌主视觉、产品宣传图、图像生成请求和参考图编辑。产品界面的全部外观——构图、卡片与按钮的样子、图标、配图、动效、主题——以及视觉方案总览和可交互原型的外观，都按本页执行；界面有哪些页面、标签栏几项、用哪些组件、每个按钮做什么由系统技能的<a href="https://github.com/luzern0414/Luz-System/blob/master/references/ui-standards.html">界面通用规范</a>决定，本页只画不改（划线见 <code>references/ui-ownership.md</code>）；各端规范与文件设计规范只能在本页之上收紧，不能放宽。</p>
+<p>新产品界面的默认规范见 <a href="design/foundation.md">视觉基础</a> 与 <a href="design/patterns.md">页面模式</a>；本页保留文档规则、专项细则和明确选用时适用的历史视觉配置。产品界面先按已确认需求、统一框架及 <a href="component-reuse.md">组件复用合同</a>选择方案；模型根据页面任务决定组件、图标和主题，不要求双主题、组件最低数量或给所有按钮加图标。以下颜色、字号、圆角、阴影、图标尺寸和密度取值，只在选用对应视觉配置时适用，不能强制改写来源组件来凑数或增加装饰。可访问性与具体质量指标以项目技能的 <code>quality-rules.json</code> 为准，保留范围和例外。界面页面、动作、数据、权限和状态由系统技能定义，视觉技能负责统一呈现；变更功能应返回系统技能（见 <code>references/ui-ownership.md</code>）。显式 <code>source-locked</code> 另按严格来源合同保留原件。</p>
 <div class="callout"><strong>进入前提：</strong>独立视觉会话必须在创建时声明，会话标题与 <code data-path="BRIEF.md">任务简报</code> 明确写出“海报”“主视觉”等任务名。产品界面的视觉稿和原型的外观按本页和本技能的界面规则卡做；系统技能给出的界面功能清单（页面、标签栏、组件与按钮动作）是本技能的输入，本技能不增删，需要改时退回系统技能。</div>
 </section>
 <!-- SECTION:scope:END -->
@@ -24,10 +24,10 @@
 <li>读取任务简报；列出精确文案、渠道、尺寸、受众和成功信号。</li>
 <li>回答“设计判断顺序”的五个问题，确定第一落点、内容形状、可删除信息、主色来源和字阶。答案只用于决策，不写进产出。</li>
 <li>选择参考并记录借用属性、权利边界与禁止照搬项。不能把相似外观当作可用依据。</li>
-<li>建立视觉方向：定位、层级、字体、色彩、图像、版式和状态。动手前重新读取本页相关小节与主题库，不凭记忆、不沿用上一个项目的样式；模板只给结构骨架，配色、字体角色、层级、图标与插画按本次内容完整设计，不保留模板的默认色板与样式。</li>
+<li>先选统一框架与实际组件来源，再确定层级、字体、色彩、图像、版式和状态。沿用来源中适合需求且一致的设计；需要调整时通过正式主题或配置机制统一适配，不为去掉模板默认值而重写样式。独立海报和文档按本页相应规则处理。</li>
 <li>控件图标与版面用矢量与网页绘制；照片、海报、入口图标、插画与装饰元素按“图像生成”填写提示词，先做试运行；正式生成必须获得用户对实际生成的明确请求。</li>
 <li>用视觉方案总览文件汇总方向、参考、真实输出和验收证据。</li>
-<li>对产出中的每个可见元素执行本页的“删除测试”，再按“同类问题”和“问题的同类判断”逐类自检，不只核对例子；随后检查浅色底（产品前端再查深色主题）、单一字体族、字阶、颜色数量和标题邻接；再核对安全区、对比度、缩略图识别、版权和生成输出事实，最后交给人工批准。逐条自检的记录写在会话的原始材料里（任务简报的“采用的规则”），不写进成品。</li>
+<li>对每个可见元素执行“删除测试”，按实际页面任务检查信息层级、已声明主题、必要语义、操作反馈、对比度、响应式和整体一致性；逐条记录适用规则、观察及证据。只验证本次支持的主题，不添加无需求的主题或图标。需人工批准的内容按对应合同提交；自检记录保存在原始材料和任务简报中。</li>
 </ol>
 </section>
 <!-- SECTION:workflow:END -->
@@ -36,15 +36,15 @@
 <section id="rules" data-rule-id="visual-rules" aria-labelledby="rules-heading">
 <h2 id="rules-heading" class="section-heading"><svg class="icon-linear section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3 5 6v5c0 4.5 2.8 7.8 7 10 4.2-2.2 7-5.5 7-10V6l-7-3Z"/><path d="m9 12 2 2 4-5"/></svg><span>核心规则</span></h2>
 <h3 class="layer">一、视觉基础</h3>
-<p>适用于所有产出：产品界面（外观按本节和第二层，功能由系统技能规定）、网页、海报、报告、表格、文字文档与演示文稿。系统技能的界面规范不规定颜色、字体字号、图标、圆角阴影、动效，这些都以本节为准。</p>
+<p>本节的产品外观取值属于可选视觉配置，选定后整套一致使用；功能清晰、必要语义和可访问性须始终满足。阅读网页、海报、报告、表格、文字文档与演示文稿按各自适用规则执行，不把产品装饰配置用于所有文档。</p>
 <h4>扁平线性风格</h4>
 <h5>做法与边界</h5>
-<p>所有产品界面（小程序、后台、智能体界面、落地页）统一用扁平为主的风格：图形由纯色面与统一线宽的线条组成，不画体积、光泽、光影与拟物纹理；入口图标、插画与装饰元素可以按“图像生成”用用户选定的风格生成，不受此限；立体感靠层级阴影、发丝细线、浅底与圆角建立：卡片浮在页面底上，浮层浮在卡片上，每一层的阴影、边线与底色按本页“层级与立体感”取值。层次先靠字号、字重与颜色，再靠间距、浅底与层级。插画按“插画：多层扁平”。阅读型文档素净，只用细线，不用卡片阴影。</p>
+<p>选用本页扁平视觉配置时，图形以纯色面与统一线宽为主，按任务需要使用清晰的层级提示。是否使用图标、插画、阴影和卡片取决于信息与操作，产品任务按卡片分组与大图标角色组织，阅读类文档可使用纯文字排版。成熟来源采用另一套统一设计时，按组件合同评审，不强制改写为本配置；阅读文档继续素净排版。</p>
 <div class="table-wrap"><table><thead><tr><th>对象</th><th>扁平做法</th><th>不使用</th></tr></thead><tbody>
 <tr><td>图标</td><td>控件图标（导航、标签栏、菜单、按钮内、工具栏、表格与表单）用全站一套线性描边图标，线宽与尺寸见“图形：一套线性图标”，颜色与旁边文字相同；图标块、空状态、入口与指标用双色线性，或用选定风格生成的图标</td><td>控件图标用生成、位图、渐变或多色面性图标；同一组入口混用生成图标与矢量图标；同屏混用粗细不同的描边、细于 1.75 像素的图标</td></tr>
 <tr><td>图标底块</td><td>需要强调的入口、指标、设施、权益用浅底圆角块承托双色图标：底块取主色或该模块点缀色的第 1 阶，图标描边取按下阶或点缀色实色阶，内部一个主要面填第 2 阶；底块圆角 8，不加阴影与高光线</td><td>带渐变、光泽高光、内阴影或厚投影的底块</td></tr>
 <tr><td>插画</td><td>空状态、结果页、登录引导、首页问候、产品封面用多层扁平插画：深色 2 像素描边加 2–4 个主题纯色面，至多 1 个实色强调；主体、配件、地面三层，每张 12–30 个形状；或用选定风格生成的透明底插画</td><td>矢量插画里的渐变、光影与高光、纹理、立体透视、发光、椭圆投影、背景斑点；同一产品混用两种插画风格</td></tr>
-<tr><td>底色与头部</td><td>页面底用浅白、极浅灰（中性灰第 1–2 阶）或主色同色相的极浅底（取值见“配色”的背景一行），卡片白底；头部、横幅、会员卡用纯色浅底阶；每屏至多一张品牌主卡用主色实色</td><td>主题渐变、纹理背景、有机斑点、半透明玻璃与背景模糊</td></tr>
+<tr><td>底色与头部</td><td>正文和卡片用清楚的中性底与边界。品牌重点、当前项与主要操作可用实色，图标点缀使用小面积马卡龙色。</td><td>满页淡彩、浓重渐变、无信息的装饰纹理和斑点</td></tr>
 <tr><td>按钮与控件</td><td>单阶实色或浅底容器；底边、高光与按下反馈按“按钮的立体感”；悬停与按下换一阶颜色</td><td>渐变按钮、3 像素以上厚底边的“立体按钮”、内凹按钮、外发光</td></tr>
 <tr><td>卡片</td><td>白底；圆角、发丝边、阴影与悬停按“层级与立体感”的“卡片”</td><td>厚投影、主色投影、卡片外发光、卡片套卡片</td></tr>
 <tr><td>照片</td><td>门店与商品照片保留，照片上需要承载白字时只用黑色透明度渐变遮罩</td><td>照片外的装饰渐变</td></tr>
@@ -78,7 +78,7 @@
 </tbody></table></div>
 <h5>禁止</h5>
 <ul>
-<li>每套主题内都不用：深色侧栏、顶栏、表头，品牌主卡之外的深色卡片与首屏（浅色主题里的深色大块；深色主题自己的页面底与卡片面不算）。产品前端有浅色与深色两套主题，见“深色与浅色两套主题”；阅读页、海报、幻灯片与文件只有浅色。</li>
+<li>选用本页浅色配置时，避免无信息作用的深色装饰大块；产品支持哪些主题由需求与来源能力决定。阅读页、海报、幻灯片与文件按各自文档规则处理。</li>
 <li>霓虹色、荧光色、纯红纯绿纯蓝、彩虹配色、发光阴影；渐变、立体效果、半透明玻璃与有机斑点（照片上的明暗遮罩与加载骨架除外，见“扁平线性风格”）。</li>
 <li>一页出现两个以上营销强调色；按区块轮换颜色（颜色跟模块走，不跟区块走）；同一含义或同一模块在不同位置用不同颜色；一个点缀色代表两个模块；点缀色与状态色相近。</li>
 <li>只靠颜色表达含义；浅灰字写在浅灰底上；彩色字写在彩色底上。</li>
@@ -86,16 +86,16 @@
 <h5>由项目决定</h5>
 <p>在上述约束内，主色色相、中性色偏暖偏冷、页面底用中性浅灰还是主色极浅底、是否用辅色与模块点缀色、表头用主色浅调还是中性灰、阴影用中性深色还是主题暗调，全由内容和品牌推导，一份产出内部一致即可。</p>
 <h4>深色与浅色两套主题</h4>
-<p>产品前端——后台、小程序、手机网页、网站、智能体界面，含它们的可交互原型——同时提供浅色与深色两套主题。浅色是第一套，设计、验收与截图以它为基准；深色是第二套，取主题库的 <code>dark</code> 映射，是另一套色板，不是浅色取反。阅读型网页（报告、规范页、检索结论、文章）、海报、幻灯片和各类文件是文档，只做浅色，打印也用浅色：文档没有切换外观的场景，两套色板只会让检查与交付翻倍。</p>
+<p>产品是否提供浅色、深色或跟随系统，由模型根据已确认需求、使用环境与来源能力决定；不强制两套主题，也不为验收增加外观开关。以下双主题接入方法仅适用于已经选择双主题的项目。文档默认采用便于阅读和打印的浅色版式。</p>
 <ul>
-<li>默认与切换：默认跟随系统外观，并提供“跟随系统 / 浅色 / 深色”三选一的手动切换，选择记在本机。外观设置放在哪一页由系统技能决定；缺省位置：可交互原型放进“场景配置面板”的全局区（“外观”项），真实后台放在顶栏账号菜单或设置里，小程序放在“我的”页的设置里，网站放在页脚或导航的设置入口。只能跟随系统，或只有浅色、深色二选一，都不算做到。</li>
+<li>默认与切换：需求包含外观设置时，由系统技能定义支持的选项、默认值、入口和保存方式，视觉技能统一适配已有组件。只有需求明确包含“跟随系统 / 浅色 / 深色”时才验证这三个选项；仅支持一种主题的页面无需添加控件。</li>
 <li>主题库：每个主题都有 <code>dark</code> 映射，与 <code>shared.dark</code> 一起驱动整个深色界面。<code>themes.&lt;主题&gt;.dark</code> 的键：页面底 <code>canvas</code>、导航底 <code>navBg</code>、卡片面 <code>surface</code>、品牌阶 <code>action</code>、按下阶 <code>actionPress</code>、品牌阶上的文字色 <code>onAction</code>、品牌色文字与图标 <code>actionText</code>、品牌浅底 <code>actionTint</code>、辅色 <code>accent</code> 与 <code>accentTint</code>、线色 <code>line</code>，有模块点缀色的主题另有 <code>modules</code>；<code>shared.dark</code> 的键：文字三档 <code>ink</code>、<code>ink2</code>、<code>ink3</code>，成功、警告、危险、信息、价格五个状态文字色及各自的 <code>Tint</code> 底，承载白字的实色填充 <code>successFill</code>、<code>warningFill</code>、<code>dangerFill</code>，<code>sage</code> 与 <code>sageTint</code>，图片占位色，以及五级层级 <code>elevation</code>。<code>scripts/make_dark.py</code> 按浅色映射推导初稿（同色相，明度按对比度目标求解），再由 <code>check_contrast.py</code> 逐项核对；新增主题带不齐 <code>dark</code> 映射就不算完成。</li>
 <li>取值：更暗的背景加更亮的前景，不是简单取反（<a href="https://developer.apple.com/design/human-interface-guidelines/dark-mode">苹果人机界面指南“深色模式”</a>）。页面底最暗，卡片面比页面底亮，浮起的面更亮；底色只带主题色相的极低彩度，不用纯黑，文字不用纯白。品牌阶取同色相里白字仍达 4.5:1 的最亮一阶，品牌色的文字与图标（链接、选中的标签与菜单）另取更亮的 <code>actionText</code>；近黑的石墨主题在深色里是浅色按钮配深色字（<code>onAction</code>）。状态色的 <code>Tint</code> 在深色里是同色相的深而低饱和的底，状态文字色取更亮的一阶；状态色按钮和徽标的实色底用 <code>Fill</code> 值，因为亮的红字与白字红底不可能是同一个红。点缀色、插画面与图表系列同样换成映射里的值，色相数量不变。</li>
 <li>对比度：<code>check_contrast.py</code> 对每个主题逐项核对。正文 <code>ink</code> 在各层深色底（页面底、卡片面、导航底、品牌浅底、浮起的面）上不低于 7:1，<code>ink2</code>、<code>ink3</code> 不低于 4.5:1；品牌色文字、辅色与状态文字色在各层底和自己的浅底上不低于 4.5:1；<code>onAction</code> 在品牌阶与按下阶上不低于 4.5:1，品牌阶对页面底与卡片面不低于 3:1（<code>1.4.11</code>）；线色在卡片面上可分辨（不低于 1.2:1）。系统开启“增加对比度”和“降低透明度”后再复测，深色底上的深色字此时最容易看不清（同一指南）。</li>
 <li>层级：深色底上阴影几乎看不出，前后关系用更亮的表面表达，仍只有五级。<code>shared.dark.elevation</code> 给五级各一个值：<code>surfaceMix</code> 是各级表面往卡片面里混入的白色百分比（第 0 级是页面底，第 1 级是卡片面，之后 5%、8%、11%），配白色发丝线 <code>hairline</code>；阴影令牌仍只向下、两层，颜色为黑、透明度可到 0.5，只作辅助，不加发光。</li>
 <li>图像：白底图片略微压暗，避免在深色底上发光；线性图标与插画沿用主题色相，色面换成映射里的值。</li>
 <li>写法：令牌写在 <code>:root</code>（浅色）；深色在 <code>@media (prefers-color-scheme: dark)</code>（选择器 <code>:root:not([data-theme="light"])</code>）与 <code>:root[data-theme="dark"]</code> 两处重定义同一组变量，<code>:root[data-theme="light"]</code> 强制浅色，<code>color-scheme</code> 随之声明为浅色或深色，表单控件、滚动条与系统色一起变（<a href="https://developer.mozilla.org/en-US/docs/Web/CSS/color-scheme"><code>MDN</code></a>：广泛可用，2022 年 1 月起）。<code>&lt;head&gt;</code> 里先于样式放一段内联脚本，读本机的选择（<code>localStorage</code> 的 <code>luz-theme</code>，读写包 <code>try</code> 与 <code>catch</code>，没有即跟随系统）并给 <code>&lt;html&gt;</code> 设 <code>data-theme</code>，减少加载闪烁。也可以把 <code>color-scheme</code> 设为 <code>light dark</code> 再用 <code>light-dark()</code>（<a href="https://developer.mozilla.org/en-US/docs/Web/CSS/color-scheme"><code>MDN</code></a>：2024 年 5 月起新近可用，先写浅色回退）。组件库的暗色走库自己的机制，见“组件与组件库”。</li>
-<li>检查：页面用 <code>audit_rendered.py --scheme light</code> 与 <code>--scheme dark</code> 各跑一遍，深色下字号、对比度、触控、焦点框等全部检查重来；页面靠属性或类切换而不读系统外观时加 <code>--dark-attr data-theme=dark</code> 或 <code>--dark-class dark</code>；<code>audit_palette.py --scheme dark</code> 复核色相不超出主题。<code>check_document.py</code> 对产品前端页面（<code>--allow interface</code> 或 <code>website</code>）里的深色主题块不报深色填充与深色声明，产品前端页面没有任何深色主题块时给警告；阅读页里的深色声明仍然报错。令牌导出含两套，见“设计令牌”。</li>
+<li>检查：对实际声明的每种主题分别执行浏览器检查；需要深色时使用 <code>audit_rendered.py --scheme dark</code>，属性或类切换可用 <code>--dark-attr</code> 或 <code>--dark-class</code>。主题变化后复核文字、必要非文字线索、焦点和操作状态。静态页面没有深色块不构成错误或警告，检查器不能据此自行新增产品需求。</li>
 <li>文档的浅色声明：阅读页、海报、幻灯片与文件把 <code>color-scheme</code> 声明为浅色；需要挡住浏览器的自动深色主题改写页面时写 <code>only light</code>（<a href="https://developer.mozilla.org/en-US/docs/Web/CSS/color-scheme"><code>MDN</code></a> 页面的说明）。</li>
 </ul>
 <h4>主题色系统</h4>
@@ -108,6 +108,7 @@
 <tr><td>页面底色</td><td>浅白、极浅灰（中性灰第 1–2 阶）或主色同色相的极浅底（亮度不低于 0.85），卡片纯白</td><td>页面背景、分区底；不用渐变与纹理</td></tr>
 <tr><td>层级</td><td>五级层级（第 0 级无阴影，第 1–4 级各一组双层阴影令牌）、发丝线、内顶部高光线、按钮底边与遮罩（见“层级与立体感”）</td><td>卡片、悬浮卡片、下拉与吸顶、对话框</td></tr>
 <tr><td>中性与状态</td><td>灰阶、成功、警告、危险、信息</td><td>文字、分隔、状态</td></tr>
+<tr><td>有序进度色阶</td><td><code>stage-1</code> 到 <code>stage-6</code> 六级序列色与各自的浅底标签，浅色与深色各一套，见“有序进度状态的色阶”</td><td>同页多个有先后顺序的状态取值的文字、圆点与标签；图表里同一集合的分段</td></tr>
 <tr><td>图表色板</td><td>官方色板各列的同一阶（主系列用品牌阶；按模块分系列时用各模块点缀色实色阶），最多 6 色</td><td>趋势、占比、分布图；“其他”用中性灰</td></tr>
 </tbody></table></div>
 <p>主题库为每个主题写出这些值：<code>action</code>、<code>actionPress</code>、<code>actionTint</code> 是品牌阶、按下阶与第 1 阶，<code>canvas</code> 是页面底色（中性浅灰或主色极浅底），<code>scale</code> 是整列 10 阶，<code>modules</code> 是模块点缀色（<code>tint</code>、<code>mid</code>、<code>solid</code>），<code>shared.elevation</code> 是层级令牌（四级阴影、发丝线、两种内顶部高光、遮罩、聚焦环、按钮底边）。<code>check_contrast.py</code> 逐项核对对比度、亮度、色相间距与层级令牌的形状。导航栏底色 <code>navBg</code> 上只放正文色 <code>ink</code> 的文字与图标，次要灰不放在导航栏上，因此脚本对次要灰在导航栏底色上只按图形核对 3:1。</p>
@@ -126,7 +127,7 @@
 <tr><td>安心、洁净</td><td>蓝、青蓝</td><td>暖橙</td><td>医疗、药店、保险</td></tr>
 <tr><td>温柔、精致</td><td>玫瑰、豆沙、雾紫</td><td>金</td><td>美业、花店、母婴</td></tr>
 <tr><td>清爽、自然</td><td>绿、青绿</td><td>粉、橙</td><td>轻食、茶饮、农产品</td></tr>
-<tr><td>克制、专业工具</td><td>石墨中性灰（锌灰列）：主按钮近黑，彩色只给链接</td><td>不设营销辅色</td><td>面向企业的数据与获客工具后台（主题库 <code>b2b-graphite</code>：状态用小圆点加文字，用户头像用随机固定的扁平人像，智能体用线性图形，静止卡片只用发丝线，不用卡通、立体或生成的装饰图案）</td></tr>
+<tr><td>专业工具</td><td>按当前品牌与任务选择主色、柔和卡面和可读文字色</td><td>少量辅助色服务类别，状态沿用语义色</td><td>专业感由清晰层级、统一组件和可靠操作形成，不由固定中性主题定义</td></tr>
 </tbody></table></div>
 <ul>
 <li>核心与营销分色靠“配色和谐”而不是拉大色相：营销辅色优先取主色的邻近色（橙配金、红配橙、蓝配青），用浅底容器与深色文字和主色的实色按钮区分；需要更强对比时才用互补色（橙配蓝），且只占小面积。不把两个饱和度相近的高彩度色相并置（例如饱和橙配饱和紫）。</li>
@@ -166,6 +167,45 @@
 <li>营业状态用状态色加文字：营业中用成功色浅底标签，暂停营业与休息中用警示色浅底标签加时钟图标并写恢复时间，已闭店用中性灰；不用红色表示停业，避免与价格和危险提示混淆。</li>
 <li>停业时页面不整页灰化：商品图与价格保持原色；停业提示用警示浅底，不可用的加购与结算按钮用中性灰。提示的位置、文案、支付暂停与海报公告的一致见系统技能的<a href="https://github.com/luzern0414/Luz-System/blob/master/references/commerce-design.html">交易与营销界面规范</a>。</li>
 </ul>
+<h4>有序进度状态的色阶</h4>
+<p>同一个状态集合有先后顺序（沟通深度的初次建联、面谈拜访、二轮、三轮、后续跟进；第一轮、第二轮、第三轮；订单与审批的过程环节），而它的多个取值会在同一个页面一起出现（列表的一列、筛选项、时间线、图表分段）时，文字用一条随顺序递进的色阶区分：越靠后越深越实，一眼分出前后。色阶回答“走到了哪一步”；成功、警告、危险回答“结果好不好、有没有异常”；模块点缀色回答“这是哪一类”。三者各管各的，不互相借色。</p>
+<div class="table-wrap"><table><thead><tr><th>项目</th><th>规则</th><th>落到界面</th></tr></thead><tbody>
+<tr><td>适用判据</td><td>按集合判断，不按页面：集合里至少有两个取值会在同一页面同屏出现，这个集合就上色阶；一旦上了色阶，它的每个取值在所有页面（包括只显示一个取值的档案头部与详情页）、所有组件（列表文字、标签、时间线、筛选项、选择器选项、图表分段）都用同一颜色。从不同屏出现两个取值的状态、只有“是 / 否”“有 / 无”而不分先后的开关不上色，不为上色而加色</td><td>先问“这个集合有没有顺序、会不会同屏出现两个以上取值”，答案写进会话简报；只在单一页面出现一个取值、全产品也没有同屏出现的集合，保持中性文字色</td></tr>
+<tr><td>谁定什么</td><td>哪些状态、顺序、管理员能否增减与排序、哪些是终态，由系统技能的功能说明写出（<code>states[].ordered</code>、<code>order</code>、<code>terminal</code>，划线见 <code>references/ui-ownership.md</code>）；本技能只定颜色、色阶算法、令牌与标签样式。拿不到顺序时先向系统技能要，不按名字猜顺序</td><td>交接表里有序状态集合一栏缺顺序，退回系统技能，不在视觉稿里自行排序</td></tr>
+<tr><td>色阶的形状</td><td>每个主题一条 6 级序列色 <code>stage-1</code> 到 <code>stage-6</code>，浅色与深色各一套，在 <code>OKLCH</code> 里沿一条短弧走：色相从 210–230 度（离主色最近的一端）起，6 级共转 70 度，终点 280–300 度（青蓝经蓝到蓝紫），6 级与成功绿、警告琥珀、危险红、价格红的 <code>OKLCH</code> 色相差都在 25 度以上（25 个主题实测最近的 52 度）；彩度 <code>C</code> 从 0.03 逐级增到 0.12（深色增到 0.10，高明度处色域装不下更多）；明度 <code>L</code> 浅色从 0.53 降到 0.34（越靠后越深越实），深色从 0.71 升到 0.84（越靠后越亮越醒目）；6 个点沿路径按等 <code>OKLab</code> 距离取，不按等间距取，免得低彩度的头几级挤在一起</td><td>数值是本技能取值。生成与校验用 <code>scripts/stage_ramp.py</code>（<code>make</code>、<code>check</code>、<code>themes</code>），主题库每个主题带一条 <code>stage</code>，不手调</td></tr>
+<tr><td>数值红线</td><td>每一级对所在各层底（浅色：卡片白底、页面底；深色：页面底、卡片面、导航底、浮起的面）和自己的浅底标签都不低于 4.5:1（<a href="https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html"><code>WCAG 1.4.3</code></a>，求解时取 4.6 留 8 位取整的余量）；相邻两级的 <code>OKLab</code> 距离 Δ<code>E</code>（×100）不低于 3.0；彩度不超过 0.12（容差 0.004）；彩度逐级不递减，明度浅色逐级不增、深色逐级不减</td><td>25 个主题实测：对比度最低 4.64:1（浅色）与 4.70:1（深色），相邻色差最小 4.36（浅色）与 3.16（深色），最大彩度 0.120（折成取色器里的 <code>HSB</code> 饱和度，浅色最高 0.68、深色最高 0.34，低于生成图标的“过饱和”线 0.80；图标图像的饱和度阈值只管图片，不管文字色）。彩度上限取成功与警告状态文字色的彩度（0.110、0.124）一档，远低于危险红 0.183 与价格红 0.227，色阶不会比状态色更艳</td></tr>
+<tr><td>按位置取色</td><td><code>N</code> 个有序状态（2 到 6）取 6 级中等间隔的 <code>N</code> 级：2 个取 1、6；3 个取 1、4、6；4 个取 1、3、4、6；5 个取 1、2、4、5、6；6 个全取。颜色跟顺序位置走，不按状态名字写死：管理员增减、停用、排序选项后，颜色按新位置重取，所以颜色不是取值的身份，身份靠文字。只有 1 个取值不上色。超过 6 个分成 6 档（第 <code>i</code> 个（从 0 数）取第 <code>⌊i×6/N⌋+1</code> 档，同档同色，仍靠文字区分），或把集合拆成“阶段”与“步骤”两层只给阶段上色</td><td><code>stage_ramp.py make --theme &lt;主题&gt; --n &lt;个数&gt;</code> 输出该个数的色阶；组件里写 <code>data-stage-set</code>（集合名）、<code>data-stage</code>（顺序位，从 1 起）与 <code>data-stage-n</code>（集合个数），颜色由令牌选择器取</td></tr>
+<tr><td>与语义色的边界</td><td>色阶不用成功绿、警告琥珀、危险红、价格红及其浅底。终态有语义的（成交 = 成功色，流失、驳回 = 危险色，暂停、归档 = 中性灰）用状态色令牌，不进色阶，也不占色阶的位置：5 个沟通深度加成交与流失，色阶 <code>N</code> = 5，成交与流失各用状态色。“进行中”类信息色也不借用色阶</td><td>同页既有过程态又有终态时，过程态是色阶、终态是状态色，两者并排也读得出是两类</td></tr>
+<tr><td>文字与标签</td><td>三种写法，一个产品选一种并全产品统一：<strong>文字色</strong>（只把状态文字染成该级色，最克制）；<strong>圆点加文字</strong>（6 像素圆点取该级色，文字取该级色）；<strong>浅底标签</strong>（文字取该级色，底取 <code>stage-N-tint</code>，即本色按浅色 10%、深色 16% 混入卡片面，圆角 4，高 22，字重 600）。主题库写了“不用彩色底块状态”的主题（<code>b2b-graphite</code>）只用前两种，且色阶是这类主题里链接色之外唯一允许的彩色文字。状态永远写出文字名称（<a href="https://www.w3.org/WAI/WCAG22/Understanding/use-of-color.html"><code>WCAG 1.4.1</code></a> 不只靠颜色），颜色只是位置的辅助线索；色阶只给文字、圆点和标签，不给整行底、整张卡与侧栏</td><td>组件库用 <code>data-stage-tag</code>（浅底标签）与 <code>data-stage-dot</code>（圆点），不加属性就是文字色</td></tr>
+<tr><td>同页与跨页一致</td><td>同一集合同一取值，在列表行、档案头部、时间线节点、筛选项、选择器、后台记录表、汇总分布图里同一颜色。图表分段用同一色阶：<code>N</code> 个分段取 <code>N</code> 级，段与段之间留 1 像素底色分隔，图例同色同序，不另配图表色板；时间线节点的圆点与旁边的文字同色</td><td>一个集合在一个产品里只有一份取色逻辑，不在各页各写一遍</td></tr>
+<tr><td>黑白、打印与色觉</td><td>明度单向变化，灰度截图、黑白打印和红绿色觉缺陷下仍读得出先后（浅色越靠后越深），文字标签与顺序列表保证可读；沟通时不用颜色名指代状态（“红色那个”）</td><td><code>stage_ramp.py check --cvd</code> 看三种色觉缺陷模拟下相邻两级的差；25 个主题实测，红色盲、绿色盲、蓝黄色盲模拟下相邻两级的色差最小：浅色 3.26，深色 1.44（深色那一对要靠文字和明度顺序读）</td></tr>
+<tr><td>不用的做法</td><td>彩虹或多色相循环；红绿表示进度；同一色相只改透明度（浅底上叠出的字色对比度不够，相邻级色差也落到 3.0 以下）；只加深明度不加彩度（读不出“更实”）；各页各写各的颜色；给不分先后的类别用色阶（类别用模块点缀色）；按状态名字写死颜色；把色阶铺成大面积底色</td><td><code>audit_rendered.py</code> 对带 <code>data-stage-set</code> 的元素逐项查：有文字标签、同位同色、异位异色且逐级递进、颜色是该位置对应的那一级</td></tr>
+<tr><td>令牌与检查</td><td><code>CSS</code> 变量 <code>--stage-1</code> 到 <code>--stage-6</code> 与 <code>--stage-1-tint</code> 到 <code>--stage-6-tint</code>，浅色写在 <code>:root</code>，深色在两处深色选择器里重定义；<code>export_tokens.py</code> 导出 <code>color.stage</code> 与 <code>color.stage-tint</code>（浅色在 <code>$value</code>，深色在 <code>$extensions.mode.dark</code>），<code>--check</code> 逐项复核对比度、相邻色差、彩度与走向；<code>check_contrast.py</code> 对每个主题复核 <code>stage</code> 并与算法比对</td><td>开发取令牌，不抄十六进制；组件库的 <code>[data-stage]</code> 选择器见 <code>references/component-library/README.md</code></td></tr>
+</tbody></table></div>
+<p>历史主题 <code>b2b-graphite</code> 的数值示例（仅用于该主题，不是新产品默认），起点色相 230 度；对比度按卡片白底（深色按卡片面 <code>#18181B</code>）量：</p>
+<div class="table-wrap"><table><thead><tr><th>个数</th><th>顺序位（色阶级）</th><th>浅色</th><th>浅色对比度</th><th>深色</th><th>深色对比度</th><th>与前一级色差（浅 / 深）</th></tr></thead><tbody>
+<tr><td rowspan="5">5 个</td><td>1（<code>stage-1</code>）</td><td><code>#5A6F7A</code></td><td>5.26:1</td><td><code>#8FA5B1</code></td><td>6.91:1</td><td>—</td></tr>
+<tr><td>2（<code>stage-2</code>）</td><td><code>#48637B</code></td><td>6.28:1</td><td><code>#93AEC6</code></td><td>7.69:1</td><td>4.64 / 3.47</td></tr>
+<tr><td>3（<code>stage-4</code>）</td><td><code>#3C4679</code></td><td>8.96:1</td><td><code>#ACB8EB</code></td><td>9.12:1</td><td>9.09 / 6.63</td></tr>
+<tr><td>4（<code>stage-5</code>）</td><td><code>#3F3674</code></td><td>10.55:1</td><td><code>#BEBBF9</code></td><td>9.84:1</td><td>4.43 / 3.29</td></tr>
+<tr><td>5（<code>stage-6</code>）</td><td><code>#43236B</code></td><td>12.42:1</td><td><code>#D4BDFF</code></td><td>10.56:1</td><td>4.83 / 3.31</td></tr>
+<tr><td rowspan="3">3 个</td><td>1（<code>stage-1</code>）</td><td><code>#5A6F7A</code></td><td>5.26:1</td><td><code>#8FA5B1</code></td><td>6.91:1</td><td>—</td></tr>
+<tr><td>2（<code>stage-4</code>）</td><td><code>#3C4679</code></td><td>8.96:1</td><td><code>#ACB8EB</code></td><td>9.12:1</td><td>13.58 / 9.92</td></tr>
+<tr><td>3（<code>stage-6</code>）</td><td><code>#43236B</code></td><td>12.42:1</td><td><code>#D4BDFF</code></td><td>10.56:1</td><td>9.22 / 6.48</td></tr>
+</tbody></table></div>
+<p>个数少时色差自然拉大；4 个以上时相邻两级只隔一级，色差在 3 到 5 之间，是并排看得出深浅的量级，不是一眼数得清的量级，所以文字标签一直保留。</p>
+<h5>有序进度状态的取值依据</h5>
+<div class="table-wrap"><table><thead><tr><th>资料</th><th>规定或做法</th><th>落到界面</th></tr></thead><tbody>
+<tr><td><a href="https://atlassian.design/components/lozenge/examples">亚特拉斯设计体系徽标（<code>Lozenge</code>）</a></td><td>徽标用语义色表达人们能跨应用学会和辨认的含义；另有强调色（红、橙、黄、青柠、绿、青、蓝、紫、洋红、灰），多用于用户自定义内容；徽标都带文字，截断的文字读不到，要尽量写短</td><td>有顺序的状态不借语义色，也不用分类强调色；同一含义同一颜色；状态必须有文字，名称写短</td></tr>
+<tr><td><a href="https://primer.style/product/components/label/"><code>Primer</code> 标签</a>、<a href="https://ant.design/components/tag">蚂蚁设计体系标签</a>、<a href="https://shopify.dev/docs/api/app-home/latest/web-components/feedback-and-status-indicators/badge"><code>Shopify Polaris</code> 徽标</a></td><td><code>Primer</code> 的变体是默认、主要、成功、注意、严重、危险、完成等语义；蚂蚁设计体系有成功、处理中、警告、错误、默认五种状态预设，和 11 种供不同场合选用的色彩预设；<code>Polaris</code> 徽标的 <code>tone</code> 是信息、成功、注意、警告、严重，可加图标强化含义，用户自建的类别另用 <code>chip</code>。三者都没有“有序进度”这一类</td><td>主流体系只提供语义色与分类色，进度的递进色阶是本技能补的一层，因此数值标为本技能取值，不借它们的名义</td></tr>
+<tr><td><a href="https://www.carbondesignsystem.com/building-blocks/data-visualization/color-palettes">碳设计体系数据可视化色板</a></td><td>分类、序列、发散、警示四类色板分开使用；序列色板：浅色主题里最深的颜色表示最大值，深色主题里最浅的颜色表示最大值；渐变不用来表示有意义的进度，也不替代序列色板</td><td>明度走向浅色越靠后越深、深色越靠后越亮；警示色与序列色不混；图表分段取同一色阶</td></tr>
+<tr><td><a href="https://colorbrewer2.org/learnmore/schemes_full.html"><code>ColorBrewer</code> 配色方案类型</a></td><td>顺序型适合从低到高递进的有序数据，明度的台阶主导观感，低值用浅色、高值用深色；定性型靠色相区分类别，不暗示量的大小；成对型用于相关但无顺序的类别</td><td>有顺序的集合以明度台阶为主、浅色里越靠后越深；不分先后的类别另用模块点缀色，不用色阶</td></tr>
+<tr><td><a href="https://www.datawrapper.de/blog/colorguide"><code>Datawrapper</code> 数据可视化配色指南</a></td><td>数据从低到高用色阶，色阶里每一级要传达“比旁边那一级略高或略低”，首要的是相邻两级的差足够大，读者能分清浅绿与更浅的绿；分类数据用互不相干的色相；用色觉缺陷模拟器核对</td><td>相邻色差设下限（Δ<code>E 3.0</code>）；不用彩虹表示顺序；提供 <code>--cvd</code> 核对</td></tr>
+<tr><td><a href="https://bottosson.github.io/posts/oklab/"><code>Oklab</code>（<code>Ottosson</code>）</a>、<a href="https://evilmartians.com/chronicles/oklch-in-css-why-quit-rgb-hsl"><code>OKLCH</code>（<code>Evil Martians</code>）</a></td><td><code>Oklab</code> 为预测感知的明度、彩度与色相而设计，<code>CIELAB</code> 预测色相较差，蓝色尤其不准；<code>OKLCH</code> 的明度是感知明度，在不同色相间一致，<code>HSL</code> 的明度不是，调明度时对比度可预测</td><td>色阶在 <code>OKLCH</code> 里生成，相邻色差用 <code>Oklab</code> 距离，对比度仍按 <code>WCAG 2.2</code> 的相对亮度量，不用感知算法的数值作通过依据</td></tr>
+<tr><td><a href="https://www.w3.org/WAI/WCAG22/Understanding/use-of-color.html"><code>WCAG 2.2</code> · 1.4.1 颜色的使用</a>、<a href="https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html">1.4.3 对比度（最低）</a></td><td>颜色不是传达信息的唯一视觉手段；文字与背景至少 4.5:1</td><td>每个有序状态都带文字名称；每一级对各层底与自己的浅底标签不低于 4.5:1</td></tr>
+<tr><td><a href="https://www.nngroup.com/articles/indicators-validations-notifications/"><code>NN/g</code> 指示器、验证与通知</a></td><td>指示器依条件出现、是被动提示，会带来噪声和杂乱，要考虑用多少（甚至要不要用），看信息对用户多重要、值不值得占版面、用得多频繁</td><td>适用判据按集合判断，不为上色而加色；色阶只给文字、圆点与标签</td></tr>
+<tr><td>资料没覆盖的</td><td>以上资料都没有给出“有序进度状态”文字色阶的具体数值：彩度上限 0.12、相邻色差 3.0、明度两端、70 度色相弧、6 级上限、10% 与 16% 的标签底混入比例都是本技能取值；最小可觉差约为 <code>Oklab</code> 距离 0.02（×100 为 2）是行内通行的说法，本次检索的资料没有证实</td><td>待用户标注一批“看得清 / 看不清”的样本后校准；改任何一个数时，<code>stage_ramp.py</code>、<code>themes.json</code>、本节与 <code>test_stage_ramp.py</code> 四处同步</td></tr>
+</tbody></table></div>
 <h4>字体与字号</h4>
 <h5>字体族必须统一</h5>
 <ul>
@@ -259,20 +299,21 @@
 <tr><td><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/text-autospace"><code>MDN</code> 的 <code>text-autospace</code></a>、<a href="https://developer.mozilla.org/en-US/docs/Web/CSS/text-spacing-trim"><code>text-spacing-trim</code></a></td><td>前者在排版引擎层给汉字与西文、数字之间加间距，2025 年 11 月起新近可用；后者调整中日韩标点的内部空白，有限可用、实验性，字体需要 <code>halt</code> 或 <code>chws</code></td><td>用前者，不手写空格；版式不依赖后者</td></tr>
 </tbody></table></div>
 <h4>图形：一套线性图标</h4>
-<p>产品界面里，导航入口、模块与卡片标题、列表项、功能按钮、权益与卖点、状态提示的前面都配图形，让用户先看图形再读文字。图形全部来自同一套线性描边图标，靠尺寸、底块与双色区分层级，不靠立体或多色填充区分。阅读型文档不适用本节。</p>
+<p>当前前端样板优先采用<a href="design/foundation.md">视觉基础</a>的建议。功能图标的可见外框含色底按 24 像素校准，整格触控独立计算。</p>
+<p>图标仅在帮助识别对象、动作或状态时使用，文字已清楚表达时可以不加。模型根据任务与统一框架决定；不要求导航、标题、列表或按钮一律配图标。选用本页线性图标配置时，下表规定已采用图标的样式和尺寸，不规定必须出现的位置或数量。</p>
 <div class="table-wrap"><table><thead><tr><th>用法</th><th>形态</th><th>用在哪里</th><th>尺寸</th></tr></thead><tbody>
-<tr><td>双色图标块</td><td>双色线性图标放在浅底圆角方块里：底块取主色或该模块点缀色的第 1 阶，图标描边取按下阶或点缀色实色阶，内部一个主要面填第 2 阶</td><td>金刚区入口、服务宫格、设施、权益卖点、指标卡、空状态、装修模块</td><td>底块 32–40 像素、圆角 8，图标 18–24 像素</td></tr>
+<tr><td>双色图标块</td><td>简洁深色图形放在小块马卡龙圆角底上</td><td>金刚区入口、服务宫格、设施、权益卖点、指标卡、空状态、装修模块</td><td>外框约 20–24 像素，图形约 16–20 像素</td></tr>
 <tr><td>行内图标</td><td>单色线性图标，颜色与旁边文字相同</td><td>模块与卡片标题、列表前缀、表格中的对象名、状态提示</td><td>16–20 像素</td></tr>
-<tr><td>导航与工具图标</td><td>单色线性图标，当前项用主色</td><td>侧边菜单每一项、底部标签、返回与关闭、按钮内、表单与工具操作、箭头</td><td>菜单 20 像素，底部标签 22–24 像素，按钮内 16 像素</td></tr>
+<tr><td>导航与工具图标</td><td>底栏与侧栏优先黑色透明底，整项样式标记当前项</td><td>侧边菜单每一项、底部标签、返回与关闭、按钮内、表单与工具操作、箭头</td><td>左侧菜单同字号，底部标签 18–20 像素，按钮内 16–20 像素</td></tr>
 <tr><td>多层扁平插画</td><td>见下一节“插画：多层扁平”</td><td>空状态、结果页、登录引导、首页问候、产品封面</td><td>描边 2 像素，与图标一致</td></tr>
 </tbody></table></div>
 <ul>
 <li>生成图标：入口宫格、能力清单、权益与设施、指标块这类入口图标可以用图像生成代替双色线性（见“图像生成”），一个产品同一风格、同一组颜色、一物一图、透明底、不带文字；导航、标签栏、菜单、按钮内、工具栏、表格与表单里的控件图标始终用线性矢量，要随状态变色，在 16–24 像素下清晰。</li>
 <li>所有图标同一线宽、同一圆角端点、同一栅格：24 栅格上线宽 2 像素，并设为不随尺寸缩放（矢量描边不缩放），任何显示尺寸都保持同一线宽；16 像素的按钮内图标可取 1.75，视觉线宽在任何尺寸都不细于 1.75。</li>
 <li>双色线性：在完整的线性描边下，给图标主体轮廓内的一个主要面填浅底阶纯色（主色或模块点缀色的第 2 阶，放在第 1 阶底块上）；只填一个面，不用透明度叠色，不填多个面；去掉填色后图标照样成立。导航、底部标签、按钮内与工具操作图标只用单色描边，不用双色。</li>
-<li>后台侧边导航每一项前置一个图标；页面与卡片上的功能按钮（新增、导出、筛选、重置、保存、发布、编辑、删除、详情等）前置 16 像素图标；对话框底部的取消、关闭、确认，以及分段选择器的选项不加图标。</li>
+<li>导航、页面按钮、对话框和分段选项是否使用图标由任务和统一框架决定。图标应帮助识别，不能因检查配额而添加；已有清楚文字的“新增”“保存”“取消”等按钮可以只保留文字。</li>
 <li>小图标一律做成方形，最小显示 16 像素；按钮内图标与文字同高并垂直居中。</li>
-<li>同一对象在各处使用同一个图形，例如“会员卡”在首页入口、我的页、后台菜单都用同一个线性图标。</li>
+<li>同一对象在各处使用同一个图形，例如“会员卡”在「我的」、办理详情、后台管理都用同一个线性图标。</li>
 <li>不同对象不共用同一个图形：一个页面或一组入口里，每个对象的图标互不相同，读者只看图标也能分清。例如每日抽奖用转盘、新人礼券用礼盒、优惠券用券面、中奖记录用奖杯；月卡用日历、次卡用计次卡；门店用店面、面积用面积框。返回、箭头、关闭、勾选等通用控件图标不受此限。</li>
 <li>图标要能表达对象本身：先找该对象最具体的形象（转盘、礼盒、毛巾、淋浴），找不到再用通用图形；不把同一个通用图形（设置、文件、星标）挂在多个不同标题前凑数，没有合适图形时宁可不放。</li>
 <li>图形不能替代文字：入口与按钮仍然有文字标签，状态仍然有文字。</li>
@@ -281,7 +322,7 @@
 <p>本节在“图形：一套线性图标”之上补足图标的画法与选型，不改变既有规则：控件图标 24 栅格、线宽 2（16 像素 1.75，任何尺寸不细于 1.75）、单色线性、圆角端点、同一对象各处同一图形、不同对象不共用图形。</p>
 <h5>栅格与关键线</h5>
 <div class="table-wrap"><table><thead><tr><th>项目</th><th>取值</th></tr></thead><tbody>
-<tr><td>画布</td><td>24×24；图形放在 20×20 的活动区（<code>live area</code>）内，四周留 2；至少留 1</td></tr>
+<tr><td>画布</td><td><code>viewBox="0 0 32 32"</code>；底是圆角方形 <code>rx="8"</code>，实心填色。颜色不规定，取页面主题的主色或品牌色即可，最好是一种颜色加白色的搭配（例如主色圆底加白色图案）</td></tr>
 <tr><td>线宽</td><td>2，描边居中于路径，圆端点、圆连接；不在三条及以上线交汇处倒圆角</td></tr>
 <tr><td>圆角</td><td>外轮廓宽或高不小于 8 的形状圆角半径 2，小于 8 的形状 1</td></tr>
 <tr><td>元素间距</td><td>相邻的独立元素之间视觉间距不小于 2</td></tr>
@@ -293,13 +334,13 @@
 <div class="table-wrap"><table><thead><tr><th>用途</th><th>显示尺寸</th><th>线宽</th><th>点击区域</th></tr></thead><tbody>
 <tr><td>表格辅助、紧凑行内</td><td>16</td><td>1.75</td><td>随所属控件，桌面不小于 32</td></tr>
 <tr><td>按钮内、行内标题前</td><td>16</td><td>1.75</td><td>随所属按钮</td></tr>
-<tr><td>后台一级菜单、导航</td><td>20</td><td>2</td><td>行高 40</td></tr>
-<tr><td>卡片标题、小程序底部标签</td><td>20–24</td><td>2</td><td>触屏 44</td></tr>
-<tr><td>双色图标块</td><td>图标 18–24，块 32–40</td><td>2</td><td>整块</td></tr>
+<tr><td>后台一级菜单、导航</td><td>约等于字号</td><td>2</td><td>行高 40</td></tr>
+<tr><td>卡片标题、小程序底部标签</td><td>标题同字号，底部标签 18–20</td><td>2</td><td>触屏 44</td></tr>
+<tr><td>双色图标块</td><td>图形 16–20，外框 20–24</td><td>2</td><td>整块</td></tr>
 </tbody></table></div>
 <ul>
-<li>尺寸只取 16、20、24（入口块里 22）；不用 12 以下的图标承载交互。线宽不随显示尺寸缩放：图标库提供“线宽恒定”选项时开启（<code>Lucide</code> 的选项叫 <code>nonScalingStroke</code>，见<a href="https://lucide.dev/guide/react/basics/stroke-width">图标库的线宽说明</a>）。</li>
-<li>视觉线宽在 16–24 下始终是 2（16 像素按钮内 1.75）；不要用整套缩放图标的办法得到别的尺寸。</li>
+<li>尺寸按角色选择：服务入口 32–48、主卡图形 48–80、导航 24–28、辅助 16–22 像素作为本地起点；实际库的光学尺寸与页面效果优先，不能用小图标档位限制服务入口。保留图标库原生缩放和线宽能力，实看粗细一致性。</li>
+<li>同角色图标保持视觉线宽一致，大图标使用库支持的缩放参数并实看效果，不机械放大描边。</li>
 </ul>
 <h5>状态</h5>
 <div class="table-wrap"><table><thead><tr><th>状态</th><th>做法</th></tr></thead><tbody>
@@ -359,23 +400,23 @@
 <p>图标、标题、说明与操作在同一张卡片里要成比例。数值如下；点击区域与整卡可点的行为见系统技能界面通用规范“卡片内容层级与点击区域”。</p>
 <h5>图标与标题（行内）</h5>
 <div class="table-wrap"><table><thead><tr><th>标题字号 / 行高</th><th>行内图标</th><th>图标与文字间距</th><th>图标块（双色）</th><th>块与标题间距</th></tr></thead><tbody>
-<tr><td>14 / 22（按钮、菜单、表格行）</td><td>16</td><td>8</td><td>—</td><td>—</td></tr>
-<tr><td>16 / 24（卡片标题、列表项标题）</td><td>20</td><td>8</td><td>32，图标 18–20</td><td>12</td></tr>
-<tr><td>18 / 26（区块标题、对象名）</td><td>20–24</td><td>8–12</td><td>32–40，图标 20–24</td><td>12</td></tr>
-<tr><td>22 / 30（页面主标题）</td><td>24</td><td>12</td><td>40，图标 24</td><td>12</td></tr>
+<tr><td>14 / 22（按钮、菜单、表格行）</td><td>14–16</td><td>8</td><td>—</td><td>—</td></tr>
+<tr><td>16 / 24（卡片标题、列表项标题）</td><td>16</td><td>8</td><td>24，图形 18</td><td>12</td></tr>
+<tr><td>18 / 26（区块标题、对象名）</td><td>18</td><td>8–12</td><td>24，图形 18</td><td>12</td></tr>
+<tr><td>22 / 30（页面主标题）</td><td>22</td><td>12</td><td>24</td><td>12</td></tr>
 </tbody></table></div>
 <ul>
 <li>对齐：图标与文字用弹性布局垂直居中（<code>align-items: center</code>），不做基线对齐；多行标题时与第一行居中；内联图标兜底写 <code>vertical-align: -0.125em</code>。</li>
-<li>比例：标题或标签旁的图标块高度不超过其行高的 1.4 倍（16 / 24 配 32）；文字不能看起来比图标小；图标线宽 2 与 600 字重的标题匹配，不用更细的线。</li>
+<li>标题前和左栏图标与字号接近。入口图标在文字上方并略大，外框最多 24 像素。图形、标签与点击热区分别核对。</li>
 <li>颜色：行内图标颜色等于文字颜色；只有强调才改主色或模块点缀色；禁用时图标与文字一起降低。</li>
 <li>密度：同一组里图标尺寸、间距、颜色一致；某项缺图标时保留位置，不让文字左缘错位。</li>
 </ul>
 <h5>图标与卡片</h5>
 <div class="table-wrap"><table><thead><tr><th>卡片</th><th>内边距</th><th>卡片圆角</th><th>图标块</th><th>块圆角</th><th>位置</th></tr></thead><tbody>
-<tr><td>内容卡、指标卡（后台、智能体）</td><td>16–20</td><td>12</td><td>32，图标 18–20</td><td>8</td><td>头部左上，块左缘与内容左缘对齐</td></tr>
-<tr><td>小程序服务卡、入口卡</td><td>12–16</td><td>12</td><td>40，图标 22–24</td><td>8</td><td>头部左上或居中，同组一致</td></tr>
+<tr><td>内容卡、指标卡（后台、智能体）</td><td>16–20</td><td>12</td><td>24，图形 18</td><td>6</td><td>头部左上，块左缘与内容左缘对齐</td></tr>
+<tr><td>小程序服务卡、入口卡</td><td>12–16</td><td>12</td><td>24，图形 18</td><td>6</td><td>头部左上或居中，同组一致</td></tr>
 <tr><td>品牌主卡、横幅</td><td>16–24</td><td>16</td><td>无底块，白色线稿 24</td><td>—</td><td>按卡内布局，线稿与文字同色</td></tr>
-<tr><td>列表行</td><td>行内左右各 16</td><td>—</td><td>36–40 的头像或图标块</td><td>8</td><td>行首，与文字垂直居中</td></tr>
+<tr><td>列表行</td><td>行内左右各 16</td><td>—</td><td>图标 16–24，头像按对象取值</td><td>8</td><td>行首，与文字垂直居中</td></tr>
 </tbody></table></div>
 <ul>
 <li>块边长约等于内边距的 2 倍（16 配 32，20 配 40），图标占块边长的 56%–60%；块圆角 8 不大于卡片圆角 12（内层圆角不大于外层）；块距卡片边缘等于内边距。</li>
@@ -417,24 +458,14 @@
 <div class="table-wrap"><table><thead><tr><th>项目</th><th>规定</th></tr></thead><tbody>
 <tr><td>画布</td><td><code>viewBox="0 0 32 32"</code>；底是圆角方形 <code>rx="8"</code>，填主题主色的第 1 阶浅色（主题表的 <code>actionTint</code>）或白色</td></tr>
 <tr><td>图案</td><td>取最能代表本页或本系统的一个对象：健身房用哑铃，采购公告用公告喇叭或印章，获客用雷达或靶心，硬件用芯片，财务用账本，门店零售用店铺，文章用与主题相关的物件，调研用放大镜，餐饮用碗，教程与读书用书本，投递与推送用纸飞机；没有合适对象时用中性宫格</td></tr>
-<tr><td>画法</td><td>扁平单色线稿，描边用主题主色（主题表的 <code>action</code>），线宽 2.5–3（按 32 栅格；标签页以 16 像素显示时约 1.25–1.5 像素，图案只有 2–3 笔，仍然清楚；标签页图标按本表单独规定，不套用界面图标 1.75 的下限），圆角端点与转角；最多 3 个形状（含底）；无文字、无字母、无细节、无渐变与阴影</td></tr>
+<tr><td>画法</td><td>实心标识：图案用白色，笔画线宽 2.5–3（按 32 栅格；标签页以 16 像素显示时约 1.25–1.5 像素，图案只有 2–3 笔，仍然清楚；标签页图标按本表单独规定，不套用界面图标 1.75 的下限），圆角端点与转角；最多 3 个形状（含底）；无文字、无字母、无细节、无渐变与阴影</td></tr>
 <tr><td>可辨认</td><td>缩到 16 像素仍能认出：图案占画布中间约 18×18，平行线间距不小于 3 个单位</td></tr>
 <tr><td>写法</td><td>内联在页面里：<code>&lt;link rel="icon" href="data:image/svg+xml,..."&gt;</code>，不依赖外部文件；不得缺失，不得留空或留着模板占位</td></tr>
 <tr><td>一致</td><td>同一系统的所有页面（系统设计、视觉稿、原型、硬件方案、报告）用同一个图标；页头品牌标识是同一图案的 28–32 像素版本，后面接系统名，不用文字缩写方块或首字母代替</td></tr>
 <tr><td>生成</td><td>模板与生成脚本内置图标参数（图案加主色），不手写：<code>py -X utf8 scripts/new_session.py icon 页面或系统名</code> 打印标签页图标与品牌标识两段代码，<code>--icon</code> 指定图案，<code>--theme</code> 指定主题</td></tr>
 </tbody></table></div>
-<div class="table-wrap"><table><thead><tr><th>图案与主题</th><th>32 像素</th><th>16 像素</th></tr></thead><tbody>
-<tr><td>健身房：哑铃，健身房主题的火山橙</td><td><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="8" fill="#FFF2E8"/><g fill="none" stroke="#D4380D" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11v10M23 11v10M6 14v4M26 14v4M9 16h14"/></g></svg></td><td><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="16" height="16" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="8" fill="#FFF2E8"/><g fill="none" stroke="#D4380D" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11v10M23 11v10M6 14v4M26 14v4M9 16h14"/></g></svg></td></tr>
-<tr><td>采购公告：公告喇叭</td><td><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="8" fill="#E6F4FF"/><g fill="none" stroke="#0958D9" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M8 13v6h4l8 5V8l-8 5z"/><path d="M24 13a4 4 0 0 1 0 6"/></g></svg></td><td><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="16" height="16" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="8" fill="#E6F4FF"/><g fill="none" stroke="#0958D9" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M8 13v6h4l8 5V8l-8 5z"/><path d="M24 13a4 4 0 0 1 0 6"/></g></svg></td></tr>
-<tr><td>获客：雷达</td><td><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="8" fill="#E6F4FF"/><g fill="none" stroke="#0958D9" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="16" cy="16" r="8.5"/><path d="M16 16l5.5-5.5M16 11.5a4.5 4.5 0 1 0 4.5 4.5"/></g></svg></td><td><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="16" height="16" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="8" fill="#E6F4FF"/><g fill="none" stroke="#0958D9" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="16" cy="16" r="8.5"/><path d="M16 16l5.5-5.5M16 11.5a4.5 4.5 0 1 0 4.5 4.5"/></g></svg></td></tr>
-<tr><td>硬件：芯片</td><td><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="8" fill="#E6F4FF"/><g fill="none" stroke="#0958D9" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><rect x="10" y="10" width="12" height="12" rx="2"/><path d="M13.5 7v3M18.5 7v3M13.5 22v3M18.5 22v3M7 13.5h3M7 18.5h3M22 13.5h3M22 18.5h3"/></g></svg></td><td><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="16" height="16" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="8" fill="#E6F4FF"/><g fill="none" stroke="#0958D9" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><rect x="10" y="10" width="12" height="12" rx="2"/><path d="M13.5 7v3M18.5 7v3M13.5 22v3M18.5 22v3M7 13.5h3M7 18.5h3M22 13.5h3M22 18.5h3"/></g></svg></td></tr>
-<tr><td>财务：账本</td><td><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="8" fill="#E6F4FF"/><g fill="none" stroke="#0958D9" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="7" width="14" height="18" rx="2"/><path d="M13 12h6M13 16h6M13 20h3"/></g></svg></td><td><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="16" height="16" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="8" fill="#E6F4FF"/><g fill="none" stroke="#0958D9" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="7" width="14" height="18" rx="2"/><path d="M13 12h6M13 16h6M13 20h3"/></g></svg></td></tr>
-<tr><td>门店零售：店铺</td><td><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="8" fill="#E6F4FF"/><g fill="none" stroke="#0958D9" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M7.5 13l2-5h13l2 5zM9 13v11h14V13"/><path d="M14 24v-5h4v5"/></g></svg></td><td><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="16" height="16" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="8" fill="#E6F4FF"/><g fill="none" stroke="#0958D9" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M7.5 13l2-5h13l2 5zM9 13v11h14V13"/><path d="M14 24v-5h4v5"/></g></svg></td></tr>
-<tr><td>调研：放大镜</td><td><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="8" fill="#E6F4FF"/><g fill="none" stroke="#0958D9" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="14.5" cy="14.5" r="6.5"/><path d="M19.5 19.5l5 5"/></g></svg></td><td><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="16" height="16" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="8" fill="#E6F4FF"/><g fill="none" stroke="#0958D9" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="14.5" cy="14.5" r="6.5"/><path d="M19.5 19.5l5 5"/></g></svg></td></tr>
-<tr><td>没有合适对象：中性宫格</td><td><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="8" fill="#E6F4FF"/><g fill="none" stroke="#0958D9" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 9h5v5H9zM18 9h5v5h-5zM9 18h5v5H9zM18 18h5v5h-5z"/></g></svg></td><td><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="16" height="16" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="8" fill="#E6F4FF"/><g fill="none" stroke="#0958D9" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 9h5v5H9zM18 9h5v5h-5zM9 18h5v5H9zM18 18h5v5h-5z"/></g></svg></td></tr>
-</tbody></table></div>
-<p>健身房系统的标签页图标源码（写进 <code>href</code> 时把双引号换成单引号，<code>#</code>、<code>&lt;</code>、<code>&gt;</code> 按网址编码）：</p>
-<pre><code>&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 32 32&quot;&gt;&lt;rect width=&quot;32&quot; height=&quot;32&quot; rx=&quot;8&quot; fill=&quot;#FFF2E8&quot;/&gt;&lt;g fill=&quot;none&quot; stroke=&quot;#D4380D&quot; stroke-width=&quot;2.75&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;&gt;&lt;path d=&quot;M9 11v10M23 11v10M6 14v4M26 14v4M9 16h14&quot;/&gt;&lt;/g&gt;&lt;/svg&gt;</code></pre>
+<p>标签页图标源码（写进 <code>href</code> 时把双引号换成单引号，<code>#</code>、<code>&lt;</code>、<code>&gt;</code> 按网址编码）；下面是健身房主题的写法，颜色可换成任意主色：</p>
+<pre><code>&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 32 32&quot;&gt;&lt;rect width=&quot;32&quot; height=&quot;32&quot; rx=&quot;8&quot; fill=&quot;#D4380D&quot;/&gt;&lt;g fill=&quot;none&quot; stroke=&quot;#FFFFFF&quot; stroke-width=&quot;2.75&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;&gt;&lt;path d=&quot;M9 11v10M23 11v10M6 14v4M26 14v4M9 16h14&quot;/&gt;&lt;/g&gt;&lt;/svg&gt;</code></pre>
 <ul>
 <li>阅读页（报告、方案、文章）也带标签页图标，页头可以不放标识。</li>
 <li>检查：<code>check_document.py</code> 在所有网页模式下，缺少 <code>rel="icon"</code> 或图标为空即报错，外部图标文件与图标里写字给出警告；<code>--allow interface</code> 下页头（<code>header</code>、侧栏、顶栏）里没有带图形（<code>svg</code> 或 <code>img</code>）的品牌标识给出警告。</li>
@@ -676,7 +707,7 @@
 <li>浅色与深色两套：<code>$value</code> 是浅色值，深色值放在同一令牌的 <code>$extensions.mode.dark</code>（格式模块不规定亮暗模式，只把 <code>$extensions</code> 留给各家扩展，本技能用 <code>mode</code> 键放各模式的取值，形状与该令牌的 <code>$type</code> 相同）；文件根的 <code>$extensions</code> 里 <code>design.luz</code> 声明 <code>modes</code> 为浅色、深色。颜色令牌与阴影令牌都带深色值，整列 10 阶只有浅色。</li>
 </ul>
 <div class="table-wrap"><table><thead><tr><th>分组</th><th>类型与取值</th><th>来源</th></tr></thead><tbody>
-<tr><td>颜色</td><td><code>color</code>：<code>colorSpace</code> 取标准红绿蓝，<code>components</code> 为 0 到 1 的三个数，可带 <code>alpha</code> 与六位 <code>hex</code>；含品牌阶、浅底、页面底、导航底、文字三级、状态色、价格色、发丝线、遮罩、整列 10 阶与模块点缀色；另有品牌色文字 <code>action-text</code>、品牌阶上的文字 <code>on-action</code>、状态实色填充 <code>…-fill</code> 与浮起的面 <code>raised-2</code> 至 <code>raised-4</code>，每个颜色令牌都带深色值</td><td>主题库该主题与 <code>shared</code></td></tr>
+<tr><td>颜色</td><td><code>color</code>：<code>colorSpace</code> 取标准红绿蓝，<code>components</code> 为 0 到 1 的三个数，可带 <code>alpha</code> 与六位 <code>hex</code>；含品牌阶、浅底、页面底、导航底、文字三级、状态色、价格色、发丝线、遮罩、整列 10 阶与模块点缀色，以及有序进度状态的 <code>stage</code> 六级和 <code>stage-tint</code> 六级（浅底标签）；另有品牌色文字 <code>action-text</code>、品牌阶上的文字 <code>on-action</code>、状态实色填充 <code>…-fill</code> 与浮起的面 <code>raised-2</code> 至 <code>raised-4</code>，每个颜色令牌都带深色值</td><td>主题库该主题与 <code>shared</code></td></tr>
 <tr><td>间距、圆角</td><td><code>dimension</code>：<code>value</code> 加 <code>unit</code>（像素）；间距 4 至 96 十档，圆角标签 4、控件 8、卡片 12、面板 16</td><td>“间距与栅格”“圆角”</td></tr>
 <tr><td>字体</td><td><code>fontFamily</code> 为本页的唯一字体栈；<code>fontWeight</code> 400、600、700</td><td>“字体族必须统一”“字阶”</td></tr>
 <tr><td>字阶</td><td><code>typography</code> 八个角色（七级角色加并排四张以上的指标数字）：字号、字重引用、行高为字号的倍数</td><td>“七级字体角色”</td></tr>
@@ -704,23 +735,23 @@
 <li>一页只用一种主布局；需要的另一种放进它的某个模块里（例如主区加右侧窄栏的主区里放一个横带分层的小结）。不要把两种布局并排拼成一屏。</li>
 <li>同一系统的同类页面用同一种布局：订单、会员、商品列表都用主区加右侧窄栏，看板类都用主次布局或横带分层。</li>
 <li>小程序按同一思路选：首页用主次布局（一张品牌主卡加入口），订单与消息用横带分层的单列版，门店与地点用全幅画布加底部面板；窄屏时看板横向滚动、泳道名固定在左、浮动面板变成底部弹层。</li>
-<li>实现：样式在 <code>references/ui-kit/ui.css</code>（<code>@layer layout</code>），行为在 <code>ui.js</code>（<code>UI.kanban</code>、<code>UI.lanes</code>、图表），六种布局各有一个可运行的页面在 <code>references/ui-kit/layouts/</code>，<code>React</code> 写法在 <code>references/ui-kit/react/Layouts.jsx</code>。令牌用 <code>oklch()</code> 写，主色只改色相与彩度，亮度台阶固定，白字在主色上始终不低于 4.5:1。</li>
+<li>实现：样式与脚本在 <code>kit/</code>（<code>ui.css</code>、<code>ui.js</code>），页面骨架在 <code>templates/app</code> 与 <code>templates/web</code>。令牌用 <code>oklch()</code> 写，主色只改色相与彩度，亮度台阶固定，白字在主色上始终不低于 4.5:1。</li>
 <li>输出格式：先说明选了哪种布局、为什么（对应的业务优先级）；再给组件结构（每个区域放什么、哪个是主角）；最后给可运行的代码和响应式断点、间距与视觉重点的说明。</li>
 </ul>
 <h4>组件与组件库</h4>
-<p>规定：每个前端的界面、设计稿和可交互原型，都用成熟组件库的真实组件搭出来，不手写 <code>HTML</code>、<code>CSS</code> 自造控件，也不让模型直接写出整页页面代码就当成品交付。库的默认外观通过它的主题机制换成本产品的主题；配色高级克制，页面底浅色、卡片纯白（见“配色”）。可选的库登记在 <code>references/component-libraries.json</code>。</p>
+<p>产品界面和原型先使用本地成熟组件，缺口通过检索技能搜索线上来源；真实代码、版本、许可、状态和使用位置均需核验。选择一个统一框架，可组合兼容的专用组件；不能仅凭样式前缀、索引或组件数量证明复用。找不到合适来源的新组件，按 <a href="component-reuse.md">组件复用合同</a>提交具体申请并获得人工批准后才写。</p>
 <h5>规则</h5>
 <div class="table-wrap"><table><thead><tr><th>项目</th><th>规则</th></tr></thead><tbody>
-<tr><td>选库</td><td>设计开始前，每个前端从注册表选一个库，一个前端一个库，不混用；库、版本、主题方式写进前端架构。后台与网站选适用于后台的库，手机网页选适用于手机网页的库，小程序选适用于小程序的库；同一个产品的多个端优先选同一设计语言的库（例如后台与小程序都用 <code>TDesign</code>）。已有项目沿用它已经在用的库。</td></tr>
+<tr><td>选库</td><td>按已确认功能、目标端和统一框架选库；现有项目优先复用已采用的真实来源。专用图表或编辑组件可以补充，但需说明兼容方式并统一行为、令牌和依赖，不混用同类控件造成割裂。</td></tr>
 <tr><td>控件一律来自库</td><td>按钮、输入框、选择器、日期、表单、表格、分页、标签、徽标、菜单、导航、标签页、步骤、对话框、抽屉、弹出层、提示、开关、复选、单选、滑块、上传、树、级联、描述列表、统计数值、时间线、结果页、空状态、骨架屏、加载、头像、折叠面板，全部用库里对应的组件；设计稿里的每个控件都能指出它是库的哪个组件。</td></tr>
-<tr><td>要高级</td><td>优先用库里的高阶复合组件，而不是用原生控件拼：带筛选与分页的表格、描述列表、统计数值、步骤条、时间线、结果页、抽屉表单、级联与树选择、骨架屏；同一页面里同一类控件用同一个组件。选库时看这些组件是否齐全，齐全程度比外观默认值更重要。</td></tr>
-<tr><td>只允许三类自定义</td><td>一是布局与组合（栅格、间距、页面骨架、六种页面布局）；二是主题：经库官方的主题机制把主题库的令牌落到组件上，颜色、字号、圆角、间距一律取令牌，不改库的源码，也不在业务样式里把组件覆盖得面目全非；三是业务块：库里没有的块（例如取餐码卡）由库的原子组件拼成，同样不得自造按钮、输入框、列表项、弹层这类基础控件。</td></tr>
-<tr><td>禁止</td><td>手写 <code>HTML</code>、<code>CSS</code> 自造控件；只引入库的样式表却自己画控件；模型直接写出整页代码当设计稿或原型；把 <code>ui-kit</code> 里手写的组件当交付的控件来源（它只提供令牌与六种页面布局）；一个页面混用两个库的同类控件；为了“换风格”逐个覆盖组件内部的类名；文本框获得焦点时出现蓝色或主色选中框、外发光、粗描边或浏览器默认轮廓（做法见“边缘线条”）。</td></tr>
-<tr><td>取值不自行挑选</td><td>颜色取主题库令牌，字号、间距、圆角、动效取规范的档位；生成与实现时固定取值，多个独立完成的页面拼进同一个系统才仍然一致。库默认的取值与规范冲突时（例如字重 500、小于规范的圆角），用主题机制改成规范的取值。</td></tr>
+<tr><td>按功能选组件</td><td>选择能够清楚完成页面任务的最少必要组件；简单输入可用成熟基础组件，复杂任务再用适用的复合组件，不以组件种类或复杂度评价质量。</td></tr>
+<tr><td>适配与新写边界</td><td>按合同进行框架装配、统一令牌、文字与图表数据适配、普通数据绑定。引入新的交互逻辑或来源未提供的组件须如实记录；本地及线上均无合适来源时，先取得绑定具体范围的人工批准。普通装配不重复审批，也不能借装配名义绕过新组件批准。</td></tr>
+<tr><td>禁止</td><td>未批准就手写缺失的新组件；只引入样式表或贴来源标记却声称真实复用；用内部索引替代源码；用多个不一致的同类控件；为满足数量配额添加无用内容；隐藏键盘焦点却没有清晰替代。</td></tr>
+<tr><td>统一取值</td><td>根据选定框架使用统一令牌；先保留成熟组件适合任务的默认值，需要修改时走正式主题机制。不得因本页可选配置与来源不同而逐页强制覆盖，整体按适用质量规则验证。</td></tr>
 <tr><td>设计稿与代码同源</td><td>设计稿阶段就用库的真实组件（官方示例或设计资源）搭，页面清单里的控件与实现里的组件一一对应；页面写出来后不再有“设计稿里的控件”与“代码里的控件”两套。</td></tr>
 <tr><td>配色只取主题</td><td>页面里出现的颜色只取所选主题的色阶与共用状态色（成功、警告、危险、信息、价格）：主题只有一个品牌色相，不为装饰另加色相（紫、青、粉等），不给每张卡片的图标块、图表系列与头像各配一色；头像有照片用照片，没有就用按用户标识随机生成并固定的头像（一套统一风格的扁平人像或卡通动物，同一个人始终同一张，它是图片，不计入配色），不用姓名的首字，未登录与系统账号用线性图标；主题库“避免”一栏写的（卡通形象、彩色底块状态、渐变、立体装饰图）是禁止项；深色大块每屏至多一张品牌主卡。主题定义本身有“近黑主按钮”这类取值时，也只有按钮与那一张主卡用它。</td></tr>
-<tr><td>浅色与深色</td><td>库同时配亮色与暗色两套主题，页面随“跟随系统 / 浅色 / 深色”切换：浅色用库的亮色主题，页面底用主题库的浅色（中性浅灰或主色同色相的极浅底），卡片纯白；深色走库自己的暗色机制，底色与品牌色取主题库的 <code>dark</code> 映射，见“深色与浅色两套主题”。各库的暗色接入方式登记在 <code>component-libraries.json</code> 的 <code>dark</code> 字段（<code>Element Plus</code> 给根元素加 <code>dark</code> 类并引入暗色变量表，<code>Ant Design</code> 用 <code>darkAlgorithm</code>，<code>Vant</code> 的 <code>ConfigProvider</code> 设 <code>theme="dark"</code>），登记里写“未核对”的库先读官方文档再用。库的暗色机制与页面的 <code>data-theme</code> 必须同步，原型里同一个“外观”控件管两处。</td></tr>
-<tr><td>检查</td><td>前端设计文档的“组件对照”表写清每类控件对应库的哪个组件、官方文档链接、用在哪些页面；原型的 <code>prototype</code> 块写 <code>library</code>，校验器数构建文件里该库的组件种类（至少 6 种）；构建后用 <code>py -X utf8 scripts/audit_rendered.py &lt;页面&gt; --library &lt;编号&gt;</code> 在真实浏览器里逐页核对（对话框与菜单打开后的状态也要走到），手写的控件报为“自造控件”，库的组件种类少于 6 种也报错；再用 <code>py -X utf8 scripts/audit_palette.py &lt;页面&gt; --theme &lt;主题编号&gt;</code> 读渲染后的颜色，主题之外的色相与首字头像都报错。</td></tr>
+<tr><td>按需提供主题</td><td>没有双主题需求时不添加深色版或外观开关。需要多主题时使用库的原生机制，并将框架和专用组件统一到同一份主题配置；每个声明支持的主题分别验收。登记的库能力仍须查当前官方文档。</td></tr>
+<tr><td>检查</td><td>组件对照记录每个功能需要的组件能力、真实源文件、版本许可、使用位置和适配；逐页执行实际任务与失败恢复，并核对整体一致性。没有“至少六种组件”的门槛；真实源码、当前包和浏览器证据共同证明复用，数量与类名不能代替。具体流程用 <code>component_ui.py build/audit/review/check</code>。</td></tr>
 </tbody></table></div>
 <h5>主题接入</h5>
 <p>换色走库自己的机制，一次性把令牌接进去，不在页面里逐个覆盖。下表是注册表里已核对官方文档的库。</p>
@@ -784,6 +815,7 @@
 <h5>标签与状态</h5>
 <ul>
 <li>状态标签画成“浅底加深色字”，可加圆点；同一状态在全系统同一种颜色，同时用文字表达，不只靠颜色（“配色”的状态色）。</li>
+<li>有先后顺序的状态集合（沟通深度、轮次、过程环节）在同页出现两个以上取值时，文字、圆点或标签用色阶，不用状态色；写法、取色与检查见“有序进度状态的色阶”。</li>
 <li>标签圆角 4，高度 20–24，文字 12；一行放不下时截断到一行，不撑高卡片。</li>
 <li>例外：商品卡与价格旁的促销标签（折扣、满减、限时、会员专享）高 16–18，圆角同为 4（取值见“各端视觉参数”的交易与营销界面）。</li>
 </ul>
@@ -848,14 +880,14 @@
 <tr><td>同位置</td><td>同组元素的标题、价格、状态、操作在每一项中处于同一位置；某项缺少某字段时保留位置，显示“—”或留空，不让后续内容上移错位</td></tr>
 <tr><td>居中后左对齐</td><td>由图标、图片、头像、开关加文字组成的块，在所在列或卡片中整体居中，块内内容左对齐；同一组块取最宽者的宽度，使图片、头像、开关的左边缘成一条直线；不把每个组合块各自居中，否则长短名称会让左边缘参差不齐</td></tr>
 <tr><td>卡片内的留白</td><td>同一行卡片等高，内容填满卡片或在卡片内垂直居中，底部空白不超过卡片高度的两成；图例、说明放在图的下方并完整显示，不截断；任何内容不越过卡片内边距</td></tr>
-<tr><td>图文比例</td><td>标题或标签旁的图标块高度不超过其行高的 1.4 倍（16 像素标题配 32 像素图标块、18 像素图标），文字不能看起来比图标小</td></tr>
+<tr><td>图文比例</td><td>标题或标签旁的图标块高度不超过其行高的 1.4 倍（16 像素标题配 32 像素图标块、18 像素图标），服务图标可大于标签，指标数字按信息主次突出</td></tr>
 <tr><td>同组图片</td><td>相册、商品图、门店环境图在一组内使用同一宽高比（例如 4:3 或 1:1）并裁切填满，等高对齐；功能区不用高低错落的瀑布流，营销区的不规则排版见“营销区的不规则排版”</td></tr>
 <tr><td>检查</td><td>对每组同类元素量取高度、宽度、图标尺寸，数值不同即为问题</td></tr>
 </tbody></table></div>
 <h4>界面配图与丰富度</h4>
 <p>哪些对象需要配图、页面上放哪些组件、各放几个，由系统技能在功能说明里确定；本节规定配图的来源与风格、组件的视觉要点和图文密度。</p>
 <ul>
-<li>配图：门店、商品、活动的配图要有真实感，实拍优先；没有实拍时用 <code>Imagegen</code> 按选定风格生成（无文字、无标志、无可辨认人脸，见“图像生成”），文案叠加在页面里；不用纯色块或占位框代替。</li>
+<li>配图：给定界面的原始素材先保留；新增门店、商品、活动配图要有真实感，实拍优先，没有实拍时用 <code>Imagegen</code> 按现有视觉与研究推导的参数生成（无文字、无标志、无可辨认人脸，见“图像生成”），文案叠加在页面里；不用纯色块或占位框代替。</li>
 <li>同一组商品图用同一角度、同一种光与底；抠图放在比卡片浅一阶的底板或互补色块上。</li>
 <li>空状态、结果页、活动页用多层扁平插画（见“插画：多层扁平”）加一句说明和一个操作，不只放一个图标。</li>
 </ul>
@@ -875,7 +907,7 @@
 <ul>
 <li>商品与门店用照片；会员卡、个人中心头部、活动区、优惠券用纯色浅底阶，不用纹理或渐变；主按钮用单阶实色。</li>
 <li>文字压在照片上时，用黑色透明度遮罩（按遮罩后最亮处量对比度）或白色实底承载块保证对比度。</li>
-<li>首页、详情页、个人中心的每一屏用图片、图标或关键数字承载信息，不整屏只有文字与白色卡片；密度靠信息与图形，不靠堆叠装饰：每增加一个元素都要回答它帮助用户认出什么或决定什么。</li>
+<li>图片、图标或关键数字只在帮助用户识别对象、理解信息或完成决定时使用。纯文字、列表或阅读页不因缺少装饰而判失败；每个新增元素都应有实际作用。</li>
 </ul>
 <h4>间距与栅格</h4>
 <ul>
@@ -932,7 +964,7 @@
 <tr><td>字体规范（腾讯设计体系）</td><td>正文 14/22，辅助说明 12/20；标题按层级逐档增大</td><td>辅助档只给时间、单位、角标，正文不降到辅助档</td></tr>
 <tr><td>数据格式（蚂蚁设计体系）</td><td>数值右对齐便于比较；金额使用千分位并保留两位小数；单位统一，不在每个单元格重复</td><td>金额列右对齐、等宽数字、两位小数，单位写进表头</td></tr>
 <tr><td>数据表格（碳设计体系）</td><td>行高分 24、32、40、48、64 五档，默认 48；表头行与数据行同高，工具栏与之匹配；单元格左右内边距 16；文本左对齐、数字右对齐，表头与该列内容同向</td><td>行高 44–48、紧凑 36–40，内边距不小于 16；本规范保留表头居中，因此用收紧列宽让文字块落在表头下方</td></tr>
-<tr><td>间距（蚂蚁设计体系、谷歌材料设计第三版）</td><td>以 8 为基本单位组织间距，组内近、组间远</td><td>卡片内边距 16–20，卡片间距 16</td></tr>
+<tr><td>间距（蚂蚁设计体系、谷歌材料设计第三版）</td><td>以 8 为基本单位组织间距</td><td>卡片内边距 16–20，横向列距可从 16 起，纵向相邻卡片贴合</td></tr>
 </tbody></table></div>
 <h4>各端排布参数</h4>
 <p>本节给各端的排布数值，排布的推导步骤见“前端排布的推导”，各端的其他视觉参数（按钮高度、主色用量、层级、插画、动效等）见“各端视觉参数”。三张表分别对应智能体平台、网页管理后台与小程序，网站的栅格与断点见“各端视觉参数”的网站一节。窄屏上哪些功能保留由系统技能决定。所有间距取“间距与栅格”的 4 的倍数刻度，圆角、层级、字阶取本页对应小节，不在此重复。</p>
@@ -1023,11 +1055,11 @@
 <tr><td>顶栏</td><td>高 56，白底，底部 1 像素分隔线；左侧品牌标识（与标签页图标同一图案的 28–32 像素图标加系统名，不用文字缩写方块或首字母）；没有顶栏时品牌标识放在侧栏顶部</td></tr>
 <tr><td>侧栏</td><td>宽 200–240，白底，右侧 1 像素分隔线；分组标题 14 像素 600、深色字，前面一条中性灰短竖条，分组之间一条分隔线加 16 像素间距；菜单项为 20 像素线性图标加 14 像素常规字重的灰色文字，名称放不下时单行省略，不换行、不缩小字号；当前项、祖先与缩进见“导航与多级目录的数值”</td></tr>
 <tr><td>内容区</td><td>极浅灰底，卡片白底、圆角 12、1 像素发丝线加第 1 级阴影，边距 24；栅格的列可收缩（最小宽 0 或自动换行），任何宽度下内容不超出右边界</td></tr>
-<tr><td>指标卡</td><td>名称、数字、涨跌、迷你趋势居中排列；指标名 16 像素 600 深色字，旁边主色浅底图标块 32 像素；数字 28 像素等宽数字（并排不足四张时 32）；涨跌 12 像素；统计卡高度不超过 112；文字不能看起来比图标小</td></tr>
+<tr><td>指标卡</td><td>名称、数字、涨跌、迷你趋势居中排列；指标名 16 像素 600 深色字，旁边主色浅底图标块 32 像素；数字 28 像素等宽数字（并排不足四张时 32）；涨跌 12 像素；统计卡高度不超过 112；服务图标可大于标签，指标数字按信息主次突出</td></tr>
 <tr><td>图表</td><td>样式同“界面组件的外观”的“图表”；色板 5–6 色，第一色为主色，其余取官方色板各色相的同一阶，相邻系列不用同一色相的深浅，超过 5 类合并为“其他”并用灰色；迷你趋势线统一用主色；图表文字按实际像素 12 显示</td></tr>
 <tr><td>表格</td><td>行高 44–48（紧凑 36–40），表头浅底、600 字重、与数据行同高，只用横向分隔线，行悬停浅色高亮；对齐与缩进见“表格对齐与缩进”；表格单元格里的图形只用头像、缩略图和状态标签，行内文字操作不加图标；760 以下每行转为卡片，单元格左侧列名、右侧值，操作收进卡片底部</td></tr>
 <tr><td>按钮与浮层</td><td>页面与卡片上的功能按钮前置 16 像素线性图标；浮层在内容区水平垂直居中，遮罩覆盖整个后台框；面板四周至少留 16，关闭按钮在右上角；打开用轻微放大加淡入（200–280 毫秒），不从右侧滑入</td></tr>
-<tr><td>图标</td><td>侧边导航的一级项各前置一个 20 像素线性图标，分组标题前用中性灰短竖条而不用图标；页面标题、卡片标题前用与文字同色的线性图标</td></tr>
+<tr><td>图标</td><td>侧边导航与标题若使用前置图标，建议和文字同排，取约 <code>1em</code>。金刚区和独立快捷入口可用更大的上置图标</td></tr>
 </tbody></table></div>
 <h5>小程序</h5>
 <div class="table-wrap"><table><thead><tr><th>区域</th><th>取值</th></tr></thead><tbody>
@@ -1155,17 +1187,17 @@
 <h5>推导步骤</h5>
 <div class="table-wrap"><table><thead><tr><th>步骤</th><th>公式或取值</th></tr></thead><tbody>
 <tr><td>输入</td><td>入口数 <code>n</code>；最长文案字数 <code>L</code>；屏宽 <code>W</code>（320–430）；页边距 <code>m</code>（<code>W</code> 不大于 375 取 12，更宽取 16）</td></tr>
-<tr><td>一、每格最小宽</td><td><code>cellMin</code> = 取大值（56，<code>L</code> × 14 + 8）：图标块 40 加左右各 8，文案 14 像素每字 14 像素</td></tr>
+<tr><td>一、每格最小宽</td><td><code>cellMin</code> = 取大值（56，<code>L</code> × 14 + 8）：56 保留触控与留白，文案按每字 14 像素估算</td></tr>
 <tr><td>二、最大列数</td><td><code>cMax</code> = 取小值（5，向下取整（（<code>W</code> − 2<code>m</code>）÷ <code>cellMin</code>）），不少于 3；放不下 3 列时改写文案缩短 <code>L</code></td></tr>
 <tr><td>三、选列数 <code>c</code></td><td>候选 3 到 <code>cMax</code>。先留下两行以内放得下的（<code>c</code> 不小于 <code>n</code> 的一半向上取整）；其中优先整除 <code>n</code> 的，其次末行不少于 <code>c</code> 的一半向上取整的，取满足条件的最小 <code>c</code>；都不满足取 <code>cMax</code></td></tr>
 <tr><td>四、行数与分页</td><td>行数 = <code>n</code> ÷ <code>c</code> 向上取整；不超过 2 行为单屏；超过则每页 2 行横向分页，最多 3 页；末页不足半页时把最后几项并入“全部”入口，使每页满格</td></tr>
-<tr><td>五、格尺寸</td><td>格宽 = （<code>W</code> − 2<code>m</code>）÷ <code>c</code>，列间距 0（间距由格内留白承担）；格高 80：上内边距 8，图标块 40，图标块与文案间距 6，文案行高 18，下内边距 8；行间距 0–8</td></tr>
+<tr><td>五、格尺寸</td><td>格宽 = （<code>W</code> − 2<code>m</code>）÷ <code>c</code>，列间距 0（间距由格内留白承担）；格高可从 64 起，给 24 的图标、文字和整格触控留足空间；行间距 0–8</td></tr>
 </tbody></table></div>
 <h5>尺寸与样式</h5>
 <div class="table-wrap"><table><thead><tr><th>项目</th><th>取值</th></tr></thead><tbody>
-<tr><td>图标块</td><td>40×40，圆角 8，双色线性图标 24（22–24）；或按视觉稿选定风格生成的入口图标，同一组入口只用一种做法</td></tr>
+<tr><td>图标块</td><td>已有金刚标沿用素材、尺寸、配色及样式。新建入口按任务确定取值，可参考整组 2–3 色，黑白计入。</td></tr>
 <tr><td>文案</td><td>14 / 22，400，1 行居中，颜色取正文深色（它是入口名称，不是辅助说明）；不省略、不换行、不缩字号</td></tr>
-<tr><td>点击区域</td><td>整格（格宽 × 80）可点，格宽不小于 56，达到 44×44 的要求；按压态底色加深一阶，100–150 毫秒内出现</td></tr>
+<tr><td>点击区域</td><td>整格可点，格宽不小于 56，达到 44×44 的要求；按压态底色加深一阶，100–150 毫秒内出现</td></tr>
 <tr><td>红点角标</td><td>直径 8，圆心贴图标块右上角，向外偏移 2；不遮住图标主体</td></tr>
 <tr><td>数字角标</td><td>高 16，最小宽 16，圆角全圆，字号 12，数字等宽；右上角对齐图标块右上角并向外偏移 4；超过 99 显示 99+</td></tr>
 <tr><td>分页指示点</td><td>短横条：非当前页宽 6、高 3，中性灰；当前页宽 12、高 3，主色；间距 4；位于金刚区下方 8；横滑用 <code>scroll-snap-type: x mandatory</code></td></tr>
@@ -1296,7 +1328,7 @@
 <tr><td>装饰与无信息元素</td><td>不承载内容的部件</td><td>表情符号、装饰符号、编号徽章、眉标题、标签云、无意义图标、“新”“热”角标、品牌字母块、水印</td></tr>
 <tr><td>应用式外壳</td><td>把软件界面框架搬进文档</td><td>侧栏、顶栏、面包屑、页脚、返回顶部、浮动按钮、主题切换、版权行、网页里的页码</td></tr>
 </tbody></table></div>
-<p>边界：内容本身就是上述主题时不受限制，例如一份关于数据来源治理的报告可以讨论数据来源——判断依据始终是“它是内容，还是关于这份产出的信息”。提示词、官方页面、版本号、哈希值这些词在标题与正文句子里讨论时属于内容；以“标签：值”、页脚或元信息行出现时属于产出信息。产品界面里显示的版本信息是产品内容：后台侧栏或“版本信息”面板里写版本号与发布时间的元素，类名或编号带 <code>version</code>，检查脚本据此放行；文档与交付页仍不写版本号。用户明确要求的某一项（封面、来源列表、署名、建议章节、备注列）只添加该项本身，其余类别仍然禁止。未取得的内容、局限、需要用户确认的事项，在交付对话中告知用户，不写进产出。</p>
+<p>边界：内容本身就是上述主题时不受限制，例如一份关于数据来源治理的报告可以讨论数据来源——判断依据始终是“它是内容，还是关于这份产出的信息”。提示词、官方页面、版本号、哈希值这些词在标题与正文句子里讨论时属于内容；以“标签：值”、页脚或元信息行出现时属于产出信息。产品界面里显示的版本信息是产品内容：后台侧栏或“版本信息”面板里写版本号与发布时间的元素，类名或编号带 <code>version</code>，检查脚本据此放行；文档中适用版本、原始来源与核对日期属于内容，不能删掉。用户明确要求的某一项（封面、来源列表、署名、建议章节、备注列）只添加该项本身，其余类别仍然禁止。关键未核实内容阻塞依赖它的成稿；实际限制、未测范围与适用条件写入文档，待用户决定的具体事项同时在对话提出。</p>
 <p>引用：逐字照录的第三方文字（采集到的网页正文、评论、字幕、引文）保持原样，不因含有上述写法而改写；删除测试只针对产出自己写的文字。网页文件中，引用文字放在带引用标记的容器内（引用块或引用属性），检查脚本不对其做措辞检查，但颜色、字号、字体照常检查。引用标记只能用于逐字照录的内容，用它包裹自己写的文字视同违规。</p>
 <h5>写法</h5>
 <ul>
@@ -1304,7 +1336,7 @@
 <li>一节一个意思，一段一个意思；属性多的内容用表格，不用段落堆砌。</li>
 <li>数字带单位、统一精度、四位以上用千分位；日期只在内容需要时出现，格式统一为“2026-10-26”。</li>
 <li>删除空话：“为了更好地”“值得注意的是”“综上所述”。</li>
-<li>未知信息不编造；需要用户确认的事项在交付对话里提出，不写进产出。</li>
+<li>未知信息不编造；关键缺口先解决，非关键限制在正文如实说明，需要用户决定的事项在对话提出。</li>
 </ul>
 
 <h4>营销区的不规则排版</h4>
@@ -1319,7 +1351,7 @@
 <li>界面简报先运行 <code>scripts/style_match.py</code>，按 <code>references/layout-inference.md</code> 分离证据、语义约束和决策；数量、排列、材质与动效只有在出现“必须、固定、严格使用、不可调整、锁定、强制”时才升级为硬约束。</li>
 <li>“非对称指标看板”必须保留核心指标锚点、辅助指标和独立信息面板；桌面按内容量分配区域，窄屏按阅读顺序折叠或移入内容流，不强行保留右栏或固定 2×2。</li>
 <li>结果同时给出桌面与窄屏的区域、列数、比例和折叠顺序及原因；不能为复刻参考图添加空卡片、空列或装饰面板。</li>
-<li>风格矩阵只给 2–3 个候选、角色和风险；用户确认前不生成资产、不改代码。控件图标等界面控件始终用统一线性矢量；毛玻璃、黏土、软糖、<code>2.5D</code> 和拟物材质只作用于确认后的装饰资产。</li>
+<li>风格矩阵给可配置默认值的候选、角色和风险。先检索成熟组件与设计原理、生成真实素材，再交付可操作界面，用户搭配后复制完整参数即表达选择；不先问风格，不把 <code>pending</code> 当生成前的阻断。控件使用真实组件库与线性矢量图标；材质风格只作用于入口图标、插画与低对比背景，不扩大到控件。</li>
 </ul>
 <h4>检查脚本的认定</h4>
 <p>文档检查脚本按下面的口径判断，规则本身以本页各节为准；脚本通过不等于合规。</p>
@@ -1355,12 +1387,12 @@
 <p>来源：<a href="https://mapp.4over4.com/guide/bleeds-cut-line-and-safety-the-print-ready-checklist">印刷厂文件检查清单</a>（出血 0.125 英寸、安全距离至少 0.125 英寸、0.25 英寸更稳妥、成品尺寸 300 像素每英寸、青品黄黑、字体嵌入或转曲）与<a href="https://www.qinprinting.com/blog/how-to-prepare-print-ready-files-using-adobe-photoshop/">另一家印刷厂的指南</a>（出血 3 毫米、安全区 3 毫米、至少 300 像素每英寸、青品黄黑、转换不当会色偏）。两家的数值一致，但都只是印刷厂的文件要求，没有统一的国际标准可引。</p>
 <h4>图像生成</h4>
 <ul>
-<li>配图实拍优先，网站首屏优先用实拍；没有实拍时用图像生成。图像生成用于：门店、商品、环境与人物背影等照片（无文字、无标志、无可辨认人脸）；海报；入口图标、插画与装饰元素（品牌主卡与横幅的主视觉、空状态、结果页、引导页、能力清单）。导航、标签栏、菜单、按钮内、工具栏、表格与表单里的控件图标始终用线性矢量；不生成背景纹理和界面截图。</li>
-<li>图标与插画的风格按行业气质与使用场景定：先由 <code>references/interface-style-matrix.json</code> 和 <code>scripts/style_match.py</code> 给 2–3 种候选（例如 <code>2.5D</code>、软陶质感、软糖、分层扁平、手绘线稿），说明每种适合的资产角色和无障碍风险；用户在视觉审批时选定风格与作用范围并写进 <code>BRIEF</code>，之后这个产品的生成图标与插画使用同一段风格描述和同一组主题颜色。参考案例中的数量与排列不自动进入提示词。</li>
-<li>生成元素一律透明底、不带文字和标志；切图后一个对象一张，同一对象在各处用同一张，不同对象不共用。</li>
+<li>真实商品与场地照片存在时优先使用。可配置界面在当前检索通过后，实际生成有用途的入口图标、插画或低对比背景（头部、品牌主卡、空状态、结果页等）；不先要求用户选风格。导航、标签栏、菜单、按钮内、工具栏、表格与表单里的控件图标来自真实库的线性矢量；不生成整张界面。</li>
+<li>已有界面保留构图、布局、比例、配色、外观与原始素材，不能因改用成熟组件而擅自重新设计。新设计的风格按真实内容与研究推导为默认参数，<code>style_match.py</code> 的候选说明适用角色与风险；同组生成图标和插画使用同一段风格描述与主题颜色。先用 <code>generate_ui_assets.py</code> 实际调用本地图像服务，把复核后的图放进真实组件界面，再让用户搭配并提交完整参数；独立参考的新素材不默认替换原界面素材。默认包、模型复制或下载动作都不是人工批准；用户提交后保存参数并可复现。参考数量与排列不自动进入提示词。</li>
+<li>孤立图标与插画用透明底、不带文字和标志；切图后一对象一张并跨页面复用。背景可以不透明，保持低对比、低复杂度与文字区留白，在浅色深色主题中分别验证文字与控件的对比度。</li>
 <li>图标与插画优先一次生成 4×4 同风格元素拼板再按格切开，风格更统一、次数更少：实测请求 2880 返回 1254×1254，每格约 313 像素，够 120 像素以内的界面用；用 <code>scripts/cut_element_sheet.py</code> 切开：去掉背景碎点与邻格碎片、裁边、留 6% 边距，存 <code>WebP</code>。单张出图时按显示尺寸的 2 倍。</li>
 <li>每次请求一个提示词文件（一张照片、一张海报或一张元素拼板），共用一段风格描述（照片：浅色、主题色、无文字、无标志、无可辨认人脸；图标与插画：选定的风格描述）；先试运行，再逐张串行生成。</li>
-<li>超时不自动重试，避免重复计费：先检查服务的已有记录，有结果就用，没有就改用矢量图形；生成后逐张复核，构图不对就裁切或弃用，记录实际尺寸与格式。</li>
+<li>超时不自动重试，避免重复计费：先检查服务已有记录。有结果就复核，没有则记缺口；矢量占位、旧样图、试运行和提示词不能冒充本次实际生图。记录真实源图、尺寸、格式、请求与处理后文件哈希、研究来源及采用位置。</li>
 </ul>
 
 <h4>参考与版权</h4>
@@ -1375,14 +1407,14 @@
 <p>下表按类别列出，表现一栏不是穷尽清单。清单外的现象用两个问题判断：这个视觉处理是否增加了理解内容所需的信息？它是否让同类元素变得不一致？前者为否或后者为是，即属于问题。</p>
 <div class="table-wrap"><table><thead><tr><th>类别</th><th>判断特征</th><th>表现（不限于）</th><th>改正</th></tr></thead><tbody>
 <tr><td>颜色过载</td><td>颜色多于需要表达的含义</td><td>每个区块一种颜色、多个强调色、彩色标签满屏、整段彩色文字、彩色整行填充</td><td>1 个主色 + 中性色，用字号与间距分层</td></tr>
-<tr><td>深色与重色块</td><td>大于一行文字的深色或高饱和色面积（每屏一张品牌主卡除外；深色主题自己的底不算）</td><td>深色侧栏、顶栏、页脚、表头、代码块、卡片、横幅、弹层、整页背景、深色幻灯片底</td><td>改为浅底 + 细线或浅色调</td></tr>
+<tr><td>深色与重色块</td><td>浅色界面中抢占主次的色块</td><td>连续多个重色卡片、边栏和顶栏同时突出</td><td>按内容层级分配深浅并核对可读性。演示文稿见<a href="design/slides.md">演示设计建议</a></td></tr>
 <tr><td>字小与字杂</td><td>低于辅助档、使用字阶外的字号，或字体混用</td><td>元信息、脚注、图注、坐标轴、标签、表格挤成小字；同页六七种字号；标题换另一种字体</td><td>删除次要文字，其余统一到字号档位</td></tr>
 <tr><td>色相冲突</td><td>两个高彩度、饱和度相近的色相并置，既不邻近也不互补</td><td>饱和橙主按钮旁边放饱和紫营销按钮、紫色券面配橙色价格</td><td>营销改邻近色（橙配金），或把其中一色降为浅底容器</td></tr>
 <tr><td>立体与渐变装饰</td><td>矢量图形或界面表面带体积、光泽或渐变，与扁平界面不协调，显得杂乱（按选定风格生成的入口图标、插画与装饰元素除外）</td><td>控件图标用立体、渐变或生成图标、同一组入口混用生成图标与矢量图标、渐变按钮与头部、内凹立体按钮、发光描边、半透明玻璃卡、背景斑点、插画椭圆投影</td><td>改为纯色面与线条，用层级阴影与细线建立立体感；只保留照片遮罩与骨架流光两类渐变</td></tr>
 <tr><td>图标风格混用</td><td>同屏图标线宽、填充方式或来源不同</td><td>彩色面性图标与线性图标混排、菜单 1.7 像素线宽而返回键 2.2 像素、放大后的图标线条变粗、导航图标用双色</td><td>全站一套描边图标，线宽 2 像素且不随尺寸缩放（16 像素小图标 1.75）；双色只给图标块</td></tr>
 <tr><td>图表装饰</td><td>图表里的装饰多于数据</td><td>深色网格与外框、折线下的渐变填充、立体柱、折线锯齿生硬、常驻的大数据点</td><td>平滑细线、淡横向网格、无渐变填充、数据点悬停才出现</td></tr>
 <tr><td>图标重复</td><td>同一个图形代表不同对象，或通用图形挂在多个标题前</td><td>每日抽奖和新人礼券都用礼盒、月卡套餐与会员权益都用皇冠、面积用店面图标、配置面板每组标题都是设置图标</td><td>每个对象用自己最具体的图形；同一对象各处一致；没有合适图形时不放</td></tr>
-<tr><td>缺少标签页图标</td><td>网页没有自己的标签页图标，或图标认不出系统</td><td>浏览器标签页显示空白默认图标、图标留着模板占位、图标里写首字母、同一系统各页图标不同、后台顶栏只有文字或字母方块</td><td>按“网页图标与品牌标识”：主题图案、主色线稿、圆角浅底，标签页与页头同一图案</td></tr>
+<tr><td>缺少标签页图标</td><td>网页没有自己的标签页图标，或图标认不出系统</td><td>浏览器标签页显示空白默认图标、图标留着模板占位、图标里写首字母、同一系统各页图标不同、后台顶栏只有文字或字母方块</td><td>按“网页图标与品牌标识”：主题图案、实心圆角底加白色图案（颜色不限），标签页与页头同一图案</td></tr>
 <tr><td>分页失范</td><td>分页条的位置、尺寸或当前页样式与表格不成一套</td><td>分页条居中或放在表格上方、页码 12 像素小字、按钮高低不一、当前页只加粗不变色、共 <code>N</code> 条用浅灰小字</td><td>按“界面密度与表格对齐”的“分页”：表格下方靠右、14 像素文字、32 像素控件、当前页主色</td></tr>
 <tr><td>文字头像</td><td>用文字顶替用户头像</td><td>圆圈里放姓氏“林”、拼音首字母、昵称前两字、用户编号</td><td>有照片显示照片，否则按用户标识固定选一个卡通动物默认头像；面向企业的工具后台改用随机固定的扁平人像头像；未登录与系统账号用线性人像图标（画法见“界面组件的外观”的“头像”）</td></tr>
 <tr><td>配色失据</td><td>颜色凭感觉调深或调浅，不来自官方色板与对比标准，整屏显得沉或发飘</td><td>深色渐变主按钮、深紫实色营销按钮铺满卡片；或把按钮、开关改成半浅的粉橙粉紫配深字，开关开启态对白底不足 3:1</td><td>按“取色依据”取阶：一个实色主按钮（白字 4.5:1），营销用浅底容器，控件与图表色对白底 3:1，大面积用中性色</td></tr>
@@ -1390,7 +1422,7 @@
 <tr><td>表格错位</td><td>对齐方式与内容类型不符，读者无法沿列比较</td><td>宽列里表头居中而长文字贴左边、金额居中导致位数错开、文字顶着单元格边线、竖线密集、表头深底白字</td><td>收紧长文本列宽、金额右对齐并用等宽数字、单元格左右内边距不小于 16；浅底表头、只用横线分隔</td></tr>
 <tr><td>标签小于图标</td><td>指标名字号小、颜色浅，旁边图标块更大</td><td>14 像素灰色“营收”旁放 38 像素图标块</td><td>指标名 16 像素 600 深色，图标块 32 像素</td></tr>
 <tr><td>层级扁平</td><td>卡片、浮层与页面底之间分不出前后，可点击的东西看不出能点</td><td>灰底上的白块没有边线与阴影、对话框没有遮罩或阴影与卡片相同、悬停与按下没有层级变化、主按钮像平贴的色块、每张卡片阴影各不相同</td><td>按“层级与立体感”取五级层级的阴影令牌、发丝线、按钮底边与遮罩</td></tr>
-<tr><td>图形单薄</td><td>图标与插画只有细线没有面，画面空、显得廉价</td><td>1.5 像素灰线图标、只有一条地平线的线稿插画、整屏只有白卡片与灰字、所有图标块同一个浅蓝</td><td>线宽 2；图标块用双色；插画用多层扁平；按模块用点缀色；每屏一张品牌主卡</td></tr>
+<tr><td>图形未帮助识别</td><td>已有图形不能清楚表达对象或状态</td><td>同类图标不一致、装饰比主要内容更醒目</td><td>先明确图形是否必要；需要时用所选框架一致的图形语言，不为了丰富度增加品牌卡或插画</td></tr>
 <tr><td>字体层级不全</td><td>标题、正文、数字的字号相近，颜色都灰，读者找不到第一眼</td><td>页面标题 18 而正文 16、整屏只有 14 与 16、大段正文用次要灰、核心数字与正文同字号</td><td>按“七级字体角色”：标题与数字三级拉开 1.2 倍，正文深色，数字等宽加粗</td></tr>
 <tr><td>装饰压过内容</td><td>装饰吸引的注意力多于内容</td><td>渐变、发光、厚阴影、纹理、与主题无关的插画、无意义动效、立体图表</td><td>按“扁平线性风格”一节收敛</td></tr>
 <tr><td>图标画法失准</td><td>图标的栅格、线宽、端点、圆角、间距不成一套</td><td>部分图标 20 栅格部分 24、线宽 1.5 与 2 混用、方头与圆头混用、圆形与方形视觉大小不等、混用多个图标库、双色版用透明度叠色</td><td>按“图标设计方案”：24 栅格、线宽 2、圆端点、关键线形状、整套同一个库，双色用主题阶实色</td></tr>
@@ -1408,10 +1440,10 @@
 <tr><td>卡片留白失衡</td><td>同一行卡片被拉到等高后，内容挤在顶部或越过右边缘</td><td>环图卡片图例贴右边、仪表卡片下面空一大块、排行列表挤在上半部</td><td>内容垂直居中或均匀分布，图例放到图下方单列完整显示</td></tr>
 <tr><td>视觉重心偏移</td><td>浮层贴边弹出，把注意力拉到屏幕一侧</td><td>详情从右侧滑出抽屉、编辑表单贴右边、确认框靠右上角</td><td>详情、编辑、确认的面板在内容区居中，四周留白，内容在面板内滚动</td></tr>
 <tr><td>溢出与变形</td><td>内容超出或挤压容器</td><td>整页横向滚动、文字被截断、表格撑破页面、图片拉伸、标题只剩一个字换行、按钮文字折行</td><td>容器内滚动、限制行长、保持图片比例、改写过长文字</td></tr>
-<tr><td>界面单薄</td><td>只有文字与基础卡片</td><td>门店与商品没有配图、首页只有列表、没有图标与层次、所有区块同一种白卡片</td><td>按“界面配图与丰富度”补齐照片、成熟组件与线性图标；丰富靠信息与图形，不靠渐变和纹理</td></tr>
+<tr><td>信息表达不足</td><td>用户无法识别对象、找到主任务或判断操作结果</td><td>必要字段缺失、操作与内容脱节、状态没有反馈</td><td>先改信息结构和布局，再补真正有用的组件或图形；只有文字与列表本身不是问题</td></tr>
 <tr><td>节奏混乱</td><td>没有共同基线或间距规律</td><td>长段落居中、左右混排、标题与内容的距离大于段落间距、留白忽大忽小、表格列对齐不一</td><td>左对齐基线，组内近、组间远，间距只取档位值</td></tr>
 <tr><td>容器堆叠</td><td>容器层数多于信息层数</td><td>卡片套卡片、每段一张卡、分组框里再分组、彩色底加粗边框加厚阴影叠用</td><td>只保留一层容器；卡片用发丝线加第 1 级阴影，不再叠彩色底与粗边框</td></tr>
-<tr><td>缺少图标</td><td>导航或功能按钮只有文字，扫读困难</td><td>侧边菜单有的项有图标有的没有、“保存”“重置”“恢复默认”只有文字</td><td>菜单每项 20 像素图标，页面与卡片上的功能按钮 16 像素图标，对话框底部按钮除外</td></tr>
+<tr><td>图标使用不清楚</td><td>已采用的图标语义或风格不一致，影响识别</td><td>同一动作使用不同图形、只有图标却没有可访问名称</td><td>图标按任务需要选择，文字按钮可以直接使用；保留必要语义和可访问名称，重复的装饰图标可删除</td></tr>
 <tr><td>动效失序</td><td>动画与导航关系不符，或干扰操作</td><td>切换标签时横向滑动、返回时仍从右侧滑入、弹层关闭无过渡、动画结束前不能操作、普通保存也放彩屑</td><td>按“动效”一节的场景与时长</td></tr>
 <tr><td>印刷稿缺出血</td><td>印刷文件没有出血与裁切框，或位图分辨率不足</td><td>背景只铺到成品边、文字离成品边 3 毫米以内、位图在成品尺寸上只有 150 像素每英寸、红绿蓝图片直接交印刷</td><td>按“屏幕渠道与印刷渠道”加出血与裁切框，核算有效分辨率并转换色彩</td></tr>
 </tbody></table></div>
@@ -1463,7 +1495,7 @@
 <h2 id="quality-gates-heading" class="section-heading"><svg class="icon-linear section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 7h5M15 7h5M9 7a3 3 0 1 0 6 0 3 3 0 0 0-6 0ZM4 17h10M18 17h2M14 14a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z"/></svg><span>质量门禁</span></h2>
 <ul>
 <li>独立视觉会话的标题与任务简报没有写出海报、主视觉等任务名：阻止视觉模式。</li>
-<li>浅色主题里任何背景或大面积填充为深色（每屏一张品牌主卡除外）；一屏出现两张品牌主卡，或品牌主卡白字不足 4.5:1；产品前端缺深色或浅色任一套主题，或没有“跟随系统 / 浅色 / 深色”的手动切换；阅读页、海报、幻灯片与文件出现深色版：返回修改。</li>
+<li>本次选定主题存在无法辨认的文字、必要非文字线索或操作状态：返回修改。仅提供一种主题，或没有外观切换控件，本身不是失败；不增加无需求的主题或装饰配额。</li>
 <li>出现第二个字体族、使用字阶表以外的字号、任何文字低于该产出的辅助档、700 用在 22 像素以下或出现 500 与细字重、大段正文用次要灰：返回修改。</li>
 <li>界面正文或表格低于 14 像素（辅助档只给时间、单位、角标、提示、图注）、表格单元格左右内边距小于 16 像素、金额列未右对齐或未用等宽数字、1440×900 首屏列表不足 10 行：返回修改。</li>
 <li>强调色超过 2 个，或状态只靠颜色表达：返回修改。</li>
@@ -1471,7 +1503,7 @@
 <li>任一可见元素未通过删除测试，或属于本页“同类问题”中的任一类别（即使具体写法不在例子中）：返回修改。</li>
 <li>属于本页“问题的同类判断”中的任一类别：返回修改。</li>
 <li>营销模块的视觉强度高于核心功能、营销使用持续动画，或一张卡片有两个主按钮：返回修改。</li>
-<li>控件图标出现立体、渐变或生成图标，界面出现装饰渐变（照片遮罩与骨架流光除外）、斜面或发光阴影、主色投影、半透明玻璃、有机斑点，图标线宽不统一或细于 1.75，插画或双色图标的填色不来自主题阶，阴影超出五级层级令牌，后台菜单项或页面级功能按钮缺少图标，或折线图带渐变填充与深色网格：返回修改。</li>
+<li>实际采用的图标、动效和图表与统一框架冲突，影响识别、对比度或操作：返回修改。模型根据页面任务决定是否需要图标；导航或文字按钮没有图标不单独判错。</li>
 <li>图标的栅格、线宽、端点不成套，图标与标题的尺寸和间距不按“图标与标题、卡片的协同”，所用图标库的许可证不允许商用或没有保留许可声明：返回修改。</li>
 <li>动效超出时长档、退出长于进入、使用 <code>transition: all</code> 或对宽高外边距做过渡、没有减少动态效果分支、使用带过冲的弹簧：返回修改。</li>
 <li>表格列宽平均分配或不按列类型、金刚区的列数行数不由入口数、文案长度与屏宽推导、导航缩进与高亮不成体系：返回修改。</li>

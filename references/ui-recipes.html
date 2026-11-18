@@ -12,7 +12,7 @@
 <!-- SECTION:scope:START id=scope data-rule-id=recipes-scope -->
 <section id="scope" data-rule-id="recipes-scope" aria-labelledby="scope-heading">
 <h2 id="scope-heading" class="section-heading"><svg class="icon-linear section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3"/><circle cx="12" cy="12" r="3"/></svg><span>适用范围</span></h2>
-<p>交易、营销与会员界面里常见效果的画法与写法：价格、角标、券面、不规则卡片、联动与浮层，每条写规格、写法与参考来源。界面有哪些功能、何时触发由系统技能的<a href="https://github.com/luzern0414/Luz-System/blob/master/references/commerce-design.html">交易与营销界面规范</a>与各端规范决定，本页只画不改（划线见 <code>references/ui-ownership.md</code>）；规格里的数值与<a href="visual-design.html">视觉设计规范</a>“各端视觉参数”（交易与营销界面）一致，冲突时按视觉设计规范。可直接取用的骨架在模板文件的 <code>commerce-kit.html</code>，完整示例在 <code>references/ui-kit/commerce-kit/</code>。</p>
+<p>交易、营销与会员界面里常见效果的画法与写法：价格、角标、券面、不规则卡片、联动与浮层，每条写规格、写法与参考来源。界面有哪些功能、何时触发由系统技能的<a href="https://github.com/luzern0414/Luz-System/blob/master/references/commerce-design.html">交易与营销界面规范</a>与各端规范决定，本页只画不改（划线见 <code>references/ui-ownership.md</code>）；规格里的数值与<a href="visual-design.html">视觉设计规范</a>“各端视觉参数”（交易与营销界面）一致，冲突时按视觉设计规范。可直接取用的骨架在模板库 <code>templates/app</code> 与 <code>templates/web</code>，用 <code>scripts/template_registry.py</code> 按编号取用。</p>
 </section>
 <!-- SECTION:scope:END -->
 
@@ -21,7 +21,7 @@
 <h2 id="workflow-heading" class="section-heading"><svg class="icon-linear section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="6" cy="6" r="2"/><circle cx="18" cy="18" r="2"/><path d="M8 6h5a3 3 0 0 1 3 3v1M16 18h-5a3 3 0 0 1-3-3v-1"/><path d="m13 8 3 2 3-2M11 16l-3-2-3 2"/></svg><span>工作流程</span></h2>
 <ol>
 <li>先在系统技能给出的界面功能说明和交易与营销界面规范里确认这个效果用在哪个区域（营销区还是功能区）；功能本身不增删，画不下的退回系统技能。</li>
-<li>从 <code>commerce-kit.html</code> 取对应骨架，换成会话主题色；入口图标、插画与装饰元素按<a href="visual-design.html">视觉设计规范</a>“图像生成”生成并切图。</li>
+<li>从模板库对应页面按编号取骨架，换成会话主题色；入口图标、插画与装饰元素按<a href="visual-design.html">视觉设计规范</a>“图像生成”生成并切图。</li>
 <li>按本页的规格与写法实现，类名沿用“输出契约”里的约定，检查脚本才能认出辅助文字、小块实色与控件。</li>
 <li>在手机宽度的浏览器里逐屏截图核对，再跑文件检查与会话校验。</li>
 </ol>
@@ -92,7 +92,7 @@
 <!-- SECTION:examples:START id=examples data-rule-id=recipes-examples -->
 <section id="examples" data-rule-id="recipes-examples" aria-labelledby="examples-heading">
 <h2 id="examples-heading" class="section-heading"><svg class="icon-linear section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m4 17 5-5 3 3 2-2 6 6"/></svg><span>案例样本</span></h2>
-<p><code>references/ui-kit/commerce-kit/index.html</code> 用生成的软陶元素演示首页与营销区（吉祥物出框的品牌主卡、三大入口、带角标的次入口、一大两小与倒计时）、菜单页、规格弹层、券面缺口、结算明细、领券弹窗、强公告与取餐号；<code>references/ui-kit/commerce-kit/screenshot-home.png</code> 是手机宽度的首屏截图。</p>
+<p>可运行的示例在 <code>templates/app/home.html</code>、<code>templates/app/components.html</code> 与 <code>templates/web/components.html</code>：首页入口与券面，组件库里的按钮、背景、卡片、列表行、数据与动效，每个组件有编号。</p>
 </section>
 <!-- SECTION:examples:END -->
 

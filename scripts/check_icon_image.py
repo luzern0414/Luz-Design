@@ -6,7 +6,7 @@
         [--theme <主题 id>] [--dark [--light <浅色版>]] [-r] [--json] [--quiet]
     py -X utf8 scripts/check_icon_image.py --palette <主题 id>      打印这个主题的图标色板（浅色与深色），写进提示词用
 
-度量（本技能取值，待样板图校准；规则见 references/ui-details.html 与 ui-details.json 的 icons.colour）：
+度量（本技能取值，待样板图校准；规则见 references/image-assets.md）：
     饱和度用 HSB（HSV）的 S，0 到 1，设计师在取色器里说的饱和度就是它。
     位图：只统计不透明（透明度不低于 --alpha-min）、非近白（V 不低于 0.97 且 S 不高于 0.05）、非近黑（V 不高于 0.12）的像素，按面积加权。
     指标四个：均值 S、第 90 百分位 S（最近秩）、S 大于 --hot-s 的像素占比、主色相个数（S 不低于 0.15 的像素按 10 度分箱，
@@ -48,7 +48,7 @@ except Exception as exc:  # pragma: no cover
 ROOT = Path(__file__).resolve().parent.parent
 THEMES_PATH = ROOT / "references" / "themes.json"
 
-# 本技能取值，待样板图校准。改这里或用命令行参数覆盖，ui-details.json 的 icons.colour.thresholds 与 ui-details.html 同步（test_ui_details.py 核对一致）。
+# 本技能取值，待样板图校准。改这里或用命令行参数覆盖。
 DEFAULTS = {
     "max_mean": 0.45,      # 均值 S 上限
     "p90": 0.65,           # 第 90 百分位 S 上限

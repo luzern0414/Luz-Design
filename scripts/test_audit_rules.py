@@ -178,7 +178,7 @@ class AmountAlignmentTest(unittest.TestCase):
 
     def test_xlsx(self) -> None:
         import openpyxl
-        from make_xlsx import build
+        from make_xlsx import _render_workbook as build
         spec = {"title": "门店月度销售", "columns": [{"name": "区域", "merge": True}, {"name": "门店"},
                                                   {"name": "销售额（元）", "type": "money"}, {"name": "备注", "type": "longtext"}],
                 "rows": [["华南", "科技园店", 128000, "新店开业"], ["华南", "海岸城店", 96000, ""]],
@@ -195,7 +195,7 @@ class AmountAlignmentTest(unittest.TestCase):
     def test_docx(self) -> None:
         import docx
         from docx.enum.text import WD_ALIGN_PARAGRAPH
-        from make_docx import build
+        from make_docx import _render_document as build
         spec = {"type": "report", "title": "设备采购汇总", "sections": [{"heading": "采购明细", "paragraphs": ["本期采购如下。"],
                 "table": {"header": ["设备", "数量", "金额（元）"], "rows": [["人脸终端", 2, 3360], ["合计", "", 3360]], "money_cols": [2]}}]}
         with tempfile.TemporaryDirectory() as tmp:
@@ -241,7 +241,7 @@ class PublishGateTest(unittest.TestCase):
                 session = create_session(root, "门店月度报告", ["document"], skill_root=ROOT)
                 adopt_rules(session)
                 page = session / "raw" / "03-documents" / "document.html"
-                page.write_text(page.read_text(encoding="utf-8").replace("</main>", "<p>数据来源：内部系统</p></main>"), encoding="utf-8")
+                page.write_text(page.read_text(encoding="utf-8").replace("</main>", "<p>来源统计：内部采集</p></main>"), encoding="utf-8")
                 with self.assertRaises(ValueError) as caught:
                     publish(session, "document")
                 self.assertIn("check_document", str(caught.exception))
@@ -273,14 +273,15 @@ class DeliverableFormatTest(unittest.TestCase):
 
 
 class RuleCardSizeTest(unittest.TestCase):
-    def test_every_card_carries_8_to_35_kb_of_rule_text(self) -> None:
+    def test_every_card_has_resolved_rules_without_bloat_or_truncation(self) -> None:
         for kind in context.card_kinds():
             text, _ = context.make_card(kind, [])
             rules = text.split("## 3 规则（摘自规范页原文）", 1)[1].split("## 4 用什么做", 1)[0]
             size = len(rules.encode("utf-8"))
             with self.subTest(kind=kind):
-                self.assertGreaterEqual(size, 8 * 1024, f"{kind}: {size} bytes of rule text is too thin")
-                self.assertLessEqual(size, 35_000, f"{kind}: {size} bytes of rule text; narrow its sections")
+                self.assertIn('### ', rules, f'{kind}: missing resolved rule sections')
+                # hard-rules.md (about 28.5 KB) is read with every card, so a card is the hard rules plus at most 40 KB of its own sections
+                self.assertLessEqual(size, 70_000, f"{kind}: {size} bytes of rule text; narrow its sections")
                 self.assertNotIn("已截断", text, f"{kind}: cite whole subsections instead of cutting with max_chars")
 
 
@@ -292,21 +293,33 @@ class SharedCoreSyncTest(unittest.TestCase):
             own = base / "Luz-Design" / "scripts"
             own.mkdir(parents=True)
             shutil.copy(ROOT / "scripts" / "context.py", own / "context.py")
+            shutil.copy(ROOT / "scripts" / "experience.py", own / "experience.py")
             sibling = base / "Luz-Dev" / "scripts" / "context.py"
             sibling.parent.mkdir(parents=True)
             stale = "# head\n# ---- shared rule-card core (old)\nold = 1\n# ---- end of shared rule-card core\n# tail\n"
             sibling.write_text(stale, encoding="utf-8")
+            # the notes store is the second shared block; this copy keeps Windows line endings
+            notes = base / "Luz-Dev" / "scripts" / "record_experience.py"
+            mark = "# ---------------------------------------------------------------- "
+            stale_notes = f"# head\r\n{mark}notes store (old)\r\nold = 1\r\n{mark}end of notes store\r\n# tail\r\n".encode("utf-8")
+            notes.write_bytes(stale_notes)
             saved = sync_rule_core.SKILL_ROOT
             sync_rule_core.SKILL_ROOT = base / "Luz-Design"
             try:
                 with contextlib.redirect_stdout(io.StringIO()) as out:
                     self.assertEqual(sync_rule_core.main([]), 1)
-                self.assertIn("DIFF Luz-Dev", out.getvalue())
+                self.assertIn("DIFF Luz-Dev rule-card core", out.getvalue())
+                self.assertIn("DIFF Luz-Dev notes store", out.getvalue())
                 self.assertEqual(sibling.read_text(encoding="utf-8"), stale)
+                self.assertEqual(notes.read_bytes(), stale_notes)
                 with contextlib.redirect_stdout(io.StringIO()):
                     self.assertEqual(sync_rule_core.main(["--write"]), 0)
                     self.assertEqual(sync_rule_core.main([]), 0)
                 self.assertTrue(sibling.read_text(encoding="utf-8").endswith("# tail\n"))
+                synced = notes.read_bytes()
+                self.assertIn(b"def note_listed(", synced)
+                self.assertTrue(synced.endswith(b"# tail\r\n"))
+                self.assertNotIn(b"\n", synced.replace(b"\r\n", b""), "a copy keeps its own line endings")
             finally:
                 sync_rule_core.SKILL_ROOT = saved
 

@@ -6,12 +6,12 @@ import pytest
 from style_match import build_match, can_design, dock_grid, infer_layout, rank_styles, session_style_errors
 
 
-def test_interface_output_requires_confirmation_even_with_reading_card(tmp_path):
+def test_interface_preview_does_not_require_upfront_confirmation(tmp_path):
     cards = tmp_path / "raw/00-rules"
     cards.mkdir(parents=True)
     (cards / "reading-html.md").write_text("reading page rules", encoding="utf-8")
     assert session_style_errors(tmp_path) == []
-    assert session_style_errors(tmp_path, required=True)
+    assert session_style_errors(tmp_path, required=True) == []
 
 
 def test_reference_arrangement_is_evidence_not_a_fixed_grid():
@@ -145,11 +145,11 @@ def test_motion_references_become_stateful_interaction_evidence():
     assert match["interaction"]["approval_required"] is True
 
 
-def test_pending_approval_blocks_design_until_scope_is_confirmed():
+def test_pending_approval_permits_a_configurable_preview_without_approving_it():
     match = build_match("阅读型产品首页，强调清晰层级和轻量插画。")
 
     assert match["approval"]["status"] == "pending"
-    assert can_design(match) is False
+    assert can_design(match) is True
 
     approved = dict(match)
     approved["approval"] = {
@@ -162,6 +162,21 @@ def test_pending_approval_blocks_design_until_scope_is_confirmed():
         },
     }
     assert can_design(approved) is True
+
+
+def test_automatic_legacy_approval_is_rejected_while_pending_is_allowed(tmp_path):
+    folder = tmp_path / "raw" / "02-visual"
+    folder.mkdir(parents=True)
+    match = build_match("入口图标与低对比背景")
+    path = folder / "style-match.json"
+    path.write_text(json.dumps(match), encoding="utf-8")
+    assert session_style_errors(tmp_path, required=True) == []
+    selected = match["candidates"][0]["id"]
+    match["approval"].update({"status": "approved", "selectedStyle": selected,
+                               "approved_by": "script", "approved_at": "2026-11-06T00:00:00Z",
+                               "note": "test fixture, not a person"})
+    path.write_text(json.dumps(match), encoding="utf-8")
+    assert any("自动程序" in error for error in session_style_errors(tmp_path, required=True))
 
 
 def test_style_matrix_is_discoverable_and_has_reference_boundaries():

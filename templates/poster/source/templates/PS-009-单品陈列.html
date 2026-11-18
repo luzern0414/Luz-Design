@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="zh-CN" data-ic-base="../../../../kit/assets/icons">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>产品单品陈列</title>
+<link rel="icon" href="../../../../kit/assets/icons/flat/bouquet.webp">
+<link rel="stylesheet" href="../../../../kit/tokens.css">
+<style>
+:root { --pw: 1080px; --ph: 1350px; }
+/* 海报画布与预览：画布大小写死，页面按视口缩放预览；地址加 ?export=1 去掉缩放与外框，用于导出 */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; }
+body { background: color-mix(in srgb, var(--ink) 12%, var(--bg)); font: 400 16px/1.5 var(--font); color: var(--ink); -webkit-font-smoothing: antialiased; }
+.pv { min-height: 100vh; display: grid; place-items: center; padding: 24px; }
+.pv__fit { --k: 1; position: relative; width: calc(var(--pw) * var(--k)); height: calc(var(--ph) * var(--k)); box-shadow: var(--elev-3); }
+.poster { position: absolute; left: 0; top: 0; width: var(--pw); height: var(--ph); overflow: hidden; transform: scale(var(--k)); transform-origin: 0 0; background: var(--bg); color: var(--ink); font-family: var(--font); line-height: 1.3; text-rendering: optimizeLegibility; }
+.poster *, .poster *::before, .poster *::after { margin: 0; padding: 0; }
+.poster img { display: block; }
+.poster h1, .poster h2, .poster h3, .poster p { font-weight: inherit; }
+.x-tex { position: absolute; inset: 0; background: url(../../../../kit/assets/photo/pattern-petals.webp) 0 0 / 520px; opacity: .45; pointer-events: none; }
+.x-nw { white-space: nowrap; }
+.is-export body, .is-export { background: transparent; }
+.is-export .pv { display: block; min-height: 0; padding: 0; }
+.is-export .pv__fit { --k: 1; box-shadow: none; }
+.marks i { position: absolute; background: var(--ink-2); }
+@media print { html, body { background: none; } .pv { display: block; min-height: 0; padding: 0; } .pv__fit { --k: 1; box-shadow: none; } .marks { display: none; } }
+
+/* ── 本海报 ── */
+.p9 { position: absolute; inset: 0; --stone: color-mix(in srgb, color-mix(in srgb, var(--ink) 14%, var(--bg)), var(--action) 8%); background: var(--stone); }
+.p9 .glow { position: absolute; inset: 0; background: radial-gradient(560px 560px at 50% 44%, color-mix(in srgb, var(--surface) 35%, var(--stone)), transparent 72%); }
+.p9 .ghost { position: absolute; left: 0; right: 0; top: 150px; text-align: center; font-size: 520px; font-weight: 700; line-height: 1; letter-spacing: .04em; white-space: nowrap; color: color-mix(in srgb, var(--surface) 38%, transparent); }
+.p9 .top { position: absolute; left: 72px; right: 72px; top: 64px; display: flex; justify-content: space-between; align-items: center; font-size: 30px; font-weight: 500; letter-spacing: .3em; }
+.p9 .top .brand { display: flex; align-items: center; gap: 14px; font-weight: 600; letter-spacing: .08em; font-size: 36px; }
+.p9 .top .brand img { width: 56px; height: 56px; }
+.p9 .top span { color: var(--action-press); }
+.p9 .prod { position: absolute; left: 220px; top: 270px; width: 640px; height: 640px; -webkit-mask-image: radial-gradient(closest-side, black 66%, transparent 100%); mask-image: radial-gradient(closest-side, black 66%, transparent 100%); }
+.p9 .prod img { width: 100%; height: 100%; object-fit: cover; }
+.p9 .call { position: absolute; display: flex; align-items: center; gap: 14px; font-size: 28px; color: var(--ink-2); }
+.p9 .call b { display: block; font-size: 34px; font-weight: 600; color: var(--ink); letter-spacing: .04em; }
+.p9 .call i { display: block; width: var(--w, 90px); height: 2px; background: var(--ink-2); position: relative; }
+.p9 .call i::after { content: ""; position: absolute; top: -5px; width: 12px; height: 12px; border-radius: 50%; background: var(--action); }
+.p9 .call.l { left: 72px; flex-direction: row; text-align: left; }
+.p9 .call.l i::after { right: -6px; }
+.p9 .call.r { right: 72px; flex-direction: row-reverse; text-align: right; }
+.p9 .call.r i::after { left: -6px; }
+.p9 .name { position: absolute; left: 72px; top: 960px; font-size: 92px; font-weight: 700; letter-spacing: .02em; line-height: 1.1; white-space: nowrap; }
+.p9 .price { position: absolute; right: 72px; top: 972px; font-size: 100px; font-weight: 700; line-height: 1; color: var(--price); font-variant-numeric: tabular-nums; }
+.p9 .price small { font-size: 46px; font-weight: 600; margin-right: 4px; }
+.p9 .specs { position: absolute; left: 72px; right: 72px; bottom: 64px; display: grid; grid-template-columns: repeat(4, 1fr); border-top: 3px solid var(--ink); padding-top: 26px; }
+.p9 .specs > div + div { padding-left: 28px; border-left: 2px solid var(--line-strong); }
+.p9 .specs h3 { font-size: 26px; font-weight: 500; letter-spacing: .3em; color: var(--action-press); }
+.p9 .specs p { margin-top: 6px; font-size: 34px; font-weight: 600; white-space: nowrap; }
+</style>
+</head>
+<body>
+<div class="pv"><div class="pv__fit">
+<main class="poster" id="poster" data-cid="PS-009" data-name="产品单品陈列" data-size="1080×1350" data-use="新品">
+<div class="p9">
+  <div class="glow"></div>
+  <div class="ghost">干花</div>
+  <div class="top"><div class="brand"><img data-ic="bouquet" src="../../../../kit/assets/icons/flat/bouquet.webp" alt="">花间集</div><span>干花系列</span></div>
+  <div class="prod"><img src="../../../../kit/assets/photo/product-pampas-vase.webp" alt="干花花瓶摆件"></div>
+  <div class="call l" style="top: 760px; --w: 214px"><div><b>手作陶瓷</b>花器材质</div><i></i></div>
+  <div class="call r" style="top: 400px; --w: 112px"><div><b>蒲苇</b>主花材</div><i></i></div>
+  <div class="call r" style="top: 700px; --w: 190px"><div><b>六十厘米</b>整体高度</div><i></i></div>
+  <h1 class="name">干花花瓶摆件</h1>
+  <div class="price"><small>¥</small>129</div>
+  <div class="specs">
+    <div><h3>花材</h3><p>蒲苇</p></div>
+    <div><h3>花器</h3><p>陶瓷</p></div>
+    <div><h3>花期</h3><p>半年</p></div>
+    <div><h3>配送</h3><p>同城送达</p></div>
+  </div>
+</div>
+</main>
+</div></div>
+<script src="../../../../kit/ui.js"></script>
+<script>
+(function () {
+  var q = new URLSearchParams(location.search), root = document.documentElement;
+  if (q.get('export') === '1') root.classList.add('is-export');
+  if (q.get('bleed') === '1') root.classList.add('is-bleed');
+  var p = document.getElementById('poster'), fit = p.parentNode;
+  function fitIt() {
+    if (root.classList.contains('is-export')) { fit.style.setProperty('--k', 1); return; }
+    var k = Math.min((innerWidth - 48) / p.offsetWidth, (innerHeight - 48) / p.offsetHeight, 1);
+    fit.style.setProperty('--k', Math.max(k, 0.05));
+  }
+  addEventListener('resize', fitIt); fitIt();
+  var pg = document.createElement('style');
+  pg.textContent = '@page{size:' + p.offsetWidth + 'px ' + p.offsetHeight + 'px;margin:0}';
+  document.head.appendChild(pg);
+  if (root.classList.contains('is-bleed') && !root.classList.contains('is-export')) {
+    var m = document.createElement('div'); m.className = 'marks'; m.setAttribute('aria-hidden', 'true');
+    var b = parseFloat(getComputedStyle(p).getPropertyValue('--bleed')) || 11.34, L = 20, G = 4;
+    var W = p.offsetWidth, H = p.offsetHeight;
+    [[0, 0], [1, 0], [0, 1], [1, 1]].forEach(function (c) {
+      var x = c[0] ? W - b : b, y = c[1] ? H - b : b;
+      var v = [x - 0.5, c[1] ? H + G : -G - L, 1, L], h = [c[0] ? W + G : -G - L, y - 0.5, L, 1];
+      [v, h].forEach(function (r) {
+        var i = document.createElement('i'); i.style.cssText = 'left:' + r[0] + 'px;top:' + r[1] + 'px;width:' + r[2] + 'px;height:' + r[3] + 'px';
+        m.appendChild(i);
+      });
+    });
+    m.style.cssText = 'position:absolute;left:0;top:0;width:' + W + 'px;height:' + H + 'px;transform:scale(var(--k));transform-origin:0 0;pointer-events:none';
+    fit.appendChild(m);
+  }
+})();
+</script>
+</body>
+</html>

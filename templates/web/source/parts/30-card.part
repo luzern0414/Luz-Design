@@ -1,0 +1,1602 @@
+<!-- cat: CARD | 卡片 -->
+<style>
+  /* 卡片类：前缀 wb-cd-。卡片白底；标题放卡外上方；一屏至多一块品牌主卡 */
+  #cat-card .gallery { align-items: stretch; }
+  #cat-card .demo { min-width: 0; }
+  #cat-card .badge { min-width: 18px; height: 18px; font-size: var(--fs-xs); line-height: 18px; }
+  #cat-card .btn--primary:not([disabled]), #cat-card .btn--danger:not([disabled]) { color: var(--surface); }
+  #cat-card .btn--danger-soft:not([disabled]), #cat-card .tag[data-tone="danger"] { color: color-mix(in srgb, var(--danger) 82%, var(--ink)); }
+  #cat-card .demo__stage { display: grid; justify-items: center; align-content: center; min-height: 0; }
+  #cat-card .demo__stage.is-plain { min-height: 0; }
+  #cat-card .btn[disabled] { box-shadow: none; }
+  #cat-card .btn--outline[disabled] { box-shadow: inset 0 0 0 1.5px var(--line-strong); }
+  .wb-cd-w { width: 100%; max-width: 360px; }
+  .wb-cd-w--md { max-width: 500px; }
+  .wb-cd-w--lg { max-width: none; }
+  .wb-cd-label { font-size: var(--fs-sm); color: var(--ink-3); }
+  .wb-cd-val { font-size: var(--fs-2xl); font-weight: 700; line-height: var(--lh-tight); font-variant-numeric: tabular-nums; }
+  .wb-cd-val small { margin-left: 2px; font-size: var(--fs-md); font-weight: 400; color: var(--ink-3); }
+  .wb-cd-val small:first-child { margin: 0 2px 0 0; }
+  .wb-cd-top { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); min-height: 28px; }
+  .wb-cd-top .ibtn { width: 32px; height: 32px; margin: -4px -6px -4px 0; }
+  .wb-cd-top .ibtn img { width: 18px; height: 18px; }
+  .wb-cd-kpi { display: grid; gap: var(--s-2); padding: var(--s-5); }
+  .wb-cd-sub { display: flex; align-items: center; gap: var(--s-2); }
+  .wb-cd-pad { padding: var(--s-5); }
+  .wb-cd-grid { display: grid; gap: var(--s-4); }
+  .wb-cd-name { font-size: var(--fs-md); font-weight: 600; line-height: var(--lh-tight); }
+  .wb-cd-meta { font-size: var(--fs-sm); color: var(--ink-3); }
+  .wb-cd-thumb { width: 72px; height: 72px; border-radius: var(--r-md); object-fit: cover; flex: none; }
+  .wb-cd-row { display: flex; align-items: center; gap: var(--s-3); }
+  .wb-cd-sp { margin-left: auto; }
+  .wb-cd-acts { display: flex; align-items: center; justify-content: flex-end; gap: var(--s-2); }
+
+  /* 迷你图 */
+  .wb-cd-spark { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); align-items: end; gap: 4px; height: 56px; }
+  .wb-cd-spark i { display: block; height: calc(var(--h) * 1%); border-radius: 3px 3px 0 0; background: var(--action-tint); box-shadow: inset 0 0 0 1px var(--action-edge); transition: background var(--dur-quick) var(--ease-out); }
+  .wb-cd-spark i[data-top] { background: var(--action); box-shadow: none; }
+  @media (hover: hover) { .wb-cd-spark i:hover { background: var(--action); } }
+
+  /* 目标进度与占比 */
+  .wb-cd-goal { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-3); }
+  .wb-cd-goal b { font-size: var(--fs-xl); font-weight: 700; font-variant-numeric: tabular-nums; }
+  .wb-cd-goal b small { margin-right: 2px; font-size: var(--fs-md); font-weight: 400; color: var(--ink-3); }
+  .wb-cd-prog { height: 10px; }
+  .wb-cd-donutbox { --size: 136px; position: relative; flex: none; width: var(--size); height: var(--size); }
+  .wb-cd-donut { display: block; width: 100%; height: 100%; border-radius: 50%; background: conic-gradient(var(--action) 0 48%, var(--accent) 48% 75%, var(--info) 75% 94%, var(--success) 94% 100%); }
+  .wb-cd-donut::after { content: ""; position: absolute; inset: 19%; border-radius: 50%; background: var(--surface); }
+  .wb-cd-donutbox > div { position: absolute; inset: 0; z-index: 1; display: grid; place-content: center; text-align: center; }
+  .wb-cd-donutbox b { font-size: var(--fs-xl); font-weight: 700; line-height: var(--lh-tight); }
+  .wb-cd-donutbox span { font-size: var(--fs-xs); color: var(--ink-3); }
+  .wb-cd-legend { flex: 1; min-width: 0; }
+  .wb-cd-legend li b { margin-left: auto; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+  /* 图表壳 */
+  .wb-cd-chart { padding: var(--s-4) var(--s-5) var(--s-5); }
+  .wb-cd-chart .seg { margin-bottom: var(--s-2); }
+  .wb-cd-chart .seg__item { min-height: 32px; padding: 0 var(--s-3); }
+  .wb-cd-chart .bars { height: 168px; }
+  .wb-cd-chart .bars__col { cursor: pointer; transition: opacity var(--dur-quick) var(--ease-out); }
+  .wb-cd-chart .bars__col[aria-current="false"] .bars__bar { background: var(--action-tint); }
+  .wb-cd-chart .bars__bar { width: min(34px, 72%); }
+
+  /* 表格壳 */
+  .wb-cd-table { overflow: hidden; }
+  .wb-cd-table .table { min-width: 720px; }
+  .wb-cd-table .table-wrap { overflow-x: auto; }
+  .wb-cd-table .toolbar .seg { flex: 1; min-width: 0; padding: 2px; margin-bottom: 0; }
+  .wb-cd-table .toolbar .seg__item[aria-selected="true"] { box-shadow: none; }
+  .wb-cd-table .toolbar .seg__item { min-height: 32px; padding: 0 var(--s-3); }
+  .wb-cd-table td.t-l .wb-cd-name { font-weight: 400; }
+  .wb-cd-table .table .who { display: flex; }
+
+  /* 列表壳与排行 */
+  .wb-cd-rank { width: 24px; text-align: center; font-size: var(--fs-lg); font-weight: 700; color: var(--ink-3); font-variant-numeric: tabular-nums; flex: none; }
+  .wb-cd-rank[data-top] { color: var(--accent); }
+  .wb-cd-rk { display: grid; grid-template-columns: 24px 44px minmax(0, 1fr) 56px; align-items: center; gap: var(--s-3); min-height: 64px; padding: var(--s-2) var(--s-5); }
+  .wb-cd-rk + .wb-cd-rk { border-top: 1px solid var(--line); }
+  .wb-cd-rk img { width: 44px; height: 44px; border-radius: var(--r-sm); object-fit: cover; }
+  .wb-cd-rk b { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .wb-cd-rk .progress { height: 6px; margin-top: 6px; }
+
+  /* 资料与会员 */
+  .wb-cd-user { display: grid; justify-items: center; gap: var(--s-3); padding: var(--s-6) var(--s-5) var(--s-5); text-align: center; }
+  .wb-cd-user .avatar { width: 72px; height: 72px; box-shadow: 0 0 0 4px var(--action-tint); }
+  .wb-cd-user .stats { width: 100%; margin-top: var(--s-1); border-top: 1px solid var(--line); padding-top: var(--s-3); }
+  .wb-cd-user .stat { padding: var(--s-1); }
+  .wb-cd-vip { position: relative; overflow: hidden; display: grid; gap: var(--s-3); padding: var(--s-5); background: linear-gradient(135deg, var(--accent-tint) 0%, var(--surface) 100%); border: 1px solid color-mix(in srgb, var(--accent) 22%, transparent); }
+  .wb-cd-vip .ic { position: absolute; right: var(--s-4); top: var(--s-3); width: 72px; height: 72px; }
+  .wb-cd-vip__t { font-size: var(--fs-xl); font-weight: 700; line-height: var(--lh-tight); color: var(--accent); }
+  .wb-cd-vip .progress > i { background: var(--accent); }
+
+  /* 待办、看板、方案 */
+  .wb-cd-todo { display: grid; grid-template-columns: 22px minmax(0, 1fr); align-items: center; gap: var(--s-3); min-height: 48px; }
+  .wb-cd-todo + .wb-cd-todo { border-top: 1px solid var(--line); }
+  .wb-cd-todo span.t { font-size: var(--fs-md); transition: color var(--dur-quick) var(--ease-out); }
+  .wb-cd-todo [aria-checked="true"] + span.t { color: var(--ink-3); text-decoration: line-through; }
+  .wb-cd-kb { display: grid; gap: var(--s-3); padding: var(--s-4); }
+  .wb-cd-kb__top { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); }
+  .wb-cd-kb .avatars .avatar { width: 28px; height: 28px; }
+  .wb-cd-state { min-height: 28px; padding: 0 var(--s-3); border-radius: var(--r-full); font-size: var(--fs-xs); font-weight: 600; background: var(--zone); color: var(--ink-2); }
+  .wb-cd-state[data-s="1"] { background: var(--info-tint); color: var(--info); }
+  .wb-cd-state[data-s="2"] { background: var(--success-tint); color: var(--success); }
+  .wb-cd-plan { display: grid; gap: var(--s-4); width: 100%; padding: var(--s-5); text-align: left; border: 1.5px solid var(--line); transition: border-color var(--dur-quick) var(--ease-out), box-shadow var(--dur-quick) var(--ease-out); }
+  .wb-cd-plan[aria-pressed="true"] { border-color: var(--action); box-shadow: 0 10px 24px color-mix(in srgb, var(--action) 16%, transparent); }
+  .wb-cd-plan ul { display: grid; gap: var(--s-2); font-size: var(--fs-md); }
+  .wb-cd-plan li { display: flex; align-items: center; gap: var(--s-2); }
+  .wb-cd-plan li img { width: 18px; height: 18px; }
+  .wb-cd-price { display: flex; align-items: baseline; gap: 4px; font-variant-numeric: tabular-nums; }
+  .wb-cd-price b { font-size: var(--fs-3xl); font-weight: 700; line-height: 1; color: var(--ink); }
+
+  /* 通知、时间线、审批 */
+  .wb-cd-notes { overflow: hidden; }
+  .wb-cd-notes .seg { padding: var(--s-3) var(--s-4) var(--s-1); }
+  .wb-cd-notes .seg { margin-bottom: 0; }
+  .wb-cd-notes .seg__item { min-height: 32px; padding: 0 var(--s-3); }
+  .wb-cd-notes .seg__item[aria-selected="true"] { box-shadow: none; }
+  .wb-cd-note { min-height: 60px; }
+  .wb-cd-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--danger); flex: none; transition: opacity var(--dur-quick) var(--ease-out); }
+  .wb-cd-note[data-unread="false"] .wb-cd-dot { opacity: 0; }
+  .wb-cd-note[data-unread="false"] .row__title { font-weight: 400; color: var(--ink-2); }
+  .wb-cd-tl { padding: var(--s-5) var(--s-5) var(--s-1); }
+  .wb-cd-tl .tl__item p + p { margin-top: 2px; }
+  .wb-cd-appr { display: grid; gap: var(--s-4); padding: var(--s-5); }
+  .wb-cd-appr .kv { padding: 0; grid-template-columns: 64px minmax(0, 1fr); font-size: var(--fs-md); }
+  .wb-cd-appr[data-done] { background: var(--zone); }
+
+  /* 对象卡：商品、订单、门店、库存、活动 */
+  .wb-cd-goods { display: grid; grid-template-columns: 72px minmax(0, 1fr) auto; align-items: center; gap: var(--s-4); padding: var(--s-4); }
+  .wb-cd-sw { display: inline-flex; align-items: center; gap: var(--s-2); font-size: var(--fs-sm); color: var(--ink-2); }
+  .wb-cd-ord { display: grid; gap: 0; overflow: hidden; }
+  .wb-cd-ord__h { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); padding: var(--s-3) var(--s-5); border-bottom: 1px solid var(--line); font-size: var(--fs-sm); color: var(--ink-3); }
+  .wb-cd-ord__b { display: grid; grid-template-columns: 56px minmax(0, 1fr) auto; align-items: center; gap: var(--s-3); padding: var(--s-4) var(--s-5); }
+  .wb-cd-ord__b img { width: 56px; height: 56px; border-radius: var(--r-sm); object-fit: cover; }
+  .wb-cd-ord__f { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); padding: var(--s-3) var(--s-5); background: var(--zone); }
+  .wb-cd-who { display: inline-flex; align-items: center; gap: var(--s-2); font-size: var(--fs-sm); color: var(--ink-2); }
+  .wb-cd-who img { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; }
+  .wb-cd-store { display: grid; gap: var(--s-4); padding: var(--s-5); }
+  .wb-cd-store__h { display: grid; grid-template-columns: 56px minmax(0, 1fr) auto; align-items: center; gap: var(--s-3); }
+  .wb-cd-store__h img { width: 56px; height: 56px; object-fit: contain; }
+  .wb-cd-store .stats { border-top: 1px solid var(--line); padding-top: var(--s-3); }
+  .wb-cd-store .stat { padding: var(--s-1) var(--s-2); }
+  .wb-cd-warn { display: grid; gap: var(--s-4); padding: var(--s-4) var(--s-5); }
+  .wb-cd-warn .progress > i { background: var(--danger); }
+  .wb-cd-act .card__media { aspect-ratio: 16 / 9; }
+  .wb-cd-act__b { display: grid; gap: var(--s-3); padding: var(--s-4) var(--s-5) var(--s-5); }
+
+  /* 品牌主卡、折叠、对比 */
+  .wb-cd-hero { position: relative; overflow: hidden; display: grid; gap: var(--s-1); padding: var(--s-5) var(--s-6); min-height: 152px; align-content: center; background: linear-gradient(150deg, var(--action-press) 0%, var(--action) 100%); }
+  .wb-cd-hero .wb-cd-val { font-size: var(--fs-3xl); color: var(--surface); }
+  .wb-cd-hero .wb-cd-val small { color: var(--surface); }
+  .wb-cd-hero .wb-cd-label { color: var(--surface); }
+  .wb-cd-hero img.pic { position: absolute; right: var(--s-5); top: 50%; width: 112px; height: 112px; border-radius: var(--r-lg); object-fit: cover; transform: translateY(-50%) rotate(5deg); border: 3px solid var(--surface); box-shadow: var(--elev-3); }
+  .wb-cd-hero .tag { justify-self: start; margin-top: var(--s-2); background: var(--surface); color: var(--action-press); }
+  .wb-cd-fold { overflow: hidden; }
+  .wb-cd-fold__h { display: flex; align-items: center; gap: var(--s-3); width: 100%; min-height: 64px; padding: 0 var(--s-5); text-align: left; }
+  .wb-cd-fold__h .chev::after { transform: rotate(45deg); transition: transform var(--dur-base) var(--ease-out); }
+  .wb-cd-fold__h[aria-expanded="true"] .chev::after { transform: rotate(225deg); }
+  .wb-cd-fold__line { display: grid; grid-template-columns: 44px minmax(0, 1fr) 40px 64px; align-items: center; gap: var(--s-3); min-height: 56px; }
+  .wb-cd-fold__line > :nth-child(n + 3) { text-align: right; }
+  .wb-cd-fold__line img { width: 44px; height: 44px; border-radius: var(--r-sm); object-fit: cover; }
+  .wb-cd-vs { display: grid; gap: var(--s-4); padding: var(--s-5); }
+  .wb-cd-vs__h { display: grid; grid-template-columns: 1fr 72px 1fr; align-items: center; text-align: center; font-size: var(--fs-md); font-weight: 600; }
+  .wb-cd-vs__r { display: grid; grid-template-columns: 1fr 72px 1fr; align-items: center; gap: var(--s-2); }
+  .wb-cd-vs__r > span { text-align: center; font-size: var(--fs-sm); color: var(--ink-3); }
+  .wb-cd-vs__l, .wb-cd-vs__rt { display: grid; gap: 4px; }
+  .wb-cd-vs__l { justify-items: end; }
+  .wb-cd-vs__l b, .wb-cd-vs__rt b { font-size: var(--fs-md); font-weight: 700; font-variant-numeric: tabular-nums; }
+  .wb-cd-vs__bar { height: 8px; width: var(--w); border-radius: var(--r-full); background: var(--action); }
+  .wb-cd-vs__rt .wb-cd-vs__bar { background: var(--accent); }
+  .wb-cd-vs__l .wb-cd-vs__bar { border-radius: var(--r-full); }
+
+  /* 卡片外观变体 */
+  .wb-cd-mini { display: grid; gap: var(--s-1); padding: var(--s-4) var(--s-5); }
+  .wb-cd-entry { display: grid; grid-template-columns: 56px minmax(0, 1fr); align-items: center; gap: var(--s-3); width: 100%; padding: var(--s-4) var(--s-5); text-align: left; }
+  .wb-cd-entry .ic { width: 56px; height: 56px; }
+  .wb-cd-soft { display: grid; gap: var(--s-3); padding: var(--s-5); }
+  .wb-cd-flat { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: var(--s-6); padding: var(--s-2) var(--s-1); }
+  .wb-cd-flat > div { display: grid; gap: 2px; }
+  .wb-cd-soft .wb-cd-flat { padding: 0; }
+  .wb-cd-flat--pad { padding: var(--s-4) var(--s-5); }
+  .wb-cd-coupon { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
+  .wb-cd-coupon__l { display: grid; gap: 2px; padding: var(--s-5) var(--s-5) var(--s-5) var(--s-6); }
+  .wb-cd-coupon__r { display: grid; place-items: center; align-self: stretch; padding: 0 var(--s-5); border-left: 2px dashed var(--line-strong); }
+  .wb-cd-coupon .price { font-size: var(--fs-3xl); font-weight: 700; line-height: 1; }
+  .wb-cd-stack { isolation: isolate; width: 100%; max-width: 360px; margin-bottom: var(--s-4); }
+  .wb-cd-stack::before { left: 14px; right: 14px; bottom: -9px; height: 14px; border: 1px solid var(--line); border-top: 0; }
+  .wb-cd-stack::after { content: ""; position: absolute; left: 28px; right: 28px; bottom: -17px; height: 14px; border-radius: 0 0 var(--r-lg) var(--r-lg); background: var(--surface); border: 1px solid var(--line); border-top: 0; box-shadow: var(--elev-1); z-index: -2; }
+  .wb-cd-pic { position: relative; }
+  .wb-cd-pic .card__media { aspect-ratio: 4 / 3; }
+  .wb-cd-pic__b { display: grid; gap: var(--s-1); padding: var(--s-4) var(--s-5) var(--s-5); }
+  .wb-cd-pic .card__fav .ibtn, .wb-cd-pic .card__fav { z-index: 1; }
+  .wb-cd-pic .card__fav { width: 36px; height: 36px; }
+  .wb-cd-pic .card__fav img { width: 22px; height: 22px; opacity: .4; transition: opacity var(--dur-quick) var(--ease-out), transform var(--dur-base) var(--ease-spring); }
+  .wb-cd-pic .card__fav[aria-pressed="true"] img { opacity: 1; transform: scale(1.15); }
+
+  /* 状态卡：营业、评价、配送、员工、空、骨架 */
+  .wb-cd-open { display: grid; grid-template-columns: 56px minmax(0, 1fr) auto; align-items: center; gap: var(--s-3); padding: var(--s-5); }
+  .wb-cd-open img { width: 56px; height: 56px; object-fit: contain; }
+  .wb-cd-open[data-on="false"] img { filter: grayscale(1); opacity: .6; }
+  .wb-cd-review { display: grid; gap: 0; padding: var(--s-5); }
+  .wb-cd-review > * + * { margin-top: var(--s-3); }
+  .wb-cd-review > .expand { margin-top: 0; }
+  .wb-cd-review .expand__body { margin-top: var(--s-3); }
+  .wb-cd-stars { display: inline-flex; gap: 2px; }
+  .wb-cd-stars img { width: 18px; height: 18px; }
+  .wb-cd-stars img.off { filter: grayscale(1); opacity: .3; }
+  .wb-cd-review p.q { font-size: var(--fs-md); line-height: var(--lh-body); }
+  .wb-cd-review .expand__body { display: flex; gap: var(--s-2); padding: var(--s-3); border-radius: var(--r-md); border: 0; }
+  .wb-cd-review .expand__body .input { min-height: 40px; }
+  .wb-cd-ship { display: grid; gap: var(--s-4); padding: var(--s-5); }
+  .wb-cd-steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s-1); font-size: var(--fs-xs); color: var(--ink-3); text-align: center; }
+  .wb-cd-steps li { display: grid; gap: var(--s-2); justify-items: center; }
+  .wb-cd-steps li::before { content: ""; width: 100%; height: 6px; border-radius: var(--r-full); background: var(--zone); }
+  .wb-cd-steps li[data-done]::before { background: var(--action); }
+  .wb-cd-steps li[data-now] { color: var(--action-press); font-weight: 600; }
+  .wb-cd-steps li[data-now]::before { background: linear-gradient(90deg, var(--action) 50%, var(--zone) 50%); }
+  .wb-cd-staff { display: grid; grid-template-columns: 56px minmax(0, 1fr) auto; align-items: center; gap: var(--s-3); padding: var(--s-5); }
+  .wb-cd-staff .avatar { width: 56px; height: 56px; }
+  .wb-cd-skel { display: grid; gap: var(--s-3); padding: var(--s-5); }
+  .wb-cd-skel .skel { height: 16px; }
+  #cat-card .empty { padding: var(--s-6) var(--s-4); }
+</style>
+
+<article class="demo" data-cid="WB-CARD-001" data-name="数字指标卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">数字指标卡</span></div>
+  <p class="demo__note">适合：概览页的核心数字，进入视野时滚动入场</p>
+  <div class="demo__stage"><div class="card wb-cd-kpi wb-cd-w">
+    <div class="wb-cd-top"><span class="wb-cd-label">销售额</span><button class="ibtn" data-tip="重新入场" aria-label="重新入场" data-wb-replay><img src="../../kit/assets/line/undo.webp" alt=""></button></div>
+    <span class="wb-cd-val"><small>¥</small><span data-count data-to="128640">128,640</span></span>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-CARD-002" data-name="趋势指标卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">趋势指标卡</span></div>
+  <p class="demo__note">适合：数字加同比环比变化</p>
+  <div class="demo__stage"><div class="card wb-cd-kpi wb-cd-w">
+    <span class="wb-cd-label">订单数</span>
+    <span class="wb-cd-val"><span data-count data-to="1286">1,286</span><small>单</small></span>
+    <div class="wb-cd-sub"><span class="tag" data-tone="success">增长 8.1%</span><span class="wb-cd-label">较上周</span></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-CARD-003" data-name="迷你图指标卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">迷你图指标卡</span></div>
+  <p class="demo__note">适合：数字旁带七日走势，悬浮看当日数值</p>
+  <div class="demo__stage"><div class="card wb-cd-kpi wb-cd-w">
+    <span class="wb-cd-label">近七日订单</span>
+    <span class="wb-cd-val"><span data-count data-to="612">612</span><small>单</small></span>
+    <div class="wb-cd-spark" role="img" aria-label="近七日订单走势">
+      <i style="--h: 52" tabindex="0" data-tip="周一 68 单"></i><i style="--h: 60" tabindex="0" data-tip="周二 74 单"></i><i style="--h: 46" tabindex="0" data-tip="周三 59 单"></i><i style="--h: 68" tabindex="0" data-tip="周四 81 单"></i><i style="--h: 82" tabindex="0" data-tip="周五 96 单"></i><i style="--h: 100" tabindex="0" data-tip="周六 112 单" data-top></i><i style="--h: 76" tabindex="0" data-tip="周日 88 单"></i>
+    </div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-CARD-004" data-name="图标指标卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">图标指标卡</span></div>
+  <p class="demo__note">适合：数字旁放一枚实心业务图标</p>
+  <div class="demo__stage"><div class="card wb-cd-kpi wb-cd-w" style="grid-template-columns: 1fr auto; align-items: center">
+    <div style="display: grid; gap: var(--s-2)"><span class="wb-cd-label">待发货</span><span class="wb-cd-val"><span data-count data-to="38">38</span><small>单</small></span></div>
+    <img src="../../kit/assets/solid/order.webp" alt="" style="width: 56px; height: 56px; object-fit: contain">
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-CARD-005" data-name="目标进度卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">目标进度卡</span></div>
+  <p class="demo__note">适合：月度销售目标的完成情况</p>
+  <div class="demo__stage"><div class="card wb-cd-kpi wb-cd-w" style="gap: var(--s-3)">
+    <div class="wb-cd-top"><span class="wb-cd-label">本月目标</span><span class="tag" data-tone="action">72%</span></div>
+    <div class="wb-cd-goal"><b><small>¥</small>86,400</b><span class="wb-cd-label">目标 120,000</span></div>
+    <div class="progress wb-cd-prog" role="progressbar" aria-valuenow="72" aria-valuemin="0" aria-valuemax="100" aria-label="本月目标完成度"><i style="--v: 72%"></i></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-CARD-006" data-name="环形占比卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">环形占比卡</span></div>
+  <p class="demo__note">适合：同一单位的分类销售占比</p>
+  <div class="demo__stage"><div class="card wb-cd-pad wb-cd-w wb-cd-w--md wb-cd-row" style="gap: var(--s-6)">
+    <div class="wb-cd-donutbox"><i class="wb-cd-donut" role="img" aria-label="订单分类占比"></i><div><b>1,286</b><span>总订单</span></div></div>
+    <ul class="legend wb-cd-legend">
+      <li><i style="--c: var(--action)"></i>鲜花<b>48%</b></li><li><i style="--c: var(--accent)"></i>绿植<b>27%</b></li><li><i style="--c: var(--info)"></i>礼盒<b>19%</b></li><li><i style="--c: var(--success)"></i>花器<b>6%</b></li>
+    </ul>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-CARD-007" data-name="折线图表卡壳" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">折线图表卡壳</span></div>
+  <p class="demo__note">适合：销售趋势，周月切换，点选看数值</p>
+  <div class="demo__stage"><div class="wb-cd-w wb-cd-w--md" id="wb-cd-line">
+    <div class="section__head"><h2>销售趋势</h2></div>
+    <div class="card section__body wb-cd-chart">
+      <div class="seg" role="tablist" aria-label="统计周期"><button class="seg__item" role="tab" aria-selected="true" data-k="week">近七日</button><button class="seg__item" role="tab" aria-selected="false" data-k="month">近四周</button></div>
+      <div class="chart"><canvas role="img" aria-label="销售额折线图"></canvas><p class="chart__read" aria-live="polite"></p></div>
+    </div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-CARD-008" data-name="条形图表卡壳" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">条形图表卡壳</span></div>
+  <p class="demo__note">适合：按日订单量对比，点柱子看数值</p>
+  <div class="demo__stage"><div class="wb-cd-w wb-cd-w--md" id="wb-cd-bars">
+    <div class="section__head"><h2>订单分布</h2></div>
+    <div class="card section__body wb-cd-chart">
+      <div class="bars" role="group" aria-label="近七日订单数">
+        <button class="bars__col" aria-current="false" data-l="周一" data-v="68"><span class="bars__bar" style="--h: 61%; --i: 0"></span>周一</button>
+        <button class="bars__col" aria-current="false" data-l="周二" data-v="74"><span class="bars__bar" style="--h: 66%; --i: 1"></span>周二</button>
+        <button class="bars__col" aria-current="false" data-l="周三" data-v="59"><span class="bars__bar" style="--h: 53%; --i: 2"></span>周三</button>
+        <button class="bars__col" aria-current="false" data-l="周四" data-v="81"><span class="bars__bar" style="--h: 72%; --i: 3"></span>周四</button>
+        <button class="bars__col" aria-current="false" data-l="周五" data-v="96"><span class="bars__bar" style="--h: 86%; --i: 4"></span>周五</button>
+        <button class="bars__col" aria-current="true" data-l="周六" data-v="112"><span class="bars__bar" style="--h: 100%; --i: 5"></span>周六</button>
+        <button class="bars__col" aria-current="false" data-l="周日" data-v="88"><span class="bars__bar" style="--h: 79%; --i: 6"></span>周日</button>
+      </div>
+      <p class="chart__read" aria-live="polite">周六 订单 112 单</p>
+    </div>
+  </div></div>
+</article>
+
+<article class="demo demo--span2" data-cid="WB-CARD-009" data-name="表格卡壳" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">表格卡壳</span></div>
+  <p class="demo__note">适合：订单等明细表，状态分段只改变下方表格</p>
+  <div class="demo__stage"><div class="wb-cd-w wb-cd-w--lg">
+    <div class="section__head"><h2>最近订单</h2><div class="section__acts"><button class="ibtn" data-tip="新增订单" aria-label="新增订单" data-wb-toast="已打开新增订单页"><img src="../../kit/assets/line/add.webp" alt=""></button></div></div>
+    <div class="card section__body wb-cd-table">
+      <div class="toolbar">
+        <div class="seg" data-seg="wb-cd-orders" data-seg-for="#wb-cd-tbody" aria-label="订单状态"><button class="seg__item" data-key="all" aria-selected="true">全部</button><button class="seg__item" data-key="待发货" aria-selected="false">待发货</button><button class="seg__item" data-key="待收货" aria-selected="false">待收货</button><button class="seg__item" data-key="已完成" aria-selected="false">已完成</button></div>
+        <label class="search"><img src="../../kit/assets/line/search.webp" alt=""><input type="search" placeholder="搜索订单号" aria-label="搜索订单号"></label>
+      </div>
+      <div class="table-wrap"><table class="table">
+        <colgroup><col style="width: 16%"><col style="width: 18%"><col style="width: 26%"><col style="width: 14%"><col style="width: 14%"><col style="width: 12%"></colgroup>
+        <thead><tr><th>订单号</th><th class="t-l">客户</th><th class="t-l">商品</th><th class="t-r">金额</th><th>状态</th><th>操作</th></tr></thead>
+        <tbody id="wb-cd-tbody">
+          <tr data-cat="待发货"><td>0218</td><td class="t-l"><span class="who"><img src="../../kit/assets/marks/mark-003.webp" alt="">林晓</span></td><td class="t-l">红玫瑰花束</td><td class="t-r"><span class="price"><small>¥</small>199</span></td><td><span class="tag" data-tone="warning">待发货</span></td><td><button class="btn btn--text btn--xs" data-wb-toast="已打开详情">详情</button></td></tr>
+          <tr data-cat="待收货"><td>0217</td><td class="t-l"><span class="who"><img src="../../kit/assets/marks/mark-008.webp" alt="">陈默</span></td><td class="t-l">粉芍药花束</td><td class="t-r"><span class="price"><small>¥</small>239</span></td><td><span class="tag" data-tone="info">待收货</span></td><td><button class="btn btn--text btn--xs" data-wb-toast="已打开详情">详情</button></td></tr>
+          <tr data-cat="已完成"><td>0216</td><td class="t-l"><span class="who"><img src="../../kit/assets/marks/mark-012.webp" alt="">王芳</span></td><td class="t-l">花礼盒</td><td class="t-r"><span class="price"><small>¥</small>259</span></td><td><span class="tag" data-tone="success">已完成</span></td><td><button class="btn btn--text btn--xs" data-wb-toast="已打开详情">详情</button></td></tr>
+          <tr data-cat="待发货"><td>0215</td><td class="t-l"><span class="who"><img src="../../kit/assets/marks/mark-015.webp" alt="">周岚</span></td><td class="t-l">蓝绣球盆栽</td><td class="t-r"><span class="price"><small>¥</small>129</span></td><td><span class="tag" data-tone="warning">待发货</span></td><td><button class="btn btn--text btn--xs" data-wb-toast="已打开详情">详情</button></td></tr>
+        </tbody>
+      </table></div>
+      <div class="pager"><span class="pager__total" style="margin-right: auto">共 128 条</span><button class="seg__item" aria-current="page" style="background: var(--action-tint); color: var(--action-press); font-weight: 600">1</button><button class="seg__item">2</button><button class="seg__item">3</button></div>
+    </div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-CARD-010" data-name="列表卡壳" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">列表卡壳</span></div>
+  <p class="demo__note">适合：热销商品等紧凑的行列表</p>
+  <div class="demo__stage"><div class="wb-cd-w wb-cd-w--md">
+    <div class="section__head"><h2>热销商品</h2></div>
+    <div class="card list section__body">
+      <div class="row"><img class="row__lead" src="../../kit/assets/photo/product-monstera.webp" alt=""><div class="row__main"><p class="row__title">龟背竹盆栽</p><p class="row__meta">已售 2,860 件</p></div><div class="row__trail"><span class="price"><small>¥</small>159</span></div></div>
+      <div class="row"><img class="row__lead" src="../../kit/assets/photo/product-succulent.webp" alt=""><div class="row__main"><p class="row__title">多肉组合盆</p><p class="row__meta">已售 2,214 件</p></div><div class="row__trail"><span class="price"><small>¥</small>89</span></div></div>
+      <div class="row"><img class="row__lead" src="../../kit/assets/photo/product-pampas-vase.webp" alt=""><div class="row__main"><p class="row__title">干花花瓶摆件</p><p class="row__meta">已售 1,907 件</p></div><div class="row__trail"><span class="price"><small>¥</small>129</span></div></div>
+    </div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-CARD-011" data-name="门店资料卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">门店资料卡</span></div>
+  <p class="demo__note">适合：对象的字段与取值成对展示</p>
+  <div class="demo__stage"><div class="wb-cd-w wb-cd-w--md">
+    <div class="section__head"><h2>门店资料</h2><div class="section__acts"><button class="ibtn" data-tip="编辑资料" aria-label="编辑资料" data-wb-toast="已进入编辑"><img src="../../kit/assets/line/edit.webp" alt=""></button></div></div>
+    <dl class="card kv section__body">
+      <dt>门店</dt><dd>建国路店</dd><dt>店长</dt><dd>周岚</dd><dt>营业时间</dt><dd>08:00 - 21:00</dd><dt>配送范围</dt><dd>5 公里</dd><dt>状态</dt><dd><span class="tag" data-tone="success">营业中</span></dd>
+    </dl>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-CARD-012" data-name="用户资料卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">用户资料卡</span></div>
+  <p class="demo__note">适合：客户标识、等级与消费概况</p>
+  <div class="demo__stage"><div class="card wb-cd-user wb-cd-w">
+    <img class="avatar" src="../../kit/assets/marks/mark-003.webp" alt="">
+    <div style="display: grid; gap: var(--s-1); justify-items: center"><span class="wb-cd-name" style="font-size: var(--fs-lg)">林晓</span><span class="tag" data-tone="warning">金卡会员</span></div>
+    <div class="stats"><div class="stat"><span class="stat__label">订单</span><span class="stat__val">28<small>单</small></span></div><div class="stat"><span class="stat__label">消费</span><span class="stat__val"><small style="margin: 0 2px 0 0">¥</small>6,280</span></div><div class="stat"><span class="stat__label">积分</span><span class="stat__val">1,860</span></div></div>
+    <div class="wb-cd-acts" style="width: 100%; justify-content: center"><button class="btn btn--secondary btn--sm" data-wb-toast="已打开会话">发消息</button><button class="btn btn--outline btn--sm" data-wb-toast="已打开订单">查看订单</button></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-CARD-013" data-name="会员权益卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">会员权益卡</span></div>
+  <p class="demo__note">适合：会员等级与升级进度，金色只给会员与活动</p>
+  <div class="demo__stage"><div class="card wb-cd-vip wb-cd-w wb-cd-w--md">
+    <img class="ic" data-ic="star" src="../../kit/assets/icons/flat/star.webp" alt="">
+    <span class="wb-cd-label">会员等级</span><span class="wb-cd-vip__t">金卡会员</span>
+    <div class="wb-cd-goal"><span class="wb-cd-label">成长值</span><b style="font-size: var(--fs-md)">1,860 / 3,000</b></div>
+    <div class="progress" role="progressbar" aria-valuenow="62" aria-valuemin="0" aria-valuemax="100" aria-label="升级进度"><i style="--v: 62%"></i></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-CARD-014" data-name="待办清单卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">待办清单卡</span></div>
+  <p class="demo__note">适合：店务待办，勾选即完成</p>
+  <div class="demo__stage"><div class="wb-cd-w wb-cd-w--md" id="wb-cd-todo">
+    <div class="section__head"><h2>店务待办</h2><span class="wb-cd-label">已完成 <b data-n>1</b> / 4</span></div>
+    <div class="card section__body wb-cd-pad" style="padding-top: var(--s-2); padding-bottom: var(--s-2)">
+      <div class="wb-cd-todo"><span class="check" role="checkbox" aria-checked="true" aria-label="盘点库存"><img src="../../kit/assets/line/check.webp" alt=""></span><span class="t">盘点建国路店库存</span></div>
+      <div class="wb-cd-todo"><span class="check" role="checkbox" aria-checked="false" aria-label="回复评价"><img src="../../kit/assets/line/check.webp" alt=""></span><span class="t">回复 3 条客户评价</span></div>
+      <div class="wb-cd-todo"><span class="check" role="checkbox" aria-checked="false" aria-label="审核退款"><img src="../../kit/assets/line/check.webp" alt=""></span><span class="t">审核 2 笔退款</span></div>
+      <div class="wb-cd-todo"><span class="check" role="checkbox" aria-checked="false" aria-label="更新价格"><img src="../../kit/assets/line/check.webp" alt=""></span><span class="t">更新节日礼盒价格</span></div>
+    </div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-CARD-015" data-name="看板工单卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">看板工单卡</span></div>
+  <p class="demo__note">适合：看板列里的单条工单，点状态流转</p>
+  <div class="demo__stage"><div class="card wb-cd-kb wb-cd-w" id="wb-cd-kb">
+    <div class="wb-cd-kb__top"><span class="tag" data-tone="danger">紧急</span><button class="wb-cd-state" data-s="0" aria-label="切换工单状态">待处理</button></div>
+    <p class="wb-cd-name">处理徐汇滨江店退款</p>
+    <div class="wb-cd-sub"><div class="progress" style="flex: 1" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" aria-label="子任务进度"><i style="--v: 40%"></i></div><span class="wb-cd-meta">2 / 5</span></div>
+    <div class="wb-cd-kb__top"><div class="avatars"><img class="avatar" src="../../kit/assets/marks/mark-015.webp" alt=""><img class="avatar" src="../../kit/assets/marks/mark-009.webp" alt=""></div><span class="wb-cd-meta">昨天</span></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-CARD-016" data-name="价格方案卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">价格方案卡</span></div>
+  <p class="demo__note">适合：周期订花等套餐的价格与权益，点选高亮</p>
+  <div class="demo__stage"><div class="card wb-cd-plan wb-cd-w" role="button" tabindex="0" aria-pressed="false" id="wb-cd-plan">
+    <div class="wb-cd-top"><span class="wb-cd-name" style="font-size: var(--fs-lg)">月享套餐</span><span class="tag" data-tone="warning">热销</span></div>
+    <div class="wb-cd-price"><span class="price"><small>¥</small></span><b>599</b><span class="wb-cd-meta">每月</span></div>
+    <ul><li><img src="../../kit/assets/line/check.webp" alt="">每月 4 束鲜花</li><li><img src="../../kit/assets/line/check.webp" alt="">同城免费配送</li><li><img src="../../kit/assets/line/check.webp" alt="">随时暂停续订</li></ul>
+    <span class="btn btn--outline btn--block" data-label>选择套餐</span>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-CARD-017" data-name="通知中心卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">通知中心卡</span></div>
+  <p class="demo__note">适合：系统消息，未读红点，点开即读</p>
+  <div class="demo__stage"><div class="wb-cd-w wb-cd-w--md" id="wb-cd-notes">
+    <div class="section__head"><h2>通知中心</h2><div class="section__acts"><button class="btn btn--text btn--sm" data-readall>全部已读</button></div></div>
+    <div class="card list section__body wb-cd-notes">
+      <div class="seg" role="tablist" aria-label="通知筛选"><button class="seg__item" role="tab" aria-selected="true" data-f="all">全部</button><button class="seg__item" role="tab" aria-selected="false" data-f="unread">未读</button></div>
+      <button class="row wb-cd-note" data-unread="true"><span class="wb-cd-dot"></span><div class="row__main"><p class="row__title">新订单 0219 待发货</p></div><span class="row__meta">刚刚</span></button>
+      <button class="row wb-cd-note" data-unread="true"><span class="wb-cd-dot"></span><div class="row__main"><p class="row__title">白郁金香库存低于 10 件</p></div><span class="row__meta">10 分钟前</span></button>
+      <button class="row wb-cd-note" data-unread="false"><span class="wb-cd-dot"></span><div class="row__main"><p class="row__title">林晓申请退款 ¥199</p></div><span class="row__meta">昨天</span></button>
+    </div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-CARD-018" data-name="动态时间线卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">动态时间线卡</span></div>
+  <p class="demo__note">适合：订单流转与操作记录</p>
+  <div class="demo__stage"><div class="wb-cd-w wb-cd-w--md">
+    <div class="section__head"><h2>订单动态</h2></div>
+    <div class="card section__body wb-cd-tl"><div class="tl">
+      <div class="tl__item" data-state="now"><span class="tl__dot"></span><div><p class="row__title">待发货</p><p class="wb-cd-meta">等待门店备货</p></div><span class="tl__time">刚刚</span></div>
+      <div class="tl__item" data-state="done"><span class="tl__dot"></span><div><p class="row__title">已付款</p><p class="wb-cd-meta">微信支付 ¥199</p></div><span class="tl__time">5 分钟前</span></div>
+      <div class="tl__item" data-state="done"><span class="tl__dot"></span><div><p class="row__title">已下单</p><p class="wb-cd-meta">林晓 建国路店</p></div><span class="tl__time">6 分钟前</span></div>
+    </div></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-CARD-019" data-name="退款审批卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">退款审批卡</span></div>
+  <p class="demo__note">适合：待审批事项，驳回与同意相邻</p>
+  <div class="demo__stage"><div class="card wb-cd-appr wb-cd-w wb-cd-w--md" id="wb-cd-appr">
+    <div class="wb-cd-row"><img class="avatar" src="../../kit/assets/marks/mark-003.webp" alt=""><div><p class="wb-cd-name">林晓</p><p class="wb-cd-meta">申请退款</p></div><span class="tag wb-cd-sp" data-tone="warning" data-st>待审批</span></div>
+    <dl class="kv"><dt>金额</dt><dd><span class="price"><small>¥</small>199</span></dd><dt>商品</dt><dd>红玫瑰花束</dd><dt>原因</dt><dd>商品破损</dd></dl>
+    <div class="wb-cd-acts"><button class="btn btn--outline" data-no>驳回</button><button class="btn btn--primary" data-yes>同意</button></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-CARD-020" data-name="商品管理卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">商品管理卡</span></div>
+  <p class="demo__note">适合：商品列表的单品，行内上下架</p>
+  <div class="demo__stage"><div class="card wb-cd-goods wb-cd-w wb-cd-w--md" id="wb-cd-goods">
+    <img class="wb-cd-thumb" src="../../kit/assets/photo/product-rose-red.webp" alt="">
+    <div style="display: grid; gap: var(--s-1); min-width: 0"><p class="wb-cd-name">红玫瑰花束</p><span class="wb-cd-meta">鲜花 库存 42 件</span><span class="price"><small>¥</small>199</span></div>
+    <div style="display: grid; justify-items: end; gap: var(--s-3)"><button class="ibtn" data-tip="编辑商品" aria-label="编辑商品" data-wb-toast="已进入编辑"><img src="../../kit/assets/line/edit.webp" alt=""></button><span class="wb-cd-sw"><span data-lab>已上架</span><button class="switch" role="switch" aria-checked="true" aria-label="上架状态" data-sw></button></span></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-CARD-021" data-name="订单处理卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">订单处理卡</span></div>
+  <p class="demo__note">适合：订单流中的一单，发货后状态原位更新</p>
+  <div class="demo__stage"><div class="card wb-cd-ord wb-cd-w wb-cd-w--md" id="wb-cd-ord">
+    <div class="wb-cd-ord__h"><span>订单 0219</span><span class="tag" data-tone="warning" data-st>待发货</span></div>
+    <div class="wb-cd-ord__b"><img src="../../kit/assets/photo/product-peony-pink.webp" alt=""><div><p class="wb-cd-name">粉芍药花束</p><p class="wb-cd-meta">数量 1 束</p></div><span class="price"><small>¥</small>239</span></div>
+    <div class="wb-cd-ord__f"><span class="wb-cd-who"><img src="../../kit/assets/marks/mark-008.webp" alt="">陈默</span><div class="wb-cd-acts"><button class="btn btn--outline btn--sm" data-wb-toast="已打开详情">详情</button><button class="btn btn--primary btn--sm" data-ship>发货</button></div></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-CARD-022" data-name="门店概况卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">门店概况卡</span></div>
+  <p class="demo__note">适合：多门店切换前的经营速览</p>
+  <div class="demo__stage"><div class="card wb-cd-store wb-cd-w wb-cd-w--md">
+    <div class="wb-cd-store__h"><img src="../../kit/assets/solid/biz-store.webp" alt=""><div><p class="wb-cd-name" style="font-size: var(--fs-lg)">建国路店</p><p class="wb-cd-meta">营业至 21:00</p></div><span class="tag" data-tone="success">营业中</span></div>
+    <div class="stats"><div class="stat"><span class="stat__label">销售额</span><span class="stat__val"><small style="margin: 0 2px 0 0">¥</small>8,640</span></div><div class="stat"><span class="stat__label">订单</span><span class="stat__val">52<small>单</small></span></div><div class="stat"><span class="stat__label">配送中</span><span class="stat__val">6<small>单</small></span></div></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-CARD-023" data-name="库存预警卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">库存预警卡</span></div>
+  <p class="demo__note">适合：低库存商品，补货后状态更新</p>
+  <div class="demo__stage"><div class="card wb-cd-warn wb-cd-w wb-cd-w--md" id="wb-cd-warn">
+    <div class="wb-cd-row"><img class="wb-cd-thumb" style="width: 56px; height: 56px" src="../../kit/assets/photo/product-tulip-white.webp" alt=""><div><p class="wb-cd-name">白郁金香</p><p class="wb-cd-meta">剩余 <b data-left style="color: var(--danger)">6</b> 件</p></div><span class="tag wb-cd-sp" data-tone="danger" data-st>库存紧张</span></div>
+    <div class="progress" role="progressbar" aria-valuenow="15" aria-valuemin="0" aria-valuemax="100" aria-label="库存占比"><i style="--v: 15%" data-bar></i></div>
+    <div class="wb-cd-acts"><button class="btn btn--secondary btn--sm" data-fill>补货</button></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-CARD-024" data-name="活动报名卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">活动报名卡</span></div>
+  <p class="demo__note">适合：带场景图的活动，金色标签只给活动</p>
+  <div class="demo__stage"><div class="card card--image wb-cd-act wb-cd-w wb-cd-w--md">
+    <div class="card__media"><img src="../../kit/assets/photo/scene-hero-pink.webp" alt=""><span class="tag card__corner" style="background: var(--accent-tint); color: var(--accent)">活动</span></div>
+    <div class="wb-cd-act__b"><p class="wb-cd-name" style="font-size: var(--fs-lg)">春日花展</p><div class="wb-cd-sub"><div class="progress" style="flex: 1" role="progressbar" aria-valuenow="64" aria-valuemin="0" aria-valuemax="100" aria-label="报名进度"><i style="--v: 64%; background: var(--accent)"></i></div><span class="wb-cd-meta">128 / 200 人</span></div></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-CARD-025" data-name="品牌主卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">品牌主卡</span></div>
+  <p class="demo__note">适合：每屏至多一块的深色重点数字</p>
+  <div class="demo__stage"><div class="card card--hero wb-cd-hero wb-cd-w wb-cd-w--md">
+    <span class="wb-cd-label">本月销售额</span>
+    <span class="wb-cd-val"><small>¥</small><span data-count data-to="386420">386,420</span></span>
+    <span class="tag">较上月增长 12.4%</span>
+    <img class="pic" src="../../kit/assets/photo/bouquet-rose.webp" alt="">
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-CARD-026" data-name="折叠明细卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">折叠明细卡</span></div>
+  <p class="demo__note">适合：订单合计在上，商品明细就近展开</p>
+  <div class="demo__stage"><div class="card wb-cd-fold wb-cd-w wb-cd-w--md">
+    <button class="wb-cd-fold__h" data-expand="wb-cd-fold-body"><span style="display: grid; gap: 2px"><span class="wb-cd-name">订单 0220</span><span class="wb-cd-meta">共 2 件商品</span></span><span class="price wb-cd-sp"><small>¥</small>328</span><span class="chev"></span></button>
+    <div class="expand" id="wb-cd-fold-body"><div><div class="expand__body">
+      <div class="wb-cd-fold__line"><img src="../../kit/assets/photo/product-sunflower.webp" alt=""><span>向日葵花束</span><span class="wb-cd-meta">1 束</span><span class="price"><small>¥</small>159</span></div>
+      <div class="wb-cd-fold__line"><img src="../../kit/assets/photo/product-succulent.webp" alt=""><span>多肉组合盆</span><span class="wb-cd-meta">1 盆</span><span class="price"><small>¥</small>89</span></div>
+    </div></div></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-CARD-027" data-name="门店对比卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">门店对比卡</span></div>
+  <p class="demo__note">适合：两个对象的指标左右对照</p>
+  <div class="demo__stage"><div class="card wb-cd-vs wb-cd-w wb-cd-w--md">
+    <div class="wb-cd-vs__h"><span>建国路店</span><span></span><span>徐汇滨江店</span></div>
+    <div class="wb-cd-vs__r"><div class="wb-cd-vs__l"><b>¥8,640</b><i class="wb-cd-vs__bar" style="--w: 100%"></i></div><span>销售额</span><div class="wb-cd-vs__rt"><b>¥6,120</b><i class="wb-cd-vs__bar" style="--w: 71%"></i></div></div>
+    <div class="wb-cd-vs__r"><div class="wb-cd-vs__l"><b>52 单</b><i class="wb-cd-vs__bar" style="--w: 100%"></i></div><span>订单</span><div class="wb-cd-vs__rt"><b>38 单</b><i class="wb-cd-vs__bar" style="--w: 73%"></i></div></div>
+    <div class="wb-cd-vs__r"><div class="wb-cd-vs__l"><b>¥166</b><i class="wb-cd-vs__bar" style="--w: 98%"></i></div><span>客单价</span><div class="wb-cd-vs__rt"><b>¥161</b><i class="wb-cd-vs__bar" style="--w: 95%"></i></div></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-CARD-028" data-name="描边小卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">描边小卡</span></div>
+  <p class="demo__note">适合：无阴影的轻量摘要，密集页面里用</p>
+  <div class="demo__stage"><div class="card card--outline wb-cd-mini wb-cd-w"><span class="wb-cd-label">售后待处理</span><span class="wb-cd-val">3<small>单</small></span></div></div>
+</article>
+
+<article class="demo" data-cid="WB-CARD-029" data-name="悬浮抬升卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">悬浮抬升卡</span></div>
+  <p class="demo__note">适合：可点击的入口卡，悬浮时向上抬起</p>
+  <div class="demo__stage"><div class="card card--lift wb-cd-entry wb-cd-w" role="button" tabindex="0" data-wb-toast="已打开商品管理"><img class="ic" data-ic="bouquet" src="../../kit/assets/icons/flat/bouquet.webp" alt=""><div><p class="wb-cd-name">商品管理</p><p class="wb-cd-meta">128 款在售</p></div></div></div>
+</article>
+
+<article class="demo" data-cid="WB-CARD-030" data-name="柔底分区卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">柔底分区卡</span></div>
+  <p class="demo__note">适合：白卡之间的浅色分区，不抢层级</p>
+  <div class="demo__stage"><div class="card card--soft wb-cd-soft wb-cd-w wb-cd-w--md">
+    <span class="wb-cd-name">本周概览</span>
+    <div class="wb-cd-flat"><div><span class="wb-cd-label">销售额</span><span class="wb-cd-val" style="font-size: var(--fs-xl)"><small>¥</small>58,320</span></div><div><span class="wb-cd-label">订单</span><span class="wb-cd-val" style="font-size: var(--fs-xl)">612<small>单</small></span></div><div><span class="wb-cd-label">新增会员</span><span class="wb-cd-val" style="font-size: var(--fs-xl)">84<small>人</small></span></div></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-CARD-031" data-name="无框透明卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">无框透明卡</span></div>
+  <p class="demo__note">适合：直接落在页头渐变上的数字组</p>
+  <div class="demo__stage is-tint"><div class="card card--flat wb-cd-flat wb-cd-flat--pad wb-cd-w wb-cd-w--md"><div><span class="wb-cd-label">销售额</span><span class="wb-cd-val" style="font-size: var(--fs-xl)"><small>¥</small>128,640</span></div><div><span class="wb-cd-label">订单</span><span class="wb-cd-val" style="font-size: var(--fs-xl)">1,286<small>单</small></span></div><div><span class="wb-cd-label">客单价</span><span class="wb-cd-val" style="font-size: var(--fs-xl)"><small>¥</small>99.6</span></div></div></div>
+</article>
+
+<article class="demo" data-cid="WB-CARD-032" data-name="优惠券缺口卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">优惠券缺口卡</span></div>
+  <p class="demo__note">适合：优惠券与兑换券，两侧圆缺口加虚线</p>
+  <div class="demo__stage"><div class="card card--notch wb-cd-coupon wb-cd-w wb-cd-w--md">
+    <div class="wb-cd-coupon__l"><span class="price"><small>¥</small>20</span><span class="wb-cd-name" style="font-size: var(--fs-md)">新客立减券</span><span class="wb-cd-meta">满 99 元可用</span></div>
+    <div class="wb-cd-coupon__r"><button class="btn btn--primary btn--sm btn--pill" data-wb-toast="已领取">领取</button></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-CARD-033" data-name="叠层效果卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">叠层效果卡</span></div>
+  <p class="demo__note">适合：同类事项合并后的一叠提示</p>
+  <div class="demo__stage"><div class="card card--stack wb-cd-stack wb-cd-mini" style="padding: var(--s-4) var(--s-5)"><span class="wb-cd-label">合并待办</span><span class="wb-cd-val">3<small>项</small></span><span class="wb-cd-meta">退款 2 项 评价 1 项</span></div></div>
+</article>
+
+<article class="demo" data-cid="WB-CARD-034" data-name="大图展示卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">大图展示卡</span></div>
+  <p class="demo__note">适合：以商品图为主的展示，右上角收藏</p>
+  <div class="demo__stage"><div class="card card--image wb-cd-pic wb-cd-w" style="max-width: 320px">
+    <div class="card__media"><img src="../../kit/assets/photo/product-peony-pink.webp" alt=""><button class="ibtn ibtn--round card__fav" aria-pressed="false" aria-label="收藏商品" data-tip="收藏商品"><img data-ic="heart" src="../../kit/assets/icons/flat/heart.webp" alt=""></button></div>
+    <div class="wb-cd-pic__b"><p class="wb-cd-name">粉芍药花束</p><div class="wb-cd-row"><span class="price"><small>¥</small>239</span><span class="tag wb-cd-sp" data-tone="action">新品</span></div></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-CARD-035" data-name="排行榜卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">排行榜卡</span></div>
+  <p class="demo__note">适合：商品销量排行，条形显示相对占比</p>
+  <div class="demo__stage"><div class="wb-cd-w wb-cd-w--md">
+    <div class="section__head"><h2>销量排行</h2></div>
+    <div class="card section__body">
+      <div class="wb-cd-rk"><span class="wb-cd-rank" data-top>1</span><img src="../../kit/assets/photo/product-monstera.webp" alt=""><div><p class="wb-cd-name">龟背竹盆栽</p><div class="progress"><i style="--v: 100%"></i></div></div><b>2,860</b></div>
+      <div class="wb-cd-rk"><span class="wb-cd-rank" data-top>2</span><img src="../../kit/assets/photo/product-succulent.webp" alt=""><div><p class="wb-cd-name">多肉组合盆</p><div class="progress"><i style="--v: 77%"></i></div></div><b>2,214</b></div>
+      <div class="wb-cd-rk"><span class="wb-cd-rank" data-top>3</span><img src="../../kit/assets/photo/product-pampas-vase.webp" alt=""><div><p class="wb-cd-name">干花花瓶摆件</p><div class="progress"><i style="--v: 66%"></i></div></div><b>1,907</b></div>
+      <div class="wb-cd-rk"><span class="wb-cd-rank">4</span><img src="../../kit/assets/photo/product-giftbox.webp" alt=""><div><p class="wb-cd-name">花礼盒</p><div class="progress"><i style="--v: 53%"></i></div></div><b>1,530</b></div>
+    </div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-CARD-036" data-name="营业状态卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">营业状态卡</span></div>
+  <p class="demo__note">适合：一键开停业，暂停营业前需确认</p>
+  <div class="demo__stage"><div class="card wb-cd-open wb-cd-w wb-cd-w--md" data-on="true" id="wb-cd-open">
+    <img src="../../kit/assets/solid/biz-store.webp" alt="">
+    <div><p class="wb-cd-name" style="font-size: var(--fs-lg)">建国路店</p><p class="wb-cd-meta"><span data-lab>营业中 至 21:00</span></p></div>
+    <button class="switch" role="switch" aria-checked="true" aria-label="营业状态" data-wb-sw></button>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-CARD-037" data-name="客户评价卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">客户评价卡</span></div>
+  <p class="demo__note">适合：商品评价，原位展开回复</p>
+  <div class="demo__stage"><div class="card wb-cd-review wb-cd-w wb-cd-w--md">
+    <div class="wb-cd-row"><img class="avatar" src="../../kit/assets/marks/mark-012.webp" alt=""><div><p class="wb-cd-name">王芳</p><span class="wb-cd-stars" role="img" aria-label="五星评价"><img data-ic="star" src="../../kit/assets/icons/flat/star.webp" alt=""><img data-ic="star" src="../../kit/assets/icons/flat/star.webp" alt=""><img data-ic="star" src="../../kit/assets/icons/flat/star.webp" alt=""><img data-ic="star" src="../../kit/assets/icons/flat/star.webp" alt=""><img data-ic="star" src="../../kit/assets/icons/flat/star.webp" alt=""></span></div><span class="wb-cd-meta wb-cd-sp">昨天</span></div>
+    <p class="q">花束很新鲜 配送也很准时</p>
+    <div class="wb-cd-row"><img class="wb-cd-thumb" style="width: 44px; height: 44px; border-radius: var(--r-sm)" src="../../kit/assets/photo/product-tulip-white.webp" alt=""><span class="wb-cd-meta">白郁金香</span><button class="btn btn--text btn--sm wb-cd-sp" data-expand="wb-cd-reply">回复</button></div>
+    <div class="expand" id="wb-cd-reply"><div><div class="expand__body"><input class="input" placeholder="输入回复内容" aria-label="回复内容"><button class="btn btn--primary btn--sm" data-wb-toast="已回复">发送</button></div></div></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-CARD-038" data-name="配送进度卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">配送进度卡</span></div>
+  <p class="demo__note">适合：同城配送的实时节点</p>
+  <div class="demo__stage"><div class="card wb-cd-ship wb-cd-w wb-cd-w--md">
+    <div class="wb-cd-row"><img class="ic ic--sm" data-ic="scooter" src="../../kit/assets/icons/flat/scooter.webp" alt=""><div><p class="wb-cd-name">极速配送</p><p class="wb-cd-meta">预计 18 分钟送达</p></div><span class="tag wb-cd-sp" data-tone="info">配送中</span></div>
+    <ol class="wb-cd-steps"><li data-done>已接单</li><li data-done>已取货</li><li data-now>配送中</li><li>已送达</li></ol>
+    <div class="wb-cd-row"><img class="avatar" style="width: 36px; height: 36px" src="../../kit/assets/marks/mark-009.webp" alt=""><span class="wb-cd-meta">配送员 李强</span></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-CARD-039" data-name="员工信息卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">员工信息卡</span></div>
+  <p class="demo__note">适合：门店员工与当月业绩</p>
+  <div class="demo__stage"><div class="card wb-cd-staff wb-cd-w wb-cd-w--md">
+    <img class="avatar" src="../../kit/assets/marks/mark-015.webp" alt="">
+    <div style="display: grid; gap: var(--s-1)"><div class="wb-cd-sub"><span class="wb-cd-name" style="font-size: var(--fs-lg)">周岚</span><span class="tag" data-tone="action">店长</span></div><span class="wb-cd-meta">建国路店</span></div>
+    <div style="display: grid; gap: 2px; text-align: right"><span class="wb-cd-label">本月业绩</span><span class="price" style="font-size: var(--fs-xl)"><small>¥</small>38,420</span></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-CARD-040" data-name="空数据卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">空数据卡</span></div>
+  <p class="demo__note">适合：列表没有内容时占住版面</p>
+  <div class="demo__stage"><div class="card card--soft wb-cd-w wb-cd-w--md"><div class="empty"><img data-ic="vase" src="../../kit/assets/icons/flat/vase.webp" alt=""><span>暂无售后订单</span><button class="btn btn--outline btn--sm" data-wb-toast="已刷新">刷新</button></div></div></div>
+</article>
+
+<article class="demo" data-cid="WB-CARD-041" data-name="骨架加载卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">骨架加载卡</span></div>
+  <p class="demo__note">适合：数据返回前保持卡片的空间关系</p>
+  <div class="demo__stage"><div class="card wb-cd-w wb-cd-w--md" id="wb-cd-skel"><div class="wb-cd-skel" data-skel><div class="skel" style="width: 38%"></div><div class="skel" style="height: 32px; width: 62%"></div><div class="skel" style="width: 86%"></div></div><div class="wb-cd-kpi" data-real hidden><span class="wb-cd-label">销售额</span><span class="wb-cd-val"><small>¥</small>128,640</span><div class="wb-cd-sub"><span class="tag" data-tone="success">增长 12.4%</span><span class="wb-cd-label">较上周</span></div></div><div class="wb-cd-acts" style="padding: 0 var(--s-5) var(--s-4)"><button class="btn btn--text btn--sm" data-reload>重新加载</button></div></div></div>
+</article>
+
+<script>
+(function () {
+  const root = document.getElementById('cat-card'); if (!root) return;
+  const $ = (s, r = root) => r.querySelector(s), $$ = (s, r = root) => [...r.querySelectorAll(s)];
+  $$('[data-wb-toast]').forEach(b => { b.addEventListener('click', () => Lz.toast(b.dataset.wbToast, 'success')); if (b.getAttribute('role') === 'button') b.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); b.click(); } }); });
+
+  /* 数字指标：重新入场 */
+  $$('[data-wb-replay]').forEach(b => b.addEventListener('click', () => { const n = $('[data-count]', b.closest('.card')); if (n) Lz.count(n); }));
+
+  /* 折线图：周月切换，换一块画布重新接线 */
+  const line = $('#wb-cd-line');
+  if (line) {
+    const data = {
+      week: { labels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'], values: [8240, 9610, 7380, 10820, 12450, 15220, 13100] },
+      month: { labels: ['第一周', '第二周', '第三周', '第四周'], values: [58320, 61480, 55960, 64210] }
+    };
+    const box = $('.chart', line), read = $('.chart__read', box);
+    const draw = k => { const old = $('canvas', box), cv = document.createElement('canvas'); cv.setAttribute('role', 'img'); cv.setAttribute('aria-label', '销售额折线图'); old.replaceWith(cv); Lz.line(cv, { labels: data[k].labels, values: data[k].values, unit: ' 元', read }); };
+    $$('.seg__item', line).forEach(b => b.addEventListener('click', () => { $$('.seg__item', line).forEach(x => x.setAttribute('aria-selected', String(x === b))); draw(b.dataset.k); }));
+    draw('week');
+  }
+
+  /* 条形图：点选、悬浮、键盘都更新同区明细 */
+  const bars = $('#wb-cd-bars');
+  if (bars) {
+    const cols = $$('.bars__col', bars), read = $('.chart__read', bars);
+    const pick = c => { cols.forEach(x => x.setAttribute('aria-current', String(x === c))); read.textContent = c.dataset.l + ' 订单 ' + c.dataset.v + ' 单'; };
+    cols.forEach(c => { c.addEventListener('click', () => pick(c)); c.addEventListener('pointerenter', () => pick(c)); c.addEventListener('focus', () => pick(c)); });
+  }
+
+  /* 待办清单：勾选统计 */
+  const todo = $('#wb-cd-todo');
+  if (todo) { const sync = () => { $('[data-n]', todo).textContent = $$('[role="checkbox"][aria-checked="true"]', todo).length; }; $$('[role="checkbox"]', todo).forEach(c => c.addEventListener('lz:toggle', sync)); }
+
+  /* 看板工单：待处理 → 处理中 → 已完成 */
+  const kb = $('#wb-cd-kb');
+  if (kb) { const st = $('.wb-cd-state', kb), names = ['待处理', '处理中', '已完成']; st.addEventListener('click', () => { const n = (+st.dataset.s + 1) % 3; st.dataset.s = n; st.textContent = names[n]; Lz.toast('状态已改为' + names[n], 'success'); }); }
+
+  /* 价格方案：点选高亮 */
+  const plan = $('#wb-cd-plan');
+  if (plan) { const toggle = () => { const on = plan.getAttribute('aria-pressed') !== 'true'; plan.setAttribute('aria-pressed', String(on)); const l = $('[data-label]', plan); l.textContent = on ? '已选择' : '选择套餐'; l.classList.toggle('btn--primary', on); l.classList.toggle('btn--outline', !on); }; plan.addEventListener('click', toggle); plan.addEventListener('keydown', e => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); toggle(); } }); }
+
+  /* 通知中心：点开即读，筛选未读，全部已读 */
+  const notes = $('#wb-cd-notes');
+  if (notes) {
+    const rows = $$('.wb-cd-note', notes); let filter = 'all';
+    const apply = () => rows.forEach(r => { r.hidden = filter === 'unread' && r.dataset.unread === 'false'; });
+    rows.forEach(r => r.addEventListener('click', () => { r.dataset.unread = 'false'; apply(); }));
+    $$('.seg__item', notes).forEach(b => b.addEventListener('click', () => { filter = b.dataset.f; $$('.seg__item', notes).forEach(x => x.setAttribute('aria-selected', String(x === b))); apply(); }));
+    $('[data-readall]', notes).addEventListener('click', () => { rows.forEach(r => { r.dataset.unread = 'false'; }); apply(); Lz.toast('已全部标为已读', 'success'); });
+  }
+
+  /* 退款审批 */
+  const appr = $('#wb-cd-appr');
+  if (appr) {
+    const st = $('[data-st]', appr), done = (text, tone) => { st.textContent = text; st.dataset.tone = tone; appr.dataset.done = ''; $$('button', appr).forEach(b => { b.disabled = true; }); };
+    $('[data-yes]', appr).addEventListener('click', () => { done('已同意', 'success'); Lz.toast('已同意退款', 'success'); });
+    $('[data-no]', appr).addEventListener('click', async () => { if (await Lz.confirm({ title: '确认驳回该退款申请', ok: '驳回', tone: 'danger' })) { done('已驳回', 'danger'); Lz.toast('已驳回', 'success'); } });
+  }
+
+  /* 商品上下架：行内开关 */
+  const goods = $('#wb-cd-goods');
+  if (goods) { const sw = $('[data-sw]', goods), lab = $('[data-lab]', goods); sw.addEventListener('lz:toggle', () => { const on = sw.getAttribute('aria-checked') === 'true'; lab.textContent = on ? '已上架' : '已下架'; Lz.toast(on ? '已上架' : '已下架', 'success'); }); }
+
+  /* 订单发货 */
+  const ord = $('#wb-cd-ord');
+  if (ord) $('[data-ship]', ord).addEventListener('click', e => { const st = $('[data-st]', ord); st.textContent = '待收货'; st.dataset.tone = 'info'; e.currentTarget.disabled = true; Lz.toast('已发货', 'success'); });
+
+  /* 库存补货 */
+  const warn = $('#wb-cd-warn');
+  if (warn) $('[data-fill]', warn).addEventListener('click', e => { const st = $('[data-st]', warn); st.textContent = '库存充足'; st.dataset.tone = 'success'; $('[data-left]', warn).textContent = '46'; $('[data-left]', warn).style.color = 'var(--success)'; $('[data-bar]', warn).style.setProperty('--v', '82%'); $('[data-bar]', warn).style.background = 'var(--success)'; e.currentTarget.disabled = true; Lz.toast('已加入补货单', 'success'); });
+
+  /* 收藏 */
+  $$('.card__fav').forEach(f => f.addEventListener('click', () => { const on = f.getAttribute('aria-pressed') !== 'true'; f.setAttribute('aria-pressed', String(on)); Lz.toast(on ? '已收藏' : '已取消收藏', 'success'); }));
+
+  /* 营业状态：暂停前确认。开关在 ui.js 初始化之后再接管，避免被它先翻转 */
+  document.addEventListener('DOMContentLoaded', () => setTimeout(() => {
+    const open = $('#wb-cd-open'); if (!open) return;
+    const sw = $('[data-wb-sw]', open), lab = $('[data-lab]', open);
+    sw.setAttribute('role', 'switch'); sw.tabIndex = 0;
+    const set = on => { sw.setAttribute('aria-checked', String(on)); open.dataset.on = String(on); lab.textContent = on ? '营业中 至 21:00' : '休息中'; };
+    const flip = async () => { if (sw.getAttribute('aria-checked') === 'true') { if (await Lz.confirm({ title: '确认暂停营业', ok: '暂停', tone: 'danger' })) { set(false); Lz.toast('已暂停营业', 'success'); } } else { set(true); Lz.toast('已恢复营业', 'success'); } };
+    sw.addEventListener('click', flip); sw.addEventListener('keydown', e => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); flip(); } });
+  }, 0));
+
+  /* 骨架加载 */
+  const sk = $('#wb-cd-skel');
+  if (sk) {
+    const skel = $('[data-skel]', sk), real = $('[data-real]', sk), btn = $('[data-reload]', sk);
+    const show = () => { skel.hidden = false; real.hidden = true; setTimeout(() => { skel.hidden = true; real.hidden = false; }, 1100); };
+    btn.addEventListener('click', show); setTimeout(() => { skel.hidden = true; real.hidden = false; }, 1200);
+  }
+})();
+</script>
+
+<article class="demo" data-cid="WB-CARD-042" data-name="图片预览器" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">图片预览器</span></div>
+  <p class="demo__note">适合：点缩略图放大查看，支持切换、缩放与旋转</p>
+  <div class="demo__stage"><div class="wb-cd-w wb-cd-w--md" id="wb-cd-pv">
+    <div class="section__head"><h2>商品图片</h2></div>
+    <div class="card section__body wb-cd-pv__grid">
+      <button class="wb-cd-pv__th" data-name="红玫瑰花束" aria-label="预览红玫瑰花束"><img src="../../kit/assets/photo/product-rose-red.webp" alt=""><span class="wb-cd-pv__ov">预览</span></button>
+      <button class="wb-cd-pv__th" data-name="向日葵花束" aria-label="预览向日葵花束"><img src="../../kit/assets/photo/product-sunflower.webp" alt=""><span class="wb-cd-pv__ov">预览</span></button>
+      <button class="wb-cd-pv__th" data-name="粉芍药花束" aria-label="预览粉芍药花束"><img src="../../kit/assets/photo/product-peony-pink.webp" alt=""><span class="wb-cd-pv__ov">预览</span></button>
+      <button class="wb-cd-pv__th" data-name="蓝绣球盆栽" aria-label="预览蓝绣球盆栽"><img src="../../kit/assets/photo/product-hydrangea-blue.webp" alt=""><span class="wb-cd-pv__ov">预览</span></button>
+    </div>
+    <div class="wb-cd-pv__mask" hidden>
+      <div class="wb-cd-pv__dlg" role="dialog" aria-modal="true" aria-labelledby="wb-cd-pv-t" tabindex="-1">
+        <div class="wb-cd-pv__top"><h3 class="wb-cd-pv__title" id="wb-cd-pv-t">红玫瑰花束</h3><span class="wb-cd-pv__idx" aria-live="polite">1 / 4</span><button class="ibtn" data-act="close" aria-label="关闭预览" data-tip="关闭预览"><img src="../../kit/assets/line/close.webp" alt=""></button></div>
+        <div class="wb-cd-pv__view">
+          <img class="wb-cd-pv__img" alt="">
+          <button class="ibtn ibtn--round wb-cd-pv__nav wb-cd-pv__nav--prev" data-act="prev" aria-label="上一张" data-tip="上一张"><span class="chev"></span></button>
+          <button class="ibtn ibtn--round wb-cd-pv__nav wb-cd-pv__nav--next" data-act="next" aria-label="下一张" data-tip="下一张"><span class="chev"></span></button>
+        </div>
+        <div class="wb-cd-pv__tools" role="toolbar" aria-label="图片操作">
+          <button class="ibtn" data-act="ccw" aria-label="向左旋转" data-tip="向左旋转"><img src="../../kit/assets/line/undo.webp" alt=""></button>
+          <button class="ibtn" data-act="cw" aria-label="向右旋转" data-tip="向右旋转"><img class="wb-cd-pv__flip" src="../../kit/assets/line/undo.webp" alt=""></button>
+          <button class="ibtn" data-act="out" aria-label="缩小" data-tip="缩小"><img src="../../kit/assets/line/minus.webp" alt=""></button>
+          <span class="wb-cd-pv__pct" aria-live="polite">100%</span>
+          <button class="ibtn" data-act="in" aria-label="放大" data-tip="放大"><img src="../../kit/assets/line/add.webp" alt=""></button>
+          <button class="btn btn--text btn--sm" data-act="reset">还原</button>
+        </div>
+      </div>
+    </div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-CARD-044" data-name="二维码展示卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">二维码展示卡</span></div>
+  <p class="demo__note">适合：门店收款码与活动码，带有效期提示</p>
+  <div class="demo__stage"><div class="card wb-cd-qr wb-cd-w" id="wb-cd-qr">
+    <div class="seg seg--box" role="tablist" aria-label="二维码类型" data-seg="wb-cd-qr"><button class="seg__item" data-key="pay" aria-selected="true">收款码</button><button class="seg__item" data-key="event" aria-selected="false">活动码</button></div>
+    <div class="wb-cd-qr__panel" data-panel="wb-cd-qr" data-key="pay">
+      <div class="wb-cd-qr__box" data-state="valid"><canvas class="wb-cd-qr__cv" role="img" aria-label="建国路店收款码"></canvas><div class="wb-cd-qr__mask" hidden><span>二维码已失效</span><button class="btn btn--primary btn--sm" data-refresh>刷新二维码</button></div></div>
+      <div class="wb-cd-qr__info"><p class="wb-cd-name" style="font-size: var(--fs-lg)">建国路店收款码</p><div class="wb-cd-qr__st"><span class="tag" data-tone="success" data-tag>有效</span><span class="wb-cd-meta" data-left aria-live="off">还剩 60 秒</span></div></div>
+      <div class="progress wb-cd-qr__prog" role="progressbar" aria-label="剩余有效时间" aria-valuemin="0" aria-valuemax="60" aria-valuenow="60"><i style="--v: 100%"></i></div>
+      <div class="wb-cd-acts"><button class="btn btn--outline btn--sm" data-refresh>刷新二维码</button><button class="btn btn--text btn--sm" data-save data-wb-toast="已保存二维码图片">保存图片</button></div>
+    </div>
+    <div class="wb-cd-qr__panel" data-panel="wb-cd-qr" data-key="event" hidden>
+      <div class="wb-cd-qr__box"><canvas class="wb-cd-qr__cv" role="img" aria-label="春日花展报名码"></canvas></div>
+      <div class="wb-cd-qr__info"><p class="wb-cd-name" style="font-size: var(--fs-lg)">春日花展报名码</p><div class="wb-cd-qr__st"><span class="tag" data-tone="success">有效</span><span class="wb-cd-meta">有效期至 12 月 31 日</span></div></div>
+      <div class="wb-cd-acts"><button class="btn btn--outline btn--sm" data-wb-toast="已复制活动链接">复制链接</button><button class="btn btn--text btn--sm" data-wb-toast="已保存二维码图片">保存图片</button></div>
+    </div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-CARD-045" data-name="图文条目列表" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">图文条目列表</span></div>
+  <p class="demo__note">适合：设置项与资源清单，每行图标、标题、说明与右侧操作</p>
+  <div class="demo__stage"><div class="wb-cd-w wb-cd-w--md" id="wb-cd-il">
+    <div class="section__head"><h2>店铺设置</h2></div>
+    <div class="card list section__body">
+      <div class="wb-cd-il__row"><img class="ic" data-ic="wallet" src="../../kit/assets/icons/flat/wallet.webp" alt=""><div class="wb-cd-il__main"><p class="wb-cd-il__t">微信支付</p><p class="wb-cd-il__d">收款账户已绑定</p></div><span class="tag" data-tone="success">已开通</span></div>
+      <div class="wb-cd-il__row"><img class="ic" data-ic="scooter" src="../../kit/assets/icons/flat/scooter.webp" alt=""><div class="wb-cd-il__main"><p class="wb-cd-il__t">同城配送</p><p class="wb-cd-il__d">5 公里内 满 99 元免配送费</p></div><button class="btn btn--text btn--sm" data-wb-toast="已打开配送设置">配置</button></div>
+      <button class="wb-cd-il__row wb-cd-il__row--link" data-wb-toast="已打开优惠券"><img class="ic" data-ic="coupon" src="../../kit/assets/icons/flat/coupon.webp" alt=""><span class="wb-cd-il__main"><span class="wb-cd-il__t">优惠券</span><span class="wb-cd-il__d">3 张进行中</span></span><span class="chev"></span></button>
+      <div class="wb-cd-il__row"><img class="ic" data-ic="pin" src="../../kit/assets/icons/flat/pin.webp" alt=""><div class="wb-cd-il__main"><p class="wb-cd-il__t">门店地址</p><p class="wb-cd-il__d">建国路 88 号</p></div><button class="btn btn--text btn--sm" data-wb-toast="已进入编辑">编辑</button></div>
+      <div class="wb-cd-il__row"><img class="ic" data-ic="bag" src="../../kit/assets/icons/flat/bag.webp" alt=""><div class="wb-cd-il__main"><p class="wb-cd-il__t">新订单提醒</p><p class="wb-cd-il__d" data-d>声音与角标提醒</p></div><button class="switch" role="switch" aria-checked="true" aria-label="新订单提醒"></button></div>
+      <div class="wb-cd-il__row" data-off><img class="ic" data-ic="giftcard" src="../../kit/assets/icons/flat/giftcard.webp" alt=""><div class="wb-cd-il__main"><p class="wb-cd-il__t">储值卡</p><p class="wb-cd-il__d">暂未开通</p></div><button class="btn btn--secondary btn--sm" disabled>开通</button></div>
+    </div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-CARD-046" data-name="头像组堆叠" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">头像组堆叠</span></div>
+  <p class="demo__note">适合：协作成员以重叠头像展示并折叠为加几人</p>
+  <div class="demo__stage"><div class="wb-cd-w wb-cd-w--md" id="wb-cd-as">
+    <div class="section__head"><h2>协作成员</h2></div>
+    <div class="card section__body wb-cd-as">
+      <div class="wb-cd-as__top">
+        <div class="wb-cd-as__stack" role="group" aria-label="协作成员">
+          <img class="avatar" tabindex="0" data-tip="周岚 店长" src="../../kit/assets/marks/mark-015.webp" alt="周岚">
+          <img class="avatar" tabindex="0" data-tip="林晓 花艺师" src="../../kit/assets/marks/mark-003.webp" alt="林晓">
+          <img class="avatar" tabindex="0" data-tip="陈默 客服" src="../../kit/assets/marks/mark-008.webp" alt="陈默">
+          <img class="avatar" tabindex="0" data-tip="王芳 收银" src="../../kit/assets/marks/mark-012.webp" alt="王芳">
+          <img class="avatar" tabindex="0" data-tip="李强 配送员" src="../../kit/assets/marks/mark-009.webp" alt="李强">
+          <button class="wb-cd-as__more" aria-expanded="false" aria-controls="wb-cd-as-list" aria-label="展开全部成员" data-tip="展开全部成员">+3</button>
+        </div>
+        <span class="wb-cd-meta">共 8 位成员</span>
+      </div>
+      <div class="expand" id="wb-cd-as-list"><div><div class="wb-cd-as__list">
+        <div class="wb-cd-as__row"><img class="avatar" src="../../kit/assets/marks/mark-015.webp" alt=""><span class="wb-cd-name">周岚</span><span class="tag" data-tone="action">店长</span></div>
+        <div class="wb-cd-as__row"><img class="avatar" src="../../kit/assets/marks/mark-003.webp" alt=""><span class="wb-cd-name">林晓</span><span class="tag">花艺师</span></div>
+        <div class="wb-cd-as__row"><img class="avatar" src="../../kit/assets/marks/mark-008.webp" alt=""><span class="wb-cd-name">陈默</span><span class="tag">客服</span></div>
+        <div class="wb-cd-as__row"><img class="avatar" src="../../kit/assets/marks/mark-012.webp" alt=""><span class="wb-cd-name">王芳</span><span class="tag">收银</span></div>
+        <div class="wb-cd-as__row"><img class="avatar" src="../../kit/assets/marks/mark-009.webp" alt=""><span class="wb-cd-name">李强</span><span class="tag">配送员</span></div>
+        <div class="wb-cd-as__row"><img class="avatar" src="../../kit/assets/marks/mark-001.webp" alt=""><span class="wb-cd-name">赵敏</span><span class="tag">花艺师</span></div>
+        <div class="wb-cd-as__row"><img class="avatar" src="../../kit/assets/marks/mark-005.webp" alt=""><span class="wb-cd-name">孙悦</span><span class="tag">客服</span></div>
+        <div class="wb-cd-as__row"><img class="avatar" src="../../kit/assets/marks/mark-020.webp" alt=""><span class="wb-cd-name">吴桐</span><span class="tag">配送员</span></div>
+      </div></div></div>
+    </div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-CARD-047" data-name="折叠面板组" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">折叠面板组</span></div>
+  <p class="demo__note">适合：设置与帮助内容分节折叠，同组可限制只开一项</p>
+  <div class="demo__stage"><div class="wb-cd-w wb-cd-w--md" id="wb-cd-ac">
+    <div class="section__head"><h2>帮助中心</h2><div class="section__acts"><span class="wb-cd-sw">只展开一项<button class="switch" role="switch" aria-checked="true" aria-label="只展开一项"></button></span></div></div>
+    <div class="card list section__body">
+      <div class="wb-cd-ac__item">
+        <button class="wb-cd-ac__h" id="wb-cd-ac-h1" aria-expanded="true" aria-controls="wb-cd-ac-p1"><span class="wb-cd-ac__t">配送范围<small>门店周边 5 公里</small></span><span class="chev"></span></button>
+        <div class="expand" id="wb-cd-ac-p1" data-open="true" role="region" aria-labelledby="wb-cd-ac-h1"><div><ul class="wb-cd-ac__body"><li>同城配送范围为门店周边 5 公里</li><li>配送时段为 09:00 至 20:00</li><li>订单满 99 元免配送费</li></ul></div></div>
+      </div>
+      <div class="wb-cd-ac__item">
+        <button class="wb-cd-ac__h" id="wb-cd-ac-h2" aria-expanded="false" aria-controls="wb-cd-ac-p2"><span class="wb-cd-ac__t">退款规则<small>发货前可直接退</small></span><span class="chev"></span></button>
+        <div class="expand" id="wb-cd-ac-p2" role="region" aria-labelledby="wb-cd-ac-h2"><div><ul class="wb-cd-ac__body"><li>未发货订单可直接申请退款</li><li>已发货订单需商家审核后处理</li><li>审核通过后 3 个工作日内原路退回</li></ul></div></div>
+      </div>
+      <div class="wb-cd-ac__item">
+        <button class="wb-cd-ac__h" id="wb-cd-ac-h3" aria-expanded="false" aria-controls="wb-cd-ac-p3"><span class="wb-cd-ac__t">会员权益<small>金卡享 9 折</small></span><span class="chev"></span></button>
+        <div class="expand" id="wb-cd-ac-p3" role="region" aria-labelledby="wb-cd-ac-h3"><div><ul class="wb-cd-ac__body"><li>金卡会员消费享 9 折优惠</li><li>积分可在下单时抵扣现金</li><li>生日当月赠送一张花束券</li></ul></div></div>
+      </div>
+      <div class="wb-cd-ac__item">
+        <button class="wb-cd-ac__h" id="wb-cd-ac-h4" aria-expanded="false" aria-controls="wb-cd-ac-p4" disabled><span class="wb-cd-ac__t">发票开具<small>暂未开通</small></span><span class="chev"></span></button>
+        <div class="expand" id="wb-cd-ac-p4" role="region" aria-labelledby="wb-cd-ac-h4"><div><ul class="wb-cd-ac__body"><li>开通后可在订单详情申请电子发票</li></ul></div></div>
+      </div>
+    </div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-CARD-049" data-name="文本省略展开" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">文本省略展开</span></div>
+  <p class="demo__note">适合：长备注与描述超出行数后省略并可展开</p>
+  <div class="demo__stage"><div class="wb-cd-w wb-cd-w--md" id="wb-cd-el">
+    <div class="section__head"><h2>订单备注</h2></div>
+    <div class="card section__body wb-cd-el">
+      <div class="wb-cd-el__blk">
+        <span class="wb-cd-label">客户备注</span>
+        <p class="wb-cd-el__txt" id="wb-cd-el-1" style="--n: 2">希望花束以粉白色系为主，包装使用牛皮纸加麻绳，不要放满天星。这是送给妈妈的生日礼物，请附上手写贺卡，内容写妈妈生日快乐，身体健康。配送前请提前半小时电话联系，家里白天没人，可以放在楼下门卫处。</p>
+        <button class="wb-cd-tx wb-cd-el__tg" aria-expanded="false" aria-controls="wb-cd-el-1" hidden>展开<span class="chev"></span></button>
+      </div>
+      <div class="wb-cd-el__blk">
+        <span class="wb-cd-label">商品描述</span>
+        <p class="wb-cd-el__txt" id="wb-cd-el-2" style="--n: 3">精选 11 枝红玫瑰，搭配尤加利叶与小苍兰，牛皮纸手工包装。花头饱满，开放度适中，签收后剪去根部一小段，放入清水养护，每两天换一次水，可观赏 7 至 10 天。包装内附养护卡片，方便按步骤照顾花束。</p>
+        <button class="wb-cd-tx wb-cd-el__tg" aria-expanded="false" aria-controls="wb-cd-el-2" hidden>展开<span class="chev"></span></button>
+      </div>
+      <div class="wb-cd-el__blk">
+        <span class="wb-cd-label">配送备注</span>
+        <p class="wb-cd-el__txt" id="wb-cd-el-3" style="--n: 2">放在前台即可</p>
+        <button class="wb-cd-tx wb-cd-el__tg" aria-expanded="false" aria-controls="wb-cd-el-3" hidden>展开<span class="chev"></span></button>
+      </div>
+      <div class="wb-cd-el__blk">
+        <span class="wb-cd-label">收货地址</span>
+        <p class="wb-cd-el__one" tabindex="0" data-allow-ellipsis data-tip="上海市徐汇区滨江大道 288 号花园广场二十五层 2503 室">上海市徐汇区滨江大道 288 号花园广场二十五层 2503 室</p>
+      </div>
+    </div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-CARD-050" data-name="视频播放卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">视频播放卡</span></div>
+  <p class="demo__note">适合：课程与产品演示视频的播放卡</p>
+  <div class="demo__stage"><div class="card card--image wb-cd-vd wb-cd-w wb-cd-w--md" id="wb-cd-vd" data-state="idle">
+    <div class="wb-cd-vd__screen">
+      <img class="wb-cd-vd__poster" src="../../kit/assets/photo/scene-hero-pink.webp" alt="">
+      <button class="wb-cd-vd__big" aria-label="播放视频" data-tip="播放视频"><img src="../../kit/assets/line/play.webp" alt=""></button>
+      <div class="wb-cd-vd__ctl">
+        <button class="wb-cd-vd__pp" aria-label="播放" data-tip="播放"><img src="../../kit/assets/line/play.webp" alt=""></button>
+        <span class="wb-cd-vd__time"><b data-cur>00:00</b> / <span data-dur>03:20</span></span>
+        <div class="wb-cd-vd__bar" role="slider" tabindex="0" aria-label="播放进度" aria-valuemin="0" aria-valuemax="200" aria-valuenow="0" aria-valuetext="00:00"><i></i></div>
+        <button class="wb-cd-vd__rate" aria-label="播放倍速" data-tip="播放倍速">1 倍</button>
+      </div>
+    </div>
+    <div class="wb-cd-vd__info"><p class="wb-cd-name" style="font-size: var(--fs-lg)">春日花束包装入门</p><div class="wb-cd-sub"><img class="avatar" style="width: 28px; height: 28px" src="../../kit/assets/marks/mark-015.webp" alt=""><span class="wb-cd-meta">花艺师 周岚</span><span class="tag wb-cd-sp" data-tone="action">第 3 课</span></div></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-CARD-051" data-name="评论回复卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">评论回复卡</span></div>
+  <p class="demo__note">适合：评价与工单下的评论、嵌套回复与点赞</p>
+  <div class="demo__stage"><div class="wb-cd-w wb-cd-w--md" id="wb-cd-cm">
+    <div class="section__head"><h2>商品评价</h2></div>
+    <div class="card section__body wb-cd-cm">
+      <div class="wb-cd-cm__item" data-who="王芳">
+        <img class="avatar" src="../../kit/assets/marks/mark-012.webp" alt="">
+        <div class="wb-cd-cm__main">
+          <div class="wb-cd-cm__hd"><span class="wb-cd-name">王芳</span><span class="wb-cd-meta">昨天</span></div>
+          <p class="wb-cd-cm__txt">花束很新鲜，配送也很准时，包装很用心</p>
+          <div class="wb-cd-cm__acts"><button class="wb-cd-cm__like" aria-pressed="false" aria-label="点赞"><img data-ic="heart" src="../../kit/assets/icons/flat/heart.webp" alt=""><span data-n>12</span></button><button class="btn btn--text btn--xs" data-reply>回复</button></div>
+          <div class="wb-cd-cm__replies">
+            <div class="wb-cd-cm__reply" data-who="周岚">
+              <img class="avatar" src="../../kit/assets/marks/mark-015.webp" alt="">
+              <div class="wb-cd-cm__main"><div class="wb-cd-cm__hd"><span class="wb-cd-name">周岚</span><span class="tag" data-tone="action">店长</span><span class="wb-cd-meta">昨天</span></div><p class="wb-cd-cm__txt">谢谢支持，欢迎下次再来</p><div class="wb-cd-cm__acts"><button class="wb-cd-cm__like" aria-pressed="false" aria-label="点赞"><img data-ic="heart" src="../../kit/assets/icons/flat/heart.webp" alt=""><span data-n>3</span></button><button class="btn btn--text btn--xs" data-reply>回复</button></div></div>
+            </div>
+          </div>
+          <div class="expand" data-form><div><form class="wb-cd-cm__form" onsubmit="return false"><input class="input" placeholder="回复王芳" aria-label="回复内容"><button class="btn btn--primary btn--sm" disabled>发送</button></form></div></div>
+        </div>
+      </div>
+      <div class="wb-cd-cm__item" data-who="陈默">
+        <img class="avatar" src="../../kit/assets/marks/mark-008.webp" alt="">
+        <div class="wb-cd-cm__main">
+          <div class="wb-cd-cm__hd"><span class="wb-cd-name">陈默</span><span class="wb-cd-meta">3 天前</span></div>
+          <p class="wb-cd-cm__txt">颜色比图片更好看，就是花苞开得有点慢</p>
+          <div class="wb-cd-cm__acts"><button class="wb-cd-cm__like" aria-pressed="true" aria-label="取消点赞"><img data-ic="heart" src="../../kit/assets/icons/flat/heart.webp" alt=""><span data-n>5</span></button><button class="btn btn--text btn--xs" data-reply>回复</button></div>
+          <div class="wb-cd-cm__replies">
+            <div class="wb-cd-cm__reply" data-who="周岚">
+              <img class="avatar" src="../../kit/assets/marks/mark-015.webp" alt="">
+              <div class="wb-cd-cm__main"><div class="wb-cd-cm__hd"><span class="wb-cd-name">周岚</span><span class="tag" data-tone="action">店长</span><span class="wb-cd-meta">3 天前</span></div><p class="wb-cd-cm__txt">放在温暖的室内，两天左右就会完全开放</p><div class="wb-cd-cm__acts"><button class="wb-cd-cm__like" aria-pressed="false" aria-label="点赞"><img data-ic="heart" src="../../kit/assets/icons/flat/heart.webp" alt=""><span data-n>2</span></button><button class="btn btn--text btn--xs" data-reply>回复</button></div></div>
+            </div>
+            <div class="wb-cd-cm__reply" data-who="陈默" hidden data-more>
+              <img class="avatar" src="../../kit/assets/marks/mark-008.webp" alt="">
+              <div class="wb-cd-cm__main"><div class="wb-cd-cm__hd"><span class="wb-cd-name">陈默</span><span class="wb-cd-meta">3 天前</span></div><p class="wb-cd-cm__txt">好的，我试试看</p><div class="wb-cd-cm__acts"><button class="wb-cd-cm__like" aria-pressed="false" aria-label="点赞"><img data-ic="heart" src="../../kit/assets/icons/flat/heart.webp" alt=""><span data-n>0</span></button><button class="btn btn--text btn--xs" data-reply>回复</button></div></div>
+            </div>
+            <div class="wb-cd-cm__reply" data-who="周岚" hidden data-more>
+              <img class="avatar" src="../../kit/assets/marks/mark-015.webp" alt="">
+              <div class="wb-cd-cm__main"><div class="wb-cd-cm__hd"><span class="wb-cd-name">周岚</span><span class="tag" data-tone="action">店长</span><span class="wb-cd-meta">3 天前</span></div><p class="wb-cd-cm__txt">如果还有问题随时联系我们</p><div class="wb-cd-cm__acts"><button class="wb-cd-cm__like" aria-pressed="false" aria-label="点赞"><img data-ic="heart" src="../../kit/assets/icons/flat/heart.webp" alt=""><span data-n>1</span></button><button class="btn btn--text btn--xs" data-reply>回复</button></div></div>
+            </div>
+            <button class="wb-cd-tx wb-cd-cm__more" aria-expanded="false">展开另外 2 条回复<span class="chev"></span></button>
+          </div>
+          <div class="expand" data-form><div><form class="wb-cd-cm__form" onsubmit="return false"><input class="input" placeholder="回复陈默" aria-label="回复内容"><button class="btn btn--primary btn--sm" disabled>发送</button></form></div></div>
+        </div>
+      </div>
+    </div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-CARD-052" data-name="音频播放条" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">音频播放条</span></div>
+  <p class="demo__note">适合：语音记录的播放进度条</p>
+  <div class="demo__stage"><div class="wb-cd-w wb-cd-w--md" id="wb-cd-au">
+    <div class="section__head"><h2>语音记录</h2></div>
+    <div class="card list section__body">
+      <div class="wb-cd-au__item" data-dur="18" data-seed="3" data-unread="true">
+        <button class="wb-cd-au__pp" aria-label="播放林晓的语音留言" data-tip="播放"><img src="../../kit/assets/line/play.webp" alt=""></button>
+        <div class="wb-cd-au__mid">
+          <div class="wb-cd-au__hd"><span class="wb-cd-name">林晓 语音留言</span><span class="wb-cd-au__dot" aria-label="未听"></span><span class="wb-cd-meta wb-cd-sp"><b data-cur>0:00</b> / 0:18</span></div>
+          <div class="wb-cd-au__wave" role="slider" tabindex="0" aria-label="语音进度" aria-valuemin="0" aria-valuemax="18" aria-valuenow="0" aria-valuetext="0 秒"></div>
+        </div>
+      </div>
+      <div class="wb-cd-au__item" data-dur="9" data-seed="7">
+        <button class="wb-cd-au__pp" aria-label="播放周岚的语音回复" data-tip="播放"><img src="../../kit/assets/line/play.webp" alt=""></button>
+        <div class="wb-cd-au__mid">
+          <div class="wb-cd-au__hd"><span class="wb-cd-name">周岚 语音回复</span><span class="wb-cd-meta wb-cd-sp"><b data-cur>0:00</b> / 0:09</span></div>
+          <div class="wb-cd-au__wave" role="slider" tabindex="0" aria-label="语音进度" aria-valuemin="0" aria-valuemax="9" aria-valuenow="0" aria-valuetext="0 秒"></div>
+        </div>
+      </div>
+    </div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-CARD-053" data-name="前后对比滑块" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">前后对比滑块</span></div>
+  <p class="demo__note">适合：美容与改造案例的前后图对比</p>
+  <div class="demo__stage"><div class="card card--image wb-cd-w wb-cd-w--md wb-cd-df-card">
+    <div class="wb-cd-df" id="wb-cd-df" style="--p: 50%" role="slider" tabindex="0" aria-label="调色前后对比" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50" aria-valuetext="前后各占一半">
+      <img class="wb-cd-df__a" src="../../kit/assets/photo/bouquet-tulip.webp" alt="">
+      <img class="wb-cd-df__b" src="../../kit/assets/photo/bouquet-tulip.webp" alt="">
+      <span class="tag wb-cd-df__tag wb-cd-df__tag--l">调色前</span><span class="tag wb-cd-df__tag wb-cd-df__tag--r">调色后</span>
+      <span class="wb-cd-df__line"><span class="wb-cd-df__grip"><i class="chev"></i><i class="chev"></i></span></span>
+    </div>
+    <div class="wb-cd-pic__b"><div class="wb-cd-row"><p class="wb-cd-name">郁金香花束修图</p><span class="tag wb-cd-sp" data-tone="action">修图案例</span></div></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-CARD-054" data-name="悬停切图商品卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">悬停切图商品卡</span></div>
+  <p class="demo__note">适合：商品卡鼠标横移切换多张图</p>
+  <div class="demo__stage"><div class="card card--image wb-cd-hg wb-cd-w" style="max-width: 320px" id="wb-cd-hg">
+    <div class="wb-cd-hg__media" tabindex="0" role="group" aria-label="粉玫瑰花束图片 第 1 张 共 3 张">
+      <img class="is-on" src="../../kit/assets/photo/bouquet-rose.webp" alt="">
+      <img src="../../kit/assets/photo/scene-hero-pink.webp" alt="">
+      <img src="../../kit/assets/photo/bg-floral.webp" alt="">
+      <span class="tag card__corner" data-tone="warning">热销</span>
+      <span class="wb-cd-hg__bars" aria-hidden="true"><i data-on></i><i></i><i></i></span>
+    </div>
+    <div class="wb-cd-pic__b"><p class="wb-cd-name">粉玫瑰花束</p><div class="wb-cd-row"><span class="price"><small>¥</small>239</span><span class="wb-cd-meta wb-cd-sp">已售 1,286 件</span></div></div>
+  </div></div>
+</article>
+
+<article class="demo demo--span2" data-cid="WB-CARD-043" data-name="轮播图展示" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">轮播图展示</span></div>
+  <p class="demo__note">适合：官网与后台首页的多图自动轮播，带指示点与箭头</p>
+  <div class="demo__stage"><div class="wb-cd-cr wb-cd-w wb-cd-w--lg" id="wb-cd-cr" role="region" aria-roledescription="轮播" aria-label="活动轮播" data-playing="true">
+    <div class="wb-cd-cr__track" tabindex="0">
+      <figure class="wb-cd-cr__slide" role="group" aria-label="第 1 张，共 3 张"><img src="../../kit/assets/photo/scene-hero-pink.webp" alt=""><figcaption class="wb-cd-cr__pane"><span class="tag" data-tone="warning">活动</span><h3>春日花展</h3><p>报名进行中</p><button class="btn btn--primary btn--sm" data-wb-toast="已打开报名">去报名</button></figcaption></figure>
+      <figure class="wb-cd-cr__slide" role="group" aria-label="第 2 张，共 3 张"><img src="../../kit/assets/photo/bg-floral.webp" alt=""><figcaption class="wb-cd-cr__pane"><span class="tag" data-tone="action">订阅</span><h3>周期订花</h3><p>已开通 36 家门店</p><button class="btn btn--primary btn--sm" data-wb-toast="已打开周期订花">查看门店</button></figcaption></figure>
+      <figure class="wb-cd-cr__slide" role="group" aria-label="第 3 张，共 3 张"><img src="../../kit/assets/photo/bg-green.webp" alt=""><figcaption class="wb-cd-cr__pane"><span class="tag" data-tone="success">绿植</span><h3>绿植养护月</h3><p>盆栽满 199 元减 30 元</p><button class="btn btn--primary btn--sm" data-wb-toast="已打开绿植">去选购</button></figcaption></figure>
+    </div>
+    <button class="ibtn ibtn--round wb-cd-cr__nav wb-cd-cr__nav--prev" aria-label="上一张" data-tip="上一张"><span class="chev"></span></button>
+    <button class="ibtn ibtn--round wb-cd-cr__nav wb-cd-cr__nav--next" aria-label="下一张" data-tip="下一张"><span class="chev"></span></button>
+    <div class="wb-cd-cr__bar"><button class="wb-cd-cr__play" aria-label="暂停轮播" data-tip="暂停轮播"><img src="../../kit/assets/line/pause.webp" alt=""></button><div class="wb-cd-cr__dots" role="tablist" aria-label="选择轮播图"><button class="wb-cd-cr__dot" role="tab" aria-label="第 1 张" aria-selected="true"></button><button class="wb-cd-cr__dot" role="tab" aria-label="第 2 张" aria-selected="false"></button><button class="wb-cd-cr__dot" role="tab" aria-label="第 3 张" aria-selected="false"></button></div></div>
+  </div></div>
+</article>
+
+<article class="demo demo--span2" data-cid="WB-CARD-048" data-name="描述列表卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">描述列表卡</span></div>
+  <p class="demo__note">适合：订单与会员详情以键值栅格展示，可设列数与边框</p>
+  <div class="demo__stage"><div class="wb-cd-w wb-cd-w--lg" id="wb-cd-ds">
+    <div class="section__head"><h2>订单详情</h2></div>
+    <div class="card section__body wb-cd-ds" data-bordered="false" style="--cols: 3">
+      <div class="toolbar">
+        <div class="seg seg--box" role="tablist" aria-label="列数"><button class="seg__item" role="tab" data-c="1" aria-selected="false">一列</button><button class="seg__item" role="tab" data-c="2" aria-selected="false">两列</button><button class="seg__item" role="tab" data-c="3" aria-selected="true">三列</button></div>
+        <span class="toolbar__sp"></span>
+        <span class="wb-cd-sw">边框<button class="switch" role="switch" aria-checked="false" aria-label="显示边框"></button></span>
+      </div>
+      <dl class="wb-cd-ds__grid">
+        <div class="wb-cd-ds__i"><dt>订单号</dt><dd>0218</dd></div>
+        <div class="wb-cd-ds__i"><dt>下单时间</dt><dd>11 月 8 日 15:20</dd></div>
+        <div class="wb-cd-ds__i"><dt>订单状态</dt><dd><span class="tag" data-tone="warning">待发货</span></dd></div>
+        <div class="wb-cd-ds__i"><dt>客户</dt><dd><span class="wb-cd-who"><img src="../../kit/assets/marks/mark-003.webp" alt="">林晓</span></dd></div>
+        <div class="wb-cd-ds__i"><dt>手机号</dt><dd>138****6618</dd></div>
+        <div class="wb-cd-ds__i"><dt>会员等级</dt><dd><span class="tag" data-tone="warning">金卡会员</span></dd></div>
+        <div class="wb-cd-ds__i"><dt>配送门店</dt><dd>建国路店</dd></div>
+        <div class="wb-cd-ds__i"><dt>配送方式</dt><dd>同城配送</dd></div>
+        <div class="wb-cd-ds__i"><dt>支付方式</dt><dd>微信支付</dd></div>
+        <div class="wb-cd-ds__i"><dt>商品</dt><dd>红玫瑰花束 1 束</dd></div>
+        <div class="wb-cd-ds__i"><dt>优惠</dt><dd>新客立减 20 元</dd></div>
+        <div class="wb-cd-ds__i"><dt>实付金额</dt><dd><span class="price"><small>¥</small>199</span></dd></div>
+        <div class="wb-cd-ds__i wb-cd-ds__i--all"><dt>收货地址</dt><dd>上海市徐汇区滨江大道 288 号花园广场二十五层 2503 室</dd></div>
+      </dl>
+    </div>
+  </div></div>
+</article>
+
+<style>
+  /* 新增：图片预览、二维码、条目列表、头像堆叠、折叠面板、文本省略、视频、评论、音频、前后对比、悬停切图、轮播、描述列表 */
+  .wb-cd-sw { display: inline-flex; align-items: center; gap: var(--s-2); font-size: var(--fs-sm); color: var(--ink-2); white-space: nowrap; }
+  .wb-cd-sw .switch { flex: none; }
+
+  /* 图片预览器：缩略图加居中悬浮的预览层 */
+  .wb-cd-pv__grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s-2); padding: var(--s-3); }
+  .wb-cd-pv__th { position: relative; aspect-ratio: 1; border-radius: var(--r-md); overflow: hidden; background: var(--zone); }
+  .wb-cd-pv__th img { width: 100%; height: 100%; object-fit: cover; transition: transform var(--dur-base) var(--ease-out); }
+  .wb-cd-pv__ov { position: absolute; inset: 0; display: grid; place-items: center; background: color-mix(in srgb, var(--ink) 40%, transparent); color: var(--surface); font-size: var(--fs-sm); font-weight: 600; opacity: 0; transition: opacity var(--dur-quick) var(--ease-out); }
+  .wb-cd-pv__th:focus-visible { outline-offset: 2px; border-radius: var(--r-md); }
+  .wb-cd-pv__th:focus-visible .wb-cd-pv__ov { opacity: 1; }
+  @media (hover: hover) { .wb-cd-pv__th:hover .wb-cd-pv__ov { opacity: 1; } .wb-cd-pv__th:hover img { transform: scale(1.04); } }
+  .wb-cd-pv__mask { position: fixed; inset: 0; z-index: 80; display: grid; place-items: center; padding: var(--s-6); background: var(--scrim); animation: lz-fade var(--dur-base) var(--ease-out) both; }
+  .wb-cd-pv__dlg { width: min(640px, 100%); max-height: calc(100vh - 48px); display: grid; grid-template-rows: auto minmax(0, 1fr) auto; border-radius: var(--r-xl); background: var(--surface); box-shadow: var(--elev-4); overflow: hidden; animation: lz-dialog var(--dur-base) var(--ease-out) both; }
+  .wb-cd-pv__dlg:focus-visible { outline: none; }
+  .wb-cd-pv__top { display: flex; align-items: center; gap: var(--s-3); min-height: 56px; padding: 0 var(--s-3) 0 var(--s-5); border-bottom: 1px solid var(--line); }
+  .wb-cd-pv__title { font-size: var(--fs-lg); font-weight: 600; line-height: var(--lh-tight); }
+  .wb-cd-pv__idx { margin-right: auto; font-size: var(--fs-sm); color: var(--ink-3); font-variant-numeric: tabular-nums; }
+  .wb-cd-pv__view { position: relative; height: min(360px, calc(100vh - 220px)); overflow: hidden; background: var(--zone); display: grid; place-items: center; touch-action: none; }
+  .wb-cd-pv__img { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; user-select: none; -webkit-user-drag: none; transition: transform var(--dur-base) var(--ease-out); cursor: default; }
+  .wb-cd-pv__view[data-zoom="true"] .wb-cd-pv__img { cursor: grab; }
+  .wb-cd-pv__view.is-drag .wb-cd-pv__img { transition: none; cursor: grabbing; }
+  .wb-cd-pv__nav { position: absolute; top: 50%; width: 40px; height: 40px; margin-top: -20px; z-index: 1; }
+  .wb-cd-pv__nav--prev { left: var(--s-3); }
+  .wb-cd-pv__nav--next { right: var(--s-3); }
+  .wb-cd-pv__nav--prev .chev::after { margin: 0 0 0 4px; transform: rotate(135deg); }
+  .wb-cd-pv__nav--next .chev::after { margin: 0 4px 0 0; }
+  .wb-cd-pv__nav[disabled], .wb-cd-pv__tools .ibtn[disabled] { opacity: .35; pointer-events: none; }
+  .wb-cd-pv__tools { display: flex; align-items: center; justify-content: center; gap: var(--s-2); min-height: 60px; padding: var(--s-2) var(--s-4); border-top: 1px solid var(--line); }
+  .wb-cd-pv__flip { transform: scaleX(-1); }
+  .wb-cd-pv__pct { min-width: 48px; text-align: center; font-size: var(--fs-sm); font-weight: 600; font-variant-numeric: tabular-nums; }
+
+  /* 二维码展示卡 */
+  .wb-cd-qr { display: grid; justify-items: center; gap: var(--s-4); padding: var(--s-5); }
+  .wb-cd-qr__panel { display: grid; justify-items: center; gap: var(--s-3); width: 100%; }
+  .wb-cd-qr__box { position: relative; display: grid; place-items: center; padding: var(--s-3); border-radius: var(--r-lg); background: var(--surface); box-shadow: inset 0 0 0 1px var(--line-strong); }
+  .wb-cd-qr__cv { display: block; width: 165px; height: 165px; transition: opacity var(--dur-base) var(--ease-out); }
+  .wb-cd-qr__box[data-state="expired"] .wb-cd-qr__cv { opacity: .12; }
+  .wb-cd-qr__mask { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: var(--s-3); border-radius: inherit; font-size: var(--fs-md); font-weight: 600; }
+  .wb-cd-qr__info { display: grid; justify-items: center; gap: var(--s-2); }
+  .wb-cd-qr__st { display: flex; align-items: center; justify-content: center; gap: var(--s-2); }
+  .wb-cd-qr__prog { width: 100%; height: 6px; }
+  .wb-cd-qr__prog > i { transition: width 1s linear, background var(--dur-base) var(--ease-out); }
+  .wb-cd-qr[data-low="true"] .wb-cd-qr__prog > i { background: var(--warning); }
+  .wb-cd-qr .wb-cd-acts { justify-content: center; }
+
+  /* 图文条目列表 */
+  .wb-cd-il__row { display: grid; grid-template-columns: 48px minmax(0, 1fr) auto; align-items: center; gap: var(--s-4); min-height: 72px; padding: var(--s-3) var(--s-4); width: 100%; text-align: left; position: relative; transition: background var(--dur-quick) var(--ease-out); }
+  .wb-cd-il__row + .wb-cd-il__row::before { content: ""; position: absolute; top: 0; left: calc(var(--s-4) + 48px + var(--s-4)); right: 0; border-top: 1px solid var(--line); }
+  .wb-cd-il__row--link { cursor: pointer; }
+  @media (hover: hover) { .wb-cd-il__row--link:hover { background: var(--zone); } }
+  .wb-cd-il__row--link:active { background: var(--zone); }
+  .wb-cd-il__row[data-off] .ic { opacity: .45; filter: grayscale(1); }
+  .wb-cd-il__main { display: grid; gap: 2px; min-width: 0; }
+  .wb-cd-il__t { font-size: var(--fs-md); font-weight: 600; line-height: var(--lh-tight); }
+  .wb-cd-il__d { font-size: var(--fs-sm); color: var(--ink-3); }
+  .wb-cd-il__row[data-off] .wb-cd-il__t { color: var(--ink-3); }
+
+  /* 头像组堆叠 */
+  .wb-cd-as { display: grid; gap: 0; }
+  .wb-cd-as__top { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); padding: var(--s-4) var(--s-5); }
+  .wb-cd-as__stack { display: flex; align-items: center; padding-left: 12px; }
+  .wb-cd-as__stack .avatar { width: 44px; height: 44px; margin-left: -12px; border: 2px solid var(--surface); transition: transform var(--dur-quick) var(--ease-out); }
+  @media (hover: hover) { .wb-cd-as__stack .avatar:hover { transform: translateY(-3px); } }
+  .wb-cd-as__stack .avatar:focus-visible { outline-offset: 1px; border-radius: 50%; transform: translateY(-3px); }
+  .wb-cd-as__more { display: grid; place-items: center; width: 44px; height: 44px; margin-left: -12px; border-radius: 50%; border: 2px solid var(--surface); background: var(--action-soft); color: var(--action-press); font-size: var(--fs-sm); font-weight: 600; font-variant-numeric: tabular-nums; transition: background var(--dur-quick) var(--ease-out); }
+  .wb-cd-as__more:focus-visible { border-radius: 50%; }
+  @media (hover: hover) { .wb-cd-as__more:hover { background: var(--action-edge); } }
+  .wb-cd-as__list { padding: var(--s-2) var(--s-5) var(--s-3); background: var(--zone); border-top: 1px solid var(--line); border-radius: 0 0 calc(var(--r-lg) - 1px) calc(var(--r-lg) - 1px); }
+  .wb-cd-as__row { display: flex; align-items: center; gap: var(--s-3); min-height: 52px; }
+  .wb-cd-as__row + .wb-cd-as__row { border-top: 1px solid var(--line); }
+  .wb-cd-as__row .avatar { width: 36px; height: 36px; background: var(--surface); }
+  .wb-cd-as__row .tag { margin-left: auto; }
+
+  /* 折叠面板组 */
+  .wb-cd-ac__item + .wb-cd-ac__item { border-top: 1px solid var(--line); }
+  .wb-cd-ac__h { display: flex; align-items: center; gap: var(--s-3); width: 100%; min-height: 64px; padding: 0 var(--s-5); text-align: left; transition: background var(--dur-quick) var(--ease-out); }
+  .wb-cd-ac__h:focus-visible { outline-offset: -3px; }
+  @media (hover: hover) { .wb-cd-ac__h:not([disabled]):hover { background: var(--zone); } }
+  .wb-cd-ac__t { display: grid; gap: 2px; flex: 1; min-width: 0; font-size: var(--fs-md); font-weight: 600; line-height: var(--lh-tight); }
+  .wb-cd-ac__t small { font-size: var(--fs-sm); font-weight: 400; color: var(--ink-3); }
+  .wb-cd-ac__h .chev::after { transition: transform var(--dur-base) var(--ease-out); }
+  .wb-cd-ac__h[disabled] { cursor: not-allowed; }
+  .wb-cd-ac__h[disabled] .wb-cd-ac__t { color: var(--ink-3); }
+  .wb-cd-ac__h[disabled] .chev { opacity: .4; }
+  .wb-cd-ac__body { display: grid; gap: var(--s-2); padding: var(--s-1) var(--s-5) var(--s-4); font-size: var(--fs-sm); color: var(--ink-2); line-height: var(--lh-body); }
+  .wb-cd-ac__body li { position: relative; padding-left: var(--s-4); }
+  .wb-cd-ac__body li::before { content: ""; position: absolute; left: 2px; top: .7em; width: 6px; height: 6px; border-radius: 50%; background: var(--action-edge); }
+
+  /* 描述列表卡 */
+  .wb-cd-ds { padding: var(--s-5); }
+  .wb-cd-ds .toolbar { min-height: 0; padding: 0 0 var(--s-4); border-bottom: 1px solid var(--line); }
+  .wb-cd-ds .seg--box { margin: 0; }
+  .wb-cd-ds__grid { display: grid; grid-template-columns: repeat(var(--cols, 3), minmax(0, 1fr)); gap: var(--s-4) var(--s-8); margin: var(--s-4) 0 0; font-size: var(--fs-md); }
+  .wb-cd-ds__i { display: grid; grid-template-columns: 80px minmax(0, 1fr); align-items: center; gap: var(--s-3); min-height: 32px; }
+  .wb-cd-ds__i--all { grid-column: 1 / -1; }
+  .wb-cd-ds dt { font-size: var(--fs-sm); color: var(--ink-3); }
+  .wb-cd-ds dd { min-width: 0; }
+  .wb-cd-ds .wb-cd-who { font-size: var(--fs-md); color: var(--ink); }
+  .wb-cd-ds .wb-cd-who img { background: var(--zone); }
+  .wb-cd-ds[data-bordered="true"] .wb-cd-ds__grid { gap: 0; border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
+  .wb-cd-ds[data-bordered="true"] .wb-cd-ds__i { gap: 0; padding: 0; min-height: 48px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); grid-template-columns: 96px minmax(0, 1fr); }
+  .wb-cd-ds[data-bordered="true"] dt { align-self: stretch; display: flex; align-items: center; padding: 0 var(--s-4); background: var(--zone); border-right: 1px solid var(--line); color: var(--ink-2); }
+  .wb-cd-ds[data-bordered="true"] dd { padding: 0 var(--s-4); }
+
+  /* 文本省略展开 */
+  .wb-cd-el { display: grid; gap: var(--s-4); padding: var(--s-5); }
+  .wb-cd-el__blk { display: grid; justify-items: start; gap: var(--s-1); }
+  .wb-cd-el__txt { font-size: var(--fs-md); line-height: var(--lh-body); display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: var(--n, 2); overflow: hidden; }
+  .wb-cd-el__txt.is-open { display: block; -webkit-line-clamp: unset; }
+  .wb-cd-tx { display: inline-flex; align-items: center; gap: 2px; min-height: 32px; padding: 0 var(--s-2); border-radius: var(--r-sm); font-size: var(--fs-sm); font-weight: 600; line-height: 1; color: var(--action-press); white-space: nowrap; transition: background var(--dur-quick) var(--ease-out); }
+  @media (hover: hover) { .wb-cd-tx:hover { background: var(--zone); } }
+  .wb-cd-el__tg { margin-left: calc(var(--s-2) * -1); }
+  .wb-cd-el__tg .chev::after { margin: -2px 0 0 4px; transform: rotate(45deg); border-color: var(--action-press); transition: transform var(--dur-base) var(--ease-out); }
+  .wb-cd-el__tg[aria-expanded="true"] .chev::after { margin-top: 3px; transform: rotate(225deg); }
+  .wb-cd-el__one { width: 100%; font-size: var(--fs-md); line-height: var(--lh-body); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; border-radius: var(--r-sm); }
+  .wb-cd-el__one:focus-visible { outline-offset: 2px; }
+
+  /* 视频播放卡：无视频素材，用封面加进度模拟播放 */
+  .wb-cd-vd__screen { position: relative; aspect-ratio: 16 / 9; overflow: hidden; background: var(--zone); cursor: pointer; }
+  .wb-cd-vd__poster { width: 100%; height: 100%; object-fit: cover; }
+  .wb-cd-vd__big { position: absolute; left: 50%; top: 46%; display: grid; place-items: center; width: 64px; height: 64px; margin: -32px 0 0 -32px; border-radius: 50%; background: var(--surface); box-shadow: var(--elev-3); transition: transform var(--dur-quick) var(--ease-out), opacity var(--dur-base) var(--ease-out); }
+  .wb-cd-vd__big:focus-visible { border-radius: 50%; }
+  .wb-cd-vd__big img { width: 28px; height: 28px; margin-left: 3px; }
+  @media (hover: hover) { .wb-cd-vd__big:hover { transform: scale(1.06); } }
+  .wb-cd-vd[data-state="playing"] .wb-cd-vd__big { opacity: 0; pointer-events: none; }
+  .wb-cd-vd__ctl { position: absolute; left: 0; right: 0; bottom: 0; display: flex; align-items: center; gap: var(--s-3); padding: var(--s-6) var(--s-3) var(--s-2); background: linear-gradient(to top, color-mix(in srgb, var(--ink) 70%, transparent), transparent); color: var(--surface); cursor: default; }
+  .wb-cd-vd__pp { display: grid; place-items: center; width: 36px; height: 36px; border-radius: var(--r-md); flex: none; }
+  .wb-cd-vd__pp img { width: 22px; height: 22px; filter: invert(1); }
+  @media (hover: hover) { .wb-cd-vd__pp:hover { background: color-mix(in srgb, var(--surface) 22%, transparent); } }
+  .wb-cd-vd__time { font-size: var(--fs-sm); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .wb-cd-vd__time b { font-weight: 600; }
+  .wb-cd-vd__bar { position: relative; flex: 1; min-width: 0; height: 20px; cursor: pointer; }
+  .wb-cd-vd__bar::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 4px; margin-top: -2px; border-radius: var(--r-full); background: color-mix(in srgb, var(--surface) 38%, transparent); }
+  .wb-cd-vd__bar i { position: absolute; left: 0; top: 50%; width: calc(var(--p, 0) * 1%); height: 4px; margin-top: -2px; border-radius: var(--r-full); background: var(--surface); }
+  .wb-cd-vd__bar i::after { content: ""; position: absolute; right: -6px; top: 50%; width: 12px; height: 12px; margin-top: -6px; border-radius: 50%; background: var(--surface); box-shadow: var(--elev-1); }
+  .wb-cd-vd__bar:focus-visible { outline-color: var(--surface); outline-offset: 0; border-radius: var(--r-sm); }
+  .wb-cd-vd__rate { min-width: 52px; height: 28px; padding: 0 var(--s-2); border-radius: var(--r-sm); font-size: var(--fs-sm); font-weight: 600; color: var(--surface); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--surface) 55%, transparent); flex: none; }
+  @media (hover: hover) { .wb-cd-vd__rate:hover { background: color-mix(in srgb, var(--surface) 22%, transparent); } }
+  .wb-cd-vd__info { display: grid; gap: var(--s-2); padding: var(--s-4) var(--s-5) var(--s-5); }
+
+  /* 评论回复卡 */
+  .wb-cd-cm { display: grid; padding: var(--s-2) var(--s-5); }
+  .wb-cd-cm__item, .wb-cd-cm__reply { display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: var(--s-3); align-items: start; }
+  .wb-cd-cm__item { padding: var(--s-4) 0; }
+  .wb-cd-cm__item + .wb-cd-cm__item { border-top: 1px solid var(--line); }
+  .wb-cd-cm__item > .avatar { width: 40px; height: 40px; }
+  .wb-cd-cm__reply { grid-template-columns: 32px minmax(0, 1fr); padding-top: var(--s-3); }
+  .wb-cd-cm__reply > .avatar { width: 32px; height: 32px; }
+  .wb-cd-cm__main { display: grid; gap: var(--s-1); min-width: 0; }
+  .wb-cd-cm__hd { display: flex; align-items: center; gap: var(--s-2); min-height: 24px; }
+  .wb-cd-cm__hd .wb-cd-meta { margin-left: auto; }
+  .wb-cd-cm__hd .tag + .wb-cd-meta { margin-left: auto; }
+  .wb-cd-cm__txt { font-size: var(--fs-md); line-height: var(--lh-body); }
+  .wb-cd-cm__acts { display: flex; align-items: center; gap: var(--s-2); margin-left: calc(var(--s-2) * -1); }
+  .wb-cd-cm__like { display: inline-flex; align-items: center; gap: 6px; min-height: 28px; padding: 0 var(--s-2); border-radius: var(--r-sm); font-size: var(--fs-sm); color: var(--ink-2); font-variant-numeric: tabular-nums; }
+  .wb-cd-cm__like img { width: 20px; height: 20px; opacity: .4; transition: opacity var(--dur-quick) var(--ease-out), transform var(--dur-base) var(--ease-spring); }
+  .wb-cd-cm__like[aria-pressed="true"] { color: var(--action-press); font-weight: 600; }
+  .wb-cd-cm__like[aria-pressed="true"] img { opacity: 1; transform: scale(1.12); }
+  @media (hover: hover) { .wb-cd-cm__like:hover { background: var(--zone); } }
+  .wb-cd-cm__replies { display: grid; margin-top: var(--s-1); }
+  .wb-cd-cm__replies:empty { display: none; }
+  .wb-cd-cm__more { justify-self: start; min-height: 28px; margin: var(--s-1) 0 0 calc(var(--s-2) * -1); }
+  .wb-cd-cm__more .chev::after { margin: -2px 0 0 4px; transform: rotate(45deg); border-color: var(--action-press); transition: transform var(--dur-base) var(--ease-out); }
+  .wb-cd-cm__more[aria-expanded="true"] .chev::after { margin-top: 3px; transform: rotate(225deg); }
+  .wb-cd-cm__form { display: flex; align-items: center; gap: var(--s-2); padding-top: var(--s-3); }
+  .wb-cd-cm__form .input { min-height: 40px; }
+  .wb-cd-cm .expand > div { margin: 0 -2px; padding: 0 2px; }
+  .wb-cd-cm .expand[data-open="true"] > div { animation: none; overflow: visible; }
+
+  /* 音频播放条 */
+  .wb-cd-au__item { display: grid; grid-template-columns: 44px minmax(0, 1fr); align-items: center; gap: var(--s-3); padding: var(--s-4) var(--s-5); }
+  .wb-cd-au__item + .wb-cd-au__item { border-top: 1px solid var(--line); }
+  .wb-cd-au__pp { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: var(--action); transition: background var(--dur-quick) var(--ease-out), transform var(--dur-instant) var(--ease-out); }
+  .wb-cd-au__pp:focus-visible { border-radius: 50%; }
+  .wb-cd-au__pp:active { transform: scale(.94); }
+  @media (hover: hover) { .wb-cd-au__pp:hover { background: var(--action-press); } }
+  .wb-cd-au__pp img { width: 20px; height: 20px; filter: invert(1); }
+  .wb-cd-au__item[data-state="idle"] .wb-cd-au__pp img { margin-left: 2px; }
+  .wb-cd-au__mid { display: grid; gap: var(--s-2); min-width: 0; }
+  .wb-cd-au__hd { display: flex; align-items: center; gap: var(--s-2); }
+  .wb-cd-au__hd .wb-cd-meta b { font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .wb-cd-au__dot { width: 8px; height: 8px; border-radius: 50%; background: var(--danger); flex: none; }
+  .wb-cd-au__item[data-unread="false"] .wb-cd-au__dot { display: none; }
+  .wb-cd-au__wave { display: flex; align-items: center; gap: 3px; height: 32px; cursor: pointer; border-radius: var(--r-sm); }
+  .wb-cd-au__wave i { flex: 1; min-width: 2px; height: calc(var(--h) * 1%); min-height: 4px; border-radius: var(--r-full); background: var(--line-strong); transition: background var(--dur-quick) var(--ease-out); }
+  .wb-cd-au__wave i[data-on] { background: var(--action); }
+  .wb-cd-au__wave:focus-visible { outline-offset: 2px; }
+
+  /* 前后对比滑块 */
+  .wb-cd-df { position: relative; display: grid; grid-template: minmax(0, 1fr) / minmax(0, 1fr); aspect-ratio: 4 / 3; overflow: hidden; cursor: ew-resize; touch-action: pan-y; user-select: none; background: var(--zone); }
+  .wb-cd-df img { grid-area: 1 / 1; width: 100%; height: 100%; min-width: 0; min-height: 0; object-fit: cover; pointer-events: none; -webkit-user-drag: none; }
+  .wb-cd-df img.wb-cd-df__b { position: absolute; inset: 0; filter: grayscale(.85) brightness(.82) contrast(.9); clip-path: inset(0 calc(100% - var(--p)) 0 0); }
+  .wb-cd-df__tag { position: absolute; top: var(--s-3); background: color-mix(in srgb, var(--surface) 92%, transparent); color: var(--ink); }
+  .wb-cd-df__tag--l { left: var(--s-3); }
+  .wb-cd-df__tag--r { right: var(--s-3); }
+  .wb-cd-df__line { position: absolute; top: 0; bottom: 0; left: var(--p); width: 2px; margin-left: -1px; background: var(--surface); box-shadow: var(--elev-1); }
+  .wb-cd-df__grip { position: absolute; left: 50%; top: 50%; display: flex; align-items: center; justify-content: center; gap: 0; width: 44px; height: 44px; margin: -22px 0 0 -22px; border-radius: 50%; background: var(--surface); box-shadow: var(--elev-3); }
+  .wb-cd-df__grip .chev::after { width: 6px; height: 6px; margin: 0; border-color: var(--action-press); }
+  .wb-cd-df__grip .chev:first-child::after { transform: rotate(135deg); margin-right: -1px; }
+  .wb-cd-df__grip .chev:last-child::after { margin-left: -1px; }
+  .wb-cd-df:focus-visible { outline-offset: -3px; border-radius: var(--r-lg); }
+  .wb-cd-df-card .wb-cd-pic__b { padding-top: var(--s-4); }
+
+  /* 悬停切图商品卡 */
+  .wb-cd-hg__media { position: relative; display: grid; grid-template: minmax(0, 1fr) / minmax(0, 1fr); aspect-ratio: 4 / 3; overflow: hidden; background: var(--zone); touch-action: pan-y; }
+  .wb-cd-hg__media img { grid-area: 1 / 1; width: 100%; height: 100%; min-width: 0; min-height: 0; object-fit: cover; opacity: 0; transition: opacity var(--dur-base) var(--ease-out); }
+  .wb-cd-hg__media img.is-on { opacity: 1; }
+  .wb-cd-hg__media:focus-visible { outline-offset: -3px; border-radius: var(--r-lg) var(--r-lg) 0 0; }
+  .wb-cd-hg__bars { position: absolute; left: var(--s-4); right: var(--s-4); bottom: var(--s-3); display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: var(--s-1); }
+  .wb-cd-hg__bars i { display: block; height: 4px; border-radius: var(--r-full); background: color-mix(in srgb, var(--surface) 55%, transparent); transition: background var(--dur-quick) var(--ease-out); }
+  .wb-cd-hg__bars i[data-on] { background: var(--surface); }
+
+  /* 轮播图展示 */
+  .wb-cd-cr { position: relative; border-radius: var(--r-lg); overflow: hidden; background: var(--zone); box-shadow: var(--elev-1); }
+  .wb-cd-cr__track { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; overscroll-behavior-x: contain; }
+  .wb-cd-cr__track::-webkit-scrollbar { display: none; }
+  .wb-cd-cr__track:focus-visible { outline-offset: -3px; border-radius: var(--r-lg); }
+  .wb-cd-cr__track.is-drag { cursor: grabbing; user-select: none; }
+  .wb-cd-cr__slide { position: relative; flex: 0 0 100%; height: 300px; margin: 0; scroll-snap-align: start; }
+  .wb-cd-cr__slide img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; -webkit-user-drag: none; }
+  .wb-cd-cr__pane { position: absolute; left: calc(var(--s-3) + 44px + var(--s-4)); top: 50%; display: grid; justify-items: start; gap: var(--s-2); max-width: min(300px, calc(100% - 180px)); padding: var(--s-5); border-radius: var(--r-lg); background: color-mix(in srgb, var(--surface) 92%, transparent); box-shadow: var(--elev-2); transform: translateY(-50%); }
+  .wb-cd-cr__pane h3 { font-size: var(--fs-xl); font-weight: 700; line-height: var(--lh-tight); }
+  .wb-cd-cr__pane p { font-size: var(--fs-md); color: var(--ink-2); }
+  .wb-cd-cr__pane .btn { margin-top: var(--s-1); }
+  .wb-cd-cr__nav { position: absolute; top: 50%; width: 44px; height: 44px; margin-top: -22px; }
+  .wb-cd-cr__nav--prev { left: var(--s-3); }
+  .wb-cd-cr__nav--next { right: var(--s-3); }
+  .wb-cd-cr__nav--prev .chev::after { margin: 0 0 0 4px; transform: rotate(135deg); }
+  .wb-cd-cr__nav--next .chev::after { margin: 0 4px 0 0; }
+  .wb-cd-cr__bar { position: absolute; left: 50%; bottom: var(--s-3); display: flex; align-items: center; gap: var(--s-2); padding: var(--s-1) var(--s-3) var(--s-1) var(--s-1); border-radius: var(--r-full); background: color-mix(in srgb, var(--surface) 90%, transparent); box-shadow: var(--elev-1); transform: translateX(-50%); }
+  .wb-cd-cr__play { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; }
+  .wb-cd-cr__play:focus-visible { border-radius: 50%; }
+  .wb-cd-cr__play img { width: 18px; height: 18px; }
+  @media (hover: hover) { .wb-cd-cr__play:hover { background: var(--zone); } }
+  .wb-cd-cr__dots { display: flex; align-items: center; gap: var(--s-2); }
+  .wb-cd-cr__dot { width: 8px; height: 8px; padding: 0; border-radius: var(--r-full); background: var(--line-strong); transition: width var(--dur-base) var(--ease-out), background var(--dur-base) var(--ease-out); position: relative; }
+  .wb-cd-cr__dot::before { content: ""; position: absolute; inset: -8px -4px; }
+  .wb-cd-cr__dot[aria-selected="true"] { width: 24px; background: var(--action); }
+  .wb-cd-cr__dot:focus-visible { outline-offset: 3px; border-radius: var(--r-full); }
+</style>
+
+<script>
+(function () {
+  const root = document.getElementById('cat-card'); if (!root) return;
+  const $ = (s, r = root) => r.querySelector(s), $$ = (s, r = root) => [...r.querySelectorAll(s)];
+  const color = v => { const p = document.createElement('i'); p.style.color = 'var(' + v + ')'; document.body.appendChild(p); const c = getComputedStyle(p).color; p.remove(); return c; };
+  const clamp = (v, a, b) => Math.min(Math.max(v, a), b);
+  const mmss = s => { s = Math.max(0, Math.round(s)); return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); };
+  const mss = s => Math.floor(s / 60) + ':' + String(Math.round(s) % 60).padStart(2, '0');
+
+  /* 图片预览器：居中悬浮层，切换、缩放、旋转、拖动查看，方向键与加减号可用，Esc 关闭并回到缩略图 */
+  const pv = $('#wb-cd-pv');
+  if (pv) {
+    const mask = $('.wb-cd-pv__mask', pv), dlg = $('.wb-cd-pv__dlg', mask), view = $('.wb-cd-pv__view', mask), img = $('.wb-cd-pv__img', mask);
+    const ths = $$('.wb-cd-pv__th', pv), title = $('.wb-cd-pv__title', mask), idx = $('.wb-cd-pv__idx', mask), pct = $('.wb-cd-pv__pct', mask);
+    const Z = [0.5, 0.75, 1, 1.5, 2, 3, 4];
+    let cur = 0, zi = 2, rot = 0, tx = 0, ty = 0, opener = null;
+    document.body.appendChild(mask);
+    const btn = a => $(`[data-act="${a}"]`, mask);
+    const paint = () => {
+      img.style.transform = `translate(${tx}px, ${ty}px) rotate(${rot}deg) scale(${Z[zi]})`;
+      pct.textContent = Math.round(Z[zi] * 100) + '%'; view.dataset.zoom = String(Z[zi] > 1);
+      btn('out').disabled = zi === 0; btn('in').disabled = zi === Z.length - 1;
+      btn('prev').disabled = cur === 0; btn('next').disabled = cur === ths.length - 1;
+    };
+    const reset = () => { zi = 2; rot = 0; tx = 0; ty = 0; paint(); };
+    const show = i => { cur = clamp(i, 0, ths.length - 1); const th = ths[cur]; img.src = $('img', th).getAttribute('src'); img.alt = th.dataset.name; title.textContent = th.dataset.name; idx.textContent = (cur + 1) + ' / ' + ths.length; tx = 0; ty = 0; rot = 0; zi = 2; paint(); };
+    const open = i => { opener = ths[i]; show(i); mask.hidden = false; dlg.focus({ preventScroll: true }); };
+    const close = () => { mask.hidden = true; if (opener) opener.focus({ preventScroll: true }); };
+    const zoom = d => { zi = clamp(zi + d, 0, Z.length - 1); if (Z[zi] <= 1) { tx = 0; ty = 0; } paint(); };
+    ths.forEach((t, i) => t.addEventListener('click', () => open(i)));
+    mask.addEventListener('click', e => {
+      if (e.target === mask) { close(); return; }
+      const b = e.target.closest('[data-act]'); if (!b) return;
+      ({ close, prev: () => show(cur - 1), next: () => show(cur + 1), ccw: () => { rot -= 90; paint(); }, cw: () => { rot += 90; paint(); }, out: () => zoom(-1), in: () => zoom(1), reset }[b.dataset.act] || (() => {}))();
+    });
+    mask.addEventListener('keydown', e => {
+      if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); close(); return; }
+      if (e.key === 'ArrowLeft') { e.preventDefault(); show(cur - 1); }
+      else if (e.key === 'ArrowRight') { e.preventDefault(); show(cur + 1); }
+      else if (e.key === '+' || e.key === '=') zoom(1);
+      else if (e.key === '-') zoom(-1);
+      else if (e.key === '0') reset();
+      else if (e.key === 'Tab') {
+        const f = $$('button:not([disabled])', dlg); if (!f.length) return;
+        const first = f[0], last = f[f.length - 1];
+        if (e.shiftKey && (document.activeElement === first || document.activeElement === dlg)) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+    });
+    view.addEventListener('wheel', e => { e.preventDefault(); zoom(e.deltaY < 0 ? 1 : -1); }, { passive: false });
+    let drag = null;
+    view.addEventListener('pointerdown', e => { if (Z[zi] <= 1 || e.target.closest('button')) return; drag = { x: e.clientX, y: e.clientY, tx, ty }; view.setPointerCapture(e.pointerId); view.classList.add('is-drag'); });
+    view.addEventListener('pointermove', e => { if (!drag) return; tx = drag.tx + e.clientX - drag.x; ty = drag.ty + e.clientY - drag.y; paint(); });
+    const endDrag = () => { drag = null; view.classList.remove('is-drag'); };
+    view.addEventListener('pointerup', endDrag); view.addEventListener('pointercancel', endDrag);
+  }
+
+  /* 二维码：收款码 60 秒有效，临近失效变色，失效后遮住并可刷新；活动码长期有效 */
+  const qr = $('#wb-cd-qr');
+  if (qr) {
+    const MATS = [
+      '/h6L/BSbEG6TvLt0riXbrakuwQrVB/qqr+AH4QCqEkCXh1K39ZU3nenCA8EqhxaKHgDF3CpFGpvjf1ZqaUFp0VymszVosFIQa2KF+ABOLH/5q2vQS+cdurL/7dCSX+6zDlMEKh/v74o7gA==',
+      '/gUD/BF4kG6zXrt15sXbqBGuwUitB/qqr+AdTwC+IcvlTrE5+snUElI64E1nP/UO3DgkPKR96qBtR9KJ53ygMtKpr9bnQ/rz6aE9+4BsFF/4hWswVWkVutF/1dXR0e6zbd0ERvxv73LYAA==',
+      '/uob/BKAUG6LZrt1FwXbq+AuwVdhB/qqr+AcUwCLttfNbonabPns8Ii7J101TjJIw7YczefzxTxxNi52+w6uijEPg+4Eaas0/TJM/IBjnGf7ZusQT3UUuqZvpdMJMm6KVT8Emzt/6UMfAA==',
+      '/l7r/BZYEG6ZvLt0DiXbrKsuwQr1B/qqr+AB5wCqYkCWAhK34dEl/bDibMVuAgbsTjDE6srbGqnjfyKiKcDOkHyr7yWI01JgareE+ABCJH/4q2vQTucduqr/7dJS3+6+CFMEXi/v7Mo7gA=='
+    ];
+    const N = 29, Q = 2, K = 10, LIFE = 60;
+    const bitsOf = b64 => { const bin = atob(b64), out = []; for (let i = 0; i < bin.length; i++) { const v = bin.charCodeAt(i); for (let k = 7; k >= 0; k--) out.push((v >> k) & 1); } return out; };
+    const draw = (cv, m) => {
+      const size = (N + Q * 2) * K; cv.width = size; cv.height = size; const g = cv.getContext('2d'); if (!g) return;
+      g.fillStyle = color('--surface'); g.fillRect(0, 0, size, size); g.fillStyle = color('--ink');
+      const bits = bitsOf(m); for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) if (bits[y * N + x]) g.fillRect((x + Q) * K, (y + Q) * K, K, K);
+    };
+    const pay = $('.wb-cd-qr__panel[data-key="pay"]', qr), ev = $('.wb-cd-qr__panel[data-key="event"]', qr);
+    const cvPay = $('canvas', pay), cvEv = $('canvas', ev), box = $('.wb-cd-qr__box', pay), mask = $('.wb-cd-qr__mask', pay);
+    const tag = $('[data-tag]', pay), leftEl = $('[data-left]', pay), bar = $('.progress', pay), fill = $('.progress > i', pay), save = $('[data-save]', pay);
+    let left = LIFE, mi = 0, expired = false;
+    const render = () => {
+      const low = left <= 10 && !expired; qr.dataset.low = String(low);
+      tag.textContent = expired ? '已失效' : low ? '即将失效' : '有效'; tag.dataset.tone = expired ? 'danger' : low ? 'warning' : 'success';
+      leftEl.textContent = expired ? '已超过有效期' : '还剩 ' + left + ' 秒';
+      fill.style.setProperty('--v', (left / LIFE * 100) + '%'); bar.setAttribute('aria-valuenow', String(left));
+      box.dataset.state = expired ? 'expired' : 'valid'; mask.hidden = !expired; save.disabled = expired;
+    };
+    const refresh = () => { mi = (mi + 1) % 3; draw(cvPay, MATS[mi]); left = LIFE; expired = false; render(); Lz.toast('已刷新二维码', 'success'); };
+    $$('[data-refresh]', pay).forEach(b => b.addEventListener('click', refresh));
+    setInterval(() => { if (expired) return; left -= 1; if (left <= 0) { left = 0; expired = true; } render(); }, 1000);
+    const redraw = () => { draw(cvPay, MATS[mi]); draw(cvEv, MATS[3]); };
+    document.addEventListener('lz:skin', () => requestAnimationFrame(redraw));
+    redraw(); render();
+  }
+
+  /* 图文条目列表：开关即点即存，说明跟着变 */
+  const il = $('#wb-cd-il');
+  if (il) { const sw = $('[role="switch"]', il), d = $('[data-d]', il); sw.addEventListener('lz:toggle', () => { const on = sw.getAttribute('aria-checked') === 'true'; d.textContent = on ? '声音与角标提醒' : '提醒已关闭'; Lz.toast(on ? '已开启新订单提醒' : '已关闭新订单提醒', 'success'); }); }
+
+  /* 头像组堆叠：点加几人，全部成员就近展开 */
+  const as = $('#wb-cd-as');
+  if (as) {
+    const more = $('.wb-cd-as__more', as), list = $('#wb-cd-as-list', as); list.inert = true;
+    more.addEventListener('click', () => {
+      const open = list.dataset.open !== 'true'; list.dataset.open = String(open); list.inert = !open;
+      more.setAttribute('aria-expanded', String(open)); more.textContent = open ? '收起' : '+3';
+      const t = open ? '收起成员列表' : '展开全部成员'; more.setAttribute('aria-label', t); more.dataset.tip = t;
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    });
+  }
+
+  /* 折叠面板组：可限制同时只展开一项 */
+  const ac = $('#wb-cd-ac');
+  if (ac) {
+    const heads = $$('.wb-cd-ac__h', ac), sw = $('[role="switch"]', ac);
+    let only = true;
+    const set = (h, open) => { const p = document.getElementById(h.getAttribute('aria-controls')); h.setAttribute('aria-expanded', String(open)); p.dataset.open = String(open); p.inert = !open; };
+    heads.forEach(h => { const p = document.getElementById(h.getAttribute('aria-controls')); p.inert = h.getAttribute('aria-expanded') !== 'true'; });
+    heads.forEach(h => h.addEventListener('click', () => {
+      const open = h.getAttribute('aria-expanded') !== 'true';
+      if (open && only) heads.forEach(x => { if (x !== h) set(x, false); });
+      set(h, open);
+    }));
+    sw.addEventListener('lz:toggle', () => { only = sw.getAttribute('aria-checked') === 'true'; if (only) { const first = heads.find(h => h.getAttribute('aria-expanded') === 'true'); heads.forEach(h => { if (h !== first) set(h, false); }); } });
+  }
+
+  /* 描述列表卡：列数与边框 */
+  const dsRoot = $('#wb-cd-ds');
+  if (dsRoot) {
+    const ds = $('.wb-cd-ds', dsRoot), segs = $$('.seg__item', ds), sw = $('[role="switch"]', ds);
+    segs.forEach(b => b.addEventListener('click', () => { ds.style.setProperty('--cols', b.dataset.c); segs.forEach(x => x.setAttribute('aria-selected', String(x === b))); }));
+    sw.addEventListener('lz:toggle', () => { ds.dataset.bordered = sw.getAttribute('aria-checked'); });
+  }
+
+  /* 文本省略展开：只有真的超出行数才出现展开 */
+  const el = $('#wb-cd-el');
+  if (el) {
+    $$('.wb-cd-el__blk', el).forEach(blk => {
+      const t = $('.wb-cd-el__txt', blk), g = $('.wb-cd-el__tg', blk); if (!t) return;
+      const check = () => { if (t.classList.contains('is-open')) return; g.hidden = !(t.scrollHeight > t.clientHeight + 1); };
+      g.addEventListener('click', () => { const open = !t.classList.contains('is-open'); t.classList.toggle('is-open', open); g.setAttribute('aria-expanded', String(open)); g.firstChild.nodeValue = open ? '收起' : '展开'; if (!open) check(); });
+      new ResizeObserver(check).observe(t); check();
+    });
+  }
+
+  /* 视频播放卡：没有视频文件，用封面和进度条模拟，点画面、播放键或空格播放暂停，拖动进度条跳转 */
+  const vd = $('#wb-cd-vd');
+  if (vd) {
+    const DUR = 200, RATES = [1, 1.5, 2];
+    const screen = $('.wb-cd-vd__screen', vd), big = $('.wb-cd-vd__big', vd), pp = $('.wb-cd-vd__pp', vd), bar = $('.wb-cd-vd__bar', vd), rate = $('.wb-cd-vd__rate', vd), curEl = $('[data-cur]', vd);
+    let t = 0, ri = 0, timer = 0;
+    const paint = () => { bar.style.setProperty('--p', (t / DUR * 100).toFixed(2)); bar.setAttribute('aria-valuenow', String(Math.round(t))); bar.setAttribute('aria-valuetext', mmss(t)); curEl.textContent = mmss(t); };
+    const state = s => {
+      vd.dataset.state = s; const play = s !== 'playing';
+      const label = s === 'ended' ? '重新播放' : play ? '播放' : '暂停';
+      pp.setAttribute('aria-label', label); pp.dataset.tip = label; $('img', pp).src = $('img', pp).src.replace(/(play|pause)\.webp/, play ? 'play.webp' : 'pause.webp');
+      big.setAttribute('aria-label', s === 'ended' ? '重新播放' : '播放视频'); big.dataset.tip = big.getAttribute('aria-label');
+    };
+    const stop = () => { clearInterval(timer); timer = 0; };
+    const start = () => { if (t >= DUR) t = 0; state('playing'); stop(); timer = setInterval(() => { t += RATES[ri] * 0.25; if (t >= DUR) { t = DUR; stop(); state('ended'); } paint(); }, 250); paint(); };
+    const pause = () => { stop(); state('paused'); };
+    const toggle = () => { if (vd.dataset.state === 'playing') pause(); else start(); };
+    big.addEventListener('click', e => { e.stopPropagation(); toggle(); });
+    pp.addEventListener('click', toggle);
+    screen.addEventListener('click', e => { if (e.target.closest('.wb-cd-vd__ctl')) return; toggle(); });
+    rate.addEventListener('click', () => { ri = (ri + 1) % RATES.length; rate.textContent = RATES[ri] + ' 倍'; });
+    const seekAt = x => { const r = bar.getBoundingClientRect(); t = clamp((x - r.left) / r.width, 0, 1) * DUR; if (vd.dataset.state === 'ended') state('paused'); paint(); };
+    let dragging = false;
+    bar.addEventListener('pointerdown', e => { dragging = true; bar.setPointerCapture(e.pointerId); seekAt(e.clientX); });
+    bar.addEventListener('pointermove', e => { if (dragging) seekAt(e.clientX); });
+    bar.addEventListener('pointerup', () => { dragging = false; });
+    bar.addEventListener('keydown', e => {
+      const d = { ArrowRight: 5, ArrowLeft: -5 }[e.key];
+      if (d) { e.preventDefault(); t = clamp(t + d, 0, DUR); if (vd.dataset.state === 'ended') state('paused'); paint(); }
+      else if (e.key === 'Home') { e.preventDefault(); t = 0; paint(); } else if (e.key === 'End') { e.preventDefault(); t = DUR; paint(); }
+      else if (e.key === ' ') { e.preventDefault(); toggle(); }
+    });
+    paint();
+  }
+
+  /* 评论回复卡：点赞、就近回复、发送后进入回复列表、折叠更多回复 */
+  const cm = $('#wb-cd-cm');
+  if (cm) {
+    const reply = (who, text) => {
+      const d = document.createElement('div'); d.className = 'wb-cd-cm__reply'; d.dataset.who = '周岚';
+      d.innerHTML = '<img class="avatar" alt=""><div class="wb-cd-cm__main"><div class="wb-cd-cm__hd"><span class="wb-cd-name">周岚</span><span class="tag" data-tone="action">店长</span><span class="wb-cd-meta">刚刚</span></div><p class="wb-cd-cm__txt"></p><div class="wb-cd-cm__acts"><button class="wb-cd-cm__like" aria-pressed="false" aria-label="点赞"><img alt=""><span data-n>0</span></button><button class="btn btn--text btn--xs" data-reply>回复</button></div></div>';
+      $('.avatar', d).src = $('.wb-cd-cm__item .wb-cd-cm__reply .avatar', cm).getAttribute('src');
+      $('.wb-cd-cm__like img', d).src = $('.wb-cd-cm__like img', cm).getAttribute('src'); $('.wb-cd-cm__like img', d).dataset.ic = 'heart';
+      $('.wb-cd-cm__txt', d).textContent = text; return d;
+    };
+    cm.addEventListener('click', e => {
+      const like = e.target.closest('.wb-cd-cm__like');
+      if (like) { const on = like.getAttribute('aria-pressed') !== 'true', n = $('[data-n]', like); like.setAttribute('aria-pressed', String(on)); like.setAttribute('aria-label', on ? '取消点赞' : '点赞'); n.textContent = (+n.textContent) + (on ? 1 : -1); return; }
+      const rp = e.target.closest('[data-reply]');
+      if (rp) {
+        const item = rp.closest('.wb-cd-cm__item'), form = $('.expand[data-form]', item), input = $('.input', form), who = rp.closest('[data-who]').dataset.who;
+        const open = !(form.dataset.open === 'true' && input.placeholder === '回复' + who);
+        input.placeholder = '回复' + who; form.dataset.open = String(open); form.inert = !open; if (open) input.focus({ preventScroll: true }); return;
+      }
+      const more = e.target.closest('.wb-cd-cm__more');
+      if (more) { const open = more.getAttribute('aria-expanded') !== 'true'; more.setAttribute('aria-expanded', String(open)); $$('[data-more]', more.parentElement).forEach(r => { r.hidden = !open; }); more.firstChild.nodeValue = open ? '收起回复' : '展开另外 2 条回复'; }
+    });
+    $$('.expand[data-form]', cm).forEach(f => {
+      f.inert = true; const input = $('.input', f), send = $('.btn', f);
+      input.addEventListener('input', () => { send.disabled = !input.value.trim(); });
+      f.addEventListener('submit', e => {
+        e.preventDefault(); const v = input.value.trim(); if (!v) return;
+        const item = f.closest('.wb-cd-cm__item'), list = $('.wb-cd-cm__replies', item), more = $('.wb-cd-cm__more', list);
+        const r = reply('周岚', v); if (more) { more.before(r); if (more.getAttribute('aria-expanded') !== 'true') r.hidden = false; } else list.append(r);
+        input.value = ''; send.disabled = true; f.dataset.open = 'false'; f.inert = true; Lz.toast('已回复', 'success');
+      });
+    });
+  }
+
+  /* 音频播放条：同一时间只播一条，点波形跳转，播完回到开头，听过后红点消失 */
+  const au = $('#wb-cd-au');
+  if (au) {
+    const items = $$('.wb-cd-au__item', au); let playing = null;
+    const N = 38;
+    items.forEach(it => {
+      const dur = +it.dataset.dur, seed = +it.dataset.seed, wave = $('.wb-cd-au__wave', it), pp = $('.wb-cd-au__pp', it), curEl = $('[data-cur]', it);
+      for (let i = 0; i < N; i++) { const b = document.createElement('i'); b.style.setProperty('--h', Math.round(28 + 62 * Math.abs(Math.sin(i * 0.55 + seed) * Math.cos(i * 0.21 + seed * 1.7)))); wave.appendChild(b); }
+      const bars = $$('i', wave); let t = 0, timer = 0;
+      const paint = () => { const k = Math.round(t / dur * N); bars.forEach((b, i) => { b.toggleAttribute('data-on', i < k); }); curEl.textContent = mss(t); wave.setAttribute('aria-valuenow', String(Math.round(t))); wave.setAttribute('aria-valuetext', Math.round(t) + ' 秒'); };
+      const icon = on => { const im = $('img', pp); im.src = im.src.replace(/(play|pause)\.webp/, on ? 'pause.webp' : 'play.webp'); pp.dataset.tip = on ? '暂停' : '播放'; it.dataset.state = on ? 'playing' : 'idle'; };
+      it._stop = () => { clearInterval(timer); timer = 0; icon(false); };
+      const play = () => { if (playing && playing !== it) playing._stop(); playing = it; if (t >= dur) t = 0; it.dataset.unread = 'false'; icon(true); clearInterval(timer); timer = setInterval(() => { t += 0.25; if (t >= dur) { t = 0; it._stop(); } paint(); }, 250); };
+      pp.addEventListener('click', () => { if (timer) it._stop(); else play(); });
+      const seek = x => { const r = wave.getBoundingClientRect(); t = clamp((x - r.left) / r.width, 0, 1) * dur; paint(); };
+      let drag = false;
+      wave.addEventListener('pointerdown', e => { drag = true; wave.setPointerCapture(e.pointerId); seek(e.clientX); });
+      wave.addEventListener('pointermove', e => { if (drag) seek(e.clientX); });
+      wave.addEventListener('pointerup', () => { drag = false; });
+      wave.addEventListener('keydown', e => { const d = { ArrowRight: 1, ArrowLeft: -1 }[e.key]; if (d) { e.preventDefault(); t = clamp(t + d, 0, dur); paint(); } else if (e.key === ' ') { e.preventDefault(); pp.click(); } });
+      paint(); icon(false);
+    });
+  }
+
+  /* 前后对比滑块：拖动、点按或方向键移动分界线 */
+  const df = $('#wb-cd-df');
+  if (df) {
+    const set = p => { p = clamp(p, 0, 100); df.style.setProperty('--p', p + '%'); df.setAttribute('aria-valuenow', String(Math.round(p))); df.setAttribute('aria-valuetext', p < 4 ? '只显示调色后' : p > 96 ? '只显示调色前' : '调色前占 ' + Math.round(p) + '%'); };
+    const at = x => { const r = df.getBoundingClientRect(); set((x - r.left) / r.width * 100); };
+    let drag = false;
+    df.addEventListener('pointerdown', e => { drag = true; df.setPointerCapture(e.pointerId); at(e.clientX); });
+    df.addEventListener('pointermove', e => { if (drag) at(e.clientX); });
+    df.addEventListener('pointerup', () => { drag = false; });
+    df.addEventListener('keydown', e => { const cur = +df.getAttribute('aria-valuenow'), d = { ArrowRight: 5, ArrowLeft: -5 }[e.key]; if (d) { e.preventDefault(); set(cur + d); } else if (e.key === 'Home') { e.preventDefault(); set(0); } else if (e.key === 'End') { e.preventDefault(); set(100); } });
+  }
+
+  /* 悬停切图商品卡：鼠标横移按位置切图，离开回到首图，键盘左右键切换 */
+  const hg = $('#wb-cd-hg');
+  if (hg) {
+    const media = $('.wb-cd-hg__media', hg), imgs = $$('img', media), bars = $$('.wb-cd-hg__bars i', media); let k = 0;
+    const show = i => { k = clamp(i, 0, imgs.length - 1); imgs.forEach((m, j) => m.classList.toggle('is-on', j === k)); bars.forEach((b, j) => b.toggleAttribute('data-on', j === k)); media.setAttribute('aria-label', '粉玫瑰花束图片 第 ' + (k + 1) + ' 张 共 ' + imgs.length + ' 张'); };
+    const at = x => { const r = media.getBoundingClientRect(); show(Math.floor(clamp((x - r.left) / r.width, 0, .999) * imgs.length)); };
+    media.addEventListener('pointermove', e => at(e.clientX)); media.addEventListener('pointerdown', e => at(e.clientX));
+    media.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse') show(0); });
+    media.addEventListener('keydown', e => { const d = { ArrowRight: 1, ArrowLeft: -1 }[e.key]; if (d) { e.preventDefault(); show(k + d); } });
+  }
+
+  /* 轮播图展示：自动轮播、箭头、指示点、鼠标拖动与触屏滑动；悬停或聚焦时暂停，可手动暂停 */
+  const cr = $('#wb-cd-cr');
+  if (cr) {
+    const track = $('.wb-cd-cr__track', cr), slides = $$('.wb-cd-cr__slide', cr), dots = $$('.wb-cd-cr__dot', cr), prev = $('.wb-cd-cr__nav--prev', cr), next = $('.wb-cd-cr__nav--next', cr), play = $('.wb-cd-cr__play', cr);
+    let idx = 0, playing = !Lz.reduce, hold = false, seen = true, timer = 0;
+    const mark = () => { dots.forEach((d, k) => { d.setAttribute('aria-selected', String(k === idx)); d.tabIndex = k === idx ? 0 : -1; }); slides.forEach((s, k) => { s.inert = k !== idx; }); };
+    const schedule = () => { clearTimeout(timer); if (playing && !hold && seen) timer = setTimeout(() => go(idx + 1), 4500); };
+    const go = (i, wrap = true) => { idx = wrap ? (i + slides.length) % slides.length : clamp(i, 0, slides.length - 1); track.scrollTo({ left: idx * track.clientWidth, behavior: Lz.reduce ? 'auto' : 'smooth' }); mark(); schedule(); };
+    const setPlay = on => { playing = on; cr.dataset.playing = String(on); const l = on ? '暂停轮播' : '开始轮播'; play.setAttribute('aria-label', l); play.dataset.tip = l; const im = $('img', play); im.src = im.src.replace(/(play|pause)\.webp/, on ? 'pause.webp' : 'play.webp'); schedule(); };
+    prev.addEventListener('click', () => go(idx - 1)); next.addEventListener('click', () => go(idx + 1));
+    dots.forEach((d, k) => d.addEventListener('click', () => go(k)));
+    play.addEventListener('click', () => { setPlay(!playing); document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' })); });
+    track.addEventListener('keydown', e => { if (e.key === 'ArrowRight') { e.preventDefault(); go(idx + 1); } else if (e.key === 'ArrowLeft') { e.preventDefault(); go(idx - 1); } });
+    let settle = 0;
+    track.addEventListener('scroll', () => { clearTimeout(settle); settle = setTimeout(() => { const i = Math.round(track.scrollLeft / track.clientWidth); if (i !== idx) { idx = i; mark(); schedule(); } }, 90); }, { passive: true });
+    cr.addEventListener('pointerenter', () => { hold = true; schedule(); }); cr.addEventListener('pointerleave', () => { hold = false; schedule(); });
+    cr.addEventListener('focusin', () => { hold = true; schedule(); }); cr.addEventListener('focusout', () => { hold = false; schedule(); });
+    let drag = null;
+    track.addEventListener('pointerdown', e => { if (e.pointerType !== 'mouse' || e.target.closest('button')) return; drag = { x: e.clientX, left: track.scrollLeft }; track.style.scrollSnapType = 'none'; track.setPointerCapture(e.pointerId); track.classList.add('is-drag'); });
+    track.addEventListener('pointermove', e => { if (drag) track.scrollLeft = drag.left - (e.clientX - drag.x); });
+    const endDrag = e => { if (!drag) return; const dx = e.clientX - drag.x; drag = null; track.classList.remove('is-drag'); track.style.scrollSnapType = ''; go(Math.abs(dx) > 40 ? idx + (dx < 0 ? 1 : -1) : idx, false); };
+    track.addEventListener('pointerup', endDrag); track.addEventListener('pointercancel', endDrag);
+    new IntersectionObserver(es => { seen = es[0].isIntersecting; schedule(); }, { threshold: .3 }).observe(cr);
+    new ResizeObserver(() => { track.scrollTo({ left: idx * track.clientWidth, behavior: 'auto' }); }).observe(track);
+    setPlay(playing); mark();
+  }
+})();
+</script>

@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="navy" data-bg="none" data-ic-base="../../../../kit/assets/icons">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>交易明细</title>
+<link rel="icon" href="../../../../kit/assets/icons/flat/giftbox.webp">
+<link rel="stylesheet" href="../../../../kit/tokens.css">
+<link rel="stylesheet" href="../../../../kit/ui.css">
+<link rel="stylesheet" href="../../../../kit/kit.css">
+<link rel="stylesheet" href="../../../../kit/web.css">
+<style>
+  /* 侧栏标识、胶囊标签与表格的统一细节 */
+  .tag { height: 24px; padding: 0 var(--s-3); border-radius: var(--r-full); }
+  .tag--dot::before { content: ""; width: 6px; height: 6px; margin-right: 6px; border-radius: 50%; background: currentColor; }
+  .table th { height: 48px; }
+  .table td { height: 68px; padding-top: 0; padding-bottom: 0; }
+  .thumb { width: 44px; height: 44px; border-radius: var(--r-md); object-fit: cover; background: var(--zone); flex: none; box-shadow: 0 0 0 1px var(--line); }
+  .pname { display: flex; align-items: center; gap: var(--s-3); min-width: 0; }
+  .seg--chips .seg__item { background: var(--surface); box-shadow: inset 0 0 0 1px var(--line-strong); min-height: 40px; padding: 0 var(--s-5); }
+  .seg--chips .seg__item[aria-selected="true"] { background: var(--action); box-shadow: none; }
+  @media (hover: hover) { .seg--chips .seg__item[aria-selected="false"]:hover { background: var(--action-tint); } }
+
+  /* 本页专属：工具条、订单表格的行内展开、详情页两栏与金额明细 */
+  .toolbar { overflow: visible; min-height: 64px; }
+  .toolbar > * { flex: none; }
+  .toolbar .push { margin-left: auto; }
+  .btn--warn { color: var(--danger); }
+  .price small { font-size: var(--fs-xs); }
+  .pg-seg { margin-top: var(--s-2); }
+  .main .subbar { margin: 0 calc(var(--s-8) * -1); padding: 0 var(--s-6); background: var(--action-tint); border-bottom-color: var(--action-edge); }
+  @media (max-width: 760px) { .main .subbar { margin: 0 calc(var(--s-4) * -1); padding: 0 var(--s-3); } }
+
+  .table-wrap { container-type: inline-size; }
+  .table { min-width: 900px; }
+  .table tbody tr { cursor: default; }
+  .table .c-ex { padding: 0 0 0 var(--s-2); }
+  .table .who { vertical-align: middle; }
+  .table .who img { width: 36px; height: 36px; background: var(--zone); }
+  .table .c-act { padding-left: var(--s-2); padding-right: var(--s-2); }
+  .skrow { pointer-events: none; }
+  .skrow td > .skel { height: 16px; margin: 0 auto; }
+
+  /* 行内展开：紧邻所属订单行下方，窄屏横向滚动时展开区固定在可视宽度内 */
+  .table tbody tr.exrow, .table tbody tr.exrow:hover { background: none; }
+  .exrow td { height: auto; padding: 0; border-top: 0; overflow: visible; white-space: normal; text-align: left; }
+  .exrow .expand { position: sticky; left: 0; width: 100cqw; }
+  .expand > div { visibility: hidden; transition: visibility 0s linear var(--dur-base); }
+  .expand[data-open="true"] > div { visibility: visible; transition-delay: 0s; }
+  .exb { display: grid; grid-template-columns: minmax(0, 480px) minmax(0, 1fr); gap: var(--s-8); padding-left: var(--s-5); padding-right: var(--s-5); }
+  .exb__h { margin-bottom: var(--s-2); font-size: var(--fs-sm); font-weight: 600; color: var(--ink-3); }
+  .exb__item { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto auto; align-items: center; gap: var(--s-3); min-height: 60px; }
+  .exb__item + .exb__item { border-top: 1px solid var(--line); }
+  .exb__qty { color: var(--ink-2); font-variant-numeric: tabular-nums; }
+  @media (max-width: 760px) { .exb { grid-template-columns: minmax(0, 1fr); gap: var(--s-4); } }
+
+  /* 分页器 */
+  .pager__total { margin-right: auto; }
+  .drop--up .drop__menu { top: auto; bottom: calc(100% + 4px); transform-origin: bottom left; }
+  .pager .seg__item { background: var(--surface); box-shadow: inset 0 0 0 1px var(--line-strong); }
+  .pager .seg__item[aria-current="page"] { background: var(--action-tint); color: var(--action-press); font-weight: 600; box-shadow: inset 0 0 0 1px var(--action); }
+
+  /* 详情页 */
+  .subbar__t { display: flex; align-items: center; gap: var(--s-3); min-width: 0; }
+  .cust { display: inline-flex; align-items: center; gap: var(--s-2); }
+  .cust img { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; background: var(--zone); }
+  .dgrid { margin-top: var(--s-1); align-items: start; }
+  .tlcard { padding: var(--s-5) var(--s-6) var(--s-1); }
+  .tl__item p + p { margin-top: 2px; }
+  .amt { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); min-height: 48px; padding: 0 var(--s-5); }
+  .amt + .amt { border-top: 1px solid var(--line); }
+  .amt--sum { min-height: 64px; font-weight: 600; background: var(--action-tint); border-radius: 0 0 var(--r-lg) var(--r-lg); }
+  .amt--sum .price { font-size: var(--fs-xl); }
+  .items .row { padding-left: var(--s-5); padding-right: var(--s-5); }
+  .items .row + .row::before { left: var(--s-5); }
+  .items .row__lead { border-radius: var(--r-md); box-shadow: 0 0 0 1px var(--line); }
+</style>
+</head>
+<body class="web-body">
+<div class="web">
+  <!-- 左侧主导航：图文同行，当前项有背景与指示线；不放产品名 -->
+  <nav class="rail" data-cid="WB-NAV-001" data-name="左侧主导航" aria-label="主导航">
+    <img class="rail__logo" data-ic="bouquet" src="../../../../kit/assets/icons/flat/bouquet.webp" alt="">
+    <a class="rail__item" href="home.html"><img src="../../../../kit/assets/line/home.webp" alt=""><span>工作台</span></a>
+    <a class="rail__item" href="list.html"><img src="../../../../kit/assets/line/list.webp" alt=""><span>列表</span></a>
+    <a class="rail__item" href="orders.html" aria-current="page"><img src="../../../../kit/assets/line/archive.webp" alt=""><span>订单</span></a>
+    <a class="rail__item" href="agent.html"><img src="../../../../kit/assets/line/message.webp" alt=""><span>助手</span></a>
+    <span class="rail__sp"></span>
+    <a class="rail__item" href="mine.html"><img src="../../../../kit/assets/line/user.webp" alt=""><span>我的</span></a>
+  </nav>
+
+  <main class="main"><div class="main__in">
+
+    <!-- 主视图：顶部、状态分段、订单表；详情是另一个独立视图 -->
+    <div class="view" id="pg" data-view="list">
+      <header class="head" data-cid="WB-ORDR-001" data-name="页面顶部标题搜索">
+        <div class="head__row">
+          <h1>交易明细</h1>
+          <div class="head__acts">
+            <label class="search"><img src="../../../../kit/assets/line/search.webp" alt=""><input id="q" type="search" placeholder="搜索订单号或客户" aria-label="搜索订单号或客户" autocomplete="off"></label>
+          </div>
+        </div>
+      </header>
+      <!-- 状态分段：数量按全部订单统计，状态变更后同步 -->
+      <div class="seg seg--chips pg-seg" data-seg="status" role="tablist" aria-label="订单状态" data-cid="WB-ORDR-002" data-name="状态分段筛选">
+        <button class="seg__item" data-key="all" aria-selected="true">全部<small data-n="all">0</small></button>
+        <button class="seg__item" data-key="pay">待付款<small data-n="pay">0</small></button>
+        <button class="seg__item" data-key="ship">待发货<small data-n="ship">0</small></button>
+        <button class="seg__item" data-key="recv">待收货<small data-n="recv">0</small></button>
+        <button class="seg__item" data-key="done">已完成<small data-n="done">0</small></button>
+        <button class="seg__item" data-key="after">售后<small data-n="after">0</small></button>
+      </div>
+
+      <section class="section">
+        <div class="section__head"><h2>交易清单</h2></div>
+        <div class="card section__body">
+          <div class="toolbar" data-cid="WB-ORDR-003" data-name="筛选导出工具条">
+            <div class="drop" data-drop="pay"><button type="button" class="drop__btn">支付方式<b>不限</b></button><div class="drop__menu" role="listbox" aria-label="支付方式">
+              <button type="button" class="drop__opt" role="option" data-value="all" aria-selected="true">不限</button>
+              <button type="button" class="drop__opt" role="option" data-value="微信支付">微信支付</button>
+              <button type="button" class="drop__opt" role="option" data-value="支付宝">支付宝</button>
+              <button type="button" class="drop__opt" role="option" data-value="银行卡">银行卡</button>
+            </div></div>
+            <div class="drop" data-drop="amt"><button type="button" class="drop__btn">金额<b>不限</b></button><div class="drop__menu" role="listbox" aria-label="金额范围">
+              <button type="button" class="drop__opt" role="option" data-value="all" aria-selected="true">不限</button>
+              <button type="button" class="drop__opt" role="option" data-value="lt100">100 元以下</button>
+              <button type="button" class="drop__opt" role="option" data-value="r1">100 至 300 元</button>
+              <button type="button" class="drop__opt" role="option" data-value="r2">300 至 600 元</button>
+              <button type="button" class="drop__opt" role="option" data-value="gt600">600 元以上</button>
+            </div></div>
+            <button type="button" class="btn btn--secondary btn--sm btn--pill push" id="export">导出</button>
+          </div>
+
+          <div class="table-wrap" id="wrap" data-cid="WB-ORDR-004" data-name="订单表格行内展开">
+            <table class="table">
+              <colgroup><col style="width:48px"><col style="width:136px"><col style="width:140px"><col><col style="width:112px"><col style="width:112px"><col style="width:112px"></colgroup>
+              <thead><tr>
+                <th class="c-ex"><span class="sr-only">展开</span></th>
+                <th>订单号</th>
+                <th class="t-l">客户</th>
+                <th class="t-l">商品摘要</th>
+                <th class="t-r">金额</th>
+                <th>状态</th>
+                <th class="c-act">操作</th>
+              </tr></thead>
+              <tbody id="rows"></tbody>
+            </table>
+          </div>
+
+          <div class="empty" id="empty" hidden>
+            <img data-ic="bag" src="../../../../kit/assets/icons/flat/bag.webp" alt="">
+            <p>无匹配订单</p>
+            <button type="button" class="btn btn--secondary btn--sm btn--pill" id="clear">清除筛选</button>
+          </div>
+
+          <div class="pager" id="pager" data-cid="WB-ORDR-005" data-name="表格分页器" hidden>
+            <span class="pager__total" id="total">共 0 项</span>
+            <div class="drop drop--up" data-drop="size"><button type="button" class="drop__btn">每页<b>20</b>项</button><div class="drop__menu" role="listbox" aria-label="每页项数">
+              <button type="button" class="drop__opt" role="option" data-value="10">10</button>
+              <button type="button" class="drop__opt" role="option" data-value="20" aria-selected="true">20</button>
+              <button type="button" class="drop__opt" role="option" data-value="50">50</button>
+              <button type="button" class="drop__opt" role="option" data-value="100">100</button>
+            </div></div>
+            <button type="button" class="btn btn--ghost btn--sm" id="prev">上一页</button>
+            <div class="seg" id="pages" aria-label="页码"></div>
+            <button type="button" class="btn btn--ghost btn--sm" id="next">下一页</button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- 独立详情页：返回只在左上，恢复筛选、行与滚动位置 -->
+    <div class="view" id="dv" data-view="detail" hidden>
+      <div class="subbar">
+        <button type="button" class="ibtn" data-back data-tip="返回" aria-label="返回"><img src="../../../../kit/assets/line/back.webp" alt=""></button>
+        <div class="subbar__t"><h1>交易详情</h1><span id="dtag"></span></div>
+        <span></span>
+      </div>
+      <div class="grid cols-main dgrid">
+        <div>
+          <section class="section" style="margin-top:var(--s-4)" data-cid="WB-ORDR-006" data-name="配送时间线卡">
+            <div class="section__head"><h2>配送跟踪</h2></div>
+            <div class="card section__body tlcard"><div class="tl" id="dtl"></div></div>
+          </section>
+          <section class="section" data-cid="WB-ORDR-007" data-name="商品明细列表卡">
+            <div class="section__head"><h2>商品明细</h2></div>
+            <div class="card list section__body items" id="ditems"></div>
+          </section>
+        </div>
+        <div>
+          <section class="section" style="margin-top:var(--s-4)" data-cid="WB-ORDR-008" data-name="交易信息键值卡">
+            <div class="section__head"><h2>交易信息</h2></div>
+            <div class="card section__body"><dl class="kv" id="dkv"></dl></div>
+          </section>
+          <section class="section" data-cid="WB-ORDR-009" data-name="金额明细卡">
+            <div class="section__head"><h2>金额明细</h2></div>
+            <div class="card section__body" id="damt"></div>
+          </section>
+        </div>
+      </div>
+    </div>
+
+  </div></main>
+</div>
+<script src="../../../../kit/ui.js"></script>
+<script>
+  const $ = Lz.$, $$ = Lz.$$;
+  const IMG = n => `../../../../kit/assets/photo/product-${n}.webp`;
+  const MARK = n => `../../../../kit/assets/marks/mark-${String(n).padStart(3, '0')}.webp`;
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const money = n => n.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  /* 商品目录：名称、单价、图片 */
+  const P = { 1: ['红玫瑰花束', 199, 'rose-red'], 2: ['粉芍药花束', 239, 'peony-pink'], 3: ['向日葵花束', 159, 'sunflower'], 4: ['白郁金香', 179, 'tulip-white'], 5: ['蓝绣球盆栽', 129, 'hydrangea-blue'], 6: ['龟背竹盆栽', 159, 'monstera'], 7: ['多肉组合盆', 89, 'succulent'], 8: ['干花花瓶摆件', 129, 'pampas-vase'], 9: ['花礼盒', 259, 'giftbox'] };
+  const STORES = ['建国路店', '徐汇滨江店', '浦东世纪店'];
+  /* 订单：编号、客户、商品、状态、支付、下单相对时间、下单已过去的天数、优惠、电话、收货地址 */
+  const rawOrders = [
+    ['7301846250', '林晓', [[1, 1]], 'pay', '微信支付', '5 分钟前', 0, 0, '138****5021', '上海市静安区南京西路 1266 号 8 楼'],
+    ['7301846183', '陈默', [[2, 1], [7, 2]], 'pay', '支付宝', '18 分钟前', 0, 20, '139****2284', '上海市徐汇区龙腾大道 2350 号 5 栋 602 室'],
+    ['7301845907', '周岚', [[5, 1]], 'pay', '微信支付', '40 分钟前', 0, 0, '137****9046', '上海市浦东新区世纪大道 1200 号 12 楼'],
+    ['7301845512', '吴桐', [[9, 1]], 'ship', '支付宝', '1 小时前', 0, 30, '136****7712', '上海市黄浦区淮海中路 381 号 3 单元 1201 室'],
+    ['7301845236', '郑一', [[3, 1], [8, 1]], 'ship', '微信支付', '2 小时前', 0, 0, '135****3369', '上海市长宁区仙霞路 99 号 2 楼'],
+    ['7301844870', '王晴', [[4, 2]], 'ship', '银行卡', '3 小时前', 0, 0, '158****4410', '上海市杨浦区大学路 52 号 9 栋 305 室'],
+    ['7301844391', '赵诚', [[1, 1], [7, 1]], 'recv', '支付宝', '昨天', 1, 0, '186****6027', '上海市闵行区虹梅路 1801 号 16 层'],
+    ['7301843725', '孙悦', [[6, 2]], 'recv', '银行卡', '昨天', 1, 0, '177****1593', '上海市普陀区曹杨路 640 号 4 栋 701 室'],
+    ['7301843108', '李想', [[2, 1], [5, 1]], 'recv', '微信支付', '昨天', 1, 0, '189****8835', '上海市虹口区四川北路 1688 号 1 单元 502 室'],
+    ['7301842654', '钱多', [[9, 1]], 'done', '支付宝', '3 天前', 3, 0, '133****2076', '上海市徐汇区漕溪北路 398 号 6 栋 1108 室'],
+    ['7301842019', '何洛', [[3, 2]], 'done', '微信支付', '3 天前', 3, 0, '152****5918', '上海市浦东新区张杨路 2388 号 22 层'],
+    ['7301841577', '许宁', [[7, 1]], 'done', '银行卡', '4 天前', 4, 0, '181****3740', '上海市静安区共和新路 1201 号 3 栋 401 室'],
+    ['7301840932', '沈舟', [[1, 2]], 'done', '微信支付', '5 天前', 5, 0, '155****6281', '上海市长宁区天山路 789 号 2 单元 903 室'],
+    ['7301840286', '韩雪', [[4, 1]], 'after', '支付宝', '6 天前', 6, 0, '187****9402', '上海市浦东新区陆家嘴环路 1000 号 7 栋 1506 室'],
+  ];
+  let orders = rawOrders.map(([no, name, items, st, pay, t, age, disc, phone, addr], i) => ({ id: i + 1, no, name, mark: i + 1, items, st, pay, t, age, disc, phone, addr, store: STORES[i % 3], cour: i % 2 ? '顺丰同城' : '达达配送', trk: String(4810293746 + i * 1377) }));
+
+  const ST = { pay: ['待付款', 'warning'], ship: ['待发货', 'action'], recv: ['待收货', 'info'], done: ['已完成', 'success'], after: ['售后', 'danger'], shut: ['已关闭', ''] };
+  const RANGE = { all: [0, Infinity], lt100: [0, 100], r1: [100, 300], r2: [300, 600], gt600: [600, Infinity] };
+  const sumOf = o => o.items.reduce((a, [id, q]) => a + P[id][1] * q, 0);
+  const shipOf = o => (sumOf(o) >= 199 ? 0 : 12);
+  const totalOf = o => sumOf(o) + shipOf(o) - o.disc;
+  const qtyOf = o => o.items.reduce((a, [, q]) => a + q, 0);
+  const summary = o => (o.items.length === 1 ? `${P[o.items[0][0]][0]} ×${o.items[0][1]}` : `${P[o.items[0][0]][0]} 等 ${qtyOf(o)} 件`);
+
+  const S = { seg: 'all', q: '', pay: 'all', amt: 'all', size: 20, page: 1, open: new Set(), loading: true, cur: null };
+  const el = { rows: $('#rows'), wrap: $('#wrap'), empty: $('#empty'), pager: $('#pager') };
+  const byId = id => orders.find(o => o.id === id);
+  const matches = o => {
+    const [lo, hi] = RANGE[S.amt], t = totalOf(o);
+    const hay = o.no + o.name + o.items.map(([id]) => P[id][0]).join('');
+    return (S.seg === 'all' || o.st === S.seg) && (S.pay === 'all' || o.pay === S.pay) && t >= lo && t < hi && (!S.q || hay.includes(S.q));
+  };
+
+  function setDrop(name, val) {
+    const d = $(`[data-drop="${name}"]`), opts = $$('.drop__opt', d), o = opts.find(x => x.dataset.value === val);
+    opts.forEach(x => x.setAttribute('aria-selected', String(x === o)));
+    $('b', d).textContent = o.textContent; d.dataset.value = val;
+  }
+
+  /* 操作列按状态变化：取消、发货、查看配送、详情 */
+  function action(o) {
+    if (o.st === 'pay') return `<button type="button" class="btn btn--ghost btn--sm btn--warn" data-act="cancel" data-id="${o.id}">取消</button>`;
+    if (o.st === 'ship') return `<button type="button" class="btn btn--primary btn--sm" data-act="ship" data-id="${o.id}">发货</button>`;
+    return `<button type="button" class="btn btn--secondary btn--sm" data-open="detail" data-key="${o.id}">${o.st === 'recv' ? '查看配送' : '详情'}</button>`;
+  }
+  function rowHtml(o) {
+    const st = ST[o.st], open = S.open.has(o.id);
+    const items = o.items.map(([id, q]) => `<div class="exb__item"><img class="thumb" src="${IMG(P[id][2])}" alt=""><span class="one-line">${P[id][0]}</span><span class="exb__qty">×${q}</span><span class="price"><small>¥</small>${money(P[id][1] * q)}</span></div>`).join('');
+    return `<tr class="orow" data-id="${o.id}">
+      <td class="c-ex"><button type="button" class="ibtn chev" data-expand="ex-${o.id}" data-tip="展开明细" aria-label="展开订单 ${o.no}"></button></td>
+      <td class="t-num">${o.no}</td>
+      <td class="t-l"><span class="who"><img src="${MARK(o.mark)}" alt=""><span class="one-line">${esc(o.name)}</span></span></td>
+      <td class="t-l"><span class="pname"><img class="thumb" src="${IMG(P[o.items[0][0]][2])}" alt=""><span class="one-line">${summary(o)}</span></span></td>
+      <td class="t-r price"><small>¥</small>${money(totalOf(o))}</td>
+      <td><span class="tag tag--dot" data-tone="${st[1]}">${st[0]}</span></td>
+      <td class="c-act">${action(o)}</td></tr>
+    <tr class="exrow"><td colspan="7"><div class="expand" id="ex-${o.id}" data-open="${open}"><div><div class="expand__body exb">
+      <div><p class="exb__h">商品明细</p>${items}</div>
+      <div><p class="exb__h">收货信息</p><p class="row__title">${esc(o.name)} ${o.phone}</p><p class="row__meta">${o.addr}</p></div>
+    </div></div></div></td></tr>`;
+  }
+  const skeleton = () => Array.from({ length: 8 }, () => `<tr class="skrow"><td class="c-ex"><div class="skel" style="width:20px"></div></td><td><div class="skel" style="width:90px"></div></td><td class="t-l"><div style="display:flex;align-items:center;gap:8px"><div class="skel" style="width:36px;height:36px;border-radius:50%;flex:none"></div><div class="skel" style="width:60px;height:16px"></div></div></td><td class="t-l"><div class="skel" style="width:50%;margin:0"></div></td><td><div class="skel" style="width:72px"></div></td><td><div class="skel" style="width:52px"></div></td><td class="c-act"><div class="skel" style="width:60px;height:28px"></div></td></tr>`).join('');
+
+  const view = () => orders.filter(matches);
+  function counts() { $$('[data-n]').forEach(n => { const k = n.dataset.n; n.textContent = orders.filter(o => k === 'all' || o.st === k).length; }); }
+  function renderPager(total, pages) {
+    $('#total').textContent = `共 ${total} 项`; $('#prev').disabled = S.page <= 1; $('#next').disabled = S.page >= pages;
+    $('#pages').innerHTML = Array.from({ length: pages }, (_, i) => `<button type="button" class="seg__item" data-p="${i + 1}" aria-label="第 ${i + 1} 页"${i + 1 === S.page ? ' aria-current="page"' : ''}>${i + 1}</button>`).join('');
+  }
+  function render() {
+    counts(); if (S.loading) return;
+    const all = view(), pages = Math.max(1, Math.ceil(all.length / S.size)); S.page = Math.min(S.page, pages);
+    const rows = all.slice((S.page - 1) * S.size, S.page * S.size);
+    el.rows.innerHTML = rows.map(rowHtml).join(''); Lz.initExpand(el.rows);
+    el.wrap.hidden = !rows.length; el.empty.hidden = !!rows.length; el.pager.hidden = !all.length;
+    renderPager(all.length, pages);
+  }
+  /* 展开状态按订单记录，重新渲染后保持 */
+  el.rows.addEventListener('click', e => {
+    const b = e.target.closest('[data-expand]'); if (!b) return;
+    const id = +b.dataset.expand.slice(3); document.getElementById(b.dataset.expand).dataset.open === 'true' ? S.open.add(id) : S.open.delete(id);
+  });
+
+  /* 筛选与分页 */
+  document.addEventListener('lz:seg', e => { if (e.detail.group === 'status') { S.seg = e.detail.key; S.page = 1; render(); } });
+  document.addEventListener('lz:drop', e => {
+    const d = e.target.closest('[data-drop]'), v = e.detail.value, n = d.dataset.drop;
+    if (n === 'size') S.size = +v; else S[n] = v; S.page = 1; render();
+  });
+  $('#q').addEventListener('input', e => { S.q = e.target.value.trim(); S.page = 1; render(); });
+  $('#clear').addEventListener('click', () => {
+    S.q = ''; $('#q').value = ''; S.pay = 'all'; S.amt = 'all'; setDrop('pay', 'all'); setDrop('amt', 'all'); S.page = 1;
+    $('[data-seg="status"] .seg__item[data-key="all"]').click();
+  });
+  $('#pages').addEventListener('click', e => { const b = e.target.closest('[data-p]'); if (b) { S.page = +b.dataset.p; render(); } });
+  $('#prev').addEventListener('click', () => { S.page -= 1; render(); });
+  $('#next').addEventListener('click', () => { S.page += 1; render(); });
+  $('#export').addEventListener('click', () => Lz.toast(`已导出 ${view().length} 条记录`, 'success'));
+
+  /* 变更状态：取消先确认，发货直接生效；标签与分段数量同步 */
+  el.rows.addEventListener('click', async e => {
+    const b = e.target.closest('[data-act]'); if (!b) return; const o = byId(+b.dataset.id);
+    if (b.dataset.act === 'ship') { o.st = 'recv'; render(); Lz.toast(`订单 ${o.no} 已发货`, 'success'); }
+    else if (b.dataset.act === 'cancel') {
+      if (!(await Lz.confirm({ title: `取消订单 ${o.no}`, ok: '取消订单', cancel: '保留', tone: 'danger' }))) return;
+      o.st = 'shut'; render(); Lz.toast(`订单 ${o.no} 已取消`, 'success');
+    }
+  });
+
+  /* 详情页内容：配送时间线按状态生成，时间都是相对时间 */
+  const when = (d, hm) => (d <= 0 ? '刚刚' : d === 1 ? `昨天 ${hm}` : d === 2 ? `前天 ${hm}` : `${d} 天前`);
+  function trail(o) {
+    const a = o.age, c = `${o.cour} ${o.trk}`, L = [], add = (s, m, t) => L.push({ s, m, t });
+    const at = a === 0 ? () => o.t : when;       // 当天订单直接用下单时的相对时间
+    const sent = o.st === 'recv' || o.st === 'done' || o.st === 'after';
+    if (o.st === 'shut') add('订单已关闭', '', '刚刚');
+    if (o.st === 'after') add('售后处理中', '退款申请已提交', '昨天 11:20');
+    if (o.st === 'done' || o.st === 'after') add('已签收', '已由本人签收', when(a, '15:32'));
+    if (sent) add('配送中', '骑手正在派送', when(a, '14:10'));
+    if (sent) add('门店已出库', c, when(a, '10:05'));
+    if (o.st === 'pay') add('等待付款', '', o.t);
+    if (o.st === 'ship') add('等待门店备货', '', o.t);
+    if (o.st !== 'pay' && o.st !== 'shut') add('支付成功', o.pay, at(a, '08:50'));
+    add('提交订单', '', at(a, '08:47'));
+    return L;
+  }
+  function renderDetail(id) {
+    const o = byId(id); S.cur = id; const st = ST[o.st];
+    $('#dtag').innerHTML = `<span class="tag tag--dot" data-tone="${st[1]}">${st[0]}</span>`;
+    $('#dtl').innerHTML = trail(o).map((x, i) => `<div class="tl__item" data-state="${i === 0 ? 'now' : 'done'}"><span class="tl__dot"></span><div><p class="row__title">${x.s}</p>${x.m ? `<p class="row__meta">${x.m}</p>` : ''}</div><span class="tl__time">${x.t}</span></div>`).join('');
+    $('#ditems').innerHTML = o.items.map(([pid, q]) => `<div class="row"><img class="row__lead" src="${IMG(P[pid][2])}" alt=""><div class="row__main"><p class="row__title">${P[pid][0]}</p><p class="row__meta">单价 ¥${money(P[pid][1])}</p></div><div class="row__trail"><span class="price"><small>¥</small>${money(P[pid][1] * q)}</span><span>×${q}</span></div></div>`).join('');
+    $('#dkv').innerHTML = `<dt>订单号</dt><dd class="t-num">${o.no}</dd><dt>客户</dt><dd><span class="cust"><img src="${MARK(o.mark)}" alt="">${esc(o.name)}</span></dd><dt>下单门店</dt><dd>${o.store}</dd><dt>支付方式</dt><dd>${o.pay}</dd><dt>下单时间</dt><dd>${o.t}</dd><dt>收货人</dt><dd>${esc(o.name)}</dd><dt>联系电话</dt><dd class="t-num">${o.phone}</dd><dt>收货地址</dt><dd>${o.addr}</dd>`;
+    $('#damt').innerHTML = `<div class="amt"><span>商品金额</span><span class="t-num">¥${money(sumOf(o))}</span></div><div class="amt"><span>配送费</span><span class="t-num">¥${money(shipOf(o))}</span></div><div class="amt"><span>优惠</span><span class="t-num">${o.disc ? '-¥' + money(o.disc) : '¥0.00'}</span></div><div class="amt amt--sum"><span>实付金额</span><span class="price"><small>¥</small>${money(totalOf(o))}</span></div>`;
+  }
+  /* 捕获阶段先渲染详情，再由通用视图切换打开 */
+  document.addEventListener('click', e => { const b = e.target.closest('[data-open="detail"]'); if (b) renderDetail(+b.dataset.key); }, true);
+
+  /* 加载骨架 700 毫秒后出数 */
+  counts(); el.rows.innerHTML = skeleton();
+  setTimeout(() => { S.loading = false; render(); }, 700);
+</script>
+</body>
+</html>

@@ -38,6 +38,7 @@ Type scale is the reading scale (32/24/20/16/14 px). Review word breaks after re
 """
 from __future__ import annotations
 
+import argparse
 import html
 import json
 import sys
@@ -389,12 +390,21 @@ def check_pdf(pdf: Path, max_pages: int | None) -> list[str]:
 
 
 def main(argv: list[str] | None = None) -> int:
-    args = sys.argv[1:] if argv is None else argv
-    if len(args) != 2:
-        print(__doc__)
+    parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
+    parser.add_argument("spec")
+    parser.add_argument("output")
+    parser.add_argument("--session", help="Design session; otherwise inferred from environment or output path")
+    args = parser.parse_args(argv)
+    from crawl_gate import require_session_preflight, record_template_output
+    try:
+        context = require_session_preflight(args.session, args.output, template_id="table-pdf")
+        if not Path(args.output).resolve().is_relative_to(context["raw"]):
+            raise ValueError("表格 PDF 的 HTML 与布局记录必须写到会话 raw，再用 deliver.py 放置成品")
+    except ValueError as exc:
+        print(f"FAIL: {exc}", file=sys.stderr)
         return 2
-    spec = json.loads(Path(args[0]).read_text(encoding="utf-8"))
-    pdf = Path(args[1])
+    spec = json.loads(Path(args.spec).read_text(encoding="utf-8"))
+    pdf = Path(args.output)
     pdf.parent.mkdir(parents=True, exist_ok=True)
     src = pdf.with_suffix(".html")
     try:
@@ -414,7 +424,12 @@ def main(argv: list[str] | None = None) -> int:
     for e in errors:
         print("ERROR", e)
     print(pdf)
-    return 1 if errors else 0
+    if errors:
+        return 1
+    # HTML and its measured pagination JSON stay in raw as working sources;
+    # the selected formal artifact is the checked PDF, recorded below.
+    record_template_output(context, pdf, "table-pdf", generator="Luz-Design/scripts/make_table_pdf.py:pdf")
+    return 0
 
 
 if __name__ == "__main__":

@@ -26,7 +26,7 @@ class FormalDocx(unittest.TestCase):
         self.tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmp.cleanup)
         out = Path(self.tmp.name) / "a.docx"
-        make_docx.build(spec(**extra), out)
+        make_docx._render_document(spec(**extra), out)
         import docx
         return docx.Document(str(out)), out
 
@@ -63,7 +63,7 @@ class FormalDocx(unittest.TestCase):
     def test_a_table_over_a_page_break_continues_under_a_numbered_caption(self):
         table = {**TABLE, "breaks": [3]}
         out = Path(tempfile.mkdtemp()) / "b.docx"
-        make_docx.build({**spec(), "sections": [{"heading": "项目背景", "blocks": [{"table": table}]}]}, out)
+        make_docx._render_document({**spec(), "sections": [{"heading": "项目背景", "blocks": [{"table": table}]}]}, out)
         import docx
         doc = docx.Document(str(out))
         self.assertEqual([p.text for p in doc.paragraphs if p.style.name == "Caption"], ["表 1　示例表", "续表 1"])
@@ -76,7 +76,7 @@ class FormalDocx(unittest.TestCase):
             return {"table": {**TABLE, "caption": caption, **extra}}
         blocks = [titled("甲"), titled("乙"), titled("丙", breaks=[2, 4]), titled("丁"), titled("戊", breaks=[3]), titled("己")]
         out = Path(tempfile.mkdtemp()) / "seq.docx"
-        make_docx.build({**spec(), "sections": [{"heading": "项目背景", "blocks": blocks}]}, out)
+        make_docx._render_document({**spec(), "sections": [{"heading": "项目背景", "blocks": blocks}]}, out)
         import re
 
         import docx
@@ -91,7 +91,7 @@ class FormalDocx(unittest.TestCase):
     def test_a_broken_table_without_a_title_does_not_take_a_number(self):
         untitled = {"header": ["项", "内容"], "rows": TABLE["rows"], "breaks": [3]}
         out = Path(tempfile.mkdtemp()) / "untitled.docx"
-        make_docx.build({**spec(), "sections": [{"heading": "项目背景", "blocks": [{"table": untitled}, {"table": TABLE}]}]}, out)
+        make_docx._render_document({**spec(), "sections": [{"heading": "项目背景", "blocks": [{"table": untitled}, {"table": TABLE}]}]}, out)
         import docx
         doc = docx.Document(str(out))
         self.assertEqual([p.text for p in doc.paragraphs if p.style.name == "Caption"], ["表 1　示例表"])
@@ -100,7 +100,7 @@ class FormalDocx(unittest.TestCase):
         bad = spec()
         bad["sections"][0]["heading"] = "项目背景（现状）"
         with self.assertRaises(ValueError):
-            make_docx.build(bad, Path(tempfile.mkdtemp()) / "c.docx")
+            make_docx._render_document(bad, Path(tempfile.mkdtemp()) / "c.docx")
 
     def test_the_document_check_accepts_a_requested_cover_and_header(self):
         _, out = self.build()
@@ -154,7 +154,7 @@ class CaptionNumbers(unittest.TestCase):
         import make_docx_paginated as paginated
         out = Path(tempfile.mkdtemp()) / "v.docx"
         blocks = [{"table": {**TABLE, "caption": "甲", "breaks": [3]}}, {"table": {**TABLE, "caption": "乙"}}]
-        make_docx.build({**spec(), "sections": [{"heading": "项目背景", "blocks": blocks}]}, out)
+        make_docx._render_document({**spec(), "sections": [{"heading": "项目背景", "blocks": blocks}]}, out)
         shown = self.pdf(["表1　甲", "续表1", "表2　乙", "表 3 显示了合计，不是表题"])
         self.assertEqual(paginated.pdf_captions(shown), [("表", 1), ("续表", 1), ("表", 2)], "a sentence that starts with 表 is no title")
         self.assertEqual(paginated.verify_captions(out, shown), [])
@@ -177,7 +177,7 @@ class CaptionNumbers(unittest.TestCase):
         table = lambda caption, n: {"table": {"header": ["项", "内容"], "rows": rows(n), "caption": caption}}
         blocks = [table("甲", 5), table("乙", 45), table("丙", 5), table("丁", 50), table("戊", 5)]
         out = Path(tempfile.mkdtemp()) / "e2e.docx"
-        paginated.build({**spec(), "sections": [{"heading": "项目背景", "blocks": blocks}]}, out)       # raises when the numbers drift
+        paginated._render_paginated({**spec(), "sections": [{"heading": "项目背景", "blocks": blocks}]}, out)       # raises when the numbers drift
         captions = paginated.docx_captions(out)
         self.assertEqual([n for kind, n in captions if kind == "表"], [1, 2, 3, 4, 5])
         self.assertTrue(any(kind == "续表" for kind, _ in captions), "the sample must run over a page break")
@@ -186,24 +186,28 @@ class CaptionNumbers(unittest.TestCase):
 
 class QuoteSheetFooter(unittest.TestCase):
     def test_summary_rows_under_the_table_pass_the_checks(self):
-        rows = [["端A", "角色甲", f"功能{i}", 1.0, 500.0] for i in range(8)]
+        rows = [["端A", "角色甲", f"功能{i}", 1.0, 1.0] for i in range(8)]       # fixture numbers, obviously not a price: the layout is under test, a quotation is always a person's
         sheet = {"title": "报价", "theme": "japanese-sushi", "sheet": "报价清单",
                  "columns": [{"name": "使用端", "merge": True}, {"name": "使用角色", "merge": True}, {"name": "功能"}, {"name": "工时（人天）", "type": "decimal"}, {"name": "报价（元）", "type": "money"}],
-                 "rows": rows, "footer": [{"label": "基础功能小计", "values": {"工时（人天）": 8, "报价（元）": 4000}}, {"label": "报价合计", "values": {"报价（元）": 4000}}]}
+                 "rows": rows, "footer": [{"label": "基础功能小计", "values": {"工时（人天）": 8, "报价（元）": 8}}, {"label": "报价合计", "values": {"报价（元）": 8}}]}
+        switched_on = {**sheet, "estimate": {"workdays": True, "quote": True, "requested_by": "客户方负责人", "request_note": "请按人天报价", "provided_by": "销售负责人", "evidence": "uploads/客户报价单.xlsx"}}
         with tempfile.TemporaryDirectory() as tmp:
             out = Path(tmp) / "q.xlsx"
-            make_xlsx.build(sheet, out)
-            self.assertEqual(check_document.main([str(out)]), 0)
+            make_xlsx._render_workbook(sheet, out)
+            self.assertEqual(check_document.main([str(out)]), 1, "a quotation sheet needs the quote switch (预算、人日与报价政策)")
+            self.assertEqual(check_document.main([str(out), "--allow", "quote"]), 1, "and the switch needs its evidence in the file")
+            make_xlsx._render_workbook(switched_on, out)
+            self.assertEqual(check_document.main([str(out), "--allow", "quote"]), 0)
             from openpyxl import load_workbook
             ws = load_workbook(out).active
-            self.assertEqual([c.value for c in ws[ws.max_row]][-1], 4000)
+            self.assertEqual([c.value for c in ws[ws.max_row]][-1], 8)
             self.assertEqual(ws.cell(ws.max_row - 1, 1).value, "基础功能小计")
 
     def test_tag_values_read_bold_and_the_colour_is_the_row_fill(self):
         sheet = {"title": "清单", "highlight": {"column": "类型", "values": ["可选"]}, "columns": [{"name": "功能"}, {"name": "类型", "tags": ["基础", "可选"]}], "rows": [["甲", "基础"], ["乙", "可选"]]}
         with tempfile.TemporaryDirectory() as tmp:
             out = Path(tmp) / "t.xlsx"
-            make_xlsx.build(sheet, out)
+            make_xlsx._render_workbook(sheet, out)
             from openpyxl import load_workbook
             ws = load_workbook(out).active
             self.assertEqual(ws["B4"].font.color.rgb, "00000000")           # text is black; the colour is the fill
@@ -216,7 +220,7 @@ class QuoteSheetFooter(unittest.TestCase):
 
     def test_a_footer_label_must_say_what_it_totals(self):
         with self.assertRaises(ValueError):
-            make_xlsx.build({"title": "x", "theme": "coffee", "columns": [{"name": "甲"}, {"name": "数", "type": "number"}], "rows": [["a", 1]],
+            make_xlsx._render_workbook({"title": "x", "theme": "coffee", "columns": [{"name": "甲"}, {"name": "数", "type": "number"}], "rows": [["a", 1]],
                              "footer": [{"label": "说明", "values": {"数": 1}}]}, Path(tempfile.mkdtemp()) / "x.xlsx")
 
 

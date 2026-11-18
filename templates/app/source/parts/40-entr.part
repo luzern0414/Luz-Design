@@ -1,0 +1,603 @@
+<!-- cat: ENTR | 入口 -->
+<style>
+/* 入口：上图下字，紧凑图标和整格触控 */
+.en-card { padding: var(--s-4) var(--s-2); }
+.en-grid { display: grid; gap: var(--s-4) 0; }
+.en-grid--4 { grid-template-columns: repeat(4, 1fr); }
+.en-grid--5 { grid-template-columns: repeat(5, 1fr); }
+.en-cell { position: relative; display: grid; justify-items: center; align-content: center; gap: var(--s-1); min-height: 48px; padding: 2px 0; font-size: var(--fs-sm); line-height: 1.25; color: var(--ink); white-space: nowrap; border-radius: var(--r-md); }
+.en-cell:active { background: var(--zone); }
+@media (hover: hover) { .en-cell:hover { background: var(--zone); } }
+
+[data-preserve-icons] .en-cell { align-content: start; gap: var(--s-2); min-height: auto; }
+[data-preserve-icons] .en-cell img { width: 52px; height: 52px; object-fit: contain; filter: drop-shadow(0 6px 8px color-mix(in srgb, var(--ink) 14%, transparent)); transition: transform var(--dur-base) var(--ease-spring); }
+[data-preserve-icons] .en-cell--sm img { width: 44px; height: 44px; }
+[data-preserve-icons] .en-cell:is(:hover, :active) { background: transparent; }
+[data-preserve-icons] .en-cell:active img { transform: scale(.9); }
+@media (hover: hover) { [data-preserve-icons] .en-cell:hover img { transform: translateY(-3px) scale(1.05); } }
+
+/* 横滑入口：两行多列，下方进度条随滚动移动 */
+.en-scroll { display: grid; grid-auto-flow: column; grid-template-rows: repeat(2, auto); grid-auto-columns: 76px; gap: var(--s-4) 0; padding: var(--s-4) var(--s-2) var(--s-3); overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
+.en-scroll::-webkit-scrollbar { display: none; }
+.en-scroll > * { scroll-snap-align: start; }
+.en-track { position: relative; width: 36px; height: 4px; margin: 0 auto var(--s-3); border-radius: var(--r-full); background: var(--line-strong); }
+.en-track i { position: absolute; top: 0; left: 0; height: 100%; width: 40%; border-radius: inherit; background: var(--action); }
+
+/* 一大两小：大块实拍加渐变，小块白底配彩色图标 */
+.en-mosaic { display: grid; grid-template-columns: 1.15fr 1fr; grid-template-rows: 1fr 1fr; gap: var(--s-3); height: 232px; }
+.en-big { position: relative; isolation: isolate; grid-row: 1 / 3; display: flex; flex-direction: column; justify-content: flex-end; align-items: flex-start; gap: var(--s-1); padding: var(--s-4); overflow: hidden; border-radius: var(--r-lg); color: var(--surface); text-align: left; box-shadow: var(--elev-2); }
+.en-big > img { position: absolute; inset: 0; z-index: -2; width: 100%; height: 100%; object-fit: cover; transition: transform var(--dur-slow) var(--ease-out); }
+.en-big::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, transparent 30%, color-mix(in srgb, var(--ink) 66%, transparent) 100%); }
+.en-big .tag { background: var(--accent-tint); color: var(--accent); }
+.en-big b { font-size: var(--fs-xl); line-height: var(--lh-tight); font-weight: 700; }
+.en-big span:last-child { font-size: var(--fs-sm); opacity: .92; }
+.en-big:active > img { transform: scale(1.05); }
+@media (hover: hover) { .en-big:hover > img { transform: scale(1.05); } }
+.en-small { position: relative; display: grid; grid-template-rows: auto auto 1fr; gap: 2px; padding: var(--s-4) var(--s-3) var(--s-2) var(--s-4); overflow: hidden; border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--elev-1); text-align: left; transition: transform var(--dur-quick) var(--ease-out); }
+.en-small b { font-size: var(--fs-md); font-weight: 600; line-height: var(--lh-tight); }
+.en-small span { font-size: var(--fs-sm); line-height: 1.3; color: var(--ink-3); }
+.en-small img { justify-self: end; align-self: end; width: var(--ui-icon-max); height: var(--ui-icon-max); object-fit: contain; filter: drop-shadow(0 6px 8px color-mix(in srgb, var(--ink) 14%, transparent)); }
+.en-small:active { transform: scale(.97); }
+
+/* 图文入口条 */
+.en-strip { display: grid; grid-template-columns: var(--ui-icon-max) 1fr auto; align-items: center; column-gap: var(--s-3); width: 100%; padding: var(--s-3) var(--s-4) var(--s-3) var(--s-3); border-radius: var(--r-lg); text-align: left; transition: transform var(--dur-quick) var(--ease-out); }
+.en-strip + .en-strip { margin-top: var(--s-3); }
+.en-strip--rose { background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); }
+.en-strip--gold { background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); }
+.en-strip img { width: var(--ui-icon-max); height: var(--ui-icon-max); object-fit: contain; filter: drop-shadow(0 6px 8px color-mix(in srgb, var(--ink) 14%, transparent)); }
+.en-strip b { display: block; font-size: var(--fs-md); font-weight: 600; line-height: var(--lh-tight); }
+.en-strip small { display: block; margin-top: 2px; font-size: var(--fs-sm); color: var(--ink-2); }
+.en-strip:active { transform: scale(.98); }
+
+/* 分类宫格入口：左栏分类，右侧实拍宫格 */
+.en-side { display: grid; grid-template-columns: 84px 1fr; height: 268px; overflow: hidden; }
+.en-rail { display: grid; grid-auto-rows: 1fr; background: var(--zone); }
+.en-rail button { position: relative; min-height: 52px; padding: 0 var(--s-3); font-size: var(--fs-sm); color: var(--ink-2); text-align: left; transition: background var(--dur-quick) var(--ease-out), color var(--dur-quick) var(--ease-out); }
+.en-rail button[aria-selected="true"] { background: var(--surface); color: var(--ink); font-weight: 600; }
+.en-rail button[aria-selected="true"]::before { content: ""; position: absolute; left: 0; top: 16px; bottom: 16px; width: 3px; border-radius: 0 3px 3px 0; background: var(--action); }
+.en-pane { padding: var(--s-4) var(--s-3); overflow-y: auto; scrollbar-width: none; }
+.en-pane::-webkit-scrollbar { display: none; }
+.en-pane__h { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: var(--s-3); }
+.en-pane__h b { font-size: var(--fs-md); font-weight: 600; }
+.en-pane__h span { font-size: var(--fs-sm); color: var(--ink-3); }
+.en-pane__grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s-4) var(--s-2); animation: lz-fade var(--dur-base) var(--ease-out) both; }
+.en-pic { display: grid; justify-items: center; gap: var(--s-2); font-size: var(--fs-sm); line-height: 1.25; white-space: nowrap; }
+.en-pic__i { display: grid; place-items: center; width: 64px; height: 64px; overflow: hidden; border-radius: var(--r-md); background: var(--zone); transition: transform var(--dur-base) var(--ease-out); }
+.en-pic img { width: 100%; height: 100%; object-fit: cover; }
+.en-pic--ic .en-pic__i { width: var(--ui-icon-max); height: var(--ui-icon-max); border-radius: 6px; background: var(--ui-icon-mint); }
+.en-pic--ic img { width: 18px; height: 18px; object-fit: contain; }
+.en-pic:active .en-pic__i { transform: scale(.92); }
+@media (hover: hover) { .en-pic:hover .en-pic__i { transform: translateY(-2px); } }
+
+/* 图标加文字行 */
+.en-line .row__lead { width: var(--ui-icon-max); height: var(--ui-icon-max); object-fit: contain; border-radius: 0; filter: drop-shadow(0 4px 6px color-mix(in srgb, var(--ink) 14%, transparent)); }
+.en-line .row__title { font-weight: 500; }
+
+/* 带角标入口 */
+.en-wrap { position: relative; display: block; }
+.en-wrap .badge { top: -4px; right: -10px; }
+.en-dot { position: absolute; top: -2px; right: -4px; width: 12px; height: 12px; border-radius: 50%; background: var(--danger); box-shadow: 0 0 0 2px var(--surface); animation: lz-pop var(--dur-slow) var(--ease-spring) both; }
+.en-wrap .tag-new { position: absolute; top: -6px; right: -14px; height: 18px; padding: 0 5px; border-radius: 9px 9px 9px 2px; background: var(--accent); color: var(--surface); font-size: 10px; font-weight: 600; line-height: 18px; animation: lz-pop var(--dur-slow) var(--ease-spring) both; }
+.en-gone { opacity: 0; transform: scale(.4); transition: opacity var(--dur-quick), transform var(--dur-quick); pointer-events: none; }
+
+/* 标签式入口 */
+.en-chips { display: grid; grid-template-columns: repeat(auto-fit, minmax(136px, 1fr)); gap: var(--s-3) var(--s-2); }
+.en-chip { display: inline-flex; align-items: center; justify-content: center; gap: var(--s-2); min-height: 44px; padding: 0 var(--s-3); border: 1px solid var(--line); border-radius: var(--r-full); background: var(--surface); box-shadow: var(--elev-1); font-size: var(--fs-sm); font-weight: 500; transition: transform var(--dur-quick) var(--ease-out), box-shadow var(--dur-quick) var(--ease-out); }
+.en-chip img { width: var(--ui-icon-max); height: var(--ui-icon-max); object-fit: contain; filter: drop-shadow(0 3px 4px color-mix(in srgb, var(--ink) 16%, transparent)); }
+.en-chip:active { transform: scale(.96); }
+@media (hover: hover) { .en-chip:hover { box-shadow: var(--elev-2); } }
+
+/* 悬浮入口 */
+.en-phone { position: relative; padding-bottom: var(--s-3); overflow: hidden; border: 1px solid var(--line); border-radius: var(--r-md); background: var(--bg); }
+.en-phone__top { height: 72px; background: linear-gradient(165deg, var(--action) 0%, color-mix(in srgb, var(--action) 62%, var(--surface)) 100%); }
+.en-phone__body { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-3); margin: calc(var(--s-6) * -1) var(--s-3) 0; }
+.en-phone__card { padding-bottom: var(--s-3); border-radius: var(--r-lg); overflow: hidden; background: var(--surface); box-shadow: var(--elev-1); }
+.en-phone__card img { width: 100%; height: 80px; object-fit: cover; }
+.en-phone__card i { display: block; height: 8px; margin: var(--s-3) var(--s-3) 0; border-radius: var(--r-full); background: var(--zone); }
+.en-phone__card i + i { width: 40%; }
+.en-float { position: absolute; right: var(--s-3); top: 96px; display: grid; justify-items: center; transition: transform var(--dur-slow) var(--ease-spring); }
+.en-float__btn { position: relative; display: grid; place-items: center; width: 60px; height: 60px; border-radius: 50%; background: var(--surface); box-shadow: var(--elev-3); transition: transform var(--dur-quick) var(--ease-out); }
+.en-float__btn img { width: var(--ui-icon-max); height: var(--ui-icon-max); object-fit: contain; filter: drop-shadow(0 4px 5px color-mix(in srgb, var(--ink) 16%, transparent)); }
+.en-float__btn:active { transform: scale(.92); }
+.en-float__tag { position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); height: 18px; padding: 0 7px; border-radius: var(--r-full); background: var(--accent); color: var(--surface); font-size: 10px; font-weight: 600; line-height: 18px; white-space: nowrap; }
+.en-float__x { position: absolute; top: -8px; right: -8px; display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--ink); transition: opacity var(--dur-quick) var(--ease-out); }
+.en-float__x img { width: 12px; height: 12px; filter: invert(1); }
+.en-float[data-state="dock"] { transform: translateX(44px); }
+.en-float[data-state="dock"] .en-float__x { opacity: 0; pointer-events: none; }
+
+/* 大图入口卡 */
+.en-banner { position: relative; isolation: isolate; display: flex; align-items: flex-end; justify-content: space-between; gap: var(--s-3); width: 100%; aspect-ratio: 16 / 9; padding: var(--s-4); overflow: hidden; border-radius: var(--r-lg); color: var(--surface); text-align: left; box-shadow: var(--elev-2); }
+.en-banner > img { position: absolute; inset: 0; z-index: -2; width: 100%; height: 100%; object-fit: cover; transition: transform var(--dur-slow) var(--ease-out); }
+.en-banner::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, transparent 28%, color-mix(in srgb, var(--ink) 64%, transparent) 100%); }
+.en-banner__txt { display: grid; justify-items: start; gap: var(--s-1); }
+.en-banner__txt .tag { background: var(--accent-tint); color: var(--accent); }
+.en-banner__txt b { font-size: var(--fs-xl); font-weight: 700; line-height: var(--lh-tight); }
+@media (hover: hover) { .en-banner:hover > img { transform: scale(1.04); } }
+
+/* 服务入口格：文字在左上，大图标压在右下角 */
+.en-svc { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-3); }
+.en-svc__t { position: relative; display: grid; grid-template-rows: auto auto 1fr; gap: 2px; min-height: 112px; padding: var(--s-4) var(--s-2) var(--s-2) var(--s-4); overflow: hidden; border-radius: var(--r-lg); text-align: left; transition: transform var(--dur-quick) var(--ease-out); }
+.en-svc__t:nth-child(1), .en-svc__t:nth-child(4) { background: var(--action-tint); box-shadow: inset 0 0 0 1px var(--action-edge); }
+.en-svc__t:nth-child(2), .en-svc__t:nth-child(3) { background: var(--accent-tint); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 18%, transparent); }
+.en-svc__t b { font-size: var(--fs-md); font-weight: 600; line-height: var(--lh-tight); }
+.en-svc__t span { font-size: var(--fs-sm); line-height: 1.3; color: var(--ink-2); }
+.en-svc__t img { justify-self: end; align-self: end; width: var(--ui-icon-max); height: var(--ui-icon-max); object-fit: contain; filter: drop-shadow(0 8px 10px color-mix(in srgb, var(--ink) 16%, transparent)); transition: transform var(--dur-base) var(--ease-spring); }
+.en-svc__t:active { transform: scale(.97); }
+@media (hover: hover) { .en-svc__t:hover img { transform: translateY(-3px) scale(1.06); } }
+
+/* 图片分类入口 */
+.en-photo { display: grid; justify-items: center; gap: var(--s-2); font-size: var(--fs-sm); line-height: 1.25; white-space: nowrap; }
+.en-photo img { width: 68px; height: 68px; object-fit: cover; border-radius: 50%; border: 2px solid var(--surface); box-shadow: var(--elev-2); transition: transform var(--dur-base) var(--ease-out); }
+.en-photo:active img { transform: scale(.92); }
+@media (hover: hover) { .en-photo:hover img { transform: translateY(-3px); } }
+
+/* 会员权益入口 */
+.en-perk { padding: var(--s-4) var(--s-3) var(--s-4); }
+.en-perk__h { display: flex; align-items: center; justify-content: space-between; padding: 0 var(--s-2) var(--s-3); }
+.en-perk__h b { font-size: var(--fs-md); font-weight: 600; color: var(--accent); }
+.en-perk__h button { display: inline-flex; align-items: center; gap: var(--s-1); font-size: var(--fs-sm); color: var(--ink-2); }
+.en-perk__h .chev { margin-left: -2px; }
+</style>
+
+<article class="demo" data-preserve-icons data-cid="AP-ENTR-001" data-name="八宫格入口" data-cat="ENTR">
+  <div class="demo__head"><span class="demo__name">八宫格入口</span></div>
+  <p class="demo__note">适合：首页主业务线分发，每格一个目的地</p>
+  <div class="demo__stage">
+    <nav class="card en-card en-grid en-grid--4" aria-label="业务入口">
+      <button class="en-cell" data-go="同城鲜花"><img data-ic="bouquet" src="../../kit/assets/icons/flat/bouquet.webp" alt=""><span>同城鲜花</span></button>
+      <button class="en-cell" data-go="节日礼盒"><img data-ic="giftbox" src="../../kit/assets/icons/flat/giftbox.webp" alt=""><span>节日礼盒</span></button>
+      <button class="en-cell" data-go="绿植盆栽"><img data-ic="plant" src="../../kit/assets/icons/flat/plant.webp" alt=""><span>绿植盆栽</span></button>
+      <button class="en-cell" data-go="周期订花"><img data-ic="vase" src="../../kit/assets/icons/flat/vase.webp" alt=""><span>周期订花</span></button>
+      <button class="en-cell" data-go="花艺定制"><img data-ic="shears" src="../../kit/assets/icons/flat/shears.webp" alt=""><span>花艺定制</span></button>
+      <button class="en-cell" data-go="种苗花籽"><img data-ic="seedling" src="../../kit/assets/icons/flat/seedling.webp" alt=""><span>种苗花籽</span></button>
+      <button class="en-cell" data-go="养护用品"><img data-ic="watering" src="../../kit/assets/icons/flat/watering.webp" alt=""><span>养护用品</span></button>
+      <button class="en-cell" data-go="极速配送"><img data-ic="scooter" src="../../kit/assets/icons/flat/scooter.webp" alt=""><span>极速配送</span></button>
+    </nav>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-ENTR-002" data-name="五宫格入口" data-cat="ENTR">
+  <div class="demo__head"><span class="demo__name">五宫格入口</span></div>
+  <p class="demo__note">适合：我的页资产与账户常用入口</p>
+  <div class="demo__stage">
+    <nav class="card en-card en-grid en-grid--5" aria-label="账户入口">
+      <button class="en-cell en-cell--sm" data-go="优惠券"><img class="compact-icon" src="../../kit/assets/line/archive.webp" alt=""><span>优惠券</span></button>
+      <button class="en-cell en-cell--sm" data-go="礼品卡"><img class="compact-icon" src="../../kit/assets/line/check.webp" alt=""><span>礼品卡</span></button>
+      <button class="en-cell en-cell--sm" data-go="钱包"><img class="compact-icon" src="../../kit/assets/line/folder.webp" alt=""><span>钱包</span></button>
+      <button class="en-cell en-cell--sm" data-go="收藏"><img class="compact-icon" src="../../kit/assets/line/book.webp" alt=""><span>收藏</span></button>
+      <button class="en-cell en-cell--sm" data-go="地址"><img class="compact-icon" src="../../kit/assets/line/location.webp" alt=""><span>地址</span></button>
+    </nav>
+  </div>
+</article>
+
+<article class="demo" data-preserve-icons data-cid="AP-ENTR-003" data-name="横滑入口" data-cat="ENTR">
+  <div class="demo__head"><span class="demo__name">横滑入口</span></div>
+  <p class="demo__note">适合：入口超过八个时两行横向滑动，底部进度条跟手</p>
+  <div class="demo__stage">
+    <nav class="card" aria-label="全部入口" id="en-hs">
+      <div class="en-scroll">
+        <button class="en-cell" data-go="同城鲜花"><img data-ic="bouquet" src="../../kit/assets/icons/flat/bouquet.webp" alt=""><span>同城鲜花</span></button>
+        <button class="en-cell" data-go="节日礼盒"><img data-ic="giftbox" src="../../kit/assets/icons/flat/giftbox.webp" alt=""><span>节日礼盒</span></button>
+        <button class="en-cell" data-go="绿植盆栽"><img data-ic="plant" src="../../kit/assets/icons/flat/plant.webp" alt=""><span>绿植盆栽</span></button>
+        <button class="en-cell" data-go="周期订花"><img data-ic="vase" src="../../kit/assets/icons/flat/vase.webp" alt=""><span>周期订花</span></button>
+        <button class="en-cell" data-go="花艺定制"><img data-ic="shears" src="../../kit/assets/icons/flat/shears.webp" alt=""><span>花艺定制</span></button>
+        <button class="en-cell" data-go="种苗花籽"><img data-ic="seedling" src="../../kit/assets/icons/flat/seedling.webp" alt=""><span>种苗花籽</span></button>
+        <button class="en-cell" data-go="养护用品"><img data-ic="watering" src="../../kit/assets/icons/flat/watering.webp" alt=""><span>养护用品</span></button>
+        <button class="en-cell" data-go="极速配送"><img data-ic="scooter" src="../../kit/assets/icons/flat/scooter.webp" alt=""><span>极速配送</span></button>
+        <button class="en-cell" data-go="优惠券"><img data-ic="coupon" src="../../kit/assets/icons/flat/coupon.webp" alt=""><span>优惠券</span></button>
+        <button class="en-cell" data-go="礼品卡"><img data-ic="giftcard" src="../../kit/assets/icons/flat/giftcard.webp" alt=""><span>礼品卡</span></button>
+        <button class="en-cell" data-go="钱包"><img data-ic="wallet" src="../../kit/assets/icons/flat/wallet.webp" alt=""><span>钱包</span></button>
+        <button class="en-cell" data-go="收藏"><img data-ic="heart" src="../../kit/assets/icons/flat/heart.webp" alt=""><span>收藏</span></button>
+        <button class="en-cell" data-go="购物车"><img data-ic="cart" src="../../kit/assets/icons/flat/cart.webp" alt=""><span>购物车</span></button>
+        <button class="en-cell" data-go="评价"><img data-ic="star" src="../../kit/assets/icons/flat/star.webp" alt=""><span>评价</span></button>
+      </div>
+      <div class="en-track"><i></i></div>
+    </nav>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-ENTR-004" data-name="一大两小图文入口" data-cat="ENTR">
+  <div class="demo__head"><span class="demo__name">一大两小图文入口</span></div>
+  <p class="demo__note">适合：首页主推业务线配两个次推入口</p>
+  <div class="demo__stage">
+    <div class="en-mosaic">
+      <button class="en-big" data-go="同城鲜花"><img src="../../kit/assets/photo/bouquet-rose.webp" alt=""><span class="tag">热卖第一</span><b>同城鲜花</b><span>2 小时送达</span></button>
+      <button class="en-small" data-go="节日礼盒"><b>节日礼盒</b><span>满 199 减 20</span><img data-ic="giftbox" src="../../kit/assets/icons/flat/giftbox.webp" alt=""></button>
+      <button class="en-small" data-go="周期订花"><b>周期订花</b><span>每周一束</span><img data-ic="vase" src="../../kit/assets/icons/flat/vase.webp" alt=""></button>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-ENTR-005" data-name="图文入口条" data-cat="ENTR">
+  <div class="demo__head"><span class="demo__name">图文入口条</span></div>
+  <p class="demo__note">适合：首页中段的单个业务主推，雾粉与金色两种底</p>
+  <div class="demo__stage">
+    <button class="en-strip en-strip--rose" data-go="周期订花"><img data-ic="vase" src="../../kit/assets/icons/flat/vase.webp" alt=""><span><b>周期订花</b><small>每周一束 按期送达</small></span><span class="btn btn--primary btn--sm btn--pill">去订花</span></button>
+    <button class="en-strip en-strip--gold" data-go="金卡权益"><img data-ic="giftcard" src="../../kit/assets/icons/flat/giftcard.webp" alt=""><span><b>金卡权益</b><small>专属券 免运费</small></span><span class="btn btn--accent btn--sm btn--pill">查看</span></button>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-ENTR-006" data-name="分类宫格入口" data-cat="ENTR">
+  <div class="demo__head"><span class="demo__name">分类宫格入口</span></div>
+  <p class="demo__note">适合：分类页左栏选类、右侧实拍宫格直达</p>
+  <div class="demo__stage">
+    <div class="card en-side" id="en-side">
+      <div class="en-rail" role="tablist" aria-label="商品分类">
+        <button role="tab" aria-selected="true" data-k="flower">鲜花</button>
+        <button role="tab" aria-selected="false" data-k="plant">绿植</button>
+        <button role="tab" aria-selected="false" data-k="gift">礼盒</button>
+        <button role="tab" aria-selected="false" data-k="ware">花器</button>
+      </div>
+      <div class="en-pane" role="tabpanel">
+        <div class="en-pane__h"><b></b><span></span></div>
+        <div class="en-pane__grid"></div>
+      </div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-ENTR-007" data-name="图标加文字行入口" data-cat="ENTR">
+  <div class="demo__head"><span class="demo__name">图标加文字行入口</span></div>
+  <p class="demo__note">适合：我的页服务列表，图标在左、说明在中、箭头在右</p>
+  <div class="demo__stage">
+    <div class="card list en-line">
+      <button class="row row--link" data-go="我的优惠券"><img class="row__lead" data-ic="coupon" src="../../kit/assets/icons/flat/coupon.webp" alt=""><div class="row__main"><p class="row__title">我的优惠券</p><p class="row__meta">3 张可用</p></div><span class="row__trail"></span></button>
+      <button class="row row--link" data-go="礼品卡"><img class="row__lead" data-ic="giftcard" src="../../kit/assets/icons/flat/giftcard.webp" alt=""><div class="row__main"><p class="row__title">礼品卡</p><p class="row__meta">余额 ¥200</p></div><span class="row__trail"></span></button>
+      <button class="row row--link" data-go="收货地址"><img class="row__lead" data-ic="pin" src="../../kit/assets/icons/flat/pin.webp" alt=""><div class="row__main"><p class="row__title">收货地址</p><p class="row__meta">建国路 88 号</p></div><span class="row__trail"></span></button>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-ENTR-008" data-name="带角标入口" data-cat="ENTR">
+  <div class="demo__head"><span class="demo__name">带角标入口</span></div>
+  <p class="demo__note">适合：订单状态入口，数字、红点与新标角标</p>
+  <div class="demo__stage">
+    <nav class="card en-card en-grid en-grid--4" aria-label="订单状态">
+      <button class="en-cell en-cell--sm" data-read="待付款"><span class="en-wrap"><img class="compact-icon" src="../../kit/assets/line/folder.webp" alt=""><span class="badge" data-b>2</span></span><span>待付款</span></button>
+      <button class="en-cell en-cell--sm" data-read="待发货"><span class="en-wrap"><img class="compact-icon" src="../../kit/assets/line/archive.webp" alt=""><i class="en-dot" data-b></i></span><span>待发货</span></button>
+      <button class="en-cell en-cell--sm" data-read="待收货"><span class="en-wrap"><img class="compact-icon" src="../../kit/assets/line/check.webp" alt=""><span class="badge" data-b>12</span></span><span>待收货</span></button>
+      <button class="en-cell en-cell--sm" data-read="待评价"><span class="en-wrap"><img class="compact-icon" src="../../kit/assets/line/message.webp" alt=""><span class="tag-new" data-b>新</span></span><span>待评价</span></button>
+    </nav>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-ENTR-009" data-name="标签式入口" data-cat="ENTR">
+  <div class="demo__head"><span class="demo__name">标签式入口</span></div>
+  <p class="demo__note">适合：热门主题与快捷入口，胶囊内带彩色小图标</p>
+  <div class="demo__stage">
+    <div class="en-chips">
+      <button class="en-chip" data-go="母亲节花束"><img data-ic="bouquet" src="../../kit/assets/icons/flat/bouquet.webp" alt="">母亲节花束</button>
+      <button class="en-chip" data-go="生日礼盒"><img data-ic="giftbox" src="../../kit/assets/icons/flat/giftbox.webp" alt="">生日礼盒</button>
+      <button class="en-chip" data-go="办公绿植"><img data-ic="plant" src="../../kit/assets/icons/flat/plant.webp" alt="">办公绿植</button>
+      <button class="en-chip" data-go="干花摆件"><img data-ic="vase" src="../../kit/assets/icons/flat/vase.webp" alt="">干花摆件</button>
+      <button class="en-chip" data-go="种植套装"><img data-ic="seedling" src="../../kit/assets/icons/flat/seedling.webp" alt="">种植套装</button>
+      <button class="en-chip" data-go="养护工具"><img data-ic="shears" src="../../kit/assets/icons/flat/shears.webp" alt="">养护工具</button>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-ENTR-010" data-name="悬浮活动入口" data-cat="ENTR">
+  <div class="demo__head"><span class="demo__name">悬浮活动入口</span></div>
+  <p class="demo__note">适合：限时活动与领券，可收起到屏幕边缘再点开</p>
+  <div class="demo__stage is-plain">
+    <div class="en-phone" id="en-ph">
+      <div class="en-phone__top"></div>
+      <div class="en-phone__body">
+        <div class="en-phone__card"><img src="../../kit/assets/photo/product-peony-pink.webp" alt=""><i></i><i></i></div>
+        <div class="en-phone__card"><img src="../../kit/assets/photo/product-tulip-white.webp" alt=""><i></i><i></i></div>
+      </div>
+      <div class="en-float" data-state="open">
+        <button class="en-float__btn" data-act aria-label="领券"><img data-ic="coupon" src="../../kit/assets/icons/flat/coupon.webp" alt=""><span class="en-float__tag">限时</span></button>
+        <button class="en-float__x" data-fold aria-label="收起入口" data-tip="收起"><img src="../../kit/assets/line/close.webp" alt=""></button>
+      </div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-ENTR-011" data-name="大图入口卡" data-cat="ENTR">
+  <div class="demo__head"><span class="demo__name">大图入口卡</span></div>
+  <p class="demo__note">适合：专场与节日活动的单张主视觉入口</p>
+  <div class="demo__stage">
+    <button class="en-banner" data-go="春日花礼专场"><img src="../../kit/assets/photo/scene-hero-pink.webp" alt=""><span class="en-banner__txt"><span class="tag">限时</span><b>春日花礼专场</b></span><span class="btn btn--white btn--sm btn--pill">去看看</span></button>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-ENTR-012" data-name="服务入口格" data-cat="ENTR">
+  <div class="demo__head"><span class="demo__name">服务入口格</span></div>
+  <p class="demo__note">适合：配送、定制、咨询等服务四宫格，图标压在右下角</p>
+  <div class="demo__stage">
+    <nav class="en-svc" aria-label="服务入口">
+      <button class="en-svc__t" data-go="极速配送"><b>极速配送</b><span>30 分钟达</span><img data-ic="scooter" src="../../kit/assets/icons/flat/scooter.webp" alt=""></button>
+      <button class="en-svc__t" data-go="花艺定制"><b>花艺定制</b><span>一对一设计</span><img data-ic="shears" src="../../kit/assets/icons/flat/shears.webp" alt=""></button>
+      <button class="en-svc__t" data-go="企业订花"><b>企业订花</b><span>按月结算</span><img data-ic="giftcard" src="../../kit/assets/icons/flat/giftcard.webp" alt=""></button>
+      <button class="en-svc__t" data-go="养护咨询"><b>养护咨询</b><span>在线答疑</span><img data-ic="watering" src="../../kit/assets/icons/flat/watering.webp" alt=""></button>
+    </nav>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-ENTR-013" data-name="图片分类入口" data-cat="ENTR">
+  <div class="demo__head"><span class="demo__name">图片分类入口</span></div>
+  <p class="demo__note">适合：商品分类首页，实拍圆图加类名</p>
+  <div class="demo__stage">
+    <nav class="card en-card en-grid en-grid--4" aria-label="商品分类">
+      <button class="en-photo" data-go="鲜花"><img src="../../kit/assets/photo/product-rose-red.webp" alt=""><span>鲜花</span></button>
+      <button class="en-photo" data-go="绿植"><img src="../../kit/assets/photo/product-monstera.webp" alt=""><span>绿植</span></button>
+      <button class="en-photo" data-go="礼盒"><img src="../../kit/assets/photo/product-giftbox.webp" alt=""><span>礼盒</span></button>
+      <button class="en-photo" data-go="花器"><img src="../../kit/assets/photo/product-pampas-vase.webp" alt=""><span>花器</span></button>
+    </nav>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-ENTR-014" data-name="会员权益入口" data-cat="ENTR">
+  <div class="demo__head"><span class="demo__name">会员权益入口</span></div>
+  <p class="demo__note">适合：金卡会员专区，金色底配四项权益</p>
+  <div class="demo__stage">
+    <section class="card card--accent en-perk" aria-label="会员权益">
+      <div class="en-perk__h"><b>金卡权益</b><button data-go="全部权益">全部权益<span class="chev"></span></button></div>
+      <div class="en-grid en-grid--4">
+        <button class="en-cell en-cell--sm" data-go="专属券"><img class="compact-icon" src="../../kit/assets/line/archive.webp" alt=""><span>专属券</span></button>
+        <button class="en-cell en-cell--sm" data-go="免运费"><img class="compact-icon" src="../../kit/assets/line/check.webp" alt=""><span>免运费</span></button>
+        <button class="en-cell en-cell--sm" data-go="生日礼"><img class="compact-icon" src="../../kit/assets/line/folder.webp" alt=""><span>生日礼</span></button>
+        <button class="en-cell en-cell--sm" data-go="积分抵现"><img class="compact-icon" src="../../kit/assets/line/folder.webp" alt=""><span>积分抵现</span></button>
+      </div>
+    </section>
+  </div>
+</article>
+
+<script>
+(function () {
+  var $ = function (s, r) { return (r || document).querySelector(s); }, $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+
+  // 通用：点按入口给出轻提示
+  $$('[data-cid^="AP-ENTR-"] [data-go]').forEach(function (el) {
+    el.addEventListener('click', function () { Lz.toast('已打开' + el.dataset.go); });
+  });
+
+  // 横滑入口：进度条随滚动
+  (function () {
+    var host = $('#en-hs'); if (!host) return;
+    var sc = $('.en-scroll', host), tr = $('.en-track', host), th = $('i', tr);
+    function sync() {
+      var max = sc.scrollWidth - sc.clientWidth, ratio = sc.clientWidth / sc.scrollWidth;
+      var w = Math.max(.25, ratio) * tr.clientWidth; th.style.width = w + 'px';
+      th.style.transform = 'translateX(' + (max > 0 ? sc.scrollLeft / max : 0) * (tr.clientWidth - w) + 'px)';
+    }
+    sc.addEventListener('scroll', sync, { passive: true }); new ResizeObserver(sync).observe(sc); sync();
+  })();
+
+  // 分类宫格入口：左栏切换右侧宫格
+  (function () {
+    var host = $('#en-side'); if (!host) return;
+    var P = '../../kit/assets/photo/', I = '../../kit/assets/icons/';
+    var data = {
+      flower: { n: '鲜花', items: [['红玫瑰', 'p', 'product-rose-red'], ['粉芍药', 'p', 'product-peony-pink'], ['向日葵', 'p', 'product-sunflower'], ['白郁金香', 'p', 'product-tulip-white'], ['玫瑰礼束', 'p', 'bouquet-rose'], ['白花束', 'p', 'bouquet-white']] },
+      plant: { n: '绿植', items: [['蓝绣球', 'p', 'product-hydrangea-blue'], ['龟背竹', 'p', 'product-monstera'], ['多肉盆栽', 'p', 'product-succulent'], ['种苗花籽', 'i', 'seedling']] },
+      gift: { n: '礼盒', items: [['花礼盒', 'p', 'product-giftbox'], ['郁金香束', 'p', 'bouquet-tulip'], ['礼品卡', 'i', 'giftcard'], ['节日礼盒', 'i', 'giftbox']] },
+      ware: { n: '花器', items: [['干花摆件', 'p', 'product-pampas-vase'], ['玻璃花瓶', 'i', 'vase'], ['花艺剪刀', 'i', 'shears'], ['浇水壶', 'i', 'watering']] }
+    };
+    var pane = $('.en-pane', host), h = $('.en-pane__h b', host), c = $('.en-pane__h span', host), g = $('.en-pane__grid', host);
+    function show(k) {
+      var d = data[k]; h.textContent = d.n; c.textContent = d.items.length + ' 个系列';
+      g.replaceChildren(); void g.offsetWidth;
+      d.items.forEach(function (it) {
+        var b = document.createElement('button'); b.className = 'en-pic' + (it[1] === 'i' ? ' en-pic--ic' : '');
+        var im = it[1] === 'p' ? '<img src="' + P + it[2] + '.webp" alt="">' : '<img data-ic="' + it[2] + '" src="' + I + Lz.iconSet() + '/' + it[2] + '.webp" alt="">';
+        b.innerHTML = '<span class="en-pic__i">' + im + '</span><span>' + it[0] + '</span>';
+        b.addEventListener('click', function () { Lz.toast('已打开' + it[0]); });
+        g.appendChild(b);
+      });
+      pane.scrollTop = 0;
+    }
+    $$('.en-rail button', host).forEach(function (b) {
+      b.addEventListener('click', function () {
+        $$('.en-rail button', host).forEach(function (x) { x.setAttribute('aria-selected', String(x === b)); });
+        show(b.dataset.k);
+      });
+    });
+    show('flower');
+  })();
+
+  // 带角标入口：点按即视为已读，角标消失
+  $$('[data-read]').forEach(function (el) {
+    el.addEventListener('click', function () {
+      var b = $('[data-b]', el);
+      if (b) { b.classList.add('en-gone'); setTimeout(function () { b.remove(); }, 160); Lz.toast('已查看' + el.dataset.read); }
+    });
+  });
+
+  // 悬浮入口：收起到边缘，再点展开
+  (function () {
+    var host = $('#en-ph'); if (!host) return;
+    var f = $('.en-float', host), btn = $('[data-act]', host), fold = $('[data-fold]', host);
+    fold.addEventListener('click', function () { f.dataset.state = 'dock'; btn.setAttribute('aria-label', '展开入口'); });
+    btn.addEventListener('click', function () {
+      if (f.dataset.state === 'dock') { f.dataset.state = 'open'; btn.setAttribute('aria-label', '领券'); } else Lz.toast('已打开券包');
+    });
+  })();
+})();
+</script>
+
+<style>
+/* 新增：轮播图横幅与多页宫格入口，共用分页点；类名带 en-cr- / en-pg- / en-dots */
+.en-dots { display: flex; align-items: center; justify-content: center; }
+.en-dots button { display: grid; place-items: center; width: 22px; height: 24px; border-radius: var(--r-full); }
+.en-dots button::before { content: ""; width: 6px; height: 6px; border-radius: var(--r-full); background: var(--dot, var(--line-strong)); transition: width var(--dur-base) var(--ease-out), background var(--dur-base) var(--ease-out); }
+.en-dots button[aria-selected="true"]::before { width: 18px; background: var(--dot-on, var(--action)); }
+@media (hover: hover) { .en-dots button:not([aria-selected="true"]):hover::before { background: var(--ink-3); } }
+
+.en-cr { position: relative; overflow: hidden; border-radius: var(--r-lg); background: var(--zone); box-shadow: var(--elev-2); }
+.en-cr__track { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; overscroll-behavior-x: contain; cursor: grab; }
+.en-cr__track::-webkit-scrollbar { display: none; }
+.en-cr__track.is-drag { cursor: grabbing; user-select: none; }
+.en-cr__s { position: relative; flex: 0 0 100%; scroll-snap-align: start; scroll-snap-stop: always; color: var(--surface); text-align: left; }
+.en-cr__s > img { display: block; width: 100%; aspect-ratio: 2 / 1; object-fit: cover; pointer-events: none; -webkit-user-drag: none; }
+.en-cr__s::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 22%, color-mix(in srgb, var(--ink) 70%, transparent) 100%); pointer-events: none; }
+.en-cr__ov { position: absolute; inset: 0; z-index: 1; display: flex; align-items: flex-end; justify-content: space-between; gap: var(--s-3); padding: var(--s-4) var(--s-4) 36px; }
+.en-cr__txt { display: grid; justify-items: start; gap: var(--s-1); min-width: 0; }
+.en-cr__txt .tag { background: var(--accent-tint); color: var(--accent); }
+.en-cr__txt b { font-size: var(--fs-xl); font-weight: 700; line-height: var(--lh-tight); white-space: nowrap; }
+.en-cr__txt > span:last-child { font-size: var(--fs-sm); opacity: .92; white-space: nowrap; }
+.en-cr .en-dots { position: absolute; z-index: 2; left: 0; right: 0; bottom: 8px; --dot: color-mix(in srgb, var(--surface) 55%, transparent); --dot-on: var(--surface); pointer-events: none; }
+.en-cr .en-dots button { pointer-events: auto; }
+.en-cr :focus-visible { outline-color: var(--surface); }
+.en-cr__play { position: absolute; z-index: 2; right: var(--s-3); bottom: 6px; display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: color-mix(in srgb, var(--ink) 44%, transparent); transition: transform var(--dur-instant) var(--ease-out); }
+.en-cr__play img { width: 14px; height: 14px; filter: invert(1); }
+.en-cr__play:active { transform: scale(.9); }
+
+.en-pg { overflow: hidden; }
+.en-pg__track { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; overscroll-behavior-x: contain; cursor: grab; }
+.en-pg__track::-webkit-scrollbar { display: none; }
+.en-pg__track.is-drag { cursor: grabbing; user-select: none; }
+.en-pg__p { flex: 0 0 100%; padding: var(--s-4) var(--s-2) var(--s-1); scroll-snap-align: start; scroll-snap-stop: always; }
+.en-pg .en-dots { padding-bottom: var(--s-2); }
+</style>
+
+<article class="demo" data-cid="AP-ENTR-015" data-name="轮播图横幅" data-cat="ENTR">
+  <div class="demo__head"><span class="demo__name">轮播图横幅</span></div>
+  <p class="demo__note">适合：首页顶部多张活动图自动轮播，带分页点与暂停</p>
+  <div class="demo__stage">
+    <section class="en-cr" id="en-cr" role="region" aria-roledescription="轮播" aria-label="活动轮播">
+      <div class="en-cr__track">
+        <div class="en-cr__s" role="group" aria-roledescription="幻灯片" aria-label="第 1 张 共 3 张"><img src="../../kit/assets/photo/scene-hero-pink.webp" alt=""><div class="en-cr__ov"><span class="en-cr__txt"><span class="tag">限时</span><b>春日花礼专场</b><span>满 199 减 30</span></span><button class="btn btn--white btn--sm btn--pill" type="button" data-go="春日花礼专场">去看看</button></div></div>
+        <div class="en-cr__s" role="group" aria-roledescription="幻灯片" aria-label="第 2 张 共 3 张"><img src="../../kit/assets/photo/bg-floral.webp" alt=""><div class="en-cr__ov"><span class="en-cr__txt"><span class="tag">新品</span><b>周期订花上新</b><span>每周一束 按期送达</span></span><button class="btn btn--white btn--sm btn--pill" type="button" data-go="周期订花上新">去看看</button></div></div>
+        <div class="en-cr__s" role="group" aria-roledescription="幻灯片" aria-label="第 3 张 共 3 张"><img src="../../kit/assets/photo/bg-green.webp" alt=""><div class="en-cr__ov"><span class="en-cr__txt"><span class="tag">热销</span><b>绿植焕新季</b><span>第二件半价</span></span><button class="btn btn--white btn--sm btn--pill" type="button" data-go="绿植焕新季">去看看</button></div></div>
+      </div>
+      <div class="en-dots" role="tablist" aria-label="轮播页码">
+        <button type="button" role="tab" aria-selected="true" aria-label="第 1 张" data-tip="第 1 张"></button>
+        <button type="button" role="tab" aria-selected="false" aria-label="第 2 张" data-tip="第 2 张"></button>
+        <button type="button" role="tab" aria-selected="false" aria-label="第 3 张" data-tip="第 3 张"></button>
+      </div>
+      <button class="en-cr__play" type="button" aria-label="暂停轮播" data-tip="暂停"><img src="../../kit/assets/line/pause.webp" alt=""></button>
+    </section>
+  </div>
+</article>
+
+<article class="demo" data-preserve-icons data-cid="AP-ENTR-016" data-name="多页宫格入口" data-cat="ENTR">
+  <div class="demo__head"><span class="demo__name">多页宫格入口</span></div>
+  <p class="demo__note">适合：入口超过两行时左右翻页，带分页点</p>
+  <div class="demo__stage">
+    <section class="card en-pg" id="en-pg" role="region" aria-roledescription="轮播" aria-label="全部入口">
+      <div class="en-pg__track">
+        <nav class="en-grid en-grid--4 en-pg__p" aria-label="业务入口 第 1 页">
+          <button class="en-cell" data-go="同城鲜花"><img data-ic="bouquet" src="../../kit/assets/icons/flat/bouquet.webp" alt=""><span>同城鲜花</span></button>
+          <button class="en-cell" data-go="节日礼盒"><img data-ic="giftbox" src="../../kit/assets/icons/flat/giftbox.webp" alt=""><span>节日礼盒</span></button>
+          <button class="en-cell" data-go="绿植盆栽"><img data-ic="plant" src="../../kit/assets/icons/flat/plant.webp" alt=""><span>绿植盆栽</span></button>
+          <button class="en-cell" data-go="周期订花"><img data-ic="vase" src="../../kit/assets/icons/flat/vase.webp" alt=""><span>周期订花</span></button>
+          <button class="en-cell" data-go="花艺定制"><img data-ic="shears" src="../../kit/assets/icons/flat/shears.webp" alt=""><span>花艺定制</span></button>
+          <button class="en-cell" data-go="种苗花籽"><img data-ic="seedling" src="../../kit/assets/icons/flat/seedling.webp" alt=""><span>种苗花籽</span></button>
+          <button class="en-cell" data-go="养护用品"><img data-ic="watering" src="../../kit/assets/icons/flat/watering.webp" alt=""><span>养护用品</span></button>
+          <button class="en-cell" data-go="极速配送"><img data-ic="scooter" src="../../kit/assets/icons/flat/scooter.webp" alt=""><span>极速配送</span></button>
+        </nav>
+        <nav class="en-grid en-grid--4 en-pg__p" aria-label="账户入口 第 2 页">
+          <button class="en-cell" data-go="优惠券"><img data-ic="coupon" src="../../kit/assets/icons/flat/coupon.webp" alt=""><span>优惠券</span></button>
+          <button class="en-cell" data-go="礼品卡"><img data-ic="giftcard" src="../../kit/assets/icons/flat/giftcard.webp" alt=""><span>礼品卡</span></button>
+          <button class="en-cell" data-go="钱包"><img data-ic="wallet" src="../../kit/assets/icons/flat/wallet.webp" alt=""><span>钱包</span></button>
+          <button class="en-cell" data-go="收藏"><img data-ic="heart" src="../../kit/assets/icons/flat/heart.webp" alt=""><span>收藏</span></button>
+          <button class="en-cell" data-go="收货地址"><img data-ic="pin" src="../../kit/assets/icons/flat/pin.webp" alt=""><span>收货地址</span></button>
+          <button class="en-cell" data-go="购物车"><img data-ic="cart" src="../../kit/assets/icons/flat/cart.webp" alt=""><span>购物车</span></button>
+          <button class="en-cell" data-go="评价"><img data-ic="star" src="../../kit/assets/icons/flat/star.webp" alt=""><span>评价</span></button>
+          <button class="en-cell" data-go="全部订单"><img data-ic="bag" src="../../kit/assets/icons/flat/bag.webp" alt=""><span>全部订单</span></button>
+        </nav>
+      </div>
+      <div class="en-dots" role="tablist" aria-label="入口页码">
+        <button type="button" role="tab" aria-selected="true" aria-label="第 1 页" data-tip="第 1 页"></button>
+        <button type="button" role="tab" aria-selected="false" aria-label="第 2 页" data-tip="第 2 页"></button>
+      </div>
+    </section>
+  </div>
+</article>
+
+<script>
+(function () {
+  var $ = function (s, r) { return (r || document).querySelector(s); }, $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var clamp = function (v, a, b) { return Math.min(b, Math.max(a, v)); };
+
+  // 横向分页：滚动吸附加鼠标拖动，页码点随之同步；触屏与触控板用原生滑动
+  function paged(track, tabs, hooks) {
+    hooks = hooks || {};
+    var cur = 0, lock = 0, drag = null, swallow = false, n = tabs.length;
+    var width = function () { return track.clientWidth || 1; };
+    function mark(i) {
+      cur = i;
+      tabs.forEach(function (t, j) { t.setAttribute('aria-selected', String(j === i)); t.tabIndex = j === i ? 0 : -1; });
+      if (hooks.page) hooks.page(i);
+    }
+    function go(i, instant) {
+      i = clamp(i, 0, n - 1); lock = Date.now() + 520; mark(i);
+      track.scrollTo({ left: i * width(), behavior: instant || Lz.reduce ? 'auto' : 'smooth' });
+    }
+    track.addEventListener('scroll', function () {
+      if (Date.now() < lock) return;
+      var i = clamp(Math.round(track.scrollLeft / width()), 0, n - 1); if (i !== cur) mark(i);
+    }, { passive: true });
+    tabs.forEach(function (t, i) {
+      t.addEventListener('click', function () { go(i); });
+      t.addEventListener('keydown', function (e) {
+        var d = { ArrowRight: 1, ArrowLeft: -1 }[e.key]; if (!d) return;
+        var k = (i + d + n) % n; go(k); tabs[k].focus(); e.preventDefault();
+      });
+    });
+    track.addEventListener('pointerdown', function (e) { if (e.pointerType === 'mouse' && e.button === 0) drag = { x: e.clientX, l: track.scrollLeft, on: false }; });
+    track.addEventListener('pointermove', function (e) {
+      if (!drag) return; var dx = e.clientX - drag.x;
+      if (!drag.on) {
+        if (Math.abs(dx) < 5) return;
+        drag.on = true; track.setPointerCapture(e.pointerId); track.classList.add('is-drag'); track.style.scrollSnapType = 'none'; if (hooks.drag) hooks.drag(true);
+      }
+      track.scrollLeft = drag.l - dx;
+    });
+    function end(e) {
+      if (!drag) return; var d = drag; drag = null; if (!d.on) return;
+      var dx = e.clientX - d.x, w = width(), from = Math.round(d.l / w), to = Math.round((d.l - dx) / w);
+      if (to === from && Math.abs(dx) > 40) to = from + (dx < 0 ? 1 : -1);
+      track.classList.remove('is-drag'); track.style.scrollSnapType = ''; swallow = true; setTimeout(function () { swallow = false; }, 0);
+      go(to); if (hooks.drag) hooks.drag(false);
+    }
+    track.addEventListener('pointerup', end); track.addEventListener('pointercancel', end);
+    track.addEventListener('click', function (e) { if (swallow) { e.stopPropagation(); e.preventDefault(); } }, true);
+    new ResizeObserver(function () { track.scrollLeft = cur * width(); }).observe(track);
+    mark(0);
+    return { go: go, cur: function () { return cur; }, size: n };
+  }
+
+  // 轮播图横幅：自动轮播，悬停、聚焦、拖动、离开视野或用户暂停时停住
+  (function () {
+    var host = $('#en-cr'); if (!host) return;
+    var track = $('.en-cr__track', host), slides = $$('.en-cr__s', host), btn = $('.en-cr__play', host);
+    var playing = !Lz.reduce, hover = false, focus = false, drag = false, seen = true;
+    var pg = paged(track, $$('.en-dots button', host), {
+      page: function (i) { slides.forEach(function (s, j) { $$('button', s).forEach(function (b) { b.tabIndex = j === i ? 0 : -1; }); }); },
+      drag: function (on) { drag = on; }
+    });
+    function setPlay(on) {
+      playing = on; var im = $('img', btn);
+      btn.setAttribute('aria-label', on ? '暂停轮播' : '播放轮播'); btn.dataset.tip = on ? '暂停' : '播放';
+      im.src = '../../kit/assets/line/' + (on ? 'pause' : 'play') + '.webp';
+      track.setAttribute('aria-live', on ? 'off' : 'polite');
+    }
+    btn.addEventListener('click', function () { setPlay(!playing); });
+    host.addEventListener('pointerenter', function (e) { if (e.pointerType === 'mouse') hover = true; });
+    host.addEventListener('pointerleave', function () { hover = false; });
+    host.addEventListener('focusin', function () { focus = true; });
+    host.addEventListener('focusout', function () { focus = false; });
+    host.addEventListener('keydown', function (e) {
+      var d = { ArrowRight: 1, ArrowLeft: -1 }[e.key]; if (!d || e.target.closest('.en-dots')) return;
+      var k = clamp(pg.cur() + d, 0, slides.length - 1); pg.go(k); var b = $('button', slides[k]); if (b) b.focus({ preventScroll: true }); e.preventDefault();
+    });
+    new IntersectionObserver(function (es) { seen = es[0].isIntersecting; }).observe(host);
+    setPlay(playing);
+    setInterval(function () {
+      if (!playing || hover || focus || drag || !seen) return;
+      var k = pg.cur() + 1; pg.go(k >= slides.length ? 0 : k, k >= slides.length);
+    }, 3600);
+  })();
+
+  // 多页宫格入口：左右滑动或点分页点翻页
+  (function () {
+    var host = $('#en-pg'); if (!host) return;
+    paged($('.en-pg__track', host), $$('.en-dots button', host), {
+      page: function (i) { $$('.en-pg__p', host).forEach(function (p, j) { p.setAttribute('aria-hidden', String(j !== i)); $$('button', p).forEach(function (b) { b.tabIndex = j === i ? 0 : -1; }); }); }
+    });
+  })();
+})();
+</script>

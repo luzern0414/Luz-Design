@@ -1,0 +1,225 @@
+{
+ "id": "DC-SL-004",
+ "name": "产品介绍",
+ "theme": "rose",
+ "title": "春日花礼系列",
+ "slides": [
+  {
+   "layout": "cover",
+   "title": "春日花礼系列",
+   "image": "scene-hero-pink",
+   "focus": [
+    0.84,
+    0.5
+   ]
+  },
+  {
+   "layout": "stats",
+   "title": "九款花礼满足日常送礼",
+   "items": [
+    {
+     "icon": "bouquet",
+     "label": "在售商品",
+     "value": "9",
+     "unit": "款"
+    },
+    {
+     "icon": "wallet",
+     "label": "价格起点",
+     "value": "89",
+     "unit": "元"
+    },
+    {
+     "icon": "bag",
+     "label": "商品分类",
+     "value": "4",
+     "unit": "类"
+    },
+    {
+     "icon": "scooter",
+     "label": "最快送达",
+     "value": "40",
+     "unit": "分钟"
+    }
+   ]
+  },
+  {
+   "layout": "image-text",
+   "title": "红玫瑰花束最受欢迎",
+   "image": "product-rose-red",
+   "badge": "¥199",
+   "head": "红玫瑰花束",
+   "points": [
+    "11支红玫瑰搭配尤加利",
+    "牛皮纸包装保留自然质感",
+    "适合纪念日与生日"
+   ]
+  },
+  {
+   "layout": "image-text",
+   "title": "粉芍药适合送给长辈",
+   "image": "product-peony-pink",
+   "side": "right",
+   "badge": "¥239",
+   "head": "粉芍药花束",
+   "points": [
+    "花朵饱满香气清淡",
+    "搭配奶油色包装纸",
+    "探望长辈与寿辰常选"
+   ]
+  },
+  {
+   "layout": "table",
+   "title": "六款热销商品价格一览",
+   "columns": [
+    {
+     "text": "商品",
+     "width": 1.3
+    },
+    {
+     "text": "分类",
+     "width": 0.8
+    },
+    {
+     "text": "价格",
+     "align": "right",
+     "width": 0.8
+    },
+    {
+     "text": "适合场景",
+     "width": 1.2
+    }
+   ],
+   "rows": [
+    [
+     "红玫瑰花束",
+     "鲜花",
+     "¥199",
+     "纪念日"
+    ],
+    [
+     "粉芍药花束",
+     "鲜花",
+     "¥239",
+     "探望长辈"
+    ],
+    [
+     "向日葵花束",
+     "鲜花",
+     "¥159",
+     "开业祝贺"
+    ],
+    [
+     "蓝绣球盆栽",
+     "绿植",
+     "¥129",
+     "乔迁新居"
+    ],
+    [
+     "龟背竹盆栽",
+     "绿植",
+     "¥159",
+     "办公室"
+    ],
+    [
+     "花礼盒",
+     "礼盒",
+     "¥259",
+     "商务馈赠"
+    ]
+   ]
+  },
+  {
+   "layout": "two-column",
+   "title": "鲜花与绿植各有所长",
+   "left": {
+    "head": "鲜花花束",
+    "points": [
+     "当天送达最新鲜",
+     "适合纪念日与祝福",
+     "花期约一周"
+    ]
+   },
+   "right": {
+    "head": "绿植盆栽",
+    "points": [
+     "可摆放数月",
+     "适合办公室与家居",
+     "养护简单"
+    ]
+   }
+  },
+  {
+   "layout": "chart",
+   "title": "花礼盒是价位最高的一款",
+   "chart": {
+    "type": "bar",
+    "caption": "商品单价 单位 元",
+    "categories": [
+     "花礼盒",
+     "粉芍药花束",
+     "红玫瑰花束",
+     "白郁金香",
+     "向日葵花束",
+     "龟背竹盆栽",
+     "蓝绣球盆栽",
+     "干花花瓶摆件",
+     "多肉组合盆"
+    ],
+    "series": [
+     {
+      "name": "单价",
+      "values": [
+       259,
+       239,
+       199,
+       179,
+       159,
+       159,
+       129,
+       129,
+       89
+      ]
+     }
+    ],
+    "number_format": "0"
+   },
+   "stat": {
+    "icon": "giftbox",
+    "label": "最高单价",
+    "value": "259",
+    "unit": "元"
+   }
+  },
+  {
+   "layout": "quote",
+   "title": "顾客愿意推荐给朋友",
+   "image": "bouquet-tulip",
+   "quote": "收到的花束比图片还漂亮",
+   "who": "林晓",
+   "role": "金卡会员",
+   "mark": "marks/mark-009"
+  },
+  {
+   "layout": "bullets",
+   "title": "花礼盒适合商务馈赠",
+   "image": "product-giftbox",
+   "points": [
+    "牛皮纸礼盒搭配鲜花",
+    "附手写贺卡",
+    "支持企业批量订购",
+    "可指定时间送达"
+   ]
+  },
+  {
+   "layout": "end",
+   "title": "春日花礼随时可订",
+   "image": "bouquet-white",
+   "points": [
+    "九款商品覆盖四类场景",
+    "三家门店同步供应",
+    "极速配送最快40分钟"
+   ]
+  }
+ ]
+}

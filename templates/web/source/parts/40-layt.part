@@ -1,0 +1,1443 @@
+<!-- cat: LAYT | 布局壳 -->
+<style>
+  /* 布局壳类：前缀 wb-ly-。每个演示是一块用真实组件搭好的版式小样：高度由内容决定，宽度跟着整行（版式壳不低于 720 像素，更窄时舞台横向滚动），
+     壳内的栅格用容器宽度切换列数，不依赖窗口宽度 */
+  #cat-layt .demo { min-width: 0; }
+  #cat-layt .badge { min-width: 18px; height: 18px; font-size: var(--fs-xs); line-height: 18px; }
+  #cat-layt .btn--primary:not([disabled]), #cat-layt .btn--danger:not([disabled]) { color: var(--surface); }
+  #cat-layt .btn--danger-soft:not([disabled]), #cat-layt .tag[data-tone="danger"] { color: color-mix(in srgb, var(--danger) 82%, var(--ink)); }
+  #cat-layt .demo__stage { padding: 0; border: 0; background: transparent; }
+  .wb-ly-f { position: relative; isolation: isolate; overflow: hidden; container-type: inline-size; border: 1px solid var(--line); border-radius: var(--r-md); background: var(--bg); }
+  .wb-ly-f--w { background: var(--surface); }
+  .wb-ly-f--wide { min-width: 720px; }
+  .wb-ly-app { display: grid; grid-template-columns: 88px minmax(0, 1fr); }
+  .wb-ly-app .rail { position: static; height: auto; align-self: stretch; }
+  .wb-ly-app--s { grid-template-columns: 72px minmax(0, 1fr); }
+  .wb-ly-app--s .rail { padding-left: 0; padding-right: 0; }
+  .wb-ly-app--s .rail__item { width: 60px; }
+  .wb-ly-main { min-width: 0; padding: 0 var(--s-6) var(--s-6); }
+  .wb-ly-main--c { padding: 0 var(--s-5) var(--s-5); }
+  .wb-ly-pad { padding: var(--s-4) var(--s-5); }
+  .wb-ly-stk { display: grid; gap: var(--s-3); align-content: start; }
+  .wb-ly-duo { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: var(--s-3); }
+
+  /* 页头 */
+  .wb-ly-head { position: relative; isolation: isolate; margin: 0 calc(var(--s-6) * -1); padding: var(--s-5) var(--s-6) var(--s-4); background: linear-gradient(180deg, var(--action-tint) 0%, var(--bg) 100%); }
+  .wb-ly-main--c > .wb-ly-head { margin: 0 calc(var(--s-5) * -1) var(--s-3); padding: var(--s-4) var(--s-5); }
+  .wb-ly-head::after { content: ""; position: absolute; inset: 0; z-index: -1; background: url(../../kit/assets/photo/pattern-petals.webp) right top / 340px; opacity: .35; -webkit-mask-image: linear-gradient(90deg, transparent 35%, var(--ink) 100%); mask-image: linear-gradient(90deg, transparent 35%, var(--ink) 100%); pointer-events: none; }
+  .wb-ly-head__row { display: flex; align-items: center; justify-content: space-between; gap: var(--s-4); min-height: 44px; }
+  .wb-ly-head h1 { font-size: var(--fs-3xl); font-weight: 700; line-height: var(--lh-tight); white-space: nowrap; }
+  .wb-ly-main--c > .wb-ly-head h1 { font-size: var(--fs-2xl); }
+  .wb-ly-head__acts { display: flex; align-items: center; gap: var(--s-2); }
+  .wb-ly-head .search { width: 240px; }
+  .wb-ly-head .seg { margin-top: var(--s-3); }
+  .wb-ly-head--flat { margin: 0; padding: var(--s-5) var(--s-5) var(--s-4); }
+
+  /* 通用小块：统计卡的标签与数值不换行，列数随容器宽度切换，保证每张卡的文字有足够横向空间 */
+  .wb-ly-kpi { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 2px var(--s-2); padding: var(--s-4); }
+  .wb-ly-kpi .stat__label { grid-column: 1; font-size: var(--fs-sm); color: var(--ink-3); white-space: nowrap; }
+  .wb-ly-kpi img { grid-column: 2; grid-row: 1 / 3; width: 36px; height: 36px; object-fit: contain; }
+  .wb-ly-num { grid-column: 1; font-size: var(--fs-xl); font-weight: 700; line-height: var(--lh-tight); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .wb-ly-num small { margin-left: 2px; font-size: var(--fs-sm); font-weight: 400; color: var(--ink-3); }
+  .wb-ly-num small:first-child { margin: 0 2px 0 0; }
+  .wb-ly-name { font-size: var(--fs-md); font-weight: 600; line-height: var(--lh-tight); }
+  .wb-ly-name--xl { font-size: var(--fs-xl); }
+  .wb-ly-meta { font-size: var(--fs-sm); color: var(--ink-3); }
+  .wb-ly-row { display: flex; align-items: center; gap: var(--s-3); }
+  .wb-ly-sp { margin-left: auto; }
+  .wb-ly-f .section { margin-top: 0; }
+  .wb-ly-f .row { min-height: 64px; }
+  .wb-ly-f .row__lead { width: 40px; height: 40px; }
+  .wb-ly-k4 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-4); }
+  .wb-ly-m21 { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s-4); margin-top: var(--s-5); }
+  .wb-ly-m21 > .section { display: grid; grid-template-rows: auto 1fr; }
+  .wb-ly-fill { display: grid; grid-auto-rows: 1fr; }
+  .wb-ly-chartc { display: grid; align-content: end; padding: var(--s-4) var(--s-5) var(--s-3); }
+  .wb-ly-chartc .bars { height: var(--bh, 140px); }
+  @container (min-width: 960px) {
+    .wb-ly-k4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .wb-ly-m21 { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); }
+  }
+
+  /* 折叠侧栏 */
+  .wb-ly-fold .rail { width: 88px; transition: width var(--dur-base) var(--ease-out); }
+  .wb-ly-fold { grid-template-columns: auto minmax(0, 1fr); }
+  .wb-ly-fold[data-c="true"] .rail { width: 64px; }
+  .wb-ly-fold[data-c="true"] .rail__item { width: 44px; min-height: 44px; justify-content: center; }
+  .wb-ly-fold[data-c="true"] .rail__item span { display: none; }
+  .wb-ly-fold .rail__tog { margin-bottom: var(--s-2); }
+  .wb-ly-fold .rail__tog img { transition: transform var(--dur-base) var(--ease-out); }
+  .wb-ly-fold .rail__tog[aria-expanded="false"] img { transform: rotate(180deg); }
+  .wb-ly-tr { display: flex; align-items: center; justify-content: flex-end; gap: var(--s-2); }
+
+  /* 顶栏与面包屑 */
+  .wb-ly-top { display: flex; align-items: center; gap: var(--s-3); min-height: 64px; padding: 0 var(--s-5); background: var(--surface); border-bottom: 1px solid var(--line); box-shadow: var(--elev-1); }
+  .wb-ly-top .search { flex: 1 1 140px; min-width: 0; max-width: 280px; min-height: 40px; }
+  .wb-ly-top .drop__btn { min-height: 40px; padding: 0 var(--s-3); background: var(--zone); white-space: nowrap; }
+  .wb-ly-top .drop__btn img { width: 18px; height: 18px; }
+  .wb-ly-top .ibtn { flex: none; }
+  .wb-ly-user { display: inline-flex; align-items: center; gap: var(--s-2); font-size: var(--fs-sm); font-weight: 600; white-space: nowrap; }
+  .wb-ly-user img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
+  .wb-ly-body { padding: var(--s-5); }
+  .wb-ly-crumb { display: flex; align-items: center; gap: var(--s-2); flex-wrap: nowrap; font-size: var(--fs-md); }
+  .wb-ly-crumb a { color: var(--ink-3); transition: color var(--dur-quick) var(--ease-out); cursor: pointer; }
+  @media (hover: hover) { .wb-ly-crumb a:hover { color: var(--action-press); text-decoration: underline; } }
+  .wb-ly-crumb [aria-current] { font-weight: 600; color: var(--ink); }
+  .wb-ly-prod { display: grid; grid-template-columns: 72px minmax(0, 1fr) auto; align-items: center; gap: var(--s-4); padding: var(--s-4); }
+  .wb-ly-prod img { width: 72px; height: 72px; border-radius: var(--r-md); object-fit: cover; }
+  .wb-ly-prod .price { font-size: var(--fs-xl); }
+
+  /* 多标签页栏 */
+  .wb-ly-tabs { display: flex; align-items: flex-end; gap: var(--s-1); padding: var(--s-2) var(--s-3) 0; background: var(--zone); border-bottom: 1px solid var(--line); overflow-x: auto; scrollbar-width: none; }
+  .wb-ly-tabs::-webkit-scrollbar { display: none; }
+  .wb-ly-tab { position: relative; flex: none; display: inline-flex; align-items: center; gap: var(--s-2); min-height: 40px; padding: 0 var(--s-2) 0 var(--s-4); border-radius: var(--r-md) var(--r-md) 0 0; font-size: var(--fs-sm); color: var(--ink-2); transition: background var(--dur-quick) var(--ease-out); }
+  @media (hover: hover) { .wb-ly-tab:hover { background: color-mix(in srgb, var(--surface) 60%, transparent); } }
+  .wb-ly-tab[aria-selected="true"] { background: var(--surface); color: var(--ink); font-weight: 600; box-shadow: 0 -1px 0 var(--line), 1px 0 0 var(--line), -1px 0 0 var(--line); }
+  .wb-ly-tab[aria-selected="true"]::before { content: ""; position: absolute; left: var(--s-3); right: var(--s-3); top: 0; height: 3px; border-radius: 0 0 3px 3px; background: var(--action); }
+  .wb-ly-tab .x { display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; }
+  .wb-ly-tab .x img { width: 12px; height: 12px; opacity: .55; }
+  @media (hover: hover) { .wb-ly-tab .x:hover { background: var(--zone); } .wb-ly-tab .x:hover img { opacity: 1; } }
+  .wb-ly-panel { display: grid; gap: var(--s-3); padding: var(--s-5); background: var(--surface); align-content: start; }
+
+  /* 主从与三栏：列数由容器宽度决定，两侧卡片等高，内容在卡内铺满 */
+  .wb-ly-split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr); gap: var(--s-4); padding: var(--s-5); }
+  .wb-ly-split > .list { display: grid; grid-auto-rows: 1fr; }
+  .wb-ly-item { cursor: pointer; }
+  .wb-ly-item[aria-selected="true"] { background: var(--action-tint); }
+  .wb-ly-item[aria-selected="true"]::before { content: ""; position: absolute; left: 0; top: 10px; bottom: 10px; width: 3px; border-radius: 0 3px 3px 0; background: var(--action); border: 0; }
+  .wb-ly-detail { --pic: 140px; display: grid; grid-template-columns: var(--pic) minmax(0, 1fr); gap: var(--s-5); align-items: center; padding: var(--s-5); }
+  .wb-ly-detail img.pic { width: var(--pic); height: var(--pic); border-radius: var(--r-lg); object-fit: cover; }
+  .wb-ly-dinfo { display: grid; gap: var(--s-4); min-width: 0; }
+  .wb-ly-facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-3) var(--s-4); }
+  .wb-ly-facts dt { font-size: var(--fs-sm); color: var(--ink-3); }
+  .wb-ly-facts dd { margin-top: 2px; min-width: 0; font-size: var(--fs-md); font-weight: 600; }
+  .wb-ly-tri { display: grid; grid-template-columns: minmax(0, 1fr) 300px; grid-template-areas: "f f" "l i"; gap: var(--s-4); padding: var(--s-5); }
+  .wb-ly-tri > .wb-ly-fl { grid-area: f; display: flex; }
+  .wb-ly-tri > [data-list] { grid-area: l; align-content: start; }
+  .wb-ly-tri > .wb-ly-info { grid-area: i; }
+  .wb-ly-filter { flex: 1; display: flex; align-items: center; justify-content: space-between; gap: var(--s-2); min-height: 48px; padding: 0 var(--s-4); text-align: left; font-size: var(--fs-md); transition: background var(--dur-quick) var(--ease-out); }
+  .wb-ly-filter + .wb-ly-filter { border-left: 1px solid var(--line); }
+  .wb-ly-filter[aria-current="true"] { background: var(--action-tint); color: var(--action-press); font-weight: 600; }
+  .wb-ly-filter small { font-size: var(--fs-xs); color: var(--ink-3); font-variant-numeric: tabular-nums; }
+  .wb-ly-info { display: flex; flex-direction: column; gap: var(--s-4); padding: var(--s-5); }
+  .wb-ly-info .kv { padding: 0; grid-template-columns: 64px minmax(0, 1fr); }
+  .wb-ly-info .wb-ly-row:last-child { margin-top: auto; justify-content: flex-end; }
+  @container (min-width: 1000px) {
+    .wb-ly-split { grid-template-columns: 360px minmax(0, 1fr); }
+    .wb-ly-detail { --pic: 240px; gap: var(--s-6); }
+    .wb-ly-facts { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .wb-ly-tri { grid-template-columns: 208px minmax(0, 1fr) 320px; grid-template-areas: "f l i"; }
+    .wb-ly-tri > .wb-ly-fl { display: grid; grid-auto-rows: 1fr; align-self: stretch; }
+    .wb-ly-filter + .wb-ly-filter { border-left: 0; border-top: 1px solid var(--line); }
+  }
+
+  /* 页脚分页栏 */
+  .wb-ly-pg { display: flex; align-items: center; gap: var(--s-2); padding: var(--s-3) var(--s-5); border-top: 1px solid var(--line); background: var(--surface); font-size: var(--fs-sm); color: var(--ink-2); }
+  .wb-ly-pg .total { margin-right: auto; white-space: nowrap; }
+  .wb-ly-pg .drop__btn { white-space: nowrap; }
+  .wb-ly-pg .drop__menu { top: auto; bottom: calc(100% + 4px); transform-origin: bottom left; }
+  .wb-ly-pg [data-pages] { display: inline-flex; align-items: center; gap: var(--s-1); }
+  .wb-ly-pg .pgb { min-width: 36px; min-height: 36px; padding: 0 var(--s-2); border-radius: var(--r-full); background: var(--zone); font-size: var(--fs-sm); font-variant-numeric: tabular-nums; white-space: nowrap; transition: background var(--dur-quick) var(--ease-out); }
+  .wb-ly-pg .pgb[aria-current="page"] { background: var(--action-tint); color: var(--action-press); font-weight: 600; box-shadow: inset 0 0 0 1px var(--action); }
+  .wb-ly-pg .pgb:disabled { opacity: .45; pointer-events: none; }
+  .wb-ly-pg .pgb.wide { padding: 0 var(--s-3); }
+  .wb-ly-pg .pgb-gap { display: inline-grid; place-items: center; min-width: 24px; min-height: 36px; color: var(--ink-3); }
+
+  /* 登录与整页状态 */
+  .wb-ly-login { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); min-height: 440px; }
+  .wb-ly-login__photo { background: url(../../kit/assets/photo/scene-hero-pink.webp) center / cover; }
+  .wb-ly-login__form { display: grid; align-content: center; justify-items: center; padding: var(--s-8); background: var(--surface); }
+  .wb-ly-login__form form { display: grid; gap: var(--s-4); width: min(380px, 100%); }
+  .wb-ly-login__form h2 { font-size: var(--fs-2xl); font-weight: 700; line-height: var(--lh-tight); }
+  .wb-ly-keep { display: flex; align-items: center; gap: var(--s-2); font-size: var(--fs-sm); color: var(--ink-2); }
+  .wb-ly-state { position: relative; display: grid; align-content: center; justify-items: center; gap: var(--s-3); padding: var(--s-6) var(--s-5); text-align: center; background: var(--surface); }
+  .wb-ly-state h2 { font-size: var(--fs-xl); font-weight: 700; line-height: var(--lh-tight); }
+  .wb-ly-state .big { font-size: var(--fs-3xl); font-weight: 700; line-height: 1; color: var(--action); font-variant-numeric: tabular-nums; }
+  .wb-ly-state .back { position: absolute; left: var(--s-2); top: var(--s-2); }
+  .wb-ly-lock { display: grid; place-items: center; width: 96px; height: 96px; border-radius: var(--r-xl); background: var(--action-tint); box-shadow: inset 0 0 0 1px var(--action-edge); }
+  .wb-ly-lock img { width: 48px; height: 48px; }
+
+  /* 详情页与表单页 */
+  .wb-ly-sub { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; align-items: center; gap: var(--s-2); min-height: 56px; padding: 0 var(--s-4) 0 var(--s-2); background: var(--bg); border-bottom: 1px solid var(--line); }
+  .wb-ly-sub h1 { font-size: var(--fs-lg); font-weight: 600; line-height: var(--lh-tight); }
+  .wb-ly-dg { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s-4); padding: var(--s-5) var(--s-6) var(--s-6); align-items: start; }
+  .wb-ly-dg > div { display: grid; gap: var(--s-4); align-content: start; }
+  @container (max-width: 879px) { .wb-ly-dg > div:last-child { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @container (min-width: 880px) { .wb-ly-dg { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); } }
+  .wb-ly-lines .wb-ly-ln { display: grid; grid-template-columns: 56px minmax(0, 1fr) auto; align-items: center; gap: var(--s-3); min-height: 72px; padding: var(--s-2) var(--s-5); }
+  .wb-ly-lines .wb-ly-ln + .wb-ly-ln { border-top: 1px solid var(--line); }
+  .wb-ly-lines img { width: 56px; height: 56px; border-radius: var(--r-sm); object-fit: cover; }
+  .wb-ly-amt { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); min-height: 44px; padding: 0 var(--s-5); }
+  .wb-ly-amt + .wb-ly-amt { border-top: 1px solid var(--line); }
+  .wb-ly-formp { max-width: 1080px; margin: 0 auto; padding: var(--s-5) var(--s-5) var(--s-6); }
+  .wb-ly-formp .form-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); padding: var(--s-5); align-items: start; }
+  .wb-ly-formp .wheel .input { width: 72px; }
+  .wb-ly-stack { display: grid; }
+  .wb-ly-stack > * { grid-area: 1 / 1; }
+  .wb-ly-stack > [data-off] { visibility: hidden; }
+  .wb-ly-skel { display: grid; gap: var(--s-3); align-content: start; }
+  .wb-ly-skcard { display: grid; gap: var(--s-3); align-content: center; padding: var(--s-4) var(--s-5); }
+  .wb-ly-skcard .skel { height: 16px; }
+  .wb-ly-dash { display: grid; gap: var(--s-5); padding: var(--s-5) var(--s-6) var(--s-6); }
+  .wb-ly-dash .wb-ly-m21 { margin-top: 0; }
+  .wb-ly-dash .legend { align-content: center; }
+  .wb-ly-donut { display: flex; align-items: center; justify-content: center; gap: var(--s-6); padding: var(--s-4) var(--s-5); }
+</style>
+
+<article class="demo demo--span2" data-cid="WB-LAYT-001" data-name="侧栏主区版式" data-cat="LAYT">
+  <div class="demo__head"><span class="demo__name">侧栏主区版式</span></div>
+  <p class="demo__note">适合：整个后台的基本骨架，上图下字侧栏加主内容区</p>
+  <div class="demo__stage is-plain"><div class="wb-ly-f wb-ly-f--wide"><div class="wb-ly-app">
+    <nav class="rail" aria-label="主导航小样" data-wb-rail>
+      <button class="rail__item" aria-current="page"><img src="../../kit/assets/line/home.webp" alt=""><span>工作台</span></button>
+      <button class="rail__item"><img src="../../kit/assets/line/archive.webp" alt=""><span>订单</span></button>
+      <button class="rail__item"><img src="../../kit/assets/line/list.webp" alt=""><span>商品</span></button>
+      <button class="rail__item"><img src="../../kit/assets/line/people.webp" alt=""><span>会员</span></button>
+      <span class="rail__sp"></span>
+      <button class="rail__item"><img src="../../kit/assets/line/settings.webp" alt=""><span>设置</span></button>
+    </nav>
+    <div class="wb-ly-main">
+      <header class="wb-ly-head"><div class="wb-ly-head__row"><h1>经营概览</h1><div class="wb-ly-head__acts"><label class="search"><img src="../../kit/assets/line/search.webp" alt=""><input type="search" placeholder="搜索订单或客户" aria-label="搜索订单或客户"></label><button class="ibtn" data-tip="消息" aria-label="消息"><img src="../../kit/assets/line/message.webp" alt=""><span class="badge">3</span></button></div></div></header>
+      <div class="wb-ly-k4" style="margin-top: var(--s-2)">
+        <div class="card wb-ly-kpi"><span class="stat__label">销售额</span><span class="wb-ly-num"><small>¥</small>128,640</span><img src="../../kit/assets/solid/bill.webp" alt=""></div>
+        <div class="card wb-ly-kpi"><span class="stat__label">订单数</span><span class="wb-ly-num">1,286<small>单</small></span><img src="../../kit/assets/solid/order.webp" alt=""></div>
+        <div class="card wb-ly-kpi"><span class="stat__label">新增会员</span><span class="wb-ly-num">84<small>人</small></span><img src="../../kit/assets/solid/biz-customer.webp" alt=""></div>
+        <div class="card wb-ly-kpi"><span class="stat__label">在营门店</span><span class="wb-ly-num">3<small>家</small></span><img src="../../kit/assets/solid/biz-store.webp" alt=""></div>
+      </div>
+      <div class="wb-ly-m21">
+        <section class="section"><div class="section__head"><h2>销售趋势</h2></div><div class="card section__body wb-ly-chartc"><div class="bars" role="img" aria-label="近七日订单数" style="--bh: 164px"><div class="bars__col"><span class="bars__bar" style="--h: 61%; --i: 0"></span>周一</div><div class="bars__col"><span class="bars__bar" style="--h: 66%; --i: 1"></span>周二</div><div class="bars__col"><span class="bars__bar" style="--h: 53%; --i: 2"></span>周三</div><div class="bars__col"><span class="bars__bar" style="--h: 72%; --i: 3"></span>周四</div><div class="bars__col"><span class="bars__bar" style="--h: 86%; --i: 4"></span>周五</div><div class="bars__col" aria-current="true"><span class="bars__bar" style="--h: 100%; --i: 5"></span>周六</div><div class="bars__col"><span class="bars__bar" style="--h: 79%; --i: 6"></span>周日</div></div></div></section>
+        <section class="section"><div class="section__head"><h2>热销商品</h2></div><div class="card list section__body wb-ly-fill">
+          <div class="row"><img class="row__lead" src="../../kit/assets/photo/product-monstera.webp" alt=""><div class="row__main"><p class="row__title">龟背竹盆栽</p></div><div class="row__trail"><span class="price"><small>¥</small>159</span></div></div>
+          <div class="row"><img class="row__lead" src="../../kit/assets/photo/product-succulent.webp" alt=""><div class="row__main"><p class="row__title">多肉组合盆</p></div><div class="row__trail"><span class="price"><small>¥</small>89</span></div></div>
+          <div class="row"><img class="row__lead" src="../../kit/assets/photo/product-tulip-white.webp" alt=""><div class="row__main"><p class="row__title">白郁金香</p></div><div class="row__trail"><span class="price"><small>¥</small>179</span></div></div>
+        </div></section>
+      </div>
+    </div>
+  </div></div></div>
+</article>
+
+<article class="demo demo--span2" data-cid="WB-LAYT-003" data-name="全局顶栏" data-cat="LAYT">
+  <div class="demo__head"><span class="demo__name">全局顶栏</span></div>
+  <p class="demo__note">适合：门店切换、搜索与账号入口</p>
+  <div class="demo__stage is-plain"><div class="wb-ly-f wb-ly-f--wide">
+    <header class="wb-ly-top">
+      <div class="drop"><button class="drop__btn" aria-label="切换门店"><img src="../../kit/assets/line/location.webp" alt=""><b>建国路店</b></button><div class="drop__menu" role="listbox"><button class="drop__opt" role="option" aria-selected="true">建国路店</button><button class="drop__opt" role="option" aria-selected="false">徐汇滨江店</button><button class="drop__opt" role="option" aria-selected="false">浦东世纪店</button></div></div>
+      <label class="search"><img src="../../kit/assets/line/search.webp" alt=""><input type="search" placeholder="搜索订单或客户" aria-label="搜索订单或客户"></label>
+      <span class="wb-ly-sp"></span>
+      <button class="ibtn" data-tip="消息" aria-label="消息" data-wb-toast="暂无新消息"><img src="../../kit/assets/line/message.webp" alt=""><span class="badge">3</span></button>
+      <span class="wb-ly-user"><img src="../../kit/assets/marks/mark-015.webp" alt="">周岚</span>
+    </header>
+    <div class="wb-ly-body"><div class="wb-ly-k4">
+      <div class="card wb-ly-kpi"><span class="stat__label">销售额</span><span class="wb-ly-num"><small>¥</small>8,640</span><img src="../../kit/assets/solid/bill.webp" alt=""></div>
+      <div class="card wb-ly-kpi"><span class="stat__label">订单数</span><span class="wb-ly-num">56<small>单</small></span><img src="../../kit/assets/solid/order.webp" alt=""></div>
+      <div class="card wb-ly-kpi"><span class="stat__label">新增会员</span><span class="wb-ly-num">6<small>人</small></span><img src="../../kit/assets/solid/biz-customer.webp" alt=""></div>
+      <div class="card wb-ly-kpi"><span class="stat__label">售后单</span><span class="wb-ly-num">1<small>单</small></span><img src="../../kit/assets/solid/biz-review.webp" alt=""></div>
+    </div></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-LAYT-002" data-name="折叠侧栏" data-cat="LAYT">
+  <div class="demo__head"><span class="demo__name">折叠侧栏</span></div>
+  <p class="demo__note">适合：需要更大内容区时，侧栏收成纯图标</p>
+  <div class="demo__stage is-plain"><div class="wb-ly-f"><div class="wb-ly-app wb-ly-fold" data-c="false" id="wb-ly-fold">
+    <nav class="rail" aria-label="折叠侧栏小样" data-wb-rail>
+      <button class="ibtn rail__tog" data-tip="折叠侧栏" aria-label="折叠侧栏" aria-expanded="true" data-tog><img src="../../kit/assets/line/back.webp" alt=""></button>
+      <button class="rail__item" aria-current="page" aria-label="工作台"><img src="../../kit/assets/line/home.webp" alt=""><span>工作台</span></button>
+      <button class="rail__item" aria-label="订单"><img src="../../kit/assets/line/archive.webp" alt=""><span>订单</span></button>
+      <button class="rail__item" aria-label="商品"><img src="../../kit/assets/line/list.webp" alt=""><span>商品</span></button>
+      <span class="rail__sp"></span>
+      <button class="rail__item" aria-label="设置"><img src="../../kit/assets/line/settings.webp" alt=""><span>设置</span></button>
+    </nav>
+    <div class="wb-ly-main wb-ly-main--c">
+      <header class="wb-ly-head"><div class="wb-ly-head__row"><h1>库存概览</h1></div></header>
+      <div class="wb-ly-stk"><div class="card wb-ly-kpi"><span class="stat__label">在售商品</span><span class="wb-ly-num">128<small>款</small></span><img src="../../kit/assets/solid/biz-upload.webp" alt=""></div>
+      <div class="card list"><div class="row"><img class="row__lead" src="../../kit/assets/photo/product-tulip-white.webp" alt=""><div class="row__main"><p class="row__title">白郁金香</p></div><div class="row__trail"><span class="tag" data-tone="danger">库存紧张</span></div></div><div class="row"><img class="row__lead" src="../../kit/assets/photo/product-rose-red.webp" alt=""><div class="row__main"><p class="row__title">红玫瑰花束</p></div><div class="row__trail"><span class="tag" data-tone="success">库存充足</span></div></div><div class="row"><img class="row__lead" src="../../kit/assets/photo/product-monstera.webp" alt=""><div class="row__main"><p class="row__title">龟背竹盆栽</p></div><div class="row__trail"><span class="tag" data-tone="success">库存充足</span></div></div><div class="row"><img class="row__lead" src="../../kit/assets/photo/product-sunflower.webp" alt=""><div class="row__main"><p class="row__title">向日葵花束</p></div><div class="row__trail"><span class="tag" data-tone="success">库存充足</span></div></div></div></div>
+    </div>
+  </div></div></div>
+</article>
+
+<article class="demo" data-cid="WB-LAYT-004" data-name="页面面包屑" data-cat="LAYT">
+  <div class="demo__head"><span class="demo__name">页面面包屑</span></div>
+  <p class="demo__note">适合：层级较深的详情页，标明所在位置</p>
+  <div class="demo__stage is-plain"><div class="wb-ly-f wb-ly-f--w"><div class="wb-ly-pad wb-ly-stk" style="gap: var(--s-5)">
+    <nav class="wb-ly-crumb" aria-label="面包屑"><a data-wb-toast="已回到商品列表">商品列表</a><i class="chev"></i><a data-wb-toast="已回到花束分类">花束</a><i class="chev"></i><span aria-current="page">红玫瑰花束</span></nav>
+    <div class="card wb-ly-prod"><img src="../../kit/assets/photo/product-rose-red.webp" alt=""><div><p class="wb-ly-name">红玫瑰花束</p><p class="wb-ly-meta">库存 42 件</p></div><span class="price"><small>¥</small>199</span></div>
+  </div></div></div>
+</article>
+
+<article class="demo" data-cid="WB-LAYT-005" data-name="多标签页栏" data-cat="LAYT">
+  <div class="demo__head"><span class="demo__name">多标签页栏</span></div>
+  <p class="demo__note">适合：同时处理多个页面，可逐个关闭</p>
+  <div class="demo__stage is-plain"><div class="wb-ly-f wb-ly-f--w" id="wb-ly-tabs">
+    <div class="wb-ly-tabs" role="tablist" aria-label="已打开页面">
+      <button class="wb-ly-tab" role="tab" aria-selected="true" data-p="经营概览">经营概览<span class="x" role="button" tabindex="0" aria-label="关闭经营概览" data-tip="关闭"><img src="../../kit/assets/line/close.webp" alt=""></span></button>
+      <button class="wb-ly-tab" role="tab" aria-selected="false" data-p="订单列表">订单列表<span class="x" role="button" tabindex="0" aria-label="关闭订单列表" data-tip="关闭"><img src="../../kit/assets/line/close.webp" alt=""></span></button>
+      <button class="wb-ly-tab" role="tab" aria-selected="false" data-p="商品列表">商品列表<span class="x" role="button" tabindex="0" aria-label="关闭商品列表" data-tip="关闭"><img src="../../kit/assets/line/close.webp" alt=""></span></button>
+      <button class="wb-ly-tab" role="tab" aria-selected="false" data-p="会员档案">会员档案<span class="x" role="button" tabindex="0" aria-label="关闭会员档案" data-tip="关闭"><img src="../../kit/assets/line/close.webp" alt=""></span></button>
+    </div>
+    <div class="wb-ly-panel" role="tabpanel"><span class="wb-ly-name" data-title style="font-size: var(--fs-lg)">经营概览</span><div class="wb-ly-duo"><div class="card wb-ly-kpi"><span class="stat__label">销售额</span><span class="wb-ly-num"><small>¥</small>128,640</span><img src="../../kit/assets/solid/bill.webp" alt=""></div><div class="card wb-ly-kpi"><span class="stat__label">订单数</span><span class="wb-ly-num">1,286<small>单</small></span><img src="../../kit/assets/solid/order.webp" alt=""></div></div></div>
+  </div></div>
+</article>
+
+<article class="demo demo--span2" data-cid="WB-LAYT-006" data-name="双栏版式" data-cat="LAYT">
+  <div class="demo__head"><span class="demo__name">双栏版式</span></div>
+  <p class="demo__note">适合：主内容占三分之二，右侧放待办与动态</p>
+  <div class="demo__stage is-plain"><div class="wb-ly-f wb-ly-f--wide"><div class="wb-ly-pad">
+    <div class="wb-ly-m21" style="margin-top: 0">
+      <section class="section"><div class="section__head"><h2>销售趋势</h2></div><div class="card section__body wb-ly-chartc"><div class="bars" role="img" aria-label="近七日订单数" style="--bh: 176px"><div class="bars__col"><span class="bars__bar" style="--h: 61%; --i: 0"></span>周一</div><div class="bars__col"><span class="bars__bar" style="--h: 66%; --i: 1"></span>周二</div><div class="bars__col"><span class="bars__bar" style="--h: 53%; --i: 2"></span>周三</div><div class="bars__col"><span class="bars__bar" style="--h: 72%; --i: 3"></span>周四</div><div class="bars__col"><span class="bars__bar" style="--h: 86%; --i: 4"></span>周五</div><div class="bars__col" aria-current="true"><span class="bars__bar" style="--h: 100%; --i: 5"></span>周六</div><div class="bars__col"><span class="bars__bar" style="--h: 79%; --i: 6"></span>周日</div></div></div></section>
+      <section class="section"><div class="section__head"><h2>订单动态</h2></div><div class="card section__body" style="padding: var(--s-5) var(--s-5) var(--s-1)"><div class="tl">
+        <div class="tl__item" data-state="now"><span class="tl__dot"></span><div><p class="wb-ly-name">待发货</p><p class="wb-ly-meta">订单 0219</p></div><span class="tl__time">刚刚</span></div>
+        <div class="tl__item" data-state="done"><span class="tl__dot"></span><div><p class="wb-ly-name">已付款</p><p class="wb-ly-meta">订单 0218</p></div><span class="tl__time">5 分钟前</span></div>
+        <div class="tl__item" data-state="done"><span class="tl__dot"></span><div><p class="wb-ly-name">已完成</p><p class="wb-ly-meta">订单 0216</p></div><span class="tl__time">昨天</span></div>
+      </div></div></section>
+    </div>
+  </div></div></div>
+</article>
+
+<article class="demo demo--span2" data-cid="WB-LAYT-007" data-name="主从分栏" data-cat="LAYT">
+  <div class="demo__head"><span class="demo__name">主从分栏</span></div>
+  <p class="demo__note">适合：左侧选对象，右侧同屏看详情</p>
+  <div class="demo__stage is-plain"><div class="wb-ly-f wb-ly-f--wide" id="wb-ly-ms"><div class="wb-ly-split">
+    <div class="card list">
+      <button class="row wb-ly-item" aria-selected="true" data-n="红玫瑰花束" data-p="199" data-s="42" data-c="鲜花" data-img="product-rose-red"><img class="row__lead" src="../../kit/assets/photo/product-rose-red.webp" alt=""><div class="row__main"><p class="row__title">红玫瑰花束</p><p class="row__meta">库存 42 件</p></div><div class="row__trail"><span class="price"><small>¥</small>199</span></div></button>
+      <button class="row wb-ly-item" aria-selected="false" data-n="粉芍药花束" data-p="239" data-s="26" data-c="鲜花" data-img="product-peony-pink"><img class="row__lead" src="../../kit/assets/photo/product-peony-pink.webp" alt=""><div class="row__main"><p class="row__title">粉芍药花束</p><p class="row__meta">库存 26 件</p></div><div class="row__trail"><span class="price"><small>¥</small>239</span></div></button>
+      <button class="row wb-ly-item" aria-selected="false" data-n="龟背竹盆栽" data-p="159" data-s="24" data-c="绿植" data-img="product-monstera"><img class="row__lead" src="../../kit/assets/photo/product-monstera.webp" alt=""><div class="row__main"><p class="row__title">龟背竹盆栽</p><p class="row__meta">库存 24 件</p></div><div class="row__trail"><span class="price"><small>¥</small>159</span></div></button>
+      <button class="row wb-ly-item" aria-selected="false" data-n="花礼盒" data-p="259" data-s="36" data-c="礼盒" data-img="product-giftbox"><img class="row__lead" src="../../kit/assets/photo/product-giftbox.webp" alt=""><div class="row__main"><p class="row__title">花礼盒</p><p class="row__meta">库存 36 件</p></div><div class="row__trail"><span class="price"><small>¥</small>259</span></div></button>
+    </div>
+    <div class="card wb-ly-detail" aria-live="polite">
+      <img class="pic" src="../../kit/assets/photo/product-rose-red.webp" alt="" data-pic>
+      <div class="wb-ly-dinfo"><span class="wb-ly-name wb-ly-name--xl" data-name>红玫瑰花束</span>
+        <dl class="wb-ly-facts"><div><dt>分类</dt><dd data-cat>鲜花</dd></div><div><dt>售价</dt><dd><span class="price" data-price><small>¥</small>199</span></dd></div><div><dt>库存</dt><dd data-stock>42 件</dd></div><div><dt>状态</dt><dd><span class="tag" data-tone="success">在售</span></dd></div></dl>
+        <div class="wb-ly-row"><button class="btn btn--outline btn--sm" data-wb-toast="已打开详情页">查看详情</button><button class="btn btn--primary btn--sm" data-wb-toast="已进入编辑">编辑商品</button></div>
+      </div>
+    </div>
+  </div></div></div>
+</article>
+
+<article class="demo demo--span2" data-cid="WB-LAYT-008" data-name="三栏工作台" data-cat="LAYT">
+  <div class="demo__head"><span class="demo__name">三栏工作台</span></div>
+  <p class="demo__note">适合：高频处理订单，左筛选中列表右详情</p>
+  <div class="demo__stage is-plain"><div class="wb-ly-f wb-ly-f--wide" id="wb-ly-tri"><div class="wb-ly-tri">
+    <div class="card list wb-ly-fl">
+      <button class="wb-ly-filter" aria-current="true" data-f="all">全部<small>128</small></button>
+      <button class="wb-ly-filter" aria-current="false" data-f="待发货">待发货<small>2</small></button>
+      <button class="wb-ly-filter" aria-current="false" data-f="待收货">待收货<small>1</small></button>
+      <button class="wb-ly-filter" aria-current="false" data-f="已完成">已完成<small>1</small></button>
+    </div>
+    <div class="card list" data-list>
+      <button class="row wb-ly-item" aria-selected="true" data-st="待发货" data-no="0219" data-who="陈默" data-mark="mark-008" data-n="粉芍药花束" data-p="239" data-img="product-peony-pink"><img class="row__lead" src="../../kit/assets/photo/product-peony-pink.webp" alt=""><div class="row__main"><p class="row__title">粉芍药花束</p><p class="row__meta">订单 0219 陈默</p></div><div class="row__trail"><span class="price"><small>¥</small>239</span><span class="tag" data-tone="warning">待发货</span></div></button>
+      <button class="row wb-ly-item" aria-selected="false" data-st="待发货" data-no="0218" data-who="林晓" data-mark="mark-003" data-n="红玫瑰花束" data-p="199" data-img="product-rose-red"><img class="row__lead" src="../../kit/assets/photo/product-rose-red.webp" alt=""><div class="row__main"><p class="row__title">红玫瑰花束</p><p class="row__meta">订单 0218 林晓</p></div><div class="row__trail"><span class="price"><small>¥</small>199</span><span class="tag" data-tone="warning">待发货</span></div></button>
+      <button class="row wb-ly-item" aria-selected="false" data-st="待收货" data-no="0217" data-who="周岚" data-mark="mark-015" data-n="蓝绣球盆栽" data-p="129" data-img="product-hydrangea-blue"><img class="row__lead" src="../../kit/assets/photo/product-hydrangea-blue.webp" alt=""><div class="row__main"><p class="row__title">蓝绣球盆栽</p><p class="row__meta">订单 0217 周岚</p></div><div class="row__trail"><span class="price"><small>¥</small>129</span><span class="tag" data-tone="info">待收货</span></div></button>
+      <button class="row wb-ly-item" aria-selected="false" data-st="已完成" data-no="0216" data-who="王芳" data-mark="mark-012" data-n="花礼盒" data-p="259" data-img="product-giftbox"><img class="row__lead" src="../../kit/assets/photo/product-giftbox.webp" alt=""><div class="row__main"><p class="row__title">花礼盒</p><p class="row__meta">订单 0216 王芳</p></div><div class="row__trail"><span class="price"><small>¥</small>259</span><span class="tag" data-tone="success">已完成</span></div></button>
+    </div>
+    <div class="card wb-ly-info" aria-live="polite">
+      <div class="wb-ly-row"><img class="avatar" data-mark src="../../kit/assets/marks/mark-008.webp" alt=""><div><p class="wb-ly-name" data-who>陈默</p><p class="wb-ly-meta" data-no>订单 0219</p></div></div>
+      <dl class="kv"><dt>商品</dt><dd data-n>粉芍药花束</dd><dt>金额</dt><dd><span class="price" data-price><small>¥</small>239</span></dd><dt>门店</dt><dd>建国路店</dd></dl>
+      <div class="wb-ly-row"><button class="btn btn--outline btn--sm" data-wb-toast="已打开订单详情">详情</button><button class="btn btn--primary btn--sm" data-wb-toast="已发货">发货</button></div>
+    </div>
+  </div></div></div>
+</article>
+
+<article class="demo demo--span2" data-cid="WB-LAYT-009" data-name="页面标题区" data-cat="LAYT">
+  <div class="demo__head"><span class="demo__name">页面标题区</span></div>
+  <p class="demo__note">适合：每页顶部的平面区，渐变花瓣托住标题与操作</p>
+  <div class="demo__stage is-plain"><div class="wb-ly-f wb-ly-f--wide">
+    <header class="wb-ly-head wb-ly-head--flat">
+      <div class="wb-ly-head__row"><h1>商品列表</h1><div class="wb-ly-head__acts"><button class="btn btn--outline btn--sm" data-wb-toast="已开始导出"><img src="../../kit/assets/line/upload.webp" alt="">导出</button><button class="ibtn" data-tip="筛选" aria-label="筛选" data-wb-toast="已打开筛选"><img src="../../kit/assets/line/filter.webp" alt=""></button></div></div>
+      <div class="seg" data-seg="wb-ly-head" data-seg-for="#wb-ly-rows" aria-label="商品状态"><button class="seg__item" data-key="all" aria-selected="true">全部</button><button class="seg__item" data-key="在售" aria-selected="false">在售</button><button class="seg__item" data-key="已下架" aria-selected="false">已下架</button></div>
+    </header>
+    <div style="padding: var(--s-3) var(--s-5) var(--s-5)"><div class="card list" id="wb-ly-rows">
+      <div class="row" data-cat="在售"><img class="row__lead" src="../../kit/assets/photo/product-rose-red.webp" alt=""><div class="row__main"><p class="row__title">红玫瑰花束</p><p class="row__meta">库存 42 件</p></div><div class="row__trail"><span class="tag" data-tone="success">在售</span></div></div>
+      <div class="row" data-cat="在售"><img class="row__lead" src="../../kit/assets/photo/product-sunflower.webp" alt=""><div class="row__main"><p class="row__title">向日葵花束</p><p class="row__meta">库存 40 件</p></div><div class="row__trail"><span class="tag" data-tone="success">在售</span></div></div>
+      <div class="row" data-cat="已下架"><img class="row__lead" src="../../kit/assets/photo/product-pampas-vase.webp" alt=""><div class="row__main"><p class="row__title">干花花瓶摆件</p><p class="row__meta">库存 0 件</p></div><div class="row__trail"><span class="tag">已下架</span></div></div>
+    </div></div>
+  </div></div>
+</article>
+
+<article class="demo demo--span2" data-cid="WB-LAYT-010" data-name="页脚分页栏" data-cat="LAYT">
+  <div class="demo__head"><span class="demo__name">页脚分页栏</span></div>
+  <p class="demo__note">适合：长列表底部，共几条加每页数量与页码</p>
+  <div class="demo__stage is-plain"><div class="wb-ly-f wb-ly-f--w wb-ly-f--wide" id="wb-ly-pg">
+    <div class="list"><div class="row"><img class="row__lead" src="../../kit/assets/photo/product-giftbox.webp" alt=""><div class="row__main"><p class="row__title">花礼盒</p></div><div class="row__trail"><span class="price"><small>¥</small>259</span></div></div><div class="row"><img class="row__lead" src="../../kit/assets/photo/product-succulent.webp" alt=""><div class="row__main"><p class="row__title">多肉组合盆</p></div><div class="row__trail"><span class="price"><small>¥</small>89</span></div></div><div class="row"><img class="row__lead" src="../../kit/assets/photo/product-hydrangea-blue.webp" alt=""><div class="row__main"><p class="row__title">蓝绣球盆栽</p></div><div class="row__trail"><span class="price"><small>¥</small>129</span></div></div></div>
+    <div class="wb-ly-pg"><span class="total">共 128 条</span>
+      <div class="drop" data-size><button class="drop__btn" aria-label="每页条数"><b>20 条每页</b></button><div class="drop__menu" role="listbox"><button class="drop__opt" role="option" aria-selected="false" data-value="10">10 条每页</button><button class="drop__opt" role="option" aria-selected="true" data-value="20">20 条每页</button><button class="drop__opt" role="option" aria-selected="false" data-value="50">50 条每页</button><button class="drop__opt" role="option" aria-selected="false" data-value="100">100 条每页</button></div></div>
+      <span data-pages></span>
+    </div>
+  </div></div>
+</article>
+
+<article class="demo demo--span2" data-cid="WB-LAYT-011" data-name="登录页版式" data-cat="LAYT">
+  <div class="demo__head"><span class="demo__name">登录页版式</span></div>
+  <p class="demo__note">适合：整页登录，左侧花卉实拍右侧表单</p>
+  <div class="demo__stage is-plain"><div class="wb-ly-f wb-ly-f--wide"><div class="wb-ly-login">
+    <div class="wb-ly-login__photo" role="img" aria-label="花束场景图"></div>
+    <div class="wb-ly-login__form"><form onsubmit="return false" data-wb-form="登录成功">
+      <h2>账号登录</h2>
+      <label class="field"><span class="field__label">账号</span><input class="input" value="周岚" aria-label="账号"></label>
+      <label class="field"><span class="field__label">密码</span><input class="input" type="password" value="88888888" aria-label="密码"></label>
+      <div class="wb-ly-keep"><span class="check" role="checkbox" aria-checked="true" aria-label="记住账号"><img src="../../kit/assets/line/check.webp" alt=""></span>记住账号</div>
+      <button class="btn btn--primary btn--lg btn--block" type="submit">登录</button>
+    </form></div>
+  </div></div></div>
+</article>
+
+<article class="demo" data-cid="WB-LAYT-012" data-name="空状态页" data-cat="LAYT">
+  <div class="demo__head"><span class="demo__name">空状态页</span></div>
+  <p class="demo__note">适合：整页没有内容，给一个明确的下一个动作</p>
+  <div class="demo__stage is-plain"><div class="wb-ly-f wb-ly-f--w"><div class="wb-ly-state">
+    <img class="ic ic--xl" data-ic="vase" src="../../kit/assets/icons/flat/vase.webp" alt="">
+    <h2>暂无商品</h2>
+    <button class="btn btn--primary" data-wb-toast="请选择商品文件"><img src="../../kit/assets/line/upload.webp" alt="">导入商品</button>
+  </div></div></div>
+</article>
+
+<article class="demo" data-cid="WB-LAYT-014" data-name="页面不存在页" data-cat="LAYT">
+  <div class="demo__head"><span class="demo__name">页面不存在页</span></div>
+  <p class="demo__note">适合：地址失效或页面已被移除</p>
+  <div class="demo__stage is-plain"><div class="wb-ly-f wb-ly-f--w"><div class="wb-ly-state">
+    <button class="ibtn back" data-tip="返回上页" aria-label="返回上页" data-wb-toast="已返回上页"><img src="../../kit/assets/line/back.webp" alt=""></button>
+    <img class="ic ic--xl" data-ic="pin" src="../../kit/assets/icons/flat/pin.webp" alt="">
+    <span class="big">404</span>
+    <h2>页面不存在</h2>
+    <button class="btn btn--outline" data-wb-toast="已重新加载">重新加载</button>
+  </div></div></div>
+</article>
+
+<article class="demo" data-cid="WB-LAYT-013" data-name="无权限页" data-cat="LAYT">
+  <div class="demo__head"><span class="demo__name">无权限页</span></div>
+  <p class="demo__note">适合：账号没有访问该页面的权限</p>
+  <div class="demo__stage is-plain"><div class="wb-ly-f wb-ly-f--w"><div class="wb-ly-state">
+    <button class="ibtn back" data-tip="返回上页" aria-label="返回上页" data-wb-toast="已返回上页"><img src="../../kit/assets/line/back.webp" alt=""></button>
+    <div class="wb-ly-lock"><img src="../../kit/assets/line/shield.webp" alt=""></div>
+    <h2>暂无访问权限</h2>
+    <button class="btn btn--outline" data-wb-toast="已提交权限申请">申请权限</button>
+  </div></div></div>
+</article>
+
+<article class="demo" data-cid="WB-LAYT-015" data-name="页面加载骨架" data-cat="LAYT">
+  <div class="demo__head"><span class="demo__name">页面加载骨架</span></div>
+  <p class="demo__note">适合：整页数据返回前，导航在位内容用骨架占位</p>
+  <div class="demo__stage is-plain"><div class="wb-ly-f" id="wb-ly-load">
+    <div class="wb-ly-app wb-ly-app--s">
+      <nav class="rail" aria-label="加载小样导航"><button class="rail__item" aria-current="page"><img src="../../kit/assets/line/home.webp" alt=""><span>工作台</span></button><button class="rail__item"><img src="../../kit/assets/line/archive.webp" alt=""><span>订单</span></button><button class="rail__item"><img src="../../kit/assets/line/list.webp" alt=""><span>商品</span></button></nav>
+      <div class="wb-ly-main wb-ly-stack" style="padding: var(--s-5)">
+        <div class="wb-ly-skel" data-skel>
+          <div class="skel" style="width: 168px; height: 36px"></div>
+          <div class="wb-ly-duo"><div class="card wb-ly-skcard" style="height: 85px"><div class="skel" style="width: 40%"></div><div class="skel" style="width: 62%; height: 24px"></div></div><div class="card wb-ly-skcard" style="height: 85px"><div class="skel" style="width: 40%"></div><div class="skel" style="width: 62%; height: 24px"></div></div></div>
+          <div class="card wb-ly-skcard" style="height: 66px"><div class="skel" style="width: 46%"></div></div>
+        </div>
+        <div class="wb-ly-skel" data-real data-off>
+          <h1 style="font-size: var(--fs-2xl); font-weight: 700; line-height: var(--lh-tight)">经营概览</h1>
+          <div class="wb-ly-duo"><div class="card wb-ly-kpi"><span class="stat__label">销售额</span><span class="wb-ly-num"><small>¥</small>128,640</span><img src="../../kit/assets/solid/bill.webp" alt=""></div><div class="card wb-ly-kpi"><span class="stat__label">订单数</span><span class="wb-ly-num">1,286<small>单</small></span><img src="../../kit/assets/solid/order.webp" alt=""></div></div>
+          <div class="card list"><div class="row"><img class="row__lead" src="../../kit/assets/photo/product-monstera.webp" alt=""><div class="row__main"><p class="row__title">龟背竹盆栽</p></div><div class="row__trail"><span class="price"><small>¥</small>159</span></div></div></div>
+        </div>
+      </div>
+    </div>
+    <div style="display: flex; justify-content: center; padding: var(--s-3); border-top: 1px solid var(--line); background: var(--surface)"><div class="btn-seg" role="group" aria-label="加载状态"><button aria-pressed="true" data-m="skel">加载中</button><button aria-pressed="false" data-m="real">已加载</button></div></div>
+  </div></div>
+</article>
+
+<article class="demo demo--span2" data-cid="WB-LAYT-016" data-name="详情页版式" data-cat="LAYT">
+  <div class="demo__head"><span class="demo__name">详情页版式</span></div>
+  <p class="demo__note">适合：订单等单对象详情，返回在左上操作在右上</p>
+  <div class="demo__stage is-plain"><div class="wb-ly-f wb-ly-f--wide">
+    <div class="wb-ly-sub"><button class="ibtn" data-tip="返回列表" aria-label="返回列表" data-wb-toast="已返回列表"><img src="../../kit/assets/line/back.webp" alt=""></button><div class="wb-ly-row"><h1>订单 0219</h1><span class="tag" data-tone="warning">待发货</span></div><div class="wb-ly-row"><button class="btn btn--outline btn--sm" data-wb-toast="已发送到打印机">打印面单</button><button class="btn btn--primary btn--sm" data-wb-toast="已发货">发货</button></div></div>
+    <div class="wb-ly-dg">
+      <div>
+        <section class="section"><div class="section__head"><h2>商品明细</h2></div><div class="card section__body wb-ly-lines">
+          <div class="wb-ly-ln"><img src="../../kit/assets/photo/product-peony-pink.webp" alt=""><div><p class="wb-ly-name">粉芍药花束</p><p class="wb-ly-meta">数量 1 束</p></div><span class="price"><small>¥</small>239</span></div>
+          <div class="wb-ly-ln"><img src="../../kit/assets/photo/product-succulent.webp" alt=""><div><p class="wb-ly-name">多肉组合盆</p><p class="wb-ly-meta">数量 1 盆</p></div><span class="price"><small>¥</small>89</span></div>
+          <div class="wb-ly-ln"><img src="../../kit/assets/photo/product-pampas-vase.webp" alt=""><div><p class="wb-ly-name">干花花瓶摆件</p><p class="wb-ly-meta">数量 1 件</p></div><span class="price"><small>¥</small>59</span></div>
+        </div></section>
+      </div>
+      <div>
+        <section class="section"><div class="section__head"><h2>客户</h2></div><div class="card section__body" style="padding: var(--s-4) var(--s-5)"><div class="wb-ly-row"><img class="avatar" src="../../kit/assets/marks/mark-008.webp" alt=""><div><p class="wb-ly-name">陈默</p><p class="wb-ly-meta">金卡会员</p></div></div></div></section>
+        <section class="section"><div class="section__head"><h2>金额</h2></div><div class="card section__body"><div class="wb-ly-amt"><span class="wb-ly-meta">商品合计</span><span class="price"><small>¥</small>387</span></div><div class="wb-ly-amt"><span class="wb-ly-meta">实付</span><span class="price"><small>¥</small>387</span></div></div></section>
+      </div>
+    </div>
+  </div></div>
+</article>
+
+<article class="demo demo--span2" data-cid="WB-LAYT-017" data-name="数据看板版式" data-cat="LAYT">
+  <div class="demo__head"><span class="demo__name">数据看板版式</span></div>
+  <p class="demo__note">适合：先指标后图表的内容区栅格</p>
+  <div class="demo__stage is-plain"><div class="wb-ly-f wb-ly-f--wide"><div class="wb-ly-dash">
+    <div class="wb-ly-k4">
+      <div class="card wb-ly-kpi"><span class="stat__label">销售额</span><span class="wb-ly-num"><small>¥</small>128,640</span><img src="../../kit/assets/solid/bill.webp" alt=""></div>
+      <div class="card wb-ly-kpi"><span class="stat__label">订单数</span><span class="wb-ly-num">1,286<small>单</small></span><img src="../../kit/assets/solid/order.webp" alt=""></div>
+      <div class="card wb-ly-kpi"><span class="stat__label">新增会员</span><span class="wb-ly-num">84<small>人</small></span><img src="../../kit/assets/solid/biz-customer.webp" alt=""></div>
+      <div class="card wb-ly-kpi"><span class="stat__label">售后单</span><span class="wb-ly-num">3<small>单</small></span><img src="../../kit/assets/solid/biz-review.webp" alt=""></div>
+    </div>
+    <div class="wb-ly-m21">
+      <section class="section"><div class="section__head"><h2>订单分布</h2></div><div class="card section__body wb-ly-chartc"><div class="bars" role="img" aria-label="近七日订单数" style="--bh: 152px"><div class="bars__col"><span class="bars__bar" style="--h: 61%; --i: 0"></span>周一</div><div class="bars__col"><span class="bars__bar" style="--h: 66%; --i: 1"></span>周二</div><div class="bars__col"><span class="bars__bar" style="--h: 53%; --i: 2"></span>周三</div><div class="bars__col"><span class="bars__bar" style="--h: 72%; --i: 3"></span>周四</div><div class="bars__col"><span class="bars__bar" style="--h: 86%; --i: 4"></span>周五</div><div class="bars__col" aria-current="true"><span class="bars__bar" style="--h: 100%; --i: 5"></span>周六</div><div class="bars__col"><span class="bars__bar" style="--h: 79%; --i: 6"></span>周日</div></div></div></section>
+      <section class="section"><div class="section__head"><h2>品类占比</h2></div><div class="card section__body wb-ly-donut"><div class="donut" style="--p1: 48%; --p2: 75%; --size: 128px"><div class="donut__center"><b class="wb-ly-name">1,286</b><span class="wb-ly-meta">总订单</span></div></div><ul class="legend"><li><i style="--c: var(--action)"></i>鲜花</li><li><i style="--c: var(--accent)"></i>绿植</li><li><i style="--c: var(--zone); box-shadow: inset 0 0 0 1px var(--line-strong)"></i>礼盒与花器</li></ul></div></section>
+    </div>
+  </div></div></div>
+</article>
+
+<article class="demo demo--span2" data-cid="WB-LAYT-018" data-name="表单页版式" data-cat="LAYT">
+  <div class="demo__head"><span class="demo__name">表单页版式</span></div>
+  <p class="demo__note">适合：新增与编辑的独立填写页，取消保存同排在右上</p>
+  <div class="demo__stage is-plain"><div class="wb-ly-f wb-ly-f--wide">
+    <div class="wb-ly-sub"><button class="ibtn" data-tip="返回列表" aria-label="返回列表" data-wb-toast="已返回列表"><img src="../../kit/assets/line/back.webp" alt=""></button><h1>商品信息</h1><div class="formbar"><button class="btn btn--outline btn--sm" data-wb-toast="已取消编辑">取消</button><button class="btn btn--primary btn--sm" data-wb-toast="已保存">保存</button></div></div>
+    <div class="wb-ly-formp"><div class="card form-grid">
+      <label class="field"><span class="field__label">商品名称</span><input class="input" value="粉芍药花束" aria-label="商品名称"></label>
+      <div class="field"><span class="field__label">分类</span><div class="drop"><button class="drop__btn" aria-label="商品分类" style="min-height: 44px; width: 100%; justify-content: space-between; border-radius: var(--r-md); background: var(--surface); box-shadow: inset 0 0 0 1px var(--line-strong)"><b>鲜花</b></button><div class="drop__menu" role="listbox"><button class="drop__opt" role="option" aria-selected="true">鲜花</button><button class="drop__opt" role="option" aria-selected="false">绿植</button><button class="drop__opt" role="option" aria-selected="false">礼盒</button><button class="drop__opt" role="option" aria-selected="false">花器</button></div></div></div>
+      <div class="field"><span class="field__label">上架状态</span><div style="display: flex; align-items: center; min-height: 44px"><button class="switch" role="switch" aria-checked="true" aria-label="上架状态"></button></div></div>
+      <div class="field"><span class="field__label">库存</span><div class="wheel" data-min="0" data-max="200" data-value="26" data-unit="件" data-label="库存" data-name="stock"></div></div>
+      <div class="field"><span class="field__label">售价</span><div class="wheel" data-min="0" data-max="999" data-step="1" data-value="239" data-unit="元" data-label="售价" data-name="price"></div></div>
+      <div class="field"><span class="field__label">起订量</span><div class="wheel" data-min="1" data-max="20" data-value="1" data-unit="件" data-label="起订量" data-name="minqty"></div></div>
+    </div></div>
+  </div></div>
+</article>
+
+<script>
+(function () {
+  const root = document.getElementById('cat-layt'); if (!root) return;
+  const $ = (s, r = root) => r.querySelector(s), $$ = (s, r = root) => [...r.querySelectorAll(s)];
+  $$('[data-wb-toast]').forEach(b => b.addEventListener('click', () => Lz.toast(b.dataset.wbToast, 'success')));
+  $$('[data-wb-form]').forEach(f => f.addEventListener('submit', e => { e.preventDefault(); Lz.toast(f.dataset.wbForm, 'success'); }));
+
+  /* 侧栏：点选当前项 */
+  $$('[data-wb-rail]').forEach(r => $$('.rail__item', r).forEach(i => i.addEventListener('click', () => $$('.rail__item', r).forEach(x => { if (x === i) x.setAttribute('aria-current', 'page'); else x.removeAttribute('aria-current'); }))));
+
+  /* 折叠侧栏：收起后只剩图标，补上悬浮名称 */
+  const fold = $('#wb-ly-fold');
+  if (fold) {
+    const tog = $('[data-tog]', fold), items = $$('.rail__item', fold);
+    tog.addEventListener('click', () => {
+      const c = fold.dataset.c !== 'true'; fold.dataset.c = String(c); tog.setAttribute('aria-expanded', String(!c)); tog.setAttribute('aria-label', c ? '展开侧栏' : '折叠侧栏'); tog.dataset.tip = c ? '展开侧栏' : '折叠侧栏';
+      items.forEach(i => { if (c) i.dataset.tip = i.getAttribute('aria-label'); else delete i.dataset.tip; });
+    });
+  }
+
+  /* 多标签页：切换与关闭，至少留一个 */
+  const tabs = $('#wb-ly-tabs');
+  if (tabs) {
+    const bar = $('.wb-ly-tabs', tabs), title = $('[data-title]', tabs);
+    const select = t => { $$('.wb-ly-tab', bar).forEach(x => x.setAttribute('aria-selected', String(x === t))); title.textContent = t.dataset.p; };
+    bar.addEventListener('click', e => {
+      const x = e.target.closest('.x'), t = e.target.closest('.wb-ly-tab'); if (!t) return;
+      if (x) { e.stopPropagation(); const all = $$('.wb-ly-tab', bar); if (all.length === 1) { Lz.toast('至少保留一个页面', 'danger'); return; } const next = t.nextElementSibling || t.previousElementSibling; const was = t.getAttribute('aria-selected') === 'true'; t.remove(); if (was) select(next); return; }
+      select(t);
+    });
+    bar.addEventListener('keydown', e => { const x = e.target.closest('.x'); if (x && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); x.click(); } });
+  }
+
+  /* 主从分栏：点左侧对象，右侧同屏更新 */
+  const ms = $('#wb-ly-ms');
+  if (ms) {
+    const items = $$('.wb-ly-item', ms), d = $('.wb-ly-detail', ms);
+    items.forEach(i => i.addEventListener('click', () => {
+      items.forEach(x => x.setAttribute('aria-selected', String(x === i)));
+      $('[data-pic]', d).src = '../../kit/assets/photo/' + i.dataset.img + '.webp'; $('[data-name]', d).textContent = i.dataset.n; $('[data-cat]', d).textContent = i.dataset.c; $('[data-price]', d).innerHTML = '<small>¥</small>' + i.dataset.p; $('[data-stock]', d).textContent = i.dataset.s + ' 件';
+    }));
+  }
+
+  /* 三栏工作台：左筛选只影响中列表，选中订单更新右详情 */
+  const tri = $('#wb-ly-tri');
+  if (tri) {
+    const filters = $$('.wb-ly-filter', tri), items = $$('.wb-ly-item', tri), info = $('.wb-ly-info', tri);
+    const show = i => { items.forEach(x => x.setAttribute('aria-selected', String(x === i))); $('[data-mark]', info).src = '../../kit/assets/marks/' + i.dataset.mark + '.webp'; $('[data-who]', info).textContent = i.dataset.who; $('[data-no]', info).textContent = '订单 ' + i.dataset.no; $('[data-n]', info).textContent = i.dataset.n; $('[data-price]', info).innerHTML = '<small>¥</small>' + i.dataset.p; };
+    items.forEach(i => i.addEventListener('click', () => show(i)));
+    filters.forEach(f => f.addEventListener('click', () => {
+      filters.forEach(x => x.setAttribute('aria-current', String(x === f)));
+      items.forEach(i => { i.hidden = f.dataset.f !== 'all' && i.dataset.st !== f.dataset.f; });
+      const first = items.find(i => !i.hidden); if (first) show(first);
+    }));
+  }
+
+  /* 页面加载：骨架与已加载叠在同一格里切换，整壳高度不跳动 */
+  const load = $('#wb-ly-load');
+  if (load) { const skel = $('[data-skel]', load), real = $('[data-real]', load), btns = $$('[data-m]', load); btns.forEach(b => b.addEventListener('click', () => { btns.forEach(x => x.setAttribute('aria-pressed', String(x === b))); const s = b.dataset.m === 'skel'; skel.toggleAttribute('data-off', !s); real.toggleAttribute('data-off', s); skel.inert = !s; real.inert = s; })); real.inert = true; }
+
+  /* 页脚分页：每页条数改变页数；页多时首页末页常在，中间用省略号 */
+  const pg = $('#wb-ly-pg');
+  if (pg) {
+    const total = 128, box = $('[data-pages]', pg); let size = 20, page = 1;
+    const render = () => {
+      const n = Math.ceil(total / size); page = Math.min(page, n);
+      const seq = n <= 7 ? Array.from({ length: n }, (_, k) => k + 1) : page <= 4 ? [1, 2, 3, 4, 5, 0, n] : page >= n - 3 ? [1, 0, n - 4, n - 3, n - 2, n - 1, n] : [1, 0, page - 1, page, page + 1, 0, n];
+      box.innerHTML = `<button class="pgb wide" data-go="${page - 1}" ${page === 1 ? 'disabled' : ''}>上一页</button>` + seq.map(k => k ? `<button class="pgb" data-go="${k}" ${k === page ? 'aria-current="page"' : ''}>${k}</button>` : '<span class="pgb-gap" aria-hidden="true">…</span>').join('') + `<button class="pgb wide" data-go="${page + 1}" ${page === n ? 'disabled' : ''}>下一页</button>`;
+    };
+    box.addEventListener('click', e => { const b = e.target.closest('[data-go]'); if (!b || b.disabled) return; page = +b.dataset.go; render(); });
+    pg.addEventListener('lz:drop', e => { size = +e.detail.value; page = 1; render(); });
+    render();
+  }
+})();
+</script>
+
+<style>
+  /* 新增布局组件：前缀 wb-lyn-。沿用 wb-ly-f 版式壳；窄组件放进 496 像素舞台，多栏版式整行宽 */
+
+  /* 流程步骤条：圆点在上名称在下，连线跟着已完成步变色 */
+  .wb-lyn-steps { display: flex; padding: var(--s-5) var(--s-4) var(--s-4); }
+  .wb-lyn-step { position: relative; flex: 1 1 0; min-width: 0; display: grid; }
+  .wb-lyn-step + .wb-lyn-step::before { content: ""; position: absolute; top: 14px; left: calc(-50% + 22px); right: calc(50% + 22px); height: 2px; border-radius: 1px; background: var(--line-strong); transition: background var(--dur-base) var(--ease-out); }
+  .wb-lyn-step:is([data-state="done"], [data-state="current"], [data-state="error"])::before { background: var(--action); }
+  .wb-lyn-step__btn { display: grid; justify-items: center; align-content: start; gap: 2px; width: 100%; padding: 0 var(--s-1) var(--s-1); border-radius: var(--r-md); text-align: center; }
+  .wb-lyn-step__btn:disabled { cursor: default; }
+  .wb-lyn-step__dot { position: relative; display: grid; place-items: center; width: 28px; height: 28px; margin-bottom: var(--s-1); border: 1.5px solid var(--line-strong); border-radius: 50%; background: var(--surface); color: var(--ink-3); font-size: var(--fs-sm); font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums; transition: background var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out), color var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out); }
+  .wb-lyn-step__dot img { position: absolute; width: 14px; height: 14px; filter: invert(1); opacity: 0; transform: scale(.5); transition: opacity var(--dur-quick) var(--ease-out), transform var(--dur-base) var(--ease-spring); }
+  .wb-lyn-step[data-state="done"] .wb-lyn-step__dot { border-color: var(--action); background: var(--action); color: transparent; }
+  .wb-lyn-step[data-state="done"] .wb-lyn-step__dot img { opacity: 1; transform: none; }
+  .wb-lyn-step[data-state="current"] .wb-lyn-step__dot { border-color: var(--action); color: var(--action-press); box-shadow: 0 0 0 4px var(--action-soft); }
+  .wb-lyn-step[data-state="error"] .wb-lyn-step__dot { border-color: var(--danger); background: var(--danger-tint); color: var(--danger); }
+  .wb-lyn-step__name { font-size: var(--fs-sm); font-weight: 600; line-height: var(--lh-tight); color: var(--ink-3); white-space: nowrap; transition: color var(--dur-quick) var(--ease-out); }
+  .wb-lyn-step__hint { font-size: var(--fs-xs); line-height: var(--lh-tight); color: var(--ink-3); white-space: nowrap; }
+  .wb-lyn-step:is([data-state="done"], [data-state="current"]) .wb-lyn-step__name { color: var(--ink); }
+  .wb-lyn-step[data-state="current"] .wb-lyn-step__hint { color: var(--action-press); }
+  .wb-lyn-step[data-state="error"] :is(.wb-lyn-step__name, .wb-lyn-step__hint) { color: var(--danger); }
+  @media (hover: hover) { .wb-lyn-step__btn:not(:disabled):hover .wb-lyn-step__name { color: var(--action-press); } }
+  .wb-lyn-stp__body { padding: 0 var(--s-4) var(--s-3); }
+  .wb-lyn-panes { display: grid; }
+  .wb-lyn-panes > * { grid-area: 1 / 1; min-width: 0; }
+  .wb-lyn-panes > [data-off] { visibility: hidden; }
+  .wb-lyn-pane { display: grid; gap: var(--s-3); align-content: start; padding: var(--s-4); border: 1px solid var(--line); border-radius: var(--r-md); background: var(--bg); }
+  .wb-lyn-pane h3 { font-size: var(--fs-md); font-weight: 600; line-height: var(--lh-tight); }
+  .wb-lyn-kv { display: grid; grid-template-columns: 88px minmax(0, 1fr); gap: var(--s-2) var(--s-4); align-items: center; font-size: var(--fs-sm); }
+  .wb-lyn-kv dt { color: var(--ink-3); }
+  .wb-lyn-kv dd { display: flex; align-items: center; gap: var(--s-2); min-height: 28px; min-width: 0; }
+  .wb-lyn-kv .field__err { grid-column: 2; margin-top: -4px; }
+  .wb-lyn-stp__foot { display: flex; align-items: center; justify-content: flex-end; gap: var(--s-2); padding: 0 var(--s-4) var(--s-4); }
+
+  /* 选项卡面板：下划线滑动，选中色跟随主色，停用项灰显 */
+  .wb-lyn-tl { position: relative; display: flex; gap: var(--s-1); padding: 0 var(--s-4); box-shadow: inset 0 -1px 0 var(--line); overflow-x: auto; scrollbar-width: none; }
+  .wb-lyn-tl::-webkit-scrollbar { display: none; }
+  .wb-lyn-tt { flex: none; display: inline-flex; align-items: center; gap: 6px; min-height: 48px; padding: 0 var(--s-3); font-size: var(--fs-md); color: var(--ink-2); white-space: nowrap; transition: color var(--dur-quick) var(--ease-out); }
+  .wb-lyn-tt small { display: inline-block; min-width: 22px; height: 18px; padding: 0 6px; border-radius: var(--r-full); background: var(--zone); color: var(--ink-3); font-size: var(--fs-xs); line-height: 18px; text-align: center; font-variant-numeric: tabular-nums; transition: background var(--dur-quick) var(--ease-out), color var(--dur-quick) var(--ease-out); }
+  .wb-lyn-tt[aria-selected="true"] { color: var(--action-press); font-weight: 600; }
+  .wb-lyn-tt[aria-selected="true"] small { background: var(--action-soft); color: var(--action-press); }
+  .wb-lyn-tt:disabled { color: var(--ink-3); opacity: .5; cursor: not-allowed; }
+  @media (hover: hover) { .wb-lyn-tt:not(:disabled):not([aria-selected="true"]):hover { color: var(--ink); } }
+  .wb-lyn-ink { position: absolute; left: 0; bottom: 0; width: var(--w, 0px); height: 3px; border-radius: 3px 3px 0 0; background: var(--action); transform: translateX(var(--x, 0px)); transition: transform var(--dur-base) var(--ease-out), width var(--dur-base) var(--ease-out); pointer-events: none; }
+  .wb-lyn-tp { display: grid; align-content: center; min-height: 176px; padding: var(--s-5); }
+  .wb-lyn-tprod { display: grid; grid-template-columns: 104px minmax(0, 1fr) auto; gap: var(--s-4) var(--s-5); align-items: center; }
+  .wb-lyn-tstat { display: grid; gap: var(--s-3); padding-left: var(--s-5); border-left: 1px solid var(--line); }
+  .wb-lyn-tstat div { display: grid; gap: 2px; }
+  .wb-lyn-tstat dt { font-size: var(--fs-xs); color: var(--ink-3); }
+  .wb-lyn-tstat dd { font-size: var(--fs-md); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .wb-lyn-tprod img { width: 104px; height: 104px; border-radius: var(--r-md); object-fit: cover; box-shadow: 0 0 0 1px var(--line); }
+  .wb-lyn-tprod > div { display: grid; gap: var(--s-2); justify-items: start; min-width: 0; }
+  .wb-lyn-tags { display: flex; flex-wrap: wrap; gap: var(--s-2); }
+  .wb-lyn-spec { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-4) var(--s-5); }
+  .wb-lyn-spec dt { font-size: var(--fs-xs); color: var(--ink-3); }
+  .wb-lyn-spec dd { margin-top: 2px; font-size: var(--fs-sm); font-weight: 600; }
+  .wb-lyn-rv { display: grid; grid-template-columns: 36px minmax(0, 1fr) auto; align-items: center; gap: var(--s-3); min-height: 56px; }
+  .wb-lyn-rv + .wb-lyn-rv { border-top: 1px solid var(--line); }
+  .wb-lyn-rv .avatar { width: 36px; height: 36px; }
+  .wb-lyn-rv p { font-size: var(--fs-sm); }
+  .wb-lyn-rv b { font-weight: 600; }
+
+  /* 分割线样式组 */
+  .wb-lyn-dvg { display: grid; grid-template-columns: 76px minmax(0, 1fr); gap: var(--s-4); align-items: center; padding: var(--s-5); font-size: var(--fs-sm); }
+  .wb-lyn-dvg > dt { color: var(--ink-3); }
+  .wb-lyn-dvg > dd { min-width: 0; }
+  .wb-lyn-dvg p { line-height: var(--lh-tight); }
+  .wb-lyn-hr { height: 0; margin: var(--s-3) 0; border: 0; border-top: 1px solid var(--line-strong); }
+  .wb-lyn-hr--dash { border-top-style: dashed; }
+  .wb-lyn-hl { display: flex; align-items: center; gap: var(--s-3); width: 100%; min-height: 36px; font-size: var(--fs-sm); font-weight: 600; color: var(--ink-2); }
+  .wb-lyn-ln { flex: 1; height: 0; border-top: 1px solid var(--line-strong); }
+  .wb-lyn-hl small { font-size: var(--fs-xs); font-weight: 400; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+  .wb-lyn-hl .chev { margin-left: calc(var(--s-1) * -1); }
+  @media (hover: hover) { button.wb-lyn-hl:hover { color: var(--action-press); } }
+  .wb-lyn-items { display: grid; gap: var(--s-2); padding: var(--s-1) 0 var(--s-2); }
+  .wb-lyn-items li { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); }
+  .wb-lyn-vrow { display: flex; align-items: center; gap: var(--s-3); white-space: nowrap; }
+  .wb-lyn-vr { flex: none; width: 1px; height: 14px; background: var(--line-strong); }
+  .wb-lyn-act { min-height: 32px; padding: 0 var(--s-1); border-radius: var(--r-sm); color: var(--action-press); font-size: var(--fs-sm); font-weight: 500; transition: background var(--dur-quick) var(--ease-out); }
+  .wb-lyn-act--danger { color: var(--danger); }
+  @media (hover: hover) { .wb-lyn-act:hover { background: var(--zone); } }
+  .wb-lyn-vrow--act { gap: var(--s-2); }
+  .wb-lyn-band { height: 8px; border-radius: var(--r-full); background: var(--zone); }
+
+  /* 固钉吸附容器 */
+  .wb-lyn-af { position: relative; height: 312px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
+  .wb-lyn-af__head { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); padding: var(--s-5) var(--s-5) var(--s-3); }
+  .wb-lyn-af__head h2 { font-size: var(--fs-xl); font-weight: 700; line-height: var(--lh-tight); }
+  .wb-lyn-af__bar { position: sticky; top: 0; z-index: 3; display: flex; align-items: center; gap: var(--s-3); padding: var(--s-2) var(--s-4); background: var(--surface); border-bottom: 1px solid transparent; transition: box-shadow var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out); }
+  .wb-lyn-af__bar[data-stuck="true"] { border-bottom-color: var(--line); box-shadow: var(--elev-2); }
+  .wb-lyn-af__bar .seg { flex: 1; min-width: 0; }
+  .wb-lyn-af__sent { height: 1px; margin-bottom: -1px; }
+  .wb-lyn-af .row { min-height: 60px; }
+  .wb-lyn-af .row__lead { width: 40px; height: 40px; }
+
+  /* 无限滚动加载 */
+  .wb-lyn-inf__head { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); padding: var(--s-3) var(--s-5); border-bottom: 1px solid var(--line); }
+  .wb-lyn-inf__head b { font-size: var(--fs-md); font-weight: 600; }
+  .wb-lyn-inf__head span { font-variant-numeric: tabular-nums; }
+  .wb-lyn-inf__scroll { height: 312px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
+  .wb-lyn-lg { display: grid; grid-template-columns: 36px minmax(0, 1fr) auto; align-items: center; gap: var(--s-3); min-height: 52px; padding: var(--s-2) var(--s-5); font-size: var(--fs-sm); }
+  .wb-lyn-lg + .wb-lyn-lg { border-top: 1px solid var(--line); }
+  .wb-lyn-lg .avatar { width: 36px; height: 36px; }
+  .wb-lyn-lg b { font-weight: 600; }
+  .wb-lyn-lg time { color: var(--ink-3); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .wb-lyn-lg[data-new] { animation: lz-rise var(--dur-slow) var(--ease-out) both; }
+  .wb-lyn-tail { display: flex; align-items: center; justify-content: center; gap: var(--s-2); min-height: 56px; padding: var(--s-2) var(--s-5); border-top: 1px solid var(--line); font-size: var(--fs-sm); color: var(--ink-3); }
+  .wb-lyn-spin { flex: none; width: 18px; height: 18px; border: 2px solid var(--action); border-color: var(--action) transparent var(--action) transparent; border-radius: 50%; animation: lz-spin .8s linear infinite; }
+  .wb-lyn-tail .btn--text { min-height: 32px; }
+  .wb-lyn-tail[data-s="error"] > span { color: var(--danger); }
+
+  /* 瀑布流布局 */
+  .wb-lyn-ms__bar { display: flex; align-items: center; gap: var(--s-3); padding: var(--s-3) var(--s-4); border-bottom: 1px solid var(--line); font-size: var(--fs-sm); color: var(--ink-3); }
+  .wb-lyn-ms__bar .seg { flex: 1; min-width: 0; }
+  .wb-lyn-ms__bar b { font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .wb-lyn-ms__bar .btn--text { min-height: 32px; }
+  .wb-lyn-ms__grid { column-width: 132px; column-gap: var(--s-3); padding: var(--s-4); }
+  .wb-lyn-mc { position: relative; display: block; width: 100%; margin: 0 0 var(--s-3); break-inside: avoid; border-radius: var(--r-md); background: var(--surface); box-shadow: 0 0 0 1px var(--line), var(--elev-1); overflow: hidden; text-align: left; transition: box-shadow var(--dur-quick) var(--ease-out); }
+  .wb-lyn-mc img { width: 100%; aspect-ratio: var(--ar, 1); object-fit: cover; background: var(--zone); }
+  .wb-lyn-mc__cap { display: flex; align-items: center; justify-content: space-between; gap: var(--s-2); padding: var(--s-2) var(--s-3); font-size: var(--fs-sm); font-weight: 600; line-height: var(--lh-tight); }
+  .wb-lyn-mc__cap small { font-size: var(--fs-xs); font-weight: 400; color: var(--ink-3); white-space: nowrap; }
+  .wb-lyn-mc__chk { position: absolute; top: var(--s-2); right: var(--s-2); display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: color-mix(in srgb, var(--surface) 90%, transparent); box-shadow: inset 0 0 0 1.5px var(--line-strong); transition: background var(--dur-quick) var(--ease-out); }
+  .wb-lyn-mc__chk img { width: 14px; height: 14px; aspect-ratio: auto; background: none; filter: invert(1); opacity: 0; transform: scale(.5); transition: opacity var(--dur-quick) var(--ease-out), transform var(--dur-base) var(--ease-spring); }
+  .wb-lyn-mc[aria-pressed="true"] { outline: 2px solid var(--action); outline-offset: 0; }
+  .wb-lyn-mc[aria-pressed="true"] .wb-lyn-mc__chk { background: var(--action); box-shadow: none; }
+  .wb-lyn-mc[aria-pressed="true"] .wb-lyn-mc__chk img { opacity: 1; transform: none; }
+  @media (hover: hover) { .wb-lyn-mc:hover { box-shadow: 0 0 0 1px var(--line-strong), var(--elev-2); } }
+
+  /* 自定义滚动区：原生滚动加自绘滚动条，滑块可拖、轨道可点 */
+  .wb-lyn-scs { display: grid; gap: var(--s-4); padding: var(--s-4); }
+  .wb-lyn-sc { position: relative; border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface); overflow: hidden; }
+  .wb-lyn-sc__view { overflow: auto; scrollbar-width: none; overscroll-behavior: contain; }
+  .wb-lyn-sc__view::-webkit-scrollbar { display: none; }
+  .wb-lyn-sc[data-axis="y"] .wb-lyn-sc__view { height: 224px; }
+  .wb-lyn-sc__view:focus-visible { outline-offset: -2px; }
+  .wb-lyn-sc__bar { position: absolute; border-radius: var(--r-full); opacity: 0; transition: opacity var(--dur-base) var(--ease-out); }
+  .wb-lyn-sc[data-axis="y"] .wb-lyn-sc__bar { top: 4px; bottom: 4px; right: 3px; width: 8px; }
+  .wb-lyn-sc[data-axis="x"] .wb-lyn-sc__bar { left: 4px; right: 4px; bottom: 3px; height: 8px; }
+  .wb-lyn-sc[data-need="true"] .wb-lyn-sc__bar { opacity: .6; }
+  .wb-lyn-sc[data-need="true"]:is(:hover, :focus-within, [data-on="true"], [data-drag="true"]) .wb-lyn-sc__bar { opacity: 1; }
+  .wb-lyn-sc__thumb { position: absolute; top: 0; left: 0; border-radius: var(--r-full); background: color-mix(in srgb, var(--ink) 26%, transparent); cursor: grab; transition: background var(--dur-quick) var(--ease-out); }
+  .wb-lyn-sc[data-axis="y"] .wb-lyn-sc__thumb { width: 100%; }
+  .wb-lyn-sc[data-axis="x"] .wb-lyn-sc__thumb { height: 100%; }
+  @media (hover: hover) { .wb-lyn-sc__thumb:hover { background: color-mix(in srgb, var(--ink) 42%, transparent); } }
+  .wb-lyn-sc[data-drag="true"] .wb-lyn-sc__thumb { background: var(--action); cursor: grabbing; }
+  .wb-lyn-sc .row { min-height: 52px; padding-right: var(--s-5); }
+  .wb-lyn-sc .row__lead { width: 36px; height: 36px; }
+  .wb-lyn-sc .row[aria-selected="true"] { background: var(--action-tint); }
+  .wb-lyn-sc__strip { display: flex; gap: var(--s-3); width: max-content; padding: var(--s-3) var(--s-3) var(--s-4); }
+  .wb-lyn-sc__cell { display: grid; gap: var(--s-2); justify-items: center; width: 92px; font-size: var(--fs-sm); text-align: center; }
+  .wb-lyn-sc__cell img { width: 92px; height: 92px; border-radius: var(--r-md); object-fit: cover; box-shadow: 0 0 0 1px var(--line); }
+  .wb-lyn-sc__cap { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); font-size: var(--fs-sm); color: var(--ink-3); }
+
+  /* 虚拟滚动列表 */
+  .wb-lyn-vl__head { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); padding: var(--s-3) var(--s-4); border-bottom: 1px solid var(--line); }
+  .wb-lyn-vl__head b { font-size: var(--fs-md); font-weight: 600; }
+  .wb-lyn-vl__head .btn--sm { min-height: 32px; }
+  .wb-lyn-vl__view { position: relative; height: 288px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
+  .wb-lyn-vl__space { position: relative; }
+  .wb-lyn-vl__win { position: absolute; left: 0; right: 0; top: 0; }
+  .wb-lyn-vl__row { display: grid; grid-template-columns: 64px 56px minmax(0, 1fr) 76px 68px; align-items: center; gap: var(--s-3); height: 48px; padding: 0 var(--s-4); border-top: 1px solid var(--line); font-size: var(--fs-sm); }
+  .wb-lyn-vl__row > span { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .wb-lyn-vl__row .n { font-variant-numeric: tabular-nums; color: var(--ink-3); }
+  .wb-lyn-vl__row .r { text-align: right; font-variant-numeric: tabular-nums; }
+  .wb-lyn-vl__row .c { text-align: center; overflow: visible; }
+  .wb-lyn-vl__foot { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); min-height: 48px; padding: var(--s-2) var(--s-4); border-top: 1px solid var(--line); font-size: var(--fs-sm); color: var(--ink-3); }
+  .wb-lyn-vl__foot b { font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
+
+  /* 间距堆叠容器 */
+  .wb-lyn-sp { display: grid; gap: var(--s-4); padding: var(--s-5); }
+  .wb-lyn-sp__ctl { display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: var(--s-3) var(--s-4); align-items: center; font-size: var(--fs-sm); }
+  .wb-lyn-sp__ctl dt { color: var(--ink-3); }
+  .wb-lyn-sp__ctl dd { display: flex; align-items: center; min-width: 0; min-height: 40px; }
+  .wb-lyn-sp__ctl .btn-seg button { min-height: 32px; padding: 0 var(--s-3); }
+  .wb-lyn-sp__box { --gap: var(--s-3); display: flex; flex-flow: row wrap; align-items: flex-start; gap: var(--gap); padding: var(--s-4); border: 1px dashed var(--line-strong); border-radius: var(--r-md); transition: gap var(--dur-base) var(--ease-out), background var(--dur-base) var(--ease-out); }
+  .wb-lyn-sp__box[data-dir="column"] { flex-direction: column; flex-wrap: nowrap; }
+  .wb-lyn-sp__box[data-al="center"] { align-items: center; }
+  .wb-lyn-sp__box[data-al="end"] { align-items: flex-end; }
+  .wb-lyn-sp__box[data-al="stretch"] { align-items: stretch; }
+  .wb-lyn-sp__box[data-show="true"] { background: var(--action-soft); border-color: var(--action-edge); }
+  .wb-lyn-sp__box > .btn, .wb-lyn-sp__box > .tag { flex: none; }
+  .wb-lyn-sp__box > .btn--text { background: var(--surface); }
+  .wb-lyn-sp__box > .tag { height: 28px; padding: 0 var(--s-3); }
+  .wb-lyn-sp__box[data-dir="column"] > .btn, .wb-lyn-sp__box[data-dir="column"] > .tag { justify-content: center; }
+  .wb-lyn-sp__box[data-dir="column"][data-al="stretch"] > .tag { justify-content: center; }
+  .wb-lyn-sp__read { font-size: var(--fs-sm); color: var(--ink-3); font-variant-numeric: tabular-nums; }
+
+  /* 可拖拽分栏：分隔条可拖、可用方向键，双击或回车恢复 */
+  .wb-lyn-spl { padding: var(--s-4); }
+  .wb-lyn-spl__host { --l: 36%; display: grid; grid-template-columns: var(--l) 12px minmax(0, 1fr); height: 396px; }
+  .wb-lyn-spl__host.is-drag { cursor: col-resize; user-select: none; }
+  .wb-lyn-spl__host.is-drag-y { cursor: row-resize; user-select: none; }
+  .wb-lyn-spl__host.is-drag *, .wb-lyn-spl__host.is-drag-y * { pointer-events: none; }
+  .wb-lyn-spl__host.is-drag .wb-lyn-sep, .wb-lyn-spl__host.is-drag-y .wb-lyn-sep { pointer-events: auto; }
+  .wb-lyn-col { display: grid; grid-template-rows: auto minmax(0, 1fr); min-width: 0; min-height: 0; container-type: inline-size; }
+  .wb-lyn-col > .section__head { padding-left: var(--s-1); }
+  .wb-lyn-col > .card { min-height: 0; overflow: auto; scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
+  .wb-lyn-col__r { --t: 50%; display: grid; grid-template-rows: var(--t) 12px minmax(0, 1fr); min-width: 0; min-height: 0; }
+  .wb-lyn-sep { position: relative; display: grid; place-items: center; touch-action: none; cursor: col-resize; border-radius: var(--r-sm); }
+  .wb-lyn-sep--y { cursor: row-resize; }
+  .wb-lyn-sep::before { content: ""; position: absolute; inset: 0; margin: auto; width: 2px; height: 100%; border-radius: 1px; background: var(--action-edge); opacity: 0; transition: opacity var(--dur-quick) var(--ease-out); }
+  .wb-lyn-sep--y::before { width: 100%; height: 2px; }
+  .wb-lyn-sep i { position: relative; width: 4px; height: 36px; border-radius: 2px; background: var(--line-strong); transition: background var(--dur-quick) var(--ease-out), height var(--dur-base) var(--ease-out); }
+  .wb-lyn-sep--y i { width: 36px; height: 4px; }
+  .wb-lyn-sep::after { content: attr(data-v); position: absolute; top: 50%; left: 50%; z-index: 2; transform: translate(-50%, -150%); padding: 2px var(--s-2); border-radius: var(--r-sm); background: var(--ink); color: var(--surface); font-size: var(--fs-xs); font-variant-numeric: tabular-nums; line-height: 1.5; opacity: 0; pointer-events: none; transition: opacity var(--dur-quick) var(--ease-out); }
+  @media (hover: hover) { .wb-lyn-sep:hover::before { opacity: 1; } .wb-lyn-sep:hover i { background: var(--action); } }
+  .wb-lyn-sep:is(:focus-visible, [data-on="true"])::before { opacity: 1; }
+  .wb-lyn-sep:is(:focus-visible, [data-on="true"]) i { background: var(--action); height: 44px; }
+  .wb-lyn-sep--y:is(:focus-visible, [data-on="true"]) i { width: 44px; height: 4px; }
+  .wb-lyn-sep:is(:focus-visible, [data-on="true"])::after { opacity: 1; }
+  .wb-lyn-sep:focus-visible { outline: none; }
+  .wb-lyn-pr { display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; align-items: center; gap: var(--s-3); min-height: 56px; }
+  .wb-lyn-pr img { width: 40px; height: 40px; border-radius: var(--r-sm); object-fit: cover; }
+  .wb-lyn-pr[aria-selected="true"] { background: var(--action-tint); }
+  .wb-lyn-pr[aria-selected="true"]::before { content: ""; position: absolute; left: 0; top: 10px; bottom: 10px; width: 3px; border-radius: 0 3px 3px 0; background: var(--action); border: 0; }
+  @container (max-width: 240px) { .wb-lyn-pr { grid-template-columns: 40px minmax(0, 1fr); } .wb-lyn-pr .price { display: none; } }
+  .wb-lyn-dt { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: var(--s-4); align-items: center; padding: var(--s-3) var(--s-4); }
+  .wb-lyn-dt img { width: 72px; height: 72px; border-radius: var(--r-md); object-fit: cover; box-shadow: 0 0 0 1px var(--line); }
+  .wb-lyn-dt > div { display: grid; gap: var(--s-1); justify-items: start; min-width: 0; }
+  .wb-lyn-dt .wb-ly-row { flex-wrap: nowrap; gap: var(--s-2); }
+  .wb-lyn-sl { display: grid; grid-template-columns: 64px 56px minmax(0, 1fr) auto; align-items: center; gap: var(--s-3); min-height: 44px; padding: 0 var(--s-4); font-size: var(--fs-sm); }
+  .wb-lyn-sl + .wb-lyn-sl { border-top: 1px solid var(--line); }
+  .wb-lyn-sl .n { color: var(--ink-3); font-variant-numeric: tabular-nums; }
+  .wb-lyn-sl .q { color: var(--ink-3); font-variant-numeric: tabular-nums; }
+
+  /* 栅格布局：二十四栏，列数随预览容器宽度换档 */
+  .wb-lyn-gr__bar { display: flex; align-items: center; gap: var(--s-4); padding: var(--s-3) var(--s-5); border-bottom: 1px solid var(--line); font-size: var(--fs-sm); color: var(--ink-3); }
+  .wb-lyn-gr__bar .sp { flex: 1; }
+  .wb-lyn-gr__bar .btn-seg button { min-height: 32px; }
+  .wb-lyn-gr__sw { display: inline-flex; align-items: center; gap: var(--s-2); color: var(--ink-2); }
+  .wb-lyn-gr__rd { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .wb-lyn-gr__dock { display: grid; justify-items: center; padding: var(--s-4) var(--s-5) var(--s-5); background: var(--bg); }
+  .wb-lyn-gr__vp { position: relative; container-type: inline-size; width: min(var(--vw, 100%), 100%); transition: width var(--dur-slow) var(--ease-out); }
+  .wb-lyn-gr__grid { display: grid; grid-template-columns: repeat(24, minmax(0, 1fr)); gap: var(--s-3); }
+  .wb-lyn-gr__guides { position: absolute; inset: 0; z-index: 3; display: grid; grid-template-columns: repeat(24, minmax(0, 1fr)); gap: var(--s-3); opacity: 0; pointer-events: none; transition: opacity var(--dur-base) var(--ease-out); }
+  .wb-lyn-gr__guides i { background: color-mix(in srgb, var(--action) 7%, transparent); }
+  .wb-lyn-gr__vp[data-guide="true"] .wb-lyn-gr__guides { opacity: 1; }
+  .wb-lyn-gb { position: relative; grid-column: span var(--s, 24); min-width: 0; display: grid; align-content: start; gap: var(--s-2); padding: var(--s-4); }
+  .wb-lyn-gb__n { position: absolute; top: var(--s-3); right: var(--s-3); height: 22px; padding: 0 var(--s-2); border-radius: 7px; background: var(--zone); color: var(--ink-3); font-size: var(--fs-xs); font-weight: 600; line-height: 22px; font-variant-numeric: tabular-nums; }
+  .wb-lyn-gb .stat__label { font-size: var(--fs-sm); color: var(--ink-3); }
+  .wb-lyn-gb h3 { font-size: var(--fs-md); font-weight: 600; line-height: var(--lh-tight); padding-right: 64px; }
+  .wb-lyn-gb .wb-ly-row { flex-wrap: nowrap; }
+  .wb-lyn-gb .bars { height: 120px; }
+  .wb-lyn-gb .row { min-height: 56px; padding-left: 0; padding-right: 0; }
+  .wb-lyn-gb .row + .row::before { left: 0; }
+  .wb-lyn-gb .row__lead { width: 32px; height: 32px; }
+  .wb-lyn-gb--c { align-content: center; justify-items: center; }
+  @container (min-width: 600px) { .wb-lyn-gb { grid-column: span var(--m, 24); } }
+  @container (min-width: 960px) { .wb-lyn-gb { grid-column: span var(--c, 24); } }
+
+  /* 锚点导航栏 */
+  .wb-lyn-an { display: grid; grid-template-columns: minmax(0, 760px) 168px; justify-content: center; gap: var(--s-6); padding: var(--s-5); }
+  .wb-lyn-an__view { height: 380px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; scroll-behavior: smooth; padding-right: var(--s-2); }
+  .wb-lyn-an__sec { display: grid; gap: var(--s-2); padding-bottom: var(--s-5); }
+  .wb-lyn-an__sec:last-child { min-height: 340px; align-content: start; }
+  .wb-lyn-an__sec h3 { font-size: var(--fs-lg); font-weight: 600; line-height: var(--lh-tight); }
+  .wb-lyn-an__row { display: flex; align-items: center; justify-content: space-between; gap: var(--s-4); min-height: 52px; padding: var(--s-2) var(--s-5); font-size: var(--fs-sm); }
+  .wb-lyn-an__row + .wb-lyn-an__row { border-top: 1px solid var(--line); }
+  .wb-lyn-an__row span { color: var(--ink-2); }
+  .wb-lyn-an__row b { font-weight: 600; font-variant-numeric: tabular-nums; }
+  .wb-lyn-an__nav { align-self: start; display: grid; position: relative; padding-left: var(--s-1); }
+  .wb-lyn-an__nav::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 2px; border-radius: 1px; background: var(--line); }
+  .wb-lyn-an__lnk { position: relative; display: block; width: 100%; min-height: 40px; padding: 0 var(--s-3) 0 var(--s-4); text-align: left; font-size: var(--fs-sm); color: var(--ink-2); transition: color var(--dur-quick) var(--ease-out); }
+  .wb-lyn-an__lnk::before { content: ""; position: absolute; left: calc(var(--s-1) * -1); top: 8px; bottom: 8px; width: 2px; border-radius: 1px; background: transparent; transition: background var(--dur-quick) var(--ease-out); }
+  .wb-lyn-an__lnk[aria-current="location"] { color: var(--action-press); font-weight: 600; }
+  .wb-lyn-an__lnk[aria-current="location"]::before { background: var(--action); }
+  @media (hover: hover) { .wb-lyn-an__lnk:hover { color: var(--ink); } }
+
+  /* 大型下拉导航 */
+  .wb-lyn-mm { position: relative; }
+  .wb-lyn-mm__nav { position: relative; z-index: 6; display: flex; align-items: center; gap: var(--s-4); min-height: 64px; padding: 0 var(--s-6); background: var(--surface); border-bottom: 1px solid var(--line); }
+  .wb-lyn-mm__logo { display: grid; place-items: center; width: 40px; height: 40px; }
+  .wb-lyn-mm__logo img { width: 36px; height: 36px; object-fit: contain; }
+  .wb-lyn-mm__links { display: flex; align-items: center; gap: var(--s-1); }
+  .wb-lyn-mm__lk { display: inline-flex; align-items: center; gap: var(--s-1); min-height: 40px; padding: 0 var(--s-4); border-radius: var(--r-md); font-size: var(--fs-md); color: var(--ink-2); transition: background var(--dur-quick) var(--ease-out), color var(--dur-quick) var(--ease-out); }
+  .wb-lyn-mm__lk .chev::after { margin-left: 2px; transition: transform var(--dur-base) var(--ease-out); }
+  .wb-lyn-mm__lk[aria-current="page"] { color: var(--ink); font-weight: 600; }
+  .wb-lyn-mm__lk[aria-expanded="true"] { background: var(--action-tint); color: var(--action-press); font-weight: 600; }
+  @media (hover: hover) { .wb-lyn-mm__lk:hover { background: var(--zone); color: var(--ink); } .wb-lyn-mm__lk[aria-expanded="true"]:hover { background: var(--action-tint); color: var(--action-press); } }
+  .wb-lyn-mm__nav .sp { flex: 1; }
+  .wb-lyn-mm__stage { position: relative; min-height: 420px; background: url(../../kit/assets/photo/scene-hero-pink.webp) right center / cover; }
+  .wb-lyn-mm__stage::before { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, color-mix(in srgb, var(--surface) 94%, transparent) 0%, color-mix(in srgb, var(--surface) 70%, transparent) 46%, transparent 78%); }
+  .wb-lyn-mm__hero { position: relative; display: grid; align-content: center; justify-items: start; gap: var(--s-3); min-height: 420px; padding: var(--s-6); }
+  .wb-lyn-mm__hero h2 { font-size: var(--fs-2xl); font-weight: 700; line-height: var(--lh-tight); }
+  .wb-lyn-mm__panel { position: absolute; z-index: 5; left: 0; right: 0; top: 64px; padding: var(--s-5) var(--s-6) var(--s-6); background: var(--surface); border-bottom: 1px solid var(--line); box-shadow: var(--elev-3); opacity: 0; transform: translateY(-6px); visibility: hidden; transition: opacity var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out), visibility 0s linear var(--dur-base); }
+  .wb-lyn-mm__panel[data-open="true"] { opacity: 1; transform: none; visibility: visible; transition-delay: 0s; }
+  .wb-lyn-mm__cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(0, 1.25fr); gap: var(--s-6); }
+  .wb-lyn-mm__col { display: grid; align-content: start; gap: var(--s-1); }
+  .wb-lyn-mm__col h3 { display: flex; align-items: center; justify-content: space-between; gap: var(--s-2); margin-bottom: var(--s-2); padding-bottom: var(--s-2); border-bottom: 1px solid var(--line); font-size: var(--fs-sm); font-weight: 600; color: var(--ink-3); }
+  .wb-lyn-mm__lnk { display: grid; gap: 2px; padding: var(--s-2) var(--s-3); margin: 0 calc(var(--s-3) * -1); border-radius: var(--r-md); text-align: left; transition: background var(--dur-quick) var(--ease-out); }
+  .wb-lyn-mm__lnk b { font-size: var(--fs-sm); font-weight: 600; }
+  .wb-lyn-mm__lnk small { font-size: var(--fs-xs); color: var(--ink-3); }
+  @media (hover: hover) { .wb-lyn-mm__lnk:hover { background: var(--zone); } }
+  .wb-lyn-mm__feat { display: grid; grid-template-rows: auto auto; align-content: start; gap: var(--s-3); align-self: start; padding: var(--s-3); border-radius: var(--r-lg); background: var(--action-tint); box-shadow: inset 0 0 0 1px var(--action-edge); text-align: left; transition: box-shadow var(--dur-quick) var(--ease-out); }
+  .wb-lyn-mm__feat img { width: 100%; height: 188px; border-radius: var(--r-md); object-fit: cover; }
+  .wb-lyn-mm__feat div { display: flex; align-items: center; justify-content: space-between; gap: var(--s-2); min-width: 0; padding: 0 var(--s-1); }
+  .wb-lyn-mm__feat b { font-size: var(--fs-md); font-weight: 600; }
+  @media (hover: hover) { .wb-lyn-mm__feat:hover { box-shadow: inset 0 0 0 1px var(--action); } }
+  .wb-lyn-mm__store { display: grid; gap: var(--s-2); align-content: start; align-self: start; padding: var(--s-3) var(--s-4); border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--surface); text-align: left; transition: border-color var(--dur-quick) var(--ease-out), box-shadow var(--dur-quick) var(--ease-out); }
+  .wb-lyn-mm__store b { font-size: var(--fs-md); font-weight: 600; }
+  .wb-lyn-mm__store span { font-size: var(--fs-sm); color: var(--ink-3); }
+  .wb-lyn-mm__store .tag { justify-self: start; }
+  @media (hover: hover) { .wb-lyn-mm__store:hover { border-color: var(--action-edge); box-shadow: var(--elev-1); } }
+
+  /* 大图头图区 */
+  .wb-lyn-hero { position: relative; isolation: isolate; display: grid; align-content: center; min-height: 380px; padding: var(--s-8) var(--s-12); background: url(../../kit/assets/photo/scene-hero-pink.webp) 80% center / cover; }
+  .wb-lyn-hero::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, color-mix(in srgb, var(--surface) 96%, transparent) 0%, color-mix(in srgb, var(--surface) 78%, transparent) 40%, transparent 72%); transition: background var(--dur-slow) var(--ease-out); }
+  .wb-lyn-hero__in { display: grid; justify-items: start; gap: var(--s-4); max-width: 520px; }
+  .wb-lyn-hero h2 { font-size: var(--fs-3xl); font-weight: 700; line-height: var(--lh-tight); }
+  .wb-lyn-hero__sub { font-size: var(--fs-lg); color: var(--ink-2); }
+  .wb-lyn-hero__acts { display: flex; align-items: center; gap: var(--s-3); }
+  .wb-lyn-hero__facts { display: flex; align-items: center; gap: var(--s-6); margin-top: var(--s-2); }
+  .wb-lyn-hero__facts div { display: grid; gap: 2px; }
+  .wb-lyn-hero__facts b { font-size: var(--fs-xl); font-weight: 700; line-height: var(--lh-tight); font-variant-numeric: tabular-nums; }
+  .wb-lyn-hero__facts small { font-size: var(--fs-sm); color: var(--ink-3); }
+  .wb-lyn-hero[data-v="c"] { justify-items: center; background: url(../../kit/assets/photo/bg-floral.webp) center / cover; }
+  .wb-lyn-hero[data-v="c"]::before { background: color-mix(in srgb, var(--surface) 80%, transparent); }
+  .wb-lyn-hero[data-v="c"] .wb-lyn-hero__in { justify-items: center; text-align: center; max-width: 620px; }
+  .wb-lyn-hero[data-v="c"] .wb-lyn-hero__facts { justify-content: center; }
+  .wb-lyn-hero__sw { position: absolute; top: var(--s-4); right: var(--s-4); }
+  .wb-lyn-hero__sw .btn-seg { background: color-mix(in srgb, var(--surface) 88%, transparent); }
+</style>
+
+<article class="demo" data-cid="WB-LAYT-021" data-name="流程步骤条" data-cat="LAYT">
+  <div class="demo__head"><span class="demo__name">流程步骤条</span></div>
+  <p class="demo__note">适合：开通与发布等多步任务，标出当前步与已完成步</p>
+  <div class="demo__stage is-plain"><div class="wb-ly-f wb-ly-f--w" id="wb-lyn-stp">
+    <ol class="wb-lyn-steps" aria-label="门店开通步骤">
+      <li class="wb-lyn-step"><button type="button" class="wb-lyn-step__btn"><span class="wb-lyn-step__dot"><img src="../../kit/assets/line/check.webp" alt="">1</span><span class="wb-lyn-step__name">门店信息</span><span class="wb-lyn-step__hint">已完成</span></button></li>
+      <li class="wb-lyn-step"><button type="button" class="wb-lyn-step__btn"><span class="wb-lyn-step__dot"><img src="../../kit/assets/line/check.webp" alt="">2</span><span class="wb-lyn-step__name">上传资质</span><span class="wb-lyn-step__hint">进行中</span></button></li>
+      <li class="wb-lyn-step"><button type="button" class="wb-lyn-step__btn"><span class="wb-lyn-step__dot"><img src="../../kit/assets/line/check.webp" alt="">3</span><span class="wb-lyn-step__name">平台审核</span><span class="wb-lyn-step__hint">未开始</span></button></li>
+      <li class="wb-lyn-step"><button type="button" class="wb-lyn-step__btn"><span class="wb-lyn-step__dot"><img src="../../kit/assets/line/check.webp" alt="">4</span><span class="wb-lyn-step__name">开通营业</span><span class="wb-lyn-step__hint">未开始</span></button></li>
+    </ol>
+    <div class="wb-lyn-stp__body wb-lyn-panes">
+      <div class="wb-lyn-pane"><h3>门店信息</h3><dl class="wb-lyn-kv"><dt>门店名称</dt><dd>建国路店</dd><dt>联系电话</dt><dd>021 5588 0219</dd><dt>营业时间</dt><dd>09:00 至 21:00</dd></dl></div>
+      <div class="wb-lyn-pane"><h3>上传资质</h3><dl class="wb-lyn-kv"><dt>营业执照</dt><dd><button type="button" class="switch" role="switch" aria-checked="false" aria-label="营业执照已上传" data-lic></button><span data-lic-t>未上传</span></dd><dt>食品许可</dt><dd><span class="tag" data-tone="success">已上传</span></dd><dt>法人证件</dt><dd><span class="tag" data-tone="success">已上传</span></dd></dl></div>
+      <div class="wb-lyn-pane"><h3>平台审核</h3><dl class="wb-lyn-kv"><dt>审核状态</dt><dd><span class="tag" data-tone="warning">审核中</span></dd><dt>提交材料</dt><dd>3 项</dd><dt>预计时长</dt><dd>1 个工作日</dd></dl></div>
+      <div class="wb-lyn-pane"><h3>开通营业</h3><dl class="wb-lyn-kv"><dt>门店</dt><dd>建国路店</dd><dt>营业状态</dt><dd><span class="tag" data-tone="action" data-open-tag>待开通</span></dd><dt>配送范围</dt><dd>5 公里</dd></dl></div>
+    </div>
+    <div class="wb-lyn-stp__foot"><button type="button" class="btn btn--ghost btn--sm" data-prev>上一步</button><button type="button" class="btn btn--primary btn--sm" data-next>下一步</button></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-LAYT-022" data-name="选项卡面板" data-cat="LAYT">
+  <div class="demo__head"><span class="demo__name">选项卡面板</span></div>
+  <p class="demo__note">适合：同一页内按并列类别切换内容，不跳转页面</p>
+  <div class="demo__stage is-plain"><div class="wb-ly-f wb-ly-f--w" id="wb-lyn-tabs">
+    <div class="wb-lyn-tl" role="tablist" aria-label="商品信息">
+      <button type="button" class="wb-lyn-tt" role="tab" id="wb-lyn-tab0" aria-controls="wb-lyn-tp0" aria-selected="true">商品详情</button>
+      <button type="button" class="wb-lyn-tt" role="tab" id="wb-lyn-tab1" aria-controls="wb-lyn-tp1" aria-selected="false" tabindex="-1">规格参数</button>
+      <button type="button" class="wb-lyn-tt" role="tab" id="wb-lyn-tab2" aria-controls="wb-lyn-tp2" aria-selected="false" tabindex="-1">用户评价<small>128</small></button>
+      <button type="button" class="wb-lyn-tt" role="tab" aria-selected="false" disabled>配送说明</button>
+      <i class="wb-lyn-ink" aria-hidden="true"></i>
+    </div>
+    <div class="wb-lyn-panes">
+      <div class="wb-lyn-tp" role="tabpanel" id="wb-lyn-tp0" aria-labelledby="wb-lyn-tab0">
+        <div class="wb-lyn-tprod"><img src="../../kit/assets/photo/product-rose-red.webp" alt=""><div><p class="wb-ly-name wb-ly-name--xl">红玫瑰花束</p><span class="price" style="font-size: var(--fs-xl)"><small>¥</small>199</span><div class="wb-lyn-tags"><span class="tag" data-tone="success">在售</span><span class="tag">鲜花</span><span class="tag" data-tone="action">极速配送</span></div></div><dl class="wb-lyn-tstat"><div><dt>库存</dt><dd>42 件</dd></div><div><dt>月销量</dt><dd>1,240 件</dd></div></dl></div>
+      </div>
+      <div class="wb-lyn-tp" role="tabpanel" id="wb-lyn-tp1" aria-labelledby="wb-lyn-tab1" data-off>
+        <dl class="wb-lyn-spec"><div><dt>花材</dt><dd>红玫瑰 11 枝</dd></div><div><dt>配材</dt><dd>尤加利叶</dd></div><div><dt>包装</dt><dd>牛皮纸</dd></div><div><dt>花高</dt><dd>约 45 厘米</dd></div><div><dt>保鲜期</dt><dd>7 天</dd></div><div><dt>产地</dt><dd>云南</dd></div></dl>
+      </div>
+      <div class="wb-lyn-tp" role="tabpanel" id="wb-lyn-tp2" aria-labelledby="wb-lyn-tab2" data-off>
+        <div class="wb-lyn-rv"><img class="avatar" src="../../kit/assets/marks/mark-001.webp" alt=""><p><b>林晓</b><br><span class="wb-ly-meta">花束新鲜，包装精致</span></p><span class="tag" data-tone="success">5 分</span></div>
+        <div class="wb-lyn-rv"><img class="avatar" src="../../kit/assets/marks/mark-002.webp" alt=""><p><b>陈默</b><br><span class="wb-ly-meta">送达及时，花苞饱满</span></p><span class="tag" data-tone="success">5 分</span></div>
+      </div>
+    </div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-LAYT-024" data-name="分割线样式组" data-cat="LAYT">
+  <div class="demo__head"><span class="demo__name">分割线样式组</span></div>
+  <p class="demo__note">适合：区块之间的横竖分割线，可带居中分组名</p>
+  <div class="demo__stage is-plain"><div class="wb-ly-f wb-ly-f--w"><dl class="wb-lyn-dvg">
+    <dt>实线</dt><dd><p>红玫瑰花束</p><hr class="wb-lyn-hr"><p>粉芍药花束</p></dd>
+    <dt>虚线</dt><dd><p>向日葵花束</p><hr class="wb-lyn-hr wb-lyn-hr--dash"><p>白郁金香</p></dd>
+    <dt>居中分组名</dt><dd><button type="button" class="wb-lyn-hl" data-expand="wb-lyn-dvx"><i class="wb-lyn-ln"></i><span>鲜花</span><i class="chev"></i><i class="wb-lyn-ln"></i></button><div class="expand" id="wb-lyn-dvx" data-open="true"><div><ul class="wb-lyn-items"><li><span>红玫瑰花束</span><span class="price"><small>¥</small>199</span></li><li><span>粉芍药花束</span><span class="price"><small>¥</small>239</span></li></ul></div></div></dd>
+    <dt>靠左分组名</dt><dd><div class="wb-lyn-hl"><span>绿植</span><i class="wb-lyn-ln"></i><small>12 款</small></div></dd>
+    <dt>竖向分割线</dt><dd><div class="wb-lyn-vrow"><span>库存 86</span><i class="wb-lyn-vr"></i><span>售价 ¥199</span><i class="wb-lyn-vr"></i><span>建国路店</span></div><div class="wb-lyn-vrow wb-lyn-vrow--act"><button type="button" class="wb-lyn-act" data-wb-toast="已进入编辑">编辑</button><i class="wb-lyn-vr"></i><button type="button" class="wb-lyn-act" data-wb-toast="已复制商品">复制</button><i class="wb-lyn-vr"></i><button type="button" class="wb-lyn-act wb-lyn-act--danger" data-wb-toast="已移入回收站">删除</button></div></dd>
+    <dt>分区带</dt><dd><p>订单信息</p><div class="wb-lyn-band" style="margin: var(--s-3) 0"></div><p>配送信息</p></dd>
+  </dl></div></div>
+</article>
+
+<article class="demo" data-cid="WB-LAYT-025" data-name="固钉吸附容器" data-cat="LAYT">
+  <div class="demo__head"><span class="demo__name">固钉吸附容器</span></div>
+  <p class="demo__note">适合：筛选条与操作条滚动到顶部后吸附固定</p>
+  <div class="demo__stage is-plain"><div class="wb-ly-f wb-ly-f--w" id="wb-lyn-af">
+    <div class="wb-lyn-af" tabindex="0" role="region" aria-label="订单列表滚动区">
+      <div class="wb-lyn-af__head"><h2>订单管理</h2><span class="wb-ly-meta">建国路店</span></div>
+      <div class="wb-lyn-af__sent" aria-hidden="true"></div>
+      <div class="wb-lyn-af__bar" data-stuck="false">
+        <div class="seg" data-seg="wb-lyn-af" data-seg-for="#wb-lyn-af-rows" aria-label="订单状态"><button type="button" class="seg__item" data-key="all" aria-selected="true">全部</button><button type="button" class="seg__item" data-key="待发货" aria-selected="false">待发货</button><button type="button" class="seg__item" data-key="待收货" aria-selected="false">待收货</button><button type="button" class="seg__item" data-key="已完成" aria-selected="false">已完成</button></div>
+        <button type="button" class="btn btn--secondary btn--sm" data-wb-toast="已开始导出">导出</button>
+      </div>
+      <div class="list" id="wb-lyn-af-rows"></div>
+    </div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-LAYT-031" data-name="间距堆叠容器" data-cat="LAYT">
+  <div class="demo__head"><span class="demo__name">间距堆叠容器</span></div>
+  <p class="demo__note">适合：按统一间距横排或竖排一组控件</p>
+  <div class="demo__stage is-plain"><div class="wb-ly-f wb-ly-f--w" id="wb-lyn-sp"><div class="wb-lyn-sp">
+    <dl class="wb-lyn-sp__ctl">
+      <dt>排列</dt><dd><div class="btn-seg" role="group" aria-label="排列方向"><button type="button" aria-pressed="true" data-k="dir" data-v="row">横排</button><button type="button" aria-pressed="false" data-k="dir" data-v="column">竖排</button></div></dd>
+      <dt>间距</dt><dd><div class="btn-seg" role="group" aria-label="间距大小"><button type="button" aria-pressed="false" data-k="gap" data-v="8">小</button><button type="button" aria-pressed="true" data-k="gap" data-v="12">中</button><button type="button" aria-pressed="false" data-k="gap" data-v="20">大</button></div></dd>
+      <dt>对齐</dt><dd><div class="btn-seg" role="group" aria-label="交叉轴对齐"><button type="button" aria-pressed="true" data-k="al" data-v="start">起点</button><button type="button" aria-pressed="false" data-k="al" data-v="center">居中</button><button type="button" aria-pressed="false" data-k="al" data-v="end">终点</button><button type="button" aria-pressed="false" data-k="al" data-v="stretch">拉伸</button></div></dd>
+      <dt>显示间距</dt><dd><button type="button" class="switch" role="switch" aria-checked="false" aria-label="显示间距" data-gapsw></button></dd>
+    </dl>
+    <div class="wb-lyn-sp__box" data-box data-dir="row" data-al="start" data-show="false">
+      <button type="button" class="btn btn--outline" data-wb-toast="已开始导出">导出订单</button>
+      <button type="button" class="btn btn--secondary btn--sm" data-wb-toast="已发送到打印机">打印面单</button>
+      <button type="button" class="btn btn--primary btn--lg" data-wb-toast="已批量发货">批量发货</button>
+      <span class="tag" data-tone="action">已选 3 单</span>
+      <button type="button" class="btn btn--ghost btn--sm" data-wb-toast="已取消订单">取消订单</button>
+      <button type="button" class="btn btn--text" data-wb-toast="已清除选择">清除选择</button>
+    </div>
+    <p class="wb-lyn-sp__read" data-read aria-live="polite"></p>
+  </div></div></div>
+</article>
+
+<article class="demo" data-cid="WB-LAYT-026" data-name="无限滚动加载" data-cat="LAYT">
+  <div class="demo__head"><span class="demo__name">无限滚动加载</span></div>
+  <p class="demo__note">适合：动态与日志列表滚到底部自动追加下一批</p>
+  <div class="demo__stage is-plain"><div class="wb-ly-f wb-ly-f--w" id="wb-lyn-inf">
+    <div class="wb-lyn-inf__head"><b>操作日志</b><span class="wb-ly-meta">已加载 <span data-n>0</span> 条</span></div>
+    <div class="wb-lyn-inf__scroll" tabindex="0" role="feed" aria-label="操作日志" aria-busy="false">
+      <div data-list></div>
+      <div class="wb-lyn-tail" data-tail aria-live="polite"></div>
+    </div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-LAYT-027" data-name="瀑布流布局" data-cat="LAYT">
+  <div class="demo__head"><span class="demo__name">瀑布流布局</span></div>
+  <p class="demo__note">适合：图文素材库按列错落排布不等高卡片</p>
+  <div class="demo__stage is-plain"><div class="wb-ly-f wb-ly-f--w" id="wb-lyn-ms">
+    <div class="wb-lyn-ms__bar">
+      <div class="seg" data-seg="wb-lyn-ms" data-seg-for="#wb-lyn-ms-grid" aria-label="素材类别"><button type="button" class="seg__item" data-key="all" aria-selected="true">全部</button><button type="button" class="seg__item" data-key="花束" aria-selected="false">花束</button><button type="button" class="seg__item" data-key="绿植" aria-selected="false">绿植</button><button type="button" class="seg__item" data-key="礼盒" aria-selected="false">礼盒</button></div>
+      <span>已选 <b data-n>0</b> 张</span><button type="button" class="btn btn--text btn--sm" data-clear hidden>清除</button>
+    </div>
+    <div class="wb-lyn-ms__grid" id="wb-lyn-ms-grid">
+      <button type="button" class="wb-lyn-mc" data-cat="花束" aria-pressed="false" style="--ar: 3 / 4"><img src="../../kit/assets/photo/product-rose-red.webp" alt=""><span class="wb-lyn-mc__chk"><img src="../../kit/assets/line/check.webp" alt=""></span><span class="wb-lyn-mc__cap">红玫瑰花束<small>花束</small></span></button>
+      <button type="button" class="wb-lyn-mc" data-cat="绿植" aria-pressed="false" style="--ar: 1 / 1"><img src="../../kit/assets/photo/product-monstera.webp" alt=""><span class="wb-lyn-mc__chk"><img src="../../kit/assets/line/check.webp" alt=""></span><span class="wb-lyn-mc__cap">龟背竹盆栽<small>绿植</small></span></button>
+      <button type="button" class="wb-lyn-mc" data-cat="礼盒" aria-pressed="false" style="--ar: 4 / 5"><img src="../../kit/assets/photo/product-giftbox.webp" alt=""><span class="wb-lyn-mc__chk"><img src="../../kit/assets/line/check.webp" alt=""></span><span class="wb-lyn-mc__cap">花礼盒<small>礼盒</small></span></button>
+      <button type="button" class="wb-lyn-mc" data-cat="花束" aria-pressed="false" style="--ar: 1 / 1"><img src="../../kit/assets/photo/bouquet-tulip.webp" alt=""><span class="wb-lyn-mc__chk"><img src="../../kit/assets/line/check.webp" alt=""></span><span class="wb-lyn-mc__cap">黄郁金香束<small>花束</small></span></button>
+      <button type="button" class="wb-lyn-mc" data-cat="花束" aria-pressed="false" style="--ar: 2 / 3"><img src="../../kit/assets/photo/product-peony-pink.webp" alt=""><span class="wb-lyn-mc__chk"><img src="../../kit/assets/line/check.webp" alt=""></span><span class="wb-lyn-mc__cap">粉芍药花束<small>花束</small></span></button>
+      <button type="button" class="wb-lyn-mc" data-cat="绿植" aria-pressed="false" style="--ar: 4 / 5"><img src="../../kit/assets/photo/product-hydrangea-blue.webp" alt=""><span class="wb-lyn-mc__chk"><img src="../../kit/assets/line/check.webp" alt=""></span><span class="wb-lyn-mc__cap">蓝绣球盆栽<small>绿植</small></span></button>
+      <button type="button" class="wb-lyn-mc" data-cat="花束" aria-pressed="false" style="--ar: 1 / 1"><img src="../../kit/assets/photo/bouquet-white.webp" alt=""><span class="wb-lyn-mc__chk"><img src="../../kit/assets/line/check.webp" alt=""></span><span class="wb-lyn-mc__cap">白色花束<small>花束</small></span></button>
+      <button type="button" class="wb-lyn-mc" data-cat="礼盒" aria-pressed="false" style="--ar: 3 / 4"><img src="../../kit/assets/photo/product-pampas-vase.webp" alt=""><span class="wb-lyn-mc__chk"><img src="../../kit/assets/line/check.webp" alt=""></span><span class="wb-lyn-mc__cap">干花花瓶摆件<small>礼盒</small></span></button>
+      <button type="button" class="wb-lyn-mc" data-cat="绿植" aria-pressed="false" style="--ar: 1 / 1"><img src="../../kit/assets/photo/product-succulent.webp" alt=""><span class="wb-lyn-mc__chk"><img src="../../kit/assets/line/check.webp" alt=""></span><span class="wb-lyn-mc__cap">多肉组合盆<small>绿植</small></span></button>
+      <button type="button" class="wb-lyn-mc" data-cat="花束" aria-pressed="false" style="--ar: 4 / 5"><img src="../../kit/assets/photo/product-sunflower.webp" alt=""><span class="wb-lyn-mc__chk"><img src="../../kit/assets/line/check.webp" alt=""></span><span class="wb-lyn-mc__cap">向日葵花束<small>花束</small></span></button>
+    </div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-LAYT-028" data-name="自定义滚动区" data-cat="LAYT">
+  <div class="demo__head"><span class="demo__name">自定义滚动区</span></div>
+  <p class="demo__note">适合：弹层与侧栏内部限高滚动并统一滚动条样式</p>
+  <div class="demo__stage is-plain"><div class="wb-ly-f wb-ly-f--w" id="wb-lyn-sc"><div class="wb-lyn-scs">
+    <div class="wb-lyn-sc" data-axis="y"><div class="wb-lyn-sc__view" tabindex="0" role="region" aria-label="商品清单" data-rows></div><div class="wb-lyn-sc__bar" aria-hidden="true"><i class="wb-lyn-sc__thumb"></i></div></div>
+    <div class="wb-lyn-sc" data-axis="x"><div class="wb-lyn-sc__view" tabindex="0" role="region" aria-label="门店相册"><div class="wb-lyn-sc__strip" data-strip></div></div><div class="wb-lyn-sc__bar" aria-hidden="true"><i class="wb-lyn-sc__thumb"></i></div></div>
+  </div></div></div>
+</article>
+
+<article class="demo" data-cid="WB-LAYT-029" data-name="虚拟滚动列表" data-cat="LAYT">
+  <div class="demo__head"><span class="demo__name">虚拟滚动列表</span></div>
+  <p class="demo__note">适合：上万条记录与长下拉选项滚动时保持流畅</p>
+  <div class="demo__stage is-plain"><div class="wb-ly-f wb-ly-f--w" id="wb-lyn-vl">
+    <div class="wb-lyn-vl__head"><b>订单记录</b><div class="btn-group"><button type="button" class="btn btn--secondary btn--sm" data-go="first">首条</button><button type="button" class="btn btn--secondary btn--sm" data-go="mid">中间</button><button type="button" class="btn btn--secondary btn--sm" data-go="last">末条</button></div></div>
+    <div class="wb-lyn-vl__view" tabindex="0" role="list" aria-label="订单记录" aria-rowcount="10000"><div class="wb-lyn-vl__space" data-space><div class="wb-lyn-vl__win" data-win></div></div></div>
+    <div class="wb-lyn-vl__foot"><span>共 <b>10,000</b> 条</span><span>第 <b data-from>1</b> 至 <b data-to>6</b> 条，渲染 <b data-r>0</b> 行</span></div>
+  </div></div>
+</article>
+
+
+<article class="demo demo--span2" data-cid="WB-LAYT-019" data-name="可拖拽分栏" data-cat="LAYT">
+  <div class="demo__head"><span class="demo__name">可拖拽分栏</span></div>
+  <p class="demo__note">适合：主从两栏之间拖动分隔条调整宽度</p>
+  <div class="demo__stage is-plain"><div class="wb-ly-f wb-ly-f--wide wb-ly-f--w" id="wb-lyn-spl"><div class="wb-lyn-spl">
+    <div class="wb-lyn-spl__host" data-host>
+      <div class="wb-lyn-col" id="wb-lyn-spl-l">
+        <div class="section__head"><h2>商品清单</h2><span class="wb-ly-meta">5 款</span></div>
+        <div class="card list" data-list></div>
+      </div>
+      <div class="wb-lyn-sep" role="separator" aria-orientation="vertical" aria-label="调整左栏宽度" aria-controls="wb-lyn-spl-l" aria-valuemin="22" aria-valuemax="60" aria-valuenow="36" data-v="36%" tabindex="0" data-axis="x"><i></i></div>
+      <div class="wb-lyn-col__r" data-right>
+        <div class="wb-lyn-col" id="wb-lyn-spl-t">
+          <div class="section__head"><h2>商品信息</h2></div>
+          <div class="card wb-lyn-dt" data-detail aria-live="polite"><img src="../../kit/assets/photo/product-rose-red.webp" alt="" data-pic><div><p class="wb-ly-name wb-ly-name--xl" data-name>红玫瑰花束</p><div class="wb-ly-row"><span class="price" style="font-size: var(--fs-lg)" data-price><small>¥</small>199</span><span class="tag" data-tone="success">在售</span></div><p class="wb-ly-meta" data-meta>鲜花 库存 42 件</p></div></div>
+        </div>
+        <div class="wb-lyn-sep wb-lyn-sep--y" role="separator" aria-orientation="horizontal" aria-label="调整上下栏高度" aria-controls="wb-lyn-spl-t" aria-valuemin="30" aria-valuemax="70" aria-valuenow="50" data-v="50%" tabindex="0" data-axis="y"><i></i></div>
+        <div class="wb-lyn-col">
+          <div class="section__head"><h2>销售记录</h2></div>
+          <div class="card list" data-sales></div>
+        </div>
+      </div>
+    </div>
+  </div></div></div>
+</article>
+
+<article class="demo demo--span2" data-cid="WB-LAYT-020" data-name="栅格布局" data-cat="LAYT">
+  <div class="demo__head"><span class="demo__name">栅格布局</span></div>
+  <p class="demo__note">适合：详情与看板按二十四栏栅格对齐并随宽度换列</p>
+  <div class="demo__stage is-plain"><div class="wb-ly-f wb-ly-f--wide wb-ly-f--w" id="wb-lyn-gr">
+    <div class="wb-lyn-gr__bar">
+      <span>预览宽度</span>
+      <div class="btn-seg" role="group" aria-label="预览宽度"><button type="button" aria-pressed="true" data-w="100%">宽屏</button><button type="button" aria-pressed="false" data-w="760px">中屏</button><button type="button" aria-pressed="false" data-w="440px">窄屏</button></div>
+      <span class="wb-lyn-gr__sw">显示栏线<button type="button" class="switch" role="switch" aria-checked="false" aria-label="显示栏线" data-guide></button></span>
+      <span class="sp"></span>
+      <span class="wb-lyn-gr__rd" data-rd aria-live="polite"></span>
+    </div>
+    <div class="wb-lyn-gr__dock"><div class="wb-lyn-gr__vp" data-vp style="--vw: 100%">
+      <div class="wb-lyn-gr__guides" aria-hidden="true"></div>
+      <div class="wb-lyn-gr__grid">
+        <div class="card wb-lyn-gb" style="--c: 24; --m: 24; --s: 24"><span class="wb-lyn-gb__n" data-n></span><h3>经营概览</h3><p class="wb-ly-meta">建国路店 近七日</p></div>
+        <div class="card wb-lyn-gb" style="--c: 6; --m: 12; --s: 24"><span class="wb-lyn-gb__n" data-n></span><span class="stat__label">销售额</span><span class="wb-ly-num"><small>¥</small>128,640</span></div>
+        <div class="card wb-lyn-gb" style="--c: 6; --m: 12; --s: 24"><span class="wb-lyn-gb__n" data-n></span><span class="stat__label">订单数</span><span class="wb-ly-num">1,286<small>单</small></span></div>
+        <div class="card wb-lyn-gb" style="--c: 6; --m: 12; --s: 24"><span class="wb-lyn-gb__n" data-n></span><span class="stat__label">新增会员</span><span class="wb-ly-num">84<small>人</small></span></div>
+        <div class="card wb-lyn-gb" style="--c: 6; --m: 12; --s: 24"><span class="wb-lyn-gb__n" data-n></span><span class="stat__label">售后单</span><span class="wb-ly-num">3<small>单</small></span></div>
+        <div class="card wb-lyn-gb" style="--c: 16; --m: 24; --s: 24"><span class="wb-lyn-gb__n" data-n></span><h3>订单趋势</h3><div class="bars" role="img" aria-label="近七日订单数"><div class="bars__col"><span class="bars__bar" style="--h: 61%; --i: 0"></span>周一</div><div class="bars__col"><span class="bars__bar" style="--h: 66%; --i: 1"></span>周二</div><div class="bars__col"><span class="bars__bar" style="--h: 53%; --i: 2"></span>周三</div><div class="bars__col"><span class="bars__bar" style="--h: 72%; --i: 3"></span>周四</div><div class="bars__col"><span class="bars__bar" style="--h: 86%; --i: 4"></span>周五</div><div class="bars__col" aria-current="true"><span class="bars__bar" style="--h: 100%; --i: 5"></span>周六</div><div class="bars__col"><span class="bars__bar" style="--h: 79%; --i: 6"></span>周日</div></div></div>
+        <div class="card wb-lyn-gb" style="--c: 8; --m: 12; --s: 24; grid-template-rows: auto 1fr"><span class="wb-lyn-gb__n" data-n></span><h3>品类占比</h3><div class="wb-ly-row" style="justify-content: center; align-self: center; gap: var(--s-5)"><div class="donut" style="--p1: 48%; --p2: 75%; --size: 112px"><div class="donut__center"><b class="wb-ly-name">1,286</b><span class="wb-ly-meta">总订单</span></div></div><ul class="legend"><li><i style="--c: var(--action)"></i>鲜花</li><li><i style="--c: var(--accent)"></i>绿植</li><li><i style="--c: var(--zone); box-shadow: inset 0 0 0 1px var(--line-strong)"></i>礼盒与花器</li></ul></div></div>
+        <div class="card wb-lyn-gb" style="--c: 8; --m: 12; --s: 24"><span class="wb-lyn-gb__n" data-n></span><h3>热销商品</h3><div class="list"><div class="row"><img class="row__lead" src="../../kit/assets/photo/product-monstera.webp" alt=""><div class="row__main"><p class="row__title">龟背竹盆栽</p></div><div class="row__trail"><span class="price"><small>¥</small>159</span></div></div><div class="row"><img class="row__lead" src="../../kit/assets/photo/product-succulent.webp" alt=""><div class="row__main"><p class="row__title">多肉组合盆</p></div><div class="row__trail"><span class="price"><small>¥</small>89</span></div></div><div class="row"><img class="row__lead" src="../../kit/assets/photo/product-tulip-white.webp" alt=""><div class="row__main"><p class="row__title">白郁金香</p></div><div class="row__trail"><span class="price"><small>¥</small>179</span></div></div></div></div>
+        <div class="card wb-lyn-gb" style="--c: 8; --m: 12; --s: 24"><span class="wb-lyn-gb__n" data-n></span><h3>待办事项</h3><div class="list"><div class="row"><div class="row__main"><p class="row__title">待发货订单</p></div><div class="row__trail"><span class="tag" data-tone="warning">2 单</span></div></div><div class="row"><div class="row__main"><p class="row__title">待收货订单</p></div><div class="row__trail"><span class="tag" data-tone="info">1 单</span></div></div><div class="row"><div class="row__main"><p class="row__title">售后处理</p></div><div class="row__trail"><span class="tag" data-tone="danger">3 单</span></div></div></div></div>
+        <div class="card wb-lyn-gb" style="--c: 8; --m: 12; --s: 24"><span class="wb-lyn-gb__n" data-n></span><h3>会员动态</h3><div class="list"><div class="row"><img class="row__lead avatar" src="../../kit/assets/marks/mark-001.webp" alt=""><div class="row__main"><p class="row__title">林晓</p></div><div class="row__trail"><span class="wb-ly-meta">升级金卡</span></div></div><div class="row"><img class="row__lead avatar" src="../../kit/assets/marks/mark-002.webp" alt=""><div class="row__main"><p class="row__title">陈默</p></div><div class="row__trail"><span class="wb-ly-meta">首次下单</span></div></div><div class="row"><img class="row__lead avatar" src="../../kit/assets/marks/mark-004.webp" alt=""><div class="row__main"><p class="row__title">吴桐</p></div><div class="row__trail"><span class="wb-ly-meta">领取礼券</span></div></div></div></div>
+      </div>
+    </div></div>
+  </div></div>
+</article>
+
+<article class="demo demo--span2" data-cid="WB-LAYT-023" data-name="锚点导航栏" data-cat="LAYT">
+  <div class="demo__head"><span class="demo__name">锚点导航栏</span></div>
+  <p class="demo__note">适合：长文档与设置页右侧按小节定位，滚动时高亮当前节</p>
+  <div class="demo__stage is-plain"><div class="wb-ly-f wb-ly-f--wide wb-ly-f--w" id="wb-lyn-an"><div class="wb-lyn-an">
+    <div class="wb-lyn-an__view" tabindex="0" role="region" aria-label="门店设置">
+      <section class="wb-lyn-an__sec" id="wb-lyn-an-0"><h3>基本信息</h3><div class="card"><div class="wb-lyn-an__row"><span>门店名称</span><b>建国路店</b></div><div class="wb-lyn-an__row"><span>联系电话</span><b>021 5588 0219</b></div><div class="wb-lyn-an__row"><span>门店地址</span><b>黄浦区建国东路 18 号</b></div></div></section>
+      <section class="wb-lyn-an__sec" id="wb-lyn-an-1"><h3>营业设置</h3><div class="card"><div class="wb-lyn-an__row"><span>营业时间</span><b>09:00 至 21:00</b></div><div class="wb-lyn-an__row"><span>休息日</span><b>每周一</b></div><div class="wb-lyn-an__row"><span>接单状态</span><button type="button" class="switch" role="switch" aria-checked="true" aria-label="接单状态"></button></div></div></section>
+      <section class="wb-lyn-an__sec" id="wb-lyn-an-2"><h3>配送设置</h3><div class="card"><div class="wb-lyn-an__row"><span>配送范围</span><b>5 公里</b></div><div class="wb-lyn-an__row"><span>起送金额</span><span class="price"><small>¥</small>59</span></div><div class="wb-lyn-an__row"><span>配送费</span><span class="price"><small>¥</small>8</span></div></div></section>
+      <section class="wb-lyn-an__sec" id="wb-lyn-an-3"><h3>会员权益</h3><div class="card"><div class="wb-lyn-an__row"><span>积分比例</span><b>1 元 = 1 分</b></div><div class="wb-lyn-an__row"><span>金卡折扣</span><b>9.5 折</b></div><div class="wb-lyn-an__row"><span>生日礼券</span><button type="button" class="switch" role="switch" aria-checked="true" aria-label="生日礼券"></button></div></div></section>
+      <section class="wb-lyn-an__sec" id="wb-lyn-an-4"><h3>消息通知</h3><div class="card"><div class="wb-lyn-an__row"><span>新订单提醒</span><button type="button" class="switch" role="switch" aria-checked="true" aria-label="新订单提醒"></button></div><div class="wb-lyn-an__row"><span>库存预警</span><button type="button" class="switch" role="switch" aria-checked="true" aria-label="库存预警"></button></div><div class="wb-lyn-an__row"><span>售后提醒</span><button type="button" class="switch" role="switch" aria-checked="false" aria-label="售后提醒"></button></div></div></section>
+    </div>
+    <nav class="wb-lyn-an__nav" aria-label="设置分区"><button type="button" class="wb-lyn-an__lnk" data-i="0" aria-current="location">基本信息</button><button type="button" class="wb-lyn-an__lnk" data-i="1">营业设置</button><button type="button" class="wb-lyn-an__lnk" data-i="2">配送设置</button><button type="button" class="wb-lyn-an__lnk" data-i="3">会员权益</button><button type="button" class="wb-lyn-an__lnk" data-i="4">消息通知</button></nav>
+  </div></div></div>
+</article>
+
+<article class="demo demo--span2" data-cid="WB-LAYT-030" data-name="大型下拉导航" data-cat="LAYT">
+  <div class="demo__head"><span class="demo__name">大型下拉导航</span></div>
+  <p class="demo__note">适合：官网顶部菜单点开后展示分栏的大块链接</p>
+  <div class="demo__stage is-plain"><div class="wb-ly-f wb-ly-f--wide wb-ly-f--w wb-lyn-mm" id="wb-lyn-mm">
+    <header class="wb-lyn-mm__nav">
+      <span class="wb-lyn-mm__logo"><img data-ic="bouquet" src="../../kit/assets/icons/flat/bouquet.webp" alt=""></span>
+      <nav class="wb-lyn-mm__links" aria-label="官网导航">
+        <button type="button" class="wb-lyn-mm__lk" aria-current="page" data-wb-toast="已回到首页">首页</button>
+        <button type="button" class="wb-lyn-mm__lk" data-mm="shop" aria-expanded="true" aria-controls="wb-lyn-mm-shop">商品<i class="chev"></i></button>
+        <button type="button" class="wb-lyn-mm__lk" data-mm="store" aria-expanded="false" aria-controls="wb-lyn-mm-store">门店<i class="chev"></i></button>
+        <button type="button" class="wb-lyn-mm__lk" data-wb-toast="已打开会员中心">会员</button>
+        <button type="button" class="wb-lyn-mm__lk" data-wb-toast="已打开关于我们">关于我们</button>
+      </nav>
+      <span class="sp"></span>
+      <button type="button" class="btn btn--outline btn--sm" data-wb-toast="已打开登录">登录</button>
+      <button type="button" class="btn btn--primary btn--sm" data-wb-toast="已进入商品页">立即选购</button>
+    </header>
+    <div class="wb-lyn-mm__stage"><div class="wb-lyn-mm__hero"><h2>新鲜花束每日直送</h2><p class="wb-ly-meta" style="font-size: var(--fs-md)">三家门店同城配送</p><button type="button" class="btn btn--primary" data-wb-toast="已进入商品页">选购花束</button></div></div>
+    <div class="wb-lyn-mm__panel" id="wb-lyn-mm-shop" data-open="true" role="region" aria-label="商品分类">
+      <div class="wb-lyn-mm__cols">
+        <div class="wb-lyn-mm__col"><h3>鲜花<span>4 款</span></h3><button type="button" class="wb-lyn-mm__lnk" data-wb-toast="已打开红玫瑰花束"><b>红玫瑰花束</b><small>11 支装 199 元起</small></button><button type="button" class="wb-lyn-mm__lnk" data-wb-toast="已打开粉芍药花束"><b>粉芍药花束</b><small>9 支装 239 元起</small></button><button type="button" class="wb-lyn-mm__lnk" data-wb-toast="已打开向日葵花束"><b>向日葵花束</b><small>6 支装 159 元起</small></button><button type="button" class="wb-lyn-mm__lnk" data-wb-toast="已打开白郁金香"><b>白郁金香</b><small>10 支装 179 元起</small></button></div>
+        <div class="wb-lyn-mm__col"><h3>绿植<span>3 款</span></h3><button type="button" class="wb-lyn-mm__lnk" data-wb-toast="已打开龟背竹盆栽"><b>龟背竹盆栽</b><small>中型盆 159 元起</small></button><button type="button" class="wb-lyn-mm__lnk" data-wb-toast="已打开蓝绣球盆栽"><b>蓝绣球盆栽</b><small>陶盆 129 元起</small></button><button type="button" class="wb-lyn-mm__lnk" data-wb-toast="已打开多肉组合盆"><b>多肉组合盆</b><small>组合盆 89 元起</small></button></div>
+        <div class="wb-lyn-mm__col"><h3>礼盒与花器<span>2 款</span></h3><button type="button" class="wb-lyn-mm__lnk" data-wb-toast="已打开花礼盒"><b>花礼盒</b><small>牛皮纸盒 259 元起</small></button><button type="button" class="wb-lyn-mm__lnk" data-wb-toast="已打开干花花瓶摆件"><b>干花花瓶摆件</b><small>陶瓷花瓶 129 元起</small></button></div>
+        <button type="button" class="wb-lyn-mm__feat" data-wb-toast="已打开粉芍药花束"><img src="../../kit/assets/photo/product-peony-pink.webp" alt=""><div><b>粉芍药花束</b><span class="tag" data-tone="price">热销</span><span class="price"><small>¥</small>239</span></div></button>
+      </div>
+    </div>
+    <div class="wb-lyn-mm__panel" id="wb-lyn-mm-store" data-open="false" role="region" aria-label="门店列表">
+      <div class="wb-lyn-mm__cols">
+        <button type="button" class="wb-lyn-mm__store" data-wb-toast="已打开建国路店"><b>建国路店</b><span>黄浦区建国东路 18 号</span><span>09:00 至 21:00</span><span>配送范围 5 公里</span><span class="tag" data-tone="success">营业中</span></button>
+        <button type="button" class="wb-lyn-mm__store" data-wb-toast="已打开徐汇滨江店"><b>徐汇滨江店</b><span>徐汇区龙腾大道 2000 号</span><span>09:30 至 21:30</span><span>配送范围 5 公里</span><span class="tag" data-tone="success">营业中</span></button>
+        <button type="button" class="wb-lyn-mm__store" data-wb-toast="已打开浦东世纪店"><b>浦东世纪店</b><span>浦东新区世纪大道 100 号</span><span>09:00 至 20:30</span><span>配送范围 6 公里</span><span class="tag" data-tone="success">营业中</span></button>
+        <div class="wb-lyn-mm__col"><h3>门店服务</h3><button type="button" class="wb-lyn-mm__lnk" data-wb-toast="已打开到店自提"><b>到店自提</b><small>下单后两小时可取</small></button><button type="button" class="wb-lyn-mm__lnk" data-wb-toast="已打开花艺课程"><b>花艺课程</b><small>每周六开课</small></button><button type="button" class="wb-lyn-mm__lnk" data-wb-toast="已打开定制预约"><b>定制预约</b><small>婚礼与企业订花</small></button></div>
+      </div>
+    </div>
+  </div></div>
+</article>
+
+<article class="demo demo--span2" data-cid="WB-LAYT-032" data-name="大图头图区" data-cat="LAYT">
+  <div class="demo__head"><span class="demo__name">大图头图区</span></div>
+  <p class="demo__note">适合：官网首页的大图、标题与说明区</p>
+  <div class="demo__stage is-plain"><div class="wb-ly-f wb-ly-f--wide" id="wb-lyn-hero">
+    <section class="wb-lyn-hero" data-v="l" aria-label="首页头图">
+      <div class="wb-lyn-hero__sw"><div class="btn-seg" role="group" aria-label="头图版式"><button type="button" aria-pressed="true" data-v="l">左文版</button><button type="button" aria-pressed="false" data-v="c">居中版</button></div></div>
+      <div class="wb-lyn-hero__in">
+        <span class="tag tag--pill" data-tone="action">应季上新</span>
+        <h2>鲜花直达每个家</h2>
+        <p class="wb-lyn-hero__sub">三家门店同城配送 两小时送达</p>
+        <div class="wb-lyn-hero__acts"><button type="button" class="btn btn--primary btn--lg" data-wb-toast="已进入商品页">选购鲜花</button><button type="button" class="btn btn--outline btn--lg" data-wb-toast="已打开门店列表">查看门店</button></div>
+        <div class="wb-lyn-hero__facts"><div><b>128 款</b><small>在售花束</small></div><div><b>3 家</b><small>同城门店</small></div><div><b>2 小时</b><small>极速送达</small></div></div>
+      </div>
+    </section>
+  </div></div>
+</article>
+
+<script>
+(function () {
+  const root = document.getElementById('cat-layt'); if (!root) return;
+  const $ = (s, r = root) => r.querySelector(s), $$ = (s, r = root) => [...r.querySelectorAll(s)];
+  const mark = n => `../../kit/assets/marks/mark-${String(n).padStart(3, '0')}.webp`;
+  const photo = n => `../../kit/assets/photo/${n}.webp`;
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  const PEOPLE = [['林晓', 1], ['陈默', 2], ['周岚', 3], ['吴桐', 4], ['郑一', 5], ['王宁', 6], ['赵悦', 7], ['孙洁', 9]];
+  const GOODS = [['红玫瑰花束', 199, 'product-rose-red'], ['粉芍药花束', 239, 'product-peony-pink'], ['向日葵花束', 159, 'product-sunflower'], ['白郁金香', 179, 'product-tulip-white'], ['蓝绣球盆栽', 129, 'product-hydrangea-blue'], ['龟背竹盆栽', 159, 'product-monstera'], ['多肉组合盆', 89, 'product-succulent'], ['干花花瓶摆件', 129, 'product-pampas-vase'], ['花礼盒', 259, 'product-giftbox']];
+  const fmt = n => n.toLocaleString('zh-CN');
+  const TONE = { 待付款: 'warning', 待发货: 'action', 待收货: 'info', 已完成: 'success', 售后: 'danger' };
+  const tag = s => `<span class="tag"${TONE[s] ? ` data-tone="${TONE[s]}"` : ''}>${s}</span>`;
+
+  /* 021 流程步骤条：下一步校验当前步，出错时标红并停在原处；已完成的步可点回 */
+  (() => {
+    const box = $('#wb-lyn-stp'); if (!box) return;
+    const steps = $$('.wb-lyn-step', box), panes = $$('.wb-lyn-pane', box), prev = $('[data-prev]', box), next = $('[data-next]', box);
+    const lic = $('[data-lic]', box), licT = $('[data-lic-t]', box), openTag = $('[data-open-tag]', box);
+    const HINT = { done: '已完成', current: '进行中', todo: '未开始', error: '待补充' };
+    let cur = 1, bad = -1, fin = false;
+    const render = () => {
+      steps.forEach((s, i) => {
+        const st = fin || i < cur ? 'done' : i === bad ? 'error' : i === cur ? 'current' : 'todo', b = $('button', s);
+        s.dataset.state = st; b.disabled = st === 'todo'; $('.wb-lyn-step__hint', s).textContent = HINT[st];
+        if (i === cur && !fin) b.setAttribute('aria-current', 'step'); else b.removeAttribute('aria-current');
+      });
+      panes.forEach((p, i) => { p.toggleAttribute('data-off', i !== cur); p.inert = i !== cur; });
+      const ok = lic.getAttribute('aria-checked') === 'true';
+      licT.textContent = bad === 1 ? '请先上传营业执照' : ok ? '已上传' : '未上传'; licT.classList.toggle('field__err', bad === 1);
+      openTag.textContent = fin ? '营业中' : '待开通'; openTag.dataset.tone = fin ? 'success' : 'action';
+      prev.disabled = cur === 0 || fin; next.textContent = fin ? '重新开始' : cur === 3 ? '完成开通' : '下一步';
+    };
+    steps.forEach((s, i) => $('button', s).addEventListener('click', () => { if (fin) return; cur = i; bad = -1; render(); }));
+    prev.addEventListener('click', () => { if (cur > 0) { cur--; bad = -1; render(); } });
+    next.addEventListener('click', () => {
+      if (fin) { fin = false; cur = 0; bad = -1; render(); return; }
+      if (cur === 1 && lic.getAttribute('aria-checked') !== 'true') { bad = 1; render(); return; }
+      bad = -1;
+      if (cur < 3) cur++; else { fin = true; Lz.toast('门店已开通', 'success'); }
+      render();
+    });
+    box.addEventListener('lz:toggle', () => { if (lic.getAttribute('aria-checked') === 'true') bad = -1; render(); });
+    render();
+  })();
+
+  /* 022 选项卡面板：方向键与首末键切换，停用项跳过；下划线滑到当前项 */
+  (() => {
+    const box = $('#wb-lyn-tabs'); if (!box) return;
+    const list = $('.wb-lyn-tl', box), tabs = $$('[role="tab"]', list), ink = $('.wb-lyn-ink', list), panels = $$('[role="tabpanel"]', box);
+    const on = () => tabs.filter(t => !t.disabled);
+    const place = () => { const t = tabs.find(x => x.getAttribute('aria-selected') === 'true'); if (t) { ink.style.setProperty('--x', t.offsetLeft + 'px'); ink.style.setProperty('--w', t.offsetWidth + 'px'); } };
+    const pick = (t, focus) => {
+      tabs.forEach(x => { const s = x === t; x.setAttribute('aria-selected', String(s)); x.tabIndex = s ? 0 : -1; });
+      panels.forEach(p => { const s = p.id === t.getAttribute('aria-controls'); p.toggleAttribute('data-off', !s); p.inert = !s; });
+      place(); if (focus) t.focus();
+    };
+    tabs.forEach(t => t.addEventListener('click', () => pick(t)));
+    list.addEventListener('keydown', e => {
+      const a = on(), i = a.indexOf(document.activeElement); if (i < 0) return;
+      const n = { ArrowRight: a[(i + 1) % a.length], ArrowLeft: a[(i - 1 + a.length) % a.length], Home: a[0], End: a[a.length - 1] }[e.key];
+      if (n) { e.preventDefault(); pick(n, true); }
+    });
+    panels.forEach((p, i) => { p.inert = i !== 0; });
+    new ResizeObserver(place).observe(list); place();
+  })();
+
+  /* 025 固钉吸附：滚过顶部区后筛选条贴顶并带投影；筛选只影响下方列表 */
+  (() => {
+    const box = $('#wb-lyn-af'); if (!box) return;
+    const sc = $('.wb-lyn-af', box), bar = $('.wb-lyn-af__bar', box), sent = $('.wb-lyn-af__sent', box), rows = $('#wb-lyn-af-rows', box);
+    const ORD = [['20388', 0, '待发货'], ['20387', 1, '待发货'], ['20386', 4, '待收货'], ['20385', 8, '已完成'], ['20384', 2, '待发货'], ['20383', 5, '待收货'], ['20382', 3, '已完成'], ['20381', 7, '待发货'], ['20380', 6, '已完成'], ['20379', 0, '待收货'], ['20378', 1, '已完成'], ['20377', 8, '待发货'], ['20376', 5, '已完成'], ['20375', 4, '待收货']];
+    rows.innerHTML = ORD.map(([no, g, st], i) => { const p = PEOPLE[(i * 3 + 1) % 8], it = GOODS[g]; return `<div class="row" data-cat="${st}"><img class="row__lead" src="${photo(it[2])}" alt=""><div class="row__main"><p class="row__title">${it[0]}</p><p class="row__meta">订单 ${no} ${p[0]}</p></div><div class="row__trail"><span class="price"><small>¥</small>${it[1]}</span>${tag(st)}</div></div>`; }).join('');
+    const cnt = { all: ORD.length }; ORD.forEach(o => { cnt[o[2]] = (cnt[o[2]] || 0) + 1; });
+    $$('.seg__item', box).forEach(b => { b.innerHTML = `${b.textContent}<small>${cnt[b.dataset.key]}</small>`; });
+    const upd = () => { bar.dataset.stuck = String(sent.getBoundingClientRect().bottom <= sc.getBoundingClientRect().top + 1); };
+    sc.addEventListener('scroll', upd, { passive: true }); upd();
+  })();
+
+  /* 026 无限滚动：触底自动追加；第三批首次失败，可重试；到尽头给出结束提示 */
+  (() => {
+    const box = $('#wb-lyn-inf'); if (!box) return;
+    const sc = $('.wb-lyn-inf__scroll', box), list = $('[data-list]', box), tail = $('[data-tail]', box), num = $('[data-n]', box);
+    const ACT = ['发货订单', '上架商品', '下架商品', '调整库存', '审核售后单', '修改价格', '导出订单', '新增会员'];
+    const OBJ = i => (i % 8 === 6 ? '近七日报表' : i % 8 === 7 ? PEOPLE[(i * 5) % 8][0] : i % 8 === 0 || i % 8 === 4 ? '订单 ' + (20400 - i) : GOODS[(i * 4) % 9][0]);
+    const ago = i => { const m = Math.round(i * i * 1.6 + i * 3); return m < 1 ? '刚刚' : m < 60 ? m + ' 分钟前' : m < 1440 ? Math.floor(m / 60) + ' 小时前' : Math.floor(m / 1440) + ' 天前'; };
+    const TOTAL = 40, SIZE = 8; let loaded = 0, busy = false, failed = false, io = null;
+    const state = s => {
+      tail.dataset.s = s; sc.setAttribute('aria-busy', String(s === 'loading'));
+      tail.innerHTML = s === 'loading' ? '<i class="wb-lyn-spin"></i><span>加载中</span>' : s === 'error' ? '<span>加载失败</span><button type="button" class="btn btn--text btn--sm" data-retry>重试</button>' : s === 'end' ? `<span>已加载全部 ${TOTAL} 条</span>` : '<button type="button" class="btn btn--text btn--sm" data-more>加载更多</button>';
+    };
+    const add = () => {
+      const end = Math.min(TOTAL, loaded + SIZE);
+      list.insertAdjacentHTML('beforeend', Array.from({ length: end - loaded }, (_, k) => { const i = loaded + k, p = PEOPLE[(i * 3) % 8]; return `<div class="wb-lyn-lg"${loaded ? ' data-new' : ''}><img class="avatar" src="${mark(p[1])}" alt=""><span><b>${p[0]}</b> ${ACT[i % 8]} ${OBJ(i)}</span><time>${ago(i)}</time></div>`; }).join(''));
+      loaded = end; num.textContent = loaded;
+    };
+    const load = () => {
+      if (busy || loaded >= TOTAL) return; busy = true; state('loading');
+      setTimeout(() => {
+        busy = false;
+        if (loaded >= SIZE * 2 && !failed) { failed = true; state('error'); return; }
+        add(); state(loaded >= TOTAL ? 'end' : 'idle'); watch();
+      }, 650);
+    };
+    const watch = () => { if (io) io.disconnect(); if (loaded >= TOTAL) return; io = new IntersectionObserver(es => { if (es[0].isIntersecting && tail.dataset.s === 'idle') load(); }, { root: sc, rootMargin: '0px 0px 24px 0px' }); io.observe(tail); };
+    tail.addEventListener('click', e => { if (e.target.closest('[data-retry], [data-more]')) load(); });
+    add(); state('idle'); watch();
+  })();
+
+  /* 027 瀑布流：按类别筛选后列重新排布；点卡片选中，可清除 */
+  (() => {
+    const box = $('#wb-lyn-ms'); if (!box) return;
+    const cards = $$('.wb-lyn-mc', box), num = $('[data-n]', box), clear = $('[data-clear]', box);
+    const sync = () => { const n = cards.filter(c => c.getAttribute('aria-pressed') === 'true').length; num.textContent = n; clear.hidden = n === 0; };
+    cards.forEach(c => c.addEventListener('click', () => { c.setAttribute('aria-pressed', String(c.getAttribute('aria-pressed') !== 'true')); sync(); }));
+    clear.addEventListener('click', () => { cards.forEach(c => c.setAttribute('aria-pressed', 'false')); sync(); });
+  })();
+
+  /* 028 自定义滚动区：自绘滚动条，滑块可拖动，点轨道翻一屏；方向键仍可滚动 */
+  (() => {
+    const box = $('#wb-lyn-sc'); if (!box) return;
+    $('[data-rows]', box).innerHTML = [['红玫瑰花束', 42], ['粉芍药花束', 26], ['向日葵花束', 40], ['白郁金香', 51], ['蓝绣球盆栽', 38], ['龟背竹盆栽', 24], ['多肉组合盆', 0], ['干花花瓶摆件', 33], ['花礼盒', 36], ['白色花束', 18], ['黄郁金香束', 22], ['玫瑰花束', 15]].map(([n, s], i) => { const g = GOODS.find(x => x[0] === n) || GOODS[i % 9]; return `<button type="button" class="row" aria-selected="${i === 1}"><img class="row__lead" src="${photo(g[2])}" alt=""><div class="row__main"><p class="row__title">${n}</p></div><div class="row__trail">${s === 0 ? '<span class="tag" data-tone="warning">售罄</span>' : `库存 ${s} 件`}</div></button>`; }).join('');
+    $('[data-strip]', box).innerHTML = GOODS.map(g => `<span class="wb-lyn-sc__cell"><img src="${photo(g[2])}" alt="">${g[0]}</span>`).join('');
+    $$('[data-rows] .row', box).forEach(r => r.addEventListener('click', () => $$('[data-rows] .row', box).forEach(x => x.setAttribute('aria-selected', String(x === r)))));
+    $$('.wb-lyn-sc', box).forEach(el => {
+      const view = $('.wb-lyn-sc__view', el), bar = $('.wb-lyn-sc__bar', el), thumb = $('.wb-lyn-sc__thumb', el), x = el.dataset.axis === 'x';
+      let timer, len = 0, track = 0, range = 0;
+      const upd = () => {
+        const size = x ? view.clientWidth : view.clientHeight, total = x ? view.scrollWidth : view.scrollHeight, pos = x ? view.scrollLeft : view.scrollTop;
+        el.dataset.need = String(total > size + 1); if (total <= size + 1) return;
+        track = (x ? bar.clientWidth : bar.clientHeight); len = Math.max(36, track * size / total); range = total - size;
+        const off = (track - len) * (pos / range);
+        if (x) { thumb.style.width = len + 'px'; thumb.style.transform = `translateX(${off}px)`; } else { thumb.style.height = len + 'px'; thumb.style.transform = `translateY(${off}px)`; }
+      };
+      const flash = () => { el.dataset.on = 'true'; clearTimeout(timer); timer = setTimeout(() => { el.dataset.on = 'false'; }, 900); };
+      view.addEventListener('scroll', () => { upd(); flash(); }, { passive: true });
+      new ResizeObserver(upd).observe(view); upd();
+      thumb.addEventListener('pointerdown', e => {
+        e.preventDefault(); e.stopPropagation(); thumb.setPointerCapture(e.pointerId); el.dataset.drag = 'true';
+        const p0 = x ? e.clientX : e.clientY, s0 = x ? view.scrollLeft : view.scrollTop;
+        const move = ev => { const d = ((x ? ev.clientX : ev.clientY) - p0) * range / Math.max(1, track - len); view[x ? 'scrollLeft' : 'scrollTop'] = s0 + d; };
+        const up = () => { el.dataset.drag = 'false'; thumb.removeEventListener('pointermove', move); thumb.removeEventListener('pointerup', up); thumb.removeEventListener('pointercancel', up); };
+        thumb.addEventListener('pointermove', move); thumb.addEventListener('pointerup', up); thumb.addEventListener('pointercancel', up);
+      });
+      bar.addEventListener('pointerdown', e => {
+        if (e.target === thumb) return; const r = thumb.getBoundingClientRect(), before = x ? e.clientX < r.left : e.clientY < r.top;
+        view.scrollBy({ [x ? 'left' : 'top']: (before ? -1 : 1) * (x ? view.clientWidth : view.clientHeight) * .9, behavior: 'smooth' });
+      });
+    });
+  })();
+
+  /* 029 虚拟滚动列表：一万条只渲染可视行加缓冲；跳转按钮直达首中末 */
+  (() => {
+    const box = $('#wb-lyn-vl'); if (!box) return;
+    const view = $('.wb-lyn-vl__view', box), space = $('[data-space]', box), win = $('[data-win]', box), H = 48, N = 10000, BUF = 3;
+    const rd = { from: $('[data-from]', box), to: $('[data-to]', box), r: $('[data-r]', box) };
+    space.style.height = N * H + 'px';
+    const STS = ['待付款', '待发货', '待收货', '已完成', '已完成', '已完成', '售后', '待发货', '已完成', '待收货'];
+    const rec = i => { const g = GOODS[(i * 5 + 2) % 9]; return { no: 30000 - i, who: PEOPLE[(i * 3 + 1) % 8][0], item: g[0], amt: g[1] * (i % 4 === 3 ? 2 : 1), st: STS[(i * 7 + 3) % 10] }; };
+    let a = -1, b = -1;
+    const draw = () => {
+      const vh = view.clientHeight, top = view.scrollTop, s = clamp(Math.floor(top / H) - BUF, 0, N - 1), e = clamp(Math.ceil((top + vh) / H) + BUF, 0, N);
+      rd.from.textContent = fmt(clamp(Math.floor(top / H) + 1, 1, N)); rd.to.textContent = fmt(clamp(Math.ceil((top + vh) / H), 1, N));
+      if (s === a && e === b) return; a = s; b = e;
+      win.style.transform = `translateY(${s * H}px)`;
+      win.innerHTML = Array.from({ length: e - s }, (_, k) => { const i = s + k, o = rec(i); return `<div class="wb-lyn-vl__row" role="listitem" aria-posinset="${i + 1}" aria-setsize="${N}"><span class="n">${o.no}</span><span>${o.who}</span><span>${o.item}</span><span class="r">${fmt(o.amt)}.00</span><span class="c">${tag(o.st)}</span></div>`; }).join('');
+      rd.r.textContent = e - s;
+    };
+    view.addEventListener('scroll', () => requestAnimationFrame(draw), { passive: true });
+    $$('[data-go]', box).forEach(btn => btn.addEventListener('click', () => { const k = btn.dataset.go; view.scrollTop = k === 'first' ? 0 : k === 'mid' ? (N / 2 - 1) * H : N * H; draw(); }));
+    new ResizeObserver(draw).observe(view); draw();
+  })();
+
+  /* 031 间距堆叠：方向、间距、对齐都是真实 CSS 属性，读数同步 */
+  (() => {
+    const box = $('#wb-lyn-sp'); if (!box) return;
+    const el = $('[data-box]', box), read = $('[data-read]', box), show = $('[data-gapsw]', box);
+    const st = { dir: 'row', gap: '12', al: 'start' }, NAME = { row: '横排', column: '竖排', start: '起点', center: '居中', end: '终点', stretch: '拉伸' };
+    const draw = () => {
+      el.dataset.dir = st.dir; el.dataset.al = st.al; el.style.setProperty('--gap', st.gap + 'px');
+      el.dataset.show = String(show.getAttribute('aria-checked') === 'true');
+      read.textContent = `${NAME[st.dir]}，间距 ${st.gap} 像素，${NAME[st.al]}对齐`;
+    };
+    $$('.btn-seg button', box).forEach(b => b.addEventListener('click', () => {
+      st[b.dataset.k] = b.dataset.v; $$(`[data-k="${b.dataset.k}"]`, box).forEach(x => x.setAttribute('aria-pressed', String(x === b))); draw();
+    }));
+    box.addEventListener('lz:toggle', draw); draw();
+  })();
+
+  /* 019 可拖拽分栏：指针拖动、方向键微调、首末键到边界、回车或双击恢复 */
+  (() => {
+    const box = $('#wb-lyn-spl'); if (!box) return;
+    const host = $('[data-host]', box), right = $('[data-right]', box), list = $('[data-list]', box), detail = $('[data-detail]', box), sales = $('[data-sales]', box);
+    const L = [['红玫瑰花束', 199, 42, '鲜花'], ['粉芍药花束', 239, 26, '鲜花'], ['向日葵花束', 159, 40, '鲜花'], ['龟背竹盆栽', 159, 24, '绿植'], ['蓝绣球盆栽', 129, 38, '绿植'], ['花礼盒', 259, 36, '礼盒']].map((r, i) => ({ n: r[0], p: r[1], s: r[2], c: r[3], img: ['product-rose-red', 'product-peony-pink', 'product-sunflower', 'product-monstera', 'product-hydrangea-blue', 'product-giftbox'][i] })).slice(0, 5);
+    list.innerHTML = L.map((g, i) => `<button type="button" class="row wb-lyn-pr" aria-selected="${i === 0}" data-i="${i}"><img src="${photo(g.img)}" alt=""><div class="row__main"><p class="row__title">${g.n}</p><p class="row__meta">库存 ${g.s} 件</p></div><span class="price"><small>¥</small>${g.p}</span></button>`).join('');
+    const show = i => {
+      const g = L[i]; $$('.wb-lyn-pr', list).forEach((x, k) => x.setAttribute('aria-selected', String(k === i)));
+      $('[data-pic]', detail).src = photo(g.img); $('[data-name]', detail).textContent = g.n; $('[data-price]', detail).innerHTML = '<small>¥</small>' + g.p; $('[data-meta]', detail).textContent = `${g.c} 库存 ${g.s} 件`;
+      sales.innerHTML = [0, 1, 2].map(k => { const q = k === 1 ? 2 : 1, w = PEOPLE[(i + k * 2) % 8][0]; return `<div class="wb-lyn-sl"><span class="n">${20388 - i * 3 - k}</span><span>${w}</span><span class="q">${q} 件</span><span class="price"><small>¥</small>${fmt(g.p * q)}</span></div>`; }).join('');
+    };
+    list.addEventListener('click', e => { const b = e.target.closest('.wb-lyn-pr'); if (b) show(+b.dataset.i); });
+    show(0);
+    const bind = (sep, box2, prop, min, max, def, axis) => {
+      const set = v => { v = clamp(v, min, max); box2.style.setProperty(prop, v + '%'); sep.setAttribute('aria-valuenow', String(Math.round(v))); sep.dataset.v = Math.round(v) + '%'; return v; };
+      let v = def;
+      sep.addEventListener('pointerdown', e => {
+        e.preventDefault(); sep.setPointerCapture(e.pointerId); sep.dataset.on = 'true'; sep.focus({ preventScroll: true }); host.classList.add(axis === 'x' ? 'is-drag' : 'is-drag-y');
+        const move = ev => { const r = box2.getBoundingClientRect(); v = set(axis === 'x' ? (ev.clientX - r.left - 6) / r.width * 100 : (ev.clientY - r.top - 6) / r.height * 100); };
+        const up = () => { sep.dataset.on = 'false'; host.classList.remove('is-drag', 'is-drag-y'); sep.removeEventListener('pointermove', move); sep.removeEventListener('pointerup', up); sep.removeEventListener('pointercancel', up); };
+        sep.addEventListener('pointermove', move); sep.addEventListener('pointerup', up); sep.addEventListener('pointercancel', up);
+      });
+      sep.addEventListener('keydown', e => {
+        const d = axis === 'x' ? { ArrowLeft: -2, ArrowRight: 2 }[e.key] : { ArrowUp: -2, ArrowDown: 2 }[e.key];
+        if (d) { e.preventDefault(); v = set(v + d); } else if (e.key === 'Home') { e.preventDefault(); v = set(min); } else if (e.key === 'End') { e.preventDefault(); v = set(max); } else if (e.key === 'Enter') { e.preventDefault(); v = set(def); }
+      });
+      sep.addEventListener('dblclick', () => { v = set(def); });
+      set(def);
+    };
+    bind($('[data-axis="x"]', host), host, '--l', 22, 60, 36, 'x');
+    bind($('[data-axis="y"]', right), right, '--t', 30, 70, 50, 'y');
+  })();
+
+  /* 020 栅格布局：预览宽度切换后，容器查询重新分配每块占几栏 */
+  (() => {
+    const box = $('#wb-lyn-gr'); if (!box) return;
+    const vp = $('[data-vp]', box), rd = $('[data-rd]', box), blocks = $$('.wb-lyn-gb', vp);
+    $('.wb-lyn-gr__guides', vp).innerHTML = '<i></i>'.repeat(24);
+    const draw = () => {
+      const w = Math.round(vp.clientWidth), lv = w >= 960 ? ['c', '宽屏'] : w >= 600 ? ['m', '中屏'] : ['s', '窄屏'];
+      blocks.forEach(b => { $('[data-n]', b).textContent = `占 ${b.style.getPropertyValue('--' + lv[0]).trim()} 栏`; });
+      rd.textContent = `容器 ${fmt(w)} 像素，${lv[1]}布局`;
+    };
+    $$('.btn-seg button', box).forEach(b => b.addEventListener('click', () => {
+      $$('.btn-seg button', box).forEach(x => x.setAttribute('aria-pressed', String(x === b))); vp.style.setProperty('--vw', b.dataset.w);
+    }));
+    $('[data-guide]', box).addEventListener('lz:toggle', e => { vp.dataset.guide = e.target.getAttribute('aria-checked'); });
+    new ResizeObserver(draw).observe(vp); draw();
+  })();
+
+  /* 023 锚点导航：点击滚到小节，滚动时高亮当前节；到底部时选中最后一节 */
+  (() => {
+    const box = $('#wb-lyn-an'); if (!box) return;
+    const view = $('.wb-lyn-an__view', box), secs = $$('.wb-lyn-an__sec', box), links = $$('.wb-lyn-an__lnk', box);
+    const rel = s => s.getBoundingClientRect().top - view.getBoundingClientRect().top; let lock = 0;
+    const mark2 = i => links.forEach((l, k) => { if (k === i) l.setAttribute('aria-current', 'location'); else l.removeAttribute('aria-current'); });
+    const spy = () => {
+      if (Date.now() < lock) return;
+      let cur = 0; secs.forEach((s, i) => { if (rel(s) <= 40) cur = i; });
+      if (view.scrollTop + view.clientHeight >= view.scrollHeight - 2) cur = secs.length - 1;
+      mark2(cur);
+    };
+    links.forEach((l, i) => l.addEventListener('click', () => { lock = Date.now() + 700; view.scrollTo({ top: view.scrollTop + rel(secs[i]) }); mark2(i); }));
+    view.addEventListener('scroll', spy, { passive: true });
+  })();
+
+  /* 030 大型下拉导航：点击展开与切换，Escape 或点空白处收起 */
+  (() => {
+    const box = $('#wb-lyn-mm'); if (!box) return;
+    const trig = $$('[data-mm]', box), panels = { shop: $('#wb-lyn-mm-shop', box), store: $('#wb-lyn-mm-store', box) };
+    const set = key => {
+      trig.forEach(t => t.setAttribute('aria-expanded', String(t.dataset.mm === key)));
+      Object.entries(panels).forEach(([k, p]) => { p.dataset.open = String(k === key); p.inert = k !== key; });
+    };
+    trig.forEach(t => t.addEventListener('click', e => { e.stopPropagation(); set(t.getAttribute('aria-expanded') === 'true' ? '' : t.dataset.mm); }));
+    document.addEventListener('click', e => { if (!e.target.closest('.wb-lyn-mm__panel') || e.target.closest('button')) set(''); });
+    box.addEventListener('keydown', e => { if (e.key === 'Escape') { const open = trig.find(t => t.getAttribute('aria-expanded') === 'true'); set(''); if (open) open.focus(); } });
+    set('shop');
+  })();
+
+  /* 032 大图头图区：左文与居中两种版式 */
+  (() => {
+    const box = $('#wb-lyn-hero'); if (!box) return;
+    const hero = $('.wb-lyn-hero', box), btns = $$('.btn-seg button', box);
+    btns.forEach(b => b.addEventListener('click', () => { hero.dataset.v = b.dataset.v; btns.forEach(x => x.setAttribute('aria-pressed', String(x === b))); }));
+  })();
+})();
+</script>

@@ -32,6 +32,7 @@ import sys
 from pathlib import Path
 
 import check_contrast
+import stage_ramp
 
 THEMES = Path(__file__).resolve().parents[1] / "references" / "themes.json"
 FORMAT_VERSION = "2025.10"
@@ -170,6 +171,17 @@ def build(theme_id: str, data: dict | None = None, *, with_dark: bool = True) ->
                for key, m in (theme.get("modules") or {}).items()}
     if modules:
         color["module"] = modules
+    stage = theme.get("stage")
+    if stage:
+        # 有序进度状态的色阶（visual-design.html 有序进度状态的色阶）：6 级文字色，深色另有一套；浅底标签是本色混入卡片面（浅色 10%，深色 16%）
+        sd_surface = dk["surface"] if dk else None
+        color["stage"] = {str(i + 1): token(to_color(stage["light"][i]), None,
+                                            "有序进度状态的色阶 stage-1 到 stage-6：同一页面里有先后顺序的状态集合，文字按顺序位置取色，越靠后越深越实（浅色）或越亮越醒目（深色）；"
+                                            "N 个状态取其中等间隔的 N 级（stage_ramp.py positions）；必须同时写出文字标签；与成功、警告、危险状态色是两套，终态的成交与流失用状态色" if i == 0 else None,
+                                            to_color(stage["dark"][i]) if dk else None) for i in range(stage_ramp.STOPS)}
+        color["stage-tint"] = {str(i + 1): token(to_color(stage_ramp.tint_of(stage["light"][i], "light", shared["surface"])),
+                                                 None, "色阶某一级的浅底标签底色（本色混入卡片面：浅色 10%，深色 16%），文字用同级 stage 色，对比度不低于 4.5:1；主题 avoid 禁止彩色底块时不用" if i == 0 else None,
+                                                 to_color(stage_ramp.tint_of(stage["dark"][i], "dark", sd_surface)) if dk else None) for i in range(stage_ramp.STOPS)}
 
     typography = {"$type": "typography"}
     for role, (size, line, weight, description) in TYPE_ROLES.items():
@@ -327,6 +339,53 @@ def check_tokens(doc: dict, require_dark: bool | None = None) -> list[str]:
         wants_dark = need_dark and ((path[0] == "color" and path[1] != "scale" and type_ == "color") or (path[0] == "shadow" and type_ == "shadow"))
         if wants_dark and "dark" not in (modes or {}):
             errors.append(f"{where}: no dark value ($extensions.mode.dark); the file declares light and dark")
+    errors += check_stage(doc)
+    return errors
+
+
+def check_stage(doc: dict) -> list[str]:
+    """``color.stage``（有序进度状态的色阶）：6 级，每一级对文件里的各层底和自己的浅底标签不低于 4.5:1，相邻两级色差、彩度与明度走向合格；浅色和深色各查一遍。"""
+    group = (doc.get("color") or {}).get("stage")
+    if group is None:
+        return []
+    errors: list[str] = []
+    items = {k: v for k, v in group.items() if not k.startswith("$")}
+    if sorted(items) != [str(i) for i in range(1, stage_ramp.STOPS + 1)]:
+        return [f"color.stage: 需要 1 到 {stage_ramp.STOPS} 共 {stage_ramp.STOPS} 级，现在是 {', '.join(sorted(items))}"]
+    surface = (doc.get("color") or {}).get("surface") or {}
+    for mode in ("light", "dark"):
+        def pick(tok):
+            if mode == "light":
+                return tok.get("$value")
+            return ((tok.get("$extensions") or {}).get("mode") or {}).get("dark")
+        colours, bad = [], False
+        for i in range(1, stage_ramp.STOPS + 1):
+            value = pick(items[str(i)])
+            if not isinstance(value, dict) or "hex" not in value:
+                if mode == "dark" and value is None:
+                    bad = True      # 缺深色值已由通用检查报告
+                    break
+                errors.append(f"color.stage.{i} [{mode}]: needs a colour with hex")
+                bad = True
+                break
+            colours.append(value["hex"])
+        if bad:
+            continue
+        names = ("canvas", "card") if mode == "light" else ("canvas", "card", "raised-2", "raised-3", "raised-4", "nav")
+        grounds = []
+        for name in names:
+            tok = surface.get(name)
+            value = pick(tok) if isinstance(tok, dict) else None
+            if isinstance(value, dict) and "hex" in value:
+                grounds.append(value["hex"])
+        if not grounds:
+            errors.append(f"color.stage [{mode}]: 文件里没有可对照的底色（color.surface）")
+            continue
+        card = pick(surface.get("card", {})) if isinstance(surface.get("card"), dict) else None
+        tint_surface = card["hex"] if isinstance(card, dict) and "hex" in card else grounds[0]
+        for label, ok, note in stage_ramp.check(colours, grounds, mode, tint_surface=tint_surface, label=f"color.stage [{mode}]"):
+            if not ok:
+                errors.append(f"{label}: {note}")
     return errors
 
 

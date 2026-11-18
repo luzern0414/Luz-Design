@@ -1,0 +1,480 @@
+<!-- cat: BGND | 背景 -->
+<style>
+/* 背景分类：前缀 xbg-。每个小样都是真实排了标题与内容的块，用来检验底色与文字的叠加效果 */
+.xbg-s { position: relative; display: grid; align-content: space-between; gap: var(--s-3); width: 100%; max-width: 390px; min-height: 184px; margin: 0 auto; padding: var(--s-5); border-radius: var(--r-lg); overflow: hidden; }
+.xbg-s h3 { font-size: var(--fs-xl); font-weight: 700; line-height: var(--lh-tight); }
+.xbg-edge { box-shadow: inset 0 0 0 1px var(--line-strong); }
+.xbg-flush { padding: 0; align-content: stretch; gap: 0; }
+.xbg-flush.xbg-edge { box-shadow: none; border: 1px solid var(--line-strong); }
+.xbg-s--sm { min-height: 152px; }
+.xbg-foot { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); }
+.xbg-foot .btn--text { margin-right: calc(var(--s-2) * -1); }
+.xbg-head { display: flex; align-items: center; gap: var(--s-3); }
+.xbg-head img.ic { flex: none; }
+.xbg-tags { display: flex; flex-wrap: wrap; gap: var(--s-2); }
+.xbg-s .tag[data-tone="action"] { background: var(--surface); }
+.xbg-light { color: var(--surface); }
+.xbg-light .tag { background: color-mix(in srgb, var(--ink) 26%, transparent); color: var(--surface); }
+.xbg-light .btn--primary, .xbg-s .btn--primary { color: var(--surface); }
+.xbg-veil.veil-tint::before { background: linear-gradient(180deg, color-mix(in srgb, var(--action-press) 88%, transparent) 0%, color-mix(in srgb, var(--action) 58%, transparent) 100%); }
+.xbg-chip { display: inline-flex; align-items: baseline; gap: var(--s-1); padding: var(--s-1) var(--s-3); border-radius: var(--r-full); background: var(--surface); box-shadow: var(--elev-1); }
+.xbg-chip .t-sub { font-weight: 400; }
+.xbg-deep { background: linear-gradient(160deg, var(--action-press) 0%, color-mix(in srgb, var(--action-press) 72%, var(--action)) 100%); }
+.xbg-num { font-size: var(--fs-3xl); font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+.xbg-num small { margin-left: 2px; font-size: var(--fs-sm); font-weight: 600; }
+.xbg-cap { margin-bottom: var(--s-1); font-size: var(--fs-sm); }
+
+/* 小商品卡：用在页底与分区的小样里 */
+.xbg-two { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--s-3); }
+.xbg-mini { display: grid; gap: 4px; padding: var(--s-2); overflow: hidden; }
+.xbg-mini img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border-radius: var(--r-md); }
+.xbg-mini b { padding: 0 var(--s-1); font-weight: 600; line-height: var(--lh-tight); }
+.xbg-mini .price { padding: 0 var(--s-1) var(--s-1); }
+
+/* 图片类：照片上只放白卡或加遮罩，文字不直接压在花朵上 */
+.xbg-plate { display: flex; align-items: center; gap: var(--s-3); width: 64%; padding: var(--s-3); border-radius: var(--r-md); background: var(--surface); box-shadow: var(--elev-2); }
+.xbg-plate img { width: 56px; height: 56px; border-radius: var(--r-md); object-fit: cover; flex: none; }
+.xbg-plate b { display: block; font-weight: 600; line-height: var(--lh-tight); }
+.xbg-scene { background-position: 82% center; }
+.xbg-scene .xbg-copy { max-width: 56%; }
+.xbg-copy { display: grid; gap: var(--s-3); justify-items: start; }
+
+/* 分区带 */
+.xbg-band { padding: var(--s-4); }
+.xbg-band + .xbg-band { border-top: 1px solid var(--line); }
+.xbg-band h3 { font-size: var(--fs-lg); font-weight: 600; margin-bottom: var(--s-3); }
+.xbg-ents { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s-2); text-align: center; font-size: var(--fs-sm); }
+.xbg-ents span { display: grid; justify-items: center; gap: var(--s-1); }
+.xbg-ents img { width: 40px; height: 40px; object-fit: contain; }
+
+/* 卡内浅色底 */
+.xbg-inset { display: grid; gap: var(--s-2); padding: var(--s-3) var(--s-4); border-radius: var(--r-md); }
+.xbg-kv { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); font-size: var(--fs-sm); color: var(--ink-2); }
+.xbg-kv b { font-weight: 600; color: var(--ink); }
+
+/* 底栏与叠卡与遮罩的框 */
+.xbg-mock { position: relative; width: 100%; max-width: 390px; height: 232px; margin: 0 auto; border-radius: var(--r-lg); overflow: hidden; }
+.xbg-mock--fit { height: auto; }
+.xbg-pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s-3); padding: var(--s-4); }
+.xbg-pad img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: var(--r-md); }
+.xbg-bar { position: absolute; left: 0; right: 0; bottom: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s-1); padding: var(--s-1) var(--s-2) var(--s-2); background: var(--bg); border-top: 1px solid var(--line); }
+.xbg-bar button { display: grid; justify-items: center; align-content: center; gap: 2px; min-height: 56px; border-radius: var(--r-lg); font-size: var(--fs-xs); color: var(--ink-2); }
+.xbg-bar button img { width: 26px; height: 26px; }
+.xbg-bar button[aria-current="page"] { background: var(--action-tint); color: var(--action-press); font-weight: 600; box-shadow: inset 0 0 0 1px var(--action-edge); }
+.xbg-over { padding: var(--s-4) var(--s-5) 0; }
+.xbg-top { position: relative; height: 128px; padding: var(--s-5) var(--s-5) 0; }
+.xbg-top h3 { font-size: var(--fs-2xl); font-weight: 700; line-height: var(--lh-tight); }
+.xbg-lap { position: relative; margin: -30px var(--s-4) var(--s-4); }
+.xbg-lap .stats { padding: var(--s-1) 0; }
+.xbg-scrim { position: absolute; inset: 0; display: grid; place-items: center; background: var(--scrim); opacity: 0; pointer-events: none; transition: opacity var(--dur-base) var(--ease-out); }
+.xbg-scrim.is-on { opacity: 1; pointer-events: auto; }
+.xbg-scrim .card { display: grid; gap: var(--s-3); justify-items: center; width: 220px; padding: var(--s-5); text-align: center; box-shadow: var(--elev-4); transform: scale(.94); transition: transform var(--dur-base) var(--ease-spring); }
+.xbg-scrim.is-on .card { transform: none; }
+.xbg-page { display: grid; justify-items: start; gap: var(--s-3); padding: 0 var(--s-4) var(--s-4); }
+</style>
+
+<article class="demo" data-cid="AP-BGND-001" data-name="页底米白" data-cat="BGND">
+  <div class="demo__head"><span class="demo__name">页底米白</span></div>
+  <p class="demo__note">适合：整页默认底色，白卡片浮在其上</p>
+  <div class="demo__stage is-plain"><div class="xbg-s bg-page xbg-edge" style="align-content: center">
+    <div class="xbg-two">
+      <div class="card xbg-mini"><img src="../../kit/assets/photo/product-rose-red.webp" alt=""><b class="one-line">红玫瑰花束</b><span class="price"><small>¥</small>199</span></div>
+      <div class="card xbg-mini"><img src="../../kit/assets/photo/product-peony-pink.webp" alt=""><b class="one-line">粉芍药花束</b><span class="price"><small>¥</small>239</span></div>
+    </div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="AP-BGND-002" data-name="纯白底色" data-cat="BGND">
+  <div class="demo__head"><span class="demo__name">纯白底色</span></div>
+  <p class="demo__note">适合：列表、表单与详情的内容区</p>
+  <div class="demo__stage is-plain"><div class="xbg-s bg-surface xbg-edge xbg-flush">
+    <button class="row"><img class="row__lead row__lead--lg" src="../../kit/assets/photo/product-monstera.webp" alt=""><div class="row__main"><p class="row__title one-line">龟背竹盆栽</p><p class="row__meta">已售 2860 件</p></div><div class="row__trail"><span class="price"><small>¥</small>159</span></div></button>
+    <button class="row"><img class="row__lead row__lead--lg" src="../../kit/assets/photo/product-succulent.webp" alt=""><div class="row__main"><p class="row__title one-line">多肉组合盆</p><p class="row__meta">已售 2214 件</p></div><div class="row__trail"><span class="price"><small>¥</small>89</span></div></button>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="AP-BGND-003" data-name="浅主色底" data-cat="BGND">
+  <div class="demo__head"><span class="demo__name">浅主色底</span></div>
+  <p class="demo__note">适合：提示条、选中态与轻量强调区</p>
+  <div class="demo__stage is-plain"><div class="xbg-s xbg-s--sm bg-tint">
+    <div class="xbg-head"><img class="ic" data-ic="coupon" src="../../kit/assets/icons/flat/coupon.webp" alt=""><div><h3>满 99 减 20</h3><span class="tag" data-tone="action">新人专享</span></div></div>
+    <div class="xbg-foot"><span class="t-sub">全场鲜花可用</span><button class="btn btn--white btn--sm btn--pill" data-xbg-t="已领取">立即领取</button></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="AP-BGND-004" data-name="雾粉渐变" data-cat="BGND">
+  <div class="demo__head"><span class="demo__name">雾粉渐变</span></div>
+  <p class="demo__note">适合：页面顶部自然过渡到页底，承载标题与分段</p>
+  <div class="demo__stage is-plain"><div class="xbg-s bg-mist xbg-edge">
+    <h3>当季花礼</h3>
+    <div class="seg" data-seg="xbg-004"><button class="seg__item" data-key="a" aria-selected="true">鲜花</button><button class="seg__item" data-key="b" aria-selected="false">绿植</button><button class="seg__item" data-key="c" aria-selected="false">礼盒</button></div>
+    <div class="xbg-foot"><span class="xbg-chip"><span class="price"><small>¥</small>159</span><span class="t-sub">起</span></span><button class="btn btn--text" data-xbg-t="已展开">查看全部</button></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="AP-BGND-005" data-name="暖色渐变" data-cat="BGND">
+  <div class="demo__head"><span class="demo__name">暖色渐变</span></div>
+  <p class="demo__note">适合：节日礼盒、送礼场景的暖调分区</p>
+  <div class="demo__stage is-plain"><div class="xbg-s xbg-s--sm bg-warm xbg-edge">
+    <div class="xbg-head"><img class="ic" data-ic="giftbox" src="../../kit/assets/icons/flat/giftbox.webp" alt=""><div><h3>节日礼盒</h3><span class="tag" data-tone="warning">限量</span></div></div>
+    <div class="xbg-foot"><span class="price"><small>¥</small>259</span><button class="btn btn--accent btn--sm btn--pill" data-xbg-t="已加入购物车">立即选购</button></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="AP-BGND-006" data-name="主色辉光" data-cat="BGND">
+  <div class="demo__head"><span class="demo__name">主色辉光</span></div>
+  <p class="demo__note">适合：个人中心顶部，主色从一角晕开</p>
+  <div class="demo__stage is-plain"><div class="xbg-s bg-glow xbg-edge">
+    <div class="xbg-head"><img class="avatar" src="../../kit/assets/marks/mark-001.webp" alt=""><div><h3>林晓</h3><span class="tag" data-tone="warning">金卡会员</span></div></div>
+    <div class="stats"><div class="stat"><span class="stat__label">积分</span><span class="stat__val">2860</span></div><div class="stat"><span class="stat__label">优惠券</span><span class="stat__val">4<small>张</small></span></div><div class="stat"><span class="stat__label">成长值</span><span class="stat__val">3280</span></div></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="AP-BGND-007" data-name="主色渐变顶部" data-cat="BGND">
+  <div class="demo__head"><span class="demo__name">主色渐变顶部</span></div>
+  <p class="demo__note">适合：首页顶部平面区，白色大标题落在深色一端</p>
+  <div class="demo__stage is-plain"><div class="xbg-s bg-hero xbg-light" style="align-content: start; min-height: 0">
+    <h3 style="font-size: var(--fs-2xl)">把春天带回家</h3>
+    <label class="search"><img src="../../kit/assets/line/search.webp" alt=""><input type="search" placeholder="搜索花束、绿植、礼盒" aria-label="搜索花束、绿植、礼盒" style="color: var(--ink)"></label>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="AP-BGND-008" data-name="深主色渐变" data-cat="BGND">
+  <div class="demo__head"><span class="demo__name">深主色渐变</span></div>
+  <p class="demo__note">适合：品牌主卡与会员卡，白字对比最充足</p>
+  <div class="demo__stage is-plain"><div class="xbg-s bg-hero-deep xbg-light">
+    <div><span class="tag">新人专享</span></div>
+    <div class="xbg-foot"><div><p class="xbg-cap">首单立减</p><span class="xbg-num"><small style="margin: 0 2px 0 0">¥</small>20</span></div><button class="btn btn--white" data-xbg-t="已领取">立即领取</button></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="AP-BGND-009" data-name="花瓣纹理底" data-cat="BGND">
+  <div class="demo__head"><span class="demo__name">花瓣纹理底</span></div>
+  <p class="demo__note">适合：订花、礼品类的分区背景，低对比平铺</p>
+  <div class="demo__stage is-plain"><div class="xbg-s bg-petals xbg-edge">
+    <div class="xbg-copy"><h3>周期订花</h3><div class="xbg-tags"><span class="tag" data-tone="action">每周配送</span><span class="tag" data-tone="action">随时暂停</span></div></div>
+    <div class="xbg-foot"><span class="xbg-chip"><span class="price"><small>¥</small>99</span><span class="t-sub">每期</span></span><button class="btn btn--primary btn--sm btn--pill" data-xbg-t="已加入订阅">去订花</button></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="AP-BGND-010" data-name="绿叶纹理底" data-cat="BGND">
+  <div class="demo__head"><span class="demo__name">绿叶纹理底</span></div>
+  <p class="demo__note">适合：绿植、种苗类的分区背景</p>
+  <div class="demo__stage is-plain"><div class="xbg-s bg-leaves xbg-edge">
+    <div class="xbg-head"><img class="ic" data-ic="plant" src="../../kit/assets/icons/flat/plant.webp" alt=""><div><h3>绿植盆栽</h3><div class="xbg-tags"><span class="tag" data-tone="success">好养</span><span class="tag" data-tone="success">耐阴</span></div></div></div>
+    <div class="xbg-foot"><span class="xbg-chip"><span class="price"><small>¥</small>129</span><span class="t-sub">起</span></span><button class="btn btn--primary btn--sm btn--pill" data-xbg-t="已打开分类">去看看</button></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="AP-BGND-011" data-name="波纹纹理底" data-cat="BGND">
+  <div class="demo__head"><span class="demo__name">波纹纹理底</span></div>
+  <p class="demo__note">适合：养护用品、水培类的清爽分区</p>
+  <div class="demo__stage is-plain"><div class="xbg-s bg-waves xbg-edge">
+    <div class="xbg-head"><img class="ic" data-ic="watering" src="../../kit/assets/icons/flat/watering.webp" alt=""><div><h3>养护用品</h3><div class="xbg-tags"><span class="tag" data-tone="info">喷壶</span><span class="tag" data-tone="info">营养液</span></div></div></div>
+    <div class="xbg-foot"><span class="xbg-chip"><span class="price"><small>¥</small>39</span><span class="t-sub">起</span></span><button class="btn btn--primary btn--sm btn--pill" data-xbg-t="已打开分类">去看看</button></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="AP-BGND-012" data-name="花卉照片背景" data-cat="BGND">
+  <div class="demo__head"><span class="demo__name">花卉照片背景</span></div>
+  <p class="demo__note">适合：专题页头图，内容放在白卡上不压花朵</p>
+  <div class="demo__stage is-plain"><div class="xbg-s bg-photo-floral" style="align-content: end">
+    <div class="xbg-plate"><img src="../../kit/assets/photo/product-peony-pink.webp" alt=""><div><b class="one-line">粉芍药花束</b><span class="price"><small>¥</small>239</span></div></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="AP-BGND-013" data-name="绿叶照片背景" data-cat="BGND">
+  <div class="demo__head"><span class="demo__name">绿叶照片背景</span></div>
+  <p class="demo__note">适合：绿植、春季专题的清新头图</p>
+  <div class="demo__stage is-plain"><div class="xbg-s bg-photo-green" style="align-content: end">
+    <div class="xbg-plate"><img src="../../kit/assets/photo/product-monstera.webp" alt=""><div><b class="one-line">龟背竹盆栽</b><span class="price"><small>¥</small>159</span></div></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="AP-BGND-014" data-name="场景图背景" data-cat="BGND">
+  <div class="demo__head"><span class="demo__name">场景图背景</span></div>
+  <p class="demo__note">适合：活动横幅，文字落在留白的一侧</p>
+  <div class="demo__stage is-plain"><div class="xbg-s bg-photo-scene xbg-scene" style="align-content: center">
+    <div class="xbg-copy"><h3>春日花束</h3><button class="btn btn--primary btn--sm btn--pill" data-xbg-t="已打开活动">去选花</button></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="AP-BGND-015" data-name="浅色遮罩叠图" data-cat="BGND">
+  <div class="demo__head"><span class="demo__name">浅色遮罩叠图</span></div>
+  <p class="demo__note">适合：图片上直接放深色文字，遮罩保证对比度</p>
+  <div class="demo__stage is-plain"><div class="xbg-s bg-photo-floral veil-light">
+    <div class="xbg-copy"><h3>花艺定制</h3><div class="xbg-tags"><span class="tag" data-tone="action">一对一设计</span></div></div>
+    <div class="xbg-foot"><span class="xbg-chip"><span class="price"><small>¥</small>299</span><span class="t-sub">起</span></span><button class="btn btn--primary btn--sm btn--pill" data-xbg-t="已打开定制">去定制</button></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="AP-BGND-016" data-name="主色遮罩叠图" data-cat="BGND">
+  <div class="demo__head"><span class="demo__name">主色遮罩叠图</span></div>
+  <p class="demo__note">适合：图片上放白色文字，顶部遮罩最实</p>
+  <div class="demo__stage is-plain"><div class="xbg-s bg-photo-floral veil-tint xbg-veil xbg-light" style="align-content: space-between">
+    <div class="xbg-copy"><span class="tag">同城 2 小时</span><h3 style="font-size: var(--fs-2xl)">春日鲜花节</h3></div>
+    <div class="xbg-foot" style="justify-content: flex-start"><button class="btn btn--white btn--sm btn--pill" data-xbg-t="已打开活动">去参加</button></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="AP-BGND-017" data-name="主色图案叠加" data-cat="BGND">
+  <div class="demo__head"><span class="demo__name">主色图案叠加</span></div>
+  <p class="demo__note">适合：主色底上加一层花瓣暗纹，增加质感</p>
+  <div class="demo__stage is-plain"><div class="xbg-s bg-hero-deep xbg-deep pattern-over xbg-light">
+    <div class="xbg-copy"><span class="tag">会员日</span><h3>积分翻倍</h3></div>
+    <div class="xbg-foot"><span style="font-size: var(--fs-sm)">金卡会员专享</span><button class="btn btn--white btn--sm btn--pill" data-xbg-t="已参与">去参与</button></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="AP-BGND-018" data-name="辅色强调底" data-cat="BGND">
+  <div class="demo__head"><span class="demo__name">辅色强调底</span></div>
+  <p class="demo__note">适合：会员与活动专区，金色只做点缀</p>
+  <div class="demo__stage is-plain"><div class="xbg-s xbg-s--sm bg-accent xbg-edge">
+    <div class="xbg-head"><img class="ic" data-ic="star" src="../../kit/assets/icons/flat/star.webp" alt=""><div><h3>金卡会员</h3><span class="tag" data-tone="warning">积分 2 倍</span></div></div>
+    <div class="xbg-foot"><span class="t-sub">成长值 3280</span><button class="btn btn--accent btn--sm btn--pill" data-xbg-t="已打开权益">查看权益</button></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="AP-BGND-019" data-name="分区带底" data-cat="BGND">
+  <div class="demo__head"><span class="demo__name">分区带底</span></div>
+  <p class="demo__note">适合：同一页内按主题交替的整行底色</p>
+  <div class="demo__stage is-plain"><div class="xbg-s xbg-edge xbg-flush">
+    <div class="xbg-band bg-surface"><h3>热门分类</h3><div class="xbg-ents"><span><img data-ic="bouquet" src="../../kit/assets/icons/flat/bouquet.webp" alt="">鲜花</span><span><img data-ic="plant" src="../../kit/assets/icons/flat/plant.webp" alt="">绿植</span><span><img data-ic="giftbox" src="../../kit/assets/icons/flat/giftbox.webp" alt="">礼盒</span><span><img data-ic="vase" src="../../kit/assets/icons/flat/vase.webp" alt="">花器</span></div></div>
+    <div class="xbg-band" style="background: var(--zone)"><h3>当季热卖</h3><div class="xbg-two"><div class="card xbg-mini"><img src="../../kit/assets/photo/product-sunflower.webp" alt=""><b class="one-line">向日葵花束</b></div><div class="card xbg-mini"><img src="../../kit/assets/photo/product-tulip-white.webp" alt=""><b class="one-line">白郁金香</b></div></div></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="AP-BGND-020" data-name="卡内浅色底" data-cat="BGND">
+  <div class="demo__head"><span class="demo__name">卡内浅色底</span></div>
+  <p class="demo__note">适合：白卡内部的参数、金额与配送信息分组</p>
+  <div class="demo__stage is-plain"><div class="card" style="width: 100%; max-width: 390px; margin: 0 auto; padding: var(--s-4); display: grid; gap: var(--s-3)">
+    <div class="xbg-head"><img class="row__lead row__lead--lg" src="../../kit/assets/photo/product-giftbox.webp" alt=""><div class="row__main"><p class="row__title">花礼盒</p><span class="price"><small>¥</small>259</span></div></div>
+    <div class="xbg-inset bg-tint"><div class="xbg-kv"><span>配送方式</span><b>同城急送</b></div><div class="xbg-kv"><span>送达时间</span><b>2 小时内</b></div><div class="xbg-kv"><span>配送费</span><b>免运费</b></div></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="AP-BGND-021" data-name="底栏背景" data-cat="BGND">
+  <div class="demo__head"><span class="demo__name">底栏背景</span></div>
+  <p class="demo__note">适合：底部导航与操作栏，不透明并盖住滚动内容</p>
+  <div class="demo__stage is-plain"><div class="xbg-mock bg-page xbg-edge">
+    <div class="xbg-pad"><img src="../../kit/assets/photo/product-rose-red.webp" alt=""><img src="../../kit/assets/photo/product-peony-pink.webp" alt=""><img src="../../kit/assets/photo/product-sunflower.webp" alt=""><img src="../../kit/assets/photo/product-tulip-white.webp" alt=""><img src="../../kit/assets/photo/product-hydrangea-blue.webp" alt=""><img src="../../kit/assets/photo/product-monstera.webp" alt=""></div>
+    <div class="xbg-bar" data-xbg-bar><button aria-current="page"><img src="../../kit/assets/line/home.webp" alt=""><span>首页</span></button><button><img src="../../kit/assets/line/archive.webp" alt=""><span>订单</span></button><button><img src="../../kit/assets/line/user.webp" alt=""><span>我的</span></button></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="AP-BGND-022" data-name="主色顶部叠卡" data-cat="BGND">
+  <div class="demo__head"><span class="demo__name">主色顶部叠卡</span></div>
+  <p class="demo__note">适合：主色顶部区向下延伸，白卡压住分界线</p>
+  <div class="demo__stage is-plain"><div class="xbg-mock xbg-mock--fit bg-page xbg-edge">
+    <div class="xbg-top bg-hero-deep pattern-over xbg-light"><h3>我的订单</h3></div>
+    <div class="xbg-lap card"><div class="stats"><button class="stat" data-xbg-t="待付款 2 单"><span class="stat__label">待付款</span><span class="stat__val">2</span></button><button class="stat" data-xbg-t="待发货 1 单"><span class="stat__label">待发货</span><span class="stat__val">1</span></button><button class="stat" data-xbg-t="待收货 3 单"><span class="stat__label">待收货</span><span class="stat__val">3</span></button></div></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="AP-BGND-023" data-name="弹层遮罩底" data-cat="BGND">
+  <div class="demo__head"><span class="demo__name">弹层遮罩底</span></div>
+  <p class="demo__note">适合：确认框与浮层背后的半透明遮罩</p>
+  <div class="demo__stage is-plain"><div class="xbg-mock xbg-mock--fit bg-page xbg-edge" data-xbg-scrim>
+    <div class="xbg-pad"><img src="../../kit/assets/photo/product-rose-red.webp" alt=""><img src="../../kit/assets/photo/product-succulent.webp" alt=""><img src="../../kit/assets/photo/product-giftbox.webp" alt=""></div>
+    <div class="xbg-page"><button class="btn btn--secondary" data-open-scrim>取消订单</button></div>
+    <div class="xbg-scrim is-on"><div class="card"><b class="dialog__title">确认取消订单</b><div class="btn-group"><button class="btn btn--ghost btn--sm" data-close-scrim>再想想</button><button class="btn btn--danger btn--sm" data-close-scrim>确认取消</button></div></div></div>
+  </div></div>
+</article>
+
+<script>
+(function () {
+  const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  $$('[data-xbg-t]').forEach(b => b.addEventListener('click', () => Lz.toast(b.dataset.xbgT, 'success')));
+  $$('[data-xbg-bar] button').forEach(b => b.addEventListener('click', () => $$('[data-xbg-bar] button').forEach(x => x === b ? x.setAttribute('aria-current', 'page') : x.removeAttribute('aria-current'))));
+  $$('[data-xbg-scrim]').forEach(m => {
+    const scrim = $('.xbg-scrim', m), open = $('[data-open-scrim]', m);
+    open.addEventListener('click', () => { scrim.classList.add('is-on'); $('[data-close-scrim]', m).focus(); });
+    $$('[data-close-scrim]', m).forEach(b => b.addEventListener('click', () => { scrim.classList.remove('is-on'); open.focus(); }));
+    scrim.addEventListener('click', e => { if (e.target === scrim) { scrim.classList.remove('is-on'); open.focus(); } });
+    m.addEventListener('keydown', e => { if (e.key === 'Escape') { scrim.classList.remove('is-on'); open.focus(); } });
+  });
+})();
+</script>
+
+<article class="demo" data-cid="AP-BGND-024" data-name="柔光效果底" data-cat="BGND">
+  <div class="demo__head"><span class="demo__name">柔光效果底</span></div>
+  <p class="demo__note">适合：个人中心、会员页顶部的柔和光晕，不抢内容</p>
+  <div class="demo__stage is-plain"><div class="xbg-s bg-tint bgfx bgfx--glow xbg-edge"><div class="xbg-copy"><h3>春日花礼</h3><p class="t-sub">每周三、周六同城配送</p></div><div class="xbg-foot"><span class="price"><small>¥</small>159</span><button class="btn btn--primary btn--sm btn--pill" data-xbg-t="已打开商品列表">去选花</button></div></div></div>
+</article>
+
+<article class="demo" data-cid="AP-BGND-025" data-name="点阵效果底" data-cat="BGND">
+  <div class="demo__head"><span class="demo__name">点阵效果底</span></div>
+  <p class="demo__note">适合：数据看板、工具页的安静纹理</p>
+  <div class="demo__stage is-plain"><div class="xbg-s bg-tint bgfx bgfx--dots xbg-edge"><div class="xbg-copy"><h3>春日花礼</h3><p class="t-sub">每周三、周六同城配送</p></div><div class="xbg-foot"><span class="price"><small>¥</small>159</span><button class="btn btn--primary btn--sm btn--pill" data-xbg-t="已打开商品列表">去选花</button></div></div></div>
+</article>
+
+<article class="demo" data-cid="AP-BGND-026" data-name="网格效果底" data-cat="BGND">
+  <div class="demo__head"><span class="demo__name">网格效果底</span></div>
+  <p class="demo__note">适合：后台与工具类页头，强调秩序感</p>
+  <div class="demo__stage is-plain"><div class="xbg-s bg-tint bgfx bgfx--grid xbg-edge"><div class="xbg-copy"><h3>春日花礼</h3><p class="t-sub">每周三、周六同城配送</p></div><div class="xbg-foot"><span class="price"><small>¥</small>159</span><button class="btn btn--primary btn--sm btn--pill" data-xbg-t="已打开商品列表">去选花</button></div></div></div>
+</article>
+
+<article class="demo" data-cid="AP-BGND-027" data-name="斜纹效果底" data-cat="BGND">
+  <div class="demo__head"><span class="demo__name">斜纹效果底</span></div>
+  <p class="demo__note">适合：活动与促销的轻动感底纹</p>
+  <div class="demo__stage is-plain"><div class="xbg-s bg-tint bgfx bgfx--lines xbg-edge"><div class="xbg-copy"><h3>春日花礼</h3><p class="t-sub">每周三、周六同城配送</p></div><div class="xbg-foot"><span class="price"><small>¥</small>159</span><button class="btn btn--primary btn--sm btn--pill" data-xbg-t="已打开商品列表">去选花</button></div></div></div>
+</article>
+
+<article class="demo" data-cid="AP-BGND-028" data-name="同心圆效果底" data-cat="BGND">
+  <div class="demo__head"><span class="demo__name">同心圆效果底</span></div>
+  <p class="demo__note">适合：品牌卡、会员卡的角落点缀</p>
+  <div class="demo__stage is-plain"><div class="xbg-s bg-tint bgfx bgfx--rings xbg-edge"><div class="xbg-copy"><h3>春日花礼</h3><p class="t-sub">每周三、周六同城配送</p></div><div class="xbg-foot"><span class="price"><small>¥</small>159</span><button class="btn btn--primary btn--sm btn--pill" data-xbg-t="已打开商品列表">去选花</button></div></div></div>
+</article>
+
+<article class="demo" data-cid="AP-BGND-029" data-name="跟随全局效果底" data-cat="BGND">
+  <div class="demo__head"><span class="demo__name">跟随全局效果底</span></div>
+  <p class="demo__note">适合：页头与大卡随外壳的背景选项一起换</p>
+  <div class="demo__stage is-plain"><div class="xbg-s bg-tint bgfx xbg-edge"><div class="xbg-copy"><h3>春日花礼</h3><p class="t-sub">每周三、周六同城配送</p></div><div class="xbg-foot"><span class="price"><small>¥</small>159</span><button class="btn btn--primary btn--sm btn--pill" data-xbg-t="已打开商品列表">去选花</button></div></div></div>
+</article>
+
+<style>
+/* 新增背景：安全区垫 xbg-sf、边缘渐隐 xbg-fd、水印层 xbg-wm */
+.xbg-sf { display: grid; justify-items: center; gap: var(--s-3); }
+.xbg-sf__phone { display: flex; flex-direction: column; width: 100%; max-width: 390px; height: 292px; border-radius: var(--r-lg); overflow: hidden; border: 1px solid var(--line-strong); background: var(--bg); }
+.xbg-sf__scroll { flex: 1; min-height: 0; padding: var(--s-3); overflow-y: auto; scrollbar-width: none; }
+.xbg-sf__scroll::-webkit-scrollbar { display: none; }
+.xbg-sf__scroll .card { box-shadow: none; }
+.xbg-sf__bar { flex: none; background: var(--surface); border-top: 1px solid var(--line); }
+.xbg-sf__acts { display: flex; gap: var(--s-3); padding: var(--s-3) var(--s-4); }
+.xbg-sf__acts .btn { flex: 1; }
+.xbg-sf__acts .btn--primary { flex: 1.3; }
+.xbg-sf__pad { position: relative; display: grid; place-items: center; height: var(--pad, 34px); overflow: hidden; transition: height var(--dur-base) var(--ease-out), background var(--dur-base) var(--ease-out); }
+.xbg-sf__pad i { width: 120px; height: 4px; border-radius: 2px; background: color-mix(in srgb, var(--ink) 30%, transparent); }
+.xbg-sf__pad span { position: absolute; left: var(--s-4); top: 50%; transform: translateY(-50%); font-size: var(--fs-xs); font-weight: 600; color: var(--action-press); opacity: 0; transition: opacity var(--dur-base) var(--ease-out); }
+.xbg-sf[data-mode="off"] { --pad: 0px; }
+.xbg-sf[data-mode="mark"] .xbg-sf__pad { background: var(--action-soft); box-shadow: inset 0 1px 0 var(--action-edge); }
+.xbg-sf[data-mode="mark"] .xbg-sf__pad span { opacity: 1; }
+
+/* 横滑边缘渐隐：遮罩随滚动位置显隐 */
+@property --xbg-fl { syntax: '<length>'; inherits: false; initial-value: 0px; }
+@property --xbg-fr { syntax: '<length>'; inherits: false; initial-value: 0px; }
+.xbg-fd { display: grid; gap: var(--s-4); width: 100%; max-width: 390px; margin: 0 auto; padding: var(--s-4) 0; overflow: hidden; }
+.xbg-fd__sc { --xbg-fl: 0px; --xbg-fr: 0px; -webkit-mask-image: linear-gradient(90deg, transparent 0, var(--ink) var(--xbg-fl), var(--ink) calc(100% - var(--xbg-fr)), transparent 100%); mask-image: linear-gradient(90deg, transparent 0, var(--ink) var(--xbg-fl), var(--ink) calc(100% - var(--xbg-fr)), transparent 100%); transition: --xbg-fl var(--dur-base) var(--ease-out), --xbg-fr var(--dur-base) var(--ease-out); cursor: grab; }
+.xbg-fd__sc.has-l { --xbg-fl: 36px; }
+.xbg-fd__sc.has-r { --xbg-fr: 36px; }
+.xbg-fd__sc.is-drag { cursor: grabbing; scroll-snap-type: none; }
+.xbg-fd .seg { padding: 2px var(--s-4); }
+.xbg-fd .seg__item[aria-pressed="true"] { background: var(--action); color: var(--surface); font-weight: 600; }
+.xbg-fd__row { display: flex; gap: var(--s-3); padding: 2px var(--s-4); overflow-x: auto; scrollbar-width: none; scroll-snap-type: x proximity; scroll-padding-inline: var(--s-4); }
+.xbg-fd__row::-webkit-scrollbar { display: none; }
+.xbg-fd__it { flex: none; display: grid; gap: 4px; width: 116px; text-align: left; scroll-snap-align: start; }
+.xbg-fd__it img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: var(--r-md); pointer-events: none; }
+.xbg-fd__it b { font-size: var(--fs-sm); font-weight: 600; line-height: var(--lh-tight); }
+
+/* 页面水印层：画布生成平铺图，叠在内容之上并放行点击 */
+.xbg-wm { display: grid; justify-items: center; gap: var(--s-3); }
+.xbg-wm__page { position: relative; display: grid; gap: var(--s-3); width: 100%; max-width: 390px; padding: var(--s-4); overflow: hidden; }
+.xbg-wm__layer { position: absolute; inset: 0; z-index: 2; pointer-events: none; background-repeat: repeat; transition: opacity var(--dur-base) var(--ease-out); }
+.xbg-wm[data-mode="off"] .xbg-wm__layer { opacity: 0; }
+.xbg-wm__head { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); }
+.xbg-wm__head b { font-size: var(--fs-lg); font-weight: 600; line-height: var(--lh-tight); }
+.xbg-wm__kv { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); min-height: 32px; font-size: var(--fs-sm); color: var(--ink-2); }
+.xbg-wm__kv b { font-weight: 600; color: var(--ink); text-align: right; }
+.xbg-wm__kv .btn--text { min-height: 28px; padding: 0 var(--s-1); }
+.xbg-wm__phone { display: inline-flex; align-items: center; gap: var(--s-1); }
+.xbg-wm__acts { display: flex; gap: var(--s-2); padding-top: var(--s-1); }
+</style>
+
+<article class="demo" data-cid="AP-BGND-030" data-name="底部安全区垫" data-cat="BGND">
+  <div class="demo__head"><span class="demo__name">底部安全区垫</span></div>
+  <p class="demo__note">适合：底栏与固定按钮下方留出手势区并保持底色连续</p>
+  <div class="demo__stage is-plain"><div class="xbg-sf" data-xbg-safe data-mode="on">
+    <div class="seg seg--box" data-seg="xbg-sf" aria-label="安全区显示"><button class="seg__item" data-key="off" aria-selected="false">无</button><button class="seg__item" data-key="on" aria-selected="true">留出</button><button class="seg__item" data-key="mark" aria-selected="false">标出</button></div>
+    <div class="xbg-sf__phone">
+      <div class="xbg-sf__scroll"><div class="card list">
+        <div class="row"><img class="row__lead row__lead--lg" src="../../kit/assets/photo/product-rose-red.webp" alt=""><div class="row__main"><p class="row__title one-line">红玫瑰花束</p><p class="row__meta">已售 3260 件</p></div><div class="row__trail"><span class="price"><small>¥</small>199</span></div></div>
+        <div class="row"><img class="row__lead row__lead--lg" src="../../kit/assets/photo/product-peony-pink.webp" alt=""><div class="row__main"><p class="row__title one-line">粉芍药花束</p><p class="row__meta">已售 1980 件</p></div><div class="row__trail"><span class="price"><small>¥</small>239</span></div></div>
+        <div class="row"><img class="row__lead row__lead--lg" src="../../kit/assets/photo/product-sunflower.webp" alt=""><div class="row__main"><p class="row__title one-line">向日葵花束</p><p class="row__meta">已售 960 件</p></div><div class="row__trail"><span class="price"><small>¥</small>159</span></div></div>
+        <div class="row"><img class="row__lead row__lead--lg" src="../../kit/assets/photo/product-tulip-white.webp" alt=""><div class="row__main"><p class="row__title one-line">白郁金香</p><p class="row__meta">已售 1230 件</p></div><div class="row__trail"><span class="price"><small>¥</small>179</span></div></div>
+        <div class="row"><img class="row__lead row__lead--lg" src="../../kit/assets/photo/product-monstera.webp" alt=""><div class="row__main"><p class="row__title one-line">龟背竹盆栽</p><p class="row__meta">已售 2860 件</p></div><div class="row__trail"><span class="price"><small>¥</small>159</span></div></div>
+      </div></div>
+      <div class="xbg-sf__bar"><div class="xbg-sf__acts"><button class="btn btn--secondary" data-xbg-t="已加入购物车">加入购物车</button><button class="btn btn--primary" data-xbg-t="订单已提交">立即购买</button></div><div class="xbg-sf__pad"><span>手势区</span><i></i></div></div>
+    </div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="AP-BGND-031" data-name="横滑边缘渐隐" data-cat="BGND">
+  <div class="demo__head"><span class="demo__name">横滑边缘渐隐</span></div>
+  <p class="demo__note">适合：横向滚动区边缘渐隐提示可继续滑动</p>
+  <div class="demo__stage is-plain"><div class="card xbg-fd">
+    <div class="seg xbg-fd__sc" data-xbg-fade data-xbg-chips role="group" aria-label="花材分类">
+      <button class="seg__item" aria-pressed="true">全部</button><button class="seg__item" aria-pressed="false">玫瑰</button><button class="seg__item" aria-pressed="false">芍药</button><button class="seg__item" aria-pressed="false">向日葵</button><button class="seg__item" aria-pressed="false">郁金香</button><button class="seg__item" aria-pressed="false">绣球</button><button class="seg__item" aria-pressed="false">尤加利</button><button class="seg__item" aria-pressed="false">洋桔梗</button>
+    </div>
+    <div class="xbg-fd__row xbg-fd__sc" data-xbg-fade tabindex="0" role="region" aria-label="当季商品横向列表">
+      <button class="xbg-fd__it" data-xbg-t="已打开红玫瑰花束"><img src="../../kit/assets/photo/product-rose-red.webp" alt=""><b class="one-line">红玫瑰花束</b><span class="price"><small>¥</small>199</span></button>
+      <button class="xbg-fd__it" data-xbg-t="已打开粉芍药花束"><img src="../../kit/assets/photo/product-peony-pink.webp" alt=""><b class="one-line">粉芍药花束</b><span class="price"><small>¥</small>239</span></button>
+      <button class="xbg-fd__it" data-xbg-t="已打开向日葵花束"><img src="../../kit/assets/photo/product-sunflower.webp" alt=""><b class="one-line">向日葵花束</b><span class="price"><small>¥</small>159</span></button>
+      <button class="xbg-fd__it" data-xbg-t="已打开白郁金香"><img src="../../kit/assets/photo/product-tulip-white.webp" alt=""><b class="one-line">白郁金香</b><span class="price"><small>¥</small>179</span></button>
+      <button class="xbg-fd__it" data-xbg-t="已打开蓝绣球盆栽"><img src="../../kit/assets/photo/product-hydrangea-blue.webp" alt=""><b class="one-line">蓝绣球盆栽</b><span class="price"><small>¥</small>129</span></button>
+      <button class="xbg-fd__it" data-xbg-t="已打开龟背竹盆栽"><img src="../../kit/assets/photo/product-monstera.webp" alt=""><b class="one-line">龟背竹盆栽</b><span class="price"><small>¥</small>159</span></button>
+      <button class="xbg-fd__it" data-xbg-t="已打开多肉组合盆"><img src="../../kit/assets/photo/product-succulent.webp" alt=""><b class="one-line">多肉组合盆</b><span class="price"><small>¥</small>89</span></button>
+      <button class="xbg-fd__it" data-xbg-t="已打开花礼盒"><img src="../../kit/assets/photo/product-giftbox.webp" alt=""><b class="one-line">花礼盒</b><span class="price"><small>¥</small>259</span></button>
+    </div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="AP-BGND-032" data-name="页面水印层" data-cat="BGND">
+  <div class="demo__head"><span class="demo__name">页面水印层</span></div>
+  <p class="demo__note">适合：员工端防泄露，水印文字为账号尾号</p>
+  <div class="demo__stage is-plain"><div class="xbg-wm" data-xbg-wm data-mode="std" data-text="账号尾号 6620">
+    <div class="seg seg--box" data-seg="xbg-wm" aria-label="水印密度"><button class="seg__item" data-key="off" aria-selected="false">无</button><button class="seg__item" data-key="std" aria-selected="true">标准</button><button class="seg__item" data-key="dense" aria-selected="false">密集</button></div>
+    <div class="card xbg-wm__page">
+      <div class="xbg-wm__head"><b>订单 8820</b><span class="tag" data-tone="info">待发货</span></div>
+      <div class="xbg-wm__kv"><span>客户</span><b>林**</b></div>
+      <div class="xbg-wm__kv"><span>手机号</span><span class="xbg-wm__phone"><b data-wm-phone>138 **** 6620</b> <button class="btn btn--text" aria-pressed="false" data-wm-eye>查看</button></span></div>
+      <div class="xbg-wm__kv"><span>收货地址</span><b class="one-line">浦东新区世纪大道 88 号</b></div>
+      <div class="xbg-wm__kv"><span>订单金额</span><span class="price"><small>¥</small>288</span></div>
+      <div class="xbg-wm__acts"><button class="btn btn--outline btn--sm" data-xbg-t="已打印面单">打印面单</button><button class="btn btn--primary btn--sm" data-wm-export>导出订单</button></div>
+      <div class="xbg-wm__layer" aria-hidden="true"></div>
+    </div>
+  </div></div>
+</article>
+
+<script>
+(function () {
+  const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+
+  /* 底部安全区垫：无 留出 标出 三档，底栏底色一直延伸到屏幕底 */
+  $$('[data-xbg-safe]').forEach(w => w.addEventListener('lz:seg', e => { w.dataset.mode = e.detail.key; }));
+
+  /* 横滑边缘渐隐：左右遮罩按滚动位置显隐，鼠标可按住拖动 */
+  $$('[data-xbg-fade]').forEach(sc => {
+    const sync = () => { sc.classList.toggle('has-l', sc.scrollLeft > 2); sc.classList.toggle('has-r', sc.scrollLeft + sc.clientWidth < sc.scrollWidth - 2); };
+    sc.addEventListener('scroll', sync, { passive: true }); new ResizeObserver(sync).observe(sc); sync();
+    let d = null, moved = false;
+    sc.addEventListener('pointerdown', e => { if (e.pointerType === 'mouse') { d = { x: e.clientX, l: sc.scrollLeft, id: e.pointerId }; moved = false; } });
+    sc.addEventListener('pointermove', e => {
+      if (!d) return; const dx = e.clientX - d.x;
+      if (!moved && Math.abs(dx) > 4) { moved = true; sc.classList.add('is-drag'); sc.setPointerCapture(d.id); }
+      if (moved) sc.scrollLeft = d.l - dx;
+    });
+    const end = () => { d = null; sc.classList.remove('is-drag'); setTimeout(() => { moved = false; }, 0); };
+    sc.addEventListener('pointerup', end); sc.addEventListener('pointercancel', end);
+    sc.addEventListener('click', e => { if (moved) { e.preventDefault(); e.stopPropagation(); moved = false; } }, true);
+    if (sc.hasAttribute('data-xbg-chips')) $$('button', sc).forEach(b => b.addEventListener('click', () => $$('button', sc).forEach(x => x.setAttribute('aria-pressed', String(x === b)))));
+  });
+
+  /* 页面水印层：用画布画一块带角度的文字平铺，颜色取令牌，主题变化后重画 */
+  $$('[data-xbg-wm]').forEach(w => {
+    const layer = $('.xbg-wm__layer', w), text = w.dataset.text, tint = document.createElement('i');
+    tint.style.cssText = 'position:absolute;width:0;height:0;color:var(--ink)'; w.appendChild(tint);
+    const draw = () => {
+      const dense = w.dataset.mode === 'dense', tw = dense ? 124 : 168, th = dense ? 76 : 104, dpr = Math.max(2, devicePixelRatio || 1);
+      const c = document.createElement('canvas'); c.width = tw * dpr; c.height = th * dpr; const x = c.getContext('2d');
+      x.scale(dpr, dpr); x.translate(tw / 2, th / 2); x.rotate(-Math.PI / 9); x.globalAlpha = .16; x.fillStyle = getComputedStyle(tint).color;
+      x.font = `600 ${dense ? 12 : 14}px ${getComputedStyle(document.body).fontFamily}`; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(text, 0, 0);
+      layer.style.backgroundImage = `url(${c.toDataURL()})`; layer.style.backgroundSize = `${tw}px ${th}px`;
+    };
+    w.addEventListener('lz:seg', e => { w.dataset.mode = e.detail.key; if (e.detail.key !== 'off') draw(); });
+    document.addEventListener('lz:skin', draw); draw();
+    const eye = $('[data-wm-eye]', w), phone = $('[data-wm-phone]', w);
+    eye.addEventListener('click', () => { const on = eye.getAttribute('aria-pressed') !== 'true'; eye.setAttribute('aria-pressed', String(on)); eye.textContent = on ? '隐藏' : '查看'; phone.textContent = on ? '13800006620' : '138 **** 6620'; });
+    $('[data-wm-export]', w).addEventListener('click', () => Lz.toast('已记录导出 账号尾号 6620', 'success'));
+  });
+})();
+</script>

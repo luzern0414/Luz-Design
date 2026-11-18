@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="zh-CN" data-ic-base="../../../../kit/assets/icons">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>节日礼盒手机长图</title>
+<link rel="icon" href="../../../../kit/assets/icons/flat/bouquet.webp">
+<link rel="stylesheet" href="../../../../kit/tokens.css">
+<style>
+:root { --pw: 1080px; --ph: 1920px; }
+/* 海报画布与预览：画布大小写死，页面按视口缩放预览；地址加 ?export=1 去掉缩放与外框，用于导出 */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; }
+body { background: color-mix(in srgb, var(--ink) 12%, var(--bg)); font: 400 16px/1.5 var(--font); color: var(--ink); -webkit-font-smoothing: antialiased; }
+.pv { min-height: 100vh; display: grid; place-items: center; padding: 24px; }
+.pv__fit { --k: 1; position: relative; width: calc(var(--pw) * var(--k)); height: calc(var(--ph) * var(--k)); box-shadow: var(--elev-3); }
+.poster { position: absolute; left: 0; top: 0; width: var(--pw); height: var(--ph); overflow: hidden; transform: scale(var(--k)); transform-origin: 0 0; background: var(--bg); color: var(--ink); font-family: var(--font); line-height: 1.3; text-rendering: optimizeLegibility; }
+.poster *, .poster *::before, .poster *::after { margin: 0; padding: 0; }
+.poster img { display: block; }
+.poster h1, .poster h2, .poster h3, .poster p { font-weight: inherit; }
+.x-tex { position: absolute; inset: 0; background: url(../../../../kit/assets/photo/pattern-petals.webp) 0 0 / 520px; opacity: .45; pointer-events: none; }
+.x-nw { white-space: nowrap; }
+.is-export body, .is-export { background: transparent; }
+.is-export .pv { display: block; min-height: 0; padding: 0; }
+.is-export .pv__fit { --k: 1; box-shadow: none; }
+.marks i { position: absolute; background: var(--ink-2); }
+@media print { html, body { background: none; } .pv { display: block; min-height: 0; padding: 0; } .pv__fit { --k: 1; box-shadow: none; } .marks { display: none; } }
+
+/* ── 本海报 ── */
+.p4 { position: absolute; inset: 0; background: var(--bg); }
+.p4 .hero { position: absolute; left: 0; top: 0; width: 1080px; height: 600px; }
+.p4 .hero img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 35%; -webkit-mask-image: linear-gradient(180deg, black 36%, transparent 84%); mask-image: linear-gradient(180deg, black 36%, transparent 84%); }
+.p4 .tagrow { position: absolute; left: 72px; top: 72px; display: flex; align-items: center; gap: 16px; font-size: 32px; font-weight: 600; color: var(--action-press); letter-spacing: .2em; }
+.p4 .tagrow::before { content: ""; width: 56px; height: 3px; background: var(--action-press); }
+.p4 .title { position: absolute; left: 72px; top: 408px; font-size: 136px; font-weight: 700; letter-spacing: .01em; line-height: 1.1; white-space: nowrap; }
+.p4 .title b { color: var(--action); font-weight: 700; }
+.p4 .sub { position: absolute; left: 76px; top: 566px; font-size: 40px; font-weight: 500; color: var(--ink-2); letter-spacing: .08em; white-space: nowrap; }
+.p4 .h2 { position: absolute; left: 72px; top: 690px; display: flex; align-items: center; gap: 20px; font-size: 56px; font-weight: 700; letter-spacing: .06em; white-space: nowrap; }
+.p4 .h2::before { content: ""; width: 12px; height: 52px; background: var(--accent); border-radius: 6px; }
+.p4 .rows { position: absolute; left: 72px; right: 72px; top: 790px; }
+.p4 .row { height: 240px; display: flex; align-items: center; gap: 40px; border-top: 2px solid var(--line-strong); }
+.p4 .row:last-child { border-bottom: 2px solid var(--line-strong); }
+.p4 .row.r { flex-direction: row-reverse; }
+.p4 .ph { flex: none; width: 196px; height: 196px; border-radius: 98px; overflow: hidden; background: var(--action-tint); }
+.p4 .ph img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.1); }
+.p4 .info { flex: 1; min-width: 0; }
+.p4 .row.r .info { text-align: right; }
+.p4 .info h3 { font-size: 48px; font-weight: 600; letter-spacing: .04em; }
+.p4 .info p { margin-top: 10px; font-size: 32px; color: var(--ink-2); }
+.p4 .info .price { margin-top: 10px; font-size: 64px; font-weight: 700; color: var(--price); line-height: 1; font-variant-numeric: tabular-nums; }
+.p4 .info .price small { font-size: 32px; font-weight: 600; margin-right: 2px; }
+.p4 .serv { position: absolute; left: 72px; right: 72px; top: 1568px; display: grid; grid-template-columns: repeat(3, 1fr); text-align: center; }
+.p4 .serv img { width: 84px; height: 84px; margin: 0 auto 10px; }
+.p4 .serv p { font-size: 34px; font-weight: 600; letter-spacing: .06em; }
+.p4 .foot { position: absolute; left: 0; right: 0; bottom: 0; height: 176px; background: var(--action-tint); display: flex; align-items: center; justify-content: space-between; padding: 0 72px; }
+.p4 .foot h4 { font-size: 40px; font-weight: 700; letter-spacing: .06em; color: var(--action-press); }
+.p4 .foot p { margin-top: 6px; font-size: 30px; color: var(--ink-2); }
+.p4 .qr { width: 132px; height: 132px; border: 4px dashed var(--action); border-radius: 12px; display: grid; place-content: center; font-size: 38px; font-weight: 700; letter-spacing: .1em; text-indent: .1em; color: var(--action-press); }
+</style>
+</head>
+<body>
+<div class="pv"><div class="pv__fit">
+<main class="poster" id="poster" data-cid="PS-004" data-name="节日礼盒手机长图" data-size="1080×1920" data-use="节日">
+<div class="p4">
+  <div class="hero"><img src="../../../../kit/assets/photo/bg-floral.webp" alt="粉芍药与白色花朵"></div>
+  <div class="tagrow">节日礼盒</div>
+  <h1 class="title">节日礼盒<b>预订</b></h1>
+  <p class="sub">三款人气礼盒 同城两小时送达</p>
+  <h2 class="h2">礼盒三选</h2>
+  <div class="rows">
+    <div class="row"><div class="ph"><img src="../../../../kit/assets/photo/product-giftbox.webp" alt="花礼盒"></div><div class="info"><h3>花礼盒</h3><p>鲜花 牛皮纸盒 缎带</p><div class="price"><small>¥</small>259</div></div></div>
+    <div class="row r"><div class="ph"><img src="../../../../kit/assets/photo/product-peony-pink.webp" alt="粉芍药花束"></div><div class="info"><h3>粉芍药花束</h3><p>芍药 尤加利 手工包装</p><div class="price"><small>¥</small>239</div></div></div>
+    <div class="row"><div class="ph"><img src="../../../../kit/assets/photo/product-pampas-vase.webp" alt="干花花瓶摆件"></div><div class="info"><h3>干花花瓶摆件</h3><p>蒲苇干花 陶瓷花瓶</p><div class="price"><small>¥</small>129</div></div></div>
+  </div>
+  <div class="serv">
+    <div><img data-ic="scooter" src="../../../../kit/assets/icons/flat/scooter.webp" alt=""><p>极速配送</p></div>
+    <div><img data-ic="giftcard" src="../../../../kit/assets/icons/flat/giftcard.webp" alt=""><p>免费贺卡</p></div>
+    <div><img data-ic="pin" src="../../../../kit/assets/icons/flat/pin.webp" alt=""><p>到店自提</p></div>
+  </div>
+  <div class="foot"><div><h4>花间集</h4><p>建国路店 徐汇滨江店 浦东世纪店</p></div><div class="qr">扫码</div></div>
+</div>
+</main>
+</div></div>
+<script src="../../../../kit/ui.js"></script>
+<script>
+(function () {
+  var q = new URLSearchParams(location.search), root = document.documentElement;
+  if (q.get('export') === '1') root.classList.add('is-export');
+  if (q.get('bleed') === '1') root.classList.add('is-bleed');
+  var p = document.getElementById('poster'), fit = p.parentNode;
+  function fitIt() {
+    if (root.classList.contains('is-export')) { fit.style.setProperty('--k', 1); return; }
+    var k = Math.min((innerWidth - 48) / p.offsetWidth, (innerHeight - 48) / p.offsetHeight, 1);
+    fit.style.setProperty('--k', Math.max(k, 0.05));
+  }
+  addEventListener('resize', fitIt); fitIt();
+  var pg = document.createElement('style');
+  pg.textContent = '@page{size:' + p.offsetWidth + 'px ' + p.offsetHeight + 'px;margin:0}';
+  document.head.appendChild(pg);
+  if (root.classList.contains('is-bleed') && !root.classList.contains('is-export')) {
+    var m = document.createElement('div'); m.className = 'marks'; m.setAttribute('aria-hidden', 'true');
+    var b = parseFloat(getComputedStyle(p).getPropertyValue('--bleed')) || 11.34, L = 20, G = 4;
+    var W = p.offsetWidth, H = p.offsetHeight;
+    [[0, 0], [1, 0], [0, 1], [1, 1]].forEach(function (c) {
+      var x = c[0] ? W - b : b, y = c[1] ? H - b : b;
+      var v = [x - 0.5, c[1] ? H + G : -G - L, 1, L], h = [c[0] ? W + G : -G - L, y - 0.5, L, 1];
+      [v, h].forEach(function (r) {
+        var i = document.createElement('i'); i.style.cssText = 'left:' + r[0] + 'px;top:' + r[1] + 'px;width:' + r[2] + 'px;height:' + r[3] + 'px';
+        m.appendChild(i);
+      });
+    });
+    m.style.cssText = 'position:absolute;left:0;top:0;width:' + W + 'px;height:' + H + 'px;transform:scale(var(--k));transform-origin:0 0;pointer-events:none';
+    fit.appendChild(m);
+  }
+})();
+</script>
+</body>
+</html>

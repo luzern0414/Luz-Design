@@ -1,72 +1,260 @@
 {
   "schema_version": "1.0",
   "skill": "luz-design",
-  "note_command": "py -X utf8 scripts/experience.py note --kind preference|lesson|fact --key <主题> --text \"<一句话原则>\" [--why \"<依据>\"]",
+  "note_command": "py -X utf8 scripts/experience.py note --kind preference|lesson|fact --key <主题> --scope app|web|ui|poster|documents|shared|project --text \"<原则>\" --why \"<范围、依据与复核条件>\"",
   "fact_examples": "有效的设计做法（配色取阶、版式、字阶、参考了哪家组件库的哪个组件）、调研来源与范围（哪些站点或资料有效、哪些无效、用的关键词）、生成参数",
-  "always": [],
+  "always": [
+    {
+      "page": "design/hard-rules.md",
+      "path": [],
+      "title": "成品要求"
+    }
+  ],
   "cards": {
     "xlsx": {
       "title": "表格文件（Excel，含系统导出）",
       "summary": "清单、报价单、确认表、台账、验收表、导出数据；版式固定：宋体、12 磅、黑字、淡色底区分类别、细黑边框",
-      "keywords": ["表格", "Excel", "xlsx", "导出", "合并", "报价", "报价单", "清单", "台账", "确认表"],
+      "keywords": [
+        "表格",
+        "Excel",
+        "xlsx",
+        "导出",
+        "合并",
+        "报价",
+        "报价单",
+        "清单",
+        "台账",
+        "确认表"
+      ],
       "sections": [
-        {"page": "file-design.html", "title": "文件设计规范", "path": ["核心规则", "所有格式的共同底线"]},
-        {"page": "file-design.html", "title": "文件设计规范", "path": ["核心规则", "表格文件"]},
-        {"page": "file-design.html", "title": "文件设计规范", "path": ["案例样本", "单工作表表格"]}
+        {
+          "page": "document-evidence.md",
+          "title": "文档证据合同",
+          "path": [
+            "内容与引用"
+          ],
+          "label": "document-evidence.md › 内容与引用"
+        },
+        {
+          "page": "file-design.html",
+          "title": "文件设计规范",
+          "path": [
+            "核心规则",
+            "所有格式的共同底线"
+          ]
+        },
+        {
+          "page": "file-design.html",
+          "title": "文件设计规范",
+          "path": [
+            "核心规则",
+            "表格文件"
+          ]
+        },
+        {
+          "page": "file-design.html",
+          "title": "文件设计规范",
+          "path": [
+            "案例样本",
+            "单工作表表格"
+          ]
+        }
       ],
       "tools": [
         "先写描述文件 spec.json，再运行 `py -X utf8 scripts/make_xlsx.py spec.json <输出.xlsx>`；脚本写完会自动检查，有 ERROR 就改到通过",
         "要放进会话时：`py -X utf8 scripts/new_session.py --name \"<名称>\" --modes document --card xlsx`；描述文件留在 `raw/03-documents/`，成品检查通过后用 `py -X utf8 scripts/deliver.py <会话目录> <成品>` 放进会话根目录，再用 `make_summary.py` 生成列出它的汇总页（项目任务加 `--project`，成品写进项目的 docs，见 SKILL.md Sessions）",
-        "版式固定，不按主题换色：宋体（用户要求时微软雅黑，全簿一个字体族），标题为正文加 4 磅（默认 16 磅）粗体居中，`subtitle` 一行副标题（写给谁、版本、日期、金额口径、颜色含义），表头蓝灰底；文字一律黑色，颜色只做底色：`tint_by` 指定一列，每个取值依次取六种淡色铺整行，`highlight` 把需要多看一眼的行（可选、新增）数据格铺黄色；所有边框细黑线，关闭网格线；`theme` 只为兼容保留",
-        "列类型：`text`、`longtext`、`money`（#,##0.00）、`days`（0.0，工时）、`number`、`decimal`、`percent`、`date`；名称列自动粗体左对齐，数字右对齐；类型这类标签列写 `\"tags\": [\"基础\", \"可选\"]`，值加粗，颜色由整行底色表达，文字仍是黑色",
+        "版式固定，不按主题换色：宋体（用户要求时微软雅黑，全簿一个字体族），标题为正文加 4 磅（默认 16 磅）粗体居中，不使用副标题；必要日期与口径属于真实数据字段，不能作为标题周围说明，表头蓝灰底；文字一律黑色，颜色只做底色：`tint_by` 指定一列，每个取值依次取六种淡色铺整行，`highlight` 把需要多看一眼的行（可选、新增）数据格铺黄色；所有边框细黑线，关闭网格线；`theme` 只为兼容保留",
+        "列类型：`text`、`longtext`、`money`（#,##0.00）、`days`（0.0，工时）、`number`、`decimal`、`percent`、`date`（`money` 与 `days` 只在项目要求报价或工时时才用，默认不存在）；名称列自动粗体左对齐，数字右对齐；类型这类标签列写 `\"tags\": [\"基础\", \"可选\"]`，值加粗，颜色由整行底色表达，文字仍是黑色",
         "行高按最长一格的行数算（每行字号的 1.5 倍加字号 0.6 倍的边距，12 磅字单行 25、两行 43、三行 61，换行符另起一行），所有文本列自动换行，工作簿默认字体与单元格同一字体族；不要手工把行高改小",
         "需要更大的字号时在 spec 里写 `font_size`（10–14 磅）；行高、列宽和裁切检查都随字号计算，不要手工放大单元格字体",
         "分组列（使用端、角色、模块、分类、子类这类连续重复的列）排在名称前，按大组到小组排，并纵向合并：spec 里写 `group_by: [\"使用端\", \"使用角色\", \"功能模块\"]`；要拆成多个工作表时写 `sheets`（只在用户要求时）",
-        "表下方的汇总行写 `footer`：每行标签含“小计”“合计”或“总计”，值写在对应列；小计极浅蓝灰底，合计蓝灰底，都加粗"
+        "表下方的汇总行写 `footer`：每行标签含“小计”“合计”或“总计”，值写在对应列；小计极浅蓝灰底，合计蓝灰底，都加粗（默认没有汇总行：金额、单价、小计、合计、报价与工时只在项目明确要求时才有，描述文件用 `estimate` 声明并带证据，报价数字只来自人工提供的报价单；没有 `estimate` 时 `check_document.py` 对这些表头与汇总标签报错，`--allow quote`、`--allow workdays` 由持有证据的人放行，agent 不得自拟任何单价或金额，示例里一律用占位）"
       ],
       "checks": [
         "`py -X utf8 scripts/check_document.py <输出.xlsx>` 零 ERROR",
-        "用 WPS 或 Excel 打开实物核对：标题居中粗体、表头蓝灰底、类别淡色底、文字全黑、名称列粗体、金额右对齐、冻结表头、打印为 A4 一页宽并重复表头、页脚有页码",
+        "用 WPS 或 Excel 打开实物核对：标题居中粗体、表头蓝灰底、类别淡色底、文字全黑、名称列粗体、数值列右对齐、冻结表头、打印为 A4 一页宽并重复表头、页脚有页码",
         "`check_document.py` 会报告被裁切的文字、不属于宋体或微软雅黑的单元格（含空的填写格和默认样式）、全簿混用两种字体、小于 10 磅的字、一列混用的对齐；仍要在 WPS 或 Excel 里看每个换行单元格的最后一行是否完整",
         "`check_document.py` 会报告：分组列排在编号列之后、小组排在包含它的大组之前、相同文字连续出现却没有合并（上级换组处除外）；小计与合计行不参与这些检查"
-      ]
+      ],
+      "experience_scope": "documents"
     },
     "docx": {
       "title": "文字文档（Word：方案书、合同、报告、纪要、制度、公文；给客户的正式文档）",
       "summary": "先定文档类型再排版；交给客户的方案书、使用说明、报告按“客户正式文档”：封面、目录、页眉标题、页脚页码居中、全黑白、表题在上、跨页续表，PDF 由 Word 导出",
-      "keywords": ["Word", "docx", "合同", "方案", "报告", "纪要", "公文", "制度", "申请", "论文版式", "封面", "目录", "页眉", "页码", "续表", "表题", "黑白", "客户文档", "方案书", "方案说明书", "使用说明", "Word转PDF", "正式文档"],
+      "keywords": [
+        "Word",
+        "docx",
+        "合同",
+        "方案",
+        "报告",
+        "纪要",
+        "公文",
+        "制度",
+        "申请",
+        "论文版式",
+        "封面",
+        "目录",
+        "页眉",
+        "页码",
+        "续表",
+        "表题",
+        "黑白",
+        "客户文档",
+        "方案书",
+        "方案说明书",
+        "使用说明",
+        "Word转PDF",
+        "正式文档"
+      ],
       "sections": [
-        {"page": "file-design.html", "title": "文件设计规范", "path": ["核心规则", "所有格式的共同底线"]},
-        {"page": "file-design.html", "title": "文件设计规范", "path": ["核心规则", "文字文档"]},
-        {"page": "file-design.html", "title": "文件设计规范", "path": ["案例样本", "文字文档"]}
+        {
+          "page": "document-evidence.md",
+          "title": "文档证据合同",
+          "path": [
+            "内容与引用"
+          ],
+          "label": "document-evidence.md › 内容与引用"
+        },
+        {
+          "page": "file-design.html",
+          "title": "文件设计规范",
+          "path": [
+            "核心规则",
+            "所有格式的共同底线"
+          ]
+        },
+        {
+          "page": "file-design.html",
+          "title": "文件设计规范",
+          "path": [
+            "核心规则",
+            "文字文档"
+          ]
+        },
+        {
+          "page": "file-design.html",
+          "title": "文件设计规范",
+          "path": [
+            "案例样本",
+            "文字文档"
+          ]
+        }
       ],
       "tools": [
         "先写描述文件 spec.json（type: contract | proposal | report | minutes | general；论文版式加 \"style\": \"paper\"，标题编号 \"number_format\": \"1、\" 或 \"1.\"），再运行 `py -X utf8 scripts/make_docx.py spec.json <输出.docx>`；脚本写完会自动检查",
         "交给客户的方案书、使用说明、报告（客户正式文档）：在描述文件里加 \"mono\": true、\"cover\": {\"subtitle\": …, \"info\": [[名称, 内容]…]}、\"toc\": true，章节内容写成 \"blocks\"（{\"p\"} 文段、{\"items\"} 列点、{\"sub\"} 二级标题、{\"table\": {header, rows, caption}} 带表题的表），运行 `py -X utf8 scripts/make_docx_paginated.py spec.json <输出.docx>`：它用本机 WPS 文字或 Word 排版，把目录页码和跨页表的“续表 N”写进文件，并导出同名 PDF；交付 PDF；Word 源文件留在 raw，不交给客户，除非用户要",
         "文字内容来自用户或 Luz-Writing；本技能只负责结构与版式",
         "要放进会话时：`py -X utf8 scripts/new_session.py --name \"<名称>\" --modes document --card docx`；描述文件留在 `raw/03-documents/`，成品检查通过后用 `py -X utf8 scripts/deliver.py <会话目录> <成品>` 放进会话根目录，再用 `make_summary.py` 生成列出它的汇总页（项目任务加 `--project`，成品写进项目的 docs，见 SKILL.md Sessions）",
-        "描述文件显式选择与当前内容、行业和受众匹配的 theme（references/themes.json）；客户正式文档全黑白，theme 只影响其他文字文档的表格浅色"
+        "描述文件显式选择与当前内容、行业和受众匹配的 theme（references/themes.json）；客户正式文档全黑白，theme 只影响其他文字文档的表格浅色",
+        "正式生成前在模板库选择准确路径；make_docx_paginated 同时生成的 raw Word 与同名 PDF 都选 docx-paginated，生成器登记二者哈希；deliver 另要求最终路径选择同一 ID，不能以 raw 的选择替代成品选择。"
       ],
       "checks": [
         "`py -X utf8 scripts/check_document.py <输出.docx>` 零 ERROR（论文版式加 --allow paper，公文格式加 --allow official）",
         "客户正式文档逐页看导出的 PDF：封面无页码、目录页码与标题实际所在页一致、每张表有“表 N　标题”、跨页表上方有“续表 N”且表头重复、页眉是文档标题、页脚页码居中（目录页罗马数字，正文从 1）、全文黑白（图除外）",
         "合同导出 PDF 核对分页、页码“第几页 共几页”、签署栏、金额大写与金额列右对齐"
-      ]
+      ],
+      "experience_scope": "documents"
     },
     "reading-html": {
       "title": "报告与阅读型网页",
       "summary": "调研报告、方案说明、总结等给人读的 HTML",
-      "keywords": ["报告", "网页", "HTML", "阅读", "标题", "图标"],
+      "keywords": [
+        "报告",
+        "网页",
+        "HTML",
+        "阅读",
+        "标题",
+        "图标"
+      ],
       "sections": [
-        {"page": "file-design.html", "title": "文件设计规范", "path": ["核心规则", "所有格式的共同底线"]},
-        {"page": "file-design.html", "title": "文件设计规范", "path": ["核心规则", "网页文件"]},
-        {"page": "file-design.html", "title": "文件设计规范", "path": ["核心规则", "长文与阅读"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "字体与字号", "字体族必须统一"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "字体与字号", "字阶：按产品类型各用一套"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "网页图标与品牌标识"], "max_chars": 3000},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "二、排版基础", "层级、分隔与装饰"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "二、排版基础", "文字纪律"]},
-        {"page": "file-design.html", "title": "文件设计规范", "path": ["案例样本", "研究总结网页"]}
+        {
+          "page": "document-evidence.md",
+          "title": "文档证据合同",
+          "path": [
+            "内容与引用"
+          ],
+          "label": "document-evidence.md › 内容与引用"
+        },
+        {
+          "page": "file-design.html",
+          "title": "文件设计规范",
+          "path": [
+            "核心规则",
+            "所有格式的共同底线"
+          ]
+        },
+        {
+          "page": "file-design.html",
+          "title": "文件设计规范",
+          "path": [
+            "核心规则",
+            "网页文件"
+          ]
+        },
+        {
+          "page": "file-design.html",
+          "title": "文件设计规范",
+          "path": [
+            "核心规则",
+            "长文与阅读"
+          ]
+        },
+        {
+          "page": "visual-design.html",
+          "title": "视觉设计规范",
+          "path": [
+            "核心规则",
+            "一、视觉基础",
+            "字体与字号",
+            "字体族必须统一"
+          ]
+        },
+        {
+          "page": "visual-design.html",
+          "title": "视觉设计规范",
+          "path": [
+            "核心规则",
+            "一、视觉基础",
+            "字体与字号",
+            "字阶：按产品类型各用一套"
+          ]
+        },
+        {
+          "page": "visual-design.html",
+          "title": "视觉设计规范",
+          "path": [
+            "核心规则",
+            "一、视觉基础",
+            "网页图标与品牌标识"
+          ],
+          "max_chars": 3000
+        },
+        {
+          "page": "visual-design.html",
+          "title": "视觉设计规范",
+          "path": [
+            "核心规则",
+            "二、排版基础",
+            "层级、分隔与装饰"
+          ]
+        },
+        {
+          "page": "visual-design.html",
+          "title": "视觉设计规范",
+          "path": [
+            "核心规则",
+            "二、排版基础",
+            "文字纪律"
+          ]
+        },
+        {
+          "page": "file-design.html",
+          "title": "文件设计规范",
+          "path": [
+            "案例样本",
+            "研究总结网页"
+          ]
+        }
       ],
       "tools": [
         "`py -X utf8 scripts/new_session.py --name \"<名称>\" --modes document` 生成会话与 document.html 骨架（标签页图标已按主题填好）",
@@ -79,50 +267,189 @@
         "浏览器打开 1440 与 390 宽各看一遍：第一行是主标题、无多余说明、居中容器、字号不小于规范",
         "`check_document.py` 对禁用缩放的视口声明报错；浏览器把行高设为 1.5 倍、段间距设为 2 倍后正文与表格不裁切（无障碍指南 1.4.12）",
         "浏览器 1440 宽看正文是 18 像素、390 宽是 16 像素；`py -X utf8 scripts/sync_md_type.py` 全部 SAME"
-      ]
+      ],
+      "experience_scope": "documents"
     },
     "slides": {
       "title": "演示文稿",
-      "summary": "汇报、提案、培训幻灯片",
-      "keywords": ["演示", "幻灯片", "PPT", "pptx"],
+      "summary": "每页一个主标题、多色主题、可编辑排版与商用模板选用。",
+      "keywords": [
+        "演示",
+        "幻灯片",
+        "PPT",
+        "pptx"
+      ],
       "sections": [
-        {"page": "file-design.html", "title": "文件设计规范", "path": ["核心规则", "所有格式的共同底线"]},
-        {"page": "file-design.html", "title": "文件设计规范", "path": ["核心规则", "演示文稿"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "配色"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "图形：一套线性图标"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "主题色系统", "对比度算法与等级"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "中文排版"]}
+        {
+          "page": "document-evidence.md",
+          "title": "文档证据合同",
+          "path": [
+            "内容与引用"
+          ],
+          "label": "document-evidence.md › 内容与引用"
+        },
+        {
+          "page": "design/slides.md",
+          "path": []
+        }
       ],
       "tools": [
-        "幻灯片版式按本卡；文字来自用户或 Luz-Writing",
-        "要放进会话时：`py -X utf8 scripts/new_session.py --name \"<名称>\" --modes document --card slides`；成品检查通过后用 `py -X utf8 scripts/deliver.py <会话目录> <成品.pptx>` 放进会话根目录，再用 `make_summary.py` 生成列出它的汇总页（项目任务的 docs 只收 PDF 与 XLSX，导出 PDF 后用 `--project`、`--to` 交付）",
-        "画面 13.333 × 7.5 英寸；用版式里的标题占位符写页标题且各页不同，图片加替代文字，表格设表头行；链接文字写明去向。字号 40、28、20、18 磅，任何文字不小于 18 磅"
+        "按 templates/documents/slides/README.md 用 build_slides.py 选择本地模板，或从 commercial-sources.md 取得原站商用模板与许可说明。",
+        "要放进会话时：`py -X utf8 scripts/new_session.py --name \"<名称>\" --modes document --card slides`；成品检查通过后用 `py -X utf8 scripts/deliver.py <会话目录> <成品.pptx>` 放进会话根目录，再用 `make_summary.py` 生成列出它的汇总页（项目任务的 docs 只收 PDF 与 XLSX，导出 PDF 后用 `--project`、`--to` 交付）"
       ],
       "checks": [
-        "`py -X utf8 scripts/check_document.py <文件.pptx>` 零 ERROR（核对 16:9、5% 页边距、字号低于 18 磅、浅色底、标题占位符与重复标题、图片替代文字、表头行）；用户要求其他画幅时加 `--allow ratio`",
-        "逐页放映核对：每页一个结论、字号不小于规范、无装饰性立体元素",
+        "`py -X utf8 scripts/check_document.py <文件.pptx>` 查看结构和可读性提醒。按实际媒介判断画幅、字号与边距。",
+        "逐页放映核对主标题、内容和图表层级、色彩对比、长中文、裁切与署名。",
         "同时交 PDF 时按“pdf-markdown”卡运行 `py -X utf8 scripts/check_pdf.py <文件.pdf>`"
-      ]
+      ],
+      "experience_scope": "documents"
     },
     "pdf-markdown": {
       "title": "PDF 与 Markdown",
       "summary": "导出版 PDF、Markdown 文档",
-      "keywords": ["PDF", "Markdown", "md"],
+      "keywords": [
+        "PDF",
+        "Markdown",
+        "md"
+      ],
       "sections": [
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "主题色系统", "主色按行业气质选择"]},
-        {"page": "file-design.html", "title": "文件设计规范", "path": ["核心规则", "所有格式的共同底线"]},
-        {"page": "file-design.html", "title": "文件设计规范", "path": ["核心规则", "便携式文档"]},
-        {"page": "file-design.html", "title": "文件设计规范", "path": ["核心规则", "网页文件", "组件"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "二、排版基础", "界面密度与表格对齐", "表格对齐与缩进"]},
-        {"page": "file-design.html", "title": "文件设计规范", "path": ["核心规则", "标记文本文件"]},
-        {"page": "file-design.html", "title": "文件设计规范", "path": ["核心规则", "文字文档", "页面与字体"]},
-        {"page": "file-design.html", "title": "文件设计规范", "path": ["核心规则", "文字文档", "表格与图片"]},
-        {"page": "file-design.html", "title": "文件设计规范", "path": ["核心规则", "文字文档", "同类问题"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "二、排版基础", "文字纪律", "删除测试"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "二、排版基础", "文字纪律", "第一行就是主标题"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "二、排版基础", "文字纪律", "同类问题"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "中文排版"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "三、视觉产出", "海报、品牌主视觉与产品宣传", "屏幕渠道与印刷渠道"]}
+        {
+          "page": "document-evidence.md",
+          "title": "文档证据合同",
+          "path": [
+            "内容与引用"
+          ],
+          "label": "document-evidence.md › 内容与引用"
+        },
+        {
+          "page": "visual-design.html",
+          "title": "视觉设计规范",
+          "path": [
+            "核心规则",
+            "一、视觉基础",
+            "主题色系统",
+            "主色按行业气质选择"
+          ]
+        },
+        {
+          "page": "file-design.html",
+          "title": "文件设计规范",
+          "path": [
+            "核心规则",
+            "所有格式的共同底线"
+          ]
+        },
+        {
+          "page": "file-design.html",
+          "title": "文件设计规范",
+          "path": [
+            "核心规则",
+            "便携式文档"
+          ]
+        },
+        {
+          "page": "file-design.html",
+          "title": "文件设计规范",
+          "path": [
+            "核心规则",
+            "网页文件",
+            "组件"
+          ]
+        },
+        {
+          "page": "visual-design.html",
+          "title": "视觉设计规范",
+          "path": [
+            "核心规则",
+            "二、排版基础",
+            "界面密度与表格对齐",
+            "表格对齐与缩进"
+          ]
+        },
+        {
+          "page": "file-design.html",
+          "title": "文件设计规范",
+          "path": [
+            "核心规则",
+            "标记文本文件"
+          ]
+        },
+        {
+          "page": "file-design.html",
+          "title": "文件设计规范",
+          "path": [
+            "核心规则",
+            "文字文档",
+            "页面与字体"
+          ]
+        },
+        {
+          "page": "file-design.html",
+          "title": "文件设计规范",
+          "path": [
+            "核心规则",
+            "文字文档",
+            "表格与图片"
+          ]
+        },
+        {
+          "page": "file-design.html",
+          "title": "文件设计规范",
+          "path": [
+            "核心规则",
+            "文字文档",
+            "同类问题"
+          ]
+        },
+        {
+          "page": "visual-design.html",
+          "title": "视觉设计规范",
+          "path": [
+            "核心规则",
+            "二、排版基础",
+            "文字纪律",
+            "删除测试"
+          ]
+        },
+        {
+          "page": "visual-design.html",
+          "title": "视觉设计规范",
+          "path": [
+            "核心规则",
+            "二、排版基础",
+            "文字纪律",
+            "第一行就是主标题"
+          ]
+        },
+        {
+          "page": "visual-design.html",
+          "title": "视觉设计规范",
+          "path": [
+            "核心规则",
+            "二、排版基础",
+            "文字纪律",
+            "同类问题"
+          ]
+        },
+        {
+          "page": "visual-design.html",
+          "title": "视觉设计规范",
+          "path": [
+            "核心规则",
+            "一、视觉基础",
+            "中文排版"
+          ]
+        },
+        {
+          "page": "visual-design.html",
+          "title": "视觉设计规范",
+          "path": [
+            "核心规则",
+            "三、视觉产出",
+            "海报、品牌主视觉与产品宣传",
+            "屏幕渠道与印刷渠道"
+          ]
+        }
       ],
       "tools": [
         "PDF 从 Word 或网页导出，不手工拼截图；先让源文件（`.docx` 或网页）通过 `check_document.py`，再导出",
@@ -137,391 +464,507 @@
         "Markdown：`py -X utf8 scripts/check_document.py <文件.md>` 零 ERROR",
         "PDF：`check_document.py` 不读 PDF（报 SKIP）；用 `py -X utf8 scripts/check_pdf.py <文件.pdf>` 零 ERROR（字体按文档自动判断：雅黑文档只能是 MicrosoftYaHei / MicrosoftYaHei-Bold，正式 Word 文档是宋体、黑体加 Times New Roman，混用或字体回退须重新导出）；阅读顺序、图形替代文字、表头单元格脚本判断不了，声明可访问时人工核对；逐页渲染目检分页、单字末行和页底孤立表头、行首行末标点",
         "核对 layout.json 的标题左边线、每段四角圆角、数据行完整与无溢出；再逐页看 PDF，不能只凭 CSS 声明或自动分词判断通过"
-      ]
+      ],
+      "experience_scope": "documents"
     },
     "poster": {
-      "title": "海报、品牌主视觉与宣传图",
-      "summary": "独立视觉会话：活动海报、主视觉、宣传图、生图",
-      "keywords": ["海报", "主视觉", "宣传", "生图", "Imagegen", "配色"],
+      "title": "海报设计",
+      "experience_scope": "poster",
+      "keywords": [
+        "poster"
+      ],
+      "preference_keywords": [],
       "sections": [
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "扁平线性风格", "做法与边界"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "配色"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "主题色系统", "主色按行业气质选择"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "主题色系统", "取色依据"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "字体与字号", "字体族必须统一"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "字体与字号", "字阶：按产品类型各用一套"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "字体与字号", "海报"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "三、视觉产出"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "二、排版基础", "文字纪律"]}
+        {
+          "page": "design/poster.md",
+          "path": []
+        }
       ],
       "tools": [
-        "`py -X utf8 scripts/new_session.py --name \"<活动名>海报\" --modes visual --standalone-poster`",
-        "生图提示词从 `references/prompt-image.txt` 写；`D:\\Codes\\Imagegen\\src\\imagegen.py` 先空跑，一次只发一张，按次计费",
-        "实拍优先；生图超时不自动重试：先查服务的已有记录，没有结果就改用矢量图形",
-        "先问清渠道：屏幕渠道四周留 5% 安全区；印刷渠道四边加 3 毫米出血、重要内容离成品边不少于 5 毫米、位图成品尺寸上不低于 300 像素每英寸、色彩交青品黄黑，印刷厂规格优先（见规则里的“屏幕渠道与印刷渠道”）",
-        "对比度只认无障碍指南 2.2 的比值，规则读 `references/visual-design.html` 的“对比度算法与等级”，单对颜色用 `py -X utf8 scripts/check_contrast.py --pair <前景> <背景>`；文字压在图片上按遮罩后最亮处量"
+        "按调用协议选择本地依据或外部研究，再按本类别选择真实模板和实现工具。"
       ],
       "checks": [
-        "视觉稿 `raw/02-visual/visual-board.html` 经用户批准后再发布",
-        "`py -X utf8 scripts/check_document.py <成品>` 零 ERROR；`py -X utf8 scripts/check_contrast.py` 通过",
-        "印刷稿：`py -X utf8 scripts/check_pdf.py <文件.pdf> --print --allow-image-pages` 零 ERROR，并核算每张位图的有效分辨率；印刷厂有自己的文件规格时按其核对"
-      ]
+        "检查本类别的完整成品、内容与适用验证；不混用其它类别规则。"
+      ],
+      "summary": "海报设计；按本类别读取规则并验证完整成品。"
     },
     "design-path": {
-      "title": "设计路径与思考链（整个界面项目从这里开始）",
-      "summary": "做后台、小程序、网站、智能体界面或可交互原型的整个项目，先读这张：十个阶段（接收与判定、参照与研究、入口与信息架构核对、页面清单与范式选择、视觉方向与令牌、组件库与模块映射、细节系统、动效与状态、原型与验证、交接与沉淀）各有产出、检查和该读的规则卡；思考工具、总原则与硬底线、冲突裁决顺序、偏离说明的写法、各端差别，以及项目模式下 design 阶段读什么、写什么、何时停下来问人；功能归 Luz-System、外观归 Luz-Design，划线见 references/ui-ownership.md",
-      "keywords": ["设计路径", "思考链", "界面项目", "整个项目", "从头到尾", "怎么设计", "设计流程", "阶段", "P0", "P9", "检查表", "偏离说明", "思考工具", "第一件事", "入口归属三问", "精简五问", "删除测试", "三秒测试", "冲突裁决", "记忆点预算", "项目模式", "接收与判定", "design-path"],
+      "title": "设计路径与页面结构（整个界面项目从这里开始）",
+      "summary": "设计路径与思考链（整个界面项目从这里开始）。外观按场景采用设计建议。",
+      "keywords": [
+        "设计路径",
+        "思考链",
+        "界面项目",
+        "整个项目",
+        "从头到尾",
+        "怎么设计",
+        "设计流程",
+        "阶段",
+        "P0",
+        "P9",
+        "检查表",
+        "偏离说明",
+        "思考工具",
+        "第一件事",
+        "入口归属三问",
+        "精简五问",
+        "删除测试",
+        "三秒测试",
+        "冲突裁决",
+        "记忆点预算",
+        "项目模式",
+        "接收与判定",
+        "design-path"
+      ],
       "sections": [
-        {"page": "design-path.html", "title": "设计路径与思考链", "path": ["核心规则"]},
-        {"page": "design-path.html", "title": "设计路径与思考链", "path": ["平台矩阵"]},
-        {"page": "design-path.html", "title": "设计路径与思考链", "path": ["交接规则", "项目模式（阶段 `design`）"]}
+        {
+          "page": "design/patterns.md",
+          "path": []
+        },
+        {
+          "page": "design/review.md",
+          "path": []
+        }
       ],
       "tools": [
-        "边界（`references/ui-ownership.md`）：本卡管外观设计的做法与顺序，不管功能。页面、入口、标签栏项数与顺序、组件有无、按钮有无及其动作、流程、状态、文案键由 Luz-System 的功能说明规定，Design 只能照做；画不下或排不下时不自行增删，退回 Luz-System 提变更（项目模式走需求变更台账）；功能与外观冲突时保留功能、换外观",
-        "界面项目从这张卡开始：按路径从 P0 走到 P9，不跳阶段；每个阶段先读本卡列的规则卡，再动手。路径是思考顺序，不是固定模板：规则分 must、default、hint 三档，must 不可偏离，default 与 hint 偏离时写偏离说明",
-        "会话开头生成检查表：`py -X utf8 scripts/design_path.py checklist --surface miniprogram|admin|website|agent`（加 `--detail` 看每阶段细则，`--format json` 给脚本读），粘进会话 BRIEF，每个阶段结束勾一次；`design_path.py list` 看十个阶段与思考工具，`show P3` 看一个阶段，`show project` 看项目模式的读写与停下来问人",
-        "偏离规则时：`py -X utf8 scripts/design_path.py deviation <规则 id> --why … --risk … --verify … [--strength default|hint]` 生成标准格式的偏离说明，写进 BRIEF；must 规则不能偏离（命令退出码 2）",
-        "各阶段该读的规则卡：P0 读 `design-direction`（`context.py list` 选会话类型，`experience.py search` 查已有经验）；P1 读 `design-research`；P2、P3 读 `page-patterns`（System 的入口表 `entrances.json` 用 `page_pattern.py` 的 `brief`、`plan`、`check`），页面布局读 `interface-pattern`、`interface-layout`；P4 读 `design-direction`、`palette`、`interface-visual`；P5 读 `interface-components`；P6 读 `interface-icons`、`interface-components`、`interface-recipes`、`image-assets`；P7 读 `interface-motion`；P8 用 `audit_rendered.py`、`audit_palette.py`、`audit_stability.py`、`page_pattern.py check-page` 与 `check_document.py` 验证；P9 导出令牌并把采用的规则、偏离说明汇总、待裁定与本次沉淀写进 BRIEF",
-        "P8 原型与验证做产品开发用的前端界面 HTML 时读规则卡 `prototype-reference`（三栏单文件、配置面板、场景与逻辑面板、按编号取组件、深浅色、`build_prototype.py` 与 `build_prototype_suite.py`）；参考实现只供参考，页面清单与首页组成不从示例继承"
+        "按 App/Web 类别选页面模式与组件：templates/ 的 HTML 模板与 scripts/template_registry.py；scripts/frontend.py init/seal/review/check。",
+        "界面的页面、动作与功能由 Luz-System 定义，视觉与排版由本技能负责，边界见 references/ui-ownership.md。"
       ],
       "checks": [
-        "每个阶段的产出都在：从 P0 的 `raw/BRIEF.md` 到 P9 的 `<名>.tokens.json`，对照 `design_path.py checklist` 逐阶段核对；没有产出的阶段不勾",
-        "偏离说明写全：每处偏离一条，含偏离的规则 id、原因、风险与验证办法（用 `design_path.py deviation` 生成），must 规则没有偏离，汇总进 BRIEF",
-        "BRIEF 里有检查表（`design_path.py checklist` 的输出，每阶段已勾，或写明本端为何不适用），并有“采用的规则”“待裁定”“本次沉淀”",
-        "P2、P3 的首页方案 `page_pattern.py check <spec.json>` 退出码 0；P8 的成品页 `page_pattern.py check-page` 无重复入口，`audit_rendered.py` 浅色与深色各零问题",
-        "没有增删或改动功能说明里的页面、入口、标签栏项数、组件与按钮动作（对照功能说明逐项核对）；需要改的已退回 Luz-System 提变更，不在视觉稿里悄悄改（`references/ui-ownership.md`）"
-      ]
+        "实际查看完整页面、目标宽度及主要操作状态；确认组件真实使用、许可、复现和恢复；不检查固定外观配额。"
+      ],
+      "preference_keywords": [],
+      "experience_scope": "ui"
     },
     "page-patterns": {
       "title": "页面范式库（首页与常见页面的范式、入口归属与去重）",
-      "summary": "拿到 Luz-System 的入口表与功能清单后，先分清功能与视觉，再按功能类型把入口分到区域（顶部上下文栏、搜索、状态卡、金刚区、营销位、信息流、我的列表、页内），按精简五问去重与精简；首页布局范式（金刚栅格、单列列表、双列与瀑布流、信息流、便当、顶部标签、侧边分类、状态卡、会员卡主视觉、工作台等）按应用类型组合；常见页面范式（首页、分类、商品列表与搜索、详情、购物车与结算、订单、我的、门店选择等）与各范式对应的组件；Design 只决定模块、顺序与去重，不增删功能与入口，划线见 references/ui-ownership.md",
-      "keywords": ["页面范式", "范式", "首页", "首页范式", "首页方案", "金刚区", "金刚栅格", "宫格", "信息流", "瀑布流", "便当", "侧边分类", "顶部标签", "入口表", "entrances.json", "入口归属", "去重", "精简五问", "应用类型", "状态卡", "会员卡", "工作台", "我的页", "订单页", "商品详情", "购物车", "门店选择", "page-patterns"],
+      "summary": "页面范式库（首页与常见页面的范式、入口归属与去重）。外观按场景采用设计建议。",
+      "keywords": [
+        "页面范式",
+        "范式",
+        "首页",
+        "首页范式",
+        "首页方案",
+        "金刚区",
+        "金刚栅格",
+        "宫格",
+        "信息流",
+        "瀑布流",
+        "便当",
+        "侧边分类",
+        "顶部标签",
+        "入口表",
+        "entrances.json",
+        "入口归属",
+        "去重",
+        "精简五问",
+        "应用类型",
+        "状态卡",
+        "会员卡",
+        "工作台",
+        "我的页",
+        "订单页",
+        "商品详情",
+        "购物车",
+        "门店选择",
+        "page-patterns"
+      ],
       "sections": [
-        {"page": "page-patterns.html", "title": "页面范式库", "path": ["核心规则"]},
-        {"page": "page-patterns.html", "title": "页面范式库", "path": ["平台矩阵"]}
+        {
+          "page": "design/patterns.md",
+          "path": []
+        }
       ],
       "tools": [
-        "边界（`references/ui-ownership.md`）：本卡管首页与页面的版面（模块、顺序、去重），不管功能。页面、入口、标签栏项数与顺序、组件有无、按钮有无及其动作、流程、状态、文案键由 Luz-System 的功能说明规定，Design 只能照做；画不下或排不下时不自行增删，退回 Luz-System 提变更（项目模式走需求变更台账）；功能与外观冲突时保留功能、换外观",
-        "先读 Luz-System 交来的入口表 `entrances.json`（每个功能一行：`fn`、`name`、`type`、`category`、`entry`、`destination`、`freq`；格式运行 `py -X utf8 scripts/page_pattern.py show entrances_schema`）和功能清单；入口归属是 System 的决定，Design 只决定首页的模块、顺序与去重，不增删功能与入口；缺的、冲突的写进 BRIEF 的退回清单交还 Luz-System（项目模式走需求变更台账）",
-        "用法与顺序：`py -X utf8 scripts/page_pattern.py list types` 选应用类型，`recommend --type <类型> [--functions N] [--tabs N] [--width 375]` 看推荐模块序列与金刚区列行；`brief --features features.json --entrances entrances.json --type <类型> --out brief.json` 合成首页简报；`plan --brief brief.json --out spec.json` 按区域规则把功能分配到首页并列出被拒绝的入口；做页面；`check spec.json` 检查方案；页面做好后 `check-page <页面.html> --hash \"#/home\" --width 390 [--role home|mine|other]` 用真实浏览器查成品页",
-        "查范式与规则：`page_pattern.py list [paradigms|types|pages|rules|zones]` 列表；`show <id>`（范式、应用类型、页面、规则、区域，可写 `kind:id`）看完整说明，含“选它前要问的问题”与“给创新留的空间”；`show method` 看思考方法与规则强度，`show entrances` 看入口表格式；选范式前先读它的问题，不套固定首页",
-        "规则强度：must 不可偏离，default 与 hint 偏离时在 BRIEF 写偏离说明（`py -X utf8 scripts/design_path.py deviation <规则 id> --why … --risk … --verify …`）；`brief.json` 与 `spec.json` 随会话保存；整个项目的路径与各阶段该读的卡读 `design-path`",
-        "页面布局模式读 `interface-pattern`，排布数值与金刚区公式读 `interface-layout`（也可直接 `scripts/style_match.py --dock <入口数> <最长文案字数> <屏宽>`），组件库读 `interface-components`；本卡管“哪个入口放哪个区域、首页放哪些模块、同一目的地不重复”",
-        "页面与首页方案定下之后，要做成可点的原型（产品开发用的前端界面 HTML）读规则卡 `prototype-reference`：生成器不内置首页，示例的首页组成各不相同，首页组成只来自本卡与功能清单"
+        "按 App/Web 类别选页面模式与组件：templates/ 的 HTML 模板与 scripts/template_registry.py；scripts/frontend.py init/seal/review/check。",
+        "界面的页面、动作与功能由 Luz-System 定义，视觉与排版由本技能负责，边界见 references/ui-ownership.md。"
       ],
       "checks": [
-        "`py -X utf8 scripts/page_pattern.py check <spec.json>` 退出码 0（违反 must 规则退出码为 1）；default 规则的每处偏离都在 BRIEF 写了偏离说明",
-        "`page_pattern.py check-page <页面.html> --hash \"#/home\" --width 390` 无重复入口：同一目的地在一页只出现一次，金刚区入口不与标签栏同目的地同名称；我的页与其他页加 `--role mine`、`--role other` 各查一遍",
-        "首页入口逐项对照入口表：每行入口落在它的唯一归属处，没有新增、删除或改归属；账户类只在我的，订单类首页只出进行中状态卡，全局上下文只在顶部栏，搜索不占金刚区",
-        "没有增删或改动功能说明里的页面、入口、标签栏项数、组件与按钮动作（对照功能说明逐项核对）；需要改的已退回 Luz-System 提变更，不在视觉稿里悄悄改（`references/ui-ownership.md`）"
-      ]
-    },
-    "interface-details": {
-      "title": "界面细节规范（图标、背景、卡片家族）",
-      "summary": "图标分控件图标、入口图标块、装饰与生成图标三类，各有尺寸网格、颜色来源与数量上限；生成的色块图标用 HSB 饱和度度量，均值、第 90 百分位、过饱和像素占比与主色相个数设上限，用 `check_icon_image.py` 验收，配图不受限；背景分 canvas、surface、raised 三层与区块、品牌主卡、空状态、文字压图的用法；卡片分商品、门店、会员、券、订单、指标、内容、活动、入口大卡九个家族，各有字段顺序、图的比例、状态与点击区域；每类都带选用前要问的问题与可以有个性的地方；视觉由 Luz-Design 决定，功能由 Luz-System 决定，划线见 references/ui-ownership.md",
-      "keywords": ["图标", "图标饱和度", "饱和度", "阈值", "入口图标块", "双色图标", "生成图标", "背景", "页面背景", "分层", "卡片", "卡片家族", "商品卡", "门店卡", "会员卡", "券卡", "订单卡", "指标卡", "入口大卡", "ui-details"],
-      "sections": [
-        {"page": "ui-details.html", "title": "界面细节规范", "path": ["核心规则", "一、先分清功能和视觉"]},
-        {"page": "ui-details.html", "title": "界面细节规范", "path": ["核心规则", "二、图标"]},
-        {"page": "ui-details.html", "title": "界面细节规范", "path": ["核心规则", "三、背景"]},
-        {"page": "ui-details.html", "title": "界面细节规范", "path": ["核心规则", "四、卡片家族"]},
-        {"page": "ui-details.html", "title": "界面细节规范", "path": ["平台矩阵"]}
+        "实际查看完整页面、目标宽度及主要操作状态；确认组件真实使用、许可、复现和恢复；不检查固定外观配额。"
       ],
-      "tools": [
-        "边界（`references/ui-ownership.md`）：图标图形与颜色、背景、卡片的构图与外观由本技能决定；哪个功能需要图标、卡片承载什么内容、点了去哪由 Luz-System 的功能说明决定。Design 不增删页面、入口、标签栏项数、组件与按钮动作，画不下或排不下时退回 Luz-System",
-        "图标颜色验收：`py -X utf8 scripts/check_icon_image.py <图标图像或目录> [--theme <主题 id>] [--dark]`，通过打印 `check icon image: ok`；阈值（均值 0.45、第 90 百分位 0.65、S 大于 0.80 的像素占比 3%、主色相 2 个）是本技能取值、待样板图校准，可用 `--max-mean --p90 --hot-share --max-hues` 覆盖；`--palette <主题 id>` 打印该主题的图标色板，提示词里只写这几个十六进制色；配图（商品、门店照片）不受此限",
-        "查规则与偏离：`py -X utf8 scripts/ui_details.py list|show <id>|layers|grid|deviation`；规则分 must、default、hint 三档，default 与 hint 偏离时写偏离说明（`ui_details.py deviation <规则 id> --why … --risk … --verify …`）；整个项目的路径读 `design-path` 卡，首页与页面范式读 `page-patterns` 卡",
-        "相关的现有规则卡：图标尺寸与线宽读 `interface-icons`，卡片外观读 `interface-components`，排布数值与金刚区公式读 `interface-layout`，素材生成读 `image-assets`；本卡给的是图标、背景、卡片三块的家族与阈值，数值与它们冲突时以那几张卡所指的视觉设计规范为准并记入偏离说明",
-        "图标、背景与卡片做进产品开发用的前端界面 HTML（可点原型）时，原型的形态、组件编号与验收读规则卡 `prototype-reference`；库组件的图标与底色走令牌，不另写死"
-      ],
-      "checks": [
-        "生成的色块图标都用 `check_icon_image.py` 验收通过（线性控件图标不看饱和度，只核对是令牌色）；超限的重新生成，不靠调阈值放行",
-        "背景只取主题令牌的 canvas、surface、raised 三层，不自造；文字压图有遮罩，对比度达标；背景与卡面的分层靠描边或明度差，不靠阴影堆叠",
-        "每张卡片属于九个家族之一，字段按家族顺序、同一事实只说一次；同组卡片外观参数一致；整卡可点时卡内不再放指向同一目的地的按钮",
-        "没有增删或改动功能说明里的页面、入口、标签栏项数、组件与按钮动作（对照功能说明逐项核对）；需要改的已退回 Luz-System（见 `references/ui-ownership.md`）",
-        "default 规则的每处偏离都在 BRIEF 写了偏离说明；`ui_details.py layers` 与 `grid` 的检查通过"
-      ]
+      "preference_keywords": [],
+      "experience_scope": "ui"
     },
     "prototype-reference": {
-      "title": "原型参考实现与组件模板库（产品开发用的前端界面 HTML，参考不是模板）",
-      "summary": "产品开发阶段交付的前端界面 HTML（小程序、后台、手机网页、网站，一个系统一份或多系统多页签）怎么起步：仓库里的原型参考实现（引擎、小程序与后台模板、多系统外壳、规格校验与生成器）和 303 个带编号的组件模板库都只是参考，机制可复用、内容与结构不是默认值，什么时候整套用、只取一块、自己写；交付形态（三栏单文件、页面目录、外观配置、场景开关、逻辑面板、页面栈导航、完整交互、390 可操作、多系统多页签）与项目技能 02 文档的对齐；按编号取组件、data-cid、作用域前缀、令牌与深浅色契约、取不到组件时怎么办、与 Element Plus、Vant 等真实库的取舍；规格字段、生成命令、示例各自的行业；验收与已知限制如实列出。页面清单与首页组成不从示例继承，功能归 Luz-System，外观归 Luz-Design，见 references/ui-ownership.md",
-      "keywords": ["原型", "原型参考实现", "参考实现", "组件模板库", "组件库", "产品开发", "前端界面", "前端界面 HTML", "三栏", "配置面板", "逻辑面板", "场景", "页面栈", "多系统", "页签", "data-cid", "luz-kit", "组件编号", "规格", "build_prototype", "prototype-templates", "component-library", "深色适配", "参考不是模板", "prototype-reference"],
+      "title": "组件模板库与原型（HTML 模板按编号取用）",
+      "summary": "组件模板库与原型（HTML 模板按编号取用）。外观按场景采用设计建议。",
+      "keywords": [
+        "原型",
+        "原型参考实现",
+        "参考实现",
+        "组件模板库",
+        "组件库",
+        "产品开发",
+        "前端界面",
+        "前端界面 HTML",
+        "三栏",
+        "配置面板",
+        "逻辑面板",
+        "场景",
+        "页面栈",
+        "多系统",
+        "页签",
+        "data-cid",
+        "组件编号",
+        "规格",
+        "深色适配",
+        "参考不是模板",
+        "prototype-reference",
+        "templates",
+        "模板库",
+        "组件编号",
+        "template_registry"
+      ],
       "sections": [
-        {"page": "prototype-reference.html", "title": "原型参考实现与组件模板库", "path": ["核心规则"]},
-        {"page": "prototype-reference.html", "title": "原型参考实现与组件模板库", "path": ["平台矩阵"]}
+        {
+          "page": "design/components.md",
+          "path": []
+        }
       ],
       "tools": [
-        "定位（参考，不是模板）：`references/prototype-templates/` 与 `references/component-library/` 都只供参考。机制（页面栈、标签栏与导航栏外壳、配置面板、场景面板与逻辑面板、规格校验与生成器、后台外壳）与行业无关，可整套用、只取一块或照思路自己写；页面清单、首页组成、入口、标签栏、文案、数据是某个行业的一种答案，不是默认值，规格里除引用关系必须成立外没有任何必填的页面或模块。不要因为示例有购物车和订单就给自己的项目加；先答“这个行业的用户第一件事是什么”，页面与首页由 Luz-System 的功能清单与 `page-patterns` 定，不从示例继承",
-        "边界（`references/ui-ownership.md`）：原型里有哪些页面、入口、标签栏项数与顺序、组件、按钮动作、流程、状态由 Luz-System 的功能说明规定，Design 只画外观、搭机制，不增删；画不下或库里没有对应组件时不自行增删，退回 Luz-System 提变更（项目模式走需求变更台账）；功能与外观冲突时保留功能、换外观",
-        "命令：`py -X utf8 scripts/build_prototype.py <规格.json> --check` 只校验结构与引用，`--out <输出.html> [--content content.js]` 生成单文件（默认写到 `references/prototype-templates/dist/`，版本库忽略）；多系统用 `py -X utf8 scripts/build_prototype_suite.py <suite.json> --out <文档.html> [--inline|--check]`，项目模式的 02 文档仍用 Luz-Project 自己的 `project.py document`；规格结构见 `references/prototype-templates/schema/prototype.schema.json`，引擎接口见 `references/prototype-templates/engine/ENGINE.md`，示例见 `references/prototype-templates/examples/`（只作参考）",
-        "组件取用：编号 `域-类别-三位序号`，在 `references/component-library/registry/index.md` 选号，类别的“怎么选”表挑组件；源码在 `src/blocks-*.js`，文件头要一起带；每个组件根带 `data-cid`，原型外壳标 `data-shell`；颜色写令牌，不把 `dark`、`light` 当类名；取不到合适组件时先用覆盖键，再写 `custom` 页面（仍用库的积木），实在没有就在偏离说明里写明，不手写自造控件；一个原型只选一个库（出带编号的演示原型选 `luz-kit`，接真实代码选登记表里的真实库）",
-        "审计与测试：`py -X utf8 scripts/audit_rendered.py <原型.html> --library luz-kit --min-font 12 --width 390 --scheme light`（再 `--scheme dark`，再桌面宽度，逐页用 `--walk` 打开）；首页 `py -X utf8 scripts/page_pattern.py check-page <生成物.html> --hash \"#/home\" --width 390`；`py -X utf8 scripts/check_component_library.py`；测试 `test_prototype_mini.py`、`test_prototype_florist.py`、`test_prototype_admin.py`、`test_prototype_suite.py`、`test_component_library.py`、`test_component_libraries.py`（没有 Playwright 或 Microsoft Edge 时浏览器部分跳过并写明）",
-        "先读 `design-path`（十个阶段，本卡对应其中 P8 原型与验证）和 `page-patterns`（首页与常见页面的范式、入口归属与去重）再决定页面，再用本卡决定怎么搭、怎么交付；组件库选型与深浅色读 `interface-components`，图标、背景与卡片家族读 `interface-details`，动效读 `interface-motion`"
+        "按 App/Web 类别选页面模式与组件：templates/ 的 HTML 模板与 scripts/template_registry.py；scripts/frontend.py init/seal/review/check。",
+        "界面的页面、动作与功能由 Luz-System 定义，视觉与排版由本技能负责，边界见 references/ui-ownership.md。"
       ],
       "checks": [
-        "控件都落在带 `data-cid` 的组件里，或在偏离说明里写明为什么没用库组件；`audit_rendered.py --library luz-kit` 零自造控件、组件种类不少于 6；同一个原型只用一个库",
-        "原型有场景配置面板（`K.panel(`）、逻辑面板（来源、返回、完成后、主操作、规则、状态）、减少动态效果分支（`prefers-reduced-motion`，面板开关同样生效）、对话框角色（`showModal` 与 `role=\"dialog\"`）；场景列全成功、处理中、每种失败原因、加载、空、禁用、无权限，全局含网络、减少动态效果、角色、重置演示数据",
-        "390 宽完整可操作，无横向页面滚动；窗口窄于约 910 时三栏改为上下排；单文件，不连网",
-        "浅色与深色各把每一页开一遍，无控制台错误，没有留浅色底或文字看不清；`audit_rendered.py` 浅色与 `--scheme dark` 各零 ERROR；内容模块与自写样式的颜色写令牌",
-        "Luz-Project 的 `dev_documents._prototype_errors` 无错（文件不小于 120 KB、减少动态效果分支、对话框角色、场景配置面板、库组件不少于 6 种）；原型放 `docs/02-产品开发/`，名字“序号 + 前端名称 + 原型”，`prototype` 块只写 file、title、kind、library",
-        "首页 `page_pattern.py check-page` 无重复入口；页面清单、首页组成、标签栏与功能清单一致，没有从示例继承（项目没有的购物车、订单、搜索、金刚区）",
-        "没有增删 Luz-System 已批准的页面、入口、标签栏项数、组件与按钮动作（`references/ui-ownership.md`）；偏离写偏离说明；已知限制（浅色对比度、原型文件过不了 `check_document.py --allow interface`、动效时长不在四档）如实写进验收记录，不写成已达标"
-      ]
+        "实际查看完整页面、目标宽度及主要操作状态；确认组件真实使用、许可、复现和恢复；不检查固定外观配额。"
+      ],
+      "preference_keywords": [],
+      "experience_scope": "ui"
     },
     "interface-visual": {
       "title": "界面视觉（配色、字体角色、图标与插画、层级与立体感、密度与表格对齐）",
-      "summary": "审阅或修改界面的视觉层（配色、字阶、图标插画、层级、密度与对齐、各端视觉参数）；界面的功能结构（页面、入口、标签栏项数、组件与按钮动作）归 Luz-System，本卡不改功能，划线见 references/ui-ownership.md",
-      "keywords": ["界面", "后台", "字号", "字重", "密度", "表格", "对齐", "分页", "图标", "插画", "头像", "阴影", "层级", "立体", "卡片", "对话框", "排版", "布局", "自适应", "风格匹配", "参考案例"],
+      "summary": "界面视觉（有分量的主色、中性表面、简洁图标、适度圆角、字阶与密度）。按场景采用设计建议。",
+      "keywords": [
+        "界面",
+        "后台",
+        "字号",
+        "字重",
+        "密度",
+        "表格",
+        "对齐",
+        "分页",
+        "图标",
+        "插画",
+        "头像",
+        "阴影",
+        "层级",
+        "立体",
+        "卡片",
+        "对话框",
+        "排版",
+        "布局",
+        "自适应",
+        "风格匹配",
+        "参考案例"
+      ],
       "sections": [
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "扁平线性风格", "做法与边界"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "配色"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "字体与字号", "字体族必须统一"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "字体与字号", "字阶：按产品类型各用一套"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "字体与字号", "七级字体角色"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "字体与字号", "小程序字阶"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "图形：一套线性图标"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "层级与立体感", "原则"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "层级与立体感", "五级层级"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "层级与立体感", "卡片"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "层级与立体感", "对话框与面板"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "层级与立体感", "按钮的立体感"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "层级与立体感", "圆角"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "二、排版基础", "界面密度与表格对齐", "字号与密度"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "二、排版基础", "界面密度与表格对齐", "表格对齐与缩进"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "二、排版基础", "各端视觉参数", "分端对照"]}
+        {
+          "page": "design/foundation.md",
+          "path": []
+        }
       ],
       "tools": [
-        "边界（`references/ui-ownership.md`）：本卡只管外观。页面、入口、标签栏项数与顺序、组件有无、按钮有无及其动作、流程、状态、文案键由 Luz-System 的功能说明规定，Design 只能照做；画不下或排不下时不自行增删，退回 Luz-System 提变更（项目模式走需求变更台账）；功能与外观冲突时保留功能、换外观",
-        "首页与常见页面的范式、入口归属与去重读规则卡 `page-patterns`；整个界面项目的路径（十个阶段、思考工具、偏离说明）读规则卡 `design-path`",
-        "颜色、页面底色、模块点缀色与层级令牌取自 `references/themes.json`（主题与 `shared.elevation`），每次重读，不沿用上一个项目或模板的默认值",
-        "标签页图标与页头品牌标识用 `py -X utf8 scripts/new_session.py icon \"<系统名>\"` 生成（规则见 visual-design.html › 网页图标与品牌标识）",
-        "界面的结构、默认视图、筛选、分页、驾驶舱、导出等行为规则先运行 Luz-System 的 `py -X utf8 D:\\Codes\\Luz-System\\scripts\\context.py list` 选对应规则卡",
-        "动手前查参考组件库（Ant Design、TDesign、Arco、Semi、Element Plus、Vant、NutUI、Carbon）对应组件的默认值、尺寸与状态；调研按 Luz-Crawl 的调用协议：doctor → `begin \"<主题>\" --new` → `experience --query` → 每条命令带 `--out <任务目录>`",
-        "本卡未收全文的小节（界面组件的外观、同类元素外观一致、界面配图与丰富度、前端排布的推导、各端视觉参数的分端细表、间距与栅格、营销区的不规则排版、分页、插画：多层扁平、层级与立体感的边缘线条与层级依据、网页图标与品牌标识、对比度算法与等级、深色与浅色两套主题、中文排版、点击区域与触控目标、视口、安全区与自适应写法、现代样式特性与兼容、设计令牌）在用到时读 `references/visual-design.html` 原文；规则卡 `interface-layout` 收了点击区域、网页视口与微信小程序的写法",
-        "界面排版和风格先运行 `py -X utf8 scripts/style_match.py`；读 `references/layout-inference.md` 与 `references/interface-style-matrix.json`，把参考案例当证据并根据真实内容和视口自适应推导",
-        "MorphIcons、Lordicon、Hover、Loop、Spring 等动效参考只写入匹配结果的 `evidence.motion_signals`，需确认触发器、作用范围和 reduced-motion 降级",
-        "匹配结果默认审批状态为 pending；用户确认风格与作用范围前不得调用 Imagegen、生成正式资产、改页面代码或发布",
-        "排布数值（各端栅格、前端排布的推导、金刚区推导、表格列宽、导航与多级目录）读规则卡 `interface-layout`；按钮、卡片、标签、头像、图表、浮层、输入框的外观与同类元素外观一致读 `interface-components`；配图与成熟组件的视觉要点读 `interface-pattern`、`interface-icons`；动效时长缓动与降级读 `interface-motion`；图标画法、选型与图标标题卡片的协同读 `interface-icons`",
-        "单对颜色的比值与等级：`py -X utf8 scripts/check_contrast.py --pair <前景> <背景>`；验收只认无障碍指南 2.2 的比值，感知对比度算法的数值不作通过依据",
-        "交给开发或项目汇总的令牌：`py -X utf8 scripts/export_tokens.py <主题> --out <文件>.tokens.json`（设计令牌格式 2025.10），再 `--check` 校验；不手抄页面数字",
-        "图标、背景与卡片家族的细则（颜色与饱和度阈值、背景三层、九个卡片家族）读 `interface-details` 卡；本卡的数值与它冲突时记入偏离说明"
+        "按 App/Web 类别选页面模式与组件：templates/ 的 HTML 模板与 scripts/template_registry.py；scripts/frontend.py init/seal/review/check。",
+        "界面的页面、动作与功能由 Luz-System 定义，视觉与排版由本技能负责，边界见 references/ui-ownership.md。"
       ],
       "checks": [
-        "`py -X utf8 scripts/check_document.py <页面.html> --allow interface`（网站加 `--allow website`）零 ERROR",
-        "`py -X utf8 scripts/check_contrast.py` 通过",
-        "按 visual-design.html › 问题的同类判断 逐类自检（含层级扁平、图形单薄、字体层级不全、同类外观不一、界面单薄），结果写进 BRIEF 的“采用的规则”",
-        "浏览器在 1440×900 与 390 宽截图核对密度、对齐、字体角色、图标与层级",
-        "`py -X utf8 -m pytest -q scripts/test_style_match.py` 通过；匹配结果包含 evidence、semantic、layout、candidates、approval 五个部分，且 pending 时不得进入具体设计",
-        "`check_document.py` 对禁用缩放报错，对铺满边缘却没有安全区变量、有动效却没有减少动态效果分支、`transition: all` 告警；真机或模拟器核对底部操作栏不被指示条遮挡、小程序右上角胶囊区域不放可点元素",
-        "点击区域按“点击区域与触控目标”量：触屏 44 × 44，桌面不小于 24 且满足间距例外，相邻热区间隔不小于 8",
-        "文本框聚焦只把 1 像素边加深到次要文字色（`ink2`）：没有蓝色或主色选中框、外发光、粗描边、浏览器默认轮廓；组件库的输入框、选择器、日期、搜索在主题里把聚焦边框改成 `ink2`；按钮、链接、标签页等鼠标点击不出现焦点框，键盘 Tab 到达有 2 像素深色轮廓；手机端关掉点按高亮。`audit_rendered.py` 报“聚焦框”、`check_document.py` 报 focus frame 都算不通过",
-        "前端的控件一律来自所选组件库的真实组件（`references/component-libraries.json`），不手写 HTML/CSS 自造控件、不由模型直接写整页代码交付：设计稿与原型写明所用库，构建后跑 `py -X utf8 scripts/audit_rendered.py <页面.html> --library <编号>`（对话框与菜单打开后的状态也要走到），“自造控件”或库的组件种类少于 6 种都算不通过",
-        "没有增删或改动功能说明里的页面、入口、标签栏项数、组件与按钮动作（对照功能说明逐项核对）；需要改的已退回 Luz-System 提变更，不在视觉稿里悄悄改（`references/ui-ownership.md`）"
-      ]
+        "实际查看完整页面、目标宽度及主要操作状态；确认组件真实使用、许可、复现和恢复；不检查固定外观配额。"
+      ],
+      "preference_keywords": [],
+      "experience_scope": "ui"
     },
     "palette": {
       "title": "配色与主题",
-      "summary": "为品牌、行业或页面选主色与色阶",
-      "keywords": ["配色", "主色", "色板", "主题", "行业", "深色", "暗色", "深色模式", "浅色", "外观"],
+      "summary": "配色与主题。前端用主色和中性表面建立层级，马卡龙色用于小图标。",
+      "keywords": [
+        "配色",
+        "主色",
+        "色板",
+        "主题",
+        "行业",
+        "深色",
+        "暗色",
+        "深色模式",
+        "浅色",
+        "外观"
+      ],
       "sections": [
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "配色"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "主题色系统"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "设计令牌"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "深色与浅色两套主题"]}
+        {
+          "page": "design/foundation.md",
+          "path": []
+        }
       ],
       "tools": [
-        "行业主题见 `references/themes.json`；官方色板查到后按“取色依据”取阶",
-        "调研按 Luz-Crawl 的调用协议：doctor → `begin \"<主题>\" --new` → `experience --query` → 每条命令带 `--out <任务目录>`",
-        "每个颜色都用 `py -X utf8 scripts/check_contrast.py --pair <前景> <背景>` 给出比值，再对照 4.5、3、7 三档；产品前端的深色主题只取主题库的 `dark` 与 `shared.dark` 映射（`py -X utf8 scripts/make_dark.py` 按浅色推导初稿，`check_contrast.py` 逐项核对）",
-        "定稿后导出令牌：`py -X utf8 scripts/export_tokens.py <主题> --out <文件>.tokens.json`"
+        "按 App/Web 类别选页面模式与组件：templates/ 的 HTML 模板与 scripts/template_registry.py；scripts/frontend.py init/seal/review/check。"
       ],
       "checks": [
-        "`py -X utf8 scripts/check_contrast.py` 通过",
-        "回复里写明每个颜色取自哪套色板第几阶",
-        "产品前端要有深色与浅色两套主题：`check_contrast.py` 的 dark 各项通过，页面用 `audit_rendered.py --scheme light` 与 `--scheme dark` 各跑一遍；阅读页、海报、幻灯片与文件只出浅色"
-      ]
+        "实际查看完整页面、目标宽度及主要操作状态；确认组件真实使用、许可、复现和恢复；不检查固定外观配额。"
+      ],
+      "preference_keywords": [],
+      "experience_scope": "ui"
     },
     "interface-layout": {
       "title": "界面排布数值（各端栅格与间距、金刚区、表格列宽、导航与多级目录）",
-      "summary": "三个端的容器、栅格、断点与卡片网格；前端排布的七步推导；金刚区列数行数的推导；表格列宽分类与行高档位；侧栏、面包屑、树选择器、小程序分类的尺寸",
-      "keywords": ["排布", "栅格", "断点", "间距", "卡片网格", "金刚区", "宫格", "入口", "列宽", "表格", "行高", "冻结", "侧栏", "缩进", "面包屑", "树形选择", "分类", "抽屉", "前端排布", "容器", "留白"],
+      "summary": "界面排布数值（各端栅格与间距、金刚区、表格列宽、导航与多级目录）。外观按场景采用设计建议。",
+      "keywords": [
+        "排布",
+        "栅格",
+        "断点",
+        "间距",
+        "卡片网格",
+        "金刚区",
+        "宫格",
+        "入口",
+        "列宽",
+        "表格",
+        "行高",
+        "冻结",
+        "侧栏",
+        "缩进",
+        "面包屑",
+        "树形选择",
+        "分类",
+        "抽屉",
+        "前端排布",
+        "容器",
+        "留白"
+      ],
       "sections": [
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "二、排版基础", "间距与栅格"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "二、排版基础", "前端排布的推导"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "二、排版基础", "各端排布参数"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "二、排版基础", "金刚区与宫格入口"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "二、排版基础", "表格列宽与行高"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "二、排版基础", "导航与多级目录的数值"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "二、排版基础", "界面密度与表格对齐", "字号与密度"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "二、排版基础", "界面密度与表格对齐", "表格对齐与缩进"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "二、排版基础", "营销区的不规则排版"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "二、排版基础", "点击区域与触控目标"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "二、排版基础", "视口、安全区与自适应写法", "网页视口"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "二、排版基础", "视口、安全区与自适应写法", "微信小程序"]}
+        {
+          "page": "design/foundation.md",
+          "path": []
+        },
+        {
+          "page": "design/patterns.md",
+          "path": []
+        }
       ],
       "tools": [
-        "边界（`references/ui-ownership.md`）：本卡只管外观。页面、入口、标签栏项数与顺序、组件有无、按钮有无及其动作、流程、状态、文案键由 Luz-System 的功能说明规定，Design 只能照做；画不下或排不下时不自行增删，退回 Luz-System 提变更（项目模式走需求变更台账）；功能与外观冲突时保留功能、换外观",
-        "首页与常见页面的范式、入口归属与去重读规则卡 `page-patterns`；整个界面项目的路径（十个阶段、思考工具、偏离说明）读规则卡 `design-path`",
-        "行为规则读 Luz-System 的规则卡：`py -X utf8 D:\\Codes\\Luz-System\\scripts\\context.py miniprogram`（入口与金刚区的行为；排布的推导步骤在本卡的“前端排布的推导”）、`admin-list`（表格行为）、`nav-levels`（多级目录）；本卡只给数值，两边同时满足",
-        "金刚区先运行 `py -X utf8 scripts/style_match.py` 并读 `references/layout-inference.md`：参考案例里的列数与行数只是候选信号；入口数、最长文案字数、屏宽三个输入按“金刚区与宫格入口”的公式推导，交付里写出输入、输出（列数、行数、分页、格尺寸）和推导过程；也可直接运行 `py -X utf8 scripts/style_match.py --dock <入口数> <最长文案字数> <屏宽>` 得到列数、行数、分页与格尺寸",
-        "表格列宽按“内容最长字符数 × 字宽 + 左右内边距”推算，再对照列宽分类表取最小、建议、最大宽；行高按档位表取值",
-        "卡片网格不写死列数，写最小卡宽：`repeat(auto-fill, minmax(最小宽, 1fr))`",
-        "容器宽度决定的组件（侧栏、抽屉、卡片网格里的卡片）用容器查询 `@container`；页面级栅格与断点用媒体查询；小程序样式对新特性的支持没有官方兼容表，用到前真机实测",
-        "小程序安全区取 `wx.getWindowInfo()` 的 `safeArea`，自定义导航栏高度取 `wx.getMenuButtonBoundingClientRect()`，字号档位取 `wx.getAppBaseInfo()` 的 `fontSizeSetting` 与 `fontSizeScaleFactor`；这些是开发接入的接口，视觉稿写明留白与放大规则"
+        "按 App/Web 类别选页面模式与组件：templates/ 的 HTML 模板与 scripts/template_registry.py；scripts/frontend.py init/seal/review/check。",
+        "界面的页面、动作与功能由 Luz-System 定义，视觉与排版由本技能负责，边界见 references/ui-ownership.md。"
       ],
       "checks": [
-        "`py -X utf8 scripts/check_document.py <页面.html> --allow interface` 零 ERROR",
-        "浏览器在小程序 320、375、414 宽度，后台 1280、1440、1920 与 390 宽度各截一张：量格宽、文案是否折行、卡片网格列数是否随容器变化、有没有页面级横向滚动",
-        "金刚区把入口数改成 4、6、7、9、10、11 各看一遍，列数、行数、分页和末行与推导示例一致；末行不留孤立的一个",
-        "表格用最长真实数据（长名称、最大金额）撑一遍列宽；冻结列的边线与滚动后的第 3 级层级各截一张；翻页前后列宽不变",
-        "间距取值：量页面所有 margin、padding、gap，取值都在 4、8、12、16、20、24、32、48、64、96 里",
-        "视口声明允许缩放；铺满边缘的页面在带刘海与底部指示条的屏幕上核对固定栏；小程序把微信字号调到最大档再看一遍：整套等比放大、间距不变、文字不被截断",
-        "前端的控件一律来自所选组件库的真实组件（`references/component-libraries.json`），不手写 HTML/CSS 自造控件、不由模型直接写整页代码交付：设计稿与原型写明所用库，构建后跑 `py -X utf8 scripts/audit_rendered.py <页面.html> --library <编号>`（对话框与菜单打开后的状态也要走到），“自造控件”或库的组件种类少于 6 种都算不通过",
-        "没有增删或改动功能说明里的页面、入口、标签栏项数、组件与按钮动作（对照功能说明逐项核对）；需要改的已退回 Luz-System 提变更，不在视觉稿里悄悄改（`references/ui-ownership.md`）",
-        "按“前端排布的推导”七步核对容器、栅格与断点、间距刻度、卡片网格、留白层级、对齐线、内容区与侧栏比例；在 390、760、1280、1440、1920 五个宽度截图，量最左缘是否只有一条基线，把卡片数改成 1、3、7 看末行是否仍对齐"
-      ]
+        "实际查看完整页面、目标宽度及主要操作状态；确认组件真实使用、许可、复现和恢复；不检查固定外观配额。"
+      ],
+      "preference_keywords": [],
+      "experience_scope": "ui"
     },
     "interface-pattern": {
-      "title": "页面布局模式（六种主布局与选择顺序）",
-      "summary": "先按业务优先级定信息层级，再在主次、横带分层、主区加右侧窄栏、全幅画布加浮动面板、看板分列、时间轴泳道六种布局里选一种；类名、断点、状态与可运行示例在 UI 套件里；各端（后台、小程序、智能体、网站、配置台、交易与营销）的页面框架与视觉参数，成熟组件的视觉要点",
-      "keywords": ["页面布局", "布局模式", "主次布局", "横带分层", "右侧窄栏", "全幅画布", "浮动面板", "看板", "泳道", "信息层级", "视觉重心", "等大卡片", "ui-kit", "UI 套件", "l-hero", "l-bands", "l-rail", "l-canvas", "l-kanban", "l-lanes", "各端视觉参数", "成熟组件", "配图", "丰富度", "交易与营销", "画布"],
+      "title": "页面布局模式与选择依据",
+      "summary": "页面布局模式与选择依据。外观按场景采用设计建议。",
+      "keywords": [
+        "页面布局",
+        "布局模式",
+        "主次布局",
+        "横带分层",
+        "右侧窄栏",
+        "全幅画布",
+        "浮动面板",
+        "看板",
+        "泳道",
+        "信息层级",
+        "视觉重心",
+        "等大卡片",
+        "l-rail",
+        "l-canvas",
+        "l-kanban",
+        "l-lanes",
+        "各端视觉参数",
+        "成熟组件",
+        "配图",
+        "丰富度",
+        "交易与营销",
+        "画布"
+      ],
       "sections": [
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "二、排版基础", "页面布局模式"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "二、排版基础", "层级、分隔与装饰"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "二、排版基础", "现代样式特性与兼容"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "层级与立体感", "原则"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "层级与立体感", "五级层级"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "层级与立体感", "卡片"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "层级与立体感", "对话框与面板"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "层级与立体感", "边缘线条"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "层级与立体感", "按钮的立体感"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "层级与立体感", "圆角"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "二、排版基础", "界面配图与丰富度"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "二、排版基础", "各端视觉参数"]}
+        {
+          "page": "design/patterns.md",
+          "path": []
+        }
       ],
       "tools": [
-        "边界（`references/ui-ownership.md`）：本卡只管外观。页面、入口、标签栏项数与顺序、组件有无、按钮有无及其动作、流程、状态、文案键由 Luz-System 的功能说明规定，Design 只能照做；画不下或排不下时不自行增删，退回 Luz-System 提变更（项目模式走需求变更台账）；功能与外观冲突时保留功能、换外观",
-        "首页与常见页面的范式、入口归属与去重读规则卡 `page-patterns`；整个界面项目的路径（十个阶段、思考工具、偏离说明）读规则卡 `design-path`",
-        "先写“这一页用户要做的第一件事”，把信息分成主要、次要、细节三档，再按“页面布局模式”表选一种布局；交付里先写选了哪种、为什么，再写组件结构，最后给可运行的代码和响应式断点",
-        "布局与令牌从 UI 套件起步：样式 `references/ui-kit/ui.css`（`@layer`、`oklch()` 令牌、容器查询），六种布局各有一个可运行的页面在 `references/ui-kit/layouts/`，`React` 写法在 `references/ui-kit/react/Layouts.jsx`，套件的用法见 `references/ui-kit/README.md`；套件里手写的组件不是交付的控件来源，控件用所选组件库的真实组件，读本技能的规则卡 `interface-components`",
-        "数值与断点读本技能的规则卡 `interface-layout`，行为与交互读 Luz-System 的规则卡 `miniprogram`（入口与金刚区的行为）、`admin-dashboard`；本卡管“选哪种布局”、各端的页面框架与视觉参数和成熟组件的视觉要点；组件库、间距与栅格读规则卡 `interface-components`、`interface-layout`",
-        "写完用真实浏览器和 `py -X utf8 scripts/audit_rendered.py <页面.html> --width 1440` 与 `--width 390` 扫描计算样式（字号、字重、对比度、触控尺寸、禁用的过渡写法、文本框聚焦框），多页面、对话框、状态用 `--walk` 脚本逐个扫"
+        "按 App/Web 类别选页面模式与组件：templates/ 的 HTML 模板与 scripts/template_registry.py；scripts/frontend.py init/seal/review/check。",
+        "界面的页面、动作与功能由 Luz-System 定义，视觉与排版由本技能负责，边界见 references/ui-ownership.md。"
       ],
       "checks": [
-        "眯眼测试：把截图缩小到眯着眼看，最突出的必须是预期的主角；整屏等大的卡片、两个以上的展示字号、两种主布局并排拼成一屏都不通过",
-        "容器宽 960、860、720、560 附近各看一遍：卡片是否按表里“容器变窄时”一列折叠，窄栏是否落到主区下方并取消固定，看板是否横向滚动并露出下一列",
-        "每个模块都有加载（骨架）、空、错误三种状态，悬停有反馈；可点击卡片悬停上移不超过 2 像素，用 150 毫秒",
-        "`audit_rendered.py` 在 1440 与 390 两个宽度零问题（含“聚焦框”），控制台零错误",
-        "文本框聚焦只把 1 像素边加深到次要文字色（`ink2`）：没有蓝色或主色选中框、外发光、粗描边、浏览器默认轮廓；组件库的输入框、选择器、日期、搜索在主题里把聚焦边框改成 `ink2`；按钮、链接、标签页等鼠标点击不出现焦点框，键盘 Tab 到达有 2 像素深色轮廓；手机端关掉点按高亮。`audit_rendered.py` 报“聚焦框”、`check_document.py` 报 focus frame 都算不通过",
-        "前端的控件一律来自所选组件库的真实组件（`references/component-libraries.json`），不手写 HTML/CSS 自造控件、不由模型直接写整页代码交付：设计稿与原型写明所用库，构建后跑 `py -X utf8 scripts/audit_rendered.py <页面.html> --library <编号>`（对话框与菜单打开后的状态也要走到），“自造控件”或库的组件种类少于 6 种都算不通过",
-        "没有增删或改动功能说明里的页面、入口、标签栏项数、组件与按钮动作（对照功能说明逐项核对）；需要改的已退回 Luz-System 提变更，不在视觉稿里悄悄改（`references/ui-ownership.md`）"
-      ]
+        "实际查看完整页面、目标宽度及主要操作状态；确认组件真实使用、许可、复现和恢复；不检查固定外观配额。"
+      ],
+      "preference_keywords": [],
+      "experience_scope": "ui"
     },
     "interface-motion": {
       "title": "界面动效数值（时长、缓动、列表与卡片动画、减少动态效果）",
-      "summary": "时长档与令牌、缓动令牌、各场景的动画与属性、减少动态效果的降级、只动合成属性的写法；列表变更的动效与卡片、切换控件的动效数值",
-      "keywords": ["动效", "动画", "时长", "缓动", "过渡", "FLIP", "逐项延迟", "stagger", "减少动态效果", "reduced-motion", "悬停", "按压", "展开", "折叠", "拖拽", "骨架"],
+      "summary": "界面动效数值（时长、缓动、列表与卡片动画、减少动态效果）。外观按场景采用设计建议。",
+      "keywords": [
+        "动效",
+        "动画",
+        "时长",
+        "缓动",
+        "过渡",
+        "FLIP",
+        "逐项延迟",
+        "stagger",
+        "减少动态效果",
+        "reduced-motion",
+        "悬停",
+        "按压",
+        "展开",
+        "折叠",
+        "拖拽",
+        "骨架"
+      ],
       "sections": [
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "动效"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "动效细则"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "层级与立体感", "原则"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "层级与立体感", "五级层级"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "层级与立体感", "卡片"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "层级与立体感", "对话框与面板"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "层级与立体感", "按钮的立体感"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "稳定显示"]}
+        {
+          "page": "design/motion.md",
+          "path": []
+        }
       ],
       "tools": [
-        "边界（`references/ui-ownership.md`）：本卡只管外观。页面、入口、标签栏项数与顺序、组件有无、按钮有无及其动作、流程、状态、文案键由 Luz-System 的功能说明规定，Design 只能照做；画不下或排不下时不自行增删，退回 Luz-System 提变更（项目模式走需求变更台账）；功能与外观冲突时保留功能、换外观",
-        "整个界面项目的路径（十个阶段、思考工具、偏离说明）读规则卡 `design-path`；本卡对应其中的P7阶段",
-        "时长与缓动在样式里用令牌：`--dur-instant`、`--dur-fast`、`--dur-base`、`--dur-slow` 与 `--ease-standard`、`--ease-enter`、`--ease-exit`，不在各处写散落的数值；`@media (prefers-reduced-motion: reduce)` 里把时长令牌改为接近 0 并去掉位移",
-        "何时播放哪个动画读 Luz-System 的规则卡：`py -X utf8 D:\\Codes\\Luz-System\\scripts\\context.py interaction-patterns`；智能体输入区主按钮读 `agent-composer`；本卡只写动画的形态、时长与缓动，不决定哪个操作要有反馈，也不改变何时播放、周围内容不跳位这些行为规则",
-        "MorphIcons、Lordicon、Hover、Loop、Spring 等动效参考只写入匹配结果的 `evidence.motion_signals`，需确认触发器、作用范围和 reduced-motion 降级；不用带过冲的弹簧"
+        "按 App/Web 类别选页面模式与组件：templates/ 的 HTML 模板与 scripts/template_registry.py；scripts/frontend.py init/seal/review/check。",
+        "界面的页面、动作与功能由 Luz-System 定义，视觉与排版由本技能负责，边界见 references/ui-ownership.md。"
       ],
       "checks": [
-        "`py -X utf8 D:\\Codes\\Luz-System\\scripts\\check_interaction.py <会话目录>` 动效项无警告：每个过渡或动画有 `prefers-reduced-motion` 分支、没有 `transition: all`、不对宽高外边距内边距做过渡、界面动画不超过 1.2 秒",
-        "逐条对照“动效细则”的时长档与缓动令牌表：退出短于进入，进入用减速、退出用加速，逐项延迟最多 8 项、总延迟不超过 240 毫秒",
-        "浏览器开启系统“减少动态效果”复测；性能面板确认没有布局抖动；用户在动画中再次操作立即生效",
-        "`py -X utf8 scripts/check_contrast.py` 通过（层级令牌未被改动）",
-        "`py -X utf8 scripts/check_document.py <页面.html> --allow interface` 没有“prefers-reduced-motion”与“transition: all”告警；模糊过渡在降级时也去掉",
-        "`py -X utf8 scripts/audit_stability.py <页面> --hash <路由>` 通过（累计布局偏移不超过 0.05、底色不闪、可视宽度不变），浅色与深色各一遍",
-        "没有增删或改动功能说明里的页面、入口、标签栏项数、组件与按钮动作（对照功能说明逐项核对）；需要改的已退回 Luz-System 提变更，不在视觉稿里悄悄改（`references/ui-ownership.md`）"
-      ]
+        "实际查看完整页面、目标宽度及主要操作状态；确认组件真实使用、许可、复现和恢复；不检查固定外观配额。"
+      ],
+      "preference_keywords": [],
+      "experience_scope": "ui"
     },
     "interface-icons": {
       "title": "图标设计与协同（栅格、线宽、状态、选型、图标与标题和卡片）",
-      "summary": "24 栅格与关键线、尺寸梯度、状态、一图一义与命名、双色入口图标、图标库选型与许可证、图标与标题和卡片的比例；配图的来源与风格、成熟组件的视觉要点、图片与元素密度",
-      "keywords": ["图标", "图标库", "线宽", "栅格", "关键线", "光学对齐", "双色", "命名", "许可证", "Lucide", "图标块", "卡片", "标题", "垂直居中", "热区", "配图", "丰富度"],
+      "summary": "标题前与左栏图标同排等大；底栏与侧栏优先黑色透明底，「我的」统一色。现有金刚标保留素材、尺寸、配色和样式。",
+      "keywords": [
+        "图标",
+        "图标库",
+        "线宽",
+        "栅格",
+        "关键线",
+        "光学对齐",
+        "双色",
+        "命名",
+        "许可证",
+        "Lucide",
+        "图标块",
+        "卡片",
+        "标题",
+        "垂直居中",
+        "热区",
+        "配图",
+        "丰富度",
+        "我的",
+        "上图下字",
+        "图标大小",
+        "左侧标签栏"
+      ],
       "sections": [
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "扁平线性风格", "做法与边界"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "图形：一套线性图标"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "图标设计方案"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "图标与标题、卡片的协同"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "图标与图像"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "层级与立体感", "卡片"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "层级与立体感", "圆角"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "二、排版基础", "点击区域与触控目标"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "二、排版基础", "界面配图与丰富度"]}
+        {
+          "page": "design/foundation.md",
+          "path": []
+        },
+        {
+          "page": "image-assets.md",
+          "path": []
+        }
       ],
       "tools": [
-        "边界（`references/ui-ownership.md`）：本卡只管外观。页面、入口、标签栏项数与顺序、组件有无、按钮有无及其动作、流程、状态、文案键由 Luz-System 的功能说明规定，Design 只能照做；画不下或排不下时不自行增删，退回 Luz-System 提变更（项目模式走需求变更台账）；功能与外观冲突时保留功能、换外观",
-        "整个界面项目的路径（十个阶段、思考工具、偏离说明）读规则卡 `design-path`；本卡对应其中的P6阶段",
-        "控件图标只选一个库（首选 Lucide：24 栅格、线宽 2、圆端点），按“图标库选型”核对栅格、线宽、端点与许可证；库里没有的自制，放进同一套并登记“对象到图标名”的映射表（来源与许可证）",
-        "标签页图标与页头品牌标识：`py -X utf8 scripts/new_session.py icon \"<系统名>\"` 生成，图案不取自图标库",
-        "入口图标、能力清单与指标块可按“图像生成”生成，与控件图标分开管理，同一组入口只用一种做法",
-        "图标与卡片、标题的比例读本卡“图标与标题、卡片的协同”（规则卡 `interface-icons` 本身）；整卡可点与热区的行为规则读 Luz-System 的 `py -X utf8 D:\\Codes\\Luz-System\\scripts\\context.py interaction-patterns`",
-        "图标、背景与卡片家族的细则（颜色与饱和度阈值、背景三层、九个卡片家族）读 `interface-details` 卡；本卡的数值与它冲突时记入偏离说明"
+        "按 App/Web 类别选页面模式与组件：templates/ 的 HTML 模板与 scripts/template_registry.py；scripts/frontend.py init/seal/review/check。",
+        "界面的页面、动作与功能由 Luz-System 定义，视觉与排版由本技能负责，边界见 references/ui-ownership.md。"
       ],
       "checks": [
-        "`py -X utf8 scripts/check_document.py <页面.html> --allow interface` 零 ERROR，`py -X utf8 scripts/check_contrast.py` 通过",
-        "量图标块与标题行高之比不超过 1.4、图标与标题间距按字号表取值、抽查 10 张同类卡片的内边距与圆角完全一致；线宽 2（16 像素 1.75）、同端点、同栅格",
-        "同一对象各处同一图标、不同对象不共用图标；导航、入口、功能按钮都有可见文字；只有图标的按钮有无障碍名称",
-        "图标库的许可证文件随产品保留；Remix 等自订许可证逐条读过；SF Symbols 不进入小程序与网页",
-        "没有增删或改动功能说明里的页面、入口、标签栏项数、组件与按钮动作（对照功能说明逐项核对）；需要改的已退回 Luz-System 提变更，不在视觉稿里悄悄改（`references/ui-ownership.md`）"
-      ]
+        "实际查看完整页面、目标宽度及主要操作状态；确认组件真实使用、许可、复现和恢复；不检查固定外观配额。"
+      ],
+      "preference_keywords": [],
+      "experience_scope": "ui"
     },
     "interface-recipes": {
-      "title": "界面实现参考（价格、角标、券面、不规则卡片、联动、浮层的画法）",
-      "summary": "交易、营销与会员界面常见效果的规格、画法与参考来源：价格组合与划线价、角标与徽标、券面缺口、一大两小与出框元素、吸顶与横向券条、悬浮栏与底部弹层、加购飞入、骨架屏、生成元素，以及让检查脚本认出辅助文字、小块实色与控件的类名约定；骨架与完整示例在 UI 套件（何时触发这些效果归 Luz-System）",
-      "keywords": ["实现", "写法", "划线价", "角标", "徽标", "券面", "缺口", "不规则", "一大两小", "出框", "吸顶", "联动", "安全区", "弹窗", "倒计时", "骨架屏", "生成元素", "画法", "价格", "商品卡", "悬浮栏", "底部弹层", "加购飞入", "commerce-kit", "UI 套件"],
+      "title": "界面实现参考（价格、角标、券面、不规则卡片与页内联动）",
+      "summary": "界面实现参考（价格、角标、券面、不规则卡片与页内联动）。外观按场景采用设计建议。",
+      "keywords": [
+        "实现",
+        "写法",
+        "划线价",
+        "角标",
+        "徽标",
+        "券面",
+        "缺口",
+        "不规则",
+        "一大两小",
+        "出框",
+        "吸顶",
+        "联动",
+        "安全区",
+        "弹窗",
+        "倒计时",
+        "骨架屏",
+        "生成元素",
+        "画法",
+        "价格",
+        "商品卡",
+        "悬浮栏",
+        "底部弹层",
+        "加购飞入"
+      ],
       "sections": [
-        {"page": "ui-recipes.html", "title": "界面实现参考", "path": ["工作流程"]},
-        {"page": "ui-recipes.html", "title": "界面实现参考", "path": ["核心规则"]},
-        {"page": "ui-recipes.html", "title": "界面实现参考", "path": ["平台矩阵"]},
-        {"page": "ui-recipes.html", "title": "界面实现参考", "path": ["案例样本"]},
-        {"page": "ui-recipes.html", "title": "界面实现参考", "path": ["输出契约"]},
-        {"page": "ui-recipes.html", "title": "界面实现参考", "path": ["质量门禁"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "二、排版基础", "各端视觉参数", "交易与营销界面"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "二、排版基础", "营销区的不规则排版"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "二、排版基础", "界面组件的外观", "标签与状态"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "二、排版基础", "界面组件的外观", "浮层"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "层级与立体感", "圆角"]}
+        {
+          "page": "design/components.md",
+          "path": []
+        }
       ],
       "tools": [
-        "边界（`references/ui-ownership.md`）：本卡只管外观。页面、入口、标签栏项数与顺序、组件有无、按钮有无及其动作、流程、状态、文案键由 Luz-System 的功能说明规定，Design 只能照做；画不下或排不下时不自行增删，退回 Luz-System 提变更（项目模式走需求变更台账）；功能与外观冲突时保留功能、换外观",
-        "整个界面项目的路径（十个阶段、思考工具、偏离说明）读规则卡 `design-path`；本卡对应其中的P6阶段",
-        "骨架：`references/templates.txt` 的 `commerce-kit.html`（菜单页门店栏、公告条、券条、分类栏与商品行、悬浮购物车栏、规格弹层、券面、结算明细、领券弹窗、强公告、取餐号，带深色变量块与外观切换）；完整示例：`references/ui-kit/commerce-kit/index.html`（生成元素在 `assets/`，首屏截图 `screenshot-home.png`）；换成会话主题色后按需取用，商品图换成实拍或生成的抠图",
-        "生成元素：本技能 `references/prompt-image.txt` 的元素拼板模板，`D:\\Codes\\Imagegen\\src\\imagegen.py` 先空跑再生成，`py -X utf8 scripts/cut_element_sheet.py <拼板.png> <输出目录> <16 个名称>` 切图；生成超时不自动重试（按次计费），先查已有的生成记录，仍失败就改用线性矢量",
-        "这些效果何时出现、何时触发读 Luz-System 的规则卡：`py -X utf8 D:\\Codes\\Luz-System\\scripts\\context.py commerce`（分类联动、预估到手价展开构成、倒计时依据、强公告与遮罩、加购飞入何时触发，价格体系与合规）；控件的行为读 `interaction-patterns`，小程序端读 `miniprogram`；本卡只写这些效果怎么画、怎么写，不决定哪个功能出现、何时触发",
-        "外观取值读本技能的规则卡 `interface-visual`（配色、字阶、价格色）、`interface-components`（按钮、卡片、标签与状态的外观）、`interface-layout`（栅格与间距）；动画时长读 `interface-motion`"
+        "按 App/Web 类别选页面模式与组件：templates/ 的 HTML 模板与 scripts/template_registry.py；scripts/frontend.py init/seal/review/check。",
+        "界面的页面、动作与功能由 Luz-System 定义，视觉与排版由本技能负责，边界见 references/ui-ownership.md。"
       ],
       "checks": [
-        "`py -X utf8 scripts/check_document.py <页面.html> --allow interface` 零 ERROR",
-        "`py -X utf8 scripts/validate_session.py <会话目录>` 零 ERROR",
-        "手机宽度浏览器逐屏截图核对：价格不换行、角标不遮主体、出框元素只在营销区、悬浮栏不被安全区遮挡；浅色与深色各看一遍",
-        "分类联动、倒计时、强公告点遮罩、加购飞入的行为与 Luz-System 交易与营销界面规范一致（倒计时依据服务端结束时间、强公告不响应遮罩点击、加购成功后才飞入、减少动态效果时不飞入），画法没有改变它们",
-        "没有增删或改动功能说明里的页面、入口、标签栏项数、组件与按钮动作（对照功能说明逐项核对）；需要改的已退回 Luz-System 提变更，不在视觉稿里悄悄改（`references/ui-ownership.md`）"
-      ]
+        "实际查看完整页面、目标宽度及主要操作状态；确认组件真实使用、许可、复现和恢复；不检查固定外观配额。"
+      ],
+      "preference_keywords": [],
+      "experience_scope": "ui"
     },
     "showcase": {
       "title": "系统架构图册（PDF：分层图、泳道图、部署图加表）",
       "summary": "只有图和带表题的表，不写段落；柔和浅色表头加发丝线、微软雅黑常规体不加粗、标题前无图标、页面顶部没有标题、页脚页码居中；图里每层一种色相、连线统一中性墨色。方案书、使用说明不用它，用 Word 卡（docx）",
-      "keywords": ["架构图", "系统架构", "架构图册", "泳道", "分层图", "部署图"],
+      "keywords": [
+        "架构图",
+        "系统架构",
+        "架构图册",
+        "泳道",
+        "分层图",
+        "部署图"
+      ],
       "sections": [
-        {"page": "file-design.html", "title": "文件设计规范", "path": ["核心规则", "所有格式的共同底线"]},
-        {"page": "file-design.html", "title": "文件设计规范", "path": ["核心规则", "系统架构图册"]},
-        {"page": "file-design.html", "title": "文件设计规范", "path": ["核心规则", "表格文件", "列宽、对齐与格式"]},
-        {"page": "file-design.html", "title": "文件设计规范", "path": ["核心规则", "文字文档", "表格与图片"]}
+        {
+          "page": "file-design.html",
+          "title": "文件设计规范",
+          "path": [
+            "核心规则",
+            "所有格式的共同底线"
+          ]
+        },
+        {
+          "page": "file-design.html",
+          "title": "文件设计规范",
+          "path": [
+            "核心规则",
+            "系统架构图册"
+          ]
+        },
+        {
+          "page": "file-design.html",
+          "title": "文件设计规范",
+          "path": [
+            "核心规则",
+            "表格文件",
+            "列宽、对齐与格式"
+          ]
+        },
+        {
+          "page": "file-design.html",
+          "title": "文件设计规范",
+          "path": [
+            "核心规则",
+            "文字文档",
+            "表格与图片"
+          ]
+        }
       ],
       "tools": [
         "写描述文件 spec.json（title、theme、orientation: landscape、`\"style\": \"atlas\"`、`\"show_title\": false`（不设页眉标题，第一页也不写大标题，从第一章开始）、sections[{key, title, blocks}]，块只用 figure、table、matrix），运行 `py -X utf8 scripts/make_showcase.py spec.json out.pdf --html out.html`；脚本先校验描述文件，再检查展示页、导出 PDF、检查字体与每页占满率",
@@ -531,113 +974,346 @@
       "checks": [
         "`make_showcase.py` 零 ERROR：描述文件、展示页（`check_document.py --allow showcase`）、PDF（字体、书签、文字层）、每页占满率 ≥ 70%（末页除外）",
         "逐页看渲染图：没有黑线黑框和粗体、页面顶部没有居中标题、各层（泳道、区域）有各自的色相而连线是统一的深色、连线没有穿过节点或被组名盖住、同一出口的线没有多余交叉、标题与表题同一种墨色、泳道连线没有标签、编号圆标没有压住分组标题、同一列对齐一致且表头与列同向、无大块空白、每张表有表题（跨页写“（续）”）、图中文字 ≥ 14 像素"
-      ]
+      ],
+      "experience_scope": "documents"
     },
     "interface-components": {
-      "title": "前端组件与组件库（控件一律用真实组件，深浅两套主题、高级配色）",
-      "summary": "做任何前端界面、设计稿和原型之前先选组件库：控件一律来自库的真实组件，不手写 HTML/CSS 自造控件，也不由模型直接写整页代码交付；库经它的主题机制换成本产品的主题，浅色与深色两套主题（库的暗色机制同步）、配色高级克制；后台工作台按信息降噪四法；组件的外观（按钮、卡片、标签与状态、头像、图表、浮层、输入框与登录页、切换控件、列表与表格）与同类元素外观一致",
-      "keywords": ["组件库", "组件", "控件", "自造控件", "手写控件", "代码生成", "Element Plus", "Ant Design", "TDesign", "Vant", "Vant Weapp", "WeUI", "Arco", "Naive UI", "Semi", "主题接入", "换肤", "浅色", "深色", "暗色", "深色模式", "外观", "高级感", "好看", "美观", "工作台", "信息降噪", "仪表盘", "按钮", "卡片", "标签", "头像", "图表", "浮层", "输入框", "登录页", "同类元素"],
+      "title": "真实组件与统一框架（配置、组合、主题和完整行为）",
+      "summary": "真实组件与统一框架（配置、组合、主题和完整行为）。外观按场景采用设计建议。",
+      "keywords": [
+        "组件库",
+        "组件",
+        "控件",
+        "自造控件",
+        "手写控件",
+        "代码生成",
+        "Element Plus",
+        "Ant Design",
+        "TDesign",
+        "Vant",
+        "Vant Weapp",
+        "WeUI",
+        "Arco",
+        "Naive UI",
+        "Semi",
+        "主题接入",
+        "换肤",
+        "浅色",
+        "深色",
+        "暗色",
+        "深色模式",
+        "外观",
+        "高级感",
+        "好看",
+        "美观",
+        "工作台",
+        "信息降噪",
+        "仪表盘",
+        "按钮",
+        "卡片",
+        "标签",
+        "头像",
+        "图表",
+        "浮层",
+        "输入框",
+        "登录页",
+        "同类元素",
+        "EasyUI",
+        "Beautiful UI",
+        "shadcn",
+        "模板库"
+      ],
       "sections": [
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "二、排版基础", "组件与组件库"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "二、排版基础", "界面组件的外观"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "二、排版基础", "同类元素外观一致"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "配色"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "深色与浅色两套主题"]}
+        {
+          "page": "design/components.md",
+          "path": []
+        },
+        {
+          "page": "component-reuse.md",
+          "path": []
+        }
       ],
       "tools": [
-        "边界（`references/ui-ownership.md`）：本卡只管外观。页面、入口、标签栏项数与顺序、组件有无、按钮有无及其动作、流程、状态、文案键由 Luz-System 的功能说明规定，Design 只能照做；画不下或排不下时不自行增删，退回 Luz-System 提变更（项目模式走需求变更台账）；功能与外观冲突时保留功能、换外观",
-        "整个界面项目的路径（十个阶段、思考工具、偏离说明）读规则卡 `design-path`；本卡对应其中的P5 与 P6阶段",
-        "先从 `references/component-libraries.json` 为每个前端选一个库（后台与网站、手机网页、小程序各有适用的库），把库、版本、主题方式写进前端架构；动手前用 Luz-Crawl 读该库官方文档里的主题机制与组件清单",
-        "页面用库的真实组件搭，库没有的业务块由库的原子组件拼；颜色经库的主题机制接入主题库的令牌（`py -X utf8 scripts/export_tokens.py <主题> --out <名>.tokens.json` 导出，主题见 `references/themes.json`），不逐个覆盖组件样式",
-        "页面布局与令牌从 UI 套件的六种布局起步（`references/ui-kit/layouts/`）；套件里手写的组件不是交付的控件来源",
-        "可交互原型是单文件：把所选库的脚本与样式打包内联，文件不连网；`prototype` 块写 `library`，Luz-Project 的校验器数库的组件种类",
-        "构建后用 `py -X utf8 scripts/audit_rendered.py <页面.html> --library <编号>` 在真实浏览器里扫，加 `--walk` 走对话框、菜单和各种状态",
-        "组件的外观取值读本卡的“界面组件的外观”（按钮、卡片、标签与状态、头像、图表、浮层、输入框与登录页、切换控件、列表与表格）和“同类元素外观一致”；各端按钮与输入框高度读规则卡 `interface-visual` 的分端对照；动画时长读 `interface-motion`",
-        "页面加载、切换页面、打开弹层、切换外观时已显示的内容不跳不闪，规则读 `interface-motion` 的“稳定显示”，用 `audit_stability.py` 核对",
-        "图标、背景与卡片家族的细则（颜色与饱和度阈值、背景三层、九个卡片家族）读 `interface-details` 卡；本卡的数值与它冲突时记入偏离说明",
-        "做产品开发用的前端界面 HTML（三栏单文件原型、按编号取组件、多系统页签）读规则卡 `prototype-reference`：参考实现与 `luz-kit` 组件模板库只是参考，不是模板；选 `luz-kit` 还是真实库、`data-cid` 与令牌契约在那张卡里"
+        "按 App/Web 类别选页面模式与组件：templates/ 的 HTML 模板与 scripts/template_registry.py；scripts/frontend.py init/seal/review/check。",
+        "界面的页面、动作与功能由 Luz-System 定义，视觉与排版由本技能负责，边界见 references/ui-ownership.md。"
       ],
       "checks": [
-        "前端的控件一律来自所选组件库的真实组件（`references/component-libraries.json`），不手写 HTML/CSS 自造控件、不由模型直接写整页代码交付：设计稿与原型写明所用库，构建后跑 `py -X utf8 scripts/audit_rendered.py <页面.html> --library <编号>`（对话框与菜单打开后的状态也要走到），“自造控件”或库的组件种类少于 6 种都算不通过",
-        "浅色与深色两套主题：浅色页面底亮度不低于 0.85（中性浅灰或主色同色相的极浅底），卡片纯白，库用亮色主题；深色取主题库的 `dark` 映射并开库的暗色机制（接入方式见 `component-libraries.json` 的 `dark` 字段，未核对的先读官方文档），默认跟随系统，有“跟随系统 / 浅色 / 深色”三选一，库的暗色与页面 `data-theme` 同步；`py -X utf8 scripts/check_contrast.py` 通过，`audit_rendered.py` 浅色与 `--scheme dark` 各跑一遍",
-        "前端设计文档的“组件对照”表写清每类控件对应库的哪个组件、官方文档链接、用在哪些页面；设计稿里的每个控件都能指出它是库的哪个组件",
-        "后台工作台：核心指标在左上第一落点，趋势用图形，列表状态用标签或小彩点，色彩克制，状态与品牌色只作点缀；白底 tooltip，不用霓虹发光",
-        "文本框聚焦只把 1 像素边加深到次要文字色（`ink2`）：没有蓝色或主色选中框、外发光、粗描边、浏览器默认轮廓；组件库的输入框、选择器、日期、搜索在主题里把聚焦边框改成 `ink2`；按钮、链接、标签页等鼠标点击不出现焦点框，键盘 Tab 到达有 2 像素深色轮廓；手机端关掉点按高亮。`audit_rendered.py` 报“聚焦框”、`check_document.py` 报 focus frame 都算不通过",
-        "`py -X utf8 scripts/audit_stability.py <页面> --hash <路由>` 通过（累计布局偏移不超过 0.05、底色不闪、可视宽度不变），浅色与深色各一遍",
-        "没有增删或改动功能说明里的页面、入口、标签栏项数、组件与按钮动作（对照功能说明逐项核对）；需要改的已退回 Luz-System 提变更，不在视觉稿里悄悄改（`references/ui-ownership.md`）",
-        "同一组的同类元素逐项量高度、宽度、图标尺寸、圆角与内边距，数值完全一致；头像不用文字或表情符号，默认头像按用户标识固定（企业工具后台用随机固定的扁平人像）；面积图填充不超过主色 12% 透明度"
-      ]
-    },
-    "design-direction": {
-      "title": "设计方向与审美（风格板、令牌、审美评审）",
-      "summary": "为界面或视觉项目定方向：个性与反目标、风格板、令牌推导与配色纪律、图标与圆角与层级与字阶与动效的搭配、审美评审；用风格实验室让用户切换三套预设并自由搭配",
-      "keywords": ["高级感", "质感", "审美", "风格板", "风格", "令牌", "主题", "配色纪律", "图标风格", "毛玻璃", "设计方向", "评审", "搭配", "风格实验室", "字阶", "圆角"],
-      "sections": [
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "设计令牌"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "配色"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "字体与字号", "字体族必须统一"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "一、视觉基础", "图形：一套线性图标"]}
+        "实际查看完整页面、目标宽度及主要操作状态；确认组件真实使用、许可、复现和恢复；不检查固定外观配额。"
       ],
-      "tools": [
-        "边界（`references/ui-ownership.md`）：本卡只管外观。页面、入口、标签栏项数与顺序、组件有无、按钮有无及其动作、流程、状态、文案键由 Luz-System 的功能说明规定，Design 只能照做；画不下或排不下时不自行增删，退回 Luz-System 提变更（项目模式走需求变更台账）；功能与外观冲突时保留功能、换外观",
-        "整个界面项目的路径（十个阶段、思考工具、偏离说明）读规则卡 `design-path`；本卡对应其中的P0 与 P4阶段",
-        "审美工作法读 `references/design-craft.md`（个性与反目标、八条可量化规则、素材优先级、细节清单、评分表、训练与迭代）；动手前先写三个个性形容词与三条反目标",
-        "风格板读 `references/style-boards.json`（8 块，颜色用 theme 指向主题库）；令牌与风格包标准读 `references/token-system.md`（三层结构、配色纪律十条、图标三包、搭配规则、审计脚本矩阵、待裁定）",
-        "让用户选风格：`py -X utf8 scripts/make_style_lab.py --assets <含 photo.webp、glass.webp、icons/*.webp 的目录> --out raw/02-visual/style-lab.html`，三套预设可切换并逐项搭配配色、图标、圆角、层级、字阶、动效，页面实时给出对比度、配色纪律与“待裁定”标记；用户选定后记进 BRIEF，再往下做",
-        "主题纪律：`py -X utf8 scripts/audit_theme_discipline.py --theme <id>`；搭配兼容：`--combo <主题> <图标> <圆角> <层级> <字阶> <动效>`；单主题对比度仍是 `scripts/check_contrast.py`",
-        "各阶段的提示词读 `references/design-prompts.md`（简报追问、参考拆解、风格板、令牌推导、素材提示词、动效规格、审美评审、交接）",
-        "凡超出现行规范的做法（黏土入口图标、非标准圆角、毛玻璃用于导航与标签栏、新增时长档）一律写进 BRIEF 的“待裁定”，由用户决定，不悄悄放宽；控件图标始终是 2px 线性矢量"
-      ],
-      "checks": [
-        "`py -X utf8 scripts/audit_theme_discipline.py --theme <id>` 零 FAIL，WARN 有理由，needs_ruling 已交用户",
-        "`py -X utf8 scripts/check_contrast.py` 通过；`py -X utf8 scripts/export_tokens.py --check <文件>.tokens.json` 通过",
-        "审美评审按 `design-craft.md` 第 10 节打分：任一项为 0 不交付，总分低于 20/30 不交付；附 `teardown.py --lint` 的改前改后提示条数",
-        "风格实验室里的选择与待裁定事项写进 BRIEF，并有用户的确认原话",
-        "风格与方向的选择没有触碰功能说明（页面、入口、标签栏项数、组件与按钮动作）；需要改功能的写进“待裁定”并退回 Luz-System，不在视觉方向里改（`references/ui-ownership.md`）"
-      ]
+      "preference_keywords": [],
+      "experience_scope": "ui"
     },
     "design-research": {
       "title": "设计参考研究（用 Luz-Crawl 找真实参考并量化）",
-      "summary": "为设计任务找同行业真实产品与规范，采集页面，量出字阶、色板、圆角、阴影、间距、留白，写出借用属性与不借用项",
-      "keywords": ["参考", "参考研究", "竞品", "同行", "灵感", "拆解", "临摹", "真实内容", "调研", "设计参考", "对标", "截图"],
+      "summary": "设计参考研究（用 Luz-Crawl 找真实参考并量化）。外观按场景采用设计建议。",
+      "keywords": [
+        "参考",
+        "参考研究",
+        "竞品",
+        "同行",
+        "灵感",
+        "拆解",
+        "临摹",
+        "真实内容",
+        "调研",
+        "设计参考",
+        "对标",
+        "截图"
+      ],
       "sections": [
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "三、视觉产出", "参考与版权"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["工作流程"]},
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "三、视觉产出", "视觉产出的依据"]}
+        {
+          "page": "design/sources.md",
+          "path": []
+        },
+        {
+          "page": "design/components.md",
+          "path": []
+        }
       ],
       "tools": [
-        "整套流程读 `references/reference-research.md`：参考金字塔（规范、真实产品、灵感库、素材与方法）、七步流程、借用与版权、四个追问、失败与降级",
-        "站点登记表读 `references/reference-sites.json`（59 个，已核验状态：ok、js-rendered、blocked、unreachable、redirect-other；blocked 与 unreachable 不绕过，换同类站点或请用户提供截图；超过 30 天先重新核验）",
-        "Luz-Crawl 流程：`node D:\\Codes\\Luz-Crawl\\scripts\\luz-crawl.mjs doctor` → `begin \"<主题>\" --new` → `experience --query` → `search` / `capture`，每条命令带 `--out <任务目录>`；之后按 `D:\\Codes\\Luz-Crawl\\references\\preflight.md` 做 `conclude` 与 `check`",
-        "量化：`py -X utf8 scripts/teardown.py <快照或网址> --width 390 --lint --md <名>.md --out <名>.json`，得到字阶、主色、圆角、阴影、间距基准、对齐线、留白比例与体检提示",
-        "把 3–5 个产品的指纹并成对照表，写“借用属性”与“不借什么”；只借属性，不借图片、插画、图标、文案、独有构图与品牌元素"
+        "按 App/Web 类别选页面模式与组件：templates/ 的 HTML 模板与 scripts/template_registry.py；scripts/frontend.py init/seal/review/check。"
       ],
       "checks": [
-        "`crawl_preflight.py check` 通过；每条结论有来源与采用位置，gaps 写明没覆盖的范围",
-        "对照表至少 3 个同行产品，每个有 teardown 输出；借用属性逐条写了理由与改法",
-        "素材权利逐条记录；没有绕过拦截，没有把搜索卡片当来源"
-      ]
+        "实际查看完整页面、目标宽度及主要操作状态；确认组件真实使用、许可、复现和恢复；不检查固定外观配额。"
+      ],
+      "preference_keywords": [],
+      "experience_scope": "ui"
     },
     "image-assets": {
-      "title": "素材生成（Imagegen：商品图、入口图标、主视觉装饰）",
-      "summary": "用八槽位提示词生成真实感商品摄影、4×4 入口图标拼板、半透明玻璃或软陶主视觉装饰，并按清单复核与登记",
-      "keywords": ["素材", "生图", "图像生成", "Imagegen", "提示词", "商品图", "头图", "入口图标", "拼板", "主视觉", "摄影", "3D", "软陶", "玻璃"],
+      "title": "素材生成（Imagegen：图标、低对比背景、商品图与装饰）",
+      "summary": "为需要新画的图标、配图和背景选用 Imagegen，复核真实用途、授权与接入后的效果。",
+      "keywords": [
+        "素材",
+        "生图",
+        "图像生成",
+        "Imagegen",
+        "提示词",
+        "商品图",
+        "头图",
+        "入口图标",
+        "拼板",
+        "主视觉",
+        "摄影",
+        "3D",
+        "软陶",
+        "玻璃",
+        "背景",
+        "低对比背景"
+      ],
       "sections": [
-        {"page": "visual-design.html", "title": "视觉设计规范", "path": ["核心规则", "三、视觉产出", "图像生成"]}
+        {
+          "page": "image-assets.md",
+          "path": []
+        }
       ],
       "tools": [
-        "方法读 `references/imagegen-playbook.md`（八槽位、按角色选配方、流程、拼板、复核清单、成本、翻车对策）；模板读 `references/prompt-image.txt`（八槽位解剖、商品摄影、装饰物、元素拼板，三个已验证的写法）",
-        "前提：用户已确认风格与作用范围，或本次明确要求生成（把原话写进 BRIEF，生成物只作风格样张）；没有这两条不调用",
-        "试运行：`py -X utf8 D:\\Codes\\Imagegen\\src\\imagegen.py --prompt-file <文件> --ratio <> --resolution <> --quality high --format png [--background transparent] --output-dir raw/02-visual/generated --dry-run`，核对后一次一张串行生成；超时不自动重试",
-        "拼板切图：`py -X utf8 scripts/cut_element_sheet.py <拼板.png> <输出目录> <名称1> … <名称16>`",
-        "风格块取所选风格板的 `imagery.imagegen_style_block`（把 {action} {accent} {canvas} 换成主题色），整段复用；控件图标、界面截图、背景纹理不生成",
-        "样张预算：一次风格板试做不超过 3 个请求，超出先问用户"
+        "使用 scripts/generate_ui_assets.py 调用本地 Imagegen；逐次串行生成，保留原图、派生图、提示词、回执与实际用途。"
       ],
       "checks": [
-        "每张图有提示词文件、实际尺寸与格式、复核结论和用途，登记在 BRIEF",
-        "透明图在浅色底与深色底上各合成一遍再判断（看图软件把透明像素显示成黑色，会把隐藏色块当成光晕）",
-        "无文字、标志、人脸与手；同组风格、光线、调色一致；没有占位图冒充成品"
-      ]
+        "检查真实文件、许可、裁切、用途与最终接入；不因仅有调用记录而判定完成。"
+      ],
+      "experience_scope": "ui",
+      "preference_keywords": []
+    },
+    "app": {
+      "title": "App设计与可运行前端",
+      "experience_scope": "app",
+      "keywords": [
+        "app"
+      ],
+      "preference_keywords": [],
+      "sections": [
+        {
+          "page": "design/app.md",
+          "path": []
+        },
+        {
+          "page": "design/foundation.md",
+          "path": []
+        },
+        {
+          "page": "design/patterns.md",
+          "path": []
+        },
+        {
+          "page": "design/components.md",
+          "path": []
+        },
+        {
+          "page": "design/motion.md",
+          "path": []
+        },
+        {
+          "page": "design/interaction-contract.md",
+          "path": []
+        },
+        {
+          "page": "design/review.md",
+          "path": []
+        }
+      ],
+      "tools": [
+        "本地调整直接核对现有成品；有外部信息缺口或用户要求搜索时，按调用协议研究。",
+        "templates/ 的 HTML 模板按编号取组件：scripts/template_registry.py list|show；template_library.py list/select；优先现有框架与成熟组件。",
+        "frontend.py init/seal/review/check；quality_rules.py list/plan/check；实际浏览器操作与截图。",
+        "界面的页面、动作与功能由 Luz-System 定义，视觉与排版由本技能负责，边界见 references/ui-ownership.md。"
+      ],
+      "checks": [
+        "核对成品要求和实际交互，外观建议结合目标视口判断。",
+        "核对卡片对齐与纵向接缝为 0、图标配色与独立触控区、图表口径、对象标识和连续交互。",
+        "分别以真实证据验证 UX 任务、AX 唯一定位及结果、DX 复现维护；无障碍另查。",
+        "逐对象核对结果就近或详情页、完整填写独立页、原位纵向选择及提交值、周期范围权限和返回恢复；不以静态标记代替真实操作。"
+      ],
+      "summary": "App设计与可运行前端。外观按场景采用设计建议。"
+    },
+    "web": {
+      "title": "Web/PC设计与可运行前端",
+      "experience_scope": "web",
+      "keywords": [
+        "web"
+      ],
+      "preference_keywords": [],
+      "sections": [
+        {
+          "page": "design/web.md",
+          "path": []
+        },
+        {
+          "page": "design/foundation.md",
+          "path": []
+        },
+        {
+          "page": "design/patterns.md",
+          "path": []
+        },
+        {
+          "page": "design/components.md",
+          "path": []
+        },
+        {
+          "page": "design/motion.md",
+          "path": []
+        },
+        {
+          "page": "design/interaction-contract.md",
+          "path": []
+        },
+        {
+          "page": "design/review.md",
+          "path": []
+        }
+      ],
+      "tools": [
+        "本地调整直接核对现有成品；有外部信息缺口或用户要求搜索时，按调用协议研究。",
+        "templates/ 的 HTML 模板按编号取组件：scripts/template_registry.py list|show；template_library.py list/select；优先现有框架与成熟组件。",
+        "frontend.py init/seal/review/check；quality_rules.py list/plan/check；实际浏览器操作与截图。",
+        "界面的页面、动作与功能由 Luz-System 定义，视觉与排版由本技能负责，边界见 references/ui-ownership.md。"
+      ],
+      "checks": [
+        "核对成品要求和实际交互，外观建议结合目标视口判断。",
+        "核对卡片对齐与纵向接缝为 0、图标配色与独立触控区、图表口径、对象标识和连续交互。",
+        "分别以真实证据验证 UX 任务、AX 唯一定位及结果、DX 复现维护；无障碍另查。",
+        "逐对象核对结果就近或详情页、完整填写独立页、原位纵向选择及提交值、周期范围权限和返回恢复；不以静态标记代替真实操作。"
+      ],
+      "summary": "Web/PC设计与可运行前端。外观按场景采用设计建议。"
+    },
+    "documents": {
+      "title": "文件排版分类入口",
+      "experience_scope": "documents",
+      "keywords": [
+        "documents"
+      ],
+      "preference_keywords": [],
+      "sections": [
+        {
+          "page": "design/documents.md",
+          "path": []
+        }
+      ],
+      "tools": [
+        "按调用协议选择本地依据或外部研究，再按本类别选择真实模板和实现工具。"
+      ],
+      "checks": [
+        "检查本类别的完整成品、内容与适用验证；不混用其它类别规则。"
+      ],
+      "summary": "文件排版分类入口；按本类别读取规则并验证完整成品。"
+    },
+    "design-direction": {
+      "title": "设计方向与审美（风格板、令牌、审美评审）",
+      "summary": "设计方向与审美（风格板、令牌、审美评审）。外观按场景采用设计建议。",
+      "keywords": [
+        "高级感",
+        "质感",
+        "审美",
+        "风格板",
+        "风格",
+        "令牌",
+        "主题",
+        "配色纪律",
+        "图标风格",
+        "毛玻璃",
+        "设计方向",
+        "评审",
+        "搭配",
+        "风格实验室",
+        "字阶",
+        "圆角"
+      ],
+      "sections": [
+        {
+          "page": "design/foundation.md",
+          "path": []
+        },
+        {
+          "page": "design/components.md",
+          "path": []
+        }
+      ],
+      "tools": [
+        "按 App/Web 类别选页面模式与组件：templates/ 的 HTML 模板与 scripts/template_registry.py；scripts/frontend.py init/seal/review/check。",
+        "界面的页面、动作与功能由 Luz-System 定义，视觉与排版由本技能负责，边界见 references/ui-ownership.md。"
+      ],
+      "checks": [
+        "实际查看完整页面、目标宽度及主要操作状态；确认组件真实使用、许可、复现和恢复；不检查固定外观配额。"
+      ],
+      "preference_keywords": [],
+      "experience_scope": "ui"
     }
+  },
+  "experience_scopes": {
+    "shared": [
+      "chinese-first-readable-content",
+      "deliver-to-requested-dir"
+    ],
+    "ui": [
+      "adaptive-reference-layout",
+      "frontend-real-components-light-premium",
+      "frontend-source-first-reuse",
+      "clean-cards-and-compact-canvas",
+      "card-first-trust-hierarchy",
+      "unified-shell-theme",
+      "imagegen-decorative-elements",
+      "flat-line-style",
+      "light-and-dark-themes-required",
+      "visual-approval-scope-keeps-controls-linear",
+      "ui-function-vs-visual-split"
+    ],
+    "app": [
+      "commercial-miniprogram-density"
+    ],
+    "web": [
+      "admin-density-and-table",
+      "b2b-status-light-and-surface",
+      "b2b-tool-graphite",
+      "backend-workbench-noise-reduction"
+    ],
+    "poster": [],
+    "documents": [
+      "word-by-type",
+      "word-paper-style",
+      "xlsx-business-look",
+      "catalog-table-look",
+      "group-columns-lead-big-to-small"
+    ]
   }
 }

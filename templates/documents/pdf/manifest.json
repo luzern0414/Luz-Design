@@ -1,0 +1,195 @@
+{
+  "type": "pdf",
+  "title": "便携式文档",
+  "naming": "DC-PD-三位序号-中文名.pdf",
+  "items": [
+    {
+      "id": "DC-PD-001",
+      "name": "表格目录",
+      "use": "横版表格目录：按分类分组的商品清单与句子型业务清单，表头与对象名列有浅色层次，每个表格片段四角圆角",
+      "file": "samples/DC-PD-001-表格目录.pdf",
+      "spec": "specs/DC-PD-001-表格目录.json",
+      "generator": "py -X utf8 scripts/make_table_pdf.py specs/DC-PD-001-表格目录.json out.pdf（Edge 导出，正式命令需会话与前置检索门禁）；样例：py -X utf8 templates/documents/pdf/tools/render_samples.py DC-PD-001",
+      "checks": [
+        "py -X utf8 scripts/check_pdf.py templates/documents/pdf/samples/DC-PD-001-表格目录.pdf",
+        "核对 layout.json：标题左边线、每段四角圆角、数据行完整；逐页看行业术语断行与单字末行"
+      ],
+      "fields": [
+        "title",
+        "theme",
+        "keep_together",
+        "sections[].heading",
+        "sections[].label",
+        "sections[].heads",
+        "sections[].widths",
+        "sections[].groups",
+        "sections[].rows"
+      ]
+    },
+    {
+      "id": "DC-PD-002",
+      "name": "系统图册",
+      "use": "系统架构图册：分层图、泳道图、部署图加说明表，页面顶部不放标题，页脚页码居中",
+      "file": "samples/DC-PD-002-系统图册.pdf",
+      "spec": "specs/DC-PD-002-系统图册.json",
+      "generator": "py -X utf8 scripts/make_showcase.py specs/DC-PD-002-系统图册.json out.pdf --html out.html（Edge 导出，正式命令需会话与前置检索门禁）；样例：py -X utf8 templates/documents/pdf/tools/render_samples.py DC-PD-002",
+      "checks": [
+        "py -X utf8 scripts/check_pdf.py templates/documents/pdf/samples/DC-PD-002-系统图册.pdf",
+        "py -X utf8 scripts/check_document.py out.html --allow showcase（make_showcase 自动运行）；逐页看连线、编号圆标与对齐，非末页占满率不低于 75%"
+      ],
+      "fields": [
+        "title",
+        "theme",
+        "sections[].title",
+        "sections[].blocks（figure 的 data、table 的 columns 与 rows）"
+      ]
+    },
+    {
+      "id": "DC-PD-003",
+      "name": "方案",
+      "use": "Word 导出的方案 PDF：封面、目录、页眉标题、页脚页码居中、全黑白、表题在上",
+      "file": "samples/DC-PD-003-方案.pdf",
+      "spec": "specs/DC-PD-003-方案.json",
+      "generator": "py -X utf8 scripts/make_docx_paginated.py specs/DC-PD-003-方案.json out.docx（WPS 文字或 Word 排版并导出同名 PDF，交付 PDF；正式命令需会话与前置检索门禁）；样例：py -X utf8 templates/documents/pdf/tools/render_samples.py DC-PD-003",
+      "checks": [
+        "py -X utf8 scripts/check_pdf.py templates/documents/pdf/samples/DC-PD-003-方案.pdf",
+        "py -X utf8 scripts/check_document.py out.docx --allow paper --allow cover --allow header；逐页看 PDF：封面无页码、目录页码与标题所在页一致"
+      ],
+      "fields": [
+        "title",
+        "cover.info",
+        "sections[].heading",
+        "sections[].blocks"
+      ]
+    },
+    {
+      "id": "DC-PD-004",
+      "name": "报告",
+      "use": "Markdown 来源的报告 PDF：结论在前、表题在上、金额右对齐、三级小节用主题色",
+      "file": "samples/DC-PD-004-报告.pdf",
+      "spec": "specs/DC-PD-004-报告.json",
+      "generator": "py -X utf8 templates/documents/pdf/tools/md_to_pdf.py specs/DC-PD-004-报告.json out.pdf（库内工具，技能生成器暂无 Markdown 入口，不经过门禁）；样例：py -X utf8 templates/documents/pdf/tools/render_samples.py DC-PD-004",
+      "checks": [
+        "py -X utf8 scripts/check_pdf.py templates/documents/pdf/samples/DC-PD-004-报告.pdf",
+        "py -X utf8 scripts/check_document.py specs/DC-PD-004-报告.md（工具自动运行）；逐页看分页、单字末行与表格对齐"
+      ],
+      "fields": [
+        "title",
+        "theme",
+        "keep_together",
+        "source（Markdown 文件，改正文与表格）"
+      ]
+    }
+  ],
+  "parts": [
+    {
+      "id": "DC-PD-P01",
+      "name": "分组目录表",
+      "use": "按分类分组的横版目录表：对象名列、表头与分组标题共用左边线，每个表格片段四角圆角",
+      "file": "specs/parts/DC-PD-P01-分组目录表.json",
+      "used_in": [
+        "DC-PD-001"
+      ]
+    },
+    {
+      "id": "DC-PD-P02",
+      "name": "句子型清单表",
+      "use": "单元格写完整句子的清单表：fill 让文字铺满列宽，短值居中，heads 与 widths 逐列给定",
+      "file": "specs/parts/DC-PD-P02-句子型清单表.json",
+      "used_in": [
+        "DC-PD-001"
+      ]
+    },
+    {
+      "id": "DC-PD-P03",
+      "name": "分词保护词表",
+      "use": "keep_together 防止分词器把行业术语拆到两行；加到 spec 顶层",
+      "file": "specs/parts/DC-PD-P03-分词保护词表.json",
+      "used_in": [
+        "DC-PD-001",
+        "DC-PD-004"
+      ]
+    },
+    {
+      "id": "DC-PD-P04",
+      "name": "分层架构图",
+      "use": "使用端、业务模块、基础保障三层，层内分组，连线编号对应数据流向表",
+      "file": "specs/parts/DC-PD-P04-分层架构图.json",
+      "used_in": [
+        "DC-PD-002"
+      ]
+    },
+    {
+      "id": "DC-PD-P05",
+      "name": "泳道图",
+      "use": "横向是业务阶段，纵向是角色，连线只连相邻阶段",
+      "file": "specs/parts/DC-PD-P05-泳道图.json",
+      "used_in": [
+        "DC-PD-002"
+      ]
+    },
+    {
+      "id": "DC-PD-P06",
+      "name": "部署图",
+      "use": "使用者设备、互联网入口、服务器、外部平台自左向右，外部系统用虚线框",
+      "file": "specs/parts/DC-PD-P06-部署图.json",
+      "used_in": [
+        "DC-PD-002"
+      ]
+    },
+    {
+      "id": "DC-PD-P07",
+      "name": "图册表格",
+      "use": "带表题的说明表：文字列左对齐，编号列居中，widths 给长文本列更多宽度",
+      "file": "specs/parts/DC-PD-P07-图册表格.json",
+      "used_in": [
+        "DC-PD-002"
+      ]
+    },
+    {
+      "id": "DC-PD-P08",
+      "name": "依赖矩阵",
+      "use": "行是模块，列是被依赖的模块，用“是”与“—”表示",
+      "file": "specs/parts/DC-PD-P08-依赖矩阵.json",
+      "used_in": [
+        "DC-PD-002"
+      ]
+    },
+    {
+      "id": "DC-PD-P09",
+      "name": "封面与目录",
+      "use": "Word 导出方案的封面与目录：封面无页码，目录用罗马数字，页眉只放文档标题",
+      "file": "specs/parts/DC-PD-P09-封面与目录.json",
+      "used_in": [
+        "DC-PD-003"
+      ]
+    },
+    {
+      "id": "DC-PD-P10",
+      "name": "方案规则表",
+      "use": "方案里的规则表：表题在上，规则、说明两列文字左对齐",
+      "file": "specs/parts/DC-PD-P10-方案规则表.json",
+      "used_in": [
+        "DC-PD-003"
+      ]
+    },
+    {
+      "id": "DC-PD-P11",
+      "name": "结论要点",
+      "use": "报告第一章写结论要点，一条一个结论",
+      "file": "specs/parts/DC-PD-P11-结论要点.md",
+      "used_in": [
+        "DC-PD-004"
+      ]
+    },
+    {
+      "id": "DC-PD-P12",
+      "name": "表题与表格",
+      "use": "表题写在表前一行（表 N　标题），表格不超过六列，合计行写“合计”",
+      "file": "specs/parts/DC-PD-P12-表题与表格.md",
+      "used_in": [
+        "DC-PD-004"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "type": "matrix",
+  "caption": "模块依赖关系",
+  "columns": [
+    "模块",
+    "会员账户",
+    "优惠券",
+    "商品",
+    "订单",
+    "库存",
+    "配送"
+  ],
+  "rows": [
+    [
+      "订单",
+      true,
+      true,
+      true,
+      false,
+      true,
+      false
+    ],
+    [
+      "配送",
+      false,
+      false,
+      false,
+      true,
+      false,
+      false
+    ],
+    [
+      "库存",
+      false,
+      false,
+      true,
+      true,
+      false,
+      false
+    ]
+  ]
+}

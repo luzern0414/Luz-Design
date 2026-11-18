@@ -1,0 +1,701 @@
+<!-- cat: MOTN | 动效 -->
+<style>
+  /* 动效组件专属样式：前缀 mot-。时长与曲线全部取令牌变量；系统要求减少动态时由共用样式压成瞬时，只保留终态 */
+  .mot-card { display: grid; gap: var(--s-3); }
+  .mot-box { display: grid; place-items: center; align-content: center; min-height: 72px; }
+  .mot-foot { display: flex; align-items: center; justify-content: space-between; gap: var(--s-2); padding-top: var(--s-3); border-top: 1px solid var(--line); }
+  .mot-spec { display: flex; flex-wrap: wrap; gap: var(--s-1); min-width: 0; }
+  .mot-spec .tag { height: 24px; background: var(--action-tint); color: var(--action-press); }
+  .mot-foot .btn { flex: none; }
+
+  /* 001 数字滚动 */
+  .mot-num { display: grid; justify-items: center; gap: var(--s-1); }
+  .mot-big { font-size: var(--fs-3xl); }
+
+  /* 002 徽标 */
+  .mot-ico { position: relative; display: grid; place-items: center; width: 64px; height: 64px; border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--elev-2); }
+  .mot-ico img { width: 30px; height: 30px; }
+  .mot-ico .badge { top: -6px; right: -6px; min-width: 20px; height: 20px; line-height: 20px; border: 2px solid var(--surface); box-sizing: content-box; animation-name: none; }
+  .mot-ico .badge[data-in] { animation-name: lz-pop; }
+
+  /* 003 展开收起 */
+  .mot-ex { width: 100%; overflow: hidden; }
+  .mot-ex .expand__body { display: grid; gap: var(--s-2); font-size: var(--fs-sm); color: var(--ink-2); }
+  .mot-ex .expand__body p { display: flex; justify-content: space-between; gap: var(--s-3); }
+  .mot-ex .expand__body b { font-weight: 600; color: var(--ink); }
+
+  /* 004 卡片按压 */
+  .mot-press { display: grid; grid-template-columns: 64px 1fr auto; align-items: center; column-gap: var(--s-3); width: 100%; padding: var(--s-3); text-align: left; }
+  .mot-press img { width: 64px; height: 64px; border-radius: var(--r-md); object-fit: cover; }
+  .mot-press.is-pressed { transform: scale(.97); box-shadow: none; }
+  .mot-press > span { min-width: 0; }
+
+  /* 005 成功勾选 */
+  .mot-ring { display: grid; place-items: center; width: 76px; height: 76px; border-radius: 50%; background: var(--success); }
+  .mot-ring img { width: 38px; height: 38px; filter: invert(1); }
+  .mot-ring[data-play] { animation: mot-ring 720ms var(--ease-out) both; }
+  .mot-ring[data-play] img { animation: lz-pop var(--dur-slow) var(--ease-spring) 140ms both; }
+  @keyframes mot-ring { 0% { transform: scale(.4); box-shadow: 0 0 0 0 var(--success-tint); } 60% { transform: scale(1.06); } 100% { transform: scale(1); box-shadow: 0 0 0 16px transparent; } }
+
+  /* 006 输入抖动 */
+  .mot-field { width: 100%; }
+
+  /* 007 骨架转内容 */
+  .mot-skd { display: grid; grid-template-columns: 72px 1fr; align-items: center; column-gap: var(--s-3); width: 100%; min-height: 80px; padding: var(--s-3); }
+  .mot-skd__img { width: 72px; height: 72px; border-radius: var(--r-md); object-fit: cover; }
+  .mot-skd__lines { display: grid; gap: var(--s-2); }
+  [data-cid^="AP-MOTN"] .skel { background: linear-gradient(100deg, color-mix(in srgb, var(--action) 11%, var(--surface)) 30%, color-mix(in srgb, var(--action) 4%, var(--surface)) 50%, color-mix(in srgb, var(--action) 11%, var(--surface)) 70%) 0 0 / 200% 100%; animation: lz-shimmer 1.4s linear infinite; }
+
+  /* 008 流式文字 */
+  .mot-stream { width: 100%; min-height: 3.2em; }
+
+  /* 009 悬浮说明浮现：静态预览，非交互 */
+  .mot-tipwrap { position: relative; display: inline-grid; padding-top: 48px; }
+  .mot-tip { position: absolute; top: 0; left: 50%; padding: var(--s-2) var(--s-3); border-radius: var(--r-sm); background: var(--ink); color: var(--bg); font-size: var(--fs-sm); line-height: 1.4; white-space: nowrap; opacity: 0; transform: translateX(-50%) translateY(6px) scale(.96); transform-origin: bottom center; pointer-events: none; transition: opacity var(--dur-quick) var(--ease-out), transform var(--dur-quick) var(--ease-out); }
+  .mot-tipwrap[data-show] .mot-tip { opacity: 1; transform: translateX(-50%) none; }
+
+  /* 010 弹性开关 */
+  .mot-sw { display: flex; align-items: center; justify-content: space-between; gap: var(--s-4); width: 100%; }
+
+  /* 011 错峰入场 */
+  .mot-rows { width: 100%; overflow: hidden; }
+  .mot-rows .row { min-height: 60px; }
+  .mot-rows .row__lead { width: 44px; height: 44px; }
+  .mot-rows .row[data-in] { animation: lz-rise var(--dur-slow) var(--ease-out) both; animation-delay: calc(var(--i, 0) * var(--stagger)); }
+
+  /* 012 视图切换 */
+  .mot-views { width: 100%; }
+  .mot-view { width: 100%; transition: opacity var(--dur-quick) var(--ease-out), transform var(--dur-quick) var(--ease-out); }
+  .mot-view[data-leave] { opacity: 0; transform: translateY(-6px); }
+  .mot-view[data-enter] { animation: lz-view var(--dur-base) var(--ease-out) both; }
+  .mot-view__card { display: grid; align-content: center; gap: var(--s-2); padding: var(--s-2) var(--s-4); }
+  .mot-view__body { display: flex; align-items: center; gap: var(--s-3); }
+  .mot-view__bar { display: flex; align-items: center; gap: var(--s-2); min-height: 40px; }
+  .mot-view__bar h3 { font-size: var(--fs-lg); font-weight: 600; }
+  .mot-view__img { flex: none; width: 72px; height: 72px; border-radius: var(--r-md); object-fit: cover; }
+  .mot-view .row { cursor: pointer; }
+
+  /* 013 标签滑动指示 */
+  .mot-tabs { position: relative; display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; width: 100%; border-bottom: 1px solid var(--line); }
+  .mot-tabs button { min-height: 44px; font-size: var(--fs-sm); color: var(--ink-3); transition: color var(--dur-quick) var(--ease-out); }
+  .mot-tabs button[aria-selected="true"] { color: var(--action-press); font-weight: 600; }
+  .mot-tabs__ind { position: absolute; left: 0; bottom: -1px; height: 3px; width: var(--w, 0px); border-radius: 3px 3px 0 0; background: var(--action); transform: translateX(var(--x, 0px)); transition: transform var(--dur-base) var(--ease-out), width var(--dur-base) var(--ease-out); }
+  .mot-pane { width: 100%; padding-top: var(--s-4); text-align: center; font-size: var(--fs-md); color: var(--ink-2); animation: lz-fade var(--dur-base) var(--ease-out) both; }
+  .mot-pane b { font-size: var(--fs-xl); font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; }
+
+  /* 014 卡片尺寸变化 */
+  .mot-size { width: 100%; overflow: hidden; }
+  .mot-size__img { width: 100%; height: 72px; object-fit: cover; transition: height var(--dur-slow) var(--ease-out); }
+  .mot-size[data-big] .mot-size__img { height: 172px; }
+  .mot-size__body { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); padding: var(--s-3) var(--s-4); }
+</style>
+
+<article class="demo" data-cid="AP-MOTN-001" data-name="数字滚动入场" data-cat="MOTN">
+  <div class="demo__head"><span class="demo__name">数字滚动入场</span></div>
+  <p class="demo__note">适合：首页指标、余额入场时从零滚到当前值</p>
+  <div class="demo__stage">
+    <div class="mot-card">
+      <div class="mot-box"><div class="mot-num"><span class="stat__label">累计订单</span><span class="stat__val mot-big"><span data-n>12,860</span><small>单</small></span></div></div>
+      <div class="mot-foot"><div class="mot-spec" data-spec="时长:--dur-slow*2,曲线:--ease-out"></div><button class="btn btn--secondary btn--sm" data-play>播放</button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-MOTN-002" data-name="徽标弹入" data-cat="MOTN">
+  <div class="demo__head"><span class="demo__name">徽标弹入</span></div>
+  <p class="demo__note">适合：入口角标数字变化时的弹性出现</p>
+  <div class="demo__stage">
+    <div class="mot-card">
+      <div class="mot-box"><span class="mot-ico" role="img" aria-label="消息"><img src="../../kit/assets/line/message.webp" alt=""><span class="badge" data-in>3</span></span></div>
+      <div class="mot-foot"><div class="mot-spec" data-spec="时长:--dur-slow,曲线:--ease-spring"></div><button class="btn btn--secondary btn--sm" data-play>播放</button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-MOTN-003" data-name="展开收起" data-cat="MOTN">
+  <div class="demo__head"><span class="demo__name">展开收起</span></div>
+  <p class="demo__note">适合：订单详情等就近展开，高度平滑过渡</p>
+  <div class="demo__stage">
+    <div class="mot-card">
+      <div class="mot-box">
+        <div class="card list mot-ex">
+          <button class="row" data-expand="mot-ex-1"><div class="row__main"><p class="row__title">订单详情</p><p class="row__meta">红玫瑰花束 共 1 件</p></div><span class="chev" aria-hidden="true"></span></button>
+          <div class="expand" id="mot-ex-1"><div><div class="expand__body"><p><span>配送门店</span><b>建国路店</b></p><p><span>送达时间</span><b>2 小时内</b></p><p><span>实付金额</span><b>¥199.00</b></p></div></div></div>
+        </div>
+      </div>
+      <div class="mot-foot"><div class="mot-spec" data-spec="时长:--dur-base,曲线:--ease-out"></div><button class="btn btn--secondary btn--sm" data-play>播放</button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-MOTN-004" data-name="卡片按压" data-cat="MOTN">
+  <div class="demo__head"><span class="demo__name">卡片按压</span></div>
+  <p class="demo__note">适合：可点击卡片的按下缩放反馈</p>
+  <div class="demo__stage">
+    <div class="mot-card">
+      <div class="mot-box"><button class="card card--press mot-press" data-toast="已打开商品"><img src="../../kit/assets/photo/product-peony-pink.webp" alt=""><span><span class="row__title one-line" style="display:block">粉芍药花束</span><span class="row__meta" style="display:block">同城 2 小时送达</span></span><span class="price"><small>¥</small>239</span></button></div>
+      <div class="mot-foot"><div class="mot-spec" data-spec="时长:--dur-quick,缩放:97%"></div><button class="btn btn--secondary btn--sm" data-play>播放</button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-MOTN-005" data-name="成功勾选" data-cat="MOTN">
+  <div class="demo__head"><span class="demo__name">成功勾选</span></div>
+  <p class="demo__note">适合：提交、支付成功时的圆环扩散与对勾弹入</p>
+  <div class="demo__stage">
+    <div class="mot-card">
+      <div class="mot-box"><span class="mot-ring" data-play role="img" aria-label="已完成"><img src="../../kit/assets/line/check.webp" alt=""></span></div>
+      <div class="mot-foot"><div class="mot-spec" data-spec="时长:--dur-slow,曲线:--ease-spring"></div><button class="btn btn--secondary btn--sm" data-play>播放</button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-MOTN-006" data-name="输入抖动" data-cat="MOTN">
+  <div class="demo__head"><span class="demo__name">输入抖动</span></div>
+  <p class="demo__note">适合：输入不合法时的横向抖动，改对后恢复</p>
+  <div class="demo__stage">
+    <div class="mot-card">
+      <div class="mot-box"><div class="field mot-field"><label class="field__label" for="mot-in-1">手机号</label><input class="input" id="mot-in-1" inputmode="numeric" value="138001380" aria-describedby="mot-err-1"><p class="field__err" id="mot-err-1" hidden>请输入 11 位手机号</p></div></div>
+      <div class="mot-foot"><div class="mot-spec" data-spec="时长:--dur-slow,位移:5 像素"></div><button class="btn btn--secondary btn--sm" data-play>播放</button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-MOTN-007" data-name="骨架转内容" data-cat="MOTN">
+  <div class="demo__head"><span class="demo__name">骨架转内容</span></div>
+  <p class="demo__note">适合：数据返回后骨架让位于真实内容</p>
+  <div class="demo__stage">
+    <div class="mot-card">
+      <div class="mot-box">
+        <div class="card mot-skd" aria-live="polite">
+          <div class="skel" data-s="skel" hidden style="width:72px;height:72px;border-radius:var(--r-md)"></div>
+          <div class="mot-skd__lines" data-s="skel" hidden><div class="skel" style="height:18px;width:60%"></div><div class="skel" style="height:14px;width:90%"></div><div class="skel" style="height:14px;width:40%"></div></div>
+          <img class="mot-skd__img" src="../../kit/assets/photo/product-monstera.webp" alt="" data-s="content">
+          <div class="mot-skd__lines" data-s="content"><p class="row__title">龟背竹盆栽</p><p class="row__meta">耐阴好养 适合客厅</p><p class="price"><small>¥</small>159</p></div>
+        </div>
+      </div>
+      <div class="mot-foot"><div class="mot-spec" data-spec="时长:--dur-slow,错峰:--stagger"></div><button class="btn btn--secondary btn--sm" data-play>播放</button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-MOTN-008" data-name="流式文字光标" data-cat="MOTN">
+  <div class="demo__head"><span class="demo__name">流式文字光标</span></div>
+  <p class="demo__note">适合：智能体回答逐字输出，末尾光标闪烁</p>
+  <div class="demo__stage">
+    <div class="mot-card">
+      <div class="mot-box"><p class="bubble mot-stream" data-stream>三家门店共 128 笔订单已完成比对，其中 3 笔金额不一致，已生成对账结果。</p></div>
+      <div class="mot-foot"><div class="mot-spec" data-spec="速度:30 字每秒"></div><button class="btn btn--secondary btn--sm" data-play>播放</button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-MOTN-009" data-name="悬浮说明浮现" data-cat="MOTN">
+  <div class="demo__head"><span class="demo__name">悬浮说明浮现</span></div>
+  <p class="demo__note">适合：图标说明的淡入与轻微上移</p>
+  <div class="demo__stage">
+    <div class="mot-card">
+      <div class="mot-box"><span class="mot-tipwrap" data-show><span class="mot-tip" role="tooltip">联系客服</span><span class="mot-ico" role="img" aria-label="联系客服"><img src="../../kit/assets/line/support.webp" alt=""></span></span></div>
+      <div class="mot-foot"><div class="mot-spec" data-spec="时长:--dur-quick,曲线:--ease-out"></div><button class="btn btn--secondary btn--sm" data-play>播放</button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-MOTN-010" data-name="弹性开关" data-cat="MOTN">
+  <div class="demo__head"><span class="demo__name">弹性开关</span></div>
+  <p class="demo__note">适合：设置项开关，滑块带弹性回弹，底色渐变</p>
+  <div class="demo__stage">
+    <div class="mot-card">
+      <div class="mot-box"><div class="mot-sw"><span class="row__title">接收消息通知</span><button class="switch" role="switch" aria-checked="false" aria-label="接收消息通知"></button></div></div>
+      <div class="mot-foot"><div class="mot-spec" data-spec="时长:--dur-base,曲线:--ease-spring"></div><button class="btn btn--secondary btn--sm" data-play>播放</button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-MOTN-011" data-name="列表错峰入场" data-cat="MOTN">
+  <div class="demo__head"><span class="demo__name">列表错峰入场</span></div>
+  <p class="demo__note">适合：列表首屏逐行上浮，节奏均匀</p>
+  <div class="demo__stage">
+    <div class="mot-card">
+      <div class="mot-box"><div class="card list mot-rows">
+        <div class="row" style="--i:0"><img class="row__lead" src="../../kit/assets/photo/product-rose-red.webp" alt=""><div class="row__main"><p class="row__title one-line">红玫瑰花束</p><p class="row__meta">待发货</p></div><span class="price"><small>¥</small>199</span></div>
+        <div class="row" style="--i:1"><img class="row__lead" src="../../kit/assets/photo/product-tulip-white.webp" alt=""><div class="row__main"><p class="row__title one-line">白郁金香</p><p class="row__meta">待收货</p></div><span class="price"><small>¥</small>179</span></div>
+        <div class="row" style="--i:2"><img class="row__lead" src="../../kit/assets/photo/product-sunflower.webp" alt=""><div class="row__main"><p class="row__title one-line">向日葵花束</p><p class="row__meta">已完成</p></div><span class="price"><small>¥</small>159</span></div>
+        <div class="row" style="--i:3"><img class="row__lead" src="../../kit/assets/photo/product-succulent.webp" alt=""><div class="row__main"><p class="row__title one-line">多肉组合盆</p><p class="row__meta">已完成</p></div><span class="price"><small>¥</small>89</span></div>
+      </div></div>
+      <div class="mot-foot"><div class="mot-spec" data-spec="时长:--dur-slow,错峰:--stagger"></div><button class="btn btn--secondary btn--sm" data-play>播放</button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-MOTN-012" data-name="视图切换" data-cat="MOTN">
+  <div class="demo__head"><span class="demo__name">视图切换</span></div>
+  <p class="demo__note">适合：列表进入详情，新旧视图交接</p>
+  <div class="demo__stage">
+    <div class="mot-card">
+      <div class="mot-box"><div class="mot-views">
+        <div class="mot-view" data-v="list"><div class="card list"><button class="row row--link" data-go><img class="row__lead" src="../../kit/assets/photo/product-giftbox.webp" alt=""><div class="row__main"><p class="row__title one-line">花礼盒</p><p class="row__meta">节日礼盒</p></div><div class="row__trail"><span class="price"><small>¥</small>259</span></div></button><button class="row row--link" data-go><img class="row__lead" src="../../kit/assets/photo/product-pampas-vase.webp" alt=""><div class="row__main"><p class="row__title one-line">干花花瓶摆件</p><p class="row__meta">花器</p></div><div class="row__trail"><span class="price"><small>¥</small>129</span></div></button></div></div>
+        <div class="mot-view" data-v="detail" hidden><div class="card mot-view__card"><div class="mot-view__bar"><button class="ibtn" data-back data-tip="返回" aria-label="返回"><img src="../../kit/assets/line/back.webp" alt=""></button><h3>商品详情</h3></div><div class="mot-view__body"><img class="mot-view__img" src="../../kit/assets/photo/product-giftbox.webp" alt=""><div><p class="row__title">花礼盒</p><p class="row__meta">节日礼盒</p><p class="price"><small>¥</small>259</p></div></div></div></div>
+      </div></div>
+      <div class="mot-foot"><div class="mot-spec" data-spec="时长:--dur-base,曲线:--ease-out"></div><button class="btn btn--secondary btn--sm" data-play>播放</button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-MOTN-013" data-name="标签滑动指示" data-cat="MOTN">
+  <div class="demo__head"><span class="demo__name">标签滑动指示</span></div>
+  <p class="demo__note">适合：订单状态等同级标签的下划线滑动</p>
+  <div class="demo__stage">
+    <div class="mot-card">
+      <div class="mot-box"><div class="mot-tabs" role="tablist" aria-label="订单状态"><span class="mot-tabs__ind"></span>
+        <button role="tab" aria-selected="true" data-n="86">全部</button><button role="tab" aria-selected="false" data-n="12">待付款</button><button role="tab" aria-selected="false" data-n="31">待发货</button><button role="tab" aria-selected="false" data-n="24">待收货</button><button role="tab" aria-selected="false" data-n="5">售后</button>
+      </div><div class="mot-pane" role="tabpanel" aria-live="polite"></div></div>
+      <div class="mot-foot"><div class="mot-spec" data-spec="时长:--dur-base,曲线:--ease-out"></div><button class="btn btn--secondary btn--sm" data-play>播放</button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-MOTN-014" data-name="卡片尺寸变化" data-cat="MOTN">
+  <div class="demo__head"><span class="demo__name">卡片尺寸变化</span></div>
+  <p class="demo__note">适合：图文卡在紧凑与大图之间切换</p>
+  <div class="demo__stage">
+    <div class="mot-card">
+      <div class="mot-box"><article class="card mot-size" data-size><img class="mot-size__img" src="../../kit/assets/photo/scene-hero-pink.webp" alt=""><div class="mot-size__body"><div><p class="row__title">春日鲜花节</p><p class="row__meta">同城 2 小时送达</p></div><button class="btn btn--secondary btn--sm" data-flip aria-pressed="false">放大</button></div></article></div>
+      <div class="mot-foot"><div class="mot-spec" data-spec="时长:--dur-slow,曲线:--ease-out"></div><button class="btn btn--secondary btn--sm" data-play>播放</button></div>
+    </div>
+  </div>
+</article>
+
+<script>
+(function () {
+  const { $, $$ } = Lz;
+  const D = cid => document.querySelector(`[data-cid="${cid}"]`);
+  const sleep = ms => new Promise(r => setTimeout(r, Lz.reduce ? 0 : ms));
+  const tok = n => parseFloat(getComputedStyle(document.documentElement).getPropertyValue(n));
+  const restart = (el, prop = 'animation') => { el.style[prop] = 'none'; void el.offsetWidth; el.style[prop] = ''; };
+  const EASE = { '--ease-out': '先快后慢', '--ease-in-out': '缓入缓出', '--ease-spring': '弹性回弹' };
+
+  /* 参数标签：时长与曲线取自令牌，换令牌后这里自动跟着变 */
+  $$('[data-cid^="AP-MOTN"] [data-spec]').forEach(box => {
+    box.innerHTML = box.dataset.spec.split(',').map(pair => {
+      const [k, v] = pair.split(':'); let val = v;
+      if (v.startsWith('--ease')) val = EASE[v];
+      else if (v.startsWith('--')) { const [t, f = 1] = v.split('*'); val = `${tok(t) * f} 毫秒`; }
+      return `<span class="tag">${k} ${val}</span>`;
+    }).join('');
+  });
+
+  const play = {};
+  const mount = (cid, fn) => { play[cid] = () => fn(D(cid)); };
+
+  /* 001 数字滚动 */
+  mount('AP-MOTN-001', root => Lz.count($('[data-n]', root), 12860, tok('--dur-slow') * 2));
+  /* 002 徽标弹入：数字加一并重播弹入 */
+  mount('AP-MOTN-002', root => { const b = $('.badge', root); b.textContent = (+b.textContent % 9) + 1; restart(b); });
+  /* 003 展开收起：点行头 */
+  mount('AP-MOTN-003', root => $('.row', root).click());
+  /* 004 卡片按压：模拟一次按下 */
+  mount('AP-MOTN-004', async root => { const c = $('.mot-press', root); c.classList.add('is-pressed'); await sleep(tok('--dur-quick') + 160); c.classList.remove('is-pressed'); });
+  /* 005 成功勾选 */
+  mount('AP-MOTN-005', root => { const r = $('.mot-ring', root); r.removeAttribute('data-play'); void r.offsetWidth; r.setAttribute('data-play', ''); });
+  /* 006 输入抖动 */
+  mount('AP-MOTN-006', root => { const i = $('.input', root), err = $('.field__err', root); i.value = '138001380'; i.setAttribute('aria-invalid', 'true'); err.hidden = false; i.classList.remove('shake'); void i.offsetWidth; i.classList.add('shake'); i.focus(); });
+  /* 007 骨架转内容 */
+  mount('AP-MOTN-007', async root => {
+    const box = $('.mot-skd', root), sk = $$('[data-s="skel"]', box), ct = $$('[data-s="content"]', box);
+    sk.forEach(e => { e.hidden = false; }); ct.forEach(e => { e.hidden = true; e.classList.remove('reveal'); delete e.dataset.in; });
+    await sleep(1200); sk.forEach(e => { e.hidden = true; }); ct.forEach((e, i) => { e.hidden = false; e.classList.add('reveal'); e.style.setProperty('--i', i); e.dataset.in = ''; });
+  });
+  /* 008 流式文字 */
+  mount('AP-MOTN-008', async root => { const p = $('[data-stream]', root), b = $('[data-play]', root), text = p.dataset.full || (p.dataset.full = p.textContent); p.textContent = ''; b.disabled = true; await Lz.stream(p, text, 30); b.disabled = false; });
+  /* 009 悬浮说明：隐藏后再浮现 */
+  mount('AP-MOTN-009', async root => { const w = $('.mot-tipwrap', root); w.removeAttribute('data-show'); await sleep(450); w.setAttribute('data-show', ''); });
+  /* 010 弹性开关 */
+  mount('AP-MOTN-010', root => $('.switch', root).click());
+  /* 011 列表错峰入场：取消再加回入场状态，行距由错峰令牌决定 */
+  mount('AP-MOTN-011', root => { const rows = $$('.row', root); rows.forEach(r => r.removeAttribute('data-in')); void root.offsetWidth; rows.forEach(r => r.setAttribute('data-in', '')); });
+  /* 012 视图切换：列表与详情互换，返回键与列表行也能触发 */
+  (() => {
+    const root = D('AP-MOTN-012'), list = $('[data-v="list"]', root), detail = $('[data-v="detail"]', root);
+    let busy = false;
+    /* 两个视图高度不同时，容器取较高者，切换时舞台不跳动 */
+    const views = $('.mot-views', root);
+    const fit = () => { views.style.minHeight = ''; const hs = [list, detail].map(v => { const was = v.hidden; v.hidden = false; const h = v.offsetHeight; v.hidden = was; return h; }); views.style.minHeight = Math.max.apply(null, hs) + 'px'; };
+    fit(); new ResizeObserver(fit).observe(root);
+    const swap = async (from, to) => { if (busy) return; busy = true; from.setAttribute('data-leave', ''); await sleep(tok('--dur-quick')); from.hidden = true; from.removeAttribute('data-leave'); to.hidden = false; restart(to); to.setAttribute('data-enter', ''); await sleep(tok('--dur-base')); to.removeAttribute('data-enter'); busy = false; };
+    $$('[data-go]', root).forEach(b => b.addEventListener('click', () => swap(list, detail)));
+    $('[data-back]', root).addEventListener('click', () => swap(detail, list));
+    play['AP-MOTN-012'] = () => (list.hidden ? swap(detail, list) : swap(list, detail));
+  })();
+  /* 013 标签滑动指示 */
+  (() => {
+    const root = D('AP-MOTN-013'), tabs = $$('[role="tab"]', root), ind = $('.mot-tabs__ind', root), pane = $('.mot-pane', root), bar = $('.mot-tabs', root); let cur = 0;
+    const go = i => {
+      cur = i; tabs.forEach((t, j) => { t.setAttribute('aria-selected', String(i === j)); t.tabIndex = i === j ? 0 : -1; });
+      const t = tabs[i]; ind.style.setProperty('--x', t.offsetLeft + 'px'); ind.style.setProperty('--w', t.offsetWidth + 'px');
+      pane.innerHTML = `<b>${t.dataset.n}</b> 笔${t.textContent === '全部' ? '订单' : t.textContent + '订单'}`; restart(pane);
+    };
+    tabs.forEach((t, i) => { t.addEventListener('click', () => go(i)); t.addEventListener('keydown', e => { const d = { ArrowRight: 1, ArrowLeft: -1 }[e.key]; if (!d) return; const n = (i + d + tabs.length) % tabs.length; tabs[n].focus(); go(n); e.preventDefault(); }); });
+    new ResizeObserver(() => go(cur)).observe(bar); go(0);
+    play['AP-MOTN-013'] = () => go((cur + 1) % tabs.length);
+  })();
+  /* 014 卡片尺寸变化：放大按钮与播放共用同一状态 */
+  (() => {
+    const root = D('AP-MOTN-014'), card = $('[data-size]', root), btn = $('[data-flip]', root);
+    const set = big => { card.toggleAttribute('data-big', big); btn.setAttribute('aria-pressed', String(big)); btn.textContent = big ? '缩小' : '放大'; };
+    btn.addEventListener('click', () => set(!card.hasAttribute('data-big')));
+    play['AP-MOTN-014'] = () => set(!card.hasAttribute('data-big'));
+  })();
+
+  document.addEventListener('click', e => {
+    const t = e.target.closest('[data-cid^="AP-MOTN"] [data-toast]'); if (t) { Lz.toast(t.dataset.toast, 'success'); return; }
+    const b = e.target.closest('[data-cid^="AP-MOTN"] .mot-foot [data-play]'); if (!b) return;
+    const fn = play[b.closest('[data-cid]').dataset.cid]; if (fn) fn();
+  });
+
+  /* 入场：数字与成功勾选在进入视野时先播一次，其余保持终态 */
+  const o = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { o.unobserve(e.target); play[e.target.dataset.cid](); } }), { threshold: .5 });
+  ['AP-MOTN-001', 'AP-MOTN-005'].forEach(c => o.observe(D(c)));
+})();
+</script>
+
+<article class="demo" data-cid="AP-MOTN-015" data-name="轮播滑动切换" data-cat="MOTN">
+  <div class="demo__head"><span class="demo__name">轮播滑动切换</span></div>
+  <p class="demo__note">适合：轮播图左右滑动的缓动切换与循环</p>
+  <div class="demo__stage">
+    <div class="mot-card">
+      <div class="mot-box"><div class="motx-car">
+        <div class="motx-car__vp" tabindex="0" role="region" aria-roledescription="轮播" aria-label="活动轮播">
+          <div class="motx-car__track">
+            <div class="card motx-slide"><img src="../../kit/assets/photo/scene-hero-pink.webp" alt="" draggable="false"><div class="motx-slide__body"><p class="row__title one-line">春日鲜花节</p><p class="row__meta one-line">同城 2 小时送达</p></div></div>
+            <div class="card motx-slide"><img src="../../kit/assets/photo/bouquet-tulip.webp" alt="" draggable="false"><div class="motx-slide__body"><p class="row__title one-line">郁金香上新</p><p class="row__meta one-line">限量 200 束</p></div></div>
+            <div class="card motx-slide"><img src="../../kit/assets/photo/bouquet-white.webp" alt="" draggable="false"><div class="motx-slide__body"><p class="row__title one-line">白色花礼</p><p class="row__meta one-line">纪念日 婚礼布置</p></div></div>
+            <div class="card motx-slide"><img src="../../kit/assets/photo/product-monstera.webp" alt="" draggable="false"><div class="motx-slide__body"><p class="row__title one-line">龟背竹到店</p><p class="row__meta one-line">耐阴好养</p></div></div>
+          </div>
+        </div>
+        <div class="motx-dots" role="tablist" aria-label="轮播页码">
+          <button role="tab" aria-selected="true" aria-label="第 1 张"></button><button role="tab" aria-selected="false" aria-label="第 2 张"></button><button role="tab" aria-selected="false" aria-label="第 3 张"></button><button role="tab" aria-selected="false" aria-label="第 4 张"></button>
+        </div>
+      </div></div>
+      <div class="mot-foot"><div class="mot-spec" data-spec="时长:--dur-slow,曲线:--ease-out"></div><button class="btn btn--secondary btn--sm" data-play>播放</button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-MOTN-016" data-name="面板锚点停靠" data-cat="MOTN">
+  <div class="demo__head"><span class="demo__name">面板锚点停靠</span></div>
+  <p class="demo__note">适合：浮动面板拖动松手后停靠到预设高度</p>
+  <div class="demo__stage">
+    <div class="mot-card">
+      <div class="mot-box"><div class="motx-dk bg-waves" data-dk>
+        <img class="motx-dk__van" data-ic="scooter" src="../../kit/assets/icons/flat/scooter.webp" alt="">
+        <span class="motx-dk__g" aria-hidden="true"><i>收起</i></span><span class="motx-dk__g" aria-hidden="true"><i>半屏</i></span><span class="motx-dk__g" aria-hidden="true"><i>展开</i></span>
+        <section class="motx-dk__panel" aria-label="配送进度">
+          <div class="motx-dk__top" data-top>
+            <div class="motx-dk__grip" role="slider" tabindex="0" aria-label="调整面板高度" aria-orientation="vertical" aria-valuemin="0" aria-valuemax="2" aria-valuenow="1" aria-valuetext="半屏" data-tip="拖动调整高度"><i></i></div>
+            <div class="motx-dk__head"><h3 class="card__title">订单 20817365</h3><span class="tag" data-tone="action" data-now>半屏</span></div>
+          </div>
+          <div class="motx-dk__body tl">
+            <div class="tl__item" data-state="done"><span class="tl__dot"></span><span class="row__title">商家已接单</span><span class="tl__time">10:12</span></div>
+            <div class="tl__item" data-state="done"><span class="tl__dot"></span><span class="row__title">花束制作完成</span><span class="tl__time">10:31</span></div>
+            <div class="tl__item" data-state="now"><span class="tl__dot"></span><span class="row__title">骑手已取花</span><span class="tl__time">10:40</span></div>
+            <div class="tl__item"><span class="tl__dot"></span><span class="row__title">预计送达</span><span class="tl__time">11:30</span></div>
+          </div>
+        </section>
+      </div></div>
+      <div class="mot-foot"><div class="mot-spec" data-spec="时长:--dur-slow,曲线:--ease-spring"></div><button class="btn btn--secondary btn--sm" data-play>播放</button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-MOTN-017" data-name="三点加载跳动" data-cat="MOTN">
+  <div class="demo__head"><span class="demo__name">三点加载跳动</span></div>
+  <p class="demo__note">适合：按钮内与列表底部的轻量三点加载</p>
+  <div class="demo__stage">
+    <div class="mot-card">
+      <div class="mot-box"><div class="card motx-dd">
+        <div class="motx-dd__r"><span class="motx-dd__bw" data-bw><button class="btn btn--primary motx-dd__btn" data-btn>提交订单</button><span class="motx-dot3" aria-hidden="true"><i></i><i></i><i></i></span></span></div>
+        <div class="motx-dd__r motx-dd__more" role="status"><span class="motx-dot3" aria-hidden="true"><i></i><i></i><i></i></span><span>加载中</span></div>
+        <div class="motx-dd__r"><div class="msg"><img class="msg__avatar" src="../../kit/assets/marks/mark-007.webp" alt=""><div class="motx-typing" role="status" aria-label="对方正在输入"><span class="motx-dot3" aria-hidden="true"><i></i><i></i><i></i></span></div></div></div>
+      </div></div>
+      <div class="mot-foot"><div class="mot-spec" data-spec="周期:--dur-slow*3,错峰:--stagger*3"></div><button class="btn btn--secondary btn--sm" data-play>播放</button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-MOTN-018" data-name="下拉回弹刷新" data-cat="MOTN">
+  <div class="demo__head"><span class="demo__name">下拉回弹刷新</span></div>
+  <p class="demo__note">适合：下拉到阈值后回弹并显示刷新状态</p>
+  <div class="demo__stage">
+    <div class="mot-card">
+      <div class="mot-box"><div class="motx-pr" data-pr data-st="idle">
+        <div class="motx-pr__ind" aria-hidden="true"><span class="motx-pr__ring"></span><span class="motx-pr__ok"><img src="../../kit/assets/line/check.webp" alt=""></span><span data-lab>下拉刷新</span></div>
+        <div class="card motx-pr__body" role="status" aria-live="polite">
+          <div class="motx-pr__grip"></div>
+          <div class="stats">
+            <div class="stat"><span class="stat__label">待付款</span><span class="stat__val"><span data-n>4</span><small>单</small></span></div>
+            <div class="stat"><span class="stat__label">待发货</span><span class="stat__val"><span data-n data-live>12</span><small>单</small></span></div>
+            <div class="stat"><span class="stat__label">待收货</span><span class="stat__val"><span data-n>7</span><small>单</small></span></div>
+          </div>
+          <div class="list">
+            <div class="row"><img class="row__lead" src="../../kit/assets/photo/product-rose-red.webp" alt=""><div class="row__main"><p class="row__title one-line">红玫瑰花束</p><p class="row__meta">待发货</p></div><span class="price"><small>¥</small>199</span></div>
+            <div class="row"><img class="row__lead" src="../../kit/assets/photo/product-peony-pink.webp" alt=""><div class="row__main"><p class="row__title one-line">粉芍药花束</p><p class="row__meta">待收货</p></div><span class="price"><small>¥</small>239</span></div>
+          </div>
+        </div>
+      </div></div>
+      <div class="mot-foot"><div class="mot-spec" data-spec="阈值:60 像素,曲线:--ease-spring"></div><button class="btn btn--secondary btn--sm" data-play>播放</button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-MOTN-019" data-name="页码点切换" data-cat="MOTN">
+  <div class="demo__head"><span class="demo__name">页码点切换</span></div>
+  <p class="demo__note">适合：当前页圆点随轮播平滑移动</p>
+  <div class="demo__stage">
+    <div class="mot-card">
+      <div class="mot-box"><div class="motx-pg">
+        <div class="card motx-pg__view"><img src="../../kit/assets/photo/scene-hero-pink.webp" alt="" draggable="false"><div class="motx-pg__cap"><span class="row__title" data-cap>春日鲜花节</span><span class="t-sub" data-num>1 / 5</span></div></div>
+        <div class="motx-pg__bar">
+          <button class="ibtn" data-prev aria-label="上一张" data-tip="上一张"><img src="../../kit/assets/line/back.webp" alt=""></button>
+          <div class="motx-pgd" role="tablist" aria-label="页码"><span class="motx-pgd__ind"></span>
+            <button role="tab" aria-selected="true" aria-label="第 1 张"></button><button role="tab" aria-selected="false" aria-label="第 2 张"></button><button role="tab" aria-selected="false" aria-label="第 3 张"></button><button role="tab" aria-selected="false" aria-label="第 4 张"></button><button role="tab" aria-selected="false" aria-label="第 5 张"></button>
+          </div>
+          <button class="ibtn" data-next aria-label="下一张" data-tip="下一张"><img class="motx-flip" src="../../kit/assets/line/back.webp" alt=""></button>
+        </div>
+      </div></div>
+      <div class="mot-foot"><div class="mot-spec" data-spec="时长:--dur-base,曲线:--ease-out"></div><button class="btn btn--secondary btn--sm" data-play>播放</button></div>
+    </div>
+  </div>
+</article>
+
+<style>
+  /* 新增 015 至 019：前缀 motx-。时长与曲线全部取令牌变量 */
+  .motx-car, .motx-pg, .motx-dk, .motx-pr, .motx-dd { width: 100%; min-width: 0; }
+
+  /* 015 轮播滑动切换：露出左右相邻项，当前项放大，首尾循环 */
+  .motx-car__vp { position: relative; overflow: hidden; border-radius: var(--r-lg); touch-action: pan-y; cursor: grab; user-select: none; -webkit-user-select: none; }
+  .motx-car__vp[data-drag] { cursor: grabbing; }
+  .motx-car__track { position: relative; display: flex; gap: var(--s-3); padding: var(--s-1) 0 var(--s-3); transition: transform var(--dur-slow) var(--ease-out); }
+  .motx-car__vp[data-drag] .motx-car__track { transition: none; }
+  .motx-slide { flex: 0 0 82%; overflow: hidden; opacity: .55; transform: scale(.94); transition: transform var(--dur-slow) var(--ease-out), opacity var(--dur-slow) var(--ease-out); }
+  .motx-slide[data-cur] { opacity: 1; transform: none; }
+  .motx-slide img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; pointer-events: none; -webkit-user-drag: none; }
+  .motx-slide__body { padding: var(--s-3) var(--s-4); }
+  .motx-dots { display: flex; align-items: center; justify-content: center; gap: var(--s-1); margin-top: var(--s-1); }
+  .motx-dots button { display: grid; place-items: center; width: 24px; height: 24px; border-radius: var(--r-full); }
+  .motx-dots button::before { content: ""; width: 8px; height: 8px; border-radius: 4px; background: var(--line-strong); transition: width var(--dur-base) var(--ease-out), background var(--dur-base) var(--ease-out); }
+  .motx-dots button[aria-selected="true"]::before { width: 20px; background: var(--action); }
+
+  /* 016 面板锚点停靠：三个锚点，松手按位置与速度停靠到最近一档，回弹落位 */
+  .motx-dk { position: relative; display: grid; grid-template-rows: minmax(0, 1fr) auto; height: 300px; overflow: hidden; border-radius: var(--r-lg); box-shadow: inset 0 0 0 1px var(--line); }
+  .motx-dk__van { align-self: start; justify-self: center; width: 44px; height: 44px; margin-top: var(--s-3); object-fit: contain; }
+  .motx-dk__g { position: absolute; left: 0; right: 0; bottom: var(--b, 0px); border-top: 1px dashed var(--line-strong); transition: border-color var(--dur-base) var(--ease-out); }
+  .motx-dk__g i { position: absolute; right: var(--s-3); bottom: 4px; font-style: normal; font-size: var(--fs-xs); color: var(--ink-3); }
+  .motx-dk__g[data-on] { border-top-color: var(--action); }
+  .motx-dk__g[data-on] i { color: var(--action-press); font-weight: 600; }
+  .motx-dk__panel { position: relative; z-index: 2; display: grid; grid-template-rows: auto minmax(0, 1fr); height: var(--h, 150px); overflow: hidden; border-radius: var(--r-xl) var(--r-xl) 0 0; background: var(--surface); box-shadow: var(--elev-3); transition: height var(--dur-slow) var(--ease-spring); }
+  .motx-dk[data-drag] .motx-dk__panel { transition: none; }
+  .motx-dk__top { padding: 0 var(--s-4) var(--s-3); touch-action: none; user-select: none; -webkit-user-select: none; cursor: grab; }
+  .motx-dk[data-drag] .motx-dk__top { cursor: grabbing; }
+  .motx-dk__grip { display: grid; place-items: center; width: 88px; height: 24px; margin: 0 auto; border-radius: var(--r-sm); }
+  .motx-dk__grip i { display: block; width: 36px; height: 4px; border-radius: 4px; background: var(--line-strong); }
+  .motx-dk__head { display: flex; align-items: center; justify-content: space-between; gap: var(--s-2); }
+  .motx-dk__body { padding: var(--s-1) var(--s-4) 0; overflow: hidden; }
+  .motx-dk__body .tl__item { align-items: start; }
+  .motx-dk__body .tl__item[data-state="now"] .row__title { color: var(--action-press); }
+  .motx-dk__body .tl__item:not([data-state]) .row__title { color: var(--ink-3); font-weight: 400; }
+
+  /* 017 三点加载跳动：三个点依次起跳，错峰由令牌决定 */
+  .motx-dot3 { display: inline-flex; align-items: center; gap: 5px; height: 16px; }
+  .motx-dot3 i { width: 7px; height: 7px; border-radius: 50%; background: currentColor; animation: motx-hop calc(var(--dur-slow) * 3) var(--ease-in-out) infinite; }
+  .motx-dot3 i:nth-child(2) { animation-delay: calc(var(--stagger) * 3); }
+  .motx-dot3 i:nth-child(3) { animation-delay: calc(var(--stagger) * 6); }
+  @keyframes motx-hop { 0%, 60%, 100% { transform: translateY(0); opacity: .4; } 30% { transform: translateY(-5px); opacity: 1; } }
+  .motx-dd { overflow: hidden; }
+  .motx-dd__r { display: flex; align-items: center; justify-content: center; min-height: 72px; padding: var(--s-3) var(--s-4); }
+  .motx-dd__r + .motx-dd__r { border-top: 1px solid var(--line); }
+  .motx-dd__bw { position: relative; display: inline-flex; align-items: center; justify-content: center; }
+  .motx-dd__btn { min-width: 148px; transition: color var(--dur-quick) var(--ease-out), background var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out), transform var(--dur-instant) var(--ease-out); }
+  .motx-dd__bw .motx-dot3 { position: absolute; inset: 0; margin: auto; width: max-content; color: var(--surface); opacity: 0; pointer-events: none; transition: opacity var(--dur-quick) var(--ease-out); }
+  .motx-dd__bw[data-busy] .motx-dd__btn { color: transparent; pointer-events: none; }
+  .motx-dd__bw[data-busy] .motx-dot3 { opacity: 1; }
+  .motx-dd__more { gap: var(--s-2); font-size: var(--fs-sm); color: var(--ink-3); }
+  .motx-dd__more .motx-dot3 { color: var(--action); }
+  .motx-dd .msg { align-items: center; width: auto; grid-template-columns: 36px auto; }
+  .motx-typing { display: inline-flex; align-items: center; min-height: 40px; padding: 0 var(--s-4); border-radius: var(--r-xl) var(--r-xl) var(--r-xl) var(--r-sm); background: var(--zone); color: var(--ink-3); }
+
+  /* 018 下拉回弹刷新：指示环随下拉填满，松手后回弹到刷新位，完成后回弹归位 */
+  .motx-pr { position: relative; overflow: hidden; border-radius: var(--r-lg); touch-action: none; user-select: none; -webkit-user-select: none; cursor: grab; }
+  .motx-pr[data-drag] { cursor: grabbing; }
+  .motx-pr__ind { position: absolute; left: 0; right: 0; top: 0; display: flex; align-items: center; justify-content: center; gap: var(--s-2); height: 60px; font-size: var(--fs-sm); color: var(--ink-2); opacity: var(--o, 0); }
+  .motx-pr__ring { width: 26px; height: 26px; border-radius: 50%; background: conic-gradient(var(--action) calc(var(--p, 0) * 1%), var(--action-edge) 0); -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), var(--ink) calc(100% - 2.5px)); mask: radial-gradient(farthest-side, transparent calc(100% - 3px), var(--ink) calc(100% - 2.5px)); transition: transform var(--dur-base) var(--ease-spring); }
+  .motx-pr[data-st="ready"] .motx-pr__ring { transform: scale(1.18); }
+  .motx-pr[data-st="busy"] .motx-pr__ring { animation: lz-spin .8s linear infinite; }
+  .motx-pr__ok { display: none; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--success); }
+  .motx-pr__ok img { width: 14px; height: 14px; filter: invert(1); }
+  .motx-pr[data-st="done"] .motx-pr__ring { display: none; }
+  .motx-pr[data-st="done"] .motx-pr__ok { display: grid; animation: lz-pop var(--dur-slow) var(--ease-spring) both; }
+  .motx-pr__body { position: relative; transform: translateY(var(--y, 0px)); transition: transform var(--dur-slow) var(--ease-spring); }
+  .motx-pr[data-drag] .motx-pr__body { transition: none; }
+  .motx-pr__body [data-n] { display: inline-block; }
+  .motx-pr__body .list { border-top: 1px solid var(--line); }
+  .motx-pr__grip { width: 36px; height: 4px; margin: var(--s-2) auto 0; border-radius: 4px; background: var(--line-strong); }
+
+  /* 019 页码点切换：当前点先拉长再收拢，平滑移到目标位置 */
+  .motx-pg { display: grid; gap: var(--s-2); }
+  .motx-pg__view { overflow: hidden; }
+  .motx-pg__view img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; animation: lz-fade var(--dur-base) var(--ease-out) both; }
+  .motx-pg__cap { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); padding: var(--s-3) var(--s-4); }
+  .motx-pg__bar { display: flex; align-items: center; justify-content: space-between; gap: var(--s-2); }
+  .motx-pg__bar .ibtn[aria-disabled="true"] { opacity: .3; pointer-events: none; }
+  .motx-flip { transform: scaleX(-1); }
+  .motx-pgd { position: relative; display: flex; align-items: center; gap: var(--s-1); }
+  .motx-pgd button { display: grid; place-items: center; width: 24px; height: 32px; }
+  .motx-pgd button::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--line-strong); }
+  .motx-pgd__ind { position: absolute; z-index: 1; left: 0; top: 50%; width: var(--w, 8px); height: 8px; margin-top: -4px; border-radius: 4px; background: var(--action); transform: translateX(var(--x, 0px)); transition: transform var(--dur-base) var(--ease-out), width var(--dur-base) var(--ease-out); pointer-events: none; }
+</style>
+
+<script>
+(function () {
+  const { $, $$ } = Lz;
+  const D = cid => document.querySelector(`[data-cid="${cid}"]`);
+  const sleep = ms => new Promise(r => setTimeout(r, Lz.reduce ? 0 : ms));
+  const tok = n => parseFloat(getComputedStyle(document.documentElement).getPropertyValue(n));
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  const restart = (el, prop = 'animation') => { el.style[prop] = 'none'; void el.offsetWidth; el.style[prop] = ''; };
+  const play = {};
+  const PH = '../../kit/assets/photo/';
+
+  /* 横向拖动：以横向位移为准，竖向滚动让给页面；拖动结束后短暂标记，便于忽略随后的点击 */
+  function drag(host, { move, end, guard }) {
+    let id = null, x0 = 0, y0 = 0, lx = 0, lt = 0, vx = 0, on = false;
+    host.addEventListener('pointerdown', e => { if (e.button > 0 || (guard && guard())) return; id = e.pointerId; x0 = lx = e.clientX; y0 = e.clientY; lt = performance.now(); vx = 0; on = false; });
+    host.addEventListener('pointermove', e => {
+      if (e.pointerId !== id) return;
+      const dx = e.clientX - x0, dy = e.clientY - y0;
+      if (!on) { if (Math.abs(dx) < 6) return; if (Math.abs(dy) > Math.abs(dx)) { id = null; return; } on = true; host.setPointerCapture(e.pointerId); host.setAttribute('data-drag', ''); }
+      const t = performance.now(); vx = .7 * vx + .3 * ((e.clientX - lx) / Math.max(1, t - lt)); lx = e.clientX; lt = t; move(dx);
+    });
+    const up = e => { if (e.pointerId !== id) return; id = null; if (!on) return; on = false; host.removeAttribute('data-drag'); host._dragged = true; setTimeout(() => { host._dragged = false; }, 0); end(e.clientX - x0, vx); };
+    host.addEventListener('pointerup', up); host.addEventListener('pointercancel', up);
+  }
+
+  /* 015 轮播滑动切换：两端各复制两张实现无缝循环；松手按距离与速度决定去留，缓动落位 */
+  (() => {
+    const root = D('AP-MOTN-015'), vp = $('.motx-car__vp', root), track = $('.motx-car__track', vp), dots = $$('.motx-dots button', root);
+    const src = $$('.motx-slide', track), n = src.length, K = 2;
+    const mk = s => { const c = s.cloneNode(true); c.setAttribute('aria-hidden', 'true'); return c; };
+    track.prepend(...src.slice(-K).map(mk)); track.append(...src.slice(0, K).map(mk));
+    const all = $$('.motx-slide', track); let i = K, busy = false;
+    const logical = j => (((j - K) % n) + n) % n;
+    const offset = j => -all[j].offsetLeft + (vp.clientWidth - all[j].offsetWidth) / 2;
+    const apply = (j, anim) => {
+      if (!anim) track.style.transition = 'none';
+      track.style.transform = `translateX(${offset(j)}px)`;
+      const l = logical(j); all.forEach((s, k) => s.toggleAttribute('data-cur', logical(k) === l));
+      dots.forEach((d, k) => { d.setAttribute('aria-selected', String(k === l)); d.tabIndex = k === l ? 0 : -1; });
+      if (!anim) { void track.offsetWidth; track.style.transition = ''; }
+    };
+    async function go(j) {
+      if (busy) return; busy = true; i = j; apply(i, true);
+      await sleep(tok('--dur-slow') + 40);
+      if (i < K) i += n; else if (i >= K + n) i -= n;
+      apply(i, false); busy = false;
+    }
+    drag(vp, {
+      guard: () => busy,
+      move: dx => { track.style.transform = `translateX(${offset(i) + dx}px)`; },
+      end: (dx, v) => { const w = all[i].offsetWidth; const d = dx < -w * .2 || v < -.4 ? 1 : dx > w * .2 || v > .4 ? -1 : 0; if (d) go(i + d); else apply(i, true); }
+    });
+    all.forEach((s, k) => s.addEventListener('click', () => { if (vp._dragged || k === i) return; go(k); }));
+    dots.forEach((d, k) => d.addEventListener('click', () => go(K + k)));
+    vp.addEventListener('keydown', e => { const d = { ArrowLeft: -1, ArrowRight: 1 }[e.key]; if (d) { e.preventDefault(); go(i + d); } });
+    new ResizeObserver(() => apply(i, false)).observe(vp); apply(i, false);
+    play['AP-MOTN-015'] = () => go(i + 1);
+  })();
+
+  /* 016 面板锚点停靠：拖动手柄，松手后按位置与速度停靠到收起、半屏、展开；虚线标出三个锚点 */
+  (() => {
+    const root = D('AP-MOTN-016'), box = $('.motx-dk', root), panel = $('.motx-dk__panel', box), top = $('[data-top]', box), grip = $('[role="slider"]', box), now = $('[data-now]', box), gs = $$('.motx-dk__g', box);
+    const LAB = ['收起', '半屏', '展开']; let A = [], at = 1;
+    const calc = () => { const H = box.clientHeight, it = $$('.tl__item', box); A = [top.offsetHeight + 4, it[2].offsetTop, H - 64]; gs.forEach((g, k) => g.style.setProperty('--b', A[k] + 'px')); };
+    const set = k => { at = clamp(k, 0, 2); panel.style.setProperty('--h', A[at] + 'px'); now.textContent = LAB[at]; grip.setAttribute('aria-valuenow', at); grip.setAttribute('aria-valuetext', LAB[at]); gs.forEach((g, j) => g.toggleAttribute('data-on', j === at)); };
+    let id = null, y0 = 0, h0 = 0, ly = 0, lt = 0, vy = 0, moved = false;
+    top.addEventListener('pointerdown', e => { if (e.button > 0) return; id = e.pointerId; top.setPointerCapture(id); y0 = ly = e.clientY; h0 = panel.offsetHeight; lt = performance.now(); vy = 0; moved = false; });
+    top.addEventListener('pointermove', e => {
+      if (e.pointerId !== id) return; const dy = e.clientY - y0;
+      if (!moved) { if (Math.abs(dy) < 5) return; moved = true; box.setAttribute('data-drag', ''); document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' })); }
+      const t = performance.now(); vy = .7 * vy + .3 * ((e.clientY - ly) / Math.max(1, t - lt)); ly = e.clientY; lt = t;
+      let h = h0 - dy; if (h < A[0]) h = A[0] - (A[0] - h) * .3; if (h > A[2]) h = A[2] + (h - A[2]) * .3; panel.style.setProperty('--h', h + 'px');
+    });
+    const up = e => {
+      if (e.pointerId !== id) return; id = null;
+      if (!moved) { set(at < 2 ? at + 1 : 0); return; }
+      box.removeAttribute('data-drag'); const proj = panel.offsetHeight - vy * 160;
+      set(A.reduce((b, v, k) => (Math.abs(v - proj) < Math.abs(A[b] - proj) ? k : b), 0));
+    };
+    top.addEventListener('pointerup', up); top.addEventListener('pointercancel', up);
+    grip.addEventListener('keydown', e => { const d = { ArrowUp: 1, ArrowDown: -1 }[e.key]; if (d) { e.preventDefault(); set(at + d); } else if (e.key === 'Home') { e.preventDefault(); set(0); } else if (e.key === 'End') { e.preventDefault(); set(2); } else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); set(at < 2 ? at + 1 : 0); } });
+    new ResizeObserver(() => { calc(); set(at); }).observe(box); calc(); set(1);
+    play['AP-MOTN-016'] = () => set(at < 2 ? at + 1 : 0);
+  })();
+
+  /* 017 三点加载跳动：按钮内点后三点接管文字，列表底部与对话中常驻 */
+  (() => {
+    const root = D('AP-MOTN-017'), btn = $('[data-btn]', root), bw = $('[data-bw]', root); let busy = false;
+    async function run() { if (busy) return; busy = true; bw.setAttribute('data-busy', ''); btn.setAttribute('aria-busy', 'true'); await sleep(1500); bw.removeAttribute('data-busy'); btn.removeAttribute('aria-busy'); busy = false; Lz.toast('订单已提交', 'success'); }
+    btn.addEventListener('click', run); play['AP-MOTN-017'] = run;
+  })();
+
+  /* 018 下拉回弹刷新：阻尼下拉，超过阈值松手回弹到刷新位，完成后对勾替换指示环并回弹归位 */
+  (() => {
+    const root = D('AP-MOTN-018'), box = $('[data-pr]', root), body = $('.motx-pr__body', box), ring = $('.motx-pr__ring', box), lab = $('[data-lab]', box), live = $('[data-live]', box);
+    const TH = 60, MAX = 104; let y0 = null, pull = 0, busy = false, n = +live.textContent;
+    const setY = v => body.style.setProperty('--y', v + 'px');
+    const paint = (p, s, text) => { ring.style.setProperty('--p', p); box.style.setProperty('--o', Math.min(1, p / 60)); box.dataset.st = s; lab.textContent = text; };
+    async function refresh() {
+      busy = true; setY(TH); paint(28, 'busy', '刷新中'); box.style.setProperty('--o', 1);
+      await sleep(1100);
+      n++; live.textContent = n; live.style.animation = 'none'; void live.offsetWidth; live.style.animation = 'lz-pop var(--dur-slow) var(--ease-spring) both';
+      paint(100, 'done', '刷新完成'); box.style.setProperty('--o', 1); await sleep(700);
+      setY(0); await sleep(tok('--dur-slow')); busy = false; paint(0, 'idle', '下拉刷新'); live.style.animation = '';
+    }
+    box.addEventListener('pointerdown', e => { if (busy || e.button > 0) return; y0 = e.clientY; box.setPointerCapture(e.pointerId); box.setAttribute('data-drag', ''); });
+    box.addEventListener('pointermove', e => {
+      if (y0 == null) return; const dy = Math.max(0, e.clientY - y0), p = dy * .55; pull = Math.min(MAX, p <= TH ? p : TH + (p - TH) * .35);
+      setY(pull); paint(Math.min(100, pull / TH * 100), pull >= TH ? 'ready' : 'pull', pull >= TH ? '松开刷新' : '下拉刷新');
+    });
+    const end = () => { if (y0 == null) return; y0 = null; box.removeAttribute('data-drag'); if (pull >= TH) refresh(); else { setY(0); paint(0, 'idle', '下拉刷新'); } pull = 0; };
+    box.addEventListener('pointerup', end); box.addEventListener('pointercancel', end);
+    play['AP-MOTN-018'] = async () => { if (busy) return; setY(TH + 24); paint(100, 'ready', '松开刷新'); await sleep(520); refresh(); };
+  })();
+
+  /* 019 页码点切换：目标点先把当前点拉长，再收成圆点落位；点圆点、前后按钮或播放都能切换 */
+  (() => {
+    const root = D('AP-MOTN-019'), img = $('.motx-pg__view img', root), cap = $('[data-cap]', root), num = $('[data-num]', root), bar = $('.motx-pgd', root), ind = $('.motx-pgd__ind', root), dots = $$('[role="tab"]', bar), prev = $('[data-prev]', root), next = $('[data-next]', root);
+    const P = [['scene-hero-pink', '春日鲜花节'], ['bouquet-rose', '玫瑰花礼'], ['bouquet-tulip', '郁金香上新'], ['bouquet-white', '白色花礼'], ['product-monstera', '龟背竹到店']], N = P.length, DOT = 8;
+    let cur = 0, tick = 0;
+    const pos = k => dots[k].offsetLeft + (dots[k].offsetWidth - DOT) / 2;
+    const rest = k => { ind.style.setProperty('--x', pos(k) + 'px'); ind.style.setProperty('--w', DOT + 'px'); };
+    function paint() {
+      dots.forEach((d, k) => { d.setAttribute('aria-selected', String(k === cur)); d.tabIndex = k === cur ? 0 : -1; });
+      img.src = `${PH}${P[cur][0]}.webp`; restart(img); cap.textContent = P[cur][1]; num.textContent = `${cur + 1} / ${N}`;
+      prev.setAttribute('aria-disabled', String(cur === 0)); next.setAttribute('aria-disabled', String(cur === N - 1));
+    }
+    async function go(j) {
+      j = clamp(j, 0, N - 1); if (j === cur) return; const a = pos(cur), b = pos(j), me = ++tick; cur = j; paint();
+      ind.style.setProperty('--x', Math.min(a, b) + 'px'); ind.style.setProperty('--w', Math.abs(b - a) + DOT + 'px');
+      await sleep(tok('--dur-base') * .5); if (me !== tick) return; rest(cur);
+    }
+    dots.forEach((d, k) => { d.addEventListener('click', () => go(k)); d.addEventListener('keydown', e => { const s = { ArrowLeft: -1, ArrowRight: 1 }[e.key]; if (!s) return; e.preventDefault(); const t = clamp(cur + s, 0, N - 1); go(t); dots[t].focus(); }); });
+    prev.addEventListener('click', () => go(cur - 1)); next.addEventListener('click', () => go(cur + 1));
+    new ResizeObserver(() => rest(cur)).observe(bar); rest(cur);
+    play['AP-MOTN-019'] = () => go(cur < N - 1 ? cur + 1 : 0);
+  })();
+
+  document.addEventListener('click', e => {
+    const b = e.target.closest('[data-cid^="AP-MOTN"] .mot-foot [data-play]'); if (!b) return;
+    const fn = play[b.closest('[data-cid]').dataset.cid]; if (fn) fn();
+  });
+})();
+</script>

@@ -16,16 +16,16 @@ contenteditable, role textbox / combobox / searchbox) is really focused and its 
 ``--library <id|prefix>`` (repeatable; ids from references/component-libraries.json) adds the component source check: every control on
 screen (button, input, select, textarea, table, dialog, nav and the ARIA control roles) must be, or sit inside, an element of the chosen
 component library (its class prefix such as ``el-`` or ``t-``, or a custom element with that prefix); a hand-written control is reported as
-"自造控件". The page must also show at least ``--min-components`` (default 6) different components of the library, so a page that only
-loads the library's style sheet and draws its own widgets does not pass (visual-design.html 二、排版基础 › 组件与组件库).
+"自造控件"。默认不设组件数量配额；仅在本次合同明确规定时传 ``--min-components``。阅读页可以没有控件，
+已有控件仍逐项检查来源，不能以数量或只加载样式表代替真实复用证明。
 A library with an ``attr`` in the registry (``--library luz-kit``, attr ``data-cid``) is read by that attribute instead of a class prefix: a control must sit
 inside an element that carries ``data-cid`` (the component root, value = the component id such as MP-CARD-003), and the components are counted by the number of
 different ``data-cid`` values. Whatever sits inside an element marked ``data-shell`` (the config and logic panels of the prototype shell) is not product interface:
 its controls are not reported as "自造控件" and its components are not counted.
 
 ``--scheme light|dark`` (default light) opens the page with that colour scheme (Playwright ``color_scheme``, so ``prefers-color-scheme`` follows it) and runs every
-check above on that rendering: font size, weights, contrast, touch targets, focus frames, the library check and the style sheet rules. A product front-end has a light and a
-dark theme (visual-design.html 深色与浅色两套主题), so it is audited twice, ``--scheme light`` and ``--scheme dark``. A page that does not read ``prefers-color-scheme`` but switches
+check above on that rendering: font size, weights, contrast, touch targets, focus frames, the library check and the style sheet rules.
+主题范围由功能合同与来源能力决定，不默认增加第二主题；只审计本次目标主题。A page that does not read ``prefers-color-scheme`` but switches
 by an attribute or a class on ``<html>`` is told how with ``--dark-attr NAME=VALUE`` (``data-theme=dark``; a bare ``NAME`` sets the value ``dark``) and ``--dark-class NAME`` (``dark``);
 both are repeatable, apply only with ``--scheme dark`` and are set right after the page loads, followed by 300 ms for the styles to settle. A page that keeps its theme in localStorage, or
 switches with its own control, is switched by the caller in ``--walk`` (``page.evaluate("document.documentElement.dataset.theme = 'dark'")``, ``page.emulate_media(color_scheme="dark")``
@@ -33,9 +33,15 @@ or a click on the switch) and the scans after that are audited as they stand. Wi
 (or the first opaque background up the ``<html>`` chain; the canvas follows the computed ``color-scheme``, dark canvas only when the page declares a dark scheme) and the element in the middle of
 the screen both lighter than luminance 0.3 is reported as "scheme dark: 页面底色仍是浅色，没有深色主题，或要用 --dark-attr / --dark-class 指定切换方式".
 
+Ordered progress states (visual-design.html 有序进度状态的色阶): an element carrying ``data-stage-set="<set name>"`` and ``data-stage="<order position, from 1>"`` (optional
+``data-stage-n="<size of the set>"``) is a value of an ordered state set. On such a page, within one set: every one needs its text label (WCAG 1.4.1), one position has one colour,
+different positions have different colours that step on in order (chroma never falls; lightness never rises in the light scheme and never falls in the dark one) and neighbouring
+positions differ by OKLab ΔE×100 of at least 3; when the page declares ``--stage-1`` to ``--stage-6`` on ``:root`` the colour must be the ramp stop of its position (stage_ramp.positions).
+A page without these attributes is not checked for this.
+
 ``--walk`` takes a Python file defining ``walk(page, scan)`` that clicks through the page (menus, dialogs, states) and returns
 ``[(label, scan())]`` pairs (``scan()`` measures what is on screen now); each is audited as well. Touch targets must be 40 px on a phone
-width (under 700 px), 24 px on a desktop pointer (WCAG 2.5.8). Needs playwright and Microsoft Edge (or set LUZ_AUDIT_CHANNEL=chromium).
+width (under 700 px), 24 px on a desktop pointer (WCAG 2.5.8). A control shorter than that counts at the height of its absolutely positioned ::before or ::after when it has one (the transparent hit-area extension the rule allows). Needs playwright and Microsoft Edge (or set LUZ_AUDIT_CHANNEL=chromium).
 Exit code 1 when anything is found.
 """
 import json
@@ -64,6 +70,8 @@ SCAN = r"""
   const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
   for (let t; (t = walker.nextNode());) {
     const txt = t.nodeValue.trim(); if (!txt) continue;
+    /* the simulated device chrome of a prototype (status bar clock, capsule): marked data-shell and aria-hidden, it is not product interface and a reader never meets it */
+    if (t.parentElement && t.parentElement.closest('[data-shell][aria-hidden="true"]')) continue;
     const el = t.parentElement; if (!el || ['SCRIPT', 'STYLE', 'TITLE'].includes(el.tagName)) continue;
     const r = el.getBoundingClientRect(); if (!r.width || !r.height) continue;
     const cs = getComputedStyle(el); if (cs.visibility === 'hidden' || cs.display === 'none' || +cs.opacity === 0) continue;
@@ -85,6 +93,8 @@ SCAN = r"""
     /* the tap area of a field is its library wrapper (el-input__wrapper, van-field, van-cell), not the bare <input> inside it */
     let height = r.height;
     if (prefixes.length && /^(INPUT|SELECT|TEXTAREA)$/.test(el.tagName)) { let n = el.parentElement; for (let i = 0; n && i < 5; i++, n = n.parentElement) { const cl = n.getAttribute('class'); if (cl && cl.split(/\s+/).some((t) => prefixes.some((p) => t.startsWith(p)) && /(__wrapper|-field|-cell)$/.test(t))) { height = Math.max(height, n.getBoundingClientRect().height); break; } } }
+    /* visual-design.html 点击区域与触控目标: a graphic smaller than the hit area may be extended with transparent padding or an absolutely positioned pseudo-element */
+    if (height < minTarget) for (const pe of ['::before', '::after']) { const ps = getComputedStyle(el, pe); if (ps.content !== 'none' && ps.position === 'absolute') height = Math.max(height, parseFloat(ps.height) || 0); }
     if (height < minTarget) out.targets.push((el.className || el.tagName) + ' ' + Math.round(r.width) + '×' + Math.round(r.height));
   });
   if (prefixes.length || attrs.length) {
@@ -118,6 +128,19 @@ SCAN = r"""
     attrs.forEach((a) => document.querySelectorAll('[' + a + ']').forEach((el) => { if (!inShell(el) && el.getAttribute(a)) blocks.add(a + '=' + el.getAttribute(a)); }));
     out.components = [...blocks];
   }
+  /* 有序进度状态（visual-design.html 有序进度状态的色阶）：带 data-stage-set 与 data-stage 的可见元素，读它们的计算色；页面根上的 --stage-1…6 一并读出 */
+  const hex = (c) => '#' + [c.r, c.g, c.b].map((v) => Math.round(v).toString(16).padStart(2, '0')).join('').toUpperCase();
+  out.stages = [];
+  document.querySelectorAll('[data-stage-set][data-stage]').forEach((el) => {
+    const r = el.getBoundingClientRect(); if (!r.width || !r.height) return;
+    for (let n = el; n; n = n.parentElement) { const s = getComputedStyle(n); if (s.display === 'none' || s.visibility === 'hidden') return; }
+    const fg = parse(getComputedStyle(el).color); if (!fg) return;
+    /* the label is the element's own text or accessible name, or (for a colour dot drawn as an empty element) the text of the row it sits in */
+    const text = (el.innerText || el.textContent || '').trim() || el.getAttribute('aria-label') || (el.parentElement ? (el.parentElement.innerText || '').trim() : '');
+    out.stages.push({set: el.getAttribute('data-stage-set'), pos: parseInt(el.getAttribute('data-stage'), 10), n: el.hasAttribute('data-stage-n') ? parseInt(el.getAttribute('data-stage-n'), 10) : null, color: hex(fg), text: text,
+                     label: '[' + el.getAttribute('data-stage-set') + ' ' + el.getAttribute('data-stage') + '] "' + text.slice(0, 12) + '"'});
+  });
+  out.stageTokens = [1, 2, 3, 4, 5, 6].map((i) => { const v = getComputedStyle(document.documentElement).getPropertyValue('--stage-' + i).trim(); const c = v ? parse(v) : null; return c ? hex(c) : null; });
   out.fonts = [...out.fonts];
   return out;
 }
@@ -258,7 +281,7 @@ def resolve_library_attrs(items):
 DARK_PAGE_LUM = 0.3
 
 
-def report(name, data, rules, library=None, min_components=6, min_font=14, scheme="light"):
+def report(name, data, rules, library=None, min_components=0, min_font=14, scheme="light"):
     errors = []
     if scheme == "dark" and name == "initial" and data.get("pageLum", 0) > DARK_PAGE_LUM and data.get("centerLum", 0) > DARK_PAGE_LUM:
         errors.append(f"{name}: scheme dark: 页面底色仍是浅色，没有深色主题，或要用 --dark-attr / --dark-class 指定切换方式"
@@ -266,6 +289,11 @@ def report(name, data, rules, library=None, min_components=6, min_font=14, schem
     for key, label in (("small", f"font size under {min_font}px"), ("italic", "italic text"), ("weight", "weight outside 400/600/700 (700 needs 22px+)"), ("contrast", "text contrast too low")):
         if data[key]:
             errors.append(f"{name}: {label}: " + "; ".join(data[key][:8]) + (f" ...{len(data[key])} in all" if len(data[key]) > 8 else ""))
+    if data.get("stages"):
+        import stage_ramp
+        # the direction of the ramp is judged on the scheme this scan really shows: a walk may switch the theme (the page's own appearance control) after the page was opened
+        really_dark = data.get("pageLum", 1) <= DARK_PAGE_LUM            # the page background (body, or the first opaque one up the chain) is a dark ground
+        errors += [f"{name}: {e}" for e in stage_ramp.audit_items(data["stages"], data.get("stageTokens"), "dark" if really_dark else "light")]
     if data["overflowX"]:
         errors.append(f"{name}: horizontal page scroll")
     if len(data["fonts"]) > 1:
@@ -279,8 +307,8 @@ def report(name, data, rules, library=None, min_components=6, min_font=14, schem
         if data["foreign"]:
             errors.append(f"{name}: 自造控件（不来自组件库 {'、'.join(library)}）: " + "; ".join(data["foreign"][:8]) + (f" ...共 {len(data['foreign'])} 个" if len(data["foreign"]) > 8 else ""))
         if min_components and len(data["components"]) < min_components:
-            errors.append(f"{name}: 页面里只有 {len(data['components'])} 种组件库（{'、'.join(library)}）的组件，至少 {min_components} 种："
-                          "按钮、表格、对话框、表单等都要用库的真实组件，不能只引入库的样式表再自己画控件")
+            errors.append(f"{name}: 页面里只有 {len(data['components'])} 种组件库（{'、'.join(library)}）的组件，"
+                          f"本次显式要求至少 {min_components} 种；数量不代替逐控件来源核验")
     return errors + [f"{name}: {r}" for r in rules]
 
 
@@ -294,10 +322,10 @@ def main(argv):
     ap.add_argument("--reduced-motion", action="store_true")
     ap.add_argument("--walk")
     ap.add_argument("--library", action="append", default=[], metavar="ID|PREFIX", help="component library id from references/component-libraries.json, or a class prefix ending in '-'")
-    ap.add_argument("--min-components", type=int, default=6)
+    ap.add_argument("--min-components", type=int, default=0, help="仅在本次合同明确要求时设置组件种类下限；默认不设配额")
     ap.add_argument("--no-focus-check", action="store_true", help="do not focus the text fields to look for a focus frame")
     ap.add_argument("--min-font", type=int, default=14, help="smallest text size in px; 14 for websites and reading pages (default), 12 for product interfaces (admin, mini-program, agent)")
-    ap.add_argument("--scheme", choices=("light", "dark"), default="light", help="colour scheme the page is opened with (prefers-color-scheme); a product front-end is audited in both")
+    ap.add_argument("--scheme", choices=("light", "dark"), default="light", help="本次要验证的目标主题（prefers-color-scheme）；按功能合同选择，不默认要求双主题")
     ap.add_argument("--dark-attr", action="append", default=[], metavar="NAME=VALUE", help="with --scheme dark: set this attribute on <html> after load, for a page that switches by attribute (data-theme=dark)")
     ap.add_argument("--dark-class", action="append", default=[], metavar="NAME", help="with --scheme dark: add this class to <html> after load, for a page that switches by class (dark)")
     a = ap.parse_args(argv)

@@ -1,0 +1,603 @@
+<!-- cat: BTN | 按钮 -->
+<style>
+  /* 按钮类：前缀 wb-bt-，仅作用于按钮分类内的演示 */
+  #cat-btn .gallery { align-items: stretch; }
+  #cat-btn .demo { min-width: 0; }
+  #cat-btn .badge { min-width: 18px; height: 18px; font-size: var(--fs-xs); line-height: 18px; }
+  #cat-btn .btn--primary:not([disabled]):not(.is-loading), #cat-btn .btn--danger:not([disabled]):not(.is-loading) { color: var(--surface); }
+  #cat-btn .btn--danger-soft:not([disabled]), #cat-btn .tag[data-tone="danger"] { color: color-mix(in srgb, var(--danger) 82%, var(--ink)); }
+  #cat-btn .btn--primary .btn-count { background: var(--surface); color: var(--action-press); }
+  /* 舞台高度由内容决定，只给单行按钮留一个统一的最小高度；下拉与菜单要预留的高度用 --h 写刚好够用的值 */
+  #cat-btn .demo__stage { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: var(--s-3); min-height: 80px; padding: var(--s-4) var(--s-3); }
+  #cat-btn .demo__stage.is-plain { display: block; min-height: 0; padding: 0; }
+  #cat-btn .btn[disabled] { box-shadow: none; }
+  #cat-btn .btn--outline[disabled] { box-shadow: inset 0 0 0 1.5px var(--line-strong); }
+  #cat-btn .btn--secondary[disabled] { box-shadow: inset 0 0 0 1px var(--line); }
+  #cat-btn .btn--text[disabled] { background: none; }
+  #cat-btn .demo__stage.wb-bt-white { background: var(--surface); }
+  #cat-btn .demo__stage.wb-bt-tall { min-height: var(--h, 200px); align-items: flex-start; }
+  #cat-btn .demo__stage.wb-bt-col { flex-direction: column; align-items: stretch; justify-content: center; flex-wrap: nowrap; }
+
+  .wb-bt-grad { background: linear-gradient(135deg, var(--action-press) 0%, var(--action) 100%); color: var(--surface); box-shadow: 0 6px 16px color-mix(in srgb, var(--action) 26%, transparent); }
+  .wb-bt-grad img { filter: invert(1); }
+  @media (hover: hover) { .wb-bt-grad:hover { filter: brightness(1.08); } }
+  .wb-bt-band { display: flex; align-items: center; justify-content: center; min-height: 96px; background: linear-gradient(135deg, var(--action-press) 0%, var(--action) 100%); }
+  .wb-bt-count-tint { background: var(--action-edge); color: var(--action-press); }
+  .wb-bt-caret::after { content: ""; width: 6px; height: 6px; margin-left: 2px; border: solid currentColor; border-width: 0 1.6px 1.6px 0; transform: rotate(45deg) translateY(-2px); }
+  .wb-bt-split .btn { min-height: 44px; }
+  .wb-bt-split .wb-bt-caret { padding: 0 var(--s-3); }
+
+  /* 下拉菜单：动作列表，不记忆选中 */
+  .wb-bt-menu { position: relative; display: inline-block; }
+  .wb-bt-list { position: absolute; z-index: 30; top: calc(100% + 6px); left: 0; min-width: 100%; padding: var(--s-1); background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); box-shadow: var(--elev-3); opacity: 0; transform: scale(.96); transform-origin: top left; pointer-events: none; transition: opacity var(--dur-quick) var(--ease-out), transform var(--dur-quick) var(--ease-out); }
+  .wb-bt-list--right { left: auto; right: 0; transform-origin: top right; }
+  .wb-bt-list--up { top: auto; bottom: calc(100% + 6px); transform-origin: bottom right; }
+  .wb-bt-menu[data-open="true"] .wb-bt-list { opacity: 1; transform: none; pointer-events: auto; }
+  .wb-bt-item { display: block; width: 100%; min-height: 36px; padding: 0 var(--s-3); border-radius: var(--r-sm); text-align: left; font-size: var(--fs-sm); white-space: nowrap; }
+  @media (hover: hover) { .wb-bt-item:hover { background: var(--zone); } }
+  .wb-bt-item--danger { color: var(--danger); }
+
+  /* 并列按钮组：共边的一排 */
+  .wb-bt-join { display: inline-flex; border-radius: var(--r-md); background: var(--surface); box-shadow: inset 0 0 0 1px var(--line-strong); overflow: hidden; }
+  .wb-bt-join button { min-height: 40px; padding: 0 var(--s-4); font-size: var(--fs-sm); font-weight: 600; color: var(--ink-2); transition: background var(--dur-quick) var(--ease-out); }
+  .wb-bt-join button + button { border-left: 1px solid var(--line-strong); }
+  @media (hover: hover) { .wb-bt-join button:hover { background: var(--zone); } }
+  .wb-bt-join button:active { background: var(--action-tint); }
+
+  /* 三态：并排展示默认、按下、禁用 */
+  .wb-bt-states { display: grid; grid-template-columns: repeat(3, auto); gap: var(--s-4) var(--s-5); justify-items: center; }
+  .wb-bt-states small { font-size: var(--fs-xs); color: var(--ink-3); }
+  .wb-bt-states .is-press { background: var(--action-press); transform: scale(.97); box-shadow: none; }
+
+  /* 批量操作条 */
+  .wb-bt-orders { display: grid; gap: 0; margin-bottom: var(--s-3); padding: var(--s-1) var(--s-4); }
+  .wb-bt-order { display: grid; grid-template-columns: 22px 40px minmax(0, 1fr) auto; align-items: center; gap: var(--s-3); min-height: 56px; }
+  .wb-bt-order + .wb-bt-order { border-top: 1px solid var(--line); }
+  .wb-bt-order img.thumb { width: 40px; height: 40px; border-radius: var(--r-sm); object-fit: cover; }
+  .wb-bt-order p { font-size: var(--fs-sm); font-weight: 600; line-height: var(--lh-tight); }
+  .wb-bt-order p small { display: block; font-size: var(--fs-xs); color: var(--ink-3); font-weight: 400; }
+  .wb-bt-bar { display: flex; align-items: center; gap: var(--s-2); padding: var(--s-2) var(--s-3); border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--elev-3); border: 1px solid var(--line); }
+  .wb-bt-bar__n { margin-right: auto; font-size: var(--fs-sm); font-weight: 600; white-space: nowrap; }
+  .wb-bt-bar .btn[disabled] { opacity: .6; }
+
+  /* 表格行内操作：沿用共用表格，菜单可以超出单元格；宽度不够时舞台横向滚动 */
+  .wb-bt-rows { width: 100%; min-width: 600px; }
+  .wb-bt-rows .table col:nth-child(1) { width: 36%; }
+  .wb-bt-rows .table col:nth-child(2), .wb-bt-rows .table col:nth-child(3) { width: 16%; }
+  .wb-bt-rows .table td { overflow: visible; padding-top: var(--s-2); padding-bottom: var(--s-2); }
+  .wb-bt-rows .table thead th:first-child { border-top-left-radius: calc(var(--r-lg) - 1px); }
+  .wb-bt-rows .table thead th:last-child { border-top-right-radius: calc(var(--r-lg) - 1px); }
+  .wb-bt-prod { display: flex; align-items: center; gap: var(--s-3); text-align: left; }
+  .wb-bt-prod img { width: 44px; height: 44px; border-radius: var(--r-sm); object-fit: cover; flex: none; }
+  .wb-bt-prod p { font-size: var(--fs-md); font-weight: 600; line-height: var(--lh-tight); }
+  .wb-bt-prod small { display: block; font-size: var(--fs-sm); font-weight: 400; color: var(--ink-3); }
+  .wb-bt-acts { display: inline-flex; align-items: center; gap: var(--s-1); }
+
+  /* 悬浮操作钮：左边是页面内容，右边一列留给悬浮钮，菜单向上展开且不盖住内容 */
+  .wb-bt-zone { display: grid; grid-template-columns: minmax(0, 1fr) 88px; align-items: end; gap: var(--s-3); width: 100%; }
+  .wb-bt-fab { position: relative; display: grid; justify-items: center; }
+  .wb-bt-fab__menu { position: absolute; left: 0; right: 0; bottom: calc(100% + var(--s-2)); display: grid; gap: var(--s-2); justify-items: center; opacity: 0; transform: translateY(8px) scale(.96); transform-origin: bottom center; pointer-events: none; transition: opacity var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out); }
+  .wb-bt-fab[data-open="true"] .wb-bt-fab__menu { opacity: 1; transform: none; pointer-events: auto; }
+  .wb-bt-fab[data-open="true"] > .btn { background: var(--action-press); }
+
+  /* 页面顶部操作区 */
+  .wb-bt-head { position: relative; isolation: isolate; display: flex; align-items: center; justify-content: space-between; gap: var(--s-4); padding: var(--s-6) var(--s-6) var(--s-5); background: linear-gradient(180deg, var(--action-tint) 0%, var(--bg) 100%); }
+  .wb-bt-head::after { content: ""; position: absolute; inset: 0; z-index: -1; background: url(../../kit/assets/photo/pattern-petals.webp) right top / 340px; opacity: .35; -webkit-mask-image: linear-gradient(90deg, transparent 35%, var(--ink) 100%); mask-image: linear-gradient(90deg, transparent 35%, var(--ink) 100%); pointer-events: none; }
+  .wb-bt-head h1 { font-size: var(--fs-3xl); font-weight: 700; line-height: var(--lh-tight); white-space: nowrap; }
+  .wb-bt-head__acts { display: flex; align-items: center; gap: var(--s-2); }
+  .wb-bt-head .search { width: 240px; }
+
+  /* 表单提交区 */
+  .wb-bt-form { width: 100%; min-width: 0; }
+  .wb-bt-form__acts { display: flex; align-items: center; justify-content: flex-end; gap: var(--s-2); padding: var(--s-4) var(--s-5); border-top: 1px solid var(--line); }
+</style>
+
+<article class="demo" data-cid="WB-BTN-001" data-name="主操作按钮" data-cat="BTN">
+  <div class="demo__head"><span class="demo__name">主操作按钮</span></div>
+  <p class="demo__note">适合：发布、提交等页面唯一的主操作</p>
+  <div class="demo__stage is-tint"><button class="btn btn--primary" data-wb-toast="已发布">发布商品</button><button class="btn btn--primary" disabled>发布商品</button></div>
+</article>
+
+<article class="demo" data-cid="WB-BTN-002" data-name="次要操作按钮" data-cat="BTN">
+  <div class="demo__head"><span class="demo__name">次要操作按钮</span></div>
+  <p class="demo__note">适合：与主操作并列的保存草稿</p>
+  <div class="demo__stage"><button class="btn btn--secondary" data-wb-toast="草稿已保存">保存草稿</button><button class="btn btn--secondary" disabled>保存草稿</button></div>
+</article>
+
+<article class="demo" data-cid="WB-BTN-003" data-name="描边按钮" data-cat="BTN">
+  <div class="demo__head"><span class="demo__name">描边按钮</span></div>
+  <p class="demo__note">适合：导出、筛选等次级操作</p>
+  <div class="demo__stage"><button class="btn btn--outline" data-wb-toast="已开始导出">导出订单</button><button class="btn btn--outline" disabled>导出订单</button></div>
+</article>
+
+<article class="demo" data-cid="WB-BTN-004" data-name="文字按钮" data-cat="BTN">
+  <div class="demo__head"><span class="demo__name">文字按钮</span></div>
+  <p class="demo__note">适合：表格与卡片里的轻量操作</p>
+  <div class="demo__stage"><button class="btn btn--text" data-wb-toast="已打开详情">查看详情</button><button class="btn btn--text" disabled>查看详情</button></div>
+</article>
+
+<article class="demo" data-cid="WB-BTN-005" data-name="链接按钮" data-cat="BTN">
+  <div class="demo__head"><span class="demo__name">链接按钮</span></div>
+  <p class="demo__note">适合：卡片标题行右侧的查看全部</p>
+  <div class="demo__stage"><button class="btn btn--text" data-wb-toast="已打开全部订单">查看全部<span class="chev"></span></button></div>
+</article>
+
+<article class="demo" data-cid="WB-BTN-006" data-name="渐变按钮" data-cat="BTN">
+  <div class="demo__head"><span class="demo__name">渐变按钮</span></div>
+  <p class="demo__note">适合：会员开通等需要强调的转化入口</p>
+  <div class="demo__stage"><button class="btn wb-bt-grad" data-wb-toast="已开通">开通会员</button><button class="btn wb-bt-grad" style="border-radius: var(--r-full)" data-wb-toast="已升级">升级金卡</button></div>
+</article>
+
+<article class="demo" data-cid="WB-BTN-007" data-name="深色按钮" data-cat="BTN">
+  <div class="demo__head"><span class="demo__name">深色按钮</span></div>
+  <p class="demo__note">适合：打印、下载等工具型操作</p>
+  <div class="demo__stage"><button class="btn btn--dark" data-wb-toast="已发送到打印机">打印面单</button><button class="btn btn--dark" disabled>打印面单</button></div>
+</article>
+
+<article class="demo" data-cid="WB-BTN-008" data-name="辅色按钮" data-cat="BTN">
+  <div class="demo__head"><span class="demo__name">辅色按钮</span></div>
+  <p class="demo__note">适合：活动与会员相关操作</p>
+  <div class="demo__stage"><button class="btn btn--accent" data-wb-toast="活动已创建">创建活动</button><button class="btn btn--accent" disabled>创建活动</button></div>
+</article>
+
+<article class="demo" data-cid="WB-BTN-009" data-name="白底按钮" data-cat="BTN">
+  <div class="demo__head"><span class="demo__name">白底按钮</span></div>
+  <p class="demo__note">适合：品牌色横幅上的操作</p>
+  <div class="demo__stage is-plain"><div class="wb-bt-band"><button class="btn btn--white" data-wb-toast="已打开报表">查看报表</button></div></div>
+</article>
+
+<article class="demo" data-cid="WB-BTN-010" data-name="危险按钮" data-cat="BTN">
+  <div class="demo__head"><span class="demo__name">危险按钮</span></div>
+  <p class="demo__note">适合：删除等不可恢复的操作，点击先确认</p>
+  <div class="demo__stage"><button class="btn btn--danger" data-wb-confirm="确认删除红玫瑰花束" data-wb-ok="删除" data-wb-done="已删除">删除商品</button><button class="btn btn--danger" disabled>删除商品</button></div>
+</article>
+
+<article class="demo" data-cid="WB-BTN-011" data-name="柔和危险按钮" data-cat="BTN">
+  <div class="demo__head"><span class="demo__name">柔和危险按钮</span></div>
+  <p class="demo__note">适合：停用、下架等可恢复的风险操作</p>
+  <div class="demo__stage"><button class="btn btn--danger-soft" data-wb-confirm="确认停用徐汇滨江店" data-wb-ok="停用" data-wb-done="已停用">停用门店</button><button class="btn btn--danger-soft" disabled>停用门店</button></div>
+</article>
+
+<article class="demo" data-cid="WB-BTN-012" data-name="胶囊按钮" data-cat="BTN">
+  <div class="demo__head"><span class="demo__name">胶囊按钮</span></div>
+  <p class="demo__note">适合：卡片内的单个动作</p>
+  <div class="demo__stage"><button class="btn btn--primary btn--pill" data-wb-toast="已发货">立即发货</button><button class="btn btn--outline btn--pill" data-wb-toast="已领取">领取券包</button></div>
+</article>
+
+<article class="demo" data-cid="WB-BTN-013" data-name="超小按钮" data-cat="BTN">
+  <div class="demo__head"><span class="demo__name">超小按钮</span></div>
+  <p class="demo__note">适合：表格行内与密集列表</p>
+  <div class="demo__stage"><button class="btn btn--secondary btn--xs" data-wb-toast="已加入补货单">补货</button><button class="btn btn--secondary btn--xs" disabled>补货</button></div>
+</article>
+
+<article class="demo" data-cid="WB-BTN-014" data-name="小号按钮" data-cat="BTN">
+  <div class="demo__head"><span class="demo__name">小号按钮</span></div>
+  <p class="demo__note">适合：工具条与卡片头部</p>
+  <div class="demo__stage"><button class="btn btn--primary btn--sm" data-wb-toast="已添加规格">添加规格</button><button class="btn btn--outline btn--sm" data-wb-toast="已刷新">刷新数据</button></div>
+</article>
+
+<article class="demo" data-cid="WB-BTN-015" data-name="大号按钮" data-cat="BTN">
+  <div class="demo__head"><span class="demo__name">大号按钮</span></div>
+  <p class="demo__note">适合：登录与整页提交</p>
+  <div class="demo__stage"><button class="btn btn--primary btn--lg" data-wb-toast="已提交审核">提交审核</button></div>
+</article>
+
+<article class="demo" data-cid="WB-BTN-016" data-name="图标文字按钮" data-cat="BTN">
+  <div class="demo__head"><span class="demo__name">图标文字按钮</span></div>
+  <p class="demo__note">适合：图标在前的导入与筛选</p>
+  <div class="demo__stage"><button class="btn btn--primary" data-wb-toast="请选择商品文件"><img src="../../kit/assets/line/upload.webp" alt="">导入商品</button><button class="btn btn--outline" data-wb-toast="已打开筛选"><img src="../../kit/assets/line/filter.webp" alt="">筛选条件</button></div>
+</article>
+
+<article class="demo" data-cid="WB-BTN-017" data-name="图标按钮" data-cat="BTN">
+  <div class="demo__head"><span class="demo__name">图标按钮</span></div>
+  <p class="demo__note">适合：顶部与卡片角落的无文字操作</p>
+  <div class="demo__stage"><button class="ibtn" data-tip="编辑" aria-label="编辑" data-wb-toast="已进入编辑"><img src="../../kit/assets/line/edit.webp" alt=""></button><button class="ibtn" data-tip="消息" aria-label="消息" data-wb-toast="暂无新消息"><img src="../../kit/assets/line/message.webp" alt=""><span class="badge">3</span></button><button class="ibtn" data-tip="设置" aria-label="设置" disabled style="opacity:.4;pointer-events:none"><img src="../../kit/assets/line/settings.webp" alt=""></button></div>
+</article>
+
+<article class="demo" data-cid="WB-BTN-018" data-name="圆形图标按钮" data-cat="BTN">
+  <div class="demo__head"><span class="demo__name">圆形图标按钮</span></div>
+  <p class="demo__note">适合：图片与横幅上的浮起操作</p>
+  <div class="demo__stage"><button class="ibtn ibtn--round" data-tip="客服" aria-label="客服" data-wb-toast="已连接客服"><img src="../../kit/assets/line/support.webp" alt=""></button><button class="ibtn ibtn--round" data-tip="扫码" aria-label="扫码" data-wb-toast="请对准二维码"><img src="../../kit/assets/line/scan.webp" alt=""></button></div>
+</article>
+
+<article class="demo" data-cid="WB-BTN-019" data-name="浅底图标按钮" data-cat="BTN">
+  <div class="demo__head"><span class="demo__name">浅底图标按钮</span></div>
+  <p class="demo__note">适合：工具条里需要被看见的图标操作</p>
+  <div class="demo__stage wb-bt-white"><button class="ibtn ibtn--tint" data-tip="上传" aria-label="上传" data-wb-toast="请选择文件"><img src="../../kit/assets/line/upload.webp" alt=""></button><button class="ibtn ibtn--tint" data-tip="归档" aria-label="归档" data-wb-toast="已归档"><img src="../../kit/assets/line/archive.webp" alt=""></button></div>
+</article>
+
+<article class="demo" data-cid="WB-BTN-020" data-name="带数量按钮" data-cat="BTN">
+  <div class="demo__head"><span class="demo__name">带数量按钮</span></div>
+  <p class="demo__note">适合：待处理事项的入口</p>
+  <div class="demo__stage"><button class="btn btn--primary" data-wb-toast="已打开待发货">待发货<span class="btn-count">12</span></button><button class="btn btn--outline" data-wb-toast="已打开售后">售后<span class="btn-count wb-bt-count-tint">3</span></button></div>
+</article>
+
+<article class="demo" data-cid="WB-BTN-021" data-name="并列按钮组" data-cat="BTN">
+  <div class="demo__head"><span class="demo__name">并列按钮组</span></div>
+  <p class="demo__note">适合：同一对象的几个平级动作</p>
+  <div class="demo__stage"><div class="wb-bt-join" role="group" aria-label="订单操作"><button data-wb-toast="已导出">导出</button><button data-wb-toast="已打印">打印</button><button data-wb-toast="已复制">复制</button></div></div>
+</article>
+
+<article class="demo" data-cid="WB-BTN-022" data-name="分段按钮" data-cat="BTN">
+  <div class="demo__head"><span class="demo__name">分段按钮</span></div>
+  <p class="demo__note">适合：统计周期等互斥选项</p>
+  <div class="demo__stage wb-bt-white"><div class="btn-seg" role="group" aria-label="统计周期" data-wb-seg><button aria-pressed="false">日</button><button aria-pressed="true">周</button><button aria-pressed="false">月</button></div></div>
+</article>
+
+<article class="demo" data-cid="WB-BTN-023" data-name="下拉按钮" data-cat="BTN">
+  <div class="demo__head"><span class="demo__name">下拉按钮</span></div>
+  <p class="demo__note">适合：收纳多个次要动作</p>
+  <div class="demo__stage wb-bt-tall" style="--h: 200px"><div class="wb-bt-menu" data-wb-menu data-open="true">
+    <button class="btn btn--outline wb-bt-caret" aria-haspopup="menu" aria-expanded="true">更多操作</button>
+    <div class="wb-bt-list" role="menu"><button class="wb-bt-item" role="menuitem" data-wb-toast="已导出表格">导出表格</button><button class="wb-bt-item" role="menuitem" data-wb-toast="已发送到打印机">打印清单</button><button class="wb-bt-item" role="menuitem" data-wb-toast="已归档">归档订单</button></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-BTN-024" data-name="拆分按钮" data-cat="BTN">
+  <div class="demo__head"><span class="demo__name">拆分按钮</span></div>
+  <p class="demo__note">适合：主动作加几个备选方式</p>
+  <div class="demo__stage wb-bt-tall" style="--h: 164px"><div class="wb-bt-menu" data-wb-menu data-open="true">
+    <div class="btn-split wb-bt-split"><button class="btn btn--primary" data-wb-toast="已发布">发布</button><button class="btn btn--primary wb-bt-caret" aria-label="更多发布方式" data-tip="更多发布方式" aria-haspopup="menu" aria-expanded="true"></button></div>
+    <div class="wb-bt-list" role="menu"><button class="wb-bt-item" role="menuitem" data-wb-toast="已设为定时发布">定时发布</button><button class="wb-bt-item" role="menuitem" data-wb-toast="已存为草稿">存为草稿</button></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-BTN-025" data-name="加载中按钮" data-cat="BTN">
+  <div class="demo__head"><span class="demo__name">加载中按钮</span></div>
+  <p class="demo__note">适合：提交后等待结果的操作</p>
+  <div class="demo__stage"><button class="btn btn--primary" data-wb-load="已保存">保存修改</button><button class="btn btn--outline is-loading" aria-busy="true" aria-label="导出中">导出中</button></div>
+</article>
+
+<article class="demo" data-cid="WB-BTN-026" data-name="禁用按钮" data-cat="BTN">
+  <div class="demo__head"><span class="demo__name">禁用按钮</span></div>
+  <p class="demo__note">适合：条件未满足时的各种按钮</p>
+  <div class="demo__stage"><button class="btn btn--primary" disabled>提交</button><button class="btn btn--secondary" disabled>保存</button><button class="btn btn--outline" disabled>导出</button><button class="btn btn--text" disabled>详情</button></div>
+</article>
+
+<article class="demo" data-cid="WB-BTN-027" data-name="按钮三态" data-cat="BTN">
+  <div class="demo__head"><span class="demo__name">按钮三态</span></div>
+  <p class="demo__note">适合：核对默认、按下与禁用的外观</p>
+  <div class="demo__stage"><div class="wb-bt-states"><button class="btn btn--primary" data-wb-toast="已确认">确认</button><button class="btn btn--primary is-press" tabindex="-1" aria-hidden="true">确认</button><button class="btn btn--primary" disabled>确认</button><small>默认</small><small>按下</small><small>禁用</small></div></div>
+</article>
+
+<article class="demo" data-cid="WB-BTN-028" data-name="切换按钮" data-cat="BTN">
+  <div class="demo__head"><span class="demo__name">切换按钮</span></div>
+  <p class="demo__note">适合：置顶、关注等开与关的单项状态</p>
+  <div class="demo__stage"><button class="btn btn--outline" data-wb-toggle="置顶|已置顶" aria-pressed="false">置顶</button><button class="btn btn--secondary" data-wb-toggle="关注|已关注" aria-pressed="true">已关注</button></div>
+</article>
+
+<article class="demo" data-cid="WB-BTN-029" data-name="悬浮操作钮" data-cat="BTN">
+  <div class="demo__head"><span class="demo__name">悬浮操作钮</span></div>
+  <p class="demo__note">适合：固定在页面角落的客服与快捷入口</p>
+  <div class="demo__stage">
+    <div class="wb-bt-zone">
+      <div class="card list">
+        <div class="row"><img class="row__lead" src="../../kit/assets/photo/product-rose-red.webp" alt=""><div class="row__main"><p class="row__title">红玫瑰花束</p><p class="row__meta">库存 42 件</p></div><div class="row__trail"><span class="price"><small>¥</small>199</span></div></div>
+        <div class="row"><img class="row__lead" src="../../kit/assets/photo/product-sunflower.webp" alt=""><div class="row__main"><p class="row__title">向日葵花束</p><p class="row__meta">库存 18 件</p></div><div class="row__trail"><span class="price"><small>¥</small>159</span></div></div>
+      </div>
+      <div class="wb-bt-fab" data-wb-fab>
+        <div class="wb-bt-fab__menu"><button class="btn btn--white btn--pill btn--sm" data-wb-toast="已连接在线客服"><img src="../../kit/assets/line/support.webp" alt="">客服</button><button class="btn btn--white btn--pill btn--sm" data-wb-toast="已打开意见反馈"><img src="../../kit/assets/line/message.webp" alt="">反馈</button></div>
+        <button class="btn btn--primary btn--fab" aria-label="快捷入口" data-tip="快捷入口" aria-expanded="false"><img src="../../kit/assets/line/add.webp" alt=""></button>
+      </div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="WB-BTN-030" data-name="批量操作条" data-cat="BTN">
+  <div class="demo__head"><span class="demo__name">批量操作条</span></div>
+  <p class="demo__note">适合：勾选多条订单后的集中处理</p>
+  <div class="demo__stage wb-bt-col" id="wb-bt-batch">
+    <div class="card wb-bt-orders">
+      <div class="wb-bt-order"><span class="check" role="checkbox" aria-checked="true" aria-label="选择订单 0215"><img src="../../kit/assets/line/check.webp" alt=""></span><img class="thumb" src="../../kit/assets/photo/product-rose-red.webp" alt=""><p>红玫瑰花束<small>订单 0215 林晓</small></p><span class="price"><small>¥</small>199</span></div>
+      <div class="wb-bt-order"><span class="check" role="checkbox" aria-checked="true" aria-label="选择订单 0216"><img src="../../kit/assets/line/check.webp" alt=""></span><img class="thumb" src="../../kit/assets/photo/product-peony-pink.webp" alt=""><p>粉芍药花束<small>订单 0216 陈默</small></p><span class="price"><small>¥</small>239</span></div>
+      <div class="wb-bt-order"><span class="check" role="checkbox" aria-checked="true" aria-label="选择订单 0217"><img src="../../kit/assets/line/check.webp" alt=""></span><img class="thumb" src="../../kit/assets/photo/product-giftbox.webp" alt=""><p>花礼盒<small>订单 0217 王芳</small></p><span class="price"><small>¥</small>259</span></div>
+    </div>
+    <div class="wb-bt-bar" role="toolbar" aria-label="批量操作">
+      <span class="wb-bt-bar__n">已选 <span data-wb-n>3</span> 项</span>
+      <button class="btn btn--primary btn--sm" data-wb-act="批量发货完成">发货</button>
+      <button class="btn btn--outline btn--sm" data-wb-act="已导出所选订单">导出</button>
+      <button class="btn btn--danger-soft btn--sm" data-wb-act="已删除所选订单">删除</button>
+      <button class="btn btn--text btn--sm" data-wb-clear>取消选择</button>
+    </div>
+  </div>
+</article>
+
+<article class="demo demo--span2" data-cid="WB-BTN-031" data-name="表格行内操作" data-cat="BTN">
+  <div class="demo__head"><span class="demo__name">表格行内操作</span></div>
+  <p class="demo__note">适合：每行末尾的详情、发货与更多</p>
+  <div class="demo__stage">
+    <div class="card wb-bt-rows"><table class="table table--static">
+      <colgroup><col><col><col><col></colgroup>
+      <thead><tr><th>商品</th><th>金额</th><th>状态</th><th>操作</th></tr></thead>
+      <tbody>
+        <tr><td class="t-l"><div class="wb-bt-prod"><img src="../../kit/assets/photo/product-tulip-white.webp" alt=""><div><p>白郁金香</p><small>订单 0218 林晓</small></div></div></td><td class="t-r"><span class="price"><small>¥</small>179</span></td><td><span class="tag" data-tone="warning">待发货</span></td>
+          <td><div class="wb-bt-acts"><button class="btn btn--text btn--xs" data-wb-toast="已打开详情">详情</button><button class="btn btn--text btn--xs" data-wb-toast="已发货">发货</button>
+            <div class="wb-bt-menu" data-wb-menu><button class="btn btn--text btn--xs wb-bt-caret" aria-haspopup="menu" aria-expanded="false">更多</button><div class="wb-bt-list wb-bt-list--right" role="menu"><button class="wb-bt-item" role="menuitem" data-wb-toast="已打开地址修改">修改地址</button><button class="wb-bt-item" role="menuitem" data-wb-toast="已添加备注">添加备注</button><button class="wb-bt-item wb-bt-item--danger" role="menuitem" data-wb-confirm="确认取消订单 0218" data-wb-ok="取消订单" data-wb-done="订单已取消">取消订单</button></div></div></div></td></tr>
+        <tr><td class="t-l"><div class="wb-bt-prod"><img src="../../kit/assets/photo/product-hydrangea-blue.webp" alt=""><div><p>蓝绣球盆栽</p><small>订单 0219 周岚</small></div></div></td><td class="t-r"><span class="price"><small>¥</small>129</span></td><td><span class="tag" data-tone="info">待收货</span></td>
+          <td><div class="wb-bt-acts"><button class="btn btn--text btn--xs" data-wb-toast="已打开详情">详情</button><button class="btn btn--text btn--xs" disabled>发货</button>
+            <div class="wb-bt-menu" data-wb-menu><button class="btn btn--text btn--xs wb-bt-caret" aria-haspopup="menu" aria-expanded="false">更多</button><div class="wb-bt-list wb-bt-list--right" role="menu"><button class="wb-bt-item" role="menuitem" data-wb-toast="已打开地址修改">修改地址</button><button class="wb-bt-item" role="menuitem" data-wb-toast="已添加备注">添加备注</button></div></div></div></td></tr>
+        <tr><td class="t-l"><div class="wb-bt-prod"><img src="../../kit/assets/photo/product-peony-pink.webp" alt=""><div><p>粉芍药花束</p><small>订单 0220 王芳</small></div></div></td><td class="t-r"><span class="price"><small>¥</small>239</span></td><td><span class="tag" data-tone="success">已完成</span></td>
+          <td><div class="wb-bt-acts"><button class="btn btn--text btn--xs" data-wb-toast="已打开详情">详情</button><button class="btn btn--text btn--xs" disabled>发货</button>
+            <div class="wb-bt-menu" data-wb-menu><button class="btn btn--text btn--xs wb-bt-caret" aria-haspopup="menu" aria-expanded="false">更多</button><div class="wb-bt-list wb-bt-list--right wb-bt-list--up" role="menu"><button class="wb-bt-item" role="menuitem" data-wb-toast="已打开物流">查看物流</button><button class="wb-bt-item" role="menuitem" data-wb-toast="已添加备注">添加备注</button></div></div></div></td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</article>
+
+<article class="demo demo--span2" data-cid="WB-BTN-032" data-name="页面顶部操作区" data-cat="BTN">
+  <div class="demo__head"><span class="demo__name">页面顶部操作区</span></div>
+  <p class="demo__note">适合：页头右侧的搜索、导出与消息</p>
+  <div class="demo__stage is-plain"><header class="wb-bt-head"><h1>库存盘点</h1><div class="wb-bt-head__acts"><label class="search"><img src="../../kit/assets/line/search.webp" alt=""><input type="search" placeholder="搜索商品名称" aria-label="搜索商品名称"></label><button class="btn btn--outline" data-wb-toast="已开始导出"><img src="../../kit/assets/line/upload.webp" alt="">导出</button><button class="ibtn" data-tip="消息" aria-label="消息" data-wb-toast="暂无新消息"><img src="../../kit/assets/line/message.webp" alt=""><span class="badge">3</span></button></div></header></div>
+</article>
+
+<article class="demo demo--span2" data-cid="WB-BTN-033" data-name="表单提交区" data-cat="BTN">
+  <div class="demo__head"><span class="demo__name">表单提交区</span></div>
+  <p class="demo__note">适合：表单底部，取消与保存相邻</p>
+  <div class="demo__stage"><form class="card wb-bt-form" onsubmit="return false">
+    <div class="form-grid">
+      <label class="field"><span class="field__label">商品名称</span><input class="input" value="粉芍药花束" aria-label="商品名称"></label>
+      <label class="field"><span class="field__label">所属分类</span><input class="input" value="鲜花" aria-label="所属分类"></label>
+    </div>
+    <div class="wb-bt-form__acts"><button type="button" class="btn btn--outline" data-wb-toast="已取消编辑">取消</button><button type="submit" class="btn btn--primary" data-wb-load="已保存">保存</button></div>
+  </form></div>
+</article>
+
+<script>
+(function () {
+  const root = document.getElementById('cat-btn'); if (!root) return;
+  const $ = (s, r = root) => r.querySelector(s), $$ = (s, r = root) => [...r.querySelectorAll(s)];
+
+  /* 轻提示与确认框 */
+  $$('[data-wb-toast]').forEach(b => b.addEventListener('click', () => Lz.toast(b.dataset.wbToast, 'success')));
+  $$('[data-wb-confirm]').forEach(b => b.addEventListener('click', async () => {
+    if (await Lz.confirm({ title: b.dataset.wbConfirm, ok: b.dataset.wbOk || '确认', tone: 'danger' })) Lz.toast(b.dataset.wbDone || '已完成', 'success');
+  }));
+
+  /* 加载中：点击后进入加载，片刻后恢复并提示 */
+  $$('[data-wb-load]').forEach(b => b.addEventListener('click', e => {
+    e.preventDefault(); if (b.classList.contains('is-loading')) return;
+    const label = b.textContent; b.classList.add('is-loading'); b.setAttribute('aria-busy', 'true');
+    setTimeout(() => { b.classList.remove('is-loading'); b.removeAttribute('aria-busy'); Lz.toast(b.dataset.wbLoad, 'success'); }, 1500);
+  }));
+
+  /* 动作菜单：点开、点外面或按 Escape 收起 */
+  $$('[data-wb-menu]').forEach(m => {
+    const trigger = $('[aria-haspopup]', m), set = open => { m.dataset.open = String(open); trigger.setAttribute('aria-expanded', String(open)); };
+    trigger.addEventListener('click', e => { e.stopPropagation(); $$('[data-wb-menu][data-open="true"]').forEach(x => { if (x !== m) { x.dataset.open = 'false'; $('[aria-haspopup]', x).setAttribute('aria-expanded', 'false'); } }); set(m.dataset.open !== 'true'); });
+    $$('.wb-bt-item', m).forEach(i => i.addEventListener('click', () => set(false)));
+    m.addEventListener('keydown', e => { if (e.key === 'Escape') { set(false); trigger.focus(); } });
+    document.addEventListener('click', () => set(false));
+  });
+
+  /* 切换按钮：按下与弹起交替，文字随状态变化 */
+  $$('[data-wb-toggle]').forEach(b => { const [off, on] = b.dataset.wbToggle.split('|'); b.addEventListener('click', () => { const v = b.getAttribute('aria-pressed') !== 'true'; b.setAttribute('aria-pressed', String(v)); b.textContent = v ? on : off; b.classList.toggle('btn--outline', !v); b.classList.toggle('btn--secondary', v); Lz.toast(v ? on : '已取消' + off, 'success'); }); });
+
+  /* 分段按钮 */
+  $$('[data-wb-seg]').forEach(g => $$('button', g).forEach(b => b.addEventListener('click', () => $$('button', g).forEach(x => x.setAttribute('aria-pressed', String(x === b))))));
+
+  /* 悬浮操作钮：展开时收起它自己的悬浮说明，免得盖住上方的菜单 */
+  $$('[data-wb-fab]').forEach(f => {
+    const main = $('.btn--fab', f), name = main.dataset.tip;
+    const set = open => {
+      f.dataset.open = String(open); main.setAttribute('aria-expanded', String(open));
+      if (open) { document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' })); main.removeAttribute('data-tip'); } else main.dataset.tip = name;
+    };
+    main.addEventListener('click', e => { e.stopPropagation(); set(f.dataset.open !== 'true'); });
+    document.addEventListener('click', e => { if (!f.contains(e.target)) set(false); });
+  });
+
+  /* 批量操作条：勾选数量驱动按钮可用 */
+  const batch = $('#wb-bt-batch');
+  if (batch) {
+    const checks = $$('[role="checkbox"]', batch), n = $('[data-wb-n]', batch), acts = $$('[data-wb-act]', batch);
+    const sync = () => { const c = checks.filter(x => x.getAttribute('aria-checked') === 'true').length; n.textContent = c; acts.forEach(a => { a.disabled = c === 0; }); };
+    checks.forEach(c => c.addEventListener('lz:toggle', sync));
+    acts.forEach(a => a.addEventListener('click', () => Lz.toast(a.dataset.wbAct, 'success')));
+    $('[data-wb-clear]', batch).addEventListener('click', () => { checks.forEach(c => c.setAttribute('aria-checked', 'false')); sync(); });
+    sync();
+  }
+})();
+</script>
+
+<article class="demo" data-cid="WB-BTN-034" data-name="回到顶部按钮" data-cat="BTN">
+  <div class="demo__head"><span class="demo__name">回到顶部按钮</span></div>
+  <p class="demo__note">适合：长页面滚动后右下角出现的回顶部钮</p>
+  <div class="demo__stage"><div class="card wb-bt-top" id="wb-bt-top">
+    <div class="wb-bt-top__scroll" tabindex="0" role="region" aria-label="商品列表">
+      <div class="row"><img class="row__lead" src="../../kit/assets/photo/product-rose-red.webp" alt=""><div class="row__main"><p class="row__title">红玫瑰花束</p><p class="row__meta">库存 42 件</p></div><div class="row__trail"><span class="price"><small>¥</small>199</span></div></div>
+      <div class="row"><img class="row__lead" src="../../kit/assets/photo/product-sunflower.webp" alt=""><div class="row__main"><p class="row__title">向日葵花束</p><p class="row__meta">库存 18 件</p></div><div class="row__trail"><span class="price"><small>¥</small>159</span></div></div>
+      <div class="row"><img class="row__lead" src="../../kit/assets/photo/product-peony-pink.webp" alt=""><div class="row__main"><p class="row__title">粉芍药花束</p><p class="row__meta">库存 27 件</p></div><div class="row__trail"><span class="price"><small>¥</small>239</span></div></div>
+      <div class="row"><img class="row__lead" src="../../kit/assets/photo/product-tulip-white.webp" alt=""><div class="row__main"><p class="row__title">白郁金香</p><p class="row__meta">库存 6 件</p></div><div class="row__trail"><span class="price"><small>¥</small>179</span></div></div>
+      <div class="row"><img class="row__lead" src="../../kit/assets/photo/product-hydrangea-blue.webp" alt=""><div class="row__main"><p class="row__title">蓝绣球盆栽</p><p class="row__meta">库存 15 件</p></div><div class="row__trail"><span class="price"><small>¥</small>129</span></div></div>
+      <div class="row"><img class="row__lead" src="../../kit/assets/photo/product-monstera.webp" alt=""><div class="row__main"><p class="row__title">龟背竹盆栽</p><p class="row__meta">库存 24 件</p></div><div class="row__trail"><span class="price"><small>¥</small>159</span></div></div>
+      <div class="row"><img class="row__lead" src="../../kit/assets/photo/product-succulent.webp" alt=""><div class="row__main"><p class="row__title">多肉组合盆</p><p class="row__meta">库存 61 件</p></div><div class="row__trail"><span class="price"><small>¥</small>89</span></div></div>
+      <div class="row"><img class="row__lead" src="../../kit/assets/photo/product-pampas-vase.webp" alt=""><div class="row__main"><p class="row__title">干花花瓶摆件</p><p class="row__meta">库存 33 件</p></div><div class="row__trail"><span class="price"><small>¥</small>129</span></div></div>
+      <div class="row"><img class="row__lead" src="../../kit/assets/photo/product-giftbox.webp" alt=""><div class="row__main"><p class="row__title">花礼盒</p><p class="row__meta">库存 36 件</p></div><div class="row__trail"><span class="price"><small>¥</small>259</span></div></div>
+    </div>
+    <button class="wb-bt-top__btn" aria-label="回到顶部" data-tip="回到顶部" data-show="false"><span class="wb-bt-top__in"><span class="chev"></span></span></button>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-BTN-035" data-name="右键快捷菜单" data-cat="BTN">
+  <div class="demo__head"><span class="demo__name">右键快捷菜单</span></div>
+  <p class="demo__note">适合：表格行与文件卡上右键弹出的就近操作菜单</p>
+  <div class="demo__stage"><div class="card wb-bt-ctx" id="wb-bt-ctx">
+    <div class="wb-bt-ctx__row" tabindex="0" data-name="红玫瑰花束主图"><img src="../../kit/assets/photo/product-rose-red.webp" alt=""><div><p class="wb-bt-ctx__t">红玫瑰花束主图</p><p class="wb-bt-ctx__m">商品图片 12 张</p></div><button class="btn btn--text btn--xs wb-bt-caret" aria-haspopup="menu" aria-expanded="false" aria-label="红玫瑰花束主图的操作">操作</button></div>
+    <div class="wb-bt-ctx__row" tabindex="0" data-name="春日花展海报"><img src="../../kit/assets/photo/scene-hero-pink.webp" alt=""><div><p class="wb-bt-ctx__t">春日花展海报</p><p class="wb-bt-ctx__m">活动素材 3 个文件</p></div><button class="btn btn--text btn--xs wb-bt-caret" aria-haspopup="menu" aria-expanded="false" aria-label="春日花展海报的操作">操作</button></div>
+    <div class="wb-bt-ctx__row" tabindex="0" data-name="门店价目表"><img src="../../kit/assets/solid/bill.webp" alt=""><div><p class="wb-bt-ctx__t">门店价目表</p><p class="wb-bt-ctx__m">表格 更新于 11 月 8 日</p></div><button class="btn btn--text btn--xs wb-bt-caret" aria-haspopup="menu" aria-expanded="false" aria-label="门店价目表的操作">操作</button></div>
+    <div class="wb-bt-ctx__row" tabindex="0" data-name="会员服务协议"><img src="../../kit/assets/solid/biz-notes.webp" alt=""><div><p class="wb-bt-ctx__t">会员服务协议</p><p class="wb-bt-ctx__m">文档 共 2 页</p></div><button class="btn btn--text btn--xs wb-bt-caret" aria-haspopup="menu" aria-expanded="false" aria-label="会员服务协议的操作">操作</button></div>
+    <div class="wb-bt-ctx__menu" role="menu" aria-label="文件操作" hidden>
+      <button class="wb-bt-item" role="menuitem" data-act="open">打开</button>
+      <button class="wb-bt-item" role="menuitem" data-act="rename">重命名</button>
+      <button class="wb-bt-item" role="menuitem" data-act="link">复制链接</button>
+      <span class="wb-bt-ctx__sep" role="separator"></span>
+      <button class="wb-bt-item wb-bt-item--danger" role="menuitem" data-act="delete">删除</button>
+    </div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-BTN-036" data-name="溢出工具条" data-cat="BTN">
+  <div class="demo__head"><span class="demo__name">溢出工具条</span></div>
+  <p class="demo__note">适合：一排图标动作放不下时折入更多菜单</p>
+  <div class="demo__stage"><div class="card wb-bt-ovf" id="wb-bt-ovf">
+    <div class="wb-bt-ovf__bar" role="toolbar" aria-label="素材工具条">
+      <div class="wb-bt-ovf__items">
+        <button class="ibtn" aria-label="新建文档" data-tip="新建文档" data-done="已新建文档"><img src="../../kit/assets/line/file-add.webp" alt=""></button>
+        <button class="ibtn" aria-label="上传素材" data-tip="上传素材" data-done="请选择素材文件"><img src="../../kit/assets/line/upload.webp" alt=""></button>
+        <button class="ibtn" aria-label="预览" data-tip="预览" data-done="已打开预览"><img src="../../kit/assets/line/monitor.webp" alt=""></button>
+        <button class="ibtn" aria-label="重命名" data-tip="重命名" data-done="已进入重命名"><img src="../../kit/assets/line/edit.webp" alt=""></button>
+        <button class="ibtn" aria-label="归档" data-tip="归档" data-done="已归档"><img src="../../kit/assets/line/archive.webp" alt=""></button>
+        <button class="ibtn" aria-label="筛选" data-tip="筛选" data-done="已打开筛选"><img src="../../kit/assets/line/filter.webp" alt=""></button>
+        <button class="ibtn" aria-label="列表视图" data-tip="列表视图" data-done="已切换列表视图"><img src="../../kit/assets/line/list.webp" alt=""></button>
+        <button class="ibtn" aria-label="查找" data-tip="查找" data-done="已打开查找"><img src="../../kit/assets/line/search.webp" alt=""></button>
+        <button class="ibtn" aria-label="成员权限" data-tip="成员权限" data-done="已打开成员权限"><img src="../../kit/assets/line/people.webp" alt=""></button>
+        <button class="ibtn" aria-label="素材设置" data-tip="素材设置" data-done="已打开素材设置"><img src="../../kit/assets/line/settings.webp" alt=""></button>
+      </div>
+      <div class="wb-bt-menu wb-bt-ovf__more" data-open="false" hidden><button class="btn btn--text btn--sm wb-bt-caret" aria-haspopup="menu" aria-expanded="false">更多</button><div class="wb-bt-list wb-bt-list--right" role="menu" aria-label="更多操作"></div></div>
+    </div>
+    <div class="wb-bt-ovf__body">
+      <div class="row"><img class="row__lead" src="../../kit/assets/photo/product-rose-red.webp" alt=""><div class="row__main"><p class="row__title">红玫瑰花束主图</p><p class="row__meta">商品图片 12 张</p></div><span class="tag" data-tone="success">已发布</span></div>
+      <div class="row"><img class="row__lead" src="../../kit/assets/photo/product-sunflower.webp" alt=""><div class="row__main"><p class="row__title">向日葵花束主图</p><p class="row__meta">商品图片 8 张</p></div><span class="tag" data-tone="success">已发布</span></div>
+      <div class="row"><img class="row__lead" src="../../kit/assets/photo/scene-hero-pink.webp" alt=""><div class="row__main"><p class="row__title">春日花展海报</p><p class="row__meta">活动素材 3 个文件</p></div><span class="tag" data-tone="warning">待审核</span></div>
+      <div class="row"><img class="row__lead" src="../../kit/assets/photo/bouquet-white.webp" alt=""><div class="row__main"><p class="row__title">周期订花横幅</p><p class="row__meta">活动素材 5 个文件</p></div><span class="tag">草稿</span></div>
+    </div>
+  </div></div>
+</article>
+
+<style>
+  /* 新增：回到顶部、右键快捷菜单、溢出工具条 */
+  .wb-bt-top, .wb-bt-ctx, .wb-bt-ovf { width: 100%; min-width: 0; }
+  .wb-bt-top { position: relative; overflow: hidden; }
+  .wb-bt-top__scroll { height: 248px; overflow-y: auto; scrollbar-width: thin; overscroll-behavior: contain; }
+  .wb-bt-top__scroll:focus-visible { outline-offset: -3px; border-radius: var(--r-lg); }
+  .wb-bt-top__btn { position: absolute; right: var(--s-4); bottom: var(--s-4); width: 48px; height: 48px; padding: 3px; border-radius: 50%; background: conic-gradient(var(--action) calc(var(--p, 0) * 1%), var(--line-strong) 0); box-shadow: var(--elev-3); opacity: 0; visibility: hidden; transform: translateY(10px); transition: opacity var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out), visibility 0s linear var(--dur-base); }
+  .wb-bt-top__btn:focus-visible { border-radius: 50%; }
+  .wb-bt-top__btn[data-show="true"] { opacity: 1; visibility: visible; transform: none; transition-delay: 0s; }
+  .wb-bt-top__btn:active { transform: scale(.94); }
+  @media (hover: hover) { .wb-bt-top__btn[data-show="true"]:hover .wb-bt-top__in { background: var(--action-tint); } }
+  .wb-bt-top__in { display: grid; place-items: center; width: 100%; height: 100%; border-radius: 50%; background: var(--surface); transition: background var(--dur-quick) var(--ease-out); }
+  .wb-bt-top__in .chev::after { margin: 4px 0 0; border-color: var(--action-press); transform: rotate(-135deg); }
+
+  .wb-bt-ctx { position: relative; }
+  .wb-bt-ctx__row { position: relative; display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; align-items: center; gap: var(--s-3); min-height: 60px; padding: var(--s-2) var(--s-3) var(--s-2) var(--s-4); cursor: context-menu; transition: background var(--dur-quick) var(--ease-out); }
+  .wb-bt-ctx__row:first-child { border-radius: calc(var(--r-lg) - 1px) calc(var(--r-lg) - 1px) 0 0; }
+  .wb-bt-ctx__row:last-of-type { border-radius: 0 0 calc(var(--r-lg) - 1px) calc(var(--r-lg) - 1px); }
+  .wb-bt-ctx__row + .wb-bt-ctx__row { border-top: 1px solid var(--line); }
+  .wb-bt-ctx__row:focus-visible { outline-offset: -3px; }
+  @media (hover: hover) { .wb-bt-ctx__row:hover { background: var(--zone); } }
+  .wb-bt-ctx__row[aria-selected="true"] { background: var(--action-tint); }
+  .wb-bt-ctx__row img { width: 44px; height: 44px; border-radius: var(--r-sm); object-fit: cover; }
+  .wb-bt-ctx__t { font-size: var(--fs-md); font-weight: 600; line-height: var(--lh-tight); }
+  .wb-bt-ctx__m { margin-top: 2px; font-size: var(--fs-sm); color: var(--ink-3); }
+  .wb-bt-ctx__menu { position: absolute; z-index: 40; width: 176px; padding: var(--s-1); background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); box-shadow: var(--elev-3); animation: lz-toast var(--dur-quick) var(--ease-out) both; }
+  .wb-bt-ctx__menu .wb-bt-item:focus-visible { outline-offset: -2px; background: var(--zone); }
+  .wb-bt-ctx__sep { display: block; height: 1px; margin: var(--s-1) var(--s-2); background: var(--line); }
+
+  .wb-bt-ovf { position: relative; }
+  .wb-bt-ovf__bar { display: flex; align-items: center; gap: var(--s-1); padding: var(--s-2) var(--s-3); border-bottom: 1px solid var(--line); }
+  .wb-bt-ovf__items { display: flex; align-items: center; gap: 2px; flex: 1; min-width: 0; }
+  .wb-bt-ovf__items .ibtn { flex: none; }
+  .wb-bt-ovf__more { flex: none; }
+  .wb-bt-ovf .wb-bt-list { min-width: 168px; }
+  .wb-bt-ovf__mi { display: flex; align-items: center; gap: var(--s-2); }
+  .wb-bt-ovf__mi img { width: 18px; height: 18px; }
+  .wb-bt-ovf__body .row:last-child { border-radius: 0 0 calc(var(--r-lg) - 1px) calc(var(--r-lg) - 1px); }
+</style>
+
+<script>
+(function () {
+  const root = document.getElementById('cat-btn'); if (!root) return;
+  const $ = (s, r = root) => r.querySelector(s), $$ = (s, r = root) => [...r.querySelectorAll(s)];
+
+  /* 回到顶部：滚过一屏出现，圆环显示滚动进度，点后平滑回到顶端 */
+  const top = $('#wb-bt-top');
+  if (top) {
+    const sc = $('.wb-bt-top__scroll', top), btn = $('.wb-bt-top__btn', top);
+    const sync = () => {
+      const max = sc.scrollHeight - sc.clientHeight, show = sc.scrollTop > 96;
+      btn.style.setProperty('--p', (max > 0 ? sc.scrollTop / max * 100 : 0).toFixed(1));
+      btn.dataset.show = String(show); btn.tabIndex = show ? 0 : -1;
+    };
+    sc.addEventListener('scroll', sync, { passive: true });
+    btn.addEventListener('click', () => { document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' })); sc.scrollTo({ top: 0, behavior: Lz.reduce ? 'auto' : 'smooth' }); sc.focus({ preventScroll: true }); });
+    sc.scrollTop = 136; sync();
+  }
+
+  /* 右键菜单：右键、菜单键或点“操作”都在行旁弹出，方向键选项，Esc 收起并回到原行 */
+  const ctx = $('#wb-bt-ctx');
+  if (ctx) {
+    const rows = $$('.wb-bt-ctx__row', ctx), menu = $('.wb-bt-ctx__menu', ctx), items = $$('[role="menuitem"]', menu);
+    let owner = null;
+    const close = back => { menu.hidden = true; rows.forEach(r => r.removeAttribute('aria-selected')); $$('[aria-haspopup]', ctx).forEach(b => b.setAttribute('aria-expanded', 'false')); if (back && owner) owner.focus({ preventScroll: true }); owner = null; };
+    const place = (row, x, y, flipY) => {
+      owner = row; rows.forEach(r => r.setAttribute('aria-selected', String(r === row)));
+      menu.hidden = false;
+      const w = ctx.clientWidth, h = ctx.clientHeight, mw = menu.offsetWidth, mh = menu.offsetHeight;
+      let left = Math.min(Math.max(8, x), w - mw - 8), top = y;
+      if (top + mh > h - 8) top = Math.max(8, (flipY == null ? y : flipY) - mh);
+      menu.style.left = left + 'px'; menu.style.top = Math.min(top, h - mh - 8) + 'px';
+    };
+    const fromTrigger = (row, b) => { const c = ctx.getBoundingClientRect(), r = b.getBoundingClientRect(); b.setAttribute('aria-expanded', 'true'); place(row, r.right - c.left - 176, r.bottom - c.top + 4, r.top - c.top - 4); };
+    rows.forEach(row => {
+      const trig = $('[aria-haspopup]', row);
+      row.addEventListener('contextmenu', e => {
+        e.preventDefault(); const c = ctx.getBoundingClientRect(), kb = e.clientX === 0 && e.clientY === 0, r = row.getBoundingClientRect();
+        const x = kb ? r.left - c.left + 40 : e.clientX - c.left, y = kb ? r.bottom - c.top - 6 : e.clientY - c.top;
+        place(row, x, y, y); items[0].focus({ preventScroll: true });
+      });
+      trig.addEventListener('click', e => { e.stopPropagation(); if (!menu.hidden && owner === row) { close(true); return; } fromTrigger(row, trig); items[0].focus({ preventScroll: true }); });
+      row.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target === row) { fromTrigger(row, trig); items[0].focus({ preventScroll: true }); } });
+    });
+    menu.addEventListener('keydown', e => {
+      const i = items.indexOf(document.activeElement), d = { ArrowDown: 1, ArrowUp: -1 }[e.key];
+      if (d) { e.preventDefault(); items[(i + d + items.length) % items.length].focus(); }
+      else if (e.key === 'Home') { e.preventDefault(); items[0].focus(); }
+      else if (e.key === 'End') { e.preventDefault(); items[items.length - 1].focus(); }
+      else if (e.key === 'Escape') { e.stopPropagation(); close(true); }
+      else if (e.key === 'Tab') close(false);
+    });
+    items.forEach(it => it.addEventListener('click', async () => {
+      const name = owner ? owner.dataset.name : '', act = it.dataset.act; close(true);
+      if (act === 'delete') { if (await Lz.confirm({ title: '确认删除' + name, ok: '删除', tone: 'danger' })) Lz.toast('已删除' + name, 'success'); }
+      else Lz.toast({ open: '已打开', rename: '已进入重命名 ', link: '已复制链接 ' }[act] + name, 'success');
+    }));
+    document.addEventListener('click', e => { if (!menu.hidden && !menu.contains(e.target)) close(false); });
+    document.addEventListener('contextmenu', e => { if (!menu.hidden && !ctx.contains(e.target)) close(false); });
+    requestAnimationFrame(() => { const r0 = rows[0]; fromTrigger(r0, $('[aria-haspopup]', r0)); });
+  }
+
+  /* 溢出工具条：按容器宽度决定显示几个图标，其余折进“更多”菜单 */
+  const ovf = $('#wb-bt-ovf');
+  if (ovf) {
+    const bar = $('.wb-bt-ovf__bar', ovf), btns = $$('.wb-bt-ovf__items .ibtn', ovf), menu = $('.wb-bt-menu', ovf), trig = $('[aria-haspopup]', menu), list = $('.wb-bt-list', menu);
+    const run = b => Lz.toast(b.dataset.done, 'success');
+    const setOpen = o => { menu.dataset.open = String(o); trig.setAttribute('aria-expanded', String(o)); list.inert = !o; };
+    btns.forEach(b => b.addEventListener('click', () => run(b)));
+    const layout = () => {
+      btns.forEach(b => { b.hidden = false; }); menu.hidden = false;
+      const cs = getComputedStyle(bar), inner = bar.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+      const gap = 2, w = btns[0].offsetWidth, total = btns.length * w + (btns.length - 1) * gap;
+      let n = btns.length;
+      if (total > inner) n = Math.max(0, Math.floor((inner - menu.offsetWidth - 4 + gap) / (w + gap)));
+      btns.forEach((b, i) => { b.hidden = i >= n; });
+      menu.hidden = n >= btns.length; if (menu.hidden) setOpen(false);
+      list.replaceChildren(...btns.slice(n).map(b => {
+        const it = document.createElement('button'), t = document.createElement('span');
+        it.className = 'wb-bt-item wb-bt-ovf__mi'; it.setAttribute('role', 'menuitem'); t.textContent = b.getAttribute('aria-label');
+        it.append($('img', b).cloneNode(), t);
+        it.addEventListener('click', () => { setOpen(false); trig.focus(); run(b); });
+        return it;
+      }));
+    };
+    trig.addEventListener('click', e => { e.stopPropagation(); setOpen(menu.dataset.open !== 'true'); });
+    menu.addEventListener('keydown', e => {
+      const its = $$('[role="menuitem"]', list), i = its.indexOf(document.activeElement), d = { ArrowDown: 1, ArrowUp: -1 }[e.key];
+      if (e.key === 'Escape') { setOpen(false); trig.focus(); }
+      else if (d) { e.preventDefault(); if (menu.dataset.open !== 'true') setOpen(true); its[(i + d + its.length) % its.length].focus(); }
+    });
+    document.addEventListener('click', e => { if (!menu.contains(e.target)) setOpen(false); });
+    new ResizeObserver(layout).observe(bar); layout();
+    setOpen(true);
+  }
+})();
+</script>

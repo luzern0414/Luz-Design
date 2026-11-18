@@ -3121,7 +3121,7 @@
       "evidence": "界面图标默认 24×24、轮廓线宽 1.5 或 2 整套一致、一套图标一种主风格；视觉平衡重于精确尺寸；不同图标包混用有风险",
       "borrowable": "图标一致性清单：同一 viewBox、线宽、圆角、视觉重量",
       "not_copyable": "无署名素材站博客，数值少，不当规则",
-      "supports": "界面细节规范（ui-details.json）",
+      "supports": "视觉基础（design/foundation.md）",
       "surfaces": [
         "通用"
       ],
@@ -3142,7 +3142,7 @@
       "evidence": "16–24 像素系统图标用单色、靠 currentColor 继承文字色，多色留给装饰；语义色全产品同值；小于 20 像素按 4.5:1 设计；单色图标测浅色、深色、彩底、禁用四态；没有饱和度数值",
       "borrowable": "单色靠 currentColor、四态测试",
       "not_copyable": "作者自己的工作建议，数字无出处",
-      "supports": "界面细节规范（ui-details.json）",
+      "supports": "视觉基础（design/foundation.md）",
       "surfaces": [
         "通用"
       ],
@@ -3163,7 +3163,7 @@
       "evidence": "双色图标是一个主色形状加同色相更浅或半透明的次色形状，是一个色相而不是彩虹；可主题化",
       "borrowable": "双色的定义",
       "not_copyable": "科普短页，没有数字",
-      "supports": "界面细节规范（ui-details.json）",
+      "supports": "视觉基础（design/foundation.md）",
       "surfaces": [
         "通用"
       ],
@@ -3184,7 +3184,7 @@
       "evidence": "双色图标库常见实现：主层 100% 不透明、次层 15%–30%（常见 20%）不透明；Phosphor 2 像素描边加 20% 填充；各库网格不统一",
       "borrowable": "次层浓度作柔和色的参考",
       "not_copyable": "页面自述参数，未核对；列表文排名不当依据",
-      "supports": "界面细节规范（ui-details.json）",
+      "supports": "视觉基础（design/foundation.md）",
       "surfaces": [
         "通用"
       ],
@@ -3205,7 +3205,7 @@
       "evidence": "金刚区图标用同色系或相近色系，不宜过多过艳，颜色差异大时要控制明度与饱和度；五个一致：类型、风格、透视、线条粗细、大小；这是资料里唯一的饱和度定性描述，没有数值",
       "borrowable": "饱和度较低的邻近色系、五个一致",
       "not_copyable": "无出处与数据，含工具推广",
-      "supports": "界面细节规范（ui-details.json）",
+      "supports": "视觉基础（design/foundation.md）",
       "surfaces": [
         "小程序"
       ],
@@ -3226,7 +3226,7 @@
       "evidence": "入口数量由屏宽、标签长度与场景定，不机械凑数；按任务、频率、业务优先级取舍；核心入口固定，低频进更多；不为统一给不同功能几乎一样的图形；每个入口要有独立标签",
       "borrowable": "入口取舍与图标区分的做法",
       "not_copyable": "没有像素数值，没有数据支撑的排序结论",
-      "supports": "界面细节规范（ui-details.json）",
+      "supports": "视觉基础（design/foundation.md）",
       "surfaces": [
         "小程序"
       ],
@@ -3247,7 +3247,7 @@
       "evidence": "初始只放最重要的选项，次要的放二级；高频必须全在首层；超过两层可用性通常低；二级入口要显眼、标签要有信息气味",
       "borrowable": "卡片放摘要、细节留详情页",
       "not_copyable": "2006 年语境",
-      "supports": "界面细节规范（ui-details.json）",
+      "supports": "视觉基础（design/foundation.md）",
       "surfaces": [
         "通用"
       ],
@@ -3268,7 +3268,7 @@
       "evidence": "卡片分头、身、脚，操作放脚部；一张卡不要堆太多按钮与内容；空、加载、错误态要做；移动端列数更少；没有任何像素数值",
       "borrowable": "卡片头身脚结构、状态清单",
       "not_copyable": "营销博客，标题称 17 个示例正文只数得出约 12 个，无数值",
-      "supports": "界面细节规范（ui-details.json）",
+      "supports": "视觉基础（design/foundation.md）",
       "surfaces": [
         "通用"
       ],

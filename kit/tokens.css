@@ -1,0 +1,261 @@
+/* 令牌文件：由 scripts/sync_template_tokens.py 生成，不手改 */
+:root {
+  --font: "PingFang SC", "HarmonyOS Sans SC", "Microsoft YaHei UI", "Microsoft YaHei", "Noto Sans SC", system-ui, sans-serif;
+
+  /* 字阶：一套字体，字重常用 400、500、600，页面标题与主数值可用 700 */
+  --fs-xs: 12px; --fs-sm: 14px; --fs-md: 16px; --fs-lg: 18px; --fs-xl: 22px; --fs-2xl: 28px; --fs-3xl: 32px;
+  --lh-tight: 1.3; --lh-body: 1.6;
+
+  /* 间距：4 的倍数 */
+  --s-1: 4px; --s-2: 8px; --s-3: 12px; --s-4: 16px; --s-5: 20px; --s-6: 24px; --s-8: 32px; --s-12: 48px;
+
+  /* 圆角档位：卡片 20，大块 24，控件 12，小件 8，胶囊 999 */
+  --r-sm: 8px; --r-md: 12px; --r-lg: 20px; --r-xl: 24px; --r-full: 999px;
+
+  /* 品牌色只有一个：--action。其余随它派生，换主题或自选色时整套跟着变 */
+  --action-press: color-mix(in srgb, var(--action) 74%, #000);
+  --action-tint: color-mix(in srgb, var(--action) 7%, #fff);
+  --action-edge: color-mix(in srgb, var(--action) 20%, #fff);
+  --action-soft: color-mix(in srgb, var(--action) 15%, #fff);
+  --zone: color-mix(in srgb, var(--action) 11%, #fff);
+  --accent-tint: color-mix(in srgb, var(--accent) 11%, #fff);
+
+  /* 底与表面：近白页底带一点主题色，白卡片；文字是带主题色的近黑 */
+  --bg: color-mix(in srgb, var(--action) 2.5%, #FAFAF9);
+  --surface: #FFFFFF;
+  --ink: color-mix(in srgb, var(--action) 6%, #1D1F23);
+  --ink-2: color-mix(in srgb, var(--action) 7%, #474A50);
+  --ink-3: color-mix(in srgb, var(--action) 7%, #666A71);
+  --line: color-mix(in srgb, var(--ink) 9%, transparent);
+  --line-strong: color-mix(in srgb, var(--ink) 17%, transparent);
+  --scrim: color-mix(in srgb, var(--ink) 48%, transparent);
+
+  /* 语义色：只表达状态，必须配文字 */
+  --success: #18794E; --success-tint: #E4F3EC;
+  --warning: #A15C00; --warning-tint: #FBF0DE;
+  --danger: #C93644;  --danger-tint: #FBE7E9;
+  --info: #2F5F8A;    --info-tint: #E6EEF5;
+  --price: #D9001B;   --price-tint: #FFF1F0;
+
+  /* 层级：五级，阴影只向下，颜色取自文字色 */
+  --elev-0: none;
+  --elev-1: 0 1px 2px color-mix(in srgb, var(--ink) 5%, transparent), 0 3px 10px color-mix(in srgb, var(--ink) 4%, transparent);
+  --elev-2: 0 2px 4px color-mix(in srgb, var(--ink) 6%, transparent), 0 8px 20px color-mix(in srgb, var(--ink) 7%, transparent);
+  --elev-3: 0 4px 8px color-mix(in srgb, var(--ink) 7%, transparent), 0 14px 28px color-mix(in srgb, var(--ink) 10%, transparent);
+  --elev-4: 0 8px 16px color-mix(in srgb, var(--ink) 9%, transparent), 0 26px 52px color-mix(in srgb, var(--ink) 14%, transparent);
+  --elev-icon: drop-shadow(0 6px 8px color-mix(in srgb, var(--ink) 12%, transparent));
+
+  /* 动效：时长与曲线（方法参考 transitions.dev 的变量化思路，取值自写） */
+  --dur-instant: 90ms; --dur-quick: 150ms; --dur-base: 220ms; --dur-slow: 320ms; --stagger: 40ms;
+  --ease-out: cubic-bezier(.22, 1, .36, 1);
+  --ease-in-out: cubic-bezier(.65, 0, .35, 1);
+  --ease-spring: cubic-bezier(.34, 1.4, .64, 1);
+
+  color-scheme: light;
+}
+
+/* 主题：24 个预设，默认 rose，用 data-theme 切换；自选色由 ui.js 写入 --action 等同名变量 */
+:root {
+  --action: #A75F6D;
+  --accent: #A76342;
+  --hue: 348;
+  --ic-sat: 1.42;
+}
+
+/* 玫瑰 */
+[data-theme="rose"] {
+  --action: #A75F6D;
+  --accent: #A76342;
+  --hue: 348;
+  --ic-sat: 1.42;
+}
+
+/* 酒红 */
+[data-theme="wine"] {
+  --action: #7E2C41;
+  --accent: #A76342;
+  --hue: 345;
+  --ic-sat: 1.72;
+}
+
+/* 珊瑚 */
+[data-theme="coral"] {
+  --action: #AB6056;
+  --accent: #9E6A2F;
+  --hue: 7;
+  --ic-sat: 1.5;
+}
+
+/* 赤陶 */
+[data-theme="terracotta"] {
+  --action: #A26548;
+  --accent: #917025;
+  --hue: 19;
+  --ic-sat: 1.35;
+}
+
+/* 琥珀 */
+[data-theme="amber"] {
+  --action: #9B6B33;
+  --accent: #7B7727;
+  --hue: 32;
+  --ic-sat: 1.42;
+}
+
+/* 沙金 */
+[data-theme="sand"] {
+  --action: #87723E;
+  --accent: #677C44;
+  --hue: 43;
+  --ic-sat: 1.12;
+}
+
+/* 橄榄 */
+[data-theme="olive"] {
+  --action: #74783E;
+  --accent: #498156;
+  --hue: 64;
+  --ic-sat: 1.2;
+}
+
+/* 鼠尾草 */
+[data-theme="sage"] {
+  --action: #637B63;
+  --accent: #4D7E76;
+  --hue: 120;
+  --ic-sat: 0.67;
+}
+
+/* 草绿 */
+[data-theme="green"] {
+  --action: #458250;
+  --accent: #018379;
+  --hue: 131;
+  --ic-sat: 1.5;
+}
+
+/* 松绿 */
+[data-theme="pine"] {
+  --action: #31715B;
+  --accent: #22808A;
+  --hue: 159;
+  --ic-sat: 1.12;
+}
+
+/* 青碧 */
+[data-theme="teal"] {
+  --action: #2B8181;
+  --accent: #347C9F;
+  --hue: 180;
+  --ic-sat: 1.2;
+}
+
+/* 湖蓝 */
+[data-theme="cyan"] {
+  --action: #307E98;
+  --accent: #5675AE;
+  --hue: 195;
+  --ic-sat: 1.27;
+}
+
+/* 天蓝 */
+[data-theme="sky"] {
+  --action: #3D79AB;
+  --accent: #706EB0;
+  --hue: 207;
+  --ic-sat: 1.5;
+}
+
+/* 靛蓝 */
+[data-theme="blue"] {
+  --action: #5373BC;
+  --accent: #8368A7;
+  --hue: 222;
+  --ic-sat: 1.8;
+}
+
+/* 藏青 */
+[data-theme="navy"] {
+  --action: #33476D;
+  --accent: #7E6C9F;
+  --hue: 219;
+  --ic-sat: 1.05;
+}
+
+/* 靛紫 */
+[data-theme="indigo"] {
+  --action: #716CBB;
+  --accent: #94639A;
+  --hue: 244;
+  --ic-sat: 1.8;
+}
+
+/* 紫藤 */
+[data-theme="purple"] {
+  --action: #8069A9;
+  --accent: #9E608C;
+  --hue: 262;
+  --ic-sat: 1.5;
+}
+
+/* 雾紫 */
+[data-theme="mauve"] {
+  --action: #876C8D;
+  --accent: #996577;
+  --hue: 289;
+  --ic-sat: 0.9;
+}
+
+/* 梅紫 */
+[data-theme="plum"] {
+  --action: #9F608A;
+  --accent: #AB5E61;
+  --hue: 320;
+  --ic-sat: 1.5;
+}
+
+/* 石墨 */
+[data-theme="graphite"] {
+  --action: #4E5359;
+  --accent: #767382;
+  --hue: 213;
+  --ic-sat: 0.18;
+}
+
+/* 岩灰 */
+[data-theme="slate"] {
+  --action: #536672;
+  --accent: #6E748E;
+  --hue: 203;
+  --ic-sat: 0.45;
+}
+
+/* 暖灰 */
+[data-theme="stone"] {
+  --action: #696259;
+  --accent: #747665;
+  --hue: 34;
+  --ic-sat: 0.24;
+}
+
+/* 摩卡 */
+[data-theme="mocha"] {
+  --action: #6A5243;
+  --accent: #7E7453;
+  --hue: 23;
+  --ic-sat: 0.6;
+}
+
+/* 墨黑 */
+[data-theme="ink"] {
+  --action: #222429;
+  --accent: #78727E;
+  --hue: 223;
+  --ic-sat: 0.15;
+}
+
+/* 图标形态：html 的 data-icons，mono 单色（默认，扁平图标集按主题色相单色化）、flat 彩色扁平、3d 立体、real 真实。
+   线性图标始终是文字色；换图标集由 ui.js 的 Lz.skin 改 img[data-ic] 的地址，mono 只是同一组扁平图加滤镜（--ic-fx，可与阴影滤镜叠用） */
+:root { --ic-fx: opacity(1); }
+html:not([data-icons]), html[data-icons="mono"] { --ic-fx: grayscale(1) sepia(1) hue-rotate(calc(var(--hue, 348) * 1deg - 38deg)) saturate(var(--ic-sat, 1.4)) contrast(1.06); }
+:is(img[data-ic], img[src*="/icons/"], img[src*="/solid/"]) { filter: var(--ic-fx); }

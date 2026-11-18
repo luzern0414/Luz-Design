@@ -1,0 +1,130 @@
+{
+  "renderer": "make_summary",
+  "id": "DC-RD-002",
+  "title": "文件模板阶段汇总",
+  "sections": [
+    {
+      "title": "成果",
+      "table": {
+        "caption": "表 1 阅读页成果",
+        "columns": [
+          "名称",
+          "用途",
+          "位置"
+        ],
+        "align": [
+          "left",
+          "left",
+          "left"
+        ],
+        "rows": [
+          [
+            {
+              "text": "阅读报告",
+              "href": "DC-RD-001-阅读报告.html"
+            },
+            "带图表与口径说明的分析报告",
+            "DC-RD-001-阅读报告.html"
+          ],
+          [
+            {
+              "text": "方案说明",
+              "href": "DC-RD-003-方案说明.html"
+            },
+            "目标、范围、流程与验收的方案文档",
+            "DC-RD-003-方案说明.html"
+          ],
+          [
+            {
+              "text": "图文文章",
+              "href": "DC-RD-004-图文文章.html"
+            },
+            "配图叙述型文章",
+            "DC-RD-004-图文文章.html"
+          ],
+          [
+            {
+              "text": "系统架构阅读页",
+              "href": "DC-RD-005-系统架构阅读页.html"
+            },
+            "分层结构、模块职责与数据流",
+            "DC-RD-005-系统架构阅读页.html"
+          ],
+          [
+            {
+              "text": "技术方案阅读页",
+              "href": "DC-RD-006-技术方案阅读页.html"
+            },
+            "方案选择、状态机、接口约定与验证计划",
+            "DC-RD-006-技术方案阅读页.html"
+          ]
+        ]
+      }
+    },
+    {
+      "title": "依据",
+      "table": {
+        "caption": "表 2 采用的依据",
+        "columns": [
+          "来源",
+          "采用位置"
+        ],
+        "align": [
+          "left",
+          "left"
+        ],
+        "rows": [
+          [
+            {
+              "text": "Understanding Success Criterion 1.4.1: Use of Color",
+              "href": "https://www.w3.org/WAI/WCAG22/Understanding/use-of-color.html"
+            },
+            "技术方案阅读页的状态展示约定"
+          ],
+          [
+            {
+              "text": "Reference",
+              "href": "https://diataxis.fr/reference/"
+            },
+            "技术方案阅读页的接口表写法"
+          ],
+          [
+            {
+              "text": "Container",
+              "href": "https://c4model.com/abstractions/container"
+            },
+            "系统架构阅读页的分层边界"
+          ]
+        ]
+      }
+    },
+    {
+      "title": "过程文件",
+      "table": {
+        "caption": "表 3 过程文件",
+        "columns": [
+          "文件",
+          "用途"
+        ],
+        "align": [
+          "left",
+          "left"
+        ],
+        "rows": [
+          [
+            "01-描述文件/DC-RD-001-阅读报告.json",
+            "阅读报告的页面描述"
+          ],
+          [
+            "01-描述文件/DC-RD-003-方案说明.json",
+            "方案说明的页面描述"
+          ],
+          [
+            "01-描述文件/DC-RD-006-技术方案阅读页.json",
+            "技术方案阅读页的页面描述"
+          ]
+        ]
+      }
+    }
+  ]
+}

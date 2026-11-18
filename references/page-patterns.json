@@ -5936,7 +5936,8 @@
    "needs_from_system": [
     "订单状态集合与状态词",
     "每种状态的按钮与确认",
-    "标签顺序与是否带角标"
+    "标签顺序与是否带角标",
+    "状态集合的先后顺序、管理员能否增减与终态（同页多个取值怎么区分见视觉设计规范“有序进度状态的色阶”）"
    ],
    "think": [
     "用户最常查的是哪两种状态？默认落在哪个标签？",
@@ -6004,7 +6005,7 @@
      "required": false,
      "order": 2,
      "components": {},
-     "notes": "有履约过程（配送、预约）才出现；已完成、进行中、接下来；异常要解释。"
+     "notes": "有履约过程（配送、预约）才出现；已完成、进行中、接下来；异常要解释。过程态的颜色按顺序位置取，见视觉设计规范“有序进度状态的色阶”。"
     },
     {
      "id": "pickup",
@@ -6090,7 +6091,8 @@
     "订单状态机与状态词",
     "各状态的按钮、确认与撤销",
     "金额明细的构成项",
-    "客服入口位置"
+    "客服入口位置",
+    "状态机里哪些是有先后的过程态、哪些是终态（过程态同页多个取值按顺序位置取色阶，见视觉设计规范“有序进度状态的色阶”）"
    ],
    "think": [
     "用户进来最急着知道的是什么：到了没、怎么取、能不能退？",
@@ -8299,6 +8301,26 @@
     }
    ],
    "confidence": "high"
+  },
+  {
+   "id": "ordered-status-from-system",
+   "scope": "page",
+   "text": "页面里有先后顺序的状态集合（订单进度、沟通深度、轮次）同页出现多个取值时：顺序、能否增减和终态向系统技能要；颜色按顺序位置取主题的色阶，终态用状态色，每个取值带文字名称。取值与检查见视觉设计规范“有序进度状态的色阶”，本库只放指针。",
+   "strength": "default",
+   "check": "manual",
+   "evidence": [
+    {
+     "kind": "skill",
+     "ref": "design:visual-design#有序进度状态的色阶",
+     "note": "取值、算法与检查的单一出处"
+    },
+    {
+     "kind": "user",
+     "ref": "user:2026-11-04",
+     "note": "同页不同进度状态的文字用不同颜色区分（用户当日补充 Design 要求，沿用该日期的来源条目）"
+    }
+   ],
+   "confidence": "medium"
   }
  ],
  "density": {
@@ -8521,143 +8543,5 @@
    }
   },
   "note": "dock_grid 的 3–5 列、最多 3 页与格尺寸是 Luz-Design 视觉规范的公式，不是微信官方数字；iPhone 标签栏项数硬上限、金刚区行数与总数上限、材料设计 3–5 个的出处资料未覆盖（comp:SRC-006 读到的是 Material 3 的 3–5 个，非微信规范）。"
- },
- "entrances_schema": {
-  "description": "System 交给 Design 的入口表：每个功能一行，说明它的类型、类别、归属、目的地与频次；Design 据此分配首页区域并去重，不增删入口。",
-  "file": "entrances.json：{\"entrances\": [...], \"tabbar\": [...]}；tabbar 可省略，省略时由 entry 为 tab 的行推出。",
-  "fields": {
-   "fn": "功能编号，对应功能清单的 id，如 FN-006（必填）",
-   "name": "界面上的入口名称（必填）",
-   "type": "功能类型，九类之一：context、search、task、status、account、order、marketing、content、tool（必填）",
-   "category": "System 的类别：core 核心、info 信息、marketing 营销、aux 辅助（必填）",
-   "entry": "System 给的唯一入口归属：tab 标签栏、home 首页、mine 我的、context 上下文栏、in-page 页内（必填）",
-   "destination": "目的地：页面编号或路由加参数，如 P03 或 /pages/order/index?type=unpay（必填）",
-   "freq": "使用频次：high、mid、low（必填）",
-   "image": "可选，true 表示有主视觉图（营销用）",
-   "limited": "可选，true 表示有时间、库存或人群限制（营销用）",
-   "summary": "可选，true 表示这条账户类入口需要首页状态摘要（至多一条，不另设入口）"
-  },
-  "tabbar_item": {
-   "name": "标签名称",
-   "destination": "目的地，与入口表的 destination 同一写法；首页标签写 home"
-  },
-  "enums": {
-   "type": [
-    "context",
-    "search",
-    "task",
-    "status",
-    "account",
-    "order",
-    "marketing",
-    "content",
-    "tool"
-   ],
-   "category": [
-    "core",
-    "info",
-    "marketing",
-    "aux"
-   ],
-   "entry": [
-    "tab",
-    "home",
-    "mine",
-    "context",
-    "in-page"
-   ],
-   "freq": [
-    "high",
-    "mid",
-    "low"
-   ]
-  },
-  "example": {
-   "entrances": [
-    {
-     "fn": "FN-020",
-     "name": "选择门店",
-     "type": "context",
-     "category": "info",
-     "entry": "context",
-     "destination": "P20",
-     "freq": "high"
-    },
-    {
-     "fn": "FN-021",
-     "name": "搜索商品",
-     "type": "search",
-     "category": "core",
-     "entry": "home",
-     "destination": "P21",
-     "freq": "high"
-    },
-    {
-     "fn": "FN-006",
-     "name": "去点单",
-     "type": "task",
-     "category": "core",
-     "entry": "tab",
-     "destination": "P03",
-     "freq": "high"
-    },
-    {
-     "fn": "FN-030",
-     "name": "我的订单",
-     "type": "order",
-     "category": "core",
-     "entry": "tab",
-     "destination": "P04",
-     "freq": "high"
-    },
-    {
-     "fn": "FN-031",
-     "name": "进行中订单",
-     "type": "status",
-     "category": "info",
-     "entry": "home",
-     "destination": "P05",
-     "freq": "high"
-    },
-    {
-     "fn": "FN-040",
-     "name": "新人礼券",
-     "type": "marketing",
-     "category": "marketing",
-     "entry": "home",
-     "destination": "P40",
-     "freq": "mid",
-     "image": true,
-     "limited": true
-    },
-    {
-     "fn": "FN-050",
-     "name": "我的会员",
-     "type": "account",
-     "category": "info",
-     "entry": "mine",
-     "destination": "P50",
-     "freq": "mid"
-    }
-   ],
-   "tabbar": [
-    {
-     "name": "首页",
-     "destination": "home"
-    },
-    {
-     "name": "点单",
-     "destination": "P03"
-    },
-    {
-     "name": "订单",
-     "destination": "P04"
-    },
-    {
-     "name": "我的",
-     "destination": "P10"
-    }
-   ]
-  }
  }
 }

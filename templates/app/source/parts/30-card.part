@@ -1,0 +1,1524 @@
+<!-- cat: CARD | 卡片 -->
+<style>
+/* 卡片分类：前缀 xcard-。白底大圆角卡为基础，变体来自 kit.css 的 .card--*，这里补各业务卡的内部排版 */
+.xcard-w { width: 100%; max-width: 390px; margin: 0 auto; }
+.xcard-col { display: grid; gap: var(--s-3); }
+.xcard-was { font-size: var(--fs-xs); font-weight: 400; color: var(--ink-3); text-decoration: line-through; font-variant-numeric: tabular-nums; }
+.xcard-big { font-size: var(--fs-xl); font-weight: 700; line-height: 1; }
+.demo[data-cat="CARD"] .btn--primary:not([disabled]) { color: var(--surface); }
+.xcard-gap { display: flex; align-items: center; gap: var(--s-2); }
+.xcard-between { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); }
+.xcard-name { font-size: var(--fs-md); font-weight: 600; line-height: var(--lh-tight); }
+.xcard-meta { font-size: var(--fs-sm); color: var(--ink-3); }
+
+/* 收藏心形：未选为灰，选中为彩色 */
+.xcard-fav { width: 36px; height: 36px; border: 0; box-shadow: var(--elev-1); }
+.xcard-fav img { width: 20px; height: 20px; filter: grayscale(1) opacity(.5); transition: filter var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-spring); }
+.xcard-fav[aria-pressed="true"] img { filter: none; transform: scale(1.12); }
+
+/* 数量步进（紧凑） */
+.xcard-step { display: inline-flex; align-items: center; padding: 2px; border-radius: var(--r-full); background: var(--surface); box-shadow: inset 0 0 0 1px var(--line-strong); }
+.xcard-step button { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 50%; }
+.xcard-step__p { background: var(--action-tint); }
+.xcard-step__p img { width: 14px; height: 14px; }
+.xcard-step__m::before { content: ""; width: 12px; height: 2px; border-radius: 1px; background: var(--ink); }
+.xcard-step b { min-width: 28px; text-align: center; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* 商品卡 */
+.xcard-v { width: 196px; margin: 0 auto; overflow: hidden; }
+.xcard-v .card__media { aspect-ratio: 1; }
+.xcard-v .card__fav, .xcard-sq .card__fav { top: var(--s-2); right: var(--s-2); }
+.xcard-body { display: grid; gap: var(--s-1); padding: var(--s-3); }
+.xcard-foot { display: flex; align-items: center; justify-content: space-between; gap: var(--s-2); margin-top: var(--s-1); }
+.xcard-h { display: flex; gap: var(--s-3); padding: var(--s-3); }
+.xcard-h > img { width: 104px; height: 104px; border-radius: var(--r-md); object-fit: cover; flex: none; background: var(--zone); }
+.xcard-h__main { flex: 1; min-width: 0; display: grid; gap: var(--s-1); align-content: space-between; }
+.xcard-tags { display: flex; flex-wrap: wrap; gap: var(--s-1); }
+.xcard-masonry { columns: 2; column-gap: var(--s-3); }
+.xcard-masonry .card { break-inside: avoid; margin-bottom: var(--s-3); overflow: hidden; }
+.xcard-masonry img { width: 100%; object-fit: cover; background: var(--zone); }
+.xcard-sq { overflow: hidden; width: 232px; margin: 0 auto; }
+.xcard-sq .card__media { aspect-ratio: 1; }
+.xcard-sq .card__corner { display: flex; gap: var(--s-1); }
+.xcard-sq .xcard-bl { position: absolute; left: var(--s-2); bottom: var(--s-2); }
+.xcard-chip { display: inline-flex; align-items: center; height: 24px; padding: 0 var(--s-2); border-radius: var(--r-full); background: var(--surface); box-shadow: var(--elev-1); font-size: var(--fs-xs); font-weight: 600; color: var(--ink-2); }
+
+/* 限时抢购 */
+.xcard-flash__head { display: flex; align-items: center; justify-content: space-between; padding: var(--s-2) var(--s-4); background: var(--price-tint); color: var(--price); border-radius: var(--r-lg) var(--r-lg) 0 0; font-size: var(--fs-sm); font-weight: 600; }
+.xcard-cd { display: inline-flex; align-items: center; gap: 3px; font-variant-numeric: tabular-nums; }
+.xcard-cd b { display: inline-grid; place-items: center; min-width: 24px; height: 22px; border-radius: 6px; background: var(--price); color: var(--surface); font-size: var(--fs-xs); font-weight: 700; }
+.xcard-cd i { font-style: normal; font-weight: 700; }
+.xcard-prog { height: 8px; background: var(--price-tint); }
+.xcard-prog > i { background: linear-gradient(90deg, color-mix(in srgb, var(--price) 62%, var(--surface)), var(--price)); }
+
+/* 拼团 */
+.xcard-slot { display: grid; place-items: center; width: 32px; height: 32px; margin-left: -8px; border-radius: 50%; border: 1.5px dashed var(--line-strong); background: var(--surface); }
+.xcard-slot img { width: 14px; height: 14px; opacity: .6; }
+
+/* 套餐 */
+.xcard-bundle { display: flex; align-items: center; justify-content: center; gap: var(--s-2); padding: var(--s-4) var(--s-4) var(--s-3); }
+.xcard-bundle > img:not(.xcard-plus) { flex: 1 1 0; min-width: 0; max-width: 84px; aspect-ratio: 1; height: auto; border-radius: var(--r-md); object-fit: cover; background: var(--zone); }
+.xcard-plus { width: 16px; height: 16px; flex: none; opacity: .55; }
+.xcard-nw { white-space: nowrap; }
+.xcard-bundle__foot { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); padding: var(--s-3) var(--s-4); border-top: 1px solid var(--line); }
+
+/* 加购条与收藏行 */
+.xcard-addbar { display: flex; align-items: center; gap: var(--s-3); padding: var(--s-3); }
+.xcard-addbar > img { width: 64px; height: 64px; border-radius: var(--r-md); object-fit: cover; flex: none; }
+.xcard-addbar__main { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.xcard-addslot { min-width: 96px; display: flex; justify-content: flex-end; }
+.xcard-fl { display: flex; align-items: center; gap: var(--s-3); padding: var(--s-3); transition: opacity var(--dur-base) var(--ease-out); }
+.xcard-fl > img:first-child { width: 88px; height: 88px; border-radius: var(--r-md); object-fit: cover; flex: none; }
+.xcard-fl.is-off { opacity: .55; }
+.xcard-fl__main { flex: 1; min-width: 0; display: grid; gap: var(--s-1); }
+
+/* 优惠券 */
+.xcard-cp { display: grid; grid-template-columns: 104px 1fr auto; align-items: center; column-gap: var(--s-3); padding: var(--s-4) var(--s-4) var(--s-4) 0; overflow: hidden; }
+.xcard-cp__l { display: grid; justify-items: center; gap: 2px; align-self: stretch; align-content: center; border-right: 1.5px dashed var(--line-strong); padding: 0 var(--s-2) 0 var(--s-4); }
+.xcard-cp__amt { font-size: var(--fs-2xl); font-weight: 700; line-height: 1; }
+.xcard-cp__amt small { font-size: var(--fs-sm); font-weight: 600; margin-right: 1px; }
+.xcard-cp__cond { font-size: var(--fs-xs); color: var(--ink-3); }
+.xcard-cp__main { display: grid; gap: 2px; min-width: 0; }
+.xcard-cp2 { display: grid; grid-template-columns: 112px 1fr; overflow: hidden; }
+.xcard-cp2__l { display: grid; justify-items: center; align-content: center; gap: 2px; padding: var(--s-4) var(--s-2); background: var(--price-tint); color: var(--price); border-right: 1.5px dashed color-mix(in srgb, var(--price) 30%, transparent); }
+.xcard-cp2__l .xcard-cp__cond { color: var(--price); }
+.xcard-cp2__r { display: grid; gap: var(--s-2); padding: var(--s-3) var(--s-4); align-content: center; }
+.xcard-cp3 { display: grid; grid-template-columns: 112px 1fr auto; align-items: center; column-gap: var(--s-3); padding: var(--s-4) var(--s-4) var(--s-4) 0; }
+.xcard-cp3__l { display: grid; justify-items: center; gap: 2px; align-self: stretch; align-content: center; border-right: 1px solid color-mix(in srgb, var(--accent) 24%, transparent); color: var(--accent); }
+.xcard-cp3__l .xcard-cp__cond { color: var(--accent); }
+.xcard-gift { display: grid; gap: var(--s-4); padding: var(--s-5); }
+.xcard-gift__top { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--s-3); }
+.xcard-gift__top img { width: 64px; height: 64px; object-fit: contain; filter: drop-shadow(0 6px 10px color-mix(in srgb, var(--ink) 25%, transparent)); }
+.xcard-gift__val { font-size: var(--fs-3xl); font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+.xcard-gift__val small { font-size: var(--fs-md); margin-right: 2px; }
+.xcard-gift__code { font-size: var(--fs-sm); letter-spacing: .08em; font-variant-numeric: tabular-nums; }
+.xcard-deep { background: linear-gradient(150deg, var(--action-press) 0%, color-mix(in srgb, var(--action-press) 88%, var(--action)) 100%); }
+.xcard-onhero .btn--text { color: var(--surface); }
+.xcard-tri { display: grid; grid-template-columns: 76px 1fr auto; align-items: center; column-gap: var(--s-3); padding: var(--s-3) var(--s-4) var(--s-3) var(--s-4); }
+.xcard-tri .xcard-cp__amt { font-size: var(--fs-xl); }
+.xcard-tri.is-got .btn { background: var(--zone); color: var(--ink-3); box-shadow: none; }
+.xcard-tri.is-old { background: var(--zone); border-color: transparent; box-shadow: none; }
+.xcard-tri.is-old .price, .xcard-tri.is-old .xcard-name { color: var(--ink-3); text-decoration: line-through; }
+
+/* 会员 */
+.xcard-vip { display: grid; gap: var(--s-4); padding: var(--s-5); }
+.xcard-vip__top { display: flex; align-items: center; gap: var(--s-3); }
+.xcard-vip__top .avatar { width: 52px; height: 52px; padding: 7px; background: var(--surface); box-shadow: 0 0 0 3px color-mix(in srgb, var(--surface) 35%, transparent); }
+.xcard-vip__top b { display: block; font-size: var(--fs-xl); font-weight: 700; line-height: var(--lh-tight); }
+.xcard-vip__top .ibtn { margin-left: auto; background: color-mix(in srgb, var(--surface) 18%, transparent); }
+.xcard-vip__top .ibtn img { filter: invert(1); }
+.xcard-gold { background: var(--accent-tint); color: var(--accent); }
+.xcard-vip .stats > * + * { border-left-color: color-mix(in srgb, var(--surface) 28%, transparent); }
+.xcard-vip .stat__label { color: var(--surface); }
+.xcard-vip .stat__val small { color: var(--surface); }
+.xcard-perks { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s-4) var(--s-1); padding: var(--s-4) var(--s-2); }
+.xcard-perk { display: grid; justify-items: center; gap: var(--s-1); font-size: var(--fs-sm); line-height: 1.2; border-radius: var(--r-md); padding: var(--s-1); transition: transform var(--dur-quick) var(--ease-out); }
+.xcard-perk:active { transform: scale(.94); }
+.xcard-perk img { width: 44px; height: 44px; object-fit: contain; filter: drop-shadow(0 4px 6px color-mix(in srgb, var(--ink) 12%, transparent)); }
+.xcard-perk.is-lock img { filter: grayscale(1) opacity(.4); }
+.xcard-perk.is-lock { color: var(--ink-3); }
+.xcard-perk small { font-size: var(--fs-xs); color: var(--ink-3); }
+.xcard-grow { display: grid; gap: var(--s-4); padding: var(--s-4) var(--s-4) var(--s-5); }
+.xcard-track { position: relative; padding-top: 2px; }
+.xcard-track__bar { position: absolute; left: 20px; right: 20px; top: 12px; height: 6px; border-radius: var(--r-full); background: var(--zone); overflow: hidden; }
+.xcard-track__bar i { display: block; height: 100%; width: var(--v); border-radius: inherit; background: linear-gradient(90deg, var(--action), color-mix(in srgb, var(--action) 62%, var(--surface))); }
+.xcard-track ol { position: relative; display: flex; justify-content: space-between; }
+.xcard-track li { display: grid; justify-items: center; gap: var(--s-1); width: 40px; font-size: var(--fs-xs); color: var(--ink-3); }
+.xcard-track li span { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--zone); box-shadow: 0 0 0 3px var(--surface); }
+.xcard-track li.is-on { color: var(--ink); font-weight: 600; }
+.xcard-track li.is-on span { background: var(--action); }
+.xcard-track li.is-on img { width: 12px; height: 12px; filter: invert(1); }
+.xcard-sign { display: grid; gap: var(--s-4); padding: var(--s-4); }
+.xcard-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: var(--s-1); }
+.xcard-day { min-width: 0; display: grid; justify-items: center; align-content: center; gap: 2px; min-height: 72px; padding: var(--s-1) 0; border-radius: var(--r-md); background: var(--zone); font-size: var(--fs-xs); color: var(--ink-3); }
+.xcard-day b { font-size: var(--fs-sm); font-weight: 600; color: var(--ink-2); }
+.xcard-day img { width: 18px; height: 18px; object-fit: contain; }
+.xcard-day.is-done { background: var(--action-tint); box-shadow: inset 0 0 0 1px var(--action-edge); }
+.xcard-day.is-done img.xcard-ck { filter: none; }
+.xcard-day.is-now { background: var(--surface); box-shadow: inset 0 0 0 1.5px var(--action); color: var(--action-press); }
+.xcard-day.is-now b { color: var(--action-press); }
+.xcard-wallet { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: var(--s-3); padding: var(--s-5); }
+.xcard-wallet > img { width: 88px; height: 88px; object-fit: contain; filter: drop-shadow(0 8px 12px color-mix(in srgb, var(--ink) 16%, transparent)); }
+.xcard-wallet__amt { font-size: var(--fs-3xl); font-weight: 700; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.xcard-wallet__amt small { font-size: var(--fs-md); font-weight: 600; margin-right: 2px; }
+.xcard-wallet__acts { grid-column: 1 / -1; display: flex; gap: var(--s-2); }
+
+/* 订单与物流 */
+.xcard-ord__head { display: flex; align-items: center; justify-content: space-between; padding: var(--s-3) var(--s-4); }
+.xcard-ord__body { display: flex; align-items: center; gap: var(--s-3); padding: var(--s-1) var(--s-4) var(--s-3); }
+.xcard-ord__body img { width: 60px; height: 60px; border-radius: var(--r-md); object-fit: cover; background: var(--zone); }
+.xcard-ord__sum { margin-left: auto; display: grid; justify-items: end; gap: 2px; }
+.xcard-ord__foot { display: flex; justify-content: flex-end; gap: var(--s-2); padding: var(--s-3) var(--s-4); border-top: 1px solid var(--line); }
+.xcard-ship { padding: var(--s-4); display: grid; gap: var(--s-4); }
+.xcard-ship__head { display: flex; align-items: center; gap: var(--s-3); }
+.xcard-ship__head > img { width: 52px; height: 52px; object-fit: contain; }
+.xcard-ship__head .ibtn { margin-left: auto; background: var(--action-tint); }
+.xcard-ship .tl__item { padding-bottom: var(--s-3); }
+.xcard-ship .tl__item:last-child { padding-bottom: 0; }
+.xcard-addr { display: grid; grid-template-columns: auto 1fr auto; align-items: center; column-gap: var(--s-3); padding: var(--s-4); cursor: pointer; transition: box-shadow var(--dur-quick) var(--ease-out), background var(--dur-quick) var(--ease-out); }
+.xcard-addr > img { width: 44px; height: 44px; object-fit: contain; }
+.xcard-addr[aria-checked="true"] { background: var(--action-tint); box-shadow: inset 0 0 0 1.5px var(--action); border-color: transparent; }
+.xcard-addr[aria-checked="true"] .tag { background: var(--surface); }
+.xcard-addr__main { display: grid; gap: 2px; min-width: 0; }
+
+/* 评价 */
+.xcard-rv { display: grid; gap: var(--s-3); padding: var(--s-4); }
+.xcard-rv__head { display: flex; align-items: center; gap: var(--s-3); }
+.xcard-rv__head .avatar { width: 40px; height: 40px; padding: 5px; background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); }
+.xcard-stars { display: inline-flex; gap: 1px; }
+.xcard-stars img { width: 16px; height: 16px; }
+.xcard-stars img.is-off { filter: grayscale(1) opacity(.28); }
+.xcard-rv__pics { display: flex; gap: var(--s-2); }
+.xcard-rv__pics img { width: 72px; height: 72px; border-radius: var(--r-md); object-fit: cover; }
+.xcard-like { display: inline-flex; align-items: center; gap: var(--s-1); min-height: 32px; padding: 0 var(--s-2); border-radius: var(--r-full); font-size: var(--fs-sm); color: var(--ink-3); }
+.xcard-like img { width: 18px; height: 18px; filter: grayscale(1) opacity(.5); transition: filter var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-spring); }
+.xcard-like[aria-pressed="true"] { color: var(--price); }
+.xcard-like[aria-pressed="true"] img { filter: none; transform: scale(1.15); }
+.xcard-sum { display: grid; grid-template-columns: auto 1fr; gap: var(--s-5); align-items: center; padding: var(--s-4) var(--s-5); }
+.xcard-sum__score { display: grid; justify-items: center; gap: var(--s-1); }
+.xcard-sum__score b { font-size: var(--fs-3xl); font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+.xcard-rows { display: grid; gap: 2px; }
+.xcard-row { display: grid; grid-template-columns: 36px 1fr 40px; align-items: center; gap: var(--s-2); min-height: 28px; padding: 0 var(--s-1); font-size: var(--fs-xs); color: var(--ink-2); border-radius: var(--r-sm); }
+.xcard-row .progress { height: 6px; }
+.xcard-row[aria-pressed="true"] { color: var(--action-press); font-weight: 600; background: var(--action-tint); }
+.xcard-row span:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* 门店 */
+.xcard-shop { display: flex; gap: var(--s-3); padding: var(--s-3); }
+.xcard-shop > img { width: 96px; height: 120px; border-radius: var(--r-md); object-fit: cover; flex: none; background: var(--zone); }
+.xcard-shop.is-closed > img { filter: grayscale(.85) opacity(.8); }
+.xcard-shop__main { flex: 1; min-width: 0; display: grid; gap: var(--s-1); align-content: space-between; }
+.xcard-shop__acts { display: flex; gap: var(--s-2); align-items: center; }
+.xcard-shop__acts .ibtn { width: 40px; height: 40px; background: var(--action-tint); }
+
+/* 内容卡 */
+.xcard-act .card__media { aspect-ratio: 16 / 9; }
+.xcard-act .card__corner { top: var(--s-3); left: var(--s-3); }
+.xcard-news { display: flex; align-items: stretch; gap: var(--s-3); padding: var(--s-3); }
+.xcard-news__main { flex: 1; min-width: 0; display: grid; gap: var(--s-2); align-content: space-between; }
+.xcard-news > img { width: 104px; height: 88px; border-radius: var(--r-md); object-fit: cover; flex: none; }
+.xcard-brand .card__media { aspect-ratio: 16 / 9; }
+.xcard-brand .stats { padding: 0; }
+.xcard-note { overflow: hidden; width: 224px; margin: 0 auto; }
+.xcard-note > img { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; }
+.xcard-note__body { display: grid; gap: var(--s-2); padding: var(--s-3); }
+.xcard-note__by { display: flex; align-items: center; gap: var(--s-2); font-size: var(--fs-xs); color: var(--ink-3); }
+.xcard-note__by .avatar { width: 22px; height: 22px; padding: 2px; background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); }
+.xcard-note__by .xcard-like { margin-left: auto; padding: 0; min-height: 28px; font-size: var(--fs-xs); }
+.xcard-feat { position: relative; isolation: isolate; overflow: hidden; min-height: 300px; display: grid; align-content: end; padding: var(--s-3); background: url(../../kit/assets/photo/scene-hero-pink.webp) 80% center / cover; }
+.xcard-feat .card__corner { top: var(--s-3); left: var(--s-3); }
+.xcard-feat__plate { display: flex; align-items: center; gap: var(--s-3); padding: var(--s-3); border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--elev-3); }
+.xcard-feat__plate img { width: 64px; height: 64px; border-radius: var(--r-md); object-fit: cover; }
+.xcard-feat__plate div { flex: 1; min-width: 0; display: grid; gap: 2px; }
+
+/* 人与任务 */
+.xcard-cus { display: grid; grid-template-columns: auto 1fr auto; align-items: center; column-gap: var(--s-3); padding: var(--s-3) var(--s-4); }
+.xcard-cus .avatar { width: 52px; height: 52px; padding: 7px; background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); }
+.xcard-task { display: grid; gap: var(--s-3); padding: var(--s-4); }
+.xcard-task__head { display: flex; align-items: center; gap: var(--s-3); }
+.xcard-task__head > img { width: 44px; height: 44px; object-fit: contain; }
+.xcard-task__head .tag { margin-left: auto; }
+.xcard-task ul { display: grid; gap: var(--s-2); }
+.xcard-task li { display: flex; align-items: center; gap: var(--s-3); min-height: 36px; font-size: var(--fs-md); cursor: pointer; }
+.xcard-task li.is-done span:last-child { color: var(--ink-3); text-decoration: line-through; }
+.xcard-task__foot { display: flex; align-items: center; justify-content: space-between; }
+.xcard-av { display: flex; align-items: center; gap: var(--s-3); padding: var(--s-4); }
+.xcard-av .avatars .avatar { width: 40px; height: 40px; margin-left: -10px; padding: 5px; background: var(--action-tint); }
+.xcard-av .avatars .avatar:first-child { margin-left: 0; }
+.xcard-more { display: grid; place-items: center; width: 40px; height: 40px; margin-left: -10px; border-radius: 50%; border: 2px solid var(--surface); background: var(--action-tint); color: var(--action-press); font-size: var(--fs-xs); font-weight: 600; }
+.xcard-av__main { flex: 1; min-width: 0; display: grid; gap: 2px; }
+
+/* 通知堆叠 */
+.xcard-nstack { position: relative; height: 100px; transition: height var(--dur-slow) var(--ease-out); cursor: pointer; }
+.xcard-nstack.is-open { height: 248px; }
+.xcard-n { position: absolute; left: 0; right: 0; top: 0; height: 74px; display: grid; grid-template-columns: auto 1fr auto; align-items: center; column-gap: var(--s-3); padding: 0 var(--s-4); transform: translateY(var(--y)) scale(var(--s)); transform-origin: top center; z-index: var(--z); transition: transform var(--dur-slow) var(--ease-out), opacity var(--dur-base) var(--ease-out); box-shadow: var(--elev-1); }
+.xcard-n:nth-child(1) { --y: 0px; --s: 1; --z: 3; }
+.xcard-n:nth-child(2) { --y: 12px; --s: .95; --z: 2; opacity: .96; }
+.xcard-n:nth-child(3) { --y: 24px; --s: .9; --z: 1; opacity: .9; }
+.xcard-nstack.is-open .xcard-n { --s: 1; opacity: 1; }
+.xcard-nstack.is-open .xcard-n:nth-child(2) { --y: 84px; }
+.xcard-nstack.is-open .xcard-n:nth-child(3) { --y: 168px; }
+.xcard-n > img { width: 40px; height: 40px; object-fit: contain; }
+.xcard-n div { min-width: 0; display: grid; gap: 2px; }
+.xcard-nbar { display: flex; justify-content: center; margin-top: var(--s-2); }
+.xcard-ex__body { display: grid; gap: var(--s-2); }
+.xcard-kv { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); font-size: var(--fs-sm); color: var(--ink-2); }
+.xcard-kv b { font-weight: 600; color: var(--ink); }
+
+/* 骨架、空态、订阅、兑换 */
+.xcard-skel { display: flex; gap: var(--s-3); padding: var(--s-3); }
+.xcard-skel > .skel:first-child { width: 96px; height: 96px; border-radius: var(--r-md); flex: none; }
+.xcard-skel__main { flex: 1; display: grid; gap: var(--s-2); align-content: center; }
+.xcard-skel__main .skel { height: 14px; }
+.xcard-skel__main .skel:nth-child(2) { width: 62%; }
+.xcard-skel__main .skel:nth-child(3) { width: 38%; height: 18px; }
+.xcard-emp { padding: var(--s-2) var(--s-4) var(--s-4); }
+.xcard-emp .empty { padding: var(--s-3) var(--s-4); }
+.xcard-emp .empty strong { font-size: var(--fs-lg); font-weight: 600; color: var(--ink); line-height: var(--lh-tight); }
+.xcard-sub { display: grid; gap: var(--s-4); padding: var(--s-4); }
+.xcard-sub__head { display: flex; align-items: center; gap: var(--s-3); }
+.xcard-sub__head > img { width: 56px; height: 56px; object-fit: contain; }
+.xcard-sub .btn-seg { display: flex; }
+.xcard-sub .btn-seg button { flex: 1; }
+.xcard-pts { display: flex; gap: var(--s-3); padding: var(--s-3); }
+.xcard-pts > img { width: 96px; height: 96px; border-radius: var(--r-md); object-fit: cover; flex: none; }
+.xcard-pts__main { flex: 1; min-width: 0; display: grid; gap: var(--s-1); align-content: space-between; }
+.xcard-pts__cost { display: inline-flex; align-items: center; gap: var(--s-1); color: var(--accent); font-weight: 700; font-size: var(--fs-lg); font-variant-numeric: tabular-nums; }
+.xcard-pts__cost img { width: 20px; height: 20px; }
+.xcard-pts__cost small { font-size: var(--fs-sm); font-weight: 400; }
+.demo[data-cat="CARD"] .demo__stage { container-type: inline-size; }
+.xcard-cp2__r .xcard-between { flex-wrap: wrap; row-gap: var(--s-1); }
+@container (max-width: 380px) { .xcard-h > img { width: 84px; height: 84px; } .xcard-cp2 { grid-template-columns: 92px minmax(0, 1fr); } .xcard-cp2__r { padding: var(--s-3); } .xcard-cp2__r .btn--text { padding: 0 var(--s-1); } .xcard-grp { flex-wrap: wrap; row-gap: var(--s-2); } .xcard-av { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; row-gap: var(--s-3); } .xcard-av .avatars { grid-row: 2; grid-column: 1 / -1; } .xcard-av__main { grid-row: 1; grid-column: 1; } .xcard-av > .btn { grid-row: 1; grid-column: 2; } }
+</style>
+
+<!-- ══ 商品卡 ══ -->
+<article class="demo" data-cid="AP-CARD-001" data-name="竖向商品卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">竖向商品卡</span></div>
+  <p class="demo__note">适合：首页与分类的双列商品流</p>
+  <div class="demo__stage"><div class="card card--lift xcard-v">
+    <div class="card__media"><img src="../../kit/assets/photo/product-rose-red.webp" alt=""><button class="ibtn ibtn--round card__fav xcard-fav" aria-label="收藏" data-tip="收藏" aria-pressed="false" data-xcard-fav><img data-ic="heart" src="../../kit/assets/icons/flat/heart.webp" alt=""></button></div>
+    <div class="xcard-body"><span class="xcard-name one-line">红玫瑰花束</span><span class="xcard-meta one-line">11 枝 牛皮纸包装</span>
+      <div class="xcard-foot"><span class="price"><small>¥</small>199</span><button class="btn btn--secondary btn--xs btn--pill" data-xcard-t="已加入购物车">加购</button></div></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="AP-CARD-002" data-name="横向商品卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">横向商品卡</span></div>
+  <p class="demo__note">适合：搜索结果与分类列表的单列商品</p>
+  <div class="demo__stage"><div class="card xcard-h xcard-w">
+    <img src="../../kit/assets/photo/product-peony-pink.webp" alt="">
+    <div class="xcard-h__main">
+      <div><span class="xcard-name one-line" style="display:block">粉芍药花束</span><div class="xcard-tags" style="margin-top: var(--s-1)"><span class="tag" data-tone="action">同城 2 小时</span><span class="tag">现摘</span></div></div>
+      <div class="xcard-foot"><span class="xcard-gap" style="align-items: baseline"><span class="price"><small>¥</small>239</span><s class="xcard-was">¥269</s></span><button class="btn btn--secondary btn--xs btn--pill" data-xcard-t="已加入购物车">加购</button></div>
+    </div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="AP-CARD-003" data-name="双列瀑布商品流" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">双列瀑布商品流</span></div>
+  <p class="demo__note">适合：种草与发现页，图片高度错落</p>
+  <div class="demo__stage"><div class="xcard-masonry xcard-w">
+    <div class="card card--press"><img src="../../kit/assets/photo/product-sunflower.webp" alt="" style="aspect-ratio: 1 / 1.18"><div class="xcard-body"><span class="xcard-name one-line">向日葵花束</span><div class="xcard-foot"><span class="price"><small>¥</small>159</span><span class="xcard-meta">已售 960</span></div></div></div>
+    <div class="card card--press"><img src="../../kit/assets/photo/product-hydrangea-blue.webp" alt="" style="aspect-ratio: 1 / .86"><div class="xcard-body"><span class="xcard-name one-line">蓝绣球盆栽</span><div class="xcard-foot"><span class="price"><small>¥</small>129</span><span class="xcard-meta">已售 540</span></div></div></div>
+    <div class="card card--press"><img src="../../kit/assets/photo/product-tulip-white.webp" alt="" style="aspect-ratio: 1 / .94"><div class="xcard-body"><span class="xcard-name one-line">白郁金香</span><div class="xcard-foot"><span class="price"><small>¥</small>179</span><span class="xcard-meta">已售 1230</span></div></div></div>
+    <div class="card card--press"><img src="../../kit/assets/photo/product-monstera.webp" alt="" style="aspect-ratio: 1 / 1.22"><div class="xcard-body"><span class="xcard-name one-line">龟背竹盆栽</span><div class="xcard-foot"><span class="price"><small>¥</small>159</span><span class="xcard-meta">已售 2860</span></div></div></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="AP-CARD-004" data-name="角标商品卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">角标商品卡</span></div>
+  <p class="demo__note">适合：需要标注新品、热卖与配送时效的商品</p>
+  <div class="demo__stage"><div class="card card--lift xcard-sq">
+    <div class="card__media"><img src="../../kit/assets/photo/product-giftbox.webp" alt=""><div class="card__corner"><span class="tag" data-tone="action">新品</span><span class="tag" data-tone="price">热卖</span></div><span class="xcard-chip xcard-bl">同城 2 小时达</span></div>
+    <div class="xcard-body"><span class="xcard-name one-line">花礼盒</span>
+      <div class="xcard-foot"><span class="price"><small>¥</small>259</span><span class="xcard-meta">已售 1530</span></div></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="AP-CARD-005" data-name="限时抢购进度卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">限时抢购进度卡</span></div>
+  <p class="demo__note">适合：秒杀专区，倒计时与抢购进度并列</p>
+  <div class="demo__stage"><div class="card xcard-w" data-xcard-flash style="overflow: hidden">
+    <div class="xcard-flash__head"><span>限时抢购</span><span class="xcard-cd" data-cd="8130" aria-label="距结束"><b>02</b><i>:</i><b>15</b><i>:</i><b>30</b></span></div>
+    <div class="xcard-h"><img src="../../kit/assets/photo/product-succulent.webp" alt="">
+      <div class="xcard-h__main">
+        <div><span class="xcard-name one-line" style="display:block">多肉组合盆</span><span class="xcard-gap" style="align-items: baseline; margin-top: var(--s-1)"><span class="price xcard-big"><small style="font-size: var(--fs-sm)">¥</small>59</span><s class="xcard-was">¥89</s></span></div>
+        <div style="display: grid; gap: var(--s-1)"><div class="progress xcard-prog" style="--v: 72%"><i></i></div><div class="xcard-between"><span class="xcard-meta" data-flash-pct>已抢 72%</span><button class="btn btn--primary btn--xs btn--pill" data-flash-go>马上抢</button></div></div>
+      </div>
+    </div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="AP-CARD-006" data-name="拼团商品卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">拼团商品卡</span></div>
+  <p class="demo__note">适合：团购专区，成团进度用头像表达</p>
+  <div class="demo__stage"><div class="card xcard-h xcard-w" data-xcard-group>
+    <img src="../../kit/assets/photo/product-tulip-white.webp" alt="">
+    <div class="xcard-h__main">
+      <div><span class="xcard-name one-line" style="display:block">白郁金香</span><span class="xcard-gap" style="align-items: baseline; margin-top: var(--s-1)"><span class="tag" data-tone="price">3 人团</span><span class="price"><small>¥</small>129</span><s class="xcard-was">¥179</s></span></div>
+      <div class="xcard-between xcard-grp"><div class="xcard-gap"><div class="avatars"><img class="avatar" src="../../kit/assets/marks/mark-001.webp" alt=""><img class="avatar" src="../../kit/assets/marks/mark-007.webp" alt=""><span class="xcard-slot" data-slot><img src="../../kit/assets/line/add.webp" alt=""></span></div><span class="xcard-meta xcard-nw" data-group-txt>差 1 人</span></div><button class="btn btn--primary btn--xs btn--pill" data-group-go>去拼团</button></div>
+    </div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="AP-CARD-007" data-name="套餐捆绑卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">套餐捆绑卡</span></div>
+  <p class="demo__note">适合：多件搭配成套销售，突出立省金额</p>
+  <div class="demo__stage"><div class="card xcard-w" style="overflow: hidden">
+    <div class="xcard-bundle"><img src="../../kit/assets/photo/product-rose-red.webp" alt=""><img class="xcard-plus" src="../../kit/assets/line/add.webp" alt=""><img src="../../kit/assets/photo/product-pampas-vase.webp" alt=""><img class="xcard-plus" src="../../kit/assets/line/add.webp" alt=""><img src="../../kit/assets/photo/product-succulent.webp" alt=""></div>
+    <div class="xcard-bundle__foot"><div style="display: grid; gap: 2px"><span class="xcard-gap" style="align-items: baseline"><span class="price xcard-big"><small style="font-size: var(--fs-sm)">¥</small>369</span><s class="xcard-was">¥417</s></span><span class="tag" data-tone="price" style="width: fit-content">立省 ¥48</span></div><button class="btn btn--primary btn--sm btn--pill" data-xcard-t="已加入购物车">加入购物车</button></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="AP-CARD-008" data-name="商品加购条" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">商品加购条</span></div>
+  <p class="demo__note">适合：列表内快速加购，点按后变为数量步进</p>
+  <div class="demo__stage"><div class="card xcard-addbar xcard-w" data-xcard-add>
+    <img src="../../kit/assets/photo/product-sunflower.webp" alt="">
+    <div class="xcard-addbar__main"><span class="xcard-name one-line">向日葵花束</span><span class="xcard-meta">鲜切 9 枝</span><span class="price"><small>¥</small>159</span></div>
+    <div class="xcard-addslot"><button class="btn btn--secondary btn--sm btn--pill" data-add-first>加购</button></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="AP-CARD-009" data-name="收藏商品卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">收藏商品卡</span></div>
+  <p class="demo__note">适合：我的收藏列表，可直接取消收藏</p>
+  <div class="demo__stage"><div class="card xcard-fl xcard-w" data-xcard-fl>
+    <img src="../../kit/assets/photo/product-hydrangea-blue.webp" alt="">
+    <div class="xcard-fl__main"><span class="xcard-name one-line">蓝绣球盆栽</span><div><span class="tag" data-tone="success">降价 ¥20</span></div><span class="price"><small>¥</small>129</span></div>
+    <button class="ibtn ibtn--round xcard-fav" aria-label="取消收藏" data-tip="取消收藏" aria-pressed="true" data-xcard-fav data-xcard-fl-btn><img data-ic="heart" src="../../kit/assets/icons/flat/heart.webp" alt=""></button>
+  </div></div>
+</article>
+
+<!-- ══ 优惠券与礼品卡 ══ -->
+<article class="demo" data-cid="AP-CARD-010" data-name="缺口优惠券" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">缺口优惠券</span></div>
+  <p class="demo__note">适合：我的券包，两侧缺口加虚线分隔</p>
+  <div class="demo__stage"><div class="card card--notch xcard-cp xcard-w">
+    <div class="xcard-cp__l"><span class="price xcard-cp__amt"><small>¥</small>30</span><span class="xcard-cp__cond">满 199 可用</span></div>
+    <div class="xcard-cp__main"><span class="xcard-name one-line">鲜花通用券</span><span class="xcard-meta">7 天内有效</span></div>
+    <button class="btn btn--primary btn--sm btn--pill" data-xcard-t="已打开商品列表">立即使用</button>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="AP-CARD-011" data-name="满减优惠券" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">满减优惠券</span></div>
+  <p class="demo__note">适合：结算页选券，显示还差多少可用</p>
+  <div class="demo__stage"><div class="card xcard-cp2 xcard-w">
+    <div class="xcard-cp2__l"><span class="price xcard-cp__amt"><small>¥</small>30</span><span class="xcard-cp__cond">满 199 减</span></div>
+    <div class="xcard-cp2__r"><div class="xcard-between"><span class="xcard-name one-line" style="min-width: 0">全场鲜花满减</span><span class="tag" data-tone="action" style="flex: none">限鲜花</span></div><div class="progress xcard-prog" style="--v: 75%; height: 6px"><i></i></div><div class="xcard-between"><span class="xcard-meta xcard-nw">还差 ¥49 可用</span><button class="btn btn--text" style="min-height: 28px" data-xcard-t="已打开商品列表">去凑单</button></div></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="AP-CARD-012" data-name="折扣优惠券" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">折扣优惠券</span></div>
+  <p class="demo__note">适合：品类折扣与会员专享，金色只给会员与活动</p>
+  <div class="demo__stage"><div class="card card--accent xcard-cp3 xcard-w">
+    <div class="xcard-cp3__l"><span class="xcard-cp__amt">8.5<small style="font-size: var(--fs-md); margin-left: 2px">折</small></span><span class="xcard-cp__cond">最高减 ¥50</span></div>
+    <div class="xcard-cp__main"><span class="xcard-name one-line">绿植专享折扣券</span><span class="xcard-meta">金卡会员专享</span></div>
+    <button class="btn btn--accent btn--sm btn--pill" data-xcard-t="已领取">领取</button>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="AP-CARD-013" data-name="礼品卡面" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">礼品卡面</span></div>
+  <p class="demo__note">适合：礼品卡展示与赠送入口</p>
+  <div class="demo__stage"><div class="card card--hero xcard-deep pattern-over xcard-onhero xcard-gift xcard-w">
+    <div class="xcard-gift__top"><div><b class="xcard-name" style="font-size: var(--fs-lg)">花间集礼品卡</b><p class="xcard-gift__code" style="margin-top: var(--s-1)">8820 0000 0431</p></div><img data-ic="giftcard" src="../../kit/assets/icons/flat/giftcard.webp" alt=""></div>
+    <div class="xcard-between"><span class="xcard-gift__val"><small>¥</small>200</span><div class="xcard-gap"><button class="btn btn--text" data-xcard-t="已充入余额">充入余额</button><button class="btn btn--white btn--sm btn--pill" data-xcard-t="已打开赠送">赠送</button></div></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="AP-CARD-014" data-name="优惠券三态" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">优惠券三态</span></div>
+  <p class="demo__note">适合：领券中心，可领取、已领取、已过期同屏对照</p>
+  <div class="demo__stage"><div class="xcard-col xcard-w" data-xcard-tri>
+    <div class="card xcard-tri"><div><span class="price xcard-cp__amt"><small>¥</small>20</span></div><div class="xcard-cp__main"><span class="xcard-name">新人礼券</span><span class="xcard-meta">满 99 可用</span></div><button class="btn btn--primary btn--sm btn--pill" data-tri-get>立即领取</button></div>
+    <div class="card xcard-tri is-got"><div><span class="price xcard-cp__amt"><small>¥</small>10</span></div><div class="xcard-cp__main"><span class="xcard-name">周末礼券</span><span class="xcard-meta">满 59 可用</span></div><button class="btn btn--sm btn--pill" disabled>已领取</button></div>
+    <div class="card xcard-tri is-old"><div><span class="price xcard-cp__amt"><small>¥</small>15</span></div><div class="xcard-cp__main"><span class="xcard-name">春季礼券</span><span class="xcard-meta">满 79 可用</span></div><span class="tag">已过期</span></div>
+  </div></div>
+</article>
+
+<!-- ══ 会员与钱包 ══ -->
+<article class="demo" data-cid="AP-CARD-015" data-name="会员品牌主卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">会员品牌主卡</span></div>
+  <p class="demo__note">适合：我的页顶部，整屏唯一的深色品牌卡</p>
+  <div class="demo__stage"><div class="card card--hero xcard-deep pattern-over xcard-vip xcard-w">
+    <div class="xcard-vip__top"><img class="avatar" src="../../kit/assets/marks/mark-001.webp" alt=""><div><b>林晓</b><span class="tag xcard-gold">金卡会员</span></div><button class="ibtn" aria-label="会员码" data-tip="会员码" data-xcard-t="已打开会员码"><img src="../../kit/assets/line/scan.webp" alt=""></button></div>
+    <div class="stats"><div class="stat"><span class="stat__label">积分</span><span class="stat__val">2860</span></div><div class="stat"><span class="stat__label">优惠券</span><span class="stat__val">4<small>张</small></span></div><div class="stat"><span class="stat__label">成长值</span><span class="stat__val">3280</span></div></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="AP-CARD-016" data-name="会员权益格" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">会员权益格</span></div>
+  <p class="demo__note">适合：展示已解锁与待解锁的会员权益</p>
+  <div class="demo__stage"><div class="card xcard-perks xcard-w">
+    <button class="xcard-perk" data-xcard-t="生日礼已领取"><img data-ic="giftbox" src="../../kit/assets/icons/flat/giftbox.webp" alt=""><span>生日礼</span></button>
+    <button class="xcard-perk" data-xcard-t="免运费已生效"><img data-ic="scooter" src="../../kit/assets/icons/flat/scooter.webp" alt=""><span>免运费</span></button>
+    <button class="xcard-perk" data-xcard-t="积分翻倍已生效"><img data-ic="star" src="../../kit/assets/icons/flat/star.webp" alt=""><span>积分翻倍</span></button>
+    <button class="xcard-perk" data-xcard-t="本月券已领取"><img data-ic="coupon" src="../../kit/assets/icons/flat/coupon.webp" alt=""><span>每月券</span></button>
+    <button class="xcard-perk" data-xcard-t="储值礼已领取"><img data-ic="wallet" src="../../kit/assets/icons/flat/wallet.webp" alt=""><span>储值礼</span></button>
+    <button class="xcard-perk" data-xcard-t="养护咨询已预约"><img data-ic="plant" src="../../kit/assets/icons/flat/plant.webp" alt=""><span>养护咨询</span></button>
+    <button class="xcard-perk is-lock" data-xcard-t="钻石卡解锁"><img data-ic="shears" src="../../kit/assets/icons/flat/shears.webp" alt=""><span>花艺修剪</span><small>钻石卡</small></button>
+    <button class="xcard-perk is-lock" data-xcard-t="钻石卡解锁"><img data-ic="giftcard" src="../../kit/assets/icons/flat/giftcard.webp" alt=""><span>升级礼卡</span><small>钻石卡</small></button>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="AP-CARD-017" data-name="成长值进度卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">成长值进度卡</span></div>
+  <p class="demo__note">适合：会员等级页，节点加进度条表达升级路径</p>
+  <div class="demo__stage"><div class="card xcard-grow xcard-w">
+    <div class="xcard-between"><div class="xcard-gap" style="align-items: baseline"><span class="xcard-big" style="font-variant-numeric: tabular-nums">3280</span><span class="xcard-meta">/ 5000 成长值</span></div><span class="tag xcard-gold">金卡会员</span></div>
+    <div class="xcard-track" style="--v: 71%"><div class="xcard-track__bar"><i></i></div><ol>
+      <li class="is-on"><span><img src="../../kit/assets/line/check.webp" alt=""></span>普卡</li><li class="is-on"><span><img src="../../kit/assets/line/check.webp" alt=""></span>银卡</li><li class="is-on"><span><img src="../../kit/assets/line/check.webp" alt=""></span>金卡</li><li><span></span>钻石</li>
+    </ol></div>
+    <p class="xcard-meta" style="text-align: center">再得 1720 成长值升级钻石卡</p>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="AP-CARD-018" data-name="每日签到卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">每日签到卡</span></div>
+  <p class="demo__note">适合：每日签到领积分，连续天数加奖励</p>
+  <div class="demo__stage"><div class="card xcard-sign xcard-w" data-xcard-sign>
+    <div class="xcard-between"><div style="display: grid; gap: 2px"><span class="xcard-name">连续签到 <span data-sign-n>3</span> 天</span><span class="xcard-meta">第 7 天得礼券</span></div><button class="btn btn--primary btn--sm btn--pill" data-sign-go>立即签到</button></div>
+    <div class="xcard-days">
+      <div class="xcard-day is-done"><b>1</b><img class="xcard-ck" data-ic="star" src="../../kit/assets/icons/flat/star.webp" alt=""><span>+5</span></div>
+      <div class="xcard-day is-done"><b>2</b><img class="xcard-ck" data-ic="star" src="../../kit/assets/icons/flat/star.webp" alt=""><span>+5</span></div>
+      <div class="xcard-day is-done"><b>3</b><img class="xcard-ck" data-ic="star" src="../../kit/assets/icons/flat/star.webp" alt=""><span>+5</span></div>
+      <div class="xcard-day is-now" data-sign-today><b>4</b><img data-ic="star" src="../../kit/assets/icons/flat/star.webp" alt="" style="filter: grayscale(1) opacity(.4)"><span>+10</span></div>
+      <div class="xcard-day"><b>5</b><img data-ic="star" src="../../kit/assets/icons/flat/star.webp" alt="" style="filter: grayscale(1) opacity(.4)"><span>+10</span></div>
+      <div class="xcard-day"><b>6</b><img data-ic="star" src="../../kit/assets/icons/flat/star.webp" alt="" style="filter: grayscale(1) opacity(.4)"><span>+10</span></div>
+      <div class="xcard-day"><b>7</b><img data-ic="coupon" src="../../kit/assets/icons/flat/coupon.webp" alt=""><span>礼券</span></div>
+    </div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="AP-CARD-019" data-name="钱包余额卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">钱包余额卡</span></div>
+  <p class="demo__note">适合：钱包页顶部，余额可隐藏，充值与明细就近</p>
+  <div class="demo__stage"><div class="card xcard-wallet xcard-w" data-xcard-wallet>
+    <div style="display: grid; gap: var(--s-1)"><span class="xcard-gap"><span class="xcard-meta">账户余额</span><button class="btn btn--text" style="min-height: 28px; padding: 0 var(--s-1)" data-wallet-eye aria-pressed="false">隐藏</button></span><span class="xcard-wallet__amt" data-wallet-amt><small>¥</small>1,280.00</span></div>
+    <img data-ic="wallet" src="../../kit/assets/icons/flat/wallet.webp" alt="">
+    <div class="xcard-wallet__acts"><button class="btn btn--primary btn--sm" data-xcard-t="已打开充值">充值</button><button class="btn btn--secondary btn--sm" data-xcard-t="已打开明细">明细</button></div>
+  </div></div>
+</article>
+
+<!-- ══ 订单、物流与地址 ══ -->
+<article class="demo" data-cid="AP-CARD-020" data-name="订单摘要卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">订单摘要卡</span></div>
+  <p class="demo__note">适合：订单列表，状态、商品与操作一屏看全</p>
+  <div class="demo__stage"><div class="card xcard-w">
+    <div class="xcard-ord__head"><span class="xcard-name">建国路店</span><span class="tag" data-tone="info">待收货</span></div>
+    <div class="xcard-ord__body"><img src="../../kit/assets/photo/product-rose-red.webp" alt=""><img src="../../kit/assets/photo/product-succulent.webp" alt=""><div class="xcard-ord__sum"><span class="xcard-meta">共 2 件</span><span class="xcard-gap" style="align-items: baseline"><span class="xcard-meta">实付</span><span class="price xcard-big" style="font-size: var(--fs-lg)"><small>¥</small>288</span></span></div></div>
+    <div class="xcard-ord__foot"><button class="btn btn--outline btn--sm" data-xcard-t="已打开物流">查看物流</button><button class="btn btn--primary btn--sm" data-xcard-t="已确认收货">确认收货</button></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="AP-CARD-021" data-name="物流时间线卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">物流时间线卡</span></div>
+  <p class="demo__note">适合：配送进度，当前节点高亮，骑手可直接联系</p>
+  <div class="demo__stage"><div class="card xcard-ship xcard-w">
+    <div class="xcard-ship__head"><img data-ic="scooter" src="../../kit/assets/icons/flat/scooter.webp" alt=""><div><span class="xcard-name" style="display:block">预计 20 分钟送达</span><span class="xcard-meta">骑手 张师傅</span></div><button class="ibtn ibtn--round" aria-label="联系骑手" data-tip="联系骑手" data-xcard-t="正在呼叫骑手"><img src="../../kit/assets/line/support.webp" alt=""></button></div>
+    <div class="tl">
+      <div class="tl__item" data-state="now"><span class="tl__dot"></span><div><b class="xcard-name">骑手配送中</b><p class="xcard-meta">距你 1.2 公里</p></div><span class="tl__time">刚刚</span></div>
+      <div class="tl__item" data-state="done"><span class="tl__dot"></span><div><b class="xcard-name">骑手已取货</b></div><span class="tl__time">10 分钟前</span></div>
+      <div class="tl__item" data-state="done"><span class="tl__dot"></span><div><b class="xcard-name">门店已包装</b></div><span class="tl__time">30 分钟前</span></div>
+      <div class="tl__item" data-state="done"><span class="tl__dot"></span><div><b class="xcard-name">订单已支付</b></div><span class="tl__time">40 分钟前</span></div>
+    </div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="AP-CARD-022" data-name="收货地址卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">收货地址卡</span></div>
+  <p class="demo__note">适合：地址选择，点选高亮，右侧原位编辑</p>
+  <div class="demo__stage"><div class="card xcard-addr xcard-w" role="radio" aria-checked="true" tabindex="0" data-xcard-addr>
+    <img data-ic="pin" src="../../kit/assets/icons/flat/pin.webp" alt="">
+    <div class="xcard-addr__main"><span class="xcard-gap"><span class="xcard-name">林晓</span><span class="xcard-meta">138 **** 6620</span><span class="tag" data-tone="action">默认</span></span><span class="xcard-meta one-line">浦东新区世纪大道 88 号</span></div>
+    <button class="ibtn" aria-label="编辑地址" data-tip="编辑地址" data-xcard-t="已打开地址编辑"><img src="../../kit/assets/line/edit.webp" alt=""></button>
+  </div></div>
+</article>
+
+<!-- ══ 评价与门店 ══ -->
+<article class="demo" data-cid="AP-CARD-023" data-name="用户评价卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">用户评价卡</span></div>
+  <p class="demo__note">适合：商品详情的用户评价，星级用图像表达</p>
+  <div class="demo__stage"><div class="card xcard-rv xcard-w">
+    <div class="xcard-rv__head"><img class="avatar" src="../../kit/assets/marks/mark-007.webp" alt=""><div style="display: grid; gap: 2px"><span class="xcard-name">阿宁</span><span class="xcard-stars" aria-label="五星"><img data-ic="star" src="../../kit/assets/icons/flat/star.webp" alt=""><img data-ic="star" src="../../kit/assets/icons/flat/star.webp" alt=""><img data-ic="star" src="../../kit/assets/icons/flat/star.webp" alt=""><img data-ic="star" src="../../kit/assets/icons/flat/star.webp" alt=""><img data-ic="star" src="../../kit/assets/icons/flat/star.webp" alt=""></span></div><span class="xcard-meta" style="margin-left: auto">昨天</span></div>
+    <p>花束很新鲜 包装精致 骑手准时送到 家人很喜欢</p>
+    <div class="xcard-rv__pics"><img src="../../kit/assets/photo/bouquet-rose.webp" alt=""><img src="../../kit/assets/photo/bouquet-white.webp" alt=""></div>
+    <div class="xcard-between"><span class="tag">红玫瑰花束 11 枝</span><button class="xcard-like" aria-label="点赞" aria-pressed="false" data-xcard-like><img data-ic="heart" src="../../kit/assets/icons/flat/heart.webp" alt=""><span>28</span></button></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="AP-CARD-024" data-name="评价汇总卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">评价汇总卡</span></div>
+  <p class="demo__note">适合：评价列表顶部，综合评分与星级分布</p>
+  <div class="demo__stage"><div class="card xcard-sum xcard-w">
+    <div class="xcard-sum__score"><b>4.9</b><span class="xcard-stars"><img data-ic="star" src="../../kit/assets/icons/flat/star.webp" alt=""><img data-ic="star" src="../../kit/assets/icons/flat/star.webp" alt=""><img data-ic="star" src="../../kit/assets/icons/flat/star.webp" alt=""><img data-ic="star" src="../../kit/assets/icons/flat/star.webp" alt=""><img data-ic="star" src="../../kit/assets/icons/flat/star.webp" alt=""></span><span class="xcard-meta">2860 条评价</span></div>
+    <div class="xcard-rows" data-xcard-rows>
+      <button class="xcard-row" aria-pressed="false"><span>5 星</span><div class="progress"><i style="--v: 86%"></i></div><span>86%</span></button>
+      <button class="xcard-row" aria-pressed="false"><span>4 星</span><div class="progress"><i style="--v: 9%"></i></div><span>9%</span></button>
+      <button class="xcard-row" aria-pressed="false"><span>3 星</span><div class="progress"><i style="--v: 3%"></i></div><span>3%</span></button>
+      <button class="xcard-row" aria-pressed="false"><span>2 星</span><div class="progress"><i style="--v: 1%"></i></div><span>1%</span></button>
+      <button class="xcard-row" aria-pressed="false"><span>1 星</span><div class="progress"><i style="--v: 1%"></i></div><span>1%</span></button>
+    </div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="AP-CARD-025" data-name="门店信息卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">门店信息卡</span></div>
+  <p class="demo__note">适合：门店列表，营业状态与距离一眼可见</p>
+  <div class="demo__stage"><div class="card xcard-shop xcard-w">
+    <img src="../../kit/assets/photo/bouquet-white.webp" alt="">
+    <div class="xcard-shop__main">
+      <div style="display: grid; gap: var(--s-1)"><span class="xcard-gap"><span class="xcard-name">建国路店</span><span class="tag" data-tone="success">营业中</span></span><span class="xcard-meta">距你 1.2 公里</span><span class="xcard-meta one-line">营业至 21:00 建国路 88 号</span></div>
+      <div class="xcard-shop__acts"><button class="btn btn--primary btn--sm btn--pill" data-xcard-t="已打开导航">导航到店</button><button class="ibtn" aria-label="致电门店" data-tip="致电门店" data-xcard-t="正在呼叫门店"><img src="../../kit/assets/line/support.webp" alt=""></button></div>
+    </div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="AP-CARD-026" data-name="休息中门店卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">休息中门店卡</span></div>
+  <p class="demo__note">适合：非营业时段的门店，主操作改为营业提醒</p>
+  <div class="demo__stage"><div class="card xcard-shop is-closed xcard-w" data-xcard-closed>
+    <img src="../../kit/assets/photo/bouquet-tulip.webp" alt="">
+    <div class="xcard-shop__main">
+      <div style="display: grid; gap: var(--s-1)"><span class="xcard-gap"><span class="xcard-name">徐汇滨江店</span><span class="tag">休息中</span></span><span class="xcard-meta">距你 3.6 公里</span><span class="xcard-meta one-line">明早 09:00 营业</span></div>
+      <div class="xcard-shop__acts"><button class="btn btn--outline btn--sm btn--pill" aria-pressed="false" data-remind>营业提醒</button></div>
+    </div>
+  </div></div>
+</article>
+
+<!-- ══ 内容卡 ══ -->
+<article class="demo" data-cid="AP-CARD-027" data-name="活动图文卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">活动图文卡</span></div>
+  <p class="demo__note">适合：活动聚合页，大图加参与人数</p>
+  <div class="demo__stage"><div class="card card--image card--lift xcard-act xcard-w">
+    <div class="card__media"><img src="../../kit/assets/photo/scene-hero-pink.webp" alt=""><span class="tag card__corner" data-tone="warning">热门</span></div>
+    <div class="xcard-body" style="gap: var(--s-2); padding: var(--s-4)"><span class="xcard-name" style="font-size: var(--fs-lg)">春日鲜花节</span><span class="xcard-meta">同城 2 小时送达</span>
+      <div class="xcard-between" style="margin-top: var(--s-1)"><div class="xcard-gap"><div class="avatars"><img class="avatar" src="../../kit/assets/marks/mark-001.webp" alt=""><img class="avatar" src="../../kit/assets/marks/mark-007.webp" alt=""><img class="avatar" src="../../kit/assets/marks/mark-012.webp" alt=""></div><span class="xcard-meta">1.2 万人参加</span></div><button class="btn btn--primary btn--sm btn--pill" data-xcard-t="已报名">去参加</button></div></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="AP-CARD-028" data-name="资讯图文卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">资讯图文卡</span></div>
+  <p class="demo__note">适合：养护知识与花艺资讯的图文列表</p>
+  <div class="demo__stage"><div class="card card--press xcard-news xcard-w" role="button" tabindex="0" style="text-align: left; cursor: pointer" data-xcard-t="已打开资讯">
+    <div class="xcard-news__main"><span class="xcard-name one-line">雨季绿植养护要点</span><div class="xcard-tags"><span class="tag" data-tone="success">养护</span><span class="tag">3 分钟读完</span></div><span class="xcard-meta">阅读 2.3 万</span></div>
+    <img src="../../kit/assets/photo/bg-green.webp" alt="">
+  </div></div>
+</article>
+
+<article class="demo" data-cid="AP-CARD-029" data-name="品牌故事卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">品牌故事卡</span></div>
+  <p class="demo__note">适合：品牌页，用三个事实数字建立信任</p>
+  <div class="demo__stage"><div class="card card--image xcard-brand xcard-w">
+    <div class="card__media"><img src="../../kit/assets/photo/bg-floral.webp" alt=""></div>
+    <div class="xcard-body" style="padding: var(--s-4); gap: var(--s-2)"><span class="xcard-name" style="font-size: var(--fs-lg)">关于花间集</span>
+      <div class="stats"><div class="stat"><span class="stat__label">门店</span><span class="stat__val">3<small>家</small></span></div><div class="stat"><span class="stat__label">花材直采</span><span class="stat__val">12<small>地</small></span></div><div class="stat"><span class="stat__label">好评率</span><span class="stat__val">98<small>%</small></span></div></div></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="AP-CARD-030" data-name="种草笔记卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">种草笔记卡</span></div>
+  <p class="demo__note">适合：社区笔记流，竖图加作者与点赞</p>
+  <div class="demo__stage"><div class="card card--lift xcard-note">
+    <img src="../../kit/assets/photo/bouquet-tulip.webp" alt="">
+    <div class="xcard-note__body"><span class="xcard-name one-line">三步养好郁金香</span>
+      <div class="xcard-note__by"><img class="avatar" src="../../kit/assets/marks/mark-012.webp" alt=""><span>小周</span><button class="xcard-like" aria-label="点赞" aria-pressed="false" data-xcard-like><img data-ic="heart" src="../../kit/assets/icons/flat/heart.webp" alt=""><span>326</span></button></div></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="AP-CARD-031" data-name="新品主推大卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">新品主推大卡</span></div>
+  <p class="demo__note">适合：首页新品位，场景大图加悬浮商品条</p>
+  <div class="demo__stage"><div class="card card--image xcard-feat xcard-w">
+    <span class="tag card__corner" data-tone="action">新品首发</span>
+    <div class="xcard-feat__plate"><img src="../../kit/assets/photo/product-peony-pink.webp" alt=""><div><span class="xcard-name one-line">粉芍药花束</span><span class="price"><small>¥</small>239</span></div><button class="btn btn--primary btn--sm btn--pill" data-xcard-t="已加入购物车">加购</button></div>
+  </div></div>
+</article>
+
+<!-- ══ 人、任务与数据 ══ -->
+<article class="demo" data-cid="AP-CARD-032" data-name="客户标识行卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">客户标识行卡</span></div>
+  <p class="demo__note">适合：客户列表，用固定标识区分不同客户</p>
+  <div class="demo__stage"><div class="card xcard-cus xcard-w">
+    <img class="avatar" src="../../kit/assets/marks/mark-001.webp" alt="">
+    <div style="display: grid; gap: 4px; min-width: 0"><span class="xcard-gap"><span class="xcard-name">林晓</span><span class="tag xcard-gold">金卡会员</span></span><span class="xcard-meta one-line">累计消费 ¥6,280</span></div>
+    <button class="btn btn--secondary btn--xs" data-xcard-t="已打开会话">联系</button>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="AP-CARD-033" data-name="任务清单卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">任务清单卡</span></div>
+  <p class="demo__note">适合：门店待办，勾选后进度与状态同步更新</p>
+  <div class="demo__stage"><div class="card xcard-task xcard-w" data-xcard-task>
+    <div class="xcard-task__head"><img data-ic="bag" src="../../kit/assets/icons/flat/bag.webp" alt=""><div style="display: grid; gap: 2px"><span class="xcard-name">拣选待发订单</span><span class="xcard-meta" data-task-txt>已完成 1 / 3</span></div><span class="tag" data-tone="info" data-task-tag>进行中</span></div>
+    <div class="progress" style="--v: 33%" data-task-bar><i></i></div>
+    <ul>
+      <li class="is-done"><span class="check" role="checkbox" aria-checked="true" aria-label="核对订单"><img src="../../kit/assets/line/check.webp" alt=""></span><span>核对订单</span></li>
+      <li><span class="check" role="checkbox" aria-checked="false" aria-label="挑选花材"><img src="../../kit/assets/line/check.webp" alt=""></span><span>挑选花材</span></li>
+      <li><span class="check" role="checkbox" aria-checked="false" aria-label="包装封箱"><img src="../../kit/assets/line/check.webp" alt=""></span><span>包装封箱</span></li>
+    </ul>
+    <div class="xcard-task__foot"><div class="avatars"><img class="avatar" src="../../kit/assets/marks/mark-003.webp" alt=""><img class="avatar" src="../../kit/assets/marks/mark-015.webp" alt=""></div><span class="xcard-meta">老陈 苏苏</span></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="AP-CARD-034" data-name="数据指标卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">数据指标卡</span></div>
+  <p class="demo__note">适合：店长首页的经营概览，上标题下数字</p>
+  <div class="demo__stage"><div class="card xcard-w"><div class="stats">
+    <div class="stat"><span class="stat__label">成交额</span><span class="stat__val">8640<small>元</small></span><span class="stat__delta" data-tone="up">较昨天 12%</span></div>
+    <div class="stat"><span class="stat__label">订单量</span><span class="stat__val">126<small>单</small></span><span class="stat__delta" data-tone="up">较昨天 8%</span></div>
+    <div class="stat"><span class="stat__label">客单价</span><span class="stat__val">68.6<small>元</small></span><span class="stat__delta" data-tone="down">较昨天 3%</span></div>
+  </div></div></div>
+</article>
+
+<article class="demo" data-cid="AP-CARD-035" data-name="头像堆叠卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">头像堆叠卡</span></div>
+  <p class="demo__note">适合：拼单与邀请，成员头像重叠排列</p>
+  <div class="demo__stage"><div class="card xcard-av xcard-w">
+    <div class="avatars"><img class="avatar" src="../../kit/assets/marks/mark-001.webp" alt=""><img class="avatar" src="../../kit/assets/marks/mark-007.webp" alt=""><img class="avatar" src="../../kit/assets/marks/mark-012.webp" alt=""><img class="avatar" src="../../kit/assets/marks/mark-015.webp" alt=""><span class="xcard-more">+4</span></div>
+    <div class="xcard-av__main"><span class="xcard-name">好友在拼单</span><span class="xcard-meta">8 位好友已加入</span></div>
+    <button class="btn btn--outline btn--sm btn--pill" data-xcard-t="邀请已发送">邀请</button>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="AP-CARD-036" data-name="通知堆叠卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">通知堆叠卡</span></div>
+  <p class="demo__note">适合：同类通知折叠展示，点按展开全部</p>
+  <div class="demo__stage"><div class="xcard-w" data-xcard-nstack>
+    <div class="xcard-nstack" id="xcard-nstack-1">
+      <div class="card xcard-n"><img data-ic="scooter" src="../../kit/assets/icons/flat/scooter.webp" alt=""><div><b class="xcard-name one-line">订单已发货</b><span class="xcard-meta one-line">红玫瑰花束已由骑手取走</span></div><span class="xcard-meta">刚刚</span></div>
+      <div class="card xcard-n"><img data-ic="coupon" src="../../kit/assets/icons/flat/coupon.webp" alt=""><div><b class="xcard-name one-line">优惠券即将过期</b><span class="xcard-meta one-line">鲜花通用券还剩 1 天</span></div><span class="xcard-meta">1 小时前</span></div>
+      <div class="card xcard-n"><img data-ic="bouquet" src="../../kit/assets/icons/flat/bouquet.webp" alt=""><div><b class="xcard-name one-line">新品上架</b><span class="xcard-meta one-line">粉芍药花束现已开售</span></div><span class="xcard-meta">昨天</span></div>
+    </div>
+    <div class="xcard-nbar"><button class="btn btn--text" aria-expanded="false" aria-controls="xcard-nstack-1" data-nbtn>展开全部</button></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="AP-CARD-037" data-name="可展开详情卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">可展开详情卡</span></div>
+  <p class="demo__note">适合：商品规格等次要信息，就近展开不跳页</p>
+  <div class="demo__stage"><div class="card list xcard-w">
+    <button class="row row--link" data-expand="xcard-ex-1"><div class="row__main"><p class="row__title">商品规格</p><p class="row__meta">花材 包装 保鲜期</p></div><span class="row__trail chev"></span></button>
+    <div class="expand" id="xcard-ex-1" data-open="false"><div><div class="expand__body xcard-ex__body">
+      <div class="xcard-kv"><span>花材</span><b>红玫瑰 11 枝</b></div><div class="xcard-kv"><span>包装</span><b>牛皮纸 丝带</b></div><div class="xcard-kv"><span>保鲜期</span><b>7 天</b></div><div class="xcard-kv"><span>产地</span><b>云南</b></div>
+    </div></div></div>
+  </div></div>
+</article>
+
+<!-- ══ 状态与营销 ══ -->
+<article class="demo" data-cid="AP-CARD-038" data-name="骨架占位卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">骨架占位卡</span></div>
+  <p class="demo__note">适合：数据加载中，保持与成品卡相同的版式</p>
+  <div class="demo__stage"><div class="xcard-w" data-xcard-skel style="display: grid; gap: var(--s-3); justify-items: center">
+    <div class="card xcard-skel" style="width: 100%" data-skel-a aria-hidden="true"><div class="skel"></div><div class="xcard-skel__main"><div class="skel"></div><div class="skel"></div><div class="skel"></div></div></div>
+    <div class="card xcard-h" style="width: 100%" data-skel-b hidden><img src="../../kit/assets/photo/product-pampas-vase.webp" alt=""><div class="xcard-h__main"><div><span class="xcard-name one-line" style="display:block">干花花瓶摆件</span><div class="xcard-tags" style="margin-top: var(--s-1)"><span class="tag">干花</span></div></div><span class="price"><small>¥</small>129</span></div></div>
+    <button class="btn btn--secondary btn--sm btn--pill" data-skel-go>加载完成</button>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="AP-CARD-039" data-name="空态卡片" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">空态卡片</span></div>
+  <p class="demo__note">适合：收藏、购物车等无内容时给出对象与出口</p>
+  <div class="demo__stage"><div class="card xcard-emp xcard-w"><div class="empty"><img data-ic="vase" src="../../kit/assets/icons/flat/vase.webp" alt=""><strong>收藏夹还是空的</strong><button class="btn btn--secondary btn--sm btn--pill" data-xcard-t="已打开分类">去逛逛</button></div></div></div>
+</article>
+
+<article class="demo" data-cid="AP-CARD-040" data-name="周期订花卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">周期订花卡</span></div>
+  <p class="demo__note">适合：订阅类商品，切换频率价格同步更新</p>
+  <div class="demo__stage"><div class="card xcard-sub xcard-w" data-xcard-sub>
+    <div class="xcard-sub__head"><img data-ic="vase" src="../../kit/assets/icons/flat/vase.webp" alt=""><div style="display: grid; gap: 2px"><span class="xcard-name" style="font-size: var(--fs-lg)">鲜花订阅</span><span class="xcard-meta">每期当季花材</span></div><span class="price xcard-big" style="margin-left: auto" data-sub-price><small style="font-size: var(--fs-sm)">¥</small>99</span></div>
+    <div class="btn-seg" data-sub-seg><button aria-pressed="true" data-price="99">每周</button><button aria-pressed="false" data-price="109">每两周</button><button aria-pressed="false" data-price="129">每月</button></div>
+    <button class="btn btn--primary btn--block" data-xcard-t="订阅成功">立即订阅</button>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="AP-CARD-041" data-name="积分兑换卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">积分兑换卡</span></div>
+  <p class="demo__note">适合：积分商城，所需积分与库存并列，兑换先确认</p>
+  <div class="demo__stage"><div class="card xcard-pts xcard-w">
+    <img src="../../kit/assets/photo/product-pampas-vase.webp" alt="">
+    <div class="xcard-pts__main">
+      <div style="display: grid; gap: var(--s-1)"><span class="xcard-name one-line">干花花瓶摆件</span><span class="tag" data-tone="warning" style="width: fit-content">仅剩 12 件</span></div>
+      <div class="xcard-between"><span class="xcard-pts__cost"><img data-ic="star" src="../../kit/assets/icons/flat/star.webp" alt="">1200<small>积分</small></span><button class="btn btn--accent btn--sm btn--pill" data-xcard-redeem>兑换</button></div>
+    </div>
+  </div></div>
+</article>
+
+<script>
+(function () {
+  const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const D = id => $(`[data-cid="${id}"]`);
+  const money = n => n.toLocaleString('zh-CN');
+
+  $$('[data-xcard-t]').forEach(b => {
+    b.addEventListener('click', () => Lz.toast(b.dataset.xcardT, 'success'));
+    if (b.getAttribute('role') === 'button') b.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); b.click(); } });
+  });
+
+  /* 收藏心形与收藏行 */
+  $$('[data-xcard-fav]').forEach(b => b.addEventListener('click', e => {
+    e.preventDefault();
+    const on = b.getAttribute('aria-pressed') !== 'true';
+    b.setAttribute('aria-pressed', String(on)); b.setAttribute('aria-label', on ? '取消收藏' : '收藏'); b.dataset.tip = on ? '取消收藏' : '收藏';
+    const row = b.closest('[data-xcard-fl]'); if (row) row.classList.toggle('is-off', !on);
+    Lz.toast(on ? '已收藏' : '已取消收藏', on ? 'success' : 'neutral');
+  }));
+  $$('[data-xcard-like]').forEach(b => b.addEventListener('click', () => {
+    const on = b.getAttribute('aria-pressed') !== 'true', n = $('span', b);
+    b.setAttribute('aria-pressed', String(on)); n.textContent = (+n.textContent) + (on ? 1 : -1);
+  }));
+
+  /* 限时抢购：倒计时与进度 */
+  $$('[data-cd]').forEach(el => {
+    let s = +el.dataset.cd; const cells = $$('b', el), pad = n => String(n).padStart(2, '0');
+    const paint = () => { cells[0].textContent = pad(Math.floor(s / 3600)); cells[1].textContent = pad(Math.floor(s % 3600 / 60)); cells[2].textContent = pad(s % 60); };
+    setInterval(() => { if (s > 0) { s -= 1; paint(); } }, 1000);
+  });
+  $$('[data-xcard-flash]').forEach(c => {
+    const bar = $('.progress', c), txt = $('[data-flash-pct]', c), go = $('[data-flash-go]', c); let v = 72;
+    go.addEventListener('click', () => {
+      v = Math.min(100, v + 7); bar.style.setProperty('--v', v + '%'); txt.textContent = v >= 100 ? '已抢光' : `已抢 ${v}%`;
+      if (v >= 100) { go.disabled = true; go.textContent = '已抢光'; } else Lz.toast('抢购成功', 'success');
+    });
+  });
+
+  /* 拼团 */
+  $$('[data-xcard-group]').forEach(c => {
+    const slot = $('[data-slot]', c), txt = $('[data-group-txt]', c), go = $('[data-group-go]', c);
+    go.addEventListener('click', () => {
+      const img = document.createElement('img'); img.className = 'avatar'; img.alt = ''; img.src = '../../kit/assets/marks/mark-019.webp';
+      slot.replaceWith(img); txt.textContent = '已成团'; go.disabled = true; go.textContent = '已加入'; Lz.toast('拼团成功', 'success');
+    });
+  });
+
+  /* 加购条：加购后变数量步进 */
+  $$('[data-xcard-add]').forEach(c => {
+    const slot = $('.xcard-addslot', c); const first = slot.innerHTML;
+    const stepper = n => `<div class="xcard-step"><button class="xcard-step__m" aria-label="减少数量" data-tip="减少数量"></button><b>${n}</b><button class="xcard-step__p" aria-label="增加数量" data-tip="增加数量"><img src="../../kit/assets/line/add.webp" alt=""></button></div>`;
+    let n = 0; const paint = () => { slot.innerHTML = n ? stepper(n) : first; };
+    slot.addEventListener('click', e => {
+      if (e.target.closest('[data-add-first]')) { n = 1; paint(); $('.xcard-step__p', slot).focus(); }
+      else if (e.target.closest('.xcard-step__p')) { n = Math.min(99, n + 1); paint(); $('.xcard-step__p', slot).focus(); }
+      else if (e.target.closest('.xcard-step__m')) { n -= 1; paint(); (n ? $('.xcard-step__m', slot) : $('[data-add-first]', slot)).focus(); }
+    });
+  });
+
+  /* 三态优惠券 */
+  $$('[data-tri-get]').forEach(b => b.addEventListener('click', () => {
+    const card = b.closest('.xcard-tri'); card.classList.add('is-got'); b.disabled = true; b.textContent = '已领取'; Lz.toast('已领取', 'success');
+  }));
+
+  /* 签到 */
+  $$('[data-xcard-sign]').forEach(c => {
+    const go = $('[data-sign-go]', c), today = $('[data-sign-today]', c), n = $('[data-sign-n]', c);
+    go.addEventListener('click', () => {
+      today.classList.remove('is-now'); today.classList.add('is-done'); const im = $('img', today); im.removeAttribute('style'); im.classList.add('xcard-ck');
+      n.textContent = '4'; go.disabled = true; go.textContent = '已签到'; Lz.toast('签到成功 积分加 10', 'success');
+    });
+  });
+
+  /* 钱包余额显隐 */
+  $$('[data-xcard-wallet]').forEach(c => {
+    const eye = $('[data-wallet-eye]', c), amt = $('[data-wallet-amt]', c); const shown = amt.innerHTML;
+    eye.addEventListener('click', () => {
+      const hide = eye.getAttribute('aria-pressed') !== 'true'; eye.setAttribute('aria-pressed', String(hide));
+      eye.textContent = hide ? '显示' : '隐藏'; amt.innerHTML = hide ? '<small>¥</small>****' : shown;
+    });
+  });
+
+  /* 收货地址选中 */
+  $$('[data-xcard-addr]').forEach(c => {
+    const flip = e => { if (e.target.closest('.ibtn')) return; const on = c.getAttribute('aria-checked') !== 'true'; c.setAttribute('aria-checked', String(on)); };
+    c.addEventListener('click', flip); c.addEventListener('keydown', e => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); flip(e); } });
+  });
+
+  /* 评价分布筛选 */
+  $$('[data-xcard-rows]').forEach(g => $$('.xcard-row', g).forEach(b => b.addEventListener('click', () => $$('.xcard-row', g).forEach(x => x.setAttribute('aria-pressed', String(x === b && x.getAttribute('aria-pressed') !== 'true'))))));
+
+  /* 营业提醒 */
+  $$('[data-remind]').forEach(b => b.addEventListener('click', () => {
+    const on = b.getAttribute('aria-pressed') !== 'true'; b.setAttribute('aria-pressed', String(on)); b.textContent = on ? '已设提醒' : '营业提醒';
+    Lz.toast(on ? '营业后会通知你' : '已取消提醒', on ? 'success' : 'neutral');
+  }));
+
+  /* 任务清单 */
+  $$('[data-xcard-task]').forEach(c => {
+    const bar = $('[data-task-bar]', c), txt = $('[data-task-txt]', c), tag = $('[data-task-tag]', c), items = $$('li', c);
+    const sync = () => {
+      const done = items.filter(li => $('.check', li).getAttribute('aria-checked') === 'true').length;
+      items.forEach(li => li.classList.toggle('is-done', $('.check', li).getAttribute('aria-checked') === 'true'));
+      bar.style.setProperty('--v', Math.round(done / items.length * 100) + '%'); txt.textContent = `已完成 ${done} / ${items.length}`;
+      tag.textContent = done === items.length ? '已完成' : '进行中'; tag.dataset.tone = done === items.length ? 'success' : 'info';
+    };
+    c.addEventListener('lz:toggle', sync);
+    items.forEach(li => $('span:last-child', li).addEventListener('click', () => $('.check', li).click()));
+    sync();
+  });
+
+  /* 通知堆叠 */
+  $$('[data-xcard-nstack]').forEach(w => {
+    const st = $('.xcard-nstack', w), btn = $('[data-nbtn]', w);
+    const set = open => { st.classList.toggle('is-open', open); btn.setAttribute('aria-expanded', String(open)); btn.textContent = open ? '收起' : '展开全部'; };
+    st.addEventListener('click', () => set(!st.classList.contains('is-open'))); btn.addEventListener('click', () => set(!st.classList.contains('is-open')));
+  });
+
+  /* 骨架切换 */
+  $$('[data-xcard-skel]').forEach(w => {
+    const a = $('[data-skel-a]', w), b = $('[data-skel-b]', w), go = $('[data-skel-go]', w); let loaded = false, t;
+    go.addEventListener('click', () => {
+      if (loaded) { loaded = false; b.hidden = true; a.hidden = false; go.textContent = '加载完成'; return; }
+      go.disabled = true; go.textContent = '加载中'; t = setTimeout(() => { loaded = true; a.hidden = true; b.hidden = false; go.disabled = false; go.textContent = '重新加载'; }, 900);
+    });
+  });
+
+  /* 订阅频率 */
+  $$('[data-xcard-sub]').forEach(c => {
+    const seg = $('[data-sub-seg]', c), price = $('[data-sub-price]', c);
+    $$('button', seg).forEach(b => b.addEventListener('click', () => { $$('button', seg).forEach(x => x.setAttribute('aria-pressed', String(x === b))); price.innerHTML = `<small style="font-size: var(--fs-sm)">¥</small>${b.dataset.price}`; }));
+  });
+
+  /* 积分兑换 */
+  $$('[data-xcard-redeem]').forEach(b => b.addEventListener('click', async () => {
+    if (await Lz.confirm({ title: '确认兑换干花花瓶摆件', body: '将扣除 1200 积分', ok: '确认兑换' })) Lz.toast('兑换成功', 'success');
+  }));
+})();
+</script>
+
+<style>
+/* 新增卡片：二维码 qr、多图横滑 cr、手风琴 ac、视频 vd、评论 cm、键值 ds、宫格 gw、音频 au、电子卡 ec、文章 ar */
+
+/* 二维码核销卡 */
+.xcard-qr { display: grid; gap: var(--s-4); padding: var(--s-4); }
+.xcard-qr .btn-seg { display: flex; }
+.xcard-qr .btn-seg button { flex: 1; }
+.xcard-qr__head { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); }
+.xcard-qr__head > div { display: grid; gap: 2px; min-width: 0; }
+.xcard-qr__frame { position: relative; display: grid; place-items: center; justify-self: center; width: 192px; height: 192px; padding: var(--s-3); border-radius: var(--r-md); background: var(--surface); box-shadow: inset 0 0 0 1px var(--line-strong); }
+.xcard-qr__frame canvas { display: block; transition: opacity var(--dur-base) var(--ease-out); }
+.xcard-qr__stamp { position: absolute; inset: 0; display: none; place-items: center; }
+.xcard-qr__stamp b { padding: var(--s-1) var(--s-4); border: 2px solid var(--ink-3); border-radius: var(--r-md); background: var(--surface); color: var(--ink-2); font-size: var(--fs-xl); font-weight: 700; line-height: var(--lh-tight); }
+.xcard-qr[data-state="used"] canvas { opacity: .1; }
+.xcard-qr[data-state="used"] .xcard-qr__stamp { display: grid; }
+.xcard-qr__code { text-align: center; font-size: var(--fs-lg); font-weight: 600; letter-spacing: .08em; font-variant-numeric: tabular-nums; }
+.xcard-qr[data-state="used"] .xcard-qr__code { color: var(--ink-3); text-decoration: line-through; }
+.xcard-qr__foot { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); min-height: 32px; }
+
+/* 多图横滑浏览卡 */
+.xcard-cr { padding: var(--s-3) 0 var(--s-2); overflow: hidden; }
+.xcard-cr__track { display: flex; gap: var(--s-2); padding: var(--s-2) calc(50% - 95px); overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; cursor: grab; }
+.xcard-cr__track::-webkit-scrollbar { display: none; }
+.xcard-cr__track.is-drag { scroll-snap-type: none; cursor: grabbing; }
+.xcard-cr__track:focus-visible { outline-offset: -3px; border-radius: var(--r-lg); }
+.xcard-cr__it { position: relative; flex: none; width: 190px; height: 236px; border-radius: var(--r-lg); overflow: hidden; background: var(--zone); scroll-snap-align: center; transform: scale(.86); opacity: .78; }
+.xcard-cr__it > img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+.xcard-cr__cap { position: absolute; left: var(--s-2); right: var(--s-2); bottom: var(--s-2); display: flex; align-items: center; justify-content: space-between; gap: var(--s-2); padding: var(--s-2) var(--s-3); border-radius: var(--r-md); background: var(--surface); box-shadow: var(--elev-1); text-align: left; }
+.xcard-cr__cap b { min-width: 0; font-size: var(--fs-sm); font-weight: 600; line-height: var(--lh-tight); }
+.xcard-cr__dots { display: flex; justify-content: center; gap: 2px; }
+.xcard-cr__dot { display: grid; place-items: center; width: 28px; height: 24px; }
+.xcard-cr__dot::after { content: ""; width: 6px; height: 6px; border-radius: 3px; background: var(--line-strong); transition: width var(--dur-base) var(--ease-out), background var(--dur-base) var(--ease-out); }
+.xcard-cr__dot[aria-current="true"]::after { width: 18px; background: var(--action); }
+
+/* 手风琴折叠组 */
+.xcard-ac .row[disabled] { cursor: not-allowed; opacity: .55; }
+.xcard-ac .row[disabled]:hover { background: none; }
+.xcard-ac__body { display: grid; gap: var(--s-2); font-size: var(--fs-sm); color: var(--ink-2); line-height: var(--lh-body); }
+
+/* 视频播放卡 */
+.xcard-vd { overflow: hidden; }
+.xcard-vd__screen { position: relative; aspect-ratio: 16 / 9; overflow: hidden; background: var(--zone); }
+.xcard-vd__screen > img { width: 100%; height: 100%; object-fit: cover; }
+.xcard-vd__play { position: absolute; left: 50%; top: 50%; display: grid; place-items: center; width: 56px; height: 56px; margin: -28px 0 0 -28px; border-radius: 50%; background: var(--surface); box-shadow: var(--elev-3); transition: opacity var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-spring); }
+.xcard-vd__play img { width: 24px; height: 24px; }
+.xcard-vd__play:active { transform: scale(.94); }
+.xcard-vd[data-state="playing"] .xcard-vd__play { opacity: 0; pointer-events: none; transform: scale(.8); }
+.xcard-vd__screen .xcard-chip { position: absolute; top: var(--s-2); right: var(--s-2); font-variant-numeric: tabular-nums; }
+.xcard-vd__ctl { position: absolute; left: 0; right: 0; bottom: 0; display: flex; align-items: center; gap: var(--s-3); padding: var(--s-6) var(--s-3) var(--s-2); color: var(--surface); background: linear-gradient(180deg, transparent 0%, color-mix(in srgb, var(--ink) 66%, transparent) 100%); transition: opacity var(--dur-base) var(--ease-out); }
+.xcard-vd[data-state="ready"] .xcard-vd__ctl { opacity: 0; visibility: hidden; }
+.xcard-vd__pp { display: grid; place-items: center; flex: none; width: 32px; height: 32px; }
+.xcard-vd__pp img, .xcard-vd__ctl .xcard-chip img { width: 20px; height: 20px; filter: invert(1); }
+.xcard-vd__bar { position: relative; flex: 1; min-width: 0; display: flex; align-items: center; height: 28px; cursor: pointer; }
+.xcard-vd__bar::before { content: ""; position: absolute; left: 0; right: 0; height: 4px; border-radius: 2px; background: color-mix(in srgb, var(--surface) 38%, transparent); }
+.xcard-vd__bar i { position: absolute; left: 0; height: 4px; width: var(--p, 0%); border-radius: 2px; background: var(--surface); }
+.xcard-vd__time { font-size: var(--fs-xs); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.xcard-vd__rate { flex: none; min-height: 28px; padding: 0 var(--s-2); border-radius: var(--r-full); background: color-mix(in srgb, var(--surface) 24%, transparent); color: var(--surface); font-size: var(--fs-xs); font-weight: 600; white-space: nowrap; }
+.xcard-vd__info { display: grid; gap: var(--s-1); padding: var(--s-3) var(--s-4) var(--s-4); }
+
+/* 评论回复卡 */
+.xcard-cm { display: grid; grid-template-columns: 40px minmax(0, 1fr); column-gap: var(--s-3); padding: var(--s-4); }
+.xcard-cm .avatar { width: 40px; height: 40px; padding: 5px; background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); }
+.xcard-cm__main { display: grid; gap: var(--s-2); min-width: 0; }
+.xcard-cm__who { display: flex; align-items: center; justify-content: space-between; gap: var(--s-2); min-height: 40px; }
+.xcard-cm__acts { display: flex; align-items: center; gap: var(--s-2); }
+.xcard-cm__acts .btn--text { min-height: 32px; font-size: var(--fs-sm); color: var(--ink-3); }
+.xcard-cm__replies { display: grid; gap: var(--s-3); padding: var(--s-3); border-radius: var(--r-md); background: var(--zone); }
+.xcard-cm__rh { display: flex; align-items: center; justify-content: space-between; gap: var(--s-2); font-size: var(--fs-sm); font-weight: 600; color: var(--ink-2); }
+.xcard-cm .btn-seg { padding: 2px; border-radius: var(--r-sm); background: var(--surface); }
+.xcard-cm .btn-seg button { min-height: 28px; padding: 0 var(--s-2); border-radius: 6px; font-size: var(--fs-xs); }
+.xcard-cm__r { display: grid; grid-template-columns: 28px minmax(0, 1fr); column-gap: var(--s-2); }
+.xcard-cm__r .avatar { width: 28px; height: 28px; padding: 3px; }
+.xcard-cm__rb { display: grid; gap: 2px; min-width: 0; }
+.xcard-cm__rb p { font-size: var(--fs-sm); line-height: var(--lh-body); }
+.xcard-cm__ra { display: flex; align-items: center; justify-content: space-between; gap: var(--s-2); }
+.xcard-cm__more { justify-self: start; min-height: 28px; padding: 0; font-size: var(--fs-sm); }
+
+/* 键值描述卡 */
+.xcard-ds { display: grid; padding: var(--s-4); }
+.xcard-ds__head { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); padding-bottom: var(--s-2); }
+.xcard-ds__r { display: grid; grid-template-columns: 76px minmax(0, 1fr); align-items: center; column-gap: var(--s-3); min-height: 44px; border-top: 1px solid var(--line); }
+.xcard-ds dt { font-size: var(--fs-sm); color: var(--ink-3); }
+.xcard-ds dd { display: flex; align-items: center; justify-content: space-between; gap: var(--s-2); margin: 0; min-width: 0; font-size: var(--fs-md); }
+.xcard-ds dd .btn--text { flex: none; min-height: 28px; padding: 0 var(--s-1); font-size: var(--fs-sm); }
+.xcard-ds__fold { justify-self: center; margin-top: var(--s-1); }
+
+/* 图片宫格墙 */
+.xcard-gw { display: grid; gap: var(--s-3); padding: var(--s-4); }
+.xcard-gw__view { position: relative; aspect-ratio: 4 / 3; overflow: hidden; border-radius: var(--r-md); background: var(--zone); }
+.xcard-gw__view > img { width: 100%; height: 100%; object-fit: cover; }
+.xcard-gw__view .xcard-chip { position: absolute; right: var(--s-2); bottom: var(--s-2); font-variant-numeric: tabular-nums; }
+.xcard-gw__nav { position: absolute; top: 50%; margin-top: -20px; }
+.xcard-gw__nav[data-dir="prev"] { left: var(--s-2); }
+.xcard-gw__nav[data-dir="next"] { right: var(--s-2); }
+.xcard-gw__nav[data-dir="next"] img { transform: rotate(180deg); }
+.xcard-gw__nav[disabled] { opacity: .35; pointer-events: none; }
+.xcard-gw__grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s-2); }
+.xcard-gw__c { position: relative; aspect-ratio: 1; overflow: hidden; border-radius: var(--r-md); background: var(--zone); transition: box-shadow var(--dur-quick) var(--ease-out); }
+.xcard-gw__c img { width: 100%; height: 100%; object-fit: cover; }
+.xcard-gw__c[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--action); }
+.xcard-gw__more { position: absolute; inset: 0; display: grid; place-items: center; background: color-mix(in srgb, var(--ink) 52%, transparent); color: var(--surface); font-size: var(--fs-lg); font-weight: 600; font-variant-numeric: tabular-nums; }
+.xcard-gw__fold { justify-self: center; }
+
+/* 音频播放条 */
+.xcard-au { display: grid; gap: var(--s-4); padding: var(--s-4); }
+.xcard-au__voice { display: flex; align-items: center; gap: var(--s-3); }
+.xcard-au__voice .avatar { width: 40px; height: 40px; padding: 5px; background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); }
+.xcard-au__pill { display: flex; align-items: center; gap: var(--s-3); flex: 1; min-width: 0; height: 48px; padding: 0 var(--s-4) 0 6px; border-radius: var(--r-full); background: var(--action-tint); box-shadow: inset 0 0 0 1px var(--action-edge); }
+.xcard-au__go { display: grid; place-items: center; flex: none; width: 36px; height: 36px; border-radius: 50%; background: var(--action); }
+.xcard-au__go img { width: 18px; height: 18px; filter: invert(1); }
+.xcard-au__wave { display: flex; align-items: center; justify-content: space-between; flex: 1; min-width: 0; height: 28px; }
+.xcard-au__wave i { width: 3px; height: var(--h); border-radius: 2px; background: color-mix(in srgb, var(--action) 30%, var(--surface)); transition: background var(--dur-quick) var(--ease-out); }
+.xcard-au__wave i.is-on { background: var(--action); }
+.xcard-au__sec { font-size: var(--fs-sm); font-weight: 600; font-variant-numeric: tabular-nums; color: var(--action-press); white-space: nowrap; }
+.xcard-au__unread { width: 8px; height: 8px; border-radius: 50%; background: var(--danger); flex: none; }
+.xcard-au__course { display: grid; gap: var(--s-3); }
+.xcard-au__course::before { content: ""; height: 1px; margin-bottom: var(--s-1); background: var(--line); }
+.xcard-au__meta { display: flex; align-items: center; gap: var(--s-3); }
+.xcard-au__meta > img { width: 56px; height: 56px; border-radius: var(--r-md); object-fit: cover; flex: none; }
+.xcard-au__meta > div { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.xcard-au__rate { flex: none; min-height: 32px; padding: 0 var(--s-3); border-radius: var(--r-full); background: var(--zone); font-size: var(--fs-sm); font-weight: 600; color: var(--action-press); }
+.xcard-au__bar { position: relative; display: flex; align-items: center; height: 24px; cursor: pointer; }
+.xcard-au__bar::before { content: ""; position: absolute; left: 0; right: 0; height: 6px; border-radius: 3px; background: var(--zone); }
+.xcard-au__bar i { position: absolute; left: 0; height: 6px; width: var(--p, 0%); border-radius: 3px; background: var(--action); }
+.xcard-au__times { display: flex; justify-content: space-between; font-size: var(--fs-xs); color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.xcard-au__ctl { display: flex; align-items: center; justify-content: center; gap: var(--s-6); }
+.xcard-au__pp { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; background: var(--action); box-shadow: var(--elev-2); }
+.xcard-au__pp img { width: 24px; height: 24px; filter: invert(1); }
+.xcard-au__skip img { width: 24px; height: 24px; }
+.xcard-au__skip[data-dir="fwd"] img { transform: scaleX(-1); }
+
+/* 虚拟电子卡 */
+.xcard-ec { display: grid; gap: var(--s-4); padding: var(--s-4); }
+.xcard-ec .btn-seg { display: flex; }
+.xcard-ec .btn-seg button { flex: 1; }
+.xcard-ec__face { display: grid; gap: var(--s-5); padding: var(--s-5); border-radius: var(--r-lg); color: var(--surface); background: linear-gradient(150deg, var(--action-press) 0%, color-mix(in srgb, var(--action-press) 88%, var(--action)) 100%); transition: background var(--dur-base) var(--ease-out), color var(--dur-base) var(--ease-out); }
+.xcard-ec__top { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); }
+.xcard-ec__kind { font-size: var(--fs-md); font-weight: 600; }
+.xcard-ec__top img { width: 48px; height: 48px; object-fit: contain; filter: drop-shadow(0 6px 10px color-mix(in srgb, var(--ink) 25%, transparent)); }
+.xcard-ec__amtbox { display: grid; gap: var(--s-1); }
+.xcard-ec__cap { font-size: var(--fs-sm); color: color-mix(in srgb, var(--surface) 84%, transparent); }
+.xcard-ec__amt { font-size: var(--fs-3xl); font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+.xcard-ec__amt small { margin-right: 2px; font-size: var(--fs-md); font-weight: 600; }
+.xcard-ec__bot { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); }
+.xcard-ec__no { font-size: var(--fs-sm); letter-spacing: .08em; font-variant-numeric: tabular-nums; }
+.xcard-ec__bot .tag { background: color-mix(in srgb, var(--surface) 24%, transparent); color: var(--surface); }
+.xcard-ec[data-state="used"] .xcard-ec__face { background: var(--zone); color: var(--ink-3); }
+.xcard-ec[data-state="used"] .xcard-ec__cap { color: var(--ink-3); }
+.xcard-ec[data-state="used"] .xcard-ec__top img { filter: grayscale(1) opacity(.45); }
+.xcard-ec[data-state="used"] .xcard-ec__bot .tag { background: var(--surface); color: var(--ink-3); }
+.xcard-ec__row { display: grid; grid-template-columns: 48px minmax(0, 1fr) auto; align-items: center; column-gap: var(--s-3); min-height: 44px; border-top: 1px solid var(--line); }
+.xcard-ec__row > span { font-size: var(--fs-sm); color: var(--ink-3); }
+.xcard-ec__row > b { font-size: var(--fs-md); font-weight: 600; letter-spacing: .04em; font-variant-numeric: tabular-nums; }
+.xcard-ec__row .btn--text { min-height: 28px; padding: 0 var(--s-1); font-size: var(--fs-sm); }
+
+/* 文章阅读排版 */
+.xcard-ar { --ar-fs: var(--fs-md); display: grid; overflow: hidden; }
+.xcard-ar[data-size="sm"] { --ar-fs: var(--fs-sm); }
+.xcard-ar[data-size="lg"] { --ar-fs: var(--fs-lg); }
+.xcard-ar__prog { height: 3px; background: var(--zone); }
+.xcard-ar__prog i { display: block; width: var(--v, 0%); height: 100%; background: var(--action); transition: width var(--dur-quick) linear; }
+.xcard-ar__sc { display: grid; align-content: start; gap: var(--s-3); height: 400px; padding: var(--s-4); overflow-y: auto; scrollbar-width: none; }
+.xcard-ar__sc::-webkit-scrollbar { display: none; }
+.xcard-ar__title { font-size: var(--fs-xl); font-weight: 700; line-height: var(--lh-tight); }
+.xcard-ar__by { display: flex; align-items: center; flex-wrap: wrap; gap: var(--s-2); font-size: var(--fs-xs); color: var(--ink-3); }
+.xcard-ar__by .avatar { width: 28px; height: 28px; padding: 3px; background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); }
+.xcard-ar__by b { font-size: var(--fs-sm); font-weight: 600; color: var(--ink-2); }
+.xcard-ar__cover { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: var(--r-md); }
+.xcard-ar__sc p, .xcard-ar__sc li { font-size: var(--ar-fs); line-height: 1.75; }
+.xcard-ar__sc h4 { margin-top: var(--s-2); font-size: var(--fs-lg); font-weight: 600; line-height: var(--lh-tight); }
+.xcard-ar__sc blockquote { margin: 0; padding: var(--s-2) var(--s-4); border-left: 3px solid var(--action); border-radius: 0 var(--r-md) var(--r-md) 0; background: var(--action-tint); color: var(--action-press); font-size: var(--ar-fs); line-height: 1.75; }
+.xcard-ar__sc ul { display: grid; gap: var(--s-2); }
+.xcard-ar__sc li { position: relative; padding-left: var(--s-4); }
+.xcard-ar__sc li::before { content: ""; position: absolute; left: 2px; top: .8em; width: 6px; height: 6px; border-radius: 50%; background: var(--action); }
+.xcard-ar__sc figure { display: grid; gap: var(--s-2); }
+.xcard-ar__sc figure img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: var(--r-md); }
+.xcard-ar__sc figcaption { text-align: center; font-size: var(--fs-xs); color: var(--ink-3); }
+.xcard-ar__bar { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); padding: var(--s-2) var(--s-4); border-top: 1px solid var(--line); }
+.xcard-ar__size { display: flex; align-items: center; gap: var(--s-2); font-size: var(--fs-sm); color: var(--ink-3); }
+.xcard-ar__size .btn-seg button { min-height: 32px; padding: 0 var(--s-3); }
+</style>
+
+<!-- ══ 新增：码、浏览、折叠、媒体、评论、描述、宫格、电子卡、文章 ══ -->
+<article class="demo" data-cid="AP-CARD-042" data-name="二维码核销卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">二维码核销卡</span></div>
+  <p class="demo__note">适合：到店核销、会员码与取货码展示二维码及有效状态</p>
+  <div class="demo__stage"><div class="card xcard-qr xcard-w" data-xcard-qr data-state="ok">
+    <div class="btn-seg" role="group" aria-label="码类型"><button aria-pressed="true" data-k="v">核销码</button><button aria-pressed="false" data-k="m">会员码</button><button aria-pressed="false" data-k="p">取货码</button></div>
+    <div class="xcard-qr__head"><div><span class="xcard-name one-line" data-qr-name>春日花束核销券</span><span class="xcard-meta one-line" data-qr-meta>建国路店 到店出示</span></div><span class="tag" data-tone="success" data-qr-tag>未核销</span></div>
+    <div class="xcard-qr__frame"><canvas role="img" aria-label="春日花束核销券二维码"></canvas><span class="xcard-qr__stamp" aria-hidden="true"><b>已核销</b></span></div>
+    <p class="xcard-qr__code" data-qr-code>8820 0431 6620</p>
+    <div class="xcard-qr__foot"><span class="xcard-meta" data-qr-note>7 天内有效</span><button class="btn btn--outline btn--sm btn--pill" data-qr-act>复制券码</button></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="AP-CARD-043" data-name="多图横滑浏览卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">多图横滑浏览卡</span></div>
+  <p class="demo__note">适合：横滑浏览多张主图，居中项放大两侧露边</p>
+  <div class="demo__stage"><div class="card xcard-cr xcard-w" data-xcard-cr>
+    <div class="xcard-cr__track" tabindex="0" role="group" aria-label="商品图横滑浏览">
+      <button class="xcard-cr__it" aria-label="红玫瑰花束 199 元"><img src="../../kit/assets/photo/product-rose-red.webp" alt=""><span class="xcard-cr__cap"><b class="one-line">红玫瑰花束</b><span class="price"><small>¥</small>199</span></span></button>
+      <button class="xcard-cr__it" aria-label="粉芍药花束 239 元"><img src="../../kit/assets/photo/product-peony-pink.webp" alt=""><span class="xcard-cr__cap"><b class="one-line">粉芍药花束</b><span class="price"><small>¥</small>239</span></span></button>
+      <button class="xcard-cr__it" aria-label="向日葵花束 159 元"><img src="../../kit/assets/photo/product-sunflower.webp" alt=""><span class="xcard-cr__cap"><b class="one-line">向日葵花束</b><span class="price"><small>¥</small>159</span></span></button>
+      <button class="xcard-cr__it" aria-label="白郁金香 179 元"><img src="../../kit/assets/photo/product-tulip-white.webp" alt=""><span class="xcard-cr__cap"><b class="one-line">白郁金香</b><span class="price"><small>¥</small>179</span></span></button>
+      <button class="xcard-cr__it" aria-label="蓝绣球盆栽 129 元"><img src="../../kit/assets/photo/product-hydrangea-blue.webp" alt=""><span class="xcard-cr__cap"><b class="one-line">蓝绣球盆栽</b><span class="price"><small>¥</small>129</span></span></button>
+    </div>
+    <div class="xcard-cr__dots"><button class="xcard-cr__dot" aria-label="第 1 张" data-tip="第 1 张" aria-current="false"></button><button class="xcard-cr__dot" aria-label="第 2 张" data-tip="第 2 张" aria-current="true"></button><button class="xcard-cr__dot" aria-label="第 3 张" data-tip="第 3 张" aria-current="false"></button><button class="xcard-cr__dot" aria-label="第 4 张" data-tip="第 4 张" aria-current="false"></button><button class="xcard-cr__dot" aria-label="第 5 张" data-tip="第 5 张" aria-current="false"></button></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="AP-CARD-044" data-name="手风琴折叠组" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">手风琴折叠组</span></div>
+  <p class="demo__note">适合：常见问题与规格说明同组只展开一项</p>
+  <div class="demo__stage"><div class="card list xcard-ac xcard-w" data-xcard-ac>
+    <button class="row row--link" id="xcard-ac-h1" aria-expanded="true" aria-controls="xcard-ac-p1"><div class="row__main"><p class="row__title">鲜花保鲜期</p></div><span class="row__trail chev"></span></button>
+    <div class="expand" id="xcard-ac-p1" role="region" aria-labelledby="xcard-ac-h1" data-open="true"><div><div class="expand__body xcard-ac__body"><p>玫瑰与芍药在清水中可保持 5 至 7 天 向日葵约 10 天</p><p>每两天换水并剪去根部 1 厘米 花期更长</p></div></div></div>
+    <button class="row row--link" id="xcard-ac-h2" aria-expanded="false" aria-controls="xcard-ac-p2"><div class="row__main"><p class="row__title">同城急送范围</p></div><span class="row__trail chev"></span></button>
+    <div class="expand" id="xcard-ac-p2" role="region" aria-labelledby="xcard-ac-h2" data-open="false"><div><div class="expand__body xcard-ac__body"><div class="xcard-tags"><span class="tag" data-tone="success">5 公里内 2 小时达</span><span class="tag">超出范围次日达</span></div><p>雨雪天气可能延迟 以订单页预计送达时间为准</p></div></div></div>
+    <button class="row row--link" id="xcard-ac-h3" aria-expanded="false" aria-controls="xcard-ac-p3"><div class="row__main"><p class="row__title">修改配送时间</p></div><span class="row__trail chev"></span></button>
+    <div class="expand" id="xcard-ac-p3" role="region" aria-labelledby="xcard-ac-h3" data-open="false"><div><div class="expand__body xcard-ac__body"><p>发货前可在订单详情自助改约 已发货后请联系门店客服处理</p></div></div></div>
+    <button class="row row--link" id="xcard-ac-h4" aria-expanded="false" aria-controls="xcard-ac-p4"><div class="row__main"><p class="row__title">售后与退款</p></div><span class="row__trail chev"></span></button>
+    <div class="expand" id="xcard-ac-p4" role="region" aria-labelledby="xcard-ac-h4" data-open="false"><div><div class="expand__body xcard-ac__body"><p>签收后 24 小时内凭照片申请 鲜花质量问题全额退款 退款原路返回</p></div></div></div>
+    <button class="row" disabled aria-disabled="true"><div class="row__main"><p class="row__title">企业采购说明</p></div><div class="row__trail"><span class="tag">暂未开放</span></div></button>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="AP-CARD-045" data-name="视频播放卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">视频播放卡</span></div>
+  <p class="demo__note">适合：商品与课程短视频的封面播放卡</p>
+  <div class="demo__stage"><div class="card xcard-vd xcard-w" data-xcard-vd data-state="ready" data-dur="135" data-frames="scene-hero-pink|bouquet-rose|bouquet-white|bouquet-tulip">
+    <div class="xcard-vd__screen" data-vd-screen>
+      <img data-vd-img src="../../kit/assets/photo/scene-hero-pink.webp" alt="">
+      <span class="xcard-chip">02:15</span>
+      <button class="xcard-vd__play" aria-label="播放视频" data-tip="播放视频" data-vd-big><img src="../../kit/assets/line/play.webp" alt=""></button>
+      <div class="xcard-vd__ctl">
+        <button class="xcard-vd__pp" aria-label="暂停" data-tip="暂停" data-vd-pp><img src="../../kit/assets/line/pause.webp" alt=""></button>
+        <div class="xcard-vd__bar" role="slider" tabindex="0" aria-label="播放进度" aria-valuemin="0" aria-valuemax="135" aria-valuenow="0" aria-valuetext="00:00" data-vd-bar><i></i></div>
+        <span class="xcard-vd__time" data-vd-time>00:00 / 02:15</span>
+        <button class="xcard-vd__rate" aria-label="播放倍速" data-vd-rate>1.0 倍</button>
+      </div>
+    </div>
+    <div class="xcard-vd__info"><span class="xcard-name">三分钟学会包花束</span><div class="xcard-between"><span class="xcard-meta">花艺课 播放 1.2 万</span><span class="tag" data-tone="action">免费</span></div></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="AP-CARD-046" data-name="评论回复卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">评论回复卡</span></div>
+  <p class="demo__note">适合：评论下嵌套回复与点赞数</p>
+  <div class="demo__stage"><div class="card xcard-cm xcard-w" data-xcard-cm>
+    <img class="avatar" src="../../kit/assets/marks/mark-007.webp" alt="">
+    <div class="xcard-cm__main">
+      <div class="xcard-cm__who"><div style="display: grid; gap: 2px"><span class="xcard-name">阿宁</span><span class="xcard-meta">昨天</span></div></div>
+      <p>花束很新鲜 包装精致 骑手准时送到 家人很喜欢</p>
+      <div class="xcard-cm__acts"><button class="xcard-like" aria-label="点赞" aria-pressed="false"><img data-ic="heart" src="../../kit/assets/icons/flat/heart.webp" alt=""><span>28</span></button><button class="btn btn--text" data-xcard-t="正在打开回复页">回复</button></div>
+      <div class="xcard-cm__replies">
+        <div class="xcard-cm__rh"><span data-cm-total>全部回复 5 条</span><div class="btn-seg" role="group" aria-label="回复排序" data-cm-sort><button aria-pressed="true" data-k="hot">最热</button><button aria-pressed="false" data-k="new">最新</button></div></div>
+        <div class="xcard-col" data-cm-list></div>
+        <button class="btn btn--text xcard-cm__more" aria-expanded="false" data-cm-more>展开另外 3 条回复</button>
+      </div>
+    </div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="AP-CARD-047" data-name="键值描述卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">键值描述卡</span></div>
+  <p class="demo__note">适合：订单与会员资料以键值两列整齐展示</p>
+  <div class="demo__stage"><div class="card xcard-ds xcard-w" data-xcard-ds>
+    <div class="xcard-ds__head"><span class="xcard-name">订单信息</span><span class="tag" data-tone="info">待收货</span></div>
+    <dl>
+      <div class="xcard-ds__r"><dt>订单编号</dt><dd><span>2611090310</span><button class="btn btn--text" data-ds-copy>复制</button></dd></div>
+      <div class="xcard-ds__r"><dt>下单门店</dt><dd>建国路店</dd></div>
+      <div class="xcard-ds__r"><dt>配送方式</dt><dd>同城急送</dd></div>
+      <div class="xcard-ds__r"><dt>收货人</dt><dd>林晓</dd></div>
+      <div class="xcard-ds__r"><dt>联系电话</dt><dd><span data-ds-phone>138 **** 6620</span><button class="btn btn--text" aria-pressed="false" data-ds-eye>查看</button></dd></div>
+    </dl>
+    <div class="expand" id="xcard-ds-more" data-open="false"><div><dl>
+      <div class="xcard-ds__r"><dt>收货地址</dt><dd>浦东新区世纪大道 88 号</dd></div>
+      <div class="xcard-ds__r"><dt>支付方式</dt><dd>微信支付</dd></div>
+      <div class="xcard-ds__r"><dt>配送备注</dt><dd>18 点前送达</dd></div>
+      <div class="xcard-ds__r"><dt>实付金额</dt><dd><span class="price"><small>¥</small>288</span></dd></div>
+    </dl></div></div>
+    <button class="btn btn--text xcard-ds__fold" aria-expanded="false" aria-controls="xcard-ds-more" data-ds-more>展开更多</button>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="AP-CARD-048" data-name="图片宫格墙" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">图片宫格墙</span></div>
+  <p class="demo__note">适合：评价晒图与相册的等宽图片宫格</p>
+  <div class="demo__stage"><div class="card xcard-gw xcard-w" data-xcard-gw>
+    <div class="xcard-gw__view" tabindex="0" role="group" aria-label="图片预览">
+      <img data-gw-main src="../../kit/assets/photo/product-rose-red.webp" alt="">
+      <button class="ibtn ibtn--round xcard-gw__nav" data-dir="prev" aria-label="上一张" data-tip="上一张" data-gw-prev><img src="../../kit/assets/line/back.webp" alt=""></button>
+      <button class="ibtn ibtn--round xcard-gw__nav" data-dir="next" aria-label="下一张" data-tip="下一张" data-gw-next><img src="../../kit/assets/line/back.webp" alt=""></button>
+      <span class="xcard-chip" data-gw-count>1 / 12</span>
+    </div>
+    <div class="xcard-gw__grid">
+      <button class="xcard-gw__c" aria-label="第 1 张" aria-pressed="true"><img src="../../kit/assets/photo/product-rose-red.webp" alt=""></button>
+      <button class="xcard-gw__c" aria-label="第 2 张" aria-pressed="false"><img src="../../kit/assets/photo/product-peony-pink.webp" alt=""></button>
+      <button class="xcard-gw__c" aria-label="第 3 张" aria-pressed="false"><img src="../../kit/assets/photo/product-sunflower.webp" alt=""></button>
+      <button class="xcard-gw__c" aria-label="第 4 张" aria-pressed="false"><img src="../../kit/assets/photo/product-tulip-white.webp" alt=""></button>
+      <button class="xcard-gw__c" aria-label="第 5 张" aria-pressed="false"><img src="../../kit/assets/photo/product-hydrangea-blue.webp" alt=""></button>
+      <button class="xcard-gw__c" aria-label="第 6 张" aria-pressed="false"><img src="../../kit/assets/photo/product-monstera.webp" alt=""></button>
+      <button class="xcard-gw__c" aria-label="第 7 张" aria-pressed="false"><img src="../../kit/assets/photo/product-succulent.webp" alt=""></button>
+      <button class="xcard-gw__c" aria-label="第 8 张" aria-pressed="false"><img src="../../kit/assets/photo/product-giftbox.webp" alt=""></button>
+      <button class="xcard-gw__c" aria-label="第 9 张" aria-pressed="false" hidden><img src="../../kit/assets/photo/product-pampas-vase.webp" alt=""></button>
+      <button class="xcard-gw__c" aria-label="第 10 张" aria-pressed="false" hidden><img src="../../kit/assets/photo/bouquet-rose.webp" alt=""></button>
+      <button class="xcard-gw__c" aria-label="第 11 张" aria-pressed="false" hidden><img src="../../kit/assets/photo/bouquet-white.webp" alt=""></button>
+      <button class="xcard-gw__c" aria-label="第 12 张" aria-pressed="false" hidden><img src="../../kit/assets/photo/bouquet-tulip.webp" alt=""></button>
+    </div>
+    <button class="btn btn--text xcard-gw__fold" data-gw-fold hidden>收起</button>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="AP-CARD-049" data-name="音频播放条" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">音频播放条</span></div>
+  <p class="demo__note">适合：语音留言与课程音频的播放进度条</p>
+  <div class="demo__stage"><div class="card xcard-au xcard-w" data-xcard-au>
+    <div class="xcard-au__voice">
+      <img class="avatar" src="../../kit/assets/marks/mark-003.webp" alt="">
+      <button class="xcard-au__pill" aria-label="播放语音留言" data-au-voice><span class="xcard-au__go"><img src="../../kit/assets/line/play.webp" alt=""></span><span class="xcard-au__wave" data-au-wave></span><span class="xcard-au__sec" data-au-sec>12 秒</span></button>
+      <i class="xcard-au__unread" role="img" aria-label="未听" data-au-unread></i>
+    </div>
+    <div class="xcard-au__course">
+      <div class="xcard-au__meta"><img src="../../kit/assets/photo/product-pampas-vase.webp" alt=""><div><span class="xcard-name one-line">花束保鲜小课</span><span class="xcard-meta">第 3 讲 共 6 讲</span></div><button class="xcard-au__rate" aria-label="播放倍速" data-au-rate>1.0 倍</button></div>
+      <div class="xcard-au__bar" role="slider" tabindex="0" aria-label="播放进度" aria-valuemin="0" aria-valuemax="390" aria-valuenow="42" aria-valuetext="00:42" data-au-bar><i></i></div>
+      <div class="xcard-au__times"><span data-au-now>00:42</span><span>06:30</span></div>
+      <div class="xcard-au__ctl">
+        <button class="ibtn xcard-au__skip" data-dir="back" aria-label="后退 15 秒" data-tip="后退 15 秒"><img src="../../kit/assets/line/undo.webp" alt=""></button>
+        <button class="xcard-au__pp" aria-label="播放" data-tip="播放" data-au-pp><img src="../../kit/assets/line/play.webp" alt=""></button>
+        <button class="ibtn xcard-au__skip" data-dir="fwd" aria-label="前进 15 秒" data-tip="前进 15 秒"><img src="../../kit/assets/line/undo.webp" alt=""></button>
+      </div>
+    </div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="AP-CARD-050" data-name="虚拟电子卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">虚拟电子卡</span></div>
+  <p class="demo__note">适合：储值卡与电子礼品卡的卡面与卡密展示</p>
+  <div class="demo__stage"><div class="card xcard-ec xcard-w" data-xcard-ec data-state="stored">
+    <div class="btn-seg" role="group" aria-label="卡类型"><button aria-pressed="true" data-k="stored">储值卡</button><button aria-pressed="false" data-k="gift">礼品卡</button><button aria-pressed="false" data-k="used">已用完</button></div>
+    <div class="xcard-ec__face pattern-over">
+      <div class="xcard-ec__top"><span class="xcard-ec__kind" data-ec-kind>花间集储值卡</span><img data-ic="wallet" data-ec-ic src="../../kit/assets/icons/flat/wallet.webp" alt=""></div>
+      <div class="xcard-ec__amtbox"><span class="xcard-ec__cap" data-ec-cap>当前余额</span><span class="xcard-ec__amt" data-ec-amt><small>¥</small>380</span></div>
+      <div class="xcard-ec__bot"><span class="xcard-ec__no" data-ec-no>8820 0000 0431</span><span class="tag" data-ec-tag>有效</span></div>
+    </div>
+    <div>
+      <div class="xcard-ec__row"><span>卡号</span><b data-ec-no2>8820 0000 0431</b><button class="btn btn--text" data-ec-copy>复制</button></div>
+      <div class="xcard-ec__row"><span>卡密</span><b data-ec-secret>**** **** ****</b><button class="btn btn--text" aria-pressed="false" data-ec-eye>查看</button></div>
+      <div class="xcard-ec__row"><span>有效期</span><b data-ec-term>自激活起 12 个月</b></div>
+    </div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="AP-CARD-051" data-name="文章阅读排版" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">文章阅读排版</span></div>
+  <p class="demo__note">适合：图文资讯详情的标题、正文与插图排版</p>
+  <div class="demo__stage"><div class="card xcard-ar xcard-w" data-xcard-ar data-size="md">
+    <div class="xcard-ar__prog"><i></i></div>
+    <div class="xcard-ar__sc" tabindex="0" role="region" aria-label="文章正文" data-ar-sc>
+      <h3 class="xcard-ar__title">雨季绿植养护要点</h3>
+      <div class="xcard-ar__by"><img class="avatar" src="../../kit/assets/marks/mark-005.webp" alt=""><b>花间集编辑部</b><span>阅读 2.3 万</span><span>3 分钟读完</span></div>
+      <img class="xcard-ar__cover" src="../../kit/assets/photo/bg-green.webp" alt="">
+      <p>雨季空气湿度高，盆土不易变干，绿植最常见的问题不是缺水，而是积水烂根。养护的重点是少浇水、勤通风、多见光。</p>
+      <h4>控制浇水量</h4>
+      <p>浇水前先用手指探入盆土两厘米，干透再浇。叶片厚实的龟背竹与多肉，一周一次即可。</p>
+      <blockquote>雨季养花 少浇水比多浇水更重要</blockquote>
+      <figure><img src="../../kit/assets/photo/product-monstera.webp" alt=""><figcaption>放在通风窗边的龟背竹</figcaption></figure>
+      <h4>加强通风</h4>
+      <p>连续阴雨时，每天开窗通风半小时，避免叶面长期潮湿滋生霉点。</p>
+      <ul><li>盆底垫高，保持排水孔通畅</li><li>叶片积水用纸巾轻轻吸干</li><li>发现黄叶及时剪除</li></ul>
+      <h4>合理摆放</h4>
+      <p>耐阴的绿植放在明亮的散射光处，喜光的多肉在雨停后搬到窗边补光。</p>
+    </div>
+    <div class="xcard-ar__bar"><div class="xcard-ar__size"><span>字号</span><div class="btn-seg" role="group" aria-label="字号"><button aria-pressed="false" data-k="sm">小</button><button aria-pressed="true" data-k="md">中</button><button aria-pressed="false" data-k="lg">大</button></div></div><button class="xcard-like" aria-label="点赞" aria-pressed="false" data-ar-like><img data-ic="heart" src="../../kit/assets/icons/flat/heart.webp" alt=""><span>328</span></button></div>
+  </div></div>
+</article>
+
+<script>
+(function () {
+  const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+
+  /* 二维码：字节模式、纠错等级 M、版本 1 至 3，单块数据；返回模块矩阵（true 为深色） */
+  const qrMatrix = text => {
+    const bytes = [...new TextEncoder().encode(text)];
+    const SPEC = [null, { d: 16, e: 10 }, { d: 28, e: 16 }, { d: 44, e: 26 }];
+    const ver = [1, 2, 3].find(v => bytes.length <= SPEC[v].d - 2); if (!ver) throw new Error('内容过长');
+    const { d: DATA, e: ECN } = SPEC[ver], size = 17 + 4 * ver;
+    const bits = []; const put = (v, n) => { for (let i = n - 1; i >= 0; i--) bits.push((v >>> i) & 1); };
+    put(4, 4); put(bytes.length, 8); bytes.forEach(b => put(b, 8));
+    for (let i = 0; i < 4 && bits.length < DATA * 8; i++) bits.push(0);
+    while (bits.length % 8) bits.push(0);
+    const words = []; for (let i = 0; i < bits.length; i += 8) words.push(parseInt(bits.slice(i, i + 8).join(''), 2));
+    for (let p = 0xec; words.length < DATA; p ^= 0xec ^ 0x11) words.push(p);
+    const EXP = [], LOG = []; let x = 1; for (let i = 0; i < 255; i++) { EXP[i] = x; LOG[x] = i; x <<= 1; if (x & 256) x ^= 0x11d; } for (let i = 255; i < 512; i++) EXP[i] = EXP[i - 255];
+    const mul = (a, b) => (a && b ? EXP[LOG[a] + LOG[b]] : 0);
+    let g = [1]; for (let i = 0; i < ECN; i++) { const n = new Array(g.length + 1).fill(0); g.forEach((c, j) => { n[j] ^= c; n[j + 1] ^= mul(c, EXP[i]); }); g = n; }
+    const rem = new Array(ECN).fill(0); words.forEach(b => { const f = b ^ rem.shift(); rem.push(0); g.slice(1).forEach((c, i) => { rem[i] ^= mul(c, f); }); });
+    const all = words.concat(rem);
+    const data = []; all.forEach(w => { for (let i = 7; i >= 0; i--) data.push((w >>> i) & 1); });
+    const m = Array.from({ length: size }, () => new Array(size).fill(false)), fn = Array.from({ length: size }, () => new Array(size).fill(false));
+    const set = (cx, cy, v) => { m[cy][cx] = v; fn[cy][cx] = true; };
+    const finder = (cx, cy) => { for (let dy = -4; dy <= 4; dy++) for (let dx = -4; dx <= 4; dx++) { const xx = cx + dx, yy = cy + dy; if (xx < 0 || yy < 0 || xx >= size || yy >= size) continue; const r = Math.max(Math.abs(dx), Math.abs(dy)); set(xx, yy, r !== 2 && r !== 4); } };
+    finder(3, 3); finder(size - 4, 3); finder(3, size - 4);
+    for (let i = 8; i < size - 8; i++) { set(6, i, i % 2 === 0); set(i, 6, i % 2 === 0); }
+    if (ver >= 2) { const c = size - 7; for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) set(c + dx, c + dy, Math.max(Math.abs(dx), Math.abs(dy)) !== 1); }
+    for (let i = 0; i < 9; i++) { fn[8][i] = true; fn[i][8] = true; } for (let i = 0; i < 8; i++) { fn[8][size - 1 - i] = true; fn[size - 1 - i][8] = true; }
+    set(8, size - 8, true);
+    let k = 0;
+    for (let right = size - 1; right >= 1; right -= 2) {
+      if (right === 6) right = 5;
+      for (let v = 0; v < size; v++) for (let j = 0; j < 2; j++) {
+        const cx = right - j, up = ((right + 1) & 2) === 0, cy = up ? size - 1 - v : v;
+        if (!fn[cy][cx]) { m[cy][cx] = k < data.length ? data[k] === 1 : false; k++; }
+      }
+    }
+    const MASK = [(r, c) => (r + c) % 2 === 0, r => r % 2 === 0, (r, c) => c % 3 === 0, (r, c) => (r + c) % 3 === 0, (r, c) => (Math.floor(r / 2) + Math.floor(c / 3)) % 2 === 0, (r, c) => ((r * c) % 2) + ((r * c) % 3) === 0, (r, c) => (((r * c) % 2) + ((r * c) % 3)) % 2 === 0, (r, c) => (((r + c) % 2) + ((r * c) % 3)) % 2 === 0];
+    const formatBits = mask => { const d5 = (0 << 3) | mask; let r = d5 << 10; for (let i = 4; i >= 0; i--) if ((r >>> (i + 10)) & 1) r ^= 0x537 << i; return ((d5 << 10) | r) ^ 0x5412; };
+    const build = mask => {
+      const q = m.map(row => row.slice()), fb = formatBits(mask), bit = i => ((fb >>> i) & 1) === 1, sf = (cx, cy, v) => { q[cy][cx] = v; };
+      for (let r = 0; r < size; r++) for (let c = 0; c < size; c++) if (!fn[r][c] && MASK[mask](r, c)) q[r][c] = !q[r][c];
+      for (let i = 0; i <= 5; i++) sf(8, i, bit(i)); sf(8, 7, bit(6)); sf(8, 8, bit(7)); sf(7, 8, bit(8)); for (let i = 9; i < 15; i++) sf(14 - i, 8, bit(i));
+      for (let i = 0; i < 8; i++) sf(size - 1 - i, 8, bit(i)); for (let i = 8; i < 15; i++) sf(8, size - 15 + i, bit(i));
+      return q;
+    };
+    const penalty = q => {
+      let p = 0; const line = a => { let run = 1; for (let i = 1; i < a.length; i++) { if (a[i] === a[i - 1]) { run++; if (run === 5) p += 3; else if (run > 5) p++; } else run = 1; } const s = a.map(v => (v ? 1 : 0)).join(''); [/10111010000/g, /00001011101/g].forEach(re => { p += 40 * (s.match(re) || []).length; }); };
+      for (let i = 0; i < size; i++) { line(q[i]); line(q.map(row => row[i])); }
+      for (let r = 0; r < size - 1; r++) for (let c = 0; c < size - 1; c++) if (q[r][c] === q[r][c + 1] && q[r][c] === q[r + 1][c] && q[r][c] === q[r + 1][c + 1]) p += 3;
+      const dark = q.flat().filter(Boolean).length; p += Math.floor(Math.abs(dark * 20 - size * size * 10) / (size * size)) * 10; return p;
+    };
+    let best = null, bp = 1e9; for (let mk = 0; mk < 8; mk++) { const q = build(mk), p = penalty(q); if (p < bp) { bp = p; best = q; } }
+    return best;
+  };
+
+  const mm = s => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+  const copy = t => { try { navigator.clipboard.writeText(t).catch(() => {}); } catch (e) { /* 无剪贴板权限时仍给出提示 */ } };
+  const cssColor = name => { const t = document.createElement('i'); t.style.color = `var(${name})`; document.body.appendChild(t); const c = getComputedStyle(t).color; t.remove(); return c; };
+  const seg = (root, fn) => { const bs = $$('button', root); bs.forEach(b => b.addEventListener('click', () => { bs.forEach(x => x.setAttribute('aria-pressed', String(x === b))); fn(b.dataset.k, b); })); };
+  const drag = (el, onEnd) => {
+    let d = null, moved = false;
+    el.addEventListener('pointerdown', e => { if (e.pointerType === 'mouse') { d = { x: e.clientX, l: el.scrollLeft, id: e.pointerId }; moved = false; } });
+    el.addEventListener('pointermove', e => { if (!d) return; const dx = e.clientX - d.x; if (!moved && Math.abs(dx) > 4) { moved = true; el.classList.add('is-drag'); el.setPointerCapture(d.id); } if (moved) el.scrollLeft = d.l - dx; });
+    const end = () => { if (!d) return; d = null; el.classList.remove('is-drag'); if (moved && onEnd) onEnd(); setTimeout(() => { moved = false; }, 0); };
+    el.addEventListener('pointerup', end); el.addEventListener('pointercancel', end);
+    el.addEventListener('click', e => { if (moved) { e.preventDefault(); e.stopPropagation(); moved = false; } }, true);
+  };
+
+  /* 二维码核销卡：三种码，真实可扫；会员码按秒刷新，取货码已核销时盖章 */
+  $$('[data-xcard-qr]').forEach(c => {
+    const cv = $('canvas', c), name = $('[data-qr-name]', c), meta = $('[data-qr-meta]', c), tag = $('[data-qr-tag]', c), code = $('[data-qr-code]', c), note = $('[data-qr-note]', c), act = $('[data-qr-act]', c);
+    let nonce = 7, left = 60, key = 'v';
+    const TABS = {
+      v: { name: '春日花束核销券', meta: '建国路店 到店出示', tone: 'success', tag: '未核销', pay: () => 'HJ-V-8820-0431-6620', code: '8820 0431 6620', note: '7 天内有效', act: '复制券码', state: 'ok' },
+      m: { name: '金卡会员码', meta: '林晓', tone: 'gold', tag: '金卡会员', pay: () => `HJ-M-3280-6620-${nonce}`, code: '会员号 6620', note: '', act: '立即刷新', state: 'ok' },
+      p: { name: '同城急送取货码', meta: '建国路店 红玫瑰花束', tone: 'info', tag: '已核销', pay: () => 'HJ-P-5830-1647', code: '5830 1647', note: '10:32 已取货', act: '已取货', state: 'used' }
+    };
+    const draw = () => {
+      const q = qrMatrix(TABS[key].pay()), n = q.length, quiet = 2, dpr = Math.max(1, devicePixelRatio || 1), ms = Math.max(2, Math.floor(168 * dpr / (n + quiet * 2))), px = ms * (n + quiet * 2);
+      cv.width = cv.height = px; cv.style.width = cv.style.height = (px / dpr) + 'px';
+      const x = cv.getContext('2d'); x.fillStyle = cssColor('--surface'); x.fillRect(0, 0, px, px); x.fillStyle = cssColor('--ink');
+      q.forEach((row, r) => row.forEach((v, cc) => { if (v) x.fillRect((cc + quiet) * ms, (r + quiet) * ms, ms, ms); }));
+      cv.setAttribute('aria-label', `${TABS[key].name}二维码`);
+    };
+    const paintNote = () => { note.textContent = key === 'm' ? `${left} 秒后自动刷新` : TABS[key].note; };
+    const show = k => {
+      key = k; const t = TABS[k]; c.dataset.state = t.state; left = 60;
+      name.textContent = t.name; meta.textContent = t.meta; code.textContent = t.code; act.textContent = t.act; act.disabled = !!t.act.startsWith('已');
+      tag.textContent = t.tag; if (t.tone === 'gold') { tag.removeAttribute('data-tone'); tag.classList.add('xcard-gold'); } else { tag.classList.remove('xcard-gold'); tag.dataset.tone = t.tone; }
+      paintNote(); draw();
+    };
+    seg($('.btn-seg', c), show);
+    act.addEventListener('click', () => {
+      if (key === 'v') { copy('8820 0431 6620'); Lz.toast('券码已复制', 'success'); }
+      if (key === 'm') { nonce += 1; left = 60; paintNote(); draw(); Lz.toast('会员码已刷新', 'success'); }
+    });
+    setInterval(() => { if (key !== 'm') return; left -= 1; if (left <= 0) { nonce += 1; left = 60; draw(); } paintNote(); }, 1000);
+    document.addEventListener('lz:skin', draw);
+    show('v');
+  });
+
+  /* 多图横滑浏览卡：居中项放大，两侧缩小露边；点邻图或圆点居中，方向键翻页 */
+  $$('[data-xcard-cr]').forEach(c => {
+    const tr = $('.xcard-cr__track', c), its = $$('.xcard-cr__it', c), dots = $$('.xcard-cr__dot', c); let cur = 1, raf = 0;
+    const centerOf = i => its[i].offsetLeft + its[i].offsetWidth / 2 - tr.clientWidth / 2;
+    const paint = () => {
+      raf = 0; const mid = tr.scrollLeft + tr.clientWidth / 2; let best = 0, bd = 1e9;
+      its.forEach((it, i) => { const dd = Math.abs(it.offsetLeft + it.offsetWidth / 2 - mid), t = Math.min(1, dd / (it.offsetWidth + 8)); it.style.transform = `scale(${(1 - .14 * t).toFixed(3)})`; it.style.opacity = (1 - .22 * t).toFixed(3); if (dd < bd) { bd = dd; best = i; } });
+      cur = best; dots.forEach((d, i) => d.setAttribute('aria-current', String(i === best)));
+    };
+    const go = (i, smooth = true) => { i = Math.min(its.length - 1, Math.max(0, i)); tr.scrollTo({ left: centerOf(i), behavior: smooth && !Lz.reduce ? 'smooth' : 'auto' }); };
+    tr.addEventListener('scroll', () => { if (!raf) raf = requestAnimationFrame(paint); }, { passive: true });
+    its.forEach((it, i) => it.addEventListener('click', () => { if (i !== cur) go(i); else Lz.toast(`已打开${$('b', it).textContent}`, 'success'); }));
+    dots.forEach((d, i) => d.addEventListener('click', () => go(i)));
+    tr.addEventListener('keydown', e => { const d = { ArrowRight: 1, ArrowLeft: -1 }[e.key]; if (d) { e.preventDefault(); go(cur + d); } });
+    drag(tr, () => { tr.classList.remove('is-drag'); go(cur); });
+    new ResizeObserver(() => { go(cur, false); paint(); }).observe(tr);
+    go(1, false); paint();
+  });
+
+  /* 手风琴折叠组：同组只展开一项，方向键在标题间移动 */
+  $$('[data-xcard-ac]').forEach(g => {
+    const heads = $$('.row[aria-controls]', g), panel = h => document.getElementById(h.getAttribute('aria-controls'));
+    const set = (h, open) => { h.setAttribute('aria-expanded', String(open)); const p = panel(h); p.dataset.open = String(open); p.inert = !open; };
+    heads.forEach((h, i) => {
+      set(h, h.getAttribute('aria-expanded') === 'true');
+      h.addEventListener('click', () => { const open = h.getAttribute('aria-expanded') !== 'true'; heads.forEach(x => set(x, x === h && open)); });
+      h.addEventListener('keydown', e => { const to = { ArrowDown: i + 1, ArrowUp: i - 1, Home: 0, End: heads.length - 1 }[e.key]; if (to === undefined) return; e.preventDefault(); heads[(to + heads.length) % heads.length].focus(); });
+    });
+  });
+
+  /* 视频播放卡：封面、播放、暂停、拖进度、倍速、播完重播；画面按进度换帧 */
+  $$('[data-xcard-vd]').forEach(v => {
+    const DUR = +v.dataset.dur, frames = v.dataset.frames.split('|'), RATES = [1, 1.5, 2];
+    const img = $('[data-vd-img]', v), big = $('[data-vd-big]', v), pp = $('[data-vd-pp]', v), bar = $('[data-vd-bar]', v), time = $('[data-vd-time]', v), rate = $('[data-vd-rate]', v);
+    const ICON = n => `../../kit/assets/line/${n}.webp`; frames.forEach(f => { new Image().src = `../../kit/assets/photo/${f}.webp`; });
+    let t = 0, state = 'ready', ri = 0, last = -1;
+    const label = (btn, text) => { btn.setAttribute('aria-label', text); btn.dataset.tip = text; };
+    const paint = () => {
+      bar.style.setProperty('--p', (t / DUR * 100) + '%'); bar.setAttribute('aria-valuenow', Math.floor(t)); bar.setAttribute('aria-valuetext', mm(t)); time.textContent = `${mm(t)} / ${mm(DUR)}`;
+      const f = Math.min(frames.length - 1, Math.floor(t / DUR * frames.length)); if (f !== last) { last = f; img.src = `../../kit/assets/photo/${frames[f]}.webp`; }
+    };
+    const set = s => {
+      state = s; v.dataset.state = s;
+      $('img', pp).src = ICON(s === 'playing' ? 'pause' : 'play'); label(pp, s === 'playing' ? '暂停' : s === 'ended' ? '重新播放' : '播放');
+      $('img', big).src = ICON(s === 'ended' ? 'undo' : 'play'); label(big, s === 'ended' ? '重新播放' : '播放视频');
+    };
+    const toggle = () => { if (state === 'playing') set('paused'); else { if (state === 'ended' || t >= DUR) { t = 0; paint(); } set('playing'); } };
+    big.addEventListener('click', toggle); pp.addEventListener('click', toggle);
+    $('[data-vd-screen]', v).addEventListener('click', e => { if (state === 'playing' && !e.target.closest('button, .xcard-vd__ctl')) set('paused'); });
+    rate.addEventListener('click', () => { ri = (ri + 1) % RATES.length; rate.textContent = `${RATES[ri].toFixed(1)} 倍`; });
+    const seek = x => { const r = bar.getBoundingClientRect(); t = Math.min(DUR, Math.max(0, (x - r.left) / r.width * DUR)); if (state === 'ended' && t < DUR) set('paused'); paint(); };
+    bar.addEventListener('pointerdown', e => { seek(e.clientX); const mv = ev => seek(ev.clientX), up = () => { removeEventListener('pointermove', mv); removeEventListener('pointerup', up); }; addEventListener('pointermove', mv); addEventListener('pointerup', up); });
+    bar.addEventListener('keydown', e => { const d = { ArrowRight: 5, ArrowLeft: -5 }[e.key]; if (d) { e.preventDefault(); t = Math.min(DUR, Math.max(0, t + d)); if (state === 'ended' && t < DUR) set('paused'); paint(); } else if (e.key === 'Home') { t = 0; paint(); } else if (e.key === 'End') { t = DUR; paint(); } });
+    setInterval(() => { if (state !== 'playing') return; t = Math.min(DUR, t + .25 * RATES[ri]); paint(); if (t >= DUR) set('ended'); }, 250);
+    paint();
+  });
+
+  /* 评论回复卡：回复按热度或时间排序，折叠与展开，点赞计数 */
+  $$('[data-xcard-cm]').forEach(c => {
+    const list = $('[data-cm-list]', c), more = $('[data-cm-more]', c), total = $('[data-cm-total]', c); let sort = 'hot', open = false;
+    const R = [
+      { who: '花间集客服', mark: '005', tag: '商家', text: '感谢支持 欢迎再次光临', age: '2 小时前', mins: 120, n: 12, on: false },
+      { who: '小周', mark: '012', text: '同款已下单 期待收到', age: '1 小时前', mins: 60, n: 5, on: false },
+      { who: '老陈', mark: '003', text: '上次买的绣球养了一个月 状态很好', age: '45 分钟前', mins: 45, n: 18, on: false },
+      { who: '苏苏', mark: '015', text: '请问有白色款吗', age: '20 分钟前', mins: 20, n: 2, on: false },
+      { who: '阿林', mark: '021', text: '配送很准时', age: '刚刚', mins: 1, n: 0, on: false }
+    ];
+    const LIMIT = 2, heart = $('.xcard-like img', c).getAttribute('src');
+    const row = (r, i) => `<div class="xcard-cm__r"><img class="avatar" src="../../kit/assets/marks/mark-${r.mark}.webp" alt=""><div class="xcard-cm__rb"><div class="xcard-gap"><span class="xcard-name" style="font-size: var(--fs-sm)">${r.who}</span>${r.tag ? `<span class="tag" data-tone="action">${r.tag}</span>` : ''}</div><p>${r.text}</p><div class="xcard-cm__ra"><span class="xcard-meta" style="font-size: var(--fs-xs)">${r.age}</span><button class="xcard-like" aria-label="点赞" aria-pressed="${r.on}" data-i="${i}"><img data-ic="heart" src="${heart}" alt=""><span>${r.n}</span></button></div></div></div>`;
+    const render = () => {
+      const order = R.map((r, i) => i).sort((a, b) => sort === 'hot' ? R[b].n - R[a].n : R[a].mins - R[b].mins), shown = open ? order : order.slice(0, LIMIT);
+      list.innerHTML = shown.map(i => row(R[i], i)).join('');
+      total.textContent = `全部回复 ${R.length} 条`; more.hidden = R.length <= LIMIT;
+      more.textContent = open ? '收起回复' : `展开另外 ${R.length - LIMIT} 条回复`; more.setAttribute('aria-expanded', String(open));
+    };
+    seg($('[data-cm-sort]', c), k => { sort = k; render(); });
+    more.addEventListener('click', () => { open = !open; render(); });
+    c.addEventListener('click', e => {
+      const b = e.target.closest('.xcard-like'); if (!b) return; const n = $('span', b), i = b.dataset.i;
+      const on = b.getAttribute('aria-pressed') !== 'true'; b.setAttribute('aria-pressed', String(on)); n.textContent = (+n.textContent) + (on ? 1 : -1);
+      if (i !== undefined) { R[i].on = on; R[i].n = +n.textContent; }
+    });
+    render();
+  });
+
+  /* 键值描述卡：复制编号，手机号显隐，展开更多信息 */
+  $$('[data-xcard-ds]').forEach(c => {
+    const more = $('.expand', c), btn = $('[data-ds-more]', c), eye = $('[data-ds-eye]', c), phone = $('[data-ds-phone]', c); more.inert = true;
+    btn.addEventListener('click', () => { const open = more.dataset.open !== 'true'; more.dataset.open = String(open); more.inert = !open; btn.setAttribute('aria-expanded', String(open)); btn.textContent = open ? '收起' : '展开更多'; });
+    $('[data-ds-copy]', c).addEventListener('click', () => { copy('2611090310'); Lz.toast('订单编号已复制', 'success'); });
+    eye.addEventListener('click', () => { const on = eye.getAttribute('aria-pressed') !== 'true'; eye.setAttribute('aria-pressed', String(on)); eye.textContent = on ? '隐藏' : '查看'; phone.textContent = on ? '13800006620' : '138 **** 6620'; });
+  });
+
+  /* 图片宫格墙：点缩略图在上方预览，前后翻页，超出八张折叠为数量角标 */
+  $$('[data-xcard-gw]').forEach(g => {
+    const cells = $$('.xcard-gw__c', g), main = $('[data-gw-main]', g), cnt = $('[data-gw-count]', g), prev = $('[data-gw-prev]', g), next = $('[data-gw-next]', g), fold = $('[data-gw-fold]', g), LIMIT = 8;
+    let cur = 0, open = false;
+    const paint = () => {
+      main.src = $('img', cells[cur]).src; cnt.textContent = `${cur + 1} / ${cells.length}`; prev.disabled = cur === 0; next.disabled = cur === cells.length - 1;
+      cells.forEach((b, i) => b.setAttribute('aria-pressed', String(i === cur)));
+    };
+    const layout = () => {
+      cells.forEach((b, i) => { b.hidden = !open && i >= LIMIT; const m = $('.xcard-gw__more', b); if (m) m.remove(); });
+      const last = cells[LIMIT - 1]; last.setAttribute('aria-label', open ? `第 ${LIMIT} 张` : `展开其余 ${cells.length - LIMIT} 张`);
+      if (!open) last.insertAdjacentHTML('beforeend', `<span class="xcard-gw__more" aria-hidden="true">+${cells.length - LIMIT}</span>`);
+      fold.hidden = !open;
+    };
+    cells.forEach((b, i) => b.addEventListener('click', () => { cur = i; if (!open && i === LIMIT - 1) { open = true; layout(); } paint(); }));
+    const step = d => { cur = Math.min(cells.length - 1, Math.max(0, cur + d)); if (cur >= LIMIT && !open) { open = true; layout(); } paint(); };
+    prev.addEventListener('click', () => step(-1)); next.addEventListener('click', () => step(1));
+    $('.xcard-gw__view', g).addEventListener('keydown', e => { const d = { ArrowRight: 1, ArrowLeft: -1 }[e.key]; if (d) { e.preventDefault(); step(d); } });
+    fold.addEventListener('click', () => { open = false; if (cur >= LIMIT) cur = LIMIT - 1; layout(); paint(); cells[LIMIT - 1].focus(); });
+    layout(); paint();
+  });
+
+  /* 音频播放条：语音留言与课程音频各自播放，同一时间只播一个 */
+  $$('[data-xcard-au]').forEach(c => {
+    const H = [8, 14, 20, 12, 24, 18, 10, 22, 16, 26, 12, 18, 24, 10, 20, 14, 22, 8, 16, 12, 18, 10];
+    const wave = $('[data-au-wave]', c), pill = $('[data-au-voice]', c), sec = $('[data-au-sec]', c), unread = $('[data-au-unread]', c);
+    const bar = $('[data-au-bar]', c), now = $('[data-au-now]', c), pp = $('[data-au-pp]', c), rate = $('[data-au-rate]', c), RATES = [1, 1.5, 2];
+    wave.innerHTML = H.map(h => `<i style="--h: ${h}px"></i>`).join(''); const bars = $$('i', wave);
+    const V = { dur: 12, t: 0, on: false }, K = { dur: 390, t: 42, on: false }; let ri = 0;
+    const ICON = n => `../../kit/assets/line/${n}.webp`;
+    const paintV = () => { const k = Math.round(V.t / V.dur * bars.length); bars.forEach((b, i) => b.classList.toggle('is-on', i < k)); sec.textContent = `${Math.max(0, Math.ceil(V.dur - V.t))} 秒`; $('.xcard-au__go img', pill).src = ICON(V.on ? 'pause' : 'play'); pill.setAttribute('aria-label', V.on ? '暂停语音留言' : '播放语音留言'); };
+    const paintK = () => {
+      bar.style.setProperty('--p', (K.t / K.dur * 100) + '%'); bar.setAttribute('aria-valuenow', Math.floor(K.t)); bar.setAttribute('aria-valuetext', mm(K.t)); now.textContent = mm(K.t);
+      $('img', pp).src = ICON(K.on ? 'pause' : 'play'); pp.setAttribute('aria-label', K.on ? '暂停' : '播放'); pp.dataset.tip = K.on ? '暂停' : '播放';
+    };
+    pill.addEventListener('click', () => { K.on = false; V.on = !V.on; if (V.on) { if (V.t >= V.dur) V.t = 0; unread.hidden = true; } paintV(); paintK(); });
+    pp.addEventListener('click', () => { V.on = false; K.on = !K.on; if (K.on && K.t >= K.dur) K.t = 0; paintV(); paintK(); });
+    $$('.xcard-au__skip', c).forEach(b => b.addEventListener('click', () => { K.t = Math.min(K.dur, Math.max(0, K.t + (b.dataset.dir === 'fwd' ? 15 : -15))); paintK(); }));
+    rate.addEventListener('click', () => { ri = (ri + 1) % RATES.length; rate.textContent = `${RATES[ri].toFixed(1)} 倍`; });
+    const seek = x => { const r = bar.getBoundingClientRect(); K.t = Math.min(K.dur, Math.max(0, (x - r.left) / r.width * K.dur)); paintK(); };
+    bar.addEventListener('pointerdown', e => { seek(e.clientX); const mv = ev => seek(ev.clientX), up = () => { removeEventListener('pointermove', mv); removeEventListener('pointerup', up); }; addEventListener('pointermove', mv); addEventListener('pointerup', up); });
+    bar.addEventListener('keydown', e => { const d = { ArrowRight: 5, ArrowLeft: -5 }[e.key]; if (d) { e.preventDefault(); K.t = Math.min(K.dur, Math.max(0, K.t + d)); paintK(); } });
+    wave.addEventListener('click', e => { const r = wave.getBoundingClientRect(); V.t = Math.min(V.dur - .5, Math.max(0, (e.clientX - r.left) / r.width * V.dur)); K.on = false; V.on = true; unread.hidden = true; paintV(); paintK(); e.stopPropagation(); });
+    setInterval(() => {
+      if (V.on) { V.t = Math.min(V.dur, V.t + .25); if (V.t >= V.dur) V.on = false; paintV(); }
+      if (K.on) { K.t = Math.min(K.dur, K.t + .25 * RATES[ri]); if (K.t >= K.dur) K.on = false; paintK(); }
+    }, 250);
+    paintV(); paintK();
+  });
+
+  /* 虚拟电子卡：储值卡、礼品卡、已用完三种卡面，卡密默认遮住 */
+  $$('[data-xcard-ec]').forEach(c => {
+    const el = k => $(`[data-ec-${k}]`, c), eye = el('eye'), secret = el('secret'), ic = el('ic'), copyBtn = el('copy');
+    const T = {
+      stored: { kind: '花间集储值卡', cap: '当前余额', amt: '380', tag: '有效', no: '8820 0000 0431', sec: '5830 1647 9205', term: '自激活起 12 个月', icon: 'wallet' },
+      gift: { kind: '花间集礼品卡', cap: '卡面金额', amt: '200', tag: '未使用', no: '8820 0000 0517', sec: '7416 2093 5588', term: '自激活起 12 个月', icon: 'giftcard' },
+      used: { kind: '花间集储值卡', cap: '当前余额', amt: '0', tag: '已用完', no: '8820 0000 0388', sec: '', term: '已失效', icon: 'wallet' }
+    };
+    let k = 'stored', shown = false;
+    const paint = () => {
+      const t = T[k]; c.dataset.state = k;
+      el('kind').textContent = t.kind; el('cap').textContent = t.cap; el('amt').innerHTML = `<small>¥</small>${t.amt}`; el('tag').textContent = t.tag; el('no').textContent = t.no; el('no2').textContent = t.no; el('term').textContent = t.term;
+      ic.dataset.ic = t.icon; ic.src = `${document.documentElement.dataset.icBase || '../../kit/assets/icons'}/${Lz.iconSet()}/${t.icon}.webp`;
+      secret.textContent = !t.sec ? '已失效' : shown ? t.sec : '**** **** ****'; eye.disabled = !t.sec;
+      eye.textContent = shown && t.sec ? '隐藏' : '查看'; eye.setAttribute('aria-pressed', String(shown && !!t.sec));
+    };
+    seg($('.btn-seg', c), key => { k = key; shown = false; paint(); });
+    eye.addEventListener('click', () => { shown = !shown; paint(); });
+    copyBtn.addEventListener('click', () => { copy(T[k].no.replace(/\s/g, '')); Lz.toast('卡号已复制', 'success'); });
+    paint();
+  });
+
+  /* 文章阅读排版：滚动进度、三档字号、点赞 */
+  $$('[data-xcard-ar]').forEach(c => {
+    const sc = $('[data-ar-sc]', c), bar = $('.xcard-ar__prog', c), like = $('[data-ar-like]', c);
+    const sync = () => { const max = sc.scrollHeight - sc.clientHeight; bar.style.setProperty('--v', (max > 0 ? sc.scrollTop / max * 100 : 0) + '%'); };
+    sc.addEventListener('scroll', sync, { passive: true }); sync();
+    seg($('.xcard-ar__size .btn-seg', c), k => { c.dataset.size = k; sync(); });
+    like.addEventListener('click', () => { const on = like.getAttribute('aria-pressed') !== 'true', n = $('span', like); like.setAttribute('aria-pressed', String(on)); n.textContent = (+n.textContent) + (on ? 1 : -1); });
+  });
+})();
+</script>

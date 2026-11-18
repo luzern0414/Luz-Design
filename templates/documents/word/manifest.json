@@ -1,0 +1,311 @@
+{
+  "type": "word",
+  "title": "文字文档",
+  "naming": "DC-WD-三位序号-中文名.docx",
+  "items": [
+    {
+      "id": "DC-WD-001",
+      "name": "方案书",
+      "use": "客户正式文档：封面、目录、页眉标题、页脚页码居中、全黑白、表题在上并跨页续表，写背景、需求、方案与交付内容",
+      "file": "samples/DC-WD-001-方案书.docx",
+      "spec": "specs/DC-WD-001-方案书.json",
+      "generator": "py -X utf8 scripts/make_docx_paginated.py specs/DC-WD-001-方案书.json out.docx（WPS 文字或 Word 排版，回填目录页码与续表，并导出同名 PDF；正式命令需会话与前置检索门禁）；样例：py -X utf8 templates/documents/word/tools/render_samples.py DC-WD-001",
+      "checks": [
+        "py -X utf8 scripts/check_document.py templates/documents/word/samples/DC-WD-001-方案书.docx --allow paper --allow cover --allow header",
+        "py -X utf8 scripts/check_pdf.py <导出的同名 PDF>；逐页看 PDF：封面无页码、目录页码与标题所在页一致、每张表有表题、跨页表有续表、页眉是文档标题、页脚页码居中、全文黑白"
+      ],
+      "fields": [
+        "title",
+        "cover.subtitle",
+        "cover.info",
+        "toc",
+        "sections[].heading",
+        "sections[].blocks"
+      ]
+    },
+    {
+      "id": "DC-WD-002",
+      "name": "合同",
+      "use": "合同：当事人信息、鉴于条款、第一条起的条款、签署栏与附件，页脚第几页共几页，金额自动写大写",
+      "file": "samples/DC-WD-002-合同.docx",
+      "spec": "specs/DC-WD-002-合同.json",
+      "generator": "py -X utf8 scripts/make_docx.py specs/DC-WD-002-合同.json out.docx（正式命令需会话与前置检索门禁）；样例：py -X utf8 templates/documents/word/tools/render_samples.py DC-WD-002",
+      "checks": [
+        "py -X utf8 scripts/check_document.py templates/documents/word/samples/DC-WD-002-合同.docx",
+        "导出 PDF 核对分页、页脚“第几页 共几页”、签署栏、金额大写与金额列右对齐"
+      ],
+      "fields": [
+        "title",
+        "number",
+        "parties[].fields",
+        "preamble",
+        "sections[].heading",
+        "sections[].items",
+        "signature",
+        "attachments"
+      ]
+    },
+    {
+      "id": "DC-WD-003",
+      "name": "报告",
+      "use": "客户正式文档的报告：结论与建议放在最前，数据表带单位与统计口径，封面、目录、全黑白",
+      "file": "samples/DC-WD-003-报告.docx",
+      "spec": "specs/DC-WD-003-报告.json",
+      "generator": "py -X utf8 scripts/make_docx_paginated.py specs/DC-WD-003-报告.json out.docx（WPS 文字或 Word 排版，回填目录页码与续表，并导出同名 PDF；正式命令需会话与前置检索门禁）；样例：py -X utf8 templates/documents/word/tools/render_samples.py DC-WD-003",
+      "checks": [
+        "py -X utf8 scripts/check_document.py templates/documents/word/samples/DC-WD-003-报告.docx --allow paper --allow cover --allow header",
+        "py -X utf8 scripts/check_pdf.py <导出的同名 PDF>；逐页看 PDF：封面无页码、目录页码与标题所在页一致、每张表有表题、跨页表有续表、页眉是文档标题、页脚页码居中、全文黑白"
+      ],
+      "fields": [
+        "title",
+        "cover.info",
+        "sections[].heading",
+        "sections[].blocks",
+        "table.money_cols"
+      ]
+    },
+    {
+      "id": "DC-WD-004",
+      "name": "会议纪要",
+      "use": "会议纪要：先放会议信息表，再写议题与讨论，决定事项一项一行并写责任人与完成时间",
+      "file": "samples/DC-WD-004-会议纪要.docx",
+      "spec": "specs/DC-WD-004-会议纪要.json",
+      "generator": "py -X utf8 scripts/make_docx.py specs/DC-WD-004-会议纪要.json out.docx（正式命令需会话与前置检索门禁）；样例：py -X utf8 templates/documents/word/tools/render_samples.py DC-WD-004",
+      "checks": [
+        "py -X utf8 scripts/check_document.py templates/documents/word/samples/DC-WD-004-会议纪要.docx"
+      ],
+      "fields": [
+        "title",
+        "meta",
+        "sections[].items",
+        "sections[].table.rows"
+      ]
+    },
+    {
+      "id": "DC-WD-005",
+      "name": "公文",
+      "use": "公文通知：主送机关顶格、三号仿宋正文、黑体楷体分层标题、附件说明、署名与成文日期、一字线页码",
+      "file": "samples/DC-WD-005-公文.docx",
+      "spec": "specs/DC-WD-005-公文.json",
+      "generator": "py -X utf8 scripts/make_docx.py specs/DC-WD-005-公文.json out.docx（公文版式由 tools/official_post.py 在输出上调整，生成器暂无公文版式；正式命令需会话与前置检索门禁）；样例：py -X utf8 templates/documents/word/tools/render_samples.py DC-WD-005",
+      "checks": [
+        "py -X utf8 scripts/check_document.py templates/documents/word/samples/DC-WD-005-公文.docx --allow official --allow cover",
+        "导出 PDF 逐页核对版心、行数、页码位置与署名不单独成页"
+      ],
+      "fields": [
+        "title",
+        "official.addressee",
+        "official.attachment_line",
+        "official.signature",
+        "sections[].heading",
+        "sections[].paragraphs",
+        "attachments"
+      ]
+    },
+    {
+      "id": "DC-WD-006",
+      "name": "制度",
+      "use": "制度办法：总则、职责、具体规定、流程、附则，按第一章、第一条编号，页脚页码",
+      "file": "samples/DC-WD-006-制度.docx",
+      "spec": "specs/DC-WD-006-制度.json",
+      "generator": "py -X utf8 scripts/make_docx.py specs/DC-WD-006-制度.json out.docx（正式命令需会话与前置检索门禁）；样例：py -X utf8 templates/documents/word/tools/render_samples.py DC-WD-006",
+      "checks": [
+        "py -X utf8 scripts/check_document.py templates/documents/word/samples/DC-WD-006-制度.docx"
+      ],
+      "fields": [
+        "title",
+        "sections[].blocks（sub 写章，p 写条，items 写流程步骤）",
+        "table.rows"
+      ]
+    },
+    {
+      "id": "DC-WD-007",
+      "name": "使用说明",
+      "use": "客户正式文档的使用说明：登录、操作步骤、规则表与常见异常，封面、目录、全黑白",
+      "file": "samples/DC-WD-007-使用说明.docx",
+      "spec": "specs/DC-WD-007-使用说明.json",
+      "generator": "py -X utf8 scripts/make_docx_paginated.py specs/DC-WD-007-使用说明.json out.docx（WPS 文字或 Word 排版，回填目录页码与续表，并导出同名 PDF；正式命令需会话与前置检索门禁）；样例：py -X utf8 templates/documents/word/tools/render_samples.py DC-WD-007",
+      "checks": [
+        "py -X utf8 scripts/check_document.py templates/documents/word/samples/DC-WD-007-使用说明.docx --allow paper --allow cover --allow header",
+        "py -X utf8 scripts/check_pdf.py <导出的同名 PDF>；逐页看 PDF：封面无页码、目录页码与标题所在页一致、每张表有表题、跨页表有续表、页眉是文档标题、页脚页码居中、全文黑白"
+      ],
+      "fields": [
+        "title",
+        "cover.info",
+        "sections[].heading",
+        "sections[].blocks"
+      ]
+    },
+    {
+      "id": "DC-WD-008",
+      "name": "报价函",
+      "use": "报价函：报价事项、带合计行的报价明细、商务条款与报价单位，金额右对齐",
+      "file": "samples/DC-WD-008-报价函.docx",
+      "spec": "specs/DC-WD-008-报价函.json",
+      "generator": "py -X utf8 scripts/make_docx.py specs/DC-WD-008-报价函.json out.docx（正式命令需会话与前置检索门禁）；样例：py -X utf8 templates/documents/word/tools/render_samples.py DC-WD-008",
+      "checks": [
+        "py -X utf8 scripts/check_document.py templates/documents/word/samples/DC-WD-008-报价函.docx"
+      ],
+      "fields": [
+        "title",
+        "sections[].paragraphs",
+        "sections[].table.rows",
+        "sections[].items"
+      ]
+    }
+  ],
+  "parts": [
+    {
+      "id": "DC-WD-P01",
+      "name": "封面样式",
+      "use": "封面无页眉页脚页码，标题、类型与信息成行居中；写进 spec 顶层",
+      "file": "specs/parts/DC-WD-P01-封面样式.json",
+      "used_in": [
+        "DC-WD-001",
+        "DC-WD-003",
+        "DC-WD-007"
+      ]
+    },
+    {
+      "id": "DC-WD-P02",
+      "name": "目录与页眉标题",
+      "use": "目录独立一页并用罗马数字页码，页眉只放文档标题；加到 spec 顶层",
+      "file": "specs/parts/DC-WD-P02-目录与页眉标题.json",
+      "used_in": [
+        "DC-WD-001",
+        "DC-WD-003",
+        "DC-WD-007"
+      ]
+    },
+    {
+      "id": "DC-WD-P03",
+      "name": "标题层级与编号",
+      "use": "一级、二级标题由 Word 自动编号，二级标题写成 sub 块",
+      "file": "specs/parts/DC-WD-P03-标题层级与编号.json",
+      "used_in": [
+        "DC-WD-001",
+        "DC-WD-003",
+        "DC-WD-005",
+        "DC-WD-007"
+      ]
+    },
+    {
+      "id": "DC-WD-P04",
+      "name": "正文与列点",
+      "use": "正文段落首行缩进两字，列点自动编号；放进 sections 的 blocks",
+      "file": "specs/parts/DC-WD-P04-正文与列点.json",
+      "used_in": [
+        "DC-WD-001",
+        "DC-WD-003",
+        "DC-WD-007",
+        "DC-WD-006",
+        "DC-WD-008"
+      ]
+    },
+    {
+      "id": "DC-WD-P05",
+      "name": "表题与续表",
+      "use": "表题在表上方居中，跨页时下一页写续表并重复表头；widths 给长文本列更多宽度",
+      "file": "specs/parts/DC-WD-P05-表题与续表.json",
+      "used_in": [
+        "DC-WD-001",
+        "DC-WD-003",
+        "DC-WD-007"
+      ]
+    },
+    {
+      "id": "DC-WD-P06",
+      "name": "金额表与合计行",
+      "use": "金额列右对齐并带千分位，合计行加粗；money_cols 写金额列序号",
+      "file": "specs/parts/DC-WD-P06-金额表与合计行.json",
+      "used_in": [
+        "DC-WD-002",
+        "DC-WD-003",
+        "DC-WD-006",
+        "DC-WD-008"
+      ]
+    },
+    {
+      "id": "DC-WD-P07",
+      "name": "合同页脚",
+      "use": "页脚居中写“第几页 共几页”；type 设为 contract",
+      "file": "specs/parts/DC-WD-P07-合同页脚.json",
+      "used_in": [
+        "DC-WD-002"
+      ]
+    },
+    {
+      "id": "DC-WD-P08",
+      "name": "当事人与鉴于条款",
+      "use": "每方一组字段、顺序一致，之后一段鉴于条款",
+      "file": "specs/parts/DC-WD-P08-当事人与鉴于条款.json",
+      "used_in": [
+        "DC-WD-002"
+      ]
+    },
+    {
+      "id": "DC-WD-P09",
+      "name": "条款编号",
+      "use": "一级“第一条”、二级“1.1”，条款与条款之间不空行",
+      "file": "specs/parts/DC-WD-P09-条款编号.json",
+      "used_in": [
+        "DC-WD-002"
+      ]
+    },
+    {
+      "id": "DC-WD-P10",
+      "name": "签署栏",
+      "use": "正文结束后自动写“（以下无正文）”，两列无边框并排各方签署",
+      "file": "specs/parts/DC-WD-P10-签署栏.json",
+      "used_in": [
+        "DC-WD-002"
+      ]
+    },
+    {
+      "id": "DC-WD-P11",
+      "name": "附件页",
+      "use": "附件各自从新页开始，标题写“附件一：名称”；公文只有一件附件时改写“附件：名称”",
+      "file": "specs/parts/DC-WD-P11-附件页.json",
+      "used_in": [
+        "DC-WD-002",
+        "DC-WD-005"
+      ]
+    },
+    {
+      "id": "DC-WD-P12",
+      "name": "会议信息表",
+      "use": "标题之后先放时间、地点、主持、参会、记录",
+      "file": "specs/parts/DC-WD-P12-会议信息表.json",
+      "used_in": [
+        "DC-WD-004"
+      ]
+    },
+    {
+      "id": "DC-WD-P13",
+      "name": "决定事项表",
+      "use": "决定事项一项一行，写事项、责任人、完成时间",
+      "file": "specs/parts/DC-WD-P13-决定事项表.json",
+      "used_in": [
+        "DC-WD-004"
+      ]
+    },
+    {
+      "id": "DC-WD-P14",
+      "name": "公文要素",
+      "use": "主送机关顶格、附件说明、署名与成文日期；official 块供 tools/official_post.py 调整版式",
+      "file": "specs/parts/DC-WD-P14-公文要素.json",
+      "used_in": [
+        "DC-WD-005"
+      ]
+    },
+    {
+      "id": "DC-WD-P15",
+      "name": "制度章条",
+      "use": "章用二级标题，条用正文段落，条款编号按“第一章”“第一条”",
+      "file": "specs/parts/DC-WD-P15-制度章条.json",
+      "used_in": [
+        "DC-WD-006"
+      ]
+    }
+  ]
+}

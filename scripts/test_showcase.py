@@ -15,6 +15,13 @@ import showcase  # noqa: E402
 import showcase_figures as F  # noqa: E402
 import showcase_icons as I  # noqa: E402
 
+
+def select_showcase(session, pdf):
+    """make_showcase writes the PDF and its working HTML; each exact output is bound to the showcase template first."""
+    import template_library
+    for path in (pdf, pdf.with_suffix(".html")):
+        template_library.select(session, "luz-design", "design", "showcase", path.relative_to(session).as_posix())
+
 ARCH = {"layers": [
     {"name": "使用端", "icon": "phone", "nodes": [{"id": "U1", "name": "小程序", "role": "报餐"}, {"id": "U2", "name": "后台", "role": "管理"}]},
     {"name": "业务", "nodes": [{"id": "S1", "name": "订单", "role": "报餐与取消"}, {"id": "S2", "name": "企业", "role": "员工名单"}]},
@@ -95,11 +102,14 @@ class ShowcaseTests(unittest.TestCase):
         except Exception:
             self.skipTest("Edge is not available")
         with tempfile.TemporaryDirectory() as tmp:
-            spec = Path(tmp) / "s.json"
+            from test_crawl_gate import ready_session
+            folder = ready_session(Path(tmp))
+            spec = folder / "raw" / "s.json"
             import json
             spec.write_text(json.dumps({**SPEC, "min_fill": 0.1}, ensure_ascii=False), encoding="utf-8")
-            pdf = Path(tmp) / "out.pdf"
-            self.assertEqual(make_showcase.main([str(spec), str(pdf), "--min-fill", "0.1"]), 0)
+            pdf = folder / "raw" / "out.pdf"
+            select_showcase(folder, pdf)
+            self.assertEqual(make_showcase.main([str(spec), str(pdf), "--min-fill", "0.1", "--session", str(folder)]), 0)
             self.assertTrue(pdf.stat().st_size > 5000)
 
 
@@ -279,17 +289,21 @@ class FigureColourAndRoutingTests(unittest.TestCase):
 
         def fake_export(html, pdf, orientation, min_fill, footer_title="", cover=False, header=True):
             calls.append({"footer_title": footer_title, "header": header})
+            Path(pdf).write_bytes(b"%PDF-1.4\n% TEST ONLY placeholder\n")          # the command records the PDF it wrote
             return [], [], {"pages": []}
 
         real_export, real_check = make_showcase.export_pdf, make_table_pdf.check_pdf
         make_showcase.export_pdf, make_table_pdf.check_pdf = fake_export, lambda pdf, max_pages=None: []
         try:
             with tempfile.TemporaryDirectory() as tmp:
+                from test_crawl_gate import ready_session
+                folder = ready_session(Path(tmp))
                 for style, extra in (("atlas", {"show_title": False}), ("formal", {})):
                     spec = {"title": "示例系统文档", "theme": "cantonese-cafe", "style": style, "orientation": "landscape", "sections": sections, **extra}
-                    path = Path(tmp) / f"{style}.json"
+                    path = folder / "raw" / f"{style}.json"
                     path.write_text(__import__("json").dumps(spec, ensure_ascii=False), encoding="utf-8")
-                    self.assertEqual(make_showcase.main([str(path), str(Path(tmp) / f"{style}.pdf")]), 0, style)
+                    select_showcase(folder, folder / "raw" / f"{style}.pdf")
+                    self.assertEqual(make_showcase.main([str(path), str(folder / "raw" / f"{style}.pdf"), "--session", str(folder)]), 0, style)
         finally:
             make_showcase.export_pdf, make_table_pdf.check_pdf = real_export, real_check
         self.assertEqual(calls, [{"footer_title": "示例系统文档", "header": False}, {"footer_title": "示例系统文档", "header": True}])

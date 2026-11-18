@@ -1,0 +1,20 @@
+{
+  "id": "DC-RD-P10",
+  "name": "来源列表",
+  "use": "文末二级标题“参考来源”，每条写发布方、真实标题与链接、定位、核对日期；正文用 [^n] 就近指向",
+  "fragment": {
+    "sources": [
+      {
+        "publisher": "Diátaxis",
+        "title": "Reference",
+        "url": "https://diataxis.fr/reference/",
+        "locator": "页首两句",
+        "checked": "2026-11-09"
+      }
+    ]
+  },
+  "used_in": [
+    "DC-RD-005",
+    "DC-RD-006"
+  ]
+}

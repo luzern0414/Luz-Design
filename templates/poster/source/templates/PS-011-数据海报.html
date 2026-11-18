@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="zh-CN" data-ic-base="../../../../kit/assets/icons">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>数据海报</title>
+<link rel="icon" href="../../../../kit/assets/icons/flat/bouquet.webp">
+<link rel="stylesheet" href="../../../../kit/tokens.css">
+<style>
+:root { --pw: 1080px; --ph: 1440px; }
+/* 海报画布与预览：画布大小写死，页面按视口缩放预览；地址加 ?export=1 去掉缩放与外框，用于导出 */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; }
+body { background: color-mix(in srgb, var(--ink) 12%, var(--bg)); font: 400 16px/1.5 var(--font); color: var(--ink); -webkit-font-smoothing: antialiased; }
+.pv { min-height: 100vh; display: grid; place-items: center; padding: 24px; }
+.pv__fit { --k: 1; position: relative; width: calc(var(--pw) * var(--k)); height: calc(var(--ph) * var(--k)); box-shadow: var(--elev-3); }
+.poster { position: absolute; left: 0; top: 0; width: var(--pw); height: var(--ph); overflow: hidden; transform: scale(var(--k)); transform-origin: 0 0; background: var(--bg); color: var(--ink); font-family: var(--font); line-height: 1.3; text-rendering: optimizeLegibility; }
+.poster *, .poster *::before, .poster *::after { margin: 0; padding: 0; }
+.poster img { display: block; }
+.poster h1, .poster h2, .poster h3, .poster p { font-weight: inherit; }
+.x-tex { position: absolute; inset: 0; background: url(../../../../kit/assets/photo/pattern-petals.webp) 0 0 / 520px; opacity: .45; pointer-events: none; }
+.x-nw { white-space: nowrap; }
+.is-export body, .is-export { background: transparent; }
+.is-export .pv { display: block; min-height: 0; padding: 0; }
+.is-export .pv__fit { --k: 1; box-shadow: none; }
+.marks i { position: absolute; background: var(--ink-2); }
+@media print { html, body { background: none; } .pv { display: block; min-height: 0; padding: 0; } .pv__fit { --k: 1; box-shadow: none; } .marks { display: none; } }
+
+/* ── 本海报 ── */
+.p11 { position: absolute; inset: 0; background: var(--bg); }
+.p11 .top { position: absolute; left: 0; right: 0; top: 0; height: 548px; background: var(--action-press); color: var(--bg); overflow: hidden; }
+.p11 .top .x-tex { mix-blend-mode: soft-light; opacity: .2; }
+.p11 .top .glow { position: absolute; left: 560px; top: -260px; width: 800px; height: 800px; border-radius: 50%; background: color-mix(in srgb, var(--action) 62%, var(--action-press)); opacity: .55; }
+.p11 .head { position: absolute; left: 72px; right: 72px; top: 64px; display: flex; justify-content: space-between; align-items: center; }
+.p11 .brand { display: flex; align-items: center; gap: 14px; font-size: 36px; font-weight: 600; letter-spacing: .08em; }
+.p11 .brand img { width: 56px; height: 56px; }
+.p11 .head span { font-size: 28px; font-weight: 500; letter-spacing: .3em; color: var(--accent-tint); }
+.p11 .title { position: absolute; left: 68px; top: 156px; font-size: 140px; font-weight: 700; letter-spacing: -.01em; line-height: 1.1; white-space: nowrap; }
+.p11 .kpis { position: absolute; left: 72px; right: 72px; top: 356px; display: grid; grid-template-columns: repeat(3, 1fr); border-top: 2px solid color-mix(in srgb, var(--bg) 35%, transparent); padding-top: 26px; }
+.p11 .kpi + .kpi { padding-left: 32px; border-left: 2px solid color-mix(in srgb, var(--bg) 26%, transparent); }
+.p11 .kpi b { font-size: 84px; font-weight: 700; line-height: 1; color: var(--accent-tint); font-variant-numeric: tabular-nums; }
+.p11 .kpi b small { font-size: 32px; font-weight: 600; margin-left: 6px; color: var(--bg); }
+.p11 .kpi p { margin-top: 10px; font-size: 30px; font-weight: 500; }
+.p11 .sec { position: absolute; left: 72px; right: 72px; display: flex; align-items: baseline; justify-content: space-between; }
+.p11 .sec h2 { font-size: 44px; font-weight: 700; letter-spacing: .06em; display: flex; align-items: center; gap: 16px; }
+.p11 .sec h2::before { content: ""; width: 10px; height: 40px; border-radius: 5px; background: var(--accent); }
+.p11 .sec span { font-size: 28px; color: var(--ink-2); }
+.p11 .bars { position: absolute; left: 72px; right: 72px; top: 676px; height: 330px; }
+.p11 .grid { position: absolute; left: 0; right: 0; top: 0; height: 270px; background: repeating-linear-gradient(180deg, var(--line-strong) 0 2px, transparent 2px 67.5px); border-bottom: 3px solid var(--ink); }
+.p11 .cols { position: absolute; left: 0; right: 0; top: 0; height: 330px; display: flex; justify-content: space-between; padding: 0 12px; }
+.p11 .col { width: 92px; height: 100%; position: relative; text-align: center; }
+.p11 .col i { position: absolute; left: 0; right: 0; bottom: 60px; height: var(--h); border-radius: 12px 12px 0 0; background: color-mix(in srgb, var(--action) 36%, var(--bg)); font-style: normal; }
+.p11 .col.hi i { background: var(--action); }
+.p11 .col em { position: absolute; left: -10px; right: -10px; bottom: calc(60px + var(--h) + 8px); font-style: normal; font-size: 30px; font-weight: 600; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.p11 .col.hi em { color: var(--action-press); font-weight: 700; font-size: 34px; }
+.p11 .col span { position: absolute; left: 0; right: 0; bottom: 14px; font-size: 28px; font-weight: 500; color: var(--ink-2); }
+.p11 .donut { position: absolute; left: 72px; top: 1096px; width: 290px; height: 290px; border-radius: 50%; background: conic-gradient(var(--c1) 0 52%, var(--c2) 52% 75%, var(--c3) 75% 93%, var(--c4) 93% 100%); --c1: var(--action); --c2: color-mix(in srgb, var(--action) 58%, var(--bg)); --c3: color-mix(in srgb, var(--accent) 55%, var(--bg)); --c4: color-mix(in srgb, var(--ink) 28%, var(--bg)); }
+.p11 .donut::after { content: ""; position: absolute; inset: 74px; border-radius: 50%; background: var(--bg); }
+.p11 .donut div { position: absolute; inset: 0; z-index: 1; display: grid; place-content: center; text-align: center; }
+.p11 .donut b { font-size: 46px; font-weight: 700; line-height: 1; color: var(--action-press); }
+.p11 .donut small { font-size: 26px; color: var(--ink-2); margin-top: 4px; }
+.p11 .legend { position: absolute; left: 430px; right: 72px; top: 1104px; }
+.p11 .lg { height: 70px; display: flex; align-items: center; gap: 18px; border-bottom: 2px solid var(--line-strong); font-size: 34px; font-weight: 600; }
+.p11 .lg:first-child { border-top: 3px solid var(--ink); }
+.p11 .lg u { width: 26px; height: 26px; border-radius: 8px; background: var(--c); }
+.p11 .lg b { margin-left: auto; font-size: 38px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.p11 .foot { position: absolute; left: 72px; right: 72px; bottom: 52px; font-size: 28px; color: var(--ink-2); letter-spacing: .06em; display: flex; justify-content: space-between; }
+</style>
+</head>
+<body>
+<div class="pv"><div class="pv__fit">
+<main class="poster" id="poster" data-cid="PS-011" data-name="数据海报" data-size="1080×1440" data-use="数据">
+<div class="p11">
+  <div class="top"><div class="x-tex"></div><div class="glow"></div>
+    <div class="head"><div class="brand"><img data-ic="bouquet" src="../../../../kit/assets/icons/flat/bouquet.webp" alt="">花间集</div><span>三家门店合计</span></div>
+    <h1 class="title">一周花事数据</h1>
+    <div class="kpis">
+      <div class="kpi"><b>2860<small>单</small></b><p>订单总数</p></div>
+      <div class="kpi"><b>1286<small>束</small></b><p>鲜花售出</p></div>
+      <div class="kpi"><b>96<small>%</small></b><p>准时送达</p></div>
+    </div>
+  </div>
+  <div class="sec" style="top: 592px"><h2>每日订单</h2><span>单位 单</span></div>
+  <div class="bars" role="img" aria-label="一周每日订单条形图 周一 310 单 周二 340 单 周三 330 单 周四 360 单 周五 480 单 周六 560 单 周日 480 单">
+    <div class="grid"></div>
+    <div class="cols">
+      <div class="col" style="--h: 155px"><em>310</em><i></i><span>周一</span></div>
+      <div class="col" style="--h: 170px"><em>340</em><i></i><span>周二</span></div>
+      <div class="col" style="--h: 165px"><em>330</em><i></i><span>周三</span></div>
+      <div class="col" style="--h: 180px"><em>360</em><i></i><span>周四</span></div>
+      <div class="col" style="--h: 240px"><em>480</em><i></i><span>周五</span></div>
+      <div class="col hi" style="--h: 280px"><em>560</em><i></i><span>周六</span></div>
+      <div class="col" style="--h: 240px"><em>480</em><i></i><span>周日</span></div>
+    </div>
+  </div>
+  <div class="sec" style="top: 1030px"><h2>品类占比</h2><span>占全部订单</span></div>
+  <div class="donut" role="img" aria-label="品类占比环形图 鲜花 52% 绿植 23% 礼盒 18% 花器 7%"><div><b>52%</b><small>鲜花</small></div></div>
+  <div class="legend">
+    <div class="lg" style="--c: var(--action)"><u></u>鲜花<b>52%</b></div>
+    <div class="lg" style="--c: color-mix(in srgb, var(--action) 58%, var(--bg))"><u></u>绿植<b>23%</b></div>
+    <div class="lg" style="--c: color-mix(in srgb, var(--accent) 55%, var(--bg))"><u></u>礼盒<b>18%</b></div>
+    <div class="lg" style="--c: color-mix(in srgb, var(--ink) 28%, var(--bg))"><u></u>花器<b>7%</b></div>
+  </div>
+</div>
+</main>
+</div></div>
+<script src="../../../../kit/ui.js"></script>
+<script>
+(function () {
+  var q = new URLSearchParams(location.search), root = document.documentElement;
+  if (q.get('export') === '1') root.classList.add('is-export');
+  if (q.get('bleed') === '1') root.classList.add('is-bleed');
+  var p = document.getElementById('poster'), fit = p.parentNode;
+  function fitIt() {
+    if (root.classList.contains('is-export')) { fit.style.setProperty('--k', 1); return; }
+    var k = Math.min((innerWidth - 48) / p.offsetWidth, (innerHeight - 48) / p.offsetHeight, 1);
+    fit.style.setProperty('--k', Math.max(k, 0.05));
+  }
+  addEventListener('resize', fitIt); fitIt();
+  var pg = document.createElement('style');
+  pg.textContent = '@page{size:' + p.offsetWidth + 'px ' + p.offsetHeight + 'px;margin:0}';
+  document.head.appendChild(pg);
+  if (root.classList.contains('is-bleed') && !root.classList.contains('is-export')) {
+    var m = document.createElement('div'); m.className = 'marks'; m.setAttribute('aria-hidden', 'true');
+    var b = parseFloat(getComputedStyle(p).getPropertyValue('--bleed')) || 11.34, L = 20, G = 4;
+    var W = p.offsetWidth, H = p.offsetHeight;
+    [[0, 0], [1, 0], [0, 1], [1, 1]].forEach(function (c) {
+      var x = c[0] ? W - b : b, y = c[1] ? H - b : b;
+      var v = [x - 0.5, c[1] ? H + G : -G - L, 1, L], h = [c[0] ? W + G : -G - L, y - 0.5, L, 1];
+      [v, h].forEach(function (r) {
+        var i = document.createElement('i'); i.style.cssText = 'left:' + r[0] + 'px;top:' + r[1] + 'px;width:' + r[2] + 'px;height:' + r[3] + 'px';
+        m.appendChild(i);
+      });
+    });
+    m.style.cssText = 'position:absolute;left:0;top:0;width:' + W + 'px;height:' + H + 'px;transform:scale(var(--k));transform-origin:0 0;pointer-events:none';
+    fit.appendChild(m);
+  }
+})();
+</script>
+</body>
+</html>

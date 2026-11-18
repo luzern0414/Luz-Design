@@ -1,0 +1,7 @@
+Use case: product-mockup
+Asset type: a polished commerce reference image for a mobile storefront
+Primary request: A fresh, abundant bouquet of dusty pink garden roses, white lisianthus and eucalyptus, tied in natural ivory paper, on a pale rose studio table. An elegant flower studio still life. Flowers occupy the right half; the left half is softly lit pale rose negative space for live HTML copy.
+Style/medium: high quality photorealistic editorial product photography
+Text: none. All product packaging must be entirely blank.
+Constraints: no text, no typography, no logo, no brand, no watermark, no UI, no buttons, no collage, no border. A single coherent image.
+These are fictional visual examples for an internal HTML reference, not images of real branded products.

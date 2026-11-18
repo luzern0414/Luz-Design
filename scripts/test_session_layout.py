@@ -26,6 +26,22 @@ from test_session_flow import adopt_rules, read_json, tool_root, write_json
 from validate_session import validate
 
 
+def select_fixture_template(session: Path, target: Path, template: str) -> None:
+    """Explicit offline selection; a layout test cannot waive business gates."""
+    import crawl_gate
+    import template_library
+    _, context = crawl_gate._context(session, target)
+    template_library.select(context["template_root"], "luz-design", context["stage"], template, str(target))
+
+
+def fixture_workbook(session: Path, target: Path) -> None:
+    import make_xlsx
+    select_fixture_template(session, target, "xlsx")
+    make_xlsx.build({"title": "OFFLINE_LAYOUT_FIXTURE", "theme": "coffee",
+        "columns": [{"name": "Item"}, {"name": "Notes"}],
+        "rows": [["Fixture A", "Synthetic test row"], ["Fixture B", "Synthetic test row"]]}, target, session=session)
+
+
 def quiet(function, *args, **kwargs):
     with contextlib.redirect_stdout(io.StringIO()):
         return function(*args, **kwargs)
@@ -47,7 +63,10 @@ def make_project(base: Path, name="014-ProjectX", with_deliver_root=True) -> tup
     state = base / "state" / name / "raw"
     state.mkdir(parents=True)
     folder = base / name
-    (state / "project.json").write_text(json.dumps({"deliver_root": str(folder)} if with_deliver_root else {}), encoding="utf-8")
+    project = {"stages": [{"id": "design", "owner": "luz-design", "status": "pending"}]}
+    if with_deliver_root:
+        project["deliver_root"] = str(folder)
+    (state / "project.json").write_text(json.dumps(project), encoding="utf-8")
     return state, folder
 
 
@@ -57,8 +76,13 @@ class LayoutCase(unittest.TestCase):
 
     def sheet(self, root: Path, name="门店销售表") -> tuple[Path, Path]:
         session = create_session(root, name, ["document"], skill_root=ROOT, cards=["xlsx"])
+        sys.path.insert(0, str(ROOT.parent / "Luz-Crawl" / "scripts"))
+        from test_crawl_preflight import complete_fixture
+        complete_fixture(session, "luz-design", "design")
+        complete_fixture(session, "luz-design", "summary")
         made = session / "raw" / "03-documents" / "outputs" / f"{name}.xlsx"
-        made.write_bytes(b"xlsx")
+        fixture_workbook(session, made)
+        select_fixture_template(session, session / made.name, "xlsx")
         return session, made
 
 
@@ -166,6 +190,7 @@ class StandaloneDeliveryTest(LayoutCase):
     def test_cli_names_the_text_for_the_summary_page(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             session, made = self.sheet(tool_root(temp))
+            select_fixture_template(session, session / "销售明细.xlsx", "xlsx")
             out = io.StringIO()
             with contextlib.redirect_stdout(out):
                 self.assertEqual(deliver.main([str(session), str(made), "--as", "销售明细"]), 0)
@@ -232,10 +257,12 @@ class ProjectTaskTest(LayoutCase):
                 publisher.publish(session, "document")                                       # a project page needs --as
             with self.assertRaises(ValueError):
                 publisher.publish(session, "document", as_name="前端界面设计")                  # NN-名称
+            select_fixture_template(session, folder / "docs" / "02-产品开发" / "03-前端界面设计.html", "design-document-page")
             page = publisher.publish(session, "document", as_name="03-前端界面设计")
             self.assertEqual(page, folder / "docs" / "02-产品开发" / "03-前端界面设计.html")
             sheet = session / "raw" / "03-documents" / "outputs" / "需求清单.xlsx"
-            sheet.write_bytes(b"xlsx")
+            fixture_workbook(session, sheet)
+            select_fixture_template(session, folder / "docs" / "01-需求对接" / "01-需求清单.xlsx", "xlsx")
             with self.assertRaises(ValueError):
                 deliver.deliver(session, sheet, as_name="01-需求清单")                         # --to is required
             with self.assertRaises(ValueError):
@@ -350,9 +377,10 @@ class ShippedFilesTest(unittest.TestCase):
         self.assertIsNone(manifest["project"])
 
     def test_shared_layout_scripts_are_required_files(self) -> None:
-        for name in ("scripts/check_output_layout.py", "scripts/make_summary.py", "scripts/deliver.py", "scripts/test_session_layout.py"):
+        for name in ("scripts/check_output_layout.py", "scripts/make_summary.py", "scripts/deliver.py"):
             self.assertIn(name, validate_skill.REQUIRED)
             self.assertTrue((ROOT / name).is_file(), name)
+        self.assertTrue((ROOT / "scripts/test_session_layout.py").is_file())
 
 
 if __name__ == "__main__":

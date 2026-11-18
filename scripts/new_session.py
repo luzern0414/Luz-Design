@@ -21,9 +21,9 @@ from validate_session import OUTPUT_STANDARD
 
 SKILL_ROOT = Path(__file__).resolve().parents[1]
 # The skill holds rules, templates and scripts; every session it creates is an output and lives here.
-OUTPUT_ROOT = Path(r"D:\Codes\skill输出\Luz-Design")
+OUTPUT_ROOT = Path(r"E:\Skill输出\Luz-Design")
 # A project's state root is the raw\ of its session in the Luz-Project output root (the project folder keeps results only).
-PROJECT_OUTPUT_ROOT = Path(os.environ.get("LUZ_PROJECT_OUTPUT") or r"D:\Codes\skill输出\Luz-Project")
+PROJECT_OUTPUT_ROOT = Path(os.environ.get("LUZ_PROJECT_OUTPUT") or r"E:\Skill输出\Luz-Project")
 SESSION_RE = re.compile(r"^(\d{3,})-(.+)$")
 # Sessions made before the output layout used two-digit numbers or underscores; their numbers are never reused.
 LEGACY_SESSION_RE = re.compile(r"^(\d{2,})[-_].+$")
@@ -36,9 +36,11 @@ POSTER_TASK_RE = re.compile(r"海报|poster|主视觉|品牌视觉|宣传图|视
 SESSION_KINDS = ("general", "standalone_poster")
 # Rule card written into raw/00-rules/ when a mode starts (scripts/context.py; references/cards.json).
 DEFAULT_CARDS = {"visual": "poster", "document": "reading-html"}
+PAGE_TEMPLATES = {"visual-board.html": "design-visual-board", "document.html": "design-document-page"}
 
-# Tab icon (references/visual-design.html 网页图标与品牌标识): every delivered HTML carries one flat line pictogram of its
-# subject, primary-colour strokes on a rounded square in the theme's lightest tint, 32×32, at most three shapes, no text.
+# Tab icon (references/visual-design.html 网页图标与品牌标识): every delivered HTML carries one solid mark of its subject:
+# a white pictogram on a rounded square in the theme's primary colour (colour plus white), 32×32, at most three shapes, no text.
+# The rule asks for a solid mark and does not prescribe the colour.
 TAB_ICONS = {
     "dumbbell": '<path d="M9 11v10M23 11v10M6 14v4M26 14v4M9 16h14"/>',
     "megaphone": '<path d="M8 13v6h4l8 5V8l-8 5z"/><path d="M24 13a4 4 0 0 1 0 6"/>',
@@ -101,10 +103,10 @@ def theme_colors(subject: str, theme: str | None = None, themes_json: Path = THE
 
 
 def tab_icon_svg(subject: str, *, icon: str | None = None, theme: str | None = None, default: str = "grid", attrs: str = "") -> str:
-    primary, tint = theme_colors(subject, theme)
+    primary, _tint = theme_colors(subject, theme)
     shapes = TAB_ICONS[icon or pick_icon(subject, default)]
-    return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"{attrs}><rect width="32" height="32" rx="8" fill="{tint}"/>'
-            f'<g fill="none" stroke="{primary}" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round">{shapes}</g></svg>')
+    return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"{attrs}><rect width="32" height="32" rx="8" fill="{primary}"/>'
+            f'<g fill="none" stroke="#FFFFFF" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round">{shapes}</g></svg>')
 
 
 def tab_icon_href(subject: str, **options) -> str:
@@ -162,7 +164,29 @@ def read_template(skill_root: Path, name: str) -> str:
     if start not in text:
         raise KeyError(f"template not found in references/templates.txt: {name}")
     body = text.split(start, 1)[1].split("\n=== end ===", 1)[0]
+    if name in PAGE_TEMPLATES:
+        body = body.replace('<html ', f'<html data-luz-template="{PAGE_TEMPLATES[name]}" ', 1)
     return body + "\n"
+
+
+def session_page_template_errors(source: Path, template_id: str) -> list[str]:
+    """Check the real session shell while allowing its text and theme tokens."""
+    name = next((name for name, identifier in PAGE_TEMPLATES.items() if identifier == template_id), None)
+    if name is None:
+        return [f"不是会话页面模板: {template_id}"]
+    text = Path(source).read_text(encoding="utf-8-sig")
+    expected = read_template(SKILL_ROOT, name)
+    if not re.search(r'<html\b[^>]*\bdata-luz-template=[\"\']' + re.escape(template_id) + r'[\"\']', text, re.I):
+        return [f"页面未使用真实 Luz-Design 会话模板 {template_id}；请从 new_session.py 的模板生成页面"]
+    def layout_css(value):
+        css = "\n".join(re.findall(r"<style\b[^>]*>(.*?)</style>", value, re.I | re.S))
+        css = re.sub(r"/\*.*?\*/", "", css, flags=re.S)
+        # The maintained template explicitly permits changing theme tokens.
+        css = re.sub(r":root\s*\{[^}]*\}", "", css)
+        return re.sub(r"\s+", "", css)
+    if layout_css(text) != layout_css(expected):
+        return [f"页面布局样式与真实 Luz-Design 模板 {template_id} 不一致；不能只登记模板名或自写外壳"]
+    return []
 
 
 def write_if_missing(path: Path, text: str) -> None:
@@ -306,6 +330,16 @@ def create_session(
         # The rules, preferences, lessons, tools and checks for this task, cut from the rule pages (read before producing).
         for kind in kinds:
             context.save_card(work, kind)
+        # Reserve exact, real template sources. Scaffold creation is internal;
+        # business generators/publish still require their own stage evidence.
+        from template_library import select as select_design_template
+        business_stage = (project_link.get("stage") or "design") if project_link else os.environ.get("LUZ_CRAWL_STAGE") or "design"
+        summary_stage = business_stage if project_link else os.environ.get("LUZ_CRAWL_STAGE") or "summary"
+        select_design_template(folder, "luz-design", summary_stage, "reading-html", f"{folder.name}.html")
+        for mode in modes:
+            filename = "visual-board.html" if mode == "visual" else "document.html"
+            subfolder = "02-visual" if mode == "visual" else "03-documents"
+            select_design_template(folder, "luz-design", business_stage, PAGE_TEMPLATES[filename], f"raw/{subfolder}/{filename}")
     except Exception:
         shutil.rmtree(folder, ignore_errors=True)
         raise

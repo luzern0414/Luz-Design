@@ -1,0 +1,16 @@
+{
+  "id": "DC-XL-P10",
+  "name": "报价依据",
+  "use": "金额、单价、预算列只在要求人写明原话后放行，数字由人工报价单录入，版式里留空",
+  "fragment": {
+    "allow_quote": true,
+    "quote_evidence": {
+      "requested_by": "<要求人：姓名或角色>",
+      "request_note": "<要求人的原话>"
+    }
+  },
+  "used_in": [
+    "DC-XL-001",
+    "DC-XL-007"
+  ]
+}

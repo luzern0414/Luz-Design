@@ -1,0 +1,206 @@
+{
+ "id": "DC-SL-002",
+ "name": "方案提案",
+ "theme": "rose",
+ "title": "周期订花服务方案",
+ "slides": [
+  {
+   "layout": "cover",
+   "title": "周期订花服务方案",
+   "image": "bouquet-tulip"
+  },
+  {
+   "layout": "bullets",
+   "title": "顾客想要省心的订花方式",
+   "image": "product-hydrangea-blue",
+   "points": [
+    "临时买花常常来不及",
+    "每次挑选花束耗时较长",
+    "价格随节日起伏不定",
+    "想持续保持家里有花"
+   ]
+  },
+  {
+   "layout": "two-column",
+   "title": "固定订花比单次购买更省心",
+   "left": {
+    "head": "单次购买",
+    "points": [
+     "每次到店或下单挑选",
+     "节日前后价格波动",
+     "花材新鲜度靠运气"
+    ]
+   },
+   "right": {
+    "head": "周期订花",
+    "points": [
+     "按期自动配送到家",
+     "全年价格保持稳定",
+     "花艺师按季挑选花材"
+    ]
+   }
+  },
+  {
+   "layout": "steps",
+   "title": "订花只需四步",
+   "steps": [
+    {
+     "head": "选套餐",
+     "text": "三档套餐任选"
+    },
+    {
+     "head": "定频次",
+     "text": "每周或每月"
+    },
+    {
+     "head": "填地址",
+     "text": "家里或办公室"
+    },
+    {
+     "head": "收鲜花",
+     "text": "准时送到"
+    }
+   ]
+  },
+  {
+   "layout": "table",
+   "title": "三档套餐覆盖不同需求",
+   "columns": [
+    {
+     "text": "套餐",
+     "width": 1.1
+    },
+    {
+     "text": "配送频次"
+    },
+    {
+     "text": "花束",
+     "width": 1.3
+    },
+    {
+     "text": "月价",
+     "align": "right",
+     "width": 0.9
+    }
+   ],
+   "rows": [
+    [
+     "轻享套餐",
+     "每月2次",
+     "向日葵花束",
+     "¥288"
+    ],
+    [
+     "标准套餐",
+     "每月4次",
+     "白郁金香",
+     "¥658"
+    ],
+    [
+     "臻选套餐",
+     "每月4次",
+     "粉芍药花束",
+     "¥858"
+    ]
+   ]
+  },
+  {
+   "layout": "image-text",
+   "title": "每期花材由花艺师挑选",
+   "image": "product-peony-pink",
+   "side": "right",
+   "badge": "¥858",
+   "head": "臻选套餐",
+   "points": [
+    "每期搭配当季花材",
+    "附带养护卡片",
+    "可更换花束种类"
+   ]
+  },
+  {
+   "layout": "chart",
+   "title": "标准套餐占一半",
+   "chart": {
+    "type": "doughnut",
+    "caption": "目标订阅构成 单位 百分比",
+    "categories": [
+     "轻享套餐",
+     "标准套餐",
+     "臻选套餐"
+    ],
+    "series": [
+     {
+      "name": "占比",
+      "values": [
+       30,
+       50,
+       20
+      ]
+     }
+    ]
+   },
+   "stat": {
+    "icon": "giftbox",
+    "label": "标准套餐占比",
+    "value": "50",
+    "unit": "%"
+   }
+  },
+  {
+   "layout": "stats",
+   "title": "试运行目标已经明确",
+   "items": [
+    {
+     "icon": "giftbox",
+     "label": "目标订阅",
+     "value": "300",
+     "unit": "户"
+    },
+    {
+     "icon": "heart",
+     "label": "续订率",
+     "value": "70",
+     "unit": "%"
+    },
+    {
+     "icon": "seedling",
+     "label": "月新增",
+     "value": "80",
+     "unit": "户"
+    },
+    {
+     "icon": "wallet",
+     "label": "户均月消费",
+     "value": "520",
+     "unit": "元"
+    }
+   ]
+  },
+  {
+   "layout": "bullets",
+   "title": "上线前要完成四项准备",
+   "stat": {
+    "icon": "seedling",
+    "label": "需完成准备",
+    "value": "4",
+    "unit": "项"
+   },
+   "points": [
+    "确认花材供应商",
+    "规划配送路线",
+    "开通订阅功能",
+    "培训客服与花艺师"
+   ]
+  },
+  {
+   "layout": "end",
+   "title": "周期订花可以试运行",
+   "image": "bouquet-rose",
+   "points": [
+    "三档套餐覆盖常见需求",
+    "四步完成订花",
+    "先在建国路店试点"
+   ]
+  }
+ ]
+}

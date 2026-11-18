@@ -1,0 +1,306 @@
+{
+  "id": "DC-RD-006",
+  "title": "订单服务技术方案",
+  "theme": "b2b-graphite",
+  "icon": "chip",
+  "sections": [
+    {
+      "title": "方案选择",
+      "blocks": [
+        {
+          "type": "conclusion",
+          "text": "拟采用模块化单体承载商品、订单与会员，支付与配送作为外部服务接入。"
+        },
+        {
+          "type": "table",
+          "caption": "表 1 备选方案对比",
+          "columns": [
+            "方案",
+            "优点",
+            "代价",
+            "结论"
+          ],
+          "align": [
+            "left",
+            "left",
+            "left",
+            "center"
+          ],
+          "rows": [
+            [
+              "模块化单体",
+              "部署与排错简单，事务边界清楚",
+              "模块间依赖要靠代码约定维持",
+              "拟采用"
+            ],
+            [
+              "微服务",
+              "模块可独立扩容与发布",
+              "运维与调用链复杂，三家门店规模下收益有限",
+              "暂不采用"
+            ],
+            [
+              "托管函数",
+              "按调用计量，免运维",
+              "长事务与状态机难以控制",
+              "不采用"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "title": "订单状态机",
+      "blocks": [
+        {
+          "type": "flow",
+          "items": [
+            {
+              "name": "待付款"
+            },
+            {
+              "name": "待发货"
+            },
+            {
+              "name": "待收货"
+            },
+            {
+              "name": "已完成"
+            },
+            {
+              "name": "售后"
+            }
+          ]
+        },
+        {
+          "type": "table",
+          "caption": "表 2 状态迁移",
+          "columns": [
+            "当前状态",
+            "触发事件",
+            "下一状态",
+            "约束"
+          ],
+          "align": [
+            "left",
+            "left",
+            "center",
+            "left"
+          ],
+          "rows": [
+            [
+              "待付款",
+              "支付成功回调",
+              "待发货",
+              "支付超时未完成则取消订单并释放库存"
+            ],
+            [
+              "待发货",
+              "门店发出订单",
+              "待收货",
+              "须先完成备货，缺货时不能发出"
+            ],
+            [
+              "待收货",
+              "顾客确认收货",
+              "已完成",
+              "超过约定时限自动确认"
+            ],
+            [
+              "已完成",
+              "顾客申请退款",
+              "售后",
+              "仅限已完成订单申请"
+            ],
+            [
+              "售后",
+              "店长处理完成",
+              "—",
+              "终态，不再迁移"
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "管理后台订单列表的状态列使用文字加淡色底，颜色不单独承载含义[^2]，五种状态各有固定的底色与文字。"
+        },
+        {
+          "type": "quote",
+          "lang": "en",
+          "text": "Color is not used as the only visual means of conveying information, indicating an action, prompting a response, or distinguishing a visual element.",
+          "cite": "[^2]"
+        }
+      ]
+    },
+    {
+      "title": "接口约定",
+      "blocks": [
+        {
+          "type": "quote",
+          "lang": "en",
+          "text": "Reference guides are technical descriptions of the machinery and how to operate it. Reference material is information-oriented.",
+          "cite": "[^1]"
+        },
+        {
+          "type": "paragraph",
+          "text": "接口表只描述事实，不夹带操作教程[^1]；每个接口写明方法、路径与用途，请求与响应的字段在示例中给出。"
+        },
+        {
+          "type": "table",
+          "caption": "表 3 订单接口",
+          "columns": [
+            "接口",
+            "方法",
+            "路径",
+            "用途"
+          ],
+          "align": [
+            "left",
+            "center",
+            "left",
+            "left"
+          ],
+          "rows": [
+            [
+              "创建订单",
+              "POST",
+              "`/api/orders`",
+              "校验库存并锁定，返回订单号"
+            ],
+            [
+              "查询订单",
+              "GET",
+              "`/api/orders/{id}`",
+              "返回订单与当前状态"
+            ],
+            [
+              "支付回调",
+              "POST",
+              "`/api/payments/notify`",
+              "接收支付结果，推进订单状态"
+            ],
+            [
+              "申请退款",
+              "POST",
+              "`/api/orders/{id}/refund`",
+              "已完成订单进入售后"
+            ]
+          ]
+        },
+        {
+          "type": "h3",
+          "text": "创建订单的请求与响应"
+        },
+        {
+          "type": "code",
+          "text": "POST /api/orders\n{\n  \"store_id\": \"S01\",\n  \"items\": [{\"sku\": \"ROSE-RED\", \"qty\": 1}],\n  \"delivery\": \"same_city\",\n  \"idempotency_key\": \"2f6b…\"\n}\n\n201 Created\n{ \"order_no\": \"HJ0101\", \"status\": \"pending_payment\" }"
+        }
+      ]
+    },
+    {
+      "title": "幂等与重试",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "创建订单与支付回调都携带幂等键，服务端以幂等键加订单号去重；重复回调只返回第一次的处理结果，不再次扣减库存。"
+        },
+        {
+          "type": "list",
+          "items": [
+            "回调处理失败时，支付方按间隔重试，服务端每次都先查幂等记录",
+            "主动查询：订单停在待付款超过约定时间后，服务端向支付方查询结果并补偿",
+            "幂等记录与订单在同一事务内写入，避免只记一半"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "风险与应对",
+      "blocks": [
+        {
+          "type": "table",
+          "caption": "表 4 风险与应对",
+          "columns": [
+            "风险",
+            "影响",
+            "应对"
+          ],
+          "align": [
+            "left",
+            "left",
+            "left"
+          ],
+          "rows": [
+            [
+              "支付回调丢失",
+              "订单长时间停在待付款",
+              "定时主动查询支付结果并补偿"
+            ],
+            [
+              "库存超卖",
+              "同一商品被多人同时买走",
+              "提交订单时对库存加锁并校验"
+            ],
+            [
+              "门店配送能力不足",
+              "极速配送订单积压",
+              "按门店设置接单上限，超限转同城配送"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "title": "验证计划",
+      "blocks": [
+        {
+          "type": "table",
+          "caption": "表 5 验证计划",
+          "columns": [
+            "验证项",
+            "方法",
+            "通过标准"
+          ],
+          "align": [
+            "left",
+            "left",
+            "left"
+          ],
+          "rows": [
+            [
+              "状态流转",
+              "逐一触发全部迁移事件",
+              "非法迁移全部被拒绝"
+            ],
+            [
+              "重复回调",
+              "同一回调连续发送多次",
+              "库存只扣减一次"
+            ],
+            [
+              "并发下单",
+              "多个请求同时购买最后一件",
+              "仅一单成功"
+            ]
+          ]
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "publisher": "Diátaxis",
+      "title": "Reference",
+      "url": "https://diataxis.fr/reference/",
+      "locator": "页首两句",
+      "checked": "2026-11-09"
+    },
+    {
+      "publisher": "W3C Web Accessibility Initiative",
+      "title": "Understanding Success Criterion 1.4.1: Use of Color",
+      "url": "https://www.w3.org/WAI/WCAG22/Understanding/use-of-color.html",
+      "locator": "成功标准 1.4.1 正文，WCAG 2.2",
+      "checked": "2026-11-09"
+    }
+  ]
+}

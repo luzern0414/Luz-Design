@@ -1,6 +1,7 @@
 """Rule cards: every card resolves, carries the user's preferences, and sessions cannot publish without one."""
 from __future__ import annotations
 
+import json
 import sys
 import tempfile
 import unittest
@@ -26,13 +27,15 @@ class RuleCardTests(unittest.TestCase):
                 self.assertIn(heading, text, f"{kind}: {heading}")
             self.assertRegex(digest, r"^[0-9a-f]{12}$")
             rules = text.split("## 3 规则", 1)[1].split("## 4 用什么做", 1)[0]
-            self.assertGreater(len(rules), 800, f"{kind}: rule text too short")
+            self.assertIn("### ", rules, f"{kind}: missing resolved rule heading")
+            self.assertTrue(any(len(line.strip()) >= 30 for line in rules.splitlines() if not line.startswith("#")), f"{kind}: missing actionable source text")
             # Markup is flattened; only code samples quoted by the rules (icons) may contain tags.
             self.assertNotRegex(rules, r"<(p|td|th|tr|li|ul|div|section|h[1-6])[\s>]", f"{kind}: HTML left in the card")
 
-    def test_preferences_are_always_on_the_card(self) -> None:
+    def test_preferences_are_limited_to_the_card_scope(self) -> None:
         notes = context.load_json(context.NOTES_FILE, {"notes": []})["notes"]
-        prefs = [n["key"] for n in notes if n["kind"] == "preference"]
+        cards=context.load_json(context.CARDS_FILE,{})
+        prefs = [n["key"] for n in notes if n["kind"] == "preference" and context.note_listed(n) and context.note_in_scope(n,cards['cards']['xlsx'],cards)]
         self.assertTrue(prefs)
         text, _ = context.make_card("xlsx", [])
         for key in prefs:
@@ -122,13 +125,109 @@ class ExperienceStoreOverrideTests(unittest.TestCase):
                 return subprocess.run([sys.executable, "-X", "utf8", *args], cwd=skill_root, env=env, text=True,
                                       capture_output=True, encoding="utf-8", errors="replace", check=False)
 
-            noted = run("scripts/experience.py", "note", "--kind", "preference", "--key", "override-probe", "--text", "探针偏好，只写测试库")
+            noted = run("scripts/experience.py", "note", "--kind", "preference", "--key", "override-probe", "--scope", "documents", "--text", "探针偏好，只写测试库")
             self.assertEqual(noted.returncode, 0, noted.stderr)
             self.assertTrue(store.is_file())
             card = run("scripts/context.py", "xlsx")
             self.assertEqual(card.returncode, 0, card.stderr)
             self.assertIn("探针偏好", card.stdout)
+            self.assertNotIn("探针偏好",run('scripts/context.py','web').stdout)
         self.assertEqual({p: p.read_bytes() for p in (skill_root / "experience").iterdir() if p.is_file()}, experience)
+
+
+class RuleSourceTests(unittest.TestCase):
+    """A card section can be cut from .md, .txt and .json rule sources as well as .html pages."""
+
+    def write(self, name: str, text: str) -> Path:
+        folder = tempfile.TemporaryDirectory()
+        self.addCleanup(folder.cleanup)
+        path = Path(folder.name) / name
+        path.write_text(text, encoding="utf-8")
+        return path
+
+    def test_markdown_cuts_by_heading_path_or_whole_file(self) -> None:
+        path = self.write("rules.md", "# 总题\n\n导语。\n\n## 一 甲\n\n甲正文。\n\n```\n# 代码里的井号不是标题\n```\n\n### 子节\n\n子节正文。\n\n## 二 乙\n\n乙正文。\n")
+        part = context.section_text(path, ["一 甲"])
+        self.assertIn("甲正文。", part)
+        self.assertIn("# 代码里的井号不是标题", part)
+        self.assertIn("#### 子节", part)  # sub-headings nest under the card's ### label
+        self.assertNotIn("乙正文", part)
+        whole = context.section_text(path, [])
+        self.assertIn("#### 总题", whole)
+        self.assertIn("##### 二 乙", whole)
+        with self.assertRaises(KeyError):
+            context.section_text(path, ["不存在"])
+
+    def test_text_cuts_by_block_title_and_the_preamble_has_the_empty_title(self) -> None:
+        path = self.write("prompts.txt", "开头说明。\n\n第二段。\n\n=== Photo (verified) ===\nLine one.\nLine two.\n\n\n=== Sheet ===\nOnly sheet.\n")
+        self.assertEqual(context.section_text(path, [""]), "开头说明。\n\n第二段。")
+        self.assertEqual(context.section_text(path, ["Photo (verified)"]), "Line one.\nLine two.")
+        whole = context.section_text(path, [])
+        self.assertTrue(whole.startswith("开头说明。"))
+        self.assertIn("#### Photo (verified)\nLine one.\nLine two.\n\n#### Sheet\nOnly sheet.", whole)
+        self.assertIn("#### Sheet", whole)
+        for missing in (["Photo"], ["Photo (verified)", "Sheet"]):  # titles match exactly; a block has no sub-blocks
+            with self.assertRaises(KeyError):
+                context.section_text(path, missing)
+
+    def test_json_cuts_by_key_path_into_bullets_and_tables(self) -> None:
+        data = {"meta": {"when": "2026-01-01", "values": {"ok": "好", "bad": "坏|差"}}, "tips": ["甲", "乙"],
+                "items": [{"id": "a", "kind": "x", "state": "ok", "note": "一"}, {"id": "b", "kind": "y", "state": "bad", "note": "二"},
+                          {"id": "c", "kind": "x", "state": "ok", "note": "三"}]}
+        path = self.write("data.json", json.dumps(data, ensure_ascii=False))
+        meta = context.section_text(path, ["meta"])
+        self.assertIn("- when：2026-01-01", meta)
+        self.assertIn("  - bad：坏/差", meta)  # nested values indent; a pipe never breaks a cell
+        self.assertEqual(context.section_text(path, ["tips"]), "- 甲\n- 乙")
+        self.assertEqual(context.section_text(path, ["items", "1", "id"]), "b")  # a digit step indexes a list
+        table = context.section_text(path, ["items"], ["id", "state"])
+        self.assertEqual(table.splitlines()[:3], ["| id | state |", "|---|---|", "| a | ok |"])
+        self.assertNotIn("note", table)
+        grouped = context.section_text(path, ["items"], ["id", "kind", "state"], "kind")
+        self.assertIn("#### x（2）", grouped)
+        self.assertIn("#### y（1）", grouped)
+        self.assertIn("| id | state |\n|---|---|\n| a | ok |\n| c | ok |", grouped)  # the group column moves into the heading
+        for keys, fields in ((["nope"], None), (["items", "9"], None), (["tips", "x"], None), (["items"], ["id", "missing"])):
+            with self.assertRaises(KeyError, msg=f"{keys} {fields}"):
+                context.section_text(path, keys, fields)
+
+    def test_a_card_spec_passes_fields_and_group_by_to_the_json_cut(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            base = Path(temp)
+            (base / "reg.json").write_text(json.dumps({"items": [{"id": "a", "kind": "x"}, {"id": "b", "kind": "y"}]}), encoding="utf-8")
+            spec = {"page": "reg.json", "root": str(base), "label": "登记表", "path": ["items"], "fields": ["id"], "group_by": "kind"}
+            cards = {"skill": "probe", "cards": {"probe": {"title": "t", "summary": "s", "sections": [spec], "tools": ["t"], "checks": ["c"]}}}
+            (base / "cards.json").write_text(json.dumps(cards), encoding="utf-8")
+            saved = context.CARDS_FILE
+            context.CARDS_FILE = base / "cards.json"
+            try:
+                text, _ = context.make_card("probe", [])
+                self.assertEqual(context.check_cards(), [])
+                spec["fields"] = ["id", "typo"]
+                (base / "cards.json").write_text(json.dumps(cards), encoding="utf-8")
+                self.assertTrue(context.check_cards())
+            finally:
+                context.CARDS_FILE = saved
+        self.assertIn("### 登记表", text)
+        self.assertIn("#### x（1）", text)
+        self.assertNotIn("| kind |", text)
+
+    def test_design_research_and_image_assets_carry_their_rule_sources(self) -> None:
+        cards = context.load_json(context.CARDS_FILE, {})["cards"]
+        self.assertIn("design/sources.md", {part["page"] for part in cards["design-research"]["sections"]})
+        self.assertIn("image-assets.md", {part["page"] for part in cards["image-assets"]["sections"]})
+        research, _ = context.make_card("design-research", [])
+        assets, _ = context.make_card("image-assets", [])
+
+        def source_rules(card: str) -> str:
+            # Preferences and historical notes cannot hide a broken source route.
+            return card.split("## 3 规则", 1)[1].split("## 4 用什么做", 1)[0]
+
+        research_rules, asset_rules = source_rules(research), source_rules(assets)
+        for page, rules in [('design/sources.md',research_rules),('image-assets.md',asset_rules)]:
+            source = context.section_text(context.SKILL_ROOT/'references'/page,[])
+            self.assertIn(source,rules)
+
 
 
 if __name__ == "__main__":

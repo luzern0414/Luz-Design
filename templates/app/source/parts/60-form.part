@@ -1,0 +1,1783 @@
+<!-- cat: FORM | 表单 -->
+<style>
+/* 表单：文本框聚焦只加深边线；错误用语义红加文字；所有类名带 fm- 前缀 */
+.fm-stack { display: grid; gap: var(--s-4); }
+[data-cid^="AP-FORM-"] .input:focus-visible, [data-cid^="AP-FORM-"] .textarea:focus-visible { outline: none; }
+[data-cid^="AP-FORM-"] input::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; display: none; }
+[data-cid^="AP-FORM-"] input::-ms-reveal, [data-cid^="AP-FORM-"] input::-ms-clear { display: none; }
+.fm-stack > * { min-width: 0; }
+.fm-vis { overflow: visible !important; }
+[data-cid^="AP-FORM-"] .input:disabled, [data-cid^="AP-FORM-"] .input[readonly] { background: var(--zone); color: var(--ink-3); border-color: var(--line); cursor: not-allowed; }
+[data-cid^="AP-FORM-"] .input[readonly] { cursor: default; color: var(--ink-2); }
+[data-cid^="AP-FORM-"] .field__err[hidden] { display: none; }
+.fm-lab { display: flex; align-items: center; gap: var(--s-2); }
+.fm-req { padding: 0 6px; border-radius: 6px; background: var(--danger-tint); color: var(--danger); font-size: var(--fs-xs); font-style: normal; font-weight: 600; line-height: 20px; transition: background var(--dur-base) var(--ease-out), color var(--dur-base) var(--ease-out); }
+.fm-req[data-done] { background: var(--success-tint); color: var(--success); }
+.fm-opt { font-size: var(--fs-xs); font-style: normal; font-weight: 400; color: var(--ink-3); }
+
+/* 悬浮标签 */
+.fm-float { position: relative; display: block; }
+.fm-float .input { min-height: 56px; padding: 22px var(--s-3) 4px; }
+.fm-float span { position: absolute; left: var(--s-3); top: 16px; font-size: var(--fs-md); color: var(--ink-3); pointer-events: none; transition: top var(--dur-base) var(--ease-out), font-size var(--dur-base) var(--ease-out), color var(--dur-base) var(--ease-out); }
+.fm-float .input:focus + span, .fm-float .input:not(:placeholder-shown) + span { top: 7px; font-size: var(--fs-xs); font-weight: 600; color: var(--ink-2); }
+
+/* 带图标、带单位、组合：外框承载边线 */
+.fm-ico { display: flex; align-items: center; gap: var(--s-2); min-height: 48px; padding: 0 var(--s-3); background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--r-md); transition: border-color var(--dur-quick) var(--ease-out); }
+.fm-ico:focus-within { border-color: var(--ink-2); }
+.fm-ico[data-invalid] { border-color: var(--danger); }
+.fm-ico > img { width: 20px; height: 20px; flex: none; }
+.fm-ico input { flex: 1; width: 0; min-width: 0; height: 46px; border: 0; background: none; font-size: var(--fs-md); }
+.fm-ico input:focus-visible { outline: none; }
+.fm-ico input::placeholder { color: var(--ink-3); }
+.fm-ico__u { flex: none; font-size: var(--fs-md); color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.fm-ico__x { display: grid; place-items: center; flex: none; width: 24px; height: 24px; border-radius: 50%; background: var(--zone); }
+.fm-ico__x img { width: 12px; height: 12px; }
+.fm-ico__x[hidden] { display: none; }
+.fm-ico .btn--text { flex: none; min-height: 32px; padding: 0 var(--s-2); font-size: var(--fs-sm); font-weight: 600; }
+.fm-ico .btn--text[disabled] { background: none; color: var(--ink-3); }
+.fm-ico__sep { flex: none; width: 1px; height: 20px; background: var(--line-strong); }
+.fm-join { display: flex; }
+.fm-join .fm-ico { flex: 1; min-width: 0; border-radius: var(--r-md) 0 0 var(--r-md); border-right: 0; }
+.fm-join .btn { border-radius: 0 var(--r-md) var(--r-md) 0; min-height: 48px; }
+.fm-ro { display: flex; align-items: center; gap: var(--s-2); }
+.fm-ro .input { flex: 1; }
+
+/* 六格验证码 */
+.fm-otp { display: flex; justify-content: space-between; gap: var(--s-2); }
+.fm-otp input { width: 100%; max-width: 52px; height: 60px; padding: 0; border: 1px solid var(--line-strong); border-radius: var(--r-md); background: var(--surface); text-align: center; font-size: var(--fs-2xl); font-weight: 600; font-variant-numeric: tabular-nums; transition: border-color var(--dur-quick) var(--ease-out), background var(--dur-quick) var(--ease-out); }
+.fm-otp input:focus { border-color: var(--ink-2); }
+.fm-otp input:focus-visible { outline: none; }
+.fm-otp input.is-filled { border-color: var(--action); background: var(--action-tint); }
+
+/* 密码强度 */
+.fm-meter { display: grid; grid-template-columns: repeat(3, 1fr) auto; align-items: center; gap: var(--s-1); margin-top: var(--s-2); }
+.fm-meter i { height: 4px; border-radius: var(--r-full); background: var(--zone); transition: background var(--dur-base) var(--ease-out); }
+.fm-meter[data-lv="1"] i:nth-child(1) { background: var(--danger); }
+.fm-meter[data-lv="2"] i:nth-child(-n+2) { background: var(--warning); }
+.fm-meter[data-lv="3"] i { background: var(--success); }
+.fm-meter span { min-width: 20px; margin-left: var(--s-2); font-size: var(--fs-xs); font-weight: 600; color: var(--ink-3); text-align: right; }
+.fm-rules { display: flex; gap: var(--s-4); margin-top: var(--s-3); font-size: var(--fs-sm); color: var(--ink-3); }
+.fm-rules li { display: inline-flex; align-items: center; gap: var(--s-1); transition: color var(--dur-base) var(--ease-out); }
+.fm-rules i { display: grid; place-items: center; width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid var(--line-strong); transition: background var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out); }
+.fm-rules i img { width: 10px; height: 10px; filter: invert(1); opacity: 0; }
+.fm-rules li[data-ok] { color: var(--ink); }
+.fm-rules li[data-ok] i { background: var(--success); border-color: var(--success); }
+.fm-rules li[data-ok] i img { opacity: 1; }
+
+/* 搜索 */
+.fm-sbox { position: relative; }
+.search .fm-x { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--zone); flex: none; }
+.search .fm-x img { width: 12px; height: 12px; }
+.search .fm-x[hidden] { display: none; }
+.search .fm-scan { display: grid; place-items: center; width: 32px; height: 32px; margin-right: -6px; border-radius: 50%; flex: none; transition: background var(--dur-quick) var(--ease-out); }
+.search .fm-scan img { width: 22px; height: 22px; }
+@media (hover: hover) { .search .fm-scan:hover { background: var(--zone); } }
+.fm-xs { position: relative; height: 44px; }
+.fm-xs__t { position: absolute; left: var(--s-1); top: 0; line-height: 44px; font-size: var(--fs-xl); font-weight: 700; transition: opacity var(--dur-base) var(--ease-out); }
+.fm-xs__box { position: absolute; top: 0; right: 0; width: 44px; height: 44px; overflow: hidden; border-radius: var(--r-full); background: var(--surface); border: 1px solid var(--line-strong); box-shadow: var(--elev-1); transition: width var(--dur-slow) var(--ease-out), right var(--dur-slow) var(--ease-out); }
+.fm-xs__box > label { position: absolute; inset: 0; display: flex; align-items: center; gap: var(--s-2); padding: 0 var(--s-3) 0 11px; }
+.fm-xs__box img { width: 20px; height: 20px; flex: none; }
+.fm-xs__box input { flex: 1; min-width: 0; height: 42px; border: 0; background: none; font-size: var(--fs-md); opacity: 0; pointer-events: none; transition: opacity var(--dur-base) var(--ease-out) var(--dur-quick); }
+.fm-xs__box input:focus-visible { outline: none; }
+.fm-xs__box input::placeholder { color: var(--ink-3); }
+.fm-xs__ok { position: absolute; inset: 0; border-radius: inherit; }
+.fm-xs__c { position: absolute; top: 0; right: 0; min-height: 44px; padding: 0 var(--s-2); opacity: 0; pointer-events: none; transition: opacity var(--dur-base) var(--ease-out); }
+.fm-xs[data-open="true"] .fm-xs__box { right: 56px; width: calc(100% - 56px); }
+.fm-xs[data-open="true"] .fm-xs__box input { opacity: 1; pointer-events: auto; }
+.fm-xs[data-open="true"] .fm-xs__ok { display: none; }
+.fm-xs[data-open="true"] .fm-xs__t { opacity: 0; }
+.fm-xs[data-open="true"] .fm-xs__c { opacity: 1; pointer-events: auto; }
+.fm-hist { margin-top: var(--s-3); display: grid; gap: var(--s-4); }
+.fm-hist__h { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--s-2); font-size: var(--fs-sm); font-weight: 600; color: var(--ink-2); }
+.fm-hist__h button { font-size: var(--fs-sm); font-weight: 400; color: var(--ink-3); min-height: 32px; padding: 0 var(--s-1); }
+.fm-tags { display: flex; flex-wrap: wrap; gap: var(--s-2); }
+.fm-tags button { min-height: 36px; padding: 0 var(--s-3); border-radius: var(--r-full); background: var(--surface); box-shadow: inset 0 0 0 1px var(--line-strong); font-size: var(--fs-sm); color: var(--ink-2); transition: background var(--dur-quick) var(--ease-out); }
+.fm-tags button.is-hot { box-shadow: inset 0 0 0 1px var(--action-edge); background: var(--action-tint); color: var(--action-press); }
+@media (hover: hover) { .fm-tags button:hover { background: var(--zone); } }
+.fm-sug { margin-top: var(--s-2); overflow: hidden; }
+.fm-sug button { display: flex; align-items: center; gap: var(--s-3); width: 100%; min-height: 48px; padding: 0 var(--s-4); position: relative; text-align: left; font-size: var(--fs-md); }
+.fm-sug button + button::before { content: ""; position: absolute; top: 0; left: var(--s-4); right: 0; border-top: 1px solid var(--line); }
+.fm-sug button img { width: 18px; height: 18px; opacity: .55; }
+.fm-sug button[aria-selected="true"], .fm-sug button:active { background: var(--zone); }
+.fm-sug mark { background: none; color: var(--action-press); font-weight: 600; }
+.fm-sug p { min-height: 48px; display: grid; place-items: center; font-size: var(--fs-sm); color: var(--ink-3); }
+
+/* 下拉选择 */
+.fm-sel { display: block; width: 100%; }
+.fm-sel .drop__btn { display: flex; width: 100%; min-height: 48px; padding: 0 var(--s-3); border-radius: var(--r-md); background: var(--surface); box-shadow: inset 0 0 0 1px var(--line-strong); gap: var(--s-3); }
+.fm-sel .drop__btn[aria-expanded="true"] { box-shadow: inset 0 0 0 1px var(--ink-2); }
+.fm-sel .drop__btn span { font-size: var(--fs-sm); color: var(--ink-3); }
+.fm-sel .drop__btn b { margin-left: auto; font-size: var(--fs-md); }
+.fm-sel .drop__menu { right: 0; }
+.fm-sel .drop__opt { min-height: 44px; font-size: var(--fs-md); }
+
+/* 单选卡与单选列表 */
+.fm-cards { display: grid; gap: var(--s-3); }
+.fm-rc { display: grid; grid-template-columns: 44px 1fr auto; align-items: center; column-gap: var(--s-3); width: 100%; padding: var(--s-3) var(--s-4) var(--s-3) var(--s-3); border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--surface); text-align: left; box-shadow: var(--elev-1); transition: border-color var(--dur-quick) var(--ease-out), background var(--dur-quick) var(--ease-out), transform var(--dur-instant) var(--ease-out); }
+.fm-rc img { width: 44px; height: 44px; object-fit: contain; filter: drop-shadow(0 4px 6px color-mix(in srgb, var(--ink) 14%, transparent)); }
+.fm-rc b { display: block; font-size: var(--fs-md); font-weight: 600; line-height: var(--lh-tight); }
+.fm-rc small { display: block; margin-top: 2px; font-size: var(--fs-sm); color: var(--ink-3); }
+.fm-rc:active { transform: scale(.98); }
+.fm-rc[aria-checked="true"] { border-color: var(--action); background: var(--action-tint); box-shadow: inset 0 0 0 1px var(--action); }
+.fm-ring { display: grid; place-items: center; width: 22px; height: 22px; border: 1.5px solid var(--line-strong); border-radius: 50%; background: var(--surface); flex: none; transition: border-color var(--dur-quick) var(--ease-out); }
+.fm-ring::after { content: ""; width: 12px; height: 12px; border-radius: 50%; background: var(--action); transform: scale(0); transition: transform var(--dur-base) var(--ease-spring); }
+[aria-checked="true"] > .fm-ring, [aria-checked="true"] .fm-ring { border-color: var(--action); }
+[aria-checked="true"] > .fm-ring::after, [aria-checked="true"] .fm-ring::after { transform: scale(1); }
+
+/* 多选标签 */
+.fm-multi__h { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: var(--s-3); }
+.fm-multi__h b { font-size: var(--fs-sm); font-weight: 600; color: var(--ink-2); }
+.fm-multi__h span { font-size: var(--fs-sm); color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.fm-mt { display: inline-flex; align-items: center; gap: var(--s-1); min-height: 40px; padding: 0 var(--s-4); border-radius: var(--r-full); background: var(--surface); box-shadow: inset 0 0 0 1px var(--line-strong); font-size: var(--fs-sm); color: var(--ink-2); transition: background var(--dur-quick) var(--ease-out), box-shadow var(--dur-quick) var(--ease-out), padding var(--dur-quick) var(--ease-out); }
+.fm-mt img { width: 0; height: 14px; opacity: 0; transition: width var(--dur-quick) var(--ease-out), opacity var(--dur-quick) var(--ease-out); }
+.fm-mt[aria-pressed="true"] { background: var(--action-tint); box-shadow: inset 0 0 0 1.5px var(--action); color: var(--action-press); font-weight: 600; }
+.fm-mt[aria-pressed="true"] img { width: 14px; opacity: 1; }
+.fm-mt:active { transform: scale(.96); }
+
+/* 滚轮 */
+.fm-wh { display: flex; align-items: center; justify-content: space-between; gap: var(--s-4); padding: var(--s-4); }
+.fm-wh .stat { padding: 0; }
+.fm-2w { display: flex; align-items: center; justify-content: space-around; gap: var(--s-2); padding: var(--s-4) var(--s-3); }
+.fm-2w .wheel { gap: var(--s-1); }
+.fm-2w .wheel__col { width: 56px; }
+.fm-2w .wheel .input { width: 46px; padding: 0; }
+.fm-2w__sum { margin-top: var(--s-3); text-align: center; font-size: var(--fs-md); color: var(--ink-2); }
+.fm-2w__sum b { color: var(--ink); font-size: var(--fs-xl); font-variant-numeric: tabular-nums; }
+
+/* 数量步进 */
+.fm-step { display: inline-flex; align-items: center; border-radius: var(--r-full); background: var(--surface); box-shadow: inset 0 0 0 1px var(--line-strong); overflow: hidden; }
+.fm-step button { display: grid; place-items: center; width: 44px; height: 44px; transition: background var(--dur-quick) var(--ease-out), opacity var(--dur-quick) var(--ease-out); }
+.fm-step button img { width: 18px; height: 18px; }
+.fm-step button .fm-minus { clip-path: inset(44% 0 44% 0); }
+.fm-step button:disabled { opacity: .3; cursor: not-allowed; }
+.fm-step button:not(:disabled):active { background: var(--zone); }
+.fm-step input { width: 44px; height: 44px; border: 0; background: none; text-align: center; font-size: var(--fs-md); font-weight: 600; font-variant-numeric: tabular-nums; }
+.fm-step input:focus-visible { outline: none; }
+.fm-step--sm button, .fm-step--sm input { width: 36px; height: 36px; }
+.fm-step--sm button img { width: 16px; height: 16px; }
+.fm-step__list { padding: var(--s-1) var(--s-4); }
+.fm-step__row { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); padding: var(--s-3) 0; }
+.fm-step__row + .fm-step__row { border-top: 1px solid var(--line); }
+.fm-step__row b { display: block; font-size: var(--fs-md); font-weight: 600; line-height: var(--lh-tight); }
+.fm-step__row small { font-size: var(--fs-sm); color: var(--ink-3); }
+
+/* 开关与勾选 */
+.fm-sw { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); min-height: 64px; padding: var(--s-2) var(--s-4); }
+.fm-sw + .fm-sw { border-top: 1px solid var(--line); }
+.fm-sw b { display: block; font-size: var(--fs-md); font-weight: 500; line-height: var(--lh-tight); }
+.fm-sw small { font-size: var(--fs-sm); color: var(--ink-3); }
+[data-cid^="AP-FORM-"] .switch:disabled { opacity: .45; cursor: not-allowed; }
+[data-cid^="AP-FORM-"] .check[aria-checked="mixed"] { background: var(--action); border-color: var(--action); }
+[data-cid^="AP-FORM-"] .check .fm-dash { position: absolute; display: none; width: 14px; height: 14px; filter: invert(1); clip-path: inset(44% 0 44% 0); }
+[data-cid^="AP-FORM-"] .check[aria-checked="mixed"] .fm-dash { display: block; opacity: 1; transform: none; }
+[data-cid^="AP-FORM-"] .check { position: relative; cursor: pointer; }
+[data-cid^="AP-FORM-"] .check[aria-checked="mixed"] img:not(.fm-dash) { opacity: 0; }
+.fm-ck { display: flex; align-items: center; gap: var(--s-3); min-height: 60px; padding: var(--s-2) var(--s-4); position: relative; cursor: pointer; }
+.fm-ck + .fm-ck::before { content: ""; position: absolute; top: 0; left: var(--s-4); right: 0; border-top: 1px solid var(--line); }
+.fm-ck img.row__lead { width: 44px; height: 44px; }
+.fm-ck--all { min-height: 52px; background: var(--zone); font-size: var(--fs-md); font-weight: 600; }
+.fm-ck--all + .fm-ck::before { display: none; }
+.fm-ck__sum { margin-left: auto; font-size: var(--fs-sm); font-weight: 400; color: var(--ink-3); }
+.fm-ck__sum b { color: var(--price); font-weight: 600; }
+.fm-pay { display: flex; align-items: center; gap: var(--s-3); width: 100%; min-height: 64px; padding: var(--s-2) var(--s-4); position: relative; text-align: left; transition: background var(--dur-quick) var(--ease-out); }
+.fm-pay + .fm-pay::before { content: ""; position: absolute; top: 0; left: var(--s-4); right: 0; border-top: 1px solid var(--line); }
+.fm-pay b { display: block; font-size: var(--fs-md); font-weight: 500; line-height: var(--lh-tight); }
+.fm-pay small { font-size: var(--fs-sm); color: var(--ink-3); }
+.fm-pay[aria-checked="true"] { background: var(--action-tint); }
+.fm-pay .fm-ring { margin-left: auto; }
+
+/* 星级 */
+.fm-star { display: grid; justify-items: center; gap: var(--s-3); padding: var(--s-4); }
+.fm-star__row { display: flex; justify-content: center; gap: var(--s-1); width: 100%; }
+.fm-star__row button { display: grid; place-items: center; flex: 1; min-width: 0; max-width: 52px; height: 52px; border-radius: var(--r-md); }
+.fm-star__row img { width: 40px; height: 40px; object-fit: contain; filter: grayscale(1) opacity(.28); transition: filter var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-spring); }
+.fm-star__row button[data-on] img { filter: drop-shadow(0 4px 5px color-mix(in srgb, var(--ink) 18%, transparent)); }
+.fm-star__row button:active img { transform: scale(.82); }
+.fm-star__row button[data-pop] img { animation: lz-pop var(--dur-slow) var(--ease-spring) both; }
+.fm-star__t { min-height: 24px; font-size: var(--fs-md); font-weight: 600; color: var(--ink-2); }
+
+/* 图片上传 */
+.fm-up { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s-2); }
+.fm-up__i, .fm-up__add { position: relative; aspect-ratio: 1; border-radius: var(--r-md); overflow: hidden; }
+.fm-up__i img.ph { width: 100%; height: 100%; object-fit: cover; }
+.fm-up__i { animation: lz-pop var(--dur-slow) var(--ease-spring) both; }
+.fm-up__x { position: absolute; top: 4px; right: 4px; display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: color-mix(in srgb, var(--ink) 70%, transparent); }
+.fm-up__x img { width: 12px; height: 12px; filter: invert(1); }
+.fm-up__ov { position: absolute; inset: 0; display: grid; place-items: center; background: color-mix(in srgb, var(--ink) 50%, transparent); color: var(--surface); font-size: var(--fs-xs); font-weight: 600; }
+.fm-up__ov i { position: absolute; left: 10px; right: 10px; bottom: 12px; height: 4px; border-radius: 4px; background: color-mix(in srgb, var(--surface) 35%, transparent); overflow: hidden; }
+.fm-up__ov i::after { content: ""; display: block; height: 100%; width: var(--v, 0%); background: var(--surface); transition: width var(--dur-quick) linear; }
+.fm-up__add { display: grid; place-items: center; align-content: center; gap: 2px; border: 1.5px dashed var(--line-strong); background: var(--surface); font-size: var(--fs-xs); color: var(--ink-3); transition: border-color var(--dur-quick) var(--ease-out), background var(--dur-quick) var(--ease-out); }
+.fm-up__add img { width: 24px; height: 24px; opacity: .7; }
+@media (hover: hover) { .fm-up__add:hover { border-color: var(--action); background: var(--action-tint); } }
+.fm-up__add:active { background: var(--action-tint); }
+.fm-up__h { display: flex; justify-content: space-between; margin-bottom: var(--s-3); font-size: var(--fs-sm); font-weight: 600; color: var(--ink-2); }
+.fm-up__h span { font-weight: 400; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+
+/* 文本域计数 */
+.fm-ta { position: relative; }
+.fm-ta .textarea { min-height: 112px; padding-bottom: 32px; resize: none; }
+.fm-ta__n { position: absolute; right: var(--s-3); bottom: var(--s-2); font-size: var(--fs-xs); color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.fm-ta__n[data-lv="warn"] { color: var(--warning); font-weight: 600; }
+.fm-ta__n[data-lv="full"] { color: var(--danger); font-weight: 600; }
+
+/* 表单分组行 */
+.fm-gr { display: grid; grid-template-columns: 76px 1fr; align-items: center; column-gap: var(--s-3); min-height: 56px; padding: 0 var(--s-4); position: relative; }
+.fm-gr + .fm-gr::before { content: ""; position: absolute; top: 0; left: var(--s-4); right: 0; border-top: 1px solid var(--line); }
+.fm-gr > span { font-size: var(--fs-md); font-weight: 500; }
+.fm-gr input { width: 100%; height: 54px; border: 0; background: none; font-size: var(--fs-md); }
+.fm-gr input:focus-visible { outline: none; }
+.fm-gr input::placeholder { color: var(--ink-3); }
+.fm-gr:focus-within > span { color: var(--action-press); }
+.fm-gr .drop { width: 100%; }
+.fm-gr .drop__btn { display: flex; width: 100%; min-height: 54px; padding: 0; border-radius: 0; background: none; font-size: var(--fs-md); }
+.fm-gr .drop__btn b { font-weight: 400; color: var(--ink); }
+.fm-gr .drop:not([data-value]) .drop__btn b { color: var(--ink-3); }
+.fm-gr .drop__btn::after { margin-left: auto; }
+.fm-gr .drop__menu { right: 0; left: auto; min-width: 180px; }
+.fm-gr .switch { justify-self: end; }
+
+/* 快捷金额 */
+.fm-amt__top { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: var(--s-3); }
+.fm-amt__top span { font-size: var(--fs-sm); font-weight: 600; color: var(--ink-2); }
+.fm-amt__top b { font-size: var(--fs-2xl); font-weight: 700; color: var(--price); font-variant-numeric: tabular-nums; }
+.fm-amt__top b small { font-size: var(--fs-md); font-weight: 600; margin-right: 2px; }
+.fm-amt { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s-2); }
+.fm-amt button { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 56px; border-radius: var(--r-md); background: var(--surface); box-shadow: inset 0 0 0 1px var(--line-strong); font-size: var(--fs-lg); font-weight: 600; font-variant-numeric: tabular-nums; transition: background var(--dur-quick) var(--ease-out), box-shadow var(--dur-quick) var(--ease-out); }
+.fm-amt button small { font-size: var(--fs-xs); font-weight: 500; color: var(--ink-3); }
+.fm-amt button[aria-checked="true"] { background: var(--action-tint); box-shadow: inset 0 0 0 1.5px var(--action); color: var(--action-press); }
+.fm-amt button[aria-checked="true"] small { color: var(--action-press); }
+.fm-amt button:active { transform: scale(.97); }
+.fm-amt__c { display: flex; justify-content: center; margin-top: var(--s-3); padding: var(--s-4); }
+
+/* 校验汇总 */
+.fm-sum { display: flex; align-items: center; flex-wrap: wrap; gap: var(--s-2); padding: var(--s-3) var(--s-4); margin-bottom: var(--s-4); border-radius: var(--r-md); background: var(--danger-tint); color: var(--danger); font-size: var(--fs-sm); font-weight: 600; animation: lz-fade var(--dur-base) var(--ease-out) both; }
+.fm-sum button { min-height: 28px; padding: 0 var(--s-2); border-radius: var(--r-full); background: var(--surface); font-size: var(--fs-xs); font-weight: 600; color: var(--danger); }
+.fm-sum[hidden] { display: none; }
+
+/* 提交条 */
+.demo__stage.fm-st { border: 0; }
+.fm-screen { position: relative; display: flex; flex-direction: column; overflow: hidden; outline: 1px solid var(--line); outline-offset: -1px; border-radius: var(--r-md); background: var(--bg); }
+.fm-screen__body { flex: 1; min-height: 0; padding: var(--s-4); display: grid; align-content: start; gap: var(--s-3); }
+.fm-ck2 { display: flex; align-items: center; gap: var(--s-2); font-size: var(--fs-sm); color: var(--ink-2); cursor: pointer; }
+.fm-bar { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); padding: var(--s-3) var(--s-4); background: var(--bg); border-top: 1px solid var(--line); }
+.fm-bar__t { display: grid; line-height: 1.2; }
+.fm-bar__t small { font-size: var(--fs-sm); color: var(--ink-3); }
+.fm-bar__t b { font-size: var(--fs-xl); font-weight: 700; color: var(--price); font-variant-numeric: tabular-nums; }
+.fm-bar__t b small { margin-right: 2px; font-size: var(--fs-sm); color: var(--price); font-weight: 600; }
+.fm-bar .btn { min-width: 132px; }
+.fm-bar .btn[disabled] { box-shadow: none; }
+</style>
+
+<!-- 输入框 -->
+<article class="demo" data-cid="AP-FORM-001" data-name="默认输入框" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">默认输入框</span></div>
+  <p class="demo__note">适合：单行文字录入，聚焦时只加深边线</p>
+  <div class="demo__stage">
+    <div class="field"><label class="field__label" for="fm-i1">收货人</label><input class="input" id="fm-i1" placeholder="请输入收货人姓名" autocomplete="off"></div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FORM-002" data-name="悬浮标签输入框" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">悬浮标签输入框</span></div>
+  <p class="demo__note">适合：字段较少的登录与资料页，标签聚焦后上浮</p>
+  <div class="demo__stage">
+    <div class="fm-stack">
+      <label class="fm-float"><input class="input" placeholder=" " autocomplete="off"><span>收货人</span></label>
+      <label class="fm-float"><input class="input" placeholder=" " inputmode="numeric" autocomplete="off" value="13800138000"><span>手机号码</span></label>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FORM-003" data-name="错误输入框" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">错误输入框</span></div>
+  <p class="demo__note">适合：即时校验，错误色加文字，保留已输入内容</p>
+  <div class="demo__stage">
+    <div class="field" id="fm-err"><label class="field__label" for="fm-i3">手机号码</label><input class="input" id="fm-i3" inputmode="numeric" autocomplete="off" value="1380013" aria-invalid="true" aria-describedby="fm-e3"><p class="field__err" id="fm-e3" role="alert">手机号需为 11 位数字</p></div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FORM-004" data-name="禁用与只读输入框" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">禁用与只读输入框</span></div>
+  <p class="demo__note">适合：不可修改的账号信息与可复制的订单号</p>
+  <div class="demo__stage">
+    <div class="fm-stack">
+      <div class="field"><label class="field__label" for="fm-i4a">注册手机</label><input class="input" id="fm-i4a" value="138 **** 8000" disabled></div>
+      <div class="field"><label class="field__label" for="fm-i4b">订单编号</label><div class="fm-ro"><input class="input" id="fm-i4b" value="20260508001" readonly><button class="btn btn--secondary" type="button" id="fm-copy">复制</button></div></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FORM-005" data-name="带图标输入框" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">带图标输入框</span></div>
+  <p class="demo__note">适合：收货人、地址等有明确语义的字段，输入后可一键清除</p>
+  <div class="demo__stage">
+    <div class="fm-stack">
+      <label class="fm-ico"><img src="../../kit/assets/line/user.webp" alt=""><input placeholder="收货人姓名" aria-label="收货人姓名" autocomplete="off"><button type="button" class="fm-ico__x" hidden aria-label="清除" data-tip="清除"><img src="../../kit/assets/line/close.webp" alt=""></button></label>
+      <label class="fm-ico"><img src="../../kit/assets/line/location.webp" alt=""><input placeholder="小区或写字楼" aria-label="小区或写字楼" autocomplete="off" value="建国路 88 号"><button type="button" class="fm-ico__x" aria-label="清除" data-tip="清除"><img src="../../kit/assets/line/close.webp" alt=""></button></label>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FORM-006" data-name="带单位输入框" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">带单位输入框</span></div>
+  <p class="demo__note">适合：重量与尺寸等带单位的数值，单位固定在框内，只收数字</p>
+  <div class="demo__stage">
+    <div class="fm-stack">
+      <div class="field"><span class="field__label">花束重量</span><label class="fm-ico"><input inputmode="decimal" placeholder="0" aria-label="花束重量" data-num="1" autocomplete="off" value="1.2"><span class="fm-ico__u">千克</span></label></div>
+      <div class="field"><span class="field__label">花瓶高度</span><label class="fm-ico"><input inputmode="numeric" placeholder="0" aria-label="花瓶高度" data-num="0" autocomplete="off" value="32"><span class="fm-ico__u">厘米</span></label></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FORM-007" data-name="验证码输入框" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">验证码输入框</span></div>
+  <p class="demo__note">适合：手机号登录与绑定，获取后六十秒倒计时</p>
+  <div class="demo__stage" id="fm-vc">
+    <div class="fm-stack">
+      <label class="fm-ico"><img src="../../kit/assets/line/user.webp" alt=""><input inputmode="numeric" placeholder="手机号码" aria-label="手机号码" data-ph autocomplete="off"></label>
+      <label class="fm-ico"><img src="../../kit/assets/line/shield.webp" alt=""><input inputmode="numeric" placeholder="验证码" aria-label="验证码" data-code autocomplete="off"><span class="fm-ico__sep"></span><button class="btn btn--text" type="button" data-send>获取验证码</button></label>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FORM-008" data-name="六格验证码框" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">六格验证码框</span></div>
+  <p class="demo__note">适合：短信验证码，自动跳格，支持退格与整串粘贴</p>
+  <div class="demo__stage">
+    <div class="fm-otp" id="fm-otp" role="group" aria-label="验证码">
+      <input inputmode="numeric" maxlength="1" aria-label="第 1 位" autocomplete="one-time-code">
+      <input inputmode="numeric" maxlength="1" aria-label="第 2 位">
+      <input inputmode="numeric" maxlength="1" aria-label="第 3 位">
+      <input inputmode="numeric" maxlength="1" aria-label="第 4 位">
+      <input inputmode="numeric" maxlength="1" aria-label="第 5 位">
+      <input inputmode="numeric" maxlength="1" aria-label="第 6 位">
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FORM-009" data-name="密码显隐输入框" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">密码显隐输入框</span></div>
+  <p class="demo__note">适合：登录与修改密码，文字按钮切换明文</p>
+  <div class="demo__stage">
+    <div class="field"><label class="field__label" for="fm-i9">登录密码</label><div class="fm-ico"><img src="../../kit/assets/line/shield.webp" alt=""><input id="fm-i9" type="password" placeholder="请输入密码" autocomplete="off" value="88886666"><button class="btn btn--text" type="button" id="fm-eye" aria-pressed="false">显示</button></div></div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FORM-010" data-name="密码强度输入框" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">密码强度输入框</span></div>
+  <p class="demo__note">适合：设置新密码，强度条与规则逐项点亮</p>
+  <div class="demo__stage" id="fm-pw">
+    <div class="field"><label class="field__label" for="fm-i10">新密码</label><input class="input" id="fm-i10" type="password" placeholder="设置登录密码" autocomplete="off"></div>
+    <div class="fm-meter" data-lv="0"><i></i><i></i><i></i><span></span></div>
+    <ul class="fm-rules"><li data-r="len"><i><img src="../../kit/assets/line/check.webp" alt=""></i>8 位以上</li><li data-r="num"><i><img src="../../kit/assets/line/check.webp" alt=""></i>含数字</li><li data-r="abc"><i><img src="../../kit/assets/line/check.webp" alt=""></i>含字母</li></ul>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FORM-011" data-name="组合兑换输入框" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">组合兑换输入框</span></div>
+  <p class="demo__note">适合：兑换码与优惠码，输入框与按钮连成一体</p>
+  <div class="demo__stage" id="fm-cp">
+    <div class="field"><span class="field__label">兑换码</span><div class="fm-join"><label class="fm-ico"><input placeholder="输入兑换码" aria-label="兑换码" autocomplete="off" maxlength="8"></label><button class="btn btn--primary" type="button">兑换</button></div><p class="field__err" role="alert" hidden>兑换码为 8 位</p></div>
+  </div>
+</article>
+
+<!-- 搜索框 -->
+<article class="demo" data-cid="AP-FORM-012" data-name="胶囊搜索框" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">胶囊搜索框</span></div>
+  <p class="demo__note">适合：列表页顶部搜索，输入后出现清除，回车提交</p>
+  <div class="demo__stage" id="fm-s1">
+    <label class="search"><img src="../../kit/assets/line/search.webp" alt=""><input type="search" placeholder="搜索花束、绿植、礼盒" aria-label="搜索花束、绿植、礼盒"><button type="button" class="fm-x" hidden aria-label="清除" data-tip="清除"><img src="../../kit/assets/line/close.webp" alt=""></button></label>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FORM-013" data-name="展开搜索框" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">展开搜索框</span></div>
+  <p class="demo__note">适合：顶栏空间紧张时，图标点开后展开为完整输入</p>
+  <div class="demo__stage" id="fm-xs">
+    <div class="fm-xs" data-open="false">
+      <span class="fm-xs__t">当季鲜花</span>
+      <div class="fm-xs__box"><label><img src="../../kit/assets/line/search.webp" alt=""><input type="search" placeholder="搜索花束" aria-label="搜索花束" tabindex="-1"></label><button class="fm-xs__ok" type="button" aria-label="搜索" data-tip="搜索"></button></div>
+      <button class="btn btn--text fm-xs__c" type="button" tabindex="-1">取消</button>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FORM-014" data-name="扫码搜索框" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">扫码搜索框</span></div>
+  <p class="demo__note">适合：可扫条码识别商品的搜索入口</p>
+  <div class="demo__stage" id="fm-s3">
+    <label class="search"><img src="../../kit/assets/line/search.webp" alt=""><input type="search" placeholder="搜索或扫描商品条码" aria-label="搜索或扫描商品条码"><button type="button" class="fm-scan" aria-label="扫码" data-tip="扫码"><img src="../../kit/assets/line/scan.webp" alt=""></button></label>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FORM-015" data-name="历史词搜索框" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">历史词搜索框</span></div>
+  <p class="demo__note">适合：搜索页起始态，历史记录可清空，热门词点按直达</p>
+  <div class="demo__stage" id="fm-s4">
+    <label class="search"><img src="../../kit/assets/line/search.webp" alt=""><input type="search" placeholder="搜索花束、绿植、礼盒" aria-label="搜索花束、绿植、礼盒"></label>
+    <div class="fm-hist"></div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FORM-016" data-name="联想词搜索框" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">联想词搜索框</span></div>
+  <p class="demo__note">适合：输入时给出匹配商品，命中字高亮，支持方向键选择</p>
+  <div class="demo__stage" id="fm-s5">
+    <label class="search"><img src="../../kit/assets/line/search.webp" alt=""><input type="search" placeholder="搜索花束、绿植、礼盒" aria-label="搜索花束、绿植、礼盒" value="玫瑰" role="combobox" aria-expanded="true" aria-controls="fm-sug"></label>
+    <div class="card fm-sug" id="fm-sug" role="listbox"></div>
+  </div>
+</article>
+
+<!-- 选择类 -->
+<article class="demo" data-cid="AP-FORM-017" data-name="下拉选择框" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">下拉选择框</span></div>
+  <p class="demo__note">适合：选项不超过六个的单选，就近弹出选项层</p>
+  <div class="demo__stage fm-vis">
+    <div class="drop fm-sel">
+      <button class="drop__btn"><span>配送时间</span><b>尽快送达</b></button>
+      <div class="drop__menu" role="listbox">
+        <button class="drop__opt">尽快送达</button>
+        <button class="drop__opt">明早 9 点前</button>
+        <button class="drop__opt">明早 11 点前</button>
+        <button class="drop__opt">周末送达</button>
+      </div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FORM-018" data-name="选项单选卡" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">选项单选卡</span></div>
+  <p class="demo__note">适合：配送方式等需要对比说明的单选，选中为主色描边</p>
+  <div class="demo__stage">
+    <div class="fm-cards" id="fm-rc" role="radiogroup" aria-label="配送方式">
+      <button class="fm-rc" role="radio" aria-checked="true" tabindex="0"><img data-ic="scooter" src="../../kit/assets/icons/flat/scooter.webp" alt=""><span><b>同城急送</b><small>2 小时内送达</small></span><span class="fm-ring"></span></button>
+      <button class="fm-rc" role="radio" aria-checked="false" tabindex="-1"><img data-ic="pin" src="../../kit/assets/icons/flat/pin.webp" alt=""><span><b>到店自提</b><small>建国路店 免运费</small></span><span class="fm-ring"></span></button>
+      <button class="fm-rc" role="radio" aria-checked="false" tabindex="-1"><img data-ic="bag" src="../../kit/assets/icons/flat/bag.webp" alt=""><span><b>次日达</b><small>明日上午送达</small></span><span class="fm-ring"></span></button>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FORM-019" data-name="多选标签" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">多选标签</span></div>
+  <p class="demo__note">适合：偏好与场景多选，限制数量，选中带勾</p>
+  <div class="demo__stage" id="fm-mt">
+    <div class="fm-multi__h"><b>花材偏好</b><span>已选 2 项 最多 3 项</span></div>
+    <div class="fm-tags">
+      <button class="fm-mt" aria-pressed="true"><img src="../../kit/assets/line/check.webp" alt="">玫瑰</button>
+      <button class="fm-mt" aria-pressed="true"><img src="../../kit/assets/line/check.webp" alt="">芍药</button>
+      <button class="fm-mt" aria-pressed="false"><img src="../../kit/assets/line/check.webp" alt="">郁金香</button>
+      <button class="fm-mt" aria-pressed="false"><img src="../../kit/assets/line/check.webp" alt="">向日葵</button>
+      <button class="fm-mt" aria-pressed="false"><img src="../../kit/assets/line/check.webp" alt="">绣球</button>
+      <button class="fm-mt" aria-pressed="false"><img src="../../kit/assets/line/check.webp" alt="">尤加利</button>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FORM-020" data-name="纵向滚轮" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">纵向滚轮</span></div>
+  <p class="demo__note">适合：数量与金额，上下滑动或直接输入，合计随之更新</p>
+  <div class="demo__stage">
+    <div class="card fm-wh" id="fm-wh">
+      <div class="wheel" data-min="1" data-max="20" data-value="3" data-unit="束" data-label="购买数量" data-name="qty"></div>
+      <div class="stat"><span class="stat__label">合计</span><span class="stat__val price" id="fm-tot"><small>¥</small>597</span></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FORM-021" data-name="双列时间滚轮" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">双列时间滚轮</span></div>
+  <p class="demo__note">适合：送达时段等成组数字，两列并排，仍可手输</p>
+  <div class="demo__stage" id="fm-2w">
+    <div class="card fm-2w">
+      <div class="wheel" data-min="8" data-max="21" data-value="9" data-unit="时" data-label="时" data-name="h"></div>
+      <div class="wheel" data-min="0" data-max="45" data-step="15" data-value="30" data-unit="分" data-label="分" data-name="m"></div>
+    </div>
+    <p class="fm-2w__sum">送达时间 <b>09:30</b></p>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FORM-022" data-name="数量步进器" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">数量步进器</span></div>
+  <p class="demo__note">适合：购物车行内增减，到达上下限自动禁用，可长按连续增减</p>
+  <div class="demo__stage">
+    <div class="card fm-step__list">
+      <div class="fm-step__row"><div><b>红玫瑰花束</b><small>仅剩 5 件</small></div>
+        <div class="fm-step" data-min="1" data-max="5"><button type="button" aria-label="减少数量" data-tip="减少" data-d="-1"><img class="fm-minus" src="../../kit/assets/line/add.webp" alt=""></button><input inputmode="numeric" value="1" aria-label="数量"><button type="button" aria-label="增加数量" data-tip="增加" data-d="1"><img src="../../kit/assets/line/add.webp" alt=""></button></div></div>
+      <div class="fm-step__row"><div><b>多肉组合盆</b><small>紧凑尺寸</small></div>
+        <div class="fm-step fm-step--sm" data-min="1" data-max="99"><button type="button" aria-label="减少数量" data-tip="减少" data-d="-1"><img class="fm-minus" src="../../kit/assets/line/add.webp" alt=""></button><input inputmode="numeric" value="2" aria-label="数量"><button type="button" aria-label="增加数量" data-tip="增加" data-d="1"><img src="../../kit/assets/line/add.webp" alt=""></button></div></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FORM-023" data-name="开关状态" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">开关状态</span></div>
+  <p class="demo__note">适合：即时生效的设置，开启、关闭、不可用三态</p>
+  <div class="demo__stage">
+    <div class="card" style="overflow: hidden">
+      <div class="fm-sw"><div><b>新品上架提醒</b><small>已开启</small></div><button class="switch" role="switch" aria-checked="true" aria-label="新品上架提醒"></button></div>
+      <div class="fm-sw"><div><b>活动优惠提醒</b><small>已关闭</small></div><button class="switch" role="switch" aria-checked="false" aria-label="活动优惠提醒"></button></div>
+      <div class="fm-sw"><div><b>到货通知</b><small>不可修改</small></div><button class="switch" role="switch" aria-checked="true" aria-label="到货通知" disabled></button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FORM-024" data-name="勾选与全选框" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">勾选与全选框</span></div>
+  <p class="demo__note">适合：购物车与批量操作，部分选中时全选显示横线</p>
+  <div class="demo__stage" id="fm-ck">
+    <div class="card" style="overflow: hidden">
+      <div class="fm-ck fm-ck--all" data-all><span class="check" role="checkbox" aria-checked="mixed" aria-label="全选"><img src="../../kit/assets/line/check.webp" alt=""><img class="fm-dash" src="../../kit/assets/line/add.webp" alt=""></span>全选<span class="fm-ck__sum"></span></div>
+      <div class="fm-ck" data-p="199"><span class="check" role="checkbox" aria-checked="true" aria-label="红玫瑰花束"><img src="../../kit/assets/line/check.webp" alt=""><img class="fm-dash" src="../../kit/assets/line/add.webp" alt=""></span><img class="row__lead" src="../../kit/assets/photo/product-rose-red.webp" alt=""><div class="row__main"><p class="row__title one-line">红玫瑰花束</p></div><span class="price"><small>¥</small>199</span></div>
+      <div class="fm-ck" data-p="239"><span class="check" role="checkbox" aria-checked="false" aria-label="粉芍药花束"><img src="../../kit/assets/line/check.webp" alt=""><img class="fm-dash" src="../../kit/assets/line/add.webp" alt=""></span><img class="row__lead" src="../../kit/assets/photo/product-peony-pink.webp" alt=""><div class="row__main"><p class="row__title one-line">粉芍药花束</p></div><span class="price"><small>¥</small>239</span></div>
+      <div class="fm-ck" data-p="259"><span class="check" role="checkbox" aria-checked="false" aria-label="花礼盒"><img src="../../kit/assets/line/check.webp" alt=""><img class="fm-dash" src="../../kit/assets/line/add.webp" alt=""></span><img class="row__lead" src="../../kit/assets/photo/product-giftbox.webp" alt=""><div class="row__main"><p class="row__title one-line">花礼盒</p></div><span class="price"><small>¥</small>259</span></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FORM-025" data-name="单选列表" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">单选列表</span></div>
+  <p class="demo__note">适合：支付方式等少量互斥选项，整行可点，选中行浅底</p>
+  <div class="demo__stage">
+    <div class="card" id="fm-pay" role="radiogroup" aria-label="支付方式" style="overflow: hidden">
+      <button class="fm-pay" role="radio" aria-checked="true" tabindex="0"><span><b>在线支付</b><small>支持常用支付方式</small></span><span class="fm-ring"></span></button>
+      <button class="fm-pay" role="radio" aria-checked="false" tabindex="-1"><span><b>储值卡支付</b><small>余额 ¥200</small></span><span class="fm-ring"></span></button>
+      <button class="fm-pay" role="radio" aria-checked="false" tabindex="-1"><span><b>到店付款</b><small>自提订单可选</small></span><span class="fm-ring"></span></button>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FORM-026" data-name="星级评分" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">星级评分</span></div>
+  <p class="demo__note">适合：商品评价，星标逐颗点亮，悬停预览</p>
+  <div class="demo__stage">
+    <div class="card fm-star" id="fm-star">
+      <div class="fm-star__row" role="radiogroup" aria-label="评分">
+        <button type="button" role="radio" aria-checked="false" aria-label="1 分" data-tip="1 分"><img data-ic="star" src="../../kit/assets/icons/flat/star.webp" alt=""></button>
+        <button type="button" role="radio" aria-checked="false" aria-label="2 分" data-tip="2 分"><img data-ic="star" src="../../kit/assets/icons/flat/star.webp" alt=""></button>
+        <button type="button" role="radio" aria-checked="false" aria-label="3 分" data-tip="3 分"><img data-ic="star" src="../../kit/assets/icons/flat/star.webp" alt=""></button>
+        <button type="button" role="radio" aria-checked="false" aria-label="4 分" data-tip="4 分"><img data-ic="star" src="../../kit/assets/icons/flat/star.webp" alt=""></button>
+        <button type="button" role="radio" aria-checked="false" aria-label="5 分" data-tip="5 分"><img data-ic="star" src="../../kit/assets/icons/flat/star.webp" alt=""></button>
+      </div>
+      <p class="fm-star__t">请选择</p>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FORM-027" data-name="图片上传" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">图片上传</span></div>
+  <p class="demo__note">适合：评价与售后凭证，最多四张，带进度与删除</p>
+  <div class="demo__stage" id="fm-up">
+    <div class="fm-up__h">上传图片<span>2/4</span></div>
+    <div class="fm-up">
+      <div class="fm-up__i"><img class="ph" src="../../kit/assets/photo/product-rose-red.webp" alt=""><button type="button" class="fm-up__x" aria-label="删除图片" data-tip="删除"><img src="../../kit/assets/line/close.webp" alt=""></button></div>
+      <div class="fm-up__i"><img class="ph" src="../../kit/assets/photo/bouquet-white.webp" alt=""><button type="button" class="fm-up__x" aria-label="删除图片" data-tip="删除"><img src="../../kit/assets/line/close.webp" alt=""></button></div>
+      <button type="button" class="fm-up__add" aria-label="添加图片"><img src="../../kit/assets/line/add.webp" alt="">添加</button>
+    </div>
+    <input type="file" accept="image/*" multiple hidden>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FORM-028" data-name="带计数文本域" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">带计数文本域</span></div>
+  <p class="demo__note">适合：评价与备注，接近上限变黄，达到上限变红</p>
+  <div class="demo__stage" id="fm-ta">
+    <div class="field"><label class="field__label" for="fm-t1">评价内容</label><div class="fm-ta"><textarea class="textarea" id="fm-t1" maxlength="120" placeholder="花束新鲜度与包装如何"></textarea><span class="fm-ta__n" data-lv="">0/120</span></div></div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FORM-029" data-name="表单分组行" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">表单分组行</span></div>
+  <p class="demo__note">适合：收货地址等多字段录入，标签在左、输入在右，轻分隔</p>
+  <div class="demo__stage fm-vis">
+    <div class="card" id="fm-gr">
+      <label class="fm-gr"><span>收货人</span><input placeholder="请输入姓名" autocomplete="off"></label>
+      <label class="fm-gr"><span>手机号</span><input inputmode="numeric" placeholder="请输入手机号" autocomplete="off" maxlength="11"></label>
+      <div class="fm-gr"><span>所在地区</span><div class="drop" data-placeholder><button class="drop__btn"><b>请选择</b></button><div class="drop__menu" role="listbox"><button class="drop__opt">上海市 黄浦区</button><button class="drop__opt">上海市 徐汇区</button><button class="drop__opt">上海市 浦东新区</button></div></div></div>
+      <label class="fm-gr"><span>详细地址</span><input placeholder="街道门牌与楼层" autocomplete="off"></label>
+      <div class="fm-gr"><span>设为默认</span><button class="switch" role="switch" aria-checked="false" aria-label="设为默认地址"></button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FORM-030" data-name="快捷金额选择" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">快捷金额选择</span></div>
+  <p class="demo__note">适合：储值充值，常用金额一点即选，其他金额自填</p>
+  <div class="demo__stage" id="fm-amt">
+    <div class="fm-amt__top"><span>充值金额</span><b><small>¥</small><i style="font-style: normal">100</i></b></div>
+    <div class="fm-amt" role="radiogroup" aria-label="充值金额">
+      <button type="button" role="radio" aria-checked="false" data-v="50"><span>¥50</span></button>
+      <button type="button" role="radio" aria-checked="true" data-v="100"><span>¥100</span><small>赠 ¥5</small></button>
+      <button type="button" role="radio" aria-checked="false" data-v="200"><span>¥200</span><small>赠 ¥15</small></button>
+      <button type="button" role="radio" aria-checked="false" data-v="500"><span>¥500</span><small>赠 ¥50</small></button>
+      <button type="button" role="radio" aria-checked="false" data-v="1000"><span>¥1000</span><small>赠 ¥120</small></button>
+      <button type="button" role="radio" aria-checked="false" data-v="custom"><span>其他金额</span></button>
+    </div>
+    <div class="card fm-amt__c" hidden><div class="wheel" data-min="10" data-max="2000" data-step="10" data-value="300" data-unit="元" data-label="自定义金额" data-name="amt"></div></div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FORM-031" data-name="校验错误提示" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">校验错误提示</span></div>
+  <p class="demo__note">适合：提交时统一校验，顶部汇总可点回字段，错误紧贴字段</p>
+  <div class="demo__stage" id="fm-val">
+    <div class="fm-sum" hidden role="alert"></div>
+    <div class="fm-stack">
+      <div class="field" data-f="收货人"><label class="field__label" for="fm-v1">收货人</label><input class="input" id="fm-v1" placeholder="请输入姓名" autocomplete="off"><p class="field__err" hidden>请填写收货人</p></div>
+      <div class="field" data-f="手机号"><label class="field__label" for="fm-v2">手机号</label><input class="input" id="fm-v2" inputmode="numeric" placeholder="请输入手机号" autocomplete="off"><p class="field__err" hidden>手机号需为 11 位数字</p></div>
+      <div class="field" data-f="详细地址"><label class="field__label" for="fm-v3">详细地址</label><input class="input" id="fm-v3" placeholder="街道门牌与楼层" autocomplete="off"><p class="field__err" hidden>请填写详细地址</p></div>
+      <div><button class="btn btn--primary" type="button">保存地址</button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FORM-032" data-name="必填选填标记" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">必填选填标记</span></div>
+  <p class="demo__note">适合：区分必填与选填，必填项填写后标记转为已填</p>
+  <div class="demo__stage" id="fm-req">
+    <div class="fm-stack">
+      <div class="field"><label class="field__label fm-lab" for="fm-r1">收货人<em class="fm-req">必填</em></label><input class="input" id="fm-r1" data-req placeholder="请输入姓名" autocomplete="off"></div>
+      <div class="field"><label class="field__label fm-lab" for="fm-r2">手机号<em class="fm-req">必填</em></label><input class="input" id="fm-r2" data-req inputmode="numeric" placeholder="请输入手机号" autocomplete="off" maxlength="11"></div>
+      <div class="field"><label class="field__label fm-lab" for="fm-r3">备注<em class="fm-opt">选填</em></label><input class="input" id="fm-r3" placeholder="送达前电话联系" autocomplete="off"></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FORM-033" data-name="表单提交条" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">表单提交条</span></div>
+  <p class="demo__note">适合：下单页底部，全宽贴底，勾选协议后才可提交</p>
+  <div class="demo__stage is-plain fm-st">
+    <div class="fm-screen" id="fm-sb">
+      <div class="fm-screen__body">
+        <div class="card list">
+          <div class="row"><img class="row__lead" src="../../kit/assets/photo/product-peony-pink.webp" alt=""><div class="row__main"><p class="row__title one-line">粉芍药花束</p><p class="row__meta">2 小时内送达</p></div><span class="price"><small>¥</small>239</span></div>
+          <div class="row"><img class="row__lead" src="../../kit/assets/photo/product-sunflower.webp" alt=""><div class="row__main"><p class="row__title one-line">向日葵花束</p><p class="row__meta">2 小时内送达</p></div><span class="price"><small>¥</small>159</span></div>
+        </div>
+        <div class="fm-ck2" data-agree><span class="check" role="checkbox" aria-checked="false" aria-label="同意服务协议"><img src="../../kit/assets/line/check.webp" alt=""></span>我已阅读并同意服务协议</div>
+      </div>
+      <div class="fm-bar"><div class="fm-bar__t"><small>合计</small><b><small>¥</small>398</b></div><button class="btn btn--primary btn--lg" type="button" disabled>提交订单</button></div>
+    </div>
+  </div>
+</article>
+
+<script>
+(function () {
+  var $ = function (s, r) { return (r || document).querySelector(s); }, $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var clamp = function (v, a, b) { return Math.min(b, Math.max(a, v)); };
+  var PHONE = /^1\d{10}$/;
+  var P = '../../kit/assets/photo/';
+  function digits(el, max) { var v = el.value.replace(/\D/g, '').slice(0, max); if (v !== el.value) el.value = v; }
+  function shake(el) { el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); }
+
+  // 003 错误输入框
+  (function () {
+    var host = $('#fm-err'); if (!host) return;
+    var inp = $('input', host), msg = $('.field__err', host);
+    function check() { var v = inp.value, ok = PHONE.test(v); inp.setAttribute('aria-invalid', String(!ok)); msg.hidden = ok; msg.textContent = v ? '手机号需为 11 位数字' : '请输入手机号'; return ok; }
+    inp.addEventListener('input', function () { digits(inp, 11); check(); });
+    inp.addEventListener('blur', function () { if (!check()) shake(inp); });
+  })();
+
+  // 004 只读复制
+  (function () {
+    var b = $('#fm-copy'); if (!b) return;
+    b.addEventListener('click', function () {
+      var v = $('#fm-i4b').value;
+      try { navigator.clipboard.writeText(v).then(function () { Lz.toast('已复制订单编号', 'success'); }, function () { Lz.toast('已复制订单编号', 'success'); }); } catch (e) { Lz.toast('已复制订单编号', 'success'); }
+    });
+  })();
+
+  // 005 图标输入框清除
+  $$('[data-cid="AP-FORM-005"] .fm-ico').forEach(function (box) {
+    var inp = $('input', box), x = $('.fm-ico__x', box);
+    var sync = function () { x.hidden = !inp.value; };
+    inp.addEventListener('input', sync); x.addEventListener('click', function () { inp.value = ''; sync(); inp.focus(); }); sync();
+  });
+
+  // 006 数字过滤
+  $$('[data-num]').forEach(function (inp) {
+    inp.addEventListener('input', function () {
+      var d = +inp.dataset.num; if (inp.isComposing) return;
+      var v = inp.value.replace(d ? /[^\d.]/g : /\D/g, '');
+      if (d) { var i = v.indexOf('.'); if (i >= 0) v = v.slice(0, i + 1) + v.slice(i + 1).replace(/\./g, '').slice(0, d); }
+      if (v !== inp.value) inp.value = v;
+    });
+  });
+
+  // 007 验证码倒计时
+  (function () {
+    var host = $('#fm-vc'); if (!host) return;
+    var ph = $('[data-ph]', host), code = $('[data-code]', host), btn = $('[data-send]', host), t;
+    ph.addEventListener('input', function () { digits(ph, 11); ph.closest('.fm-ico').removeAttribute('data-invalid'); });
+    code.addEventListener('input', function () { digits(code, 6); });
+    btn.addEventListener('click', function () {
+      if (!PHONE.test(ph.value)) { var box = ph.closest('.fm-ico'); box.dataset.invalid = ''; shake(box); Lz.toast('请输入 11 位手机号', 'danger'); ph.focus(); return; }
+      var n = 60; btn.disabled = true; btn.textContent = n + ' 秒后重发'; Lz.toast('验证码已发送', 'success'); code.focus();
+      clearInterval(t); t = setInterval(function () { n--; if (n <= 0) { clearInterval(t); btn.disabled = false; btn.textContent = '重新获取'; } else btn.textContent = n + ' 秒后重发'; }, 1000);
+    });
+  })();
+
+  // 008 六格验证码
+  (function () {
+    var host = $('#fm-otp'); if (!host) return;
+    var boxes = $$('input', host);
+    function done() { boxes.forEach(function (x) { x.classList.toggle('is-filled', !!x.value); }); if (boxes.every(function (x) { return x.value; })) Lz.toast('验证码已填写', 'success'); }
+    boxes.forEach(function (b, i) {
+      b.addEventListener('focus', function () { b.select(); });
+      b.addEventListener('input', function () { b.value = b.value.replace(/\D/g, '').slice(-1); if (b.value && boxes[i + 1]) boxes[i + 1].focus(); done(); });
+      b.addEventListener('keydown', function (e) {
+        if (e.key === 'Backspace' && !b.value && boxes[i - 1]) { boxes[i - 1].value = ''; boxes[i - 1].focus(); done(); e.preventDefault(); }
+        if (e.key === 'ArrowLeft' && boxes[i - 1]) { boxes[i - 1].focus(); e.preventDefault(); }
+        if (e.key === 'ArrowRight' && boxes[i + 1]) { boxes[i + 1].focus(); e.preventDefault(); }
+      });
+      b.addEventListener('paste', function (e) {
+        var t = ((e.clipboardData || window.clipboardData).getData('text') || '').replace(/\D/g, '').slice(0, boxes.length - i); if (!t) return; e.preventDefault();
+        t.split('').forEach(function (c, k) { boxes[i + k].value = c; }); boxes[Math.min(boxes.length - 1, i + t.length)].focus(); done();
+      });
+    });
+  })();
+
+  // 009 密码显隐
+  (function () {
+    var b = $('#fm-eye'), i = $('#fm-i9'); if (!b) return;
+    b.addEventListener('click', function () { var show = i.type === 'password'; i.type = show ? 'text' : 'password'; b.textContent = show ? '隐藏' : '显示'; b.setAttribute('aria-pressed', String(show)); });
+  })();
+
+  // 010 密码强度
+  (function () {
+    var host = $('#fm-pw'); if (!host) return;
+    var inp = $('input', host), meter = $('.fm-meter', host), lab = $('.fm-meter span', host);
+    inp.addEventListener('input', function () {
+      var v = inp.value, ok = { len: v.length >= 8, num: /\d/.test(v), abc: /[a-zA-Z]/.test(v) }, n = 0;
+      Object.keys(ok).forEach(function (k) { $('[data-r="' + k + '"]', host).toggleAttribute('data-ok', ok[k]); if (ok[k]) n++; });
+      var lv = !v ? 0 : n === 3 ? (v.length >= 12 || /[^\w]/.test(v) ? 3 : 2) : 1; if (!v) lv = 0;
+      if (lv === 2 && n === 3 && v.length >= 10) lv = 3;
+      meter.dataset.lv = lv; lab.textContent = ['', '弱', '中', '强'][lv];
+    });
+  })();
+
+  // 011 兑换
+  (function () {
+    var host = $('#fm-cp'); if (!host) return;
+    var inp = $('input', host), btn = $('.btn', host), err = $('.field__err', host), box = $('.fm-ico', host);
+    function submit() {
+      var v = inp.value.trim();
+      if (v.length !== 8) { err.hidden = false; box.dataset.invalid = ''; shake(box); inp.focus(); return; }
+      err.hidden = true; box.removeAttribute('data-invalid'); btn.classList.add('is-loading');
+      setTimeout(function () { btn.classList.remove('is-loading'); inp.value = ''; Lz.toast('已兑换 20 元优惠券', 'success'); }, 900);
+    }
+    inp.addEventListener('input', function () { if (!err.hidden && inp.value.trim().length === 8) { err.hidden = true; box.removeAttribute('data-invalid'); } });
+    btn.addEventListener('click', submit);
+    inp.addEventListener('keydown', function (e) { if (e.key === 'Enter' && !e.isComposing) submit(); });
+  })();
+
+  // 012 胶囊搜索 / 014 扫码
+  function bindSearch(host) {
+    var inp = $('input', host), x = $('.fm-x', host);
+    if (x) { inp.addEventListener('input', function () { x.hidden = !inp.value; }); x.addEventListener('click', function () { inp.value = ''; x.hidden = true; inp.focus(); }); }
+    inp.addEventListener('keydown', function (e) { if (e.key === 'Enter' && !e.isComposing && inp.value.trim()) Lz.toast('搜索 ' + inp.value.trim()); });
+  }
+  bindSearch($('#fm-s1')); bindSearch($('#fm-s3'));
+  $('#fm-s3 .fm-scan') && $('#fm-s3 .fm-scan').addEventListener('click', function () { Lz.toast('已打开扫码'); });
+
+  // 013 展开搜索
+  (function () {
+    var host = $('#fm-xs'); if (!host) return;
+    var w = $('.fm-xs', host), inp = $('input', host), ok = $('.fm-xs__ok', host), cancel = $('.fm-xs__c', host);
+    function open(o) { w.dataset.open = String(o); inp.tabIndex = o ? 0 : -1; cancel.tabIndex = o ? 0 : -1; if (o) setTimeout(function () { inp.focus(); }, 160); else { inp.value = ''; ok.focus(); } }
+    ok.addEventListener('click', function () { open(true); });
+    cancel.addEventListener('click', function () { open(false); });
+    inp.addEventListener('keydown', function (e) { if (e.key === 'Escape') open(false); if (e.key === 'Enter' && !e.isComposing && inp.value.trim()) Lz.toast('搜索 ' + inp.value.trim()); });
+  })();
+
+  // 015 历史词
+  (function () {
+    var host = $('#fm-s4'); if (!host) return;
+    var inp = $('input', host), box = $('.fm-hist', host);
+    var hist = ['红玫瑰', '多肉', '生日花束', '龟背竹', '百合'], hot = ['母亲节花束', '向日葵', '绿萝', '节日礼盒'];
+    function chips(list, cls) { return list.map(function (t) { return '<button type="button" class="' + (cls || '') + '">' + t + '</button>'; }).join(''); }
+    function render() {
+      box.innerHTML = (hist.length ? '<div><div class="fm-hist__h">历史搜索<button type="button" data-clear>清空</button></div><div class="fm-tags" data-h>' + chips(hist) + '</div></div>' : '') +
+        '<div><div class="fm-hist__h">热门搜索</div><div class="fm-tags" data-t>' + chips(hot, 'is-hot') + '</div></div>';
+    }
+    function run(t) { inp.value = t; hist = [t].concat(hist.filter(function (x) { return x !== t; })).slice(0, 8); render(); Lz.toast('搜索 ' + t); }
+    box.addEventListener('click', function (e) {
+      var c = e.target.closest('[data-clear]');
+      if (c) { Lz.confirm({ title: '清空历史搜索', body: '清空后无法恢复', ok: '清空', tone: 'danger' }).then(function (y) { if (y) { hist = []; render(); Lz.toast('已清空'); } }); return; }
+      var b = e.target.closest('.fm-tags button'); if (b) run(b.textContent);
+    });
+    inp.addEventListener('keydown', function (e) { if (e.key === 'Enter' && !e.isComposing && inp.value.trim()) run(inp.value.trim()); });
+    render();
+  })();
+
+  // 016 联想词
+  (function () {
+    var host = $('#fm-s5'); if (!host) return;
+    var inp = $('input', host), box = $('#fm-sug'), act = -1, cur = [];
+    var all = ['红玫瑰花束', '玫瑰礼盒', '玫瑰干花摆件', '粉芍药花束', '白郁金香', '向日葵花束', '蓝绣球盆栽', '龟背竹盆栽', '多肉组合盆', '花礼盒', '干花花瓶摆件'];
+    function render() {
+      var q = inp.value.trim(); cur = q ? all.filter(function (t) { return t.indexOf(q) >= 0; }) : []; act = -1;
+      box.hidden = !q; inp.setAttribute('aria-expanded', String(!!q));
+      if (!q) { box.innerHTML = ''; return; }
+      box.innerHTML = cur.length ? cur.map(function (t, i) {
+        var k = t.indexOf(q); return '<button type="button" role="option" aria-selected="false" data-i="' + i + '"><img src="../../kit/assets/line/search.webp" alt=""><span>' + t.slice(0, k) + '<mark>' + q + '</mark>' + t.slice(k + q.length) + '</span></button>';
+      }).join('') : '<p>没有相关商品</p>';
+    }
+    function mark(n) { $$('button', box).forEach(function (b, i) { b.setAttribute('aria-selected', String(i === n)); }); act = n; }
+    function pick(i) { inp.value = cur[i]; Lz.toast('搜索 ' + cur[i]); render(); }
+    inp.addEventListener('input', render);
+    inp.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowDown' && cur.length) { mark((act + 1) % cur.length); e.preventDefault(); }
+      else if (e.key === 'ArrowUp' && cur.length) { mark((act - 1 + cur.length) % cur.length); e.preventDefault(); }
+      else if (e.key === 'Enter' && !e.isComposing) { if (act >= 0) pick(act); else if (inp.value.trim()) Lz.toast('搜索 ' + inp.value.trim()); }
+      else if (e.key === 'Escape') { inp.value = ''; render(); }
+    });
+    box.addEventListener('click', function (e) { var b = e.target.closest('button'); if (b) pick(+b.dataset.i); });
+    render();
+  })();
+
+  // 018 单选卡 / 025 单选列表：同一套单选行为，方向键移动
+  function radios(host, sel) {
+    var items = $$(sel, host);
+    function set(i) { items.forEach(function (x, j) { x.setAttribute('aria-checked', String(j === i)); x.tabIndex = j === i ? 0 : -1; }); }
+    items.forEach(function (x, i) {
+      x.addEventListener('click', function () { set(i); });
+      x.addEventListener('keydown', function (e) { var d = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 }[e.key]; if (!d) return; var n = (i + d + items.length) % items.length; set(n); items[n].focus(); e.preventDefault(); });
+    });
+  }
+  radios($('#fm-rc'), '.fm-rc'); radios($('#fm-pay'), '.fm-pay');
+
+  // 019 多选标签
+  (function () {
+    var host = $('#fm-mt'); if (!host) return;
+    var tags = $$('.fm-mt', host), cnt = $('.fm-multi__h span', host), MAX = 3;
+    function n() { return tags.filter(function (t) { return t.getAttribute('aria-pressed') === 'true'; }).length; }
+    function sync() { cnt.textContent = '已选 ' + n() + ' 项 最多 ' + MAX + ' 项'; }
+    tags.forEach(function (t) {
+      t.addEventListener('click', function () {
+        var on = t.getAttribute('aria-pressed') === 'true';
+        if (!on && n() >= MAX) { Lz.toast('最多选 ' + MAX + ' 项', 'danger'); shake(t); return; }
+        t.setAttribute('aria-pressed', String(!on)); sync();
+      });
+    }); sync();
+  })();
+
+  // 020 滚轮合计
+  (function () {
+    var host = $('#fm-wh'); if (!host) return;
+    var tot = $('#fm-tot');
+    host.addEventListener('lz:wheel', function (e) { tot.innerHTML = '<small>¥</small>' + (e.detail.value * 199); });
+    host.addEventListener('input', function (e) { if (!e.target.matches('.wheel .input')) return; var n = parseInt(e.target.value, 10); if (!isNaN(n)) tot.innerHTML = '<small>¥</small>' + (n * 199); });
+  })();
+
+  // 021 时间滚轮
+  (function () {
+    var host = $('#fm-2w'); if (!host) return;
+    var sum = $('b', host), h = 9, m = 30, two = function (n) { return (n < 10 ? '0' : '') + n; };
+    host.addEventListener('lz:wheel', function (e) { var w = e.target.closest('.wheel'); if (w.dataset.name === 'h') h = e.detail.value; else m = e.detail.value; sum.textContent = two(h) + ':' + two(m); });
+  })();
+
+  // 022 数量步进
+  $$('.fm-step').forEach(function (st) {
+    var inp = $('input', st), minus = $('[data-d="-1"]', st), plus = $('[data-d="1"]', st), min = +st.dataset.min, max = +st.dataset.max, hold, rep;
+    function set(v, quiet) { var n = clamp(v, min, max); if (!quiet && v > max) { Lz.toast('最多 ' + max + ' 件', 'danger'); } inp.value = n; minus.disabled = n <= min; plus.disabled = n >= max; }
+    function bump(d) { set((parseInt(inp.value, 10) || min) + d); }
+    [minus, plus].forEach(function (b) {
+      var d = +b.dataset.d;
+      b.addEventListener('click', function (e) { if (e.detail === 0 || !b._held) bump(d); b._held = false; });
+      b.addEventListener('pointerdown', function () { b._held = false; hold = setTimeout(function () { b._held = true; rep = setInterval(function () { bump(d); }, 90); }, 420); });
+      ['pointerup', 'pointerleave', 'pointercancel'].forEach(function (ev) { b.addEventListener(ev, function () { clearTimeout(hold); clearInterval(rep); }); });
+    });
+    inp.addEventListener('change', function () { var n = parseInt(inp.value, 10); set(isNaN(n) ? min : n); });
+    inp.addEventListener('input', function () { digits(inp, 3); });
+    inp.addEventListener('keydown', function (e) { if (e.key === 'ArrowUp') { bump(1); e.preventDefault(); } if (e.key === 'ArrowDown') { bump(-1); e.preventDefault(); } });
+    set(parseInt(inp.value, 10) || min, true);
+  });
+
+  // 023 开关文字随状态
+  $$('[data-cid="AP-FORM-023"] .fm-sw').forEach(function (row) {
+    var sw = $('.switch', row), s = $('small', row); if (sw.disabled) return;
+    sw.addEventListener('lz:toggle', function () { s.textContent = sw.getAttribute('aria-checked') === 'true' ? '已开启' : '已关闭'; });
+  });
+
+  // 024 勾选与全选
+  (function () {
+    var host = $('#fm-ck'); if (!host) return;
+    var allRow = $('[data-all]', host), all = $('.check', allRow), rows = $$('.fm-ck[data-p]', host), sum = $('.fm-ck__sum', allRow);
+    var cb = function (r) { return $('.check', r); };
+    function sync() {
+      var on = rows.filter(function (r) { return cb(r).getAttribute('aria-checked') === 'true'; });
+      all.setAttribute('aria-checked', on.length === 0 ? 'false' : on.length === rows.length ? 'true' : 'mixed');
+      var t = on.reduce(function (a, r) { return a + +r.dataset.p; }, 0);
+      sum.innerHTML = on.length ? '已选 ' + on.length + ' 件 <b>¥' + t + '</b>' : '未选择';
+    }
+    all.addEventListener('lz:toggle', function () { var v = all.getAttribute('aria-checked'); rows.forEach(function (r) { cb(r).setAttribute('aria-checked', v); }); sync(); });
+    rows.forEach(function (r) { cb(r).addEventListener('lz:toggle', function (e) { e.stopPropagation(); sync(); }); });
+    host.addEventListener('click', function (e) { var r = e.target.closest('.fm-ck'); if (!r || e.target.closest('.check')) return; $('.check', r).click(); });
+    sync();
+  })();
+
+  // 026 星级
+  (function () {
+    var host = $('#fm-star'); if (!host) return;
+    var btns = $$('button', host), t = $('.fm-star__t', host), words = ['很差', '较差', '一般', '满意', '惊喜'], val = 0;
+    function paint(n) { btns.forEach(function (b, i) { b.toggleAttribute('data-on', i < n); }); }
+    btns.forEach(function (b, i) {
+      b.addEventListener('pointerenter', function () { paint(i + 1); t.textContent = words[i]; });
+      b.addEventListener('click', function () { val = i + 1; btns.forEach(function (x, j) { x.setAttribute('aria-checked', String(j === i)); x.removeAttribute('data-pop'); }); void b.offsetWidth; btns.slice(0, val).forEach(function (x, j) { x.dataset.pop = ''; x.style.animationDelay = j * 40 + 'ms'; }); paint(val); t.textContent = words[i]; });
+      b.addEventListener('keydown', function (e) { var d = { ArrowRight: 1, ArrowLeft: -1 }[e.key]; if (d && btns[i + d]) { btns[i + d].focus(); e.preventDefault(); } });
+    });
+    $('.fm-star__row', host).addEventListener('pointerleave', function () { paint(val); t.textContent = val ? words[val - 1] : '请选择'; });
+  })();
+
+  // 027 图片上传
+  (function () {
+    var host = $('#fm-up'); if (!host) return;
+    var grid = $('.fm-up', host), add = $('.fm-up__add', host), file = $('input[type=file]', host), cnt = $('.fm-up__h span', host), MAX = 4;
+    function n() { return $$('.fm-up__i', grid).length; }
+    function sync() { cnt.textContent = n() + '/' + MAX; add.hidden = n() >= MAX; }
+    function mk(src) {
+      var d = document.createElement('div'); d.className = 'fm-up__i';
+      d.innerHTML = '<img class="ph" alt=""><div class="fm-up__ov"><span>0%</span><i style="--v:0%"></i></div>';
+      $('.ph', d).src = src; grid.insertBefore(d, add); sync();
+      var p = 0, ov = $('.fm-up__ov', d), tx = $('span', ov), bar = $('i', ov);
+      var t = setInterval(function () { p = Math.min(100, p + 14 + Math.random() * 10); tx.textContent = Math.round(p) + '%'; bar.style.setProperty('--v', p + '%'); if (p >= 100) { clearInterval(t); ov.remove(); d.insertAdjacentHTML('beforeend', '<button type="button" class="fm-up__x" aria-label="删除图片" data-tip="删除"><img src="../../kit/assets/line/close.webp" alt=""></button>'); Lz.toast('上传完成', 'success'); } }, 160);
+    }
+    add.addEventListener('click', function () { file.click(); });
+    file.addEventListener('change', function () { Array.prototype.slice.call(file.files).slice(0, MAX - n()).forEach(function (f) { mk(URL.createObjectURL(f)); }); file.value = ''; });
+    grid.addEventListener('click', function (e) {
+      var x = e.target.closest('.fm-up__x'); if (!x) return;
+      var it = x.closest('.fm-up__i'); it.style.transition = 'opacity .15s, transform .15s'; it.style.opacity = '0'; it.style.transform = 'scale(.8)';
+      setTimeout(function () { it.remove(); sync(); add.focus(); }, 160); Lz.toast('已移除');
+    });
+  })();
+
+  // 028 文本域计数
+  (function () {
+    var host = $('#fm-ta'); if (!host) return;
+    var ta = $('textarea', host), c = $('.fm-ta__n', host), max = +ta.maxLength;
+    ta.addEventListener('input', function () { var n = ta.value.length; c.textContent = n + '/' + max; c.dataset.lv = n >= max ? 'full' : n >= max - 20 ? 'warn' : ''; });
+  })();
+
+  // 029 分组行：整行点按聚焦
+  $$('#fm-gr .fm-gr').forEach(function (r) { var d = $('.drop', r); if (d) r.addEventListener('click', function (e) { if (!e.target.closest('.drop')) $('.drop__btn', d).click(); }); });
+  (function () { var p = $('#fm-gr input[inputmode]'); p && p.addEventListener('input', function () { digits(p, 11); }); })();
+
+  // 030 快捷金额
+  (function () {
+    var host = $('#fm-amt'); if (!host) return;
+    var btns = $$('.fm-amt button', host), out = $('.fm-amt__top i', host), cust = $('.fm-amt__c', host);
+    function cur() { var i = $('.wheel .input', cust), n = i ? parseInt(i.value, 10) : NaN; return isNaN(n) ? '0' : String(n); }
+    btns.forEach(function (b) {
+      b.addEventListener('click', function () {
+        btns.forEach(function (x) { x.setAttribute('aria-checked', String(x === b)); });
+        if (b.dataset.v === 'custom') { cust.hidden = false; var w = $('.wheel', cust); if (w && w._lzSync) w._lzSync(); out.textContent = cur(); } else { cust.hidden = true; out.textContent = b.dataset.v; }
+      });
+    });
+    cust.addEventListener('lz:wheel', function (e) { if (cust.hidden) return; out.textContent = String(e.detail.value); });
+    cust.addEventListener('input', function (e) { if (!cust.hidden && e.target.matches('.wheel .input')) out.textContent = cur(); });
+  })();
+
+  // 031 校验汇总
+  (function () {
+    var host = $('#fm-val'); if (!host) return;
+    var sum = $('.fm-sum', host), fields = $$('.field', host), btn = $('.btn', host);
+    function rule(f) { var v = $('input', f).value.trim(); return f.dataset.f === '手机号' ? PHONE.test(v) : !!v; }
+    function mark(f, bad) { $('input', f).setAttribute('aria-invalid', String(bad)); $('.field__err', f).hidden = !bad; }
+    function refresh() {
+      var bad = fields.filter(function (f) { return $('.field__err', f).hidden === false; });
+      sum.hidden = !bad.length;
+      sum.innerHTML = bad.length ? bad.length + ' 项待修改' + bad.map(function (f) { return '<button type="button" data-f="' + f.dataset.f + '">' + f.dataset.f + '</button>'; }).join('') : '';
+    }
+    btn.addEventListener('click', function () {
+      var first = null; fields.forEach(function (f) { var bad = !rule(f); mark(f, bad); if (bad && !first) first = f; if (bad) shake($('input', f)); });
+      refresh();
+      if (first) $('input', first).focus(); else Lz.toast('已通过校验', 'success');
+    });
+    fields.forEach(function (f) { $('input', f).addEventListener('input', function () { if (f.dataset.f === '手机号') digits($('input', f), 11); if ($('.field__err', f).hidden === false && rule(f)) { mark(f, false); refresh(); } }); });
+    sum.addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; var f = fields.filter(function (x) { return x.dataset.f === b.dataset.f; })[0]; if (f) $('input', f).focus(); });
+    // 初始即展示一次错误态
+    $('input', fields[0]).value = '林晓'; fields.forEach(function (f) { if (!rule(f)) mark(f, true); }); refresh();
+  })();
+
+  // 032 必填标记
+  (function () {
+    var host = $('#fm-req'); if (!host) return;
+    $$('[data-req]', host).forEach(function (inp) {
+      var m = $('.fm-req', inp.closest('.field'));
+      function sync() { if (inp.inputMode === 'numeric') digits(inp, 11); var ok = inp.inputMode === 'numeric' ? PHONE.test(inp.value) : !!inp.value.trim(); m.toggleAttribute('data-done', ok); m.textContent = ok ? '已填' : '必填'; }
+      inp.addEventListener('input', sync);
+    });
+  })();
+
+  // 033 提交条
+  (function () {
+    var host = $('#fm-sb'); if (!host) return;
+    var ck = $('.check', host), btn = $('.btn', host), row = $('[data-agree]', host);
+    function sync() { btn.disabled = ck.getAttribute('aria-checked') !== 'true'; }
+    ck.addEventListener('lz:toggle', sync);
+    row.addEventListener('click', function (e) { if (!e.target.closest('.check')) ck.click(); });
+    btn.addEventListener('click', function () { btn.classList.add('is-loading'); setTimeout(function () { btn.classList.remove('is-loading'); Lz.toast('订单已提交', 'success'); }, 1100); });
+  })();
+})();
+</script>
+
+<style>
+/* 新增：日历、省市区、时段、标签输入、支付密码、日期滚轮、分类树、头像裁剪、签名板、数字键盘；类名带 fm-tg- fm-cal- fm-ar- fm-ts- fm-tk- fm-pc- fm-dw- fm-tr- fm-cr- fm-sg- fm-nk- */
+
+/* 就近展开的选择触发条：日历与省市区共用 */
+.fm-tg { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); width: 100%; min-height: 48px; padding: 0 var(--s-3); border-radius: var(--r-md); background: var(--surface); box-shadow: inset 0 0 0 1px var(--line-strong); text-align: left; font-size: var(--fs-md); transition: box-shadow var(--dur-quick) var(--ease-out); }
+.fm-tg[aria-expanded="true"] { box-shadow: inset 0 0 0 1px var(--ink-2); }
+.fm-tg b { font-weight: 400; }
+.fm-tg:not([data-done]) b { color: var(--ink-2); }
+.fm-tg .chev { flex: none; }
+.fm-pnl > div > .card { margin-top: var(--s-2); }
+
+/* 日历日期选择 */
+.fm-cal { padding: var(--s-2) var(--s-2) var(--s-3); }
+.fm-cal__h { display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; }
+.fm-cal__ttl { text-align: center; font-size: var(--fs-md); font-weight: 600; font-variant-numeric: tabular-nums; }
+.fm-cal__h .ibtn { width: 44px; height: 44px; }
+.fm-cal__h .ibtn[disabled] { opacity: .3; pointer-events: none; }
+.fm-cal__h .chev::after { margin: 0; }
+.fm-cal__l::after { transform: rotate(135deg); }
+.fm-cal__w, .fm-cal__g { display: grid; grid-template-columns: repeat(7, 1fr); }
+.fm-cal__w span { display: grid; place-items: center; min-height: 28px; font-size: var(--fs-sm); color: var(--ink-3); }
+.fm-cal__d { display: grid; justify-items: center; align-content: center; min-height: 48px; }
+.fm-cal__n { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; font-size: var(--fs-md); font-weight: 500; font-variant-numeric: tabular-nums; transition: background var(--dur-quick) var(--ease-out), color var(--dur-quick) var(--ease-out); }
+.fm-cal__m { display: grid; place-items: center; height: 12px; font-size: 10px; font-style: normal; line-height: 12px; color: var(--ink-3); }
+.fm-cal__d[data-s="ok"] .fm-cal__m::before { content: ""; width: 4px; height: 4px; border-radius: 50%; background: var(--action); }
+.fm-cal__d:disabled { cursor: not-allowed; }
+.fm-cal__d[data-s="past"] .fm-cal__n, .fm-cal__d[data-s="far"] .fm-cal__n { color: color-mix(in srgb, var(--ink-3) 55%, transparent); font-weight: 400; }
+.fm-cal__d[data-s="full"] .fm-cal__n { color: var(--ink-3); font-weight: 400; }
+.fm-cal__d[aria-pressed="true"] .fm-cal__n { background: var(--action); color: var(--surface); font-weight: 600; }
+.fm-cal__d[aria-pressed="true"] .fm-cal__m::before { background: var(--action); }
+@media (hover: hover) { .fm-cal__d:not(:disabled):not([aria-pressed="true"]):hover .fm-cal__n { background: var(--zone); } }
+.fm-cal__d:not(:disabled):active .fm-cal__n { transform: scale(.92); }
+.fm-cal__lg { display: flex; align-items: center; justify-content: center; gap: var(--s-6); margin: var(--s-2) var(--s-2) 0; padding-top: var(--s-3); border-top: 1px solid var(--line); font-size: var(--fs-sm); color: var(--ink-3); }
+.fm-cal__lg span { display: inline-flex; align-items: center; gap: var(--s-2); }
+.fm-cal__lg i { display: grid; place-items: center; min-width: 8px; font-size: 10px; font-style: normal; line-height: 1; color: var(--ink-3); }
+.fm-cal__lg i.is-ok { width: 5px; height: 5px; min-width: 0; border-radius: 50%; background: var(--action); }
+
+/* 省市区联动选择 */
+.fm-ar__tabs { display: flex; gap: var(--s-5); padding: 0 var(--s-4); border-bottom: 1px solid var(--line); overflow: hidden; }
+.fm-ar__tabs button { position: relative; flex: none; min-height: 48px; font-size: var(--fs-md); color: var(--ink-2); white-space: nowrap; }
+.fm-ar__tabs button[aria-selected="true"] { color: var(--ink); font-weight: 600; }
+.fm-ar__tabs button[aria-selected="true"]::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 3px; border-radius: 3px 3px 0 0; background: var(--action); }
+.fm-ar__list { height: 240px; padding: var(--s-1) 0; overflow-y: auto; scrollbar-width: none; animation: lz-fade var(--dur-base) var(--ease-out) both; }
+.fm-ar__list::-webkit-scrollbar { display: none; }
+.fm-ar__list button { display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 48px; padding: 0 var(--s-4); font-size: var(--fs-md); text-align: left; transition: background var(--dur-quick) var(--ease-out); }
+.fm-ar__list button img { width: 18px; height: 18px; opacity: 0; }
+.fm-ar__list button[aria-selected="true"] { color: var(--action-press); font-weight: 600; background: var(--action-tint); }
+.fm-ar__list button[aria-selected="true"] img { opacity: 1; }
+.fm-ar__list button + button { border-top: 1px solid var(--line); }
+@media (hover: hover) { .fm-ar__list button:not([aria-selected="true"]):hover { background: var(--zone); } }
+
+/* 配送时段选择格 */
+.fm-ts { display: grid; gap: var(--s-3); padding: var(--s-4); }
+.fm-ts__days { display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--s-2); }
+.fm-ts__d { display: grid; justify-items: center; align-content: center; gap: 2px; min-height: 56px; border-radius: var(--r-md); background: var(--zone); font-size: var(--fs-sm); color: var(--ink-2); transition: background var(--dur-quick) var(--ease-out), color var(--dur-quick) var(--ease-out); }
+.fm-ts__d small { font-size: var(--fs-xs); font-variant-numeric: tabular-nums; opacity: .85; }
+.fm-ts__d[aria-checked="true"] { background: var(--action); color: var(--surface); font-weight: 600; }
+.fm-ts__d:active { transform: scale(.96); }
+.fm-ts__grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s-2); }
+.fm-ts__s { display: grid; justify-items: center; align-content: center; gap: 2px; min-height: 56px; padding: 0 4px; border-radius: var(--r-md); background: var(--surface); box-shadow: inset 0 0 0 1px var(--line-strong); font-size: var(--fs-sm); font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; transition: background var(--dur-quick) var(--ease-out), box-shadow var(--dur-quick) var(--ease-out); }
+.fm-ts__s small { font-size: var(--fs-xs); font-weight: 400; color: var(--ink-3); }
+.fm-ts__s[data-s="few"] small { color: var(--warning); font-weight: 600; }
+.fm-ts__s[data-s="full"] { background: var(--zone); box-shadow: none; color: var(--ink-3); font-weight: 400; cursor: not-allowed; }
+.fm-ts__s[data-s="full"] b { text-decoration: line-through; font-weight: 400; }
+.fm-ts__s[aria-checked="true"] { background: var(--action-tint); box-shadow: inset 0 0 0 1.5px var(--action); color: var(--action-press); }
+.fm-ts__s[aria-checked="true"] small { color: var(--action-press); font-weight: 600; }
+.fm-ts__s:not(:disabled):active { transform: scale(.96); }
+.fm-ts__sum { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); padding-top: var(--s-3); border-top: 1px solid var(--line); font-size: var(--fs-sm); color: var(--ink-3); }
+.fm-ts__sum b { font-size: var(--fs-md); font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
+
+/* 可删除标签输入 */
+.fm-tk__h { display: flex; align-items: baseline; justify-content: space-between; }
+.fm-tk__n { font-size: var(--fs-sm); color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.fm-tk__n[data-full] { color: var(--warning); font-weight: 600; }
+.fm-tk__box { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2); min-height: 52px; padding: 9px var(--s-2); border: 1px solid var(--line-strong); border-radius: var(--r-md); background: var(--surface); cursor: text; transition: border-color var(--dur-quick) var(--ease-out); }
+.fm-tk__box:focus-within { border-color: var(--ink-2); }
+.fm-tk__box[data-invalid] { border-color: var(--danger); }
+.fm-tk__t { display: inline-flex; align-items: center; gap: 2px; min-height: 32px; padding: 0 2px 0 var(--s-3); border-radius: var(--r-full); background: var(--action-tint); box-shadow: inset 0 0 0 1px var(--action-edge); color: var(--action-press); font-size: var(--fs-sm); font-weight: 500; white-space: nowrap; animation: lz-pop var(--dur-base) var(--ease-spring) both; }
+.fm-tk__t.is-out { opacity: 0; transform: scale(.8); transition: opacity var(--dur-quick), transform var(--dur-quick); }
+.fm-tk__x { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; transition: background var(--dur-quick) var(--ease-out); }
+.fm-tk__x img { width: 12px; height: 12px; }
+@media (hover: hover) { .fm-tk__x:hover { background: var(--action-soft); } }
+.fm-tk__in { flex: 1; min-width: 120px; height: 32px; border: 0; background: none; font-size: var(--fs-md); }
+.fm-tk__in:focus-visible { outline: none; }
+.fm-tk__in::placeholder { color: var(--ink-3); }
+.fm-tk__in:disabled { cursor: not-allowed; }
+.fm-tk__sug { margin-top: var(--s-4); }
+.fm-tk__sug .fm-tags button:disabled { opacity: .4; cursor: not-allowed; }
+
+/* 支付密码输入框 */
+.fm-pc { display: grid; gap: var(--s-3); }
+.fm-pc__h { display: flex; align-items: center; justify-content: space-between; min-height: 36px; }
+.fm-pc__h b { font-size: var(--fs-md); font-weight: 600; }
+.fm-pc__boxes { position: relative; display: grid; grid-template-columns: repeat(6, 1fr); gap: var(--s-2); }
+.fm-pc__b { position: relative; display: grid; place-items: center; height: 52px; border: 1px solid var(--line-strong); border-radius: var(--r-md); background: var(--surface); transition: border-color var(--dur-quick) var(--ease-out), background var(--dur-quick) var(--ease-out); }
+.fm-pc__b.is-on::before { content: ""; width: 12px; height: 12px; border-radius: 50%; background: var(--ink); animation: lz-pop var(--dur-base) var(--ease-spring) both; }
+.fm-pc__boxes[data-show] .fm-pc__b.is-on::before { content: attr(data-c); width: auto; height: auto; border-radius: 0; background: none; font-size: var(--fs-xl); font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums; }
+.fm-pc__boxes:focus-within .fm-pc__b.is-cur { border-color: var(--ink-2); }
+.fm-pc__boxes:focus-within .fm-pc__b.is-cur::after { content: ""; position: absolute; width: 2px; height: 22px; border-radius: 2px; background: var(--action); animation: lz-blink 1s steps(2) infinite; }
+.fm-pc__in { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; border: 0; font-size: var(--fs-md); cursor: text; }
+.fm-pc__in:disabled { cursor: not-allowed; }
+.fm-pc[data-st="err"] .fm-pc__b { border-color: var(--danger); }
+.fm-pc[data-st="ok"] .fm-pc__b { border-color: var(--success); background: var(--success-tint); }
+.fm-pc__msg { font-size: var(--fs-sm); color: var(--ink-3); }
+.fm-pc__msg:empty { display: none; }
+.fm-pc[data-st="err"] .fm-pc__msg { color: var(--danger); }
+.fm-pc[data-st="ok"] .fm-pc__msg { color: var(--success); font-weight: 600; }
+
+/* 日期滚轮选择 */
+.fm-dw { padding: var(--s-4); }
+.fm-dw__h { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-3); margin-bottom: var(--s-3); font-size: var(--fs-sm); font-weight: 600; color: var(--ink-2); }
+.fm-dw__h b { font-size: var(--fs-lg); font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; }
+.fm-dw__wrap { position: relative; display: grid; grid-template-columns: 1.25fr 1fr 1fr; border-radius: var(--r-md); background: var(--zone); }
+.fm-dw__c { width: 100%; border-radius: 0; background: none; outline-offset: -2px; }
+.fm-dw__c .wheel__item { cursor: pointer; }
+.fm-dw__c:focus-visible { outline: 2px solid var(--ink-2); border-radius: var(--r-md); }
+
+/* 分类树选择 */
+.fm-tr { overflow: hidden; }
+.fm-tr__body { display: grid; grid-template-columns: 92px 1fr; height: 264px; }
+.fm-tr__rail { display: grid; grid-auto-rows: 56px; align-content: start; background: var(--zone); }
+.fm-tr__rail button { position: relative; display: flex; align-items: center; justify-content: space-between; gap: var(--s-1); padding: 0 var(--s-3); font-size: var(--fs-sm); color: var(--ink-2); text-align: left; transition: background var(--dur-quick) var(--ease-out), color var(--dur-quick) var(--ease-out); }
+.fm-tr__rail button[aria-selected="true"] { background: var(--surface); color: var(--ink); font-weight: 600; }
+.fm-tr__rail button[aria-selected="true"]::before { content: ""; position: absolute; left: 0; top: 14px; bottom: 14px; width: 3px; border-radius: 0 3px 3px 0; background: var(--action); }
+.fm-tr__rail i { display: grid; place-items: center; min-width: 18px; height: 18px; padding: 0 5px; border-radius: var(--r-full); background: var(--action); color: var(--surface); font-size: var(--fs-xs); font-style: normal; font-weight: 600; line-height: 1; animation: lz-pop var(--dur-base) var(--ease-spring) both; }
+.fm-tr__pane { display: flex; flex-direction: column; min-height: 0; }
+.fm-tr__ph { display: flex; align-items: center; justify-content: space-between; min-height: 44px; padding: 0 var(--s-2) 0 var(--s-4); }
+.fm-tr__ph b { font-size: var(--fs-md); font-weight: 600; }
+.fm-tr__ph .btn { min-height: 32px; }
+.fm-tr__list { flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: none; animation: lz-fade var(--dur-base) var(--ease-out) both; }
+.fm-tr__list::-webkit-scrollbar { display: none; }
+.fm-tr__it { display: flex; align-items: center; gap: var(--s-3); width: 100%; min-height: 48px; padding: 0 var(--s-4); font-size: var(--fs-md); text-align: left; transition: background var(--dur-quick) var(--ease-out); }
+.fm-tr__it .check { pointer-events: none; }
+.fm-tr__it[aria-checked="true"] { color: var(--action-press); font-weight: 600; }
+@media (hover: hover) { .fm-tr__it:hover { background: var(--zone); } }
+.fm-tr__bar { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); padding: var(--s-2) var(--s-3) var(--s-2) var(--s-4); border-top: 1px solid var(--line); font-size: var(--fs-sm); color: var(--ink-3); }
+.fm-tr__bar b { font-size: var(--fs-md); font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
+.fm-tr__acts { display: flex; align-items: center; gap: var(--s-2); }
+.fm-tr__acts .btn { min-height: 40px; padding: 0 var(--s-4); }
+.fm-tr__acts .btn--text { padding: 0 var(--s-2); }
+
+/* 头像裁剪框 */
+.fm-cr { display: grid; gap: var(--s-3); padding: var(--s-3); }
+.fm-cr__box { position: relative; height: 248px; overflow: hidden; border-radius: var(--r-md); background: var(--ink); touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none; }
+.fm-cr__box.is-drag { cursor: grabbing; }
+.fm-cr__box:focus-visible { outline: 2px solid var(--ink-2); outline-offset: 2px; }
+.fm-cr__img { position: absolute; max-width: none; pointer-events: none; -webkit-user-drag: none; }
+.fm-cr__mask { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle at 50% 50%, transparent calc(var(--cr, 100px) - .5px), color-mix(in srgb, var(--ink) 58%, transparent) var(--cr, 100px)); }
+.fm-cr__ring { position: absolute; left: 50%; top: 50%; width: calc(var(--cr, 100px) * 2); height: calc(var(--cr, 100px) * 2); transform: translate(-50%, -50%); border: 2px solid var(--surface); border-radius: 50%; pointer-events: none; }
+.fm-cr__zoom { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); }
+.fm-cr__zoom .btn { min-width: 88px; min-height: 40px; }
+.fm-cr__pc { font-size: var(--fs-md); font-weight: 600; font-variant-numeric: tabular-nums; }
+.fm-cr__bar { display: flex; align-items: center; gap: var(--s-3); }
+.fm-cr__pv { flex: none; width: 56px; height: 56px; border-radius: 50%; background: var(--zone); box-shadow: 0 0 0 2px var(--surface), 0 0 0 3px var(--line-strong); }
+.fm-cr__pt { font-size: var(--fs-sm); color: var(--ink-3); }
+.fm-cr__acts { display: flex; gap: var(--s-2); margin-left: auto; }
+
+/* 手写签名板 */
+.fm-sg__pad { position: relative; height: 176px; overflow: hidden; border: 1px solid var(--line-strong); border-radius: var(--r-md); background: var(--surface); color: var(--ink); touch-action: none; cursor: crosshair; }
+.fm-sg__pad canvas { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
+.fm-sg__line { position: absolute; left: var(--s-4); right: var(--s-4); bottom: 44px; border-top: 1.5px dashed var(--line-strong); pointer-events: none; }
+.fm-sg__ph { position: absolute; inset: 0 0 44px; display: grid; place-items: center; font-size: var(--fs-md); color: var(--ink-3); pointer-events: none; transition: opacity var(--dur-base) var(--ease-out); }
+.fm-sg__pad[data-on] .fm-sg__ph { opacity: 0; }
+.fm-sg__acts { display: flex; align-items: center; gap: var(--s-2); }
+.fm-sg__acts .btn:last-child { margin-left: auto; }
+.fm-sg__done { display: grid; gap: var(--s-3); padding: var(--s-3); border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface); animation: lz-fade var(--dur-base) var(--ease-out) both; }
+.fm-sg__done canvas { display: block; width: 100%; height: 120px; border-radius: var(--r-sm); background: var(--zone); }
+.fm-sg__done div { display: flex; align-items: center; justify-content: space-between; }
+
+/* 数字键盘 */
+.fm-nk__body { gap: var(--s-4); }
+.fm-nk__top { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); }
+.fm-nk__top .seg { flex: none; padding: 0; }
+.fm-nk__top .btn { min-height: 36px; padding: 0 var(--s-3); font-size: var(--fs-sm); }
+.fm-nk__top .btn[aria-pressed="true"] { background: var(--action-tint); }
+.fm-nk__cells { display: grid; grid-template-columns: repeat(6, 1fr); gap: var(--s-2); }
+.fm-nk__c { position: relative; display: grid; place-items: center; height: 52px; border: 1px solid var(--line-strong); border-radius: var(--r-md); background: var(--surface); font-size: var(--fs-2xl); font-weight: 600; font-variant-numeric: tabular-nums; transition: border-color var(--dur-quick) var(--ease-out); }
+.fm-nk__c.is-on { border-color: var(--action); }
+.fm-nk__c.is-cur { border-color: var(--ink-2); }
+.fm-nk__c.is-cur::after { content: ""; position: absolute; width: 2px; height: 22px; border-radius: 2px; background: var(--action); animation: lz-blink 1s steps(2) infinite; }
+.fm-nk__cells[data-mode="pwd"] .fm-nk__c.is-on { font-size: 0; }
+.fm-nk__cells[data-mode="pwd"] .fm-nk__c.is-on::before { content: ""; width: 12px; height: 12px; border-radius: 50%; background: var(--ink); }
+.fm-nk__pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; border-top: 1px solid var(--line); background: var(--line); }
+.fm-nk__k { display: grid; place-items: center; height: 52px; background: var(--surface); font-size: var(--fs-xl); font-weight: 500; font-variant-numeric: tabular-nums; transition: background var(--dur-instant) var(--ease-out); }
+.fm-nk__k--fn { background: var(--zone); font-size: var(--fs-md); color: var(--ink-2); }
+.fm-nk__k:active { background: var(--action-soft); }
+.fm-nk__k:disabled { color: var(--ink-3); background: var(--zone); cursor: not-allowed; opacity: .6; }
+.fm-nk__k:focus-visible { outline-offset: -3px; border-radius: 0; }
+</style>
+
+<article class="demo" data-cid="AP-FORM-034" data-name="日历日期选择" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">日历日期选择</span></div>
+  <p class="demo__note">适合：预约与配送选单日，月历内嵌展开并标出可选日</p>
+  <div class="demo__stage" id="fm-cal">
+    <div class="field">
+      <span class="field__label" id="fm-cal-l">配送日期</span>
+      <button type="button" class="fm-tg" id="fm-cal-t" data-done data-expand="fm-cal-p" aria-labelledby="fm-cal-l fm-cal-v"><b id="fm-cal-v">11 月 12 日 周四</b><span class="chev"></span></button>
+    </div>
+    <div class="expand fm-pnl" id="fm-cal-p" data-open="true"><div>
+      <div class="card fm-cal">
+        <div class="fm-cal__h">
+          <button type="button" class="ibtn" data-m="-1" aria-label="上个月" data-tip="上个月"><span class="chev fm-cal__l"></span></button>
+          <b class="fm-cal__ttl" aria-live="polite">2026 年 11 月</b>
+          <button type="button" class="ibtn" data-m="1" aria-label="下个月" data-tip="下个月"><span class="chev"></span></button>
+        </div>
+        <div class="fm-cal__w" aria-hidden="true"><span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span></div>
+        <div class="fm-cal__g" role="group" aria-label="选择日期"></div>
+        <div class="fm-cal__lg"><span><i class="is-ok"></i>可约</span><span><i>满</i>已约满</span></div>
+      </div>
+    </div></div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FORM-035" data-name="省市区联动选择" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">省市区联动选择</span></div>
+  <p class="demo__note">适合：新建地址时省市区三级联动内嵌选择</p>
+  <div class="demo__stage" id="fm-ar">
+    <div class="field">
+      <span class="field__label" id="fm-ar-l">所在地区</span>
+      <button type="button" class="fm-tg" id="fm-ar-t" data-expand="fm-ar-p" aria-labelledby="fm-ar-l fm-ar-v"><b id="fm-ar-v">请选择</b><span class="chev"></span></button>
+    </div>
+    <div class="expand fm-pnl" id="fm-ar-p" data-open="true"><div>
+      <div class="card">
+        <div class="fm-ar__tabs" role="tablist" aria-label="地区级别"></div>
+        <div class="fm-ar__list" role="listbox" aria-label="选择地区"></div>
+      </div>
+    </div></div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FORM-036" data-name="配送时段选择格" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">配送时段选择格</span></div>
+  <p class="demo__note">适合：预约与配送先选日再选时段，格子标出可约与已满</p>
+  <div class="demo__stage">
+    <div class="card fm-ts" id="fm-ts">
+      <div class="fm-ts__days" role="radiogroup" aria-label="配送日期"></div>
+      <div class="fm-ts__grid" role="radiogroup" aria-label="配送时段"></div>
+      <div class="fm-ts__sum"><span>已选时段</span><b></b></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FORM-037" data-name="可删除标签输入" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">可删除标签输入</span></div>
+  <p class="demo__note">适合：输入后生成可删除的标签，如偏好与过敏原</p>
+  <div class="demo__stage" id="fm-tk">
+    <div class="field">
+      <div class="fm-tk__h"><label class="field__label" for="fm-tk-i">过敏原与禁忌</label><span class="fm-tk__n" role="status">3/6</span></div>
+      <div class="fm-tk__box"><input class="fm-tk__in" id="fm-tk-i" placeholder="输入后按回车添加" autocomplete="off" maxlength="12" aria-describedby="fm-tk-e"></div>
+      <p class="field__err" id="fm-tk-e" role="alert" hidden></p>
+    </div>
+    <div class="fm-tk__sug"><div class="fm-hist__h">常用选项</div><div class="fm-tags"></div></div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FORM-038" data-name="支付密码输入框" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">支付密码输入框</span></div>
+  <p class="demo__note">适合：六位支付密码以圆点遮盖逐位输入，两次一致才通过</p>
+  <div class="demo__stage" id="fm-pc">
+    <div class="fm-pc" data-st="">
+      <div class="fm-pc__h"><b>设置支付密码</b><button type="button" class="btn btn--text" aria-pressed="false">显示</button></div>
+      <div class="fm-pc__boxes">
+        <span class="fm-pc__b"></span><span class="fm-pc__b"></span><span class="fm-pc__b"></span><span class="fm-pc__b"></span><span class="fm-pc__b"></span><span class="fm-pc__b"></span>
+        <input class="fm-pc__in" type="text" inputmode="numeric" maxlength="6" autocomplete="off" aria-label="支付密码 共 6 位" aria-describedby="fm-pc-m">
+      </div>
+      <p class="fm-pc__msg" id="fm-pc-m" role="status"></p>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FORM-039" data-name="日期滚轮选择" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">日期滚轮选择</span></div>
+  <p class="demo__note">适合：生日等年月日用三列滚轮就近选择，天数随月份变化</p>
+  <div class="demo__stage" id="fm-dw">
+    <div class="card fm-dw">
+      <div class="fm-dw__h"><span>出生日期</span><b class="fm-dw__v" role="status"></b></div>
+      <div class="fm-dw__wrap">
+        <div class="wheel__col fm-dw__c" data-u="y" role="spinbutton" tabindex="0" aria-label="年"></div>
+        <div class="wheel__col fm-dw__c" data-u="m" role="spinbutton" tabindex="0" aria-label="月"></div>
+        <div class="wheel__col fm-dw__c" data-u="d" role="spinbutton" tabindex="0" aria-label="日"></div>
+        <div class="wheel__band"></div>
+      </div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FORM-040" data-name="分类树选择" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">分类树选择</span></div>
+  <p class="demo__note">适合：左侧选类目、右侧勾选子项的多级选择</p>
+  <div class="demo__stage">
+    <div class="card fm-tr" id="fm-tr">
+      <div class="fm-tr__body">
+        <div class="fm-tr__rail" role="tablist" aria-label="花材类目" aria-orientation="vertical"></div>
+        <div class="fm-tr__pane" role="tabpanel">
+          <div class="fm-tr__ph"><b></b><button type="button" class="btn btn--text btn--sm" data-all>全选</button></div>
+          <div class="fm-tr__list" role="group"></div>
+        </div>
+      </div>
+      <div class="fm-tr__bar"><span>已选 <b>0</b> 项</span><div class="fm-tr__acts"><button type="button" class="btn btn--text" data-clear>清空</button><button type="button" class="btn btn--primary" data-ok>确定</button></div></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FORM-041" data-name="头像裁剪框" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">头像裁剪框</span></div>
+  <p class="demo__note">适合：上传头像后拖动并缩放，圆形框内即为裁剪结果</p>
+  <div class="demo__stage" id="fm-cr">
+    <div class="card fm-cr">
+      <div class="fm-cr__box" tabindex="0" role="group" aria-label="头像裁剪区 方向键移动 加减号缩放">
+        <img class="fm-cr__img" src="../../kit/assets/photo/bouquet-white.webp" alt="" draggable="false">
+        <i class="fm-cr__mask"></i><i class="fm-cr__ring"></i>
+      </div>
+      <div class="fm-cr__zoom">
+        <button type="button" class="btn btn--ghost" data-z="-1" disabled>缩小</button>
+        <span class="fm-cr__pc" role="status" aria-label="缩放比例">100%</span>
+        <button type="button" class="btn btn--ghost" data-z="1">放大</button>
+      </div>
+      <div class="fm-cr__bar">
+        <canvas class="fm-cr__pv" width="112" height="112" role="img" aria-label="头像预览"></canvas><span class="fm-cr__pt">预览</span>
+        <div class="fm-cr__acts"><button type="button" class="btn btn--ghost" data-pick>重选</button><button type="button" class="btn btn--primary" data-ok>确定</button></div>
+      </div>
+      <input type="file" accept="image/*" hidden>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FORM-042" data-name="手写签名板" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">手写签名板</span></div>
+  <p class="demo__note">适合：合同与领取确认的手写签名，可撤销与清除重签</p>
+  <div class="demo__stage" id="fm-sg">
+    <div class="field" data-view="pad">
+      <span class="field__label">领取人签名</span>
+      <div class="fm-sg__pad"><canvas role="img" aria-label="手写签名板"></canvas><i class="fm-sg__line"></i><p class="fm-sg__ph">请在此处签名</p></div>
+      <div class="fm-sg__acts"><button type="button" class="btn btn--ghost" data-undo disabled>撤销</button><button type="button" class="btn btn--ghost" data-clear disabled>清除</button><button type="button" class="btn btn--primary" data-ok disabled>确认</button></div>
+    </div>
+    <div class="field" data-view="done" hidden>
+      <span class="field__label">领取人签名</span>
+      <div class="fm-sg__done"><canvas role="img" aria-label="已确认的签名"></canvas><div><span class="tag" data-tone="success">已签名</span><button type="button" class="btn btn--text" data-redo>重新签名</button></div></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FORM-043" data-name="数字键盘" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">数字键盘</span></div>
+  <p class="demo__note">适合：支付密码与验证码输入时的数字键，可乱序防窥</p>
+  <div class="demo__stage is-plain fm-st">
+    <div class="fm-screen" id="fm-nk">
+      <div class="fm-screen__body fm-nk__body">
+        <div class="fm-nk__top">
+          <div class="seg" data-seg="fm-nk" aria-label="输入类型"><button class="seg__item" data-key="code" aria-selected="true">验证码</button><button class="seg__item" data-key="pwd" aria-selected="false">支付密码</button></div>
+          <button type="button" class="btn btn--text" data-shuffle aria-pressed="false">乱序</button>
+        </div>
+        <div class="fm-nk__cells" data-mode="code" role="group" aria-label="已输入 0 位 共 6 位"><span class="fm-nk__c"></span><span class="fm-nk__c"></span><span class="fm-nk__c"></span><span class="fm-nk__c"></span><span class="fm-nk__c"></span><span class="fm-nk__c"></span></div>
+      </div>
+      <div class="fm-nk__pad" role="group" aria-label="数字键盘"></div>
+    </div>
+  </div>
+</article>
+
+<script>
+(function () {
+  var $ = function (s, r) { return (r || document).querySelector(s); }, $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var clamp = function (v, a, b) { return Math.min(b, Math.max(a, v)); };
+  var LINE = '../../kit/assets/line/', CHK = '<img src="' + LINE + 'check.webp" alt="">', XIC = '<img src="' + LINE + 'close.webp" alt="">';
+  var WD = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+  var two = function (n) { return (n < 10 ? '0' : '') + n; };
+  function shake(el) { el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); }
+  function collapse(trig) { if (trig.getAttribute('aria-expanded') === 'true') trig.click(); }
+
+  // 034 日历日期选择：月历内嵌展开，过去与约满的日期不可选
+  (function () {
+    var host = $('#fm-cal'); if (!host) return;
+    var trig = $('#fm-cal-t'), val = $('#fm-cal-v'), ttl = $('.fm-cal__ttl', host), grid = $('.fm-cal__g', host), prev = $('[data-m="-1"]', host), next = $('[data-m="1"]', host);
+    var REF = new Date(2026, 10, 9), LAST = new Date(2027, 0, 8);
+    var FULL = { '2026-11-13': 1, '2026-11-14': 1, '2026-11-21': 1, '2026-11-22': 1, '2026-11-28': 1, '2026-12-05': 1, '2026-12-06': 1, '2026-12-12': 1, '2026-12-19': 1, '2026-12-20': 1 };
+    var sel = new Date(2026, 10, 12), view = new Date(2026, 10, 1);
+    var key = function (d) { return d.getFullYear() + '-' + two(d.getMonth() + 1) + '-' + two(d.getDate()); };
+    var fmt = function (d) { return (d.getMonth() + 1) + ' 月 ' + d.getDate() + ' 日 ' + WD[d.getDay()]; };
+    function state(d) { if (d <= REF) return 'past'; if (d > LAST) return 'far'; return FULL[key(d)] ? 'full' : 'ok'; }
+    function render() {
+      var y = view.getFullYear(), m = view.getMonth(), first = new Date(y, m, 1).getDay(), n = new Date(y, m + 1, 0).getDate(), h = '';
+      ttl.textContent = y + ' 年 ' + (m + 1) + ' 月';
+      for (var i = 0; i < first; i++) h += '<span></span>';
+      for (var d = 1; d <= n; d++) {
+        var dt = new Date(y, m, d), s = state(dt), on = key(dt) === key(sel);
+        var lab = (m + 1) + ' 月 ' + d + ' 日 ' + WD[dt.getDay()] + (s === 'ok' ? ' 可约' : s === 'full' ? ' 已约满' : ' 不可选');
+        h += '<button type="button" class="fm-cal__d" data-d="' + d + '" data-s="' + s + '" aria-label="' + lab + '" aria-pressed="' + on + '"' + (s === 'ok' ? '' : ' disabled') + ' tabindex="' + (on ? 0 : -1) + '"><span class="fm-cal__n">' + d + '</span><i class="fm-cal__m">' + (s === 'full' ? '满' : '') + '</i></button>';
+      }
+      grid.innerHTML = h;
+      if (!$('[tabindex="0"]', grid)) { var f = $('.fm-cal__d:not(:disabled)', grid); if (f) f.tabIndex = 0; }
+      prev.disabled = y === REF.getFullYear() && m === REF.getMonth();
+      next.disabled = y * 12 + m >= LAST.getFullYear() * 12 + LAST.getMonth();
+    }
+    prev.addEventListener('click', function () { view = new Date(view.getFullYear(), view.getMonth() - 1, 1); render(); });
+    next.addEventListener('click', function () { view = new Date(view.getFullYear(), view.getMonth() + 1, 1); render(); });
+    grid.addEventListener('click', function (e) {
+      var b = e.target.closest('.fm-cal__d'); if (!b || b.disabled) return;
+      sel = new Date(view.getFullYear(), view.getMonth(), +b.dataset.d); val.textContent = fmt(sel); render();
+      setTimeout(function () { collapse(trig); }, 220);
+    });
+    grid.addEventListener('keydown', function (e) {
+      var d = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -7, ArrowDown: 7 }[e.key]; if (!d) return;
+      var days = $$('.fm-cal__d', grid), i = days.indexOf(e.target.closest('.fm-cal__d')), j = i + d;
+      while (j >= 0 && j < days.length && days[j].disabled) j += d;
+      if (days[j]) { days.forEach(function (x) { x.tabIndex = -1; }); days[j].tabIndex = 0; days[j].focus(); }
+      e.preventDefault();
+    });
+    trig.addEventListener('click', function () { view = new Date(sel.getFullYear(), sel.getMonth(), 1); render(); });
+    render();
+  })();
+
+  // 035 省市区联动选择：逐级选择，选完最后一级收起
+  (function () {
+    var host = $('#fm-ar'); if (!host) return;
+    var trig = $('#fm-ar-t'), val = $('#fm-ar-v'), tabs = $('.fm-ar__tabs', host), list = $('.fm-ar__list', host);
+    var AREA = {
+      '浙江省': { '杭州市': ['西湖区', '上城区', '滨江区', '余杭区', '萧山区'], '宁波市': ['海曙区', '江北区', '鄞州区', '北仑区'], '温州市': ['鹿城区', '龙湾区', '瓯海区'] },
+      '江苏省': { '南京市': ['玄武区', '鼓楼区', '秦淮区', '建邺区'], '苏州市': ['姑苏区', '虎丘区', '吴中区', '相城区'], '无锡市': ['梁溪区', '滨湖区', '新吴区'] },
+      '广东省': { '广州市': ['天河区', '越秀区', '海珠区', '番禺区'], '深圳市': ['南山区', '福田区', '罗湖区', '宝安区'], '佛山市': ['禅城区', '南海区', '顺德区'] },
+      '四川省': { '成都市': ['锦江区', '武侯区', '青羊区', '成华区'], '绵阳市': ['涪城区', '游仙区', '安州区'] }
+    };
+    var sel = ['浙江省', '杭州市', ''], level = 2;
+    function options(l) { return l === 0 ? Object.keys(AREA) : l === 1 ? Object.keys(AREA[sel[0]]) : AREA[sel[0]][sel[1]]; }
+    function render() {
+      var n = sel.filter(Boolean).length, shown = Math.min(3, n + 1);
+      tabs.innerHTML = [0, 1, 2].slice(0, shown).map(function (i) { return '<button type="button" role="tab" aria-selected="' + (i === level) + '" data-l="' + i + '">' + (sel[i] || '请选择') + '</button>'; }).join('');
+      list.innerHTML = options(level).map(function (o) { return '<button type="button" role="option" aria-selected="' + (sel[level] === o) + '" data-v="' + o + '">' + o + CHK + '</button>'; }).join('');
+      val.textContent = n ? sel.filter(Boolean).join(' ') : '请选择'; trig.toggleAttribute('data-done', !!sel[2]);
+    }
+    list.addEventListener('click', function (e) {
+      var b = e.target.closest('[data-v]'); if (!b) return;
+      sel[level] = b.dataset.v; for (var j = level + 1; j < 3; j++) sel[j] = '';
+      if (level < 2) level++;
+      render(); list.scrollTop = 0;
+      if (sel[2]) setTimeout(function () { collapse(trig); }, 220); else if (e.detail === 0) $('[data-v]', list).focus();
+    });
+    tabs.addEventListener('click', function (e) { var b = e.target.closest('[data-l]'); if (!b) return; level = +b.dataset.l; render(); $('[data-l="' + level + '"]', tabs).focus(); });
+    render();
+  })();
+
+  // 036 配送时段选择格：先选日再选时段，已满的格子不可选
+  (function () {
+    var host = $('#fm-ts'); if (!host) return;
+    var days = $('.fm-ts__days', host), grid = $('.fm-ts__grid', host), sum = $('.fm-ts__sum b', host);
+    var D = [12, 13, 14, 15, 16].map(function (n) { return new Date(2026, 10, n); });
+    var SLOTS = ['09:00-11:00', '11:00-13:00', '13:00-15:00', '15:00-17:00', '17:00-19:00', '19:00-21:00'];
+    var M = [['x', 'x', 'o', 2, 'o', 'o'], ['o', 'o', 'o', 'o', 'x', 'o'], ['o', 'x', 'o', 'o', 'o', 3], ['o', 'o', 'x', 'x', 'o', 'o'], ['o', 'o', 'o', 'o', 'o', 'o']];
+    var cur = { d: 0, s: 3 };
+    function slotState(d, s) { var v = M[d][s]; return v === 'x' ? 'full' : v === 'o' ? 'ok' : 'few'; }
+    function render() {
+      days.innerHTML = D.map(function (d, i) { return '<button type="button" class="fm-ts__d" role="radio" aria-checked="' + (i === cur.d) + '" tabindex="' + (i === cur.d ? 0 : -1) + '" data-i="' + i + '"><span>' + WD[d.getDay()] + '</span><small>' + (d.getMonth() + 1) + '/' + d.getDate() + '</small></button>'; }).join('');
+      grid.innerHTML = SLOTS.map(function (t, i) {
+        var s = slotState(cur.d, i), v = M[cur.d][i];
+        return '<button type="button" class="fm-ts__s" role="radio" aria-checked="' + (i === cur.s) + '" tabindex="' + (i === cur.s ? 0 : -1) + '" data-i="' + i + '" data-s="' + s + '"' + (s === 'full' ? ' disabled' : '') + ' aria-label="' + t + (s === 'full' ? ' 已满' : s === 'few' ? ' 仅剩 ' + v + ' 单' : ' 可约') + '"><b>' + t + '</b><small>' + (s === 'full' ? '已满' : s === 'few' ? '仅剩 ' + v + ' 单' : '可约') + '</small></button>';
+      }).join('');
+      var d = D[cur.d]; sum.textContent = WD[d.getDay()] + ' ' + (d.getMonth() + 1) + '/' + d.getDate() + ' ' + SLOTS[cur.s];
+    }
+    days.addEventListener('click', function (e) {
+      var b = e.target.closest('[data-i]'); if (!b) return; cur.d = +b.dataset.i;
+      if (slotState(cur.d, cur.s) === 'full') for (var i = 0; i < SLOTS.length; i++) if (slotState(cur.d, i) !== 'full') { cur.s = i; break; }
+      render(); $('[data-i="' + cur.d + '"]', days).focus();
+    });
+    grid.addEventListener('click', function (e) { var b = e.target.closest('[data-i]'); if (!b || b.disabled) return; cur.s = +b.dataset.i; render(); $('[data-i="' + cur.s + '"]', grid).focus(); });
+    function arrows(box, dim, get, set) {
+      box.addEventListener('keydown', function (e) {
+        var d = { ArrowRight: 1, ArrowDown: dim, ArrowLeft: -1, ArrowUp: -dim }[e.key]; if (!d) return;
+        var i = get(), n = $$('[data-i]', box).length, j = i + d;
+        while (j >= 0 && j < n && $('[data-i="' + j + '"]', box).disabled) j += d > 0 ? 1 : -1;
+        if (j >= 0 && j < n) { set(j); } e.preventDefault();
+      });
+    }
+    arrows(days, 1, function () { return cur.d; }, function (j) { days.querySelector('[data-i="' + j + '"]').click(); });
+    arrows(grid, 3, function () { return cur.s; }, function (j) { grid.querySelector('[data-i="' + j + '"]').click(); });
+    render();
+  })();
+
+  // 037 可删除标签输入：回车或逗号生成，退格删除最后一个
+  (function () {
+    var host = $('#fm-tk'); if (!host) return;
+    var box = $('.fm-tk__box', host), inp = $('.fm-tk__in', host), err = $('.field__err', host), cnt = $('.fm-tk__n', host), sug = $('.fm-tags', host);
+    var tags = ['花粉过敏', '香味敏感', '不要百合'], MAX = 6, COMMON = ['对花粉过敏', '猫狗同住', '怕刺激气味', '不要带刺', '少用满天星', '婴儿同住'];
+    function msg(t) { err.hidden = !t; err.textContent = t || ''; if (t) box.setAttribute('data-invalid', ''); else box.removeAttribute('data-invalid'); }
+    function render() {
+      $$('.fm-tk__t', box).forEach(function (t) { t.remove(); });
+      tags.forEach(function (t) {
+        var s = document.createElement('span'); s.className = 'fm-tk__t';
+        s.innerHTML = '<span></span><button type="button" class="fm-tk__x" aria-label="移除 ' + t + '" data-tip="移除">' + XIC + '</button>'; $('span', s).textContent = t; s.dataset.t = t;
+        box.insertBefore(s, inp);
+      });
+      var full = tags.length >= MAX;
+      cnt.textContent = tags.length + '/' + MAX; cnt.toggleAttribute('data-full', full);
+      inp.disabled = full; inp.placeholder = full ? '已达上限' : '输入后按回车添加';
+      sug.innerHTML = COMMON.map(function (c) { return '<button type="button"' + (tags.indexOf(c) >= 0 || full ? ' disabled' : '') + '>' + c + '</button>'; }).join('');
+    }
+    function add(raw) {
+      var t = raw.trim(); if (!t) return false;
+      if (tags.length >= MAX) { msg('最多添加 ' + MAX + ' 项'); return false; }
+      if (t.length > 8) { msg('单项最多 8 个字'); shake(box); return false; }
+      if (tags.indexOf(t) >= 0) { msg('已经添加过'); shake(box); return false; }
+      tags.push(t); msg(''); render(); return true;
+    }
+    function drop(t, refocus) { var s = $('[data-t="' + t + '"]', box); var go = function () { tags = tags.filter(function (x) { return x !== t; }); msg(''); render(); if (refocus !== false) inp.focus(); }; if (s && !Lz.reduce) { s.classList.add('is-out'); setTimeout(go, 150); } else go(); }
+    box.addEventListener('click', function (e) { var x = e.target.closest('.fm-tk__x'); if (x) drop(x.closest('.fm-tk__t').dataset.t); else inp.focus(); });
+    inp.addEventListener('keydown', function (e) {
+      if (e.isComposing) return;
+      if (e.key === 'Enter') { e.preventDefault(); if (add(inp.value)) inp.value = ''; }
+      else if (e.key === 'Backspace' && !inp.value && tags.length) { e.preventDefault(); drop(tags[tags.length - 1]); }
+    });
+    inp.addEventListener('input', function (e) {
+      if (e.isComposing) return;
+      var v = inp.value; if (/[,，、]$/.test(v)) { if (add(v.slice(0, -1))) inp.value = ''; else inp.value = v.slice(0, -1); } else if (!err.hidden) msg('');
+    });
+    sug.addEventListener('click', function (e) { var b = e.target.closest('button'); if (b && !b.disabled) { add(b.textContent); } });
+    render();
+  })();
+
+  // 038 支付密码输入框：设置后再确认，两次一致才通过
+  (function () {
+    var host = $('#fm-pc'); if (!host) return;
+    var root = $('.fm-pc', host), title = $('.fm-pc__h b', host), eye = $('.fm-pc__h .btn', host), boxes = $('.fm-pc__boxes', host), cells = $$('.fm-pc__b', host), inp = $('.fm-pc__in', host), msg = $('.fm-pc__msg', host);
+    var step = 1, first = '', busy = false;
+    function paint() {
+      var v = inp.value; boxes.setAttribute('aria-label', '已输入 ' + v.length + ' 位');
+      cells.forEach(function (c, i) { c.classList.toggle('is-on', i < v.length); c.dataset.c = v[i] || ''; c.classList.toggle('is-cur', i === Math.min(v.length, 5) && root.dataset.st !== 'ok'); });
+    }
+    function reset(t, m, st) { inp.value = ''; inp.disabled = false; step = t; title.textContent = t === 1 ? '设置支付密码' : '确认支付密码'; msg.textContent = m || ''; root.dataset.st = st || ''; eye.textContent = '显示'; eye.setAttribute('aria-pressed', 'false'); boxes.removeAttribute('data-show'); paint(); }
+    inp.addEventListener('input', function () {
+      if (busy) return; var v = inp.value.replace(/\D/g, '').slice(0, 6); inp.value = v;
+      if (root.dataset.st === 'err') { root.dataset.st = ''; msg.textContent = ''; }
+      paint();
+      if (v.length < 6) return;
+      busy = true;
+      setTimeout(function () {
+        busy = false;
+        if (step === 1) { first = v; reset(2, '请再输入一次'); inp.focus(); }
+        else if (v === first) { inp.disabled = true; root.dataset.st = 'ok'; msg.textContent = '支付密码已设置'; title.textContent = '设置成功'; eye.textContent = '重新设置'; eye.setAttribute('aria-pressed', 'false'); paint(); Lz.toast('支付密码已设置', 'success'); }
+        else { shake(boxes); reset(1, '两次输入不一致 请重新设置', 'err'); inp.focus(); }
+      }, 220);
+    });
+    eye.addEventListener('click', function () {
+      if (root.dataset.st === 'ok') { reset(1, ''); inp.focus(); return; }
+      var on = !boxes.hasAttribute('data-show'); boxes.toggleAttribute('data-show', on); eye.setAttribute('aria-pressed', String(on)); eye.textContent = on ? '隐藏' : '显示';
+    });
+    inp.addEventListener('focus', paint); inp.addEventListener('blur', paint);
+    reset(1, '');
+  })();
+
+  // 039 日期滚轮选择：年月日三列，天数随年月变化，不晚于当前日期
+  (function () {
+    var host = $('#fm-dw'); if (!host) return;
+    var cols = { y: $('[data-u="y"]', host), m: $('[data-u="m"]', host), d: $('[data-u="d"]', host) }, out = $('.fm-dw__v', host);
+    var MAXD = { y: 2026, m: 11, d: 9 }, MINY = 1940, UNIT = { y: '年', m: '月', d: '日' };
+    var v = { y: 1995, m: 5, d: 18 }, timers = {};
+    function maxM() { return v.y === MAXD.y ? MAXD.m : 12; }
+    function maxDay() { var n = new Date(v.y, v.m, 0).getDate(); return v.y === MAXD.y && v.m === MAXD.m ? Math.min(n, MAXD.d) : n; }
+    function range(u) { return u === 'y' ? [MINY, MAXD.y] : u === 'm' ? [1, maxM()] : [1, maxDay()]; }
+    function fill(u) {
+      var r = range(u), h = '<div class="wheel__pad"></div>';
+      for (var i = r[0]; i <= r[1]; i++) h += '<div class="wheel__item" data-v="' + i + '" aria-hidden="true">' + i + UNIT[u] + '</div>';
+      cols[u].innerHTML = h + '<div class="wheel__pad"></div>';
+      v[u] = clamp(v[u], r[0], r[1]); place(u);
+    }
+    function place(u) {
+      var c = cols[u], r = range(u); c.scrollTop = (v[u] - r[0]) * 44; c._pos = c.scrollTop;
+      $$('.wheel__item', c).forEach(function (it) { it.setAttribute('aria-selected', String(+it.dataset.v === v[u])); });
+      c.setAttribute('aria-valuemin', r[0]); c.setAttribute('aria-valuemax', r[1]); c.setAttribute('aria-valuenow', v[u]); c.setAttribute('aria-valuetext', v[u] + ' ' + UNIT[u]);
+    }
+    function show() { out.textContent = v.y + ' 年 ' + v.m + ' 月 ' + v.d + ' 日'; }
+    function set(u, n) {
+      var r = range(u); n = clamp(n, r[0], r[1]); var changed = n !== v[u]; v[u] = n; place(u);
+      if (changed && u === 'y') { fill('m'); fill('d'); } else if (changed && u === 'm') fill('d');
+      show();
+    }
+    ['y', 'm', 'd'].forEach(function (u) {
+      var c = cols[u];
+      c.addEventListener('scroll', function () {
+        if (Math.abs(c.scrollTop - (c._pos || 0)) < 1.5) return; clearTimeout(timers[u]);
+        timers[u] = setTimeout(function () { var r = range(u); set(u, r[0] + Math.round(c.scrollTop / 44)); }, 90);
+      }, { passive: true });
+      c.addEventListener('click', function (e) { var it = e.target.closest('.wheel__item'); if (it) set(u, +it.dataset.v); });
+      c.addEventListener('keydown', function (e) {
+        var r = range(u), d = { ArrowUp: -1, ArrowDown: 1, PageUp: -5, PageDown: 5 }[e.key];
+        if (e.key === 'Home') set(u, r[0]); else if (e.key === 'End') set(u, r[1]); else if (d) set(u, v[u] + d); else return;
+        e.preventDefault();
+      });
+    });
+    fill('y'); fill('m'); fill('d'); show();
+    new ResizeObserver(function () { ['y', 'm', 'd'].forEach(place); }).observe(cols.y);
+  })();
+
+  // 040 分类树选择：左侧选类目，右侧勾选子项，类目上显示已选数量
+  (function () {
+    var host = $('#fm-tr'); if (!host) return;
+    var rail = $('.fm-tr__rail', host), pane = $('.fm-tr__pane', host), head = $('.fm-tr__ph b', host), allBtn = $('[data-all]', host), list = $('.fm-tr__list', host), cnt = $('.fm-tr__bar b', host);
+    var T = [['鲜花', ['玫瑰', '芍药', '向日葵', '郁金香', '康乃馨', '百合']], ['绿植', ['龟背竹', '绿萝', '多肉', '琴叶榕', '绣球']], ['干花', ['满天星', '尤加利', '蒲苇', '棉花']], ['花器', ['玻璃瓶', '陶瓷瓶', '藤编篮']]];
+    var on = { '玫瑰': 1, '尤加利': 1 }, cur = 0, MAX = 6;
+    function nOf(i) { return T[i][1].filter(function (x) { return on[x]; }).length; }
+    function total() { return Object.keys(on).length; }
+    function render() {
+      rail.innerHTML = T.map(function (t, i) { var n = nOf(i); return '<button type="button" role="tab" aria-selected="' + (i === cur) + '" tabindex="' + (i === cur ? 0 : -1) + '" data-i="' + i + '"><span>' + t[0] + '</span>' + (n ? '<i>' + n + '</i>' : '') + '</button>'; }).join('');
+      head.textContent = T[cur][0]; pane.setAttribute('aria-label', T[cur][0]);
+      var all = nOf(cur) === T[cur][1].length; allBtn.textContent = all ? '取消全选' : '全选';
+      list.innerHTML = T[cur][1].map(function (x) { return '<button type="button" class="fm-tr__it" role="checkbox" aria-checked="' + !!on[x] + '" data-v="' + x + '"><span class="check" aria-hidden="true" aria-checked="' + !!on[x] + '">' + CHK + '</span>' + x + '</button>'; }).join('');
+      cnt.textContent = total();
+    }
+    function refresh() { var top = list.scrollTop; var keep = document.activeElement && document.activeElement.dataset ? document.activeElement.dataset.v : null; render(); list.scrollTop = top; list.style.animation = 'none'; if (keep) { var b = $('[data-v="' + keep + '"]', list); if (b) b.focus({ preventScroll: true }); } }
+    rail.addEventListener('click', function (e) { var b = e.target.closest('[data-i]'); if (!b) return; cur = +b.dataset.i; render(); list.scrollTop = 0; $('[data-i="' + cur + '"]', rail).focus(); });
+    rail.addEventListener('keydown', function (e) { var d = { ArrowDown: 1, ArrowUp: -1 }[e.key]; if (!d) return; cur = clamp(cur + d, 0, T.length - 1); render(); $('[data-i="' + cur + '"]', rail).focus(); e.preventDefault(); });
+    list.addEventListener('click', function (e) {
+      var b = e.target.closest('[data-v]'); if (!b) return; var x = b.dataset.v;
+      if (on[x]) delete on[x]; else if (total() >= MAX) { Lz.toast('最多选 ' + MAX + ' 项', 'danger'); shake(b); return; } else on[x] = 1;
+      refresh();
+    });
+    allBtn.addEventListener('click', function () {
+      var items = T[cur][1], all = nOf(cur) === items.length;
+      if (all) items.forEach(function (x) { delete on[x]; });
+      else { var need = items.filter(function (x) { return !on[x]; }).length; if (total() + need > MAX) { Lz.toast('最多选 ' + MAX + ' 项', 'danger'); return; } items.forEach(function (x) { on[x] = 1; }); }
+      refresh();
+    });
+    $('[data-clear]', host).addEventListener('click', function () { on = {}; refresh(); });
+    $('[data-ok]', host).addEventListener('click', function () { Lz.toast(total() ? '已选 ' + total() + ' 项花材' : '请先勾选花材', total() ? 'success' : 'danger'); });
+    render();
+  })();
+
+  // 041 头像裁剪框：拖动移动，滑块与按钮缩放，预览实时绘制
+  (function () {
+    var host = $('#fm-cr'); if (!host) return;
+    var box = $('.fm-cr__box', host), img = $('.fm-cr__img', host), pc = $('.fm-cr__pc', host), zo = $('[data-z="-1"]', host), zi = $('[data-z="1"]', host), pv = $('.fm-cr__pv', host), file = $('input[type=file]', host);
+    var ctx = pv.getContext('2d'), nat = { w: 1, h: 1 }, st = { z: 1, x: 0, y: 0 }, D = 200, base = 1, url = null;
+    function layout() {
+      var w = box.clientWidth, h = box.clientHeight; if (!w || !nat.w) return;
+      D = Math.round(Math.min(w, h) * .8); base = Math.max(w / nat.w, h / nat.h);
+      box.style.setProperty('--cr', D / 2 + 'px'); apply();
+    }
+    function apply() {
+      var w = box.clientWidth, h = box.clientHeight, s = base * st.z, dw = nat.w * s, dh = nat.h * s;
+      st.x = clamp(st.x, -(dw - w) / 2, (dw - w) / 2); st.y = clamp(st.y, -(dh - h) / 2, (dh - h) / 2);
+      img.style.width = dw + 'px'; img.style.height = dh + 'px'; img.style.left = (w / 2 + st.x - dw / 2) + 'px'; img.style.top = (h / 2 + st.y - dh / 2) + 'px';
+      pc.textContent = Math.round(st.z * 100) + '%'; zo.disabled = st.z <= 1.001; zi.disabled = st.z >= 2.999;
+      var sw = D / s, sx = (dw / 2 - st.x - D / 2) / s, sy = (dh / 2 - st.y - D / 2) / s;
+      try { ctx.clearRect(0, 0, pv.width, pv.height); ctx.drawImage(img, sx, sy, sw, sw, 0, 0, pv.width, pv.height); } catch (e) { /* 图片未就绪时跳过 */ }
+    }
+    function zoom(z) { st.z = clamp(z, 1, 3); apply(); }
+    function load() { nat = { w: img.naturalWidth || 1, h: img.naturalHeight || 1 }; st = { z: 1, x: 0, y: 0 }; layout(); }
+    if (img.complete && img.naturalWidth) load(); img.addEventListener('load', load);
+    var drag = null, pts = {}, pin = null;
+    box.addEventListener('pointerdown', function (e) {
+      if (e.button) return; pts[e.pointerId] = { x: e.clientX, y: e.clientY }; try { box.setPointerCapture(e.pointerId); } catch (err) { /* 合成事件无法捕获 */ }
+      var ids = Object.keys(pts);
+      if (ids.length === 2) { var a = pts[ids[0]], b = pts[ids[1]]; pin = { d: Math.hypot(a.x - b.x, a.y - b.y) || 1, z: st.z }; drag = null; }
+      else { drag = { x: e.clientX, y: e.clientY, ox: st.x, oy: st.y }; box.classList.add('is-drag'); }
+    });
+    box.addEventListener('pointermove', function (e) {
+      if (!pts[e.pointerId]) return; pts[e.pointerId] = { x: e.clientX, y: e.clientY };
+      var ids = Object.keys(pts);
+      if (pin && ids.length === 2) { var a = pts[ids[0]], b = pts[ids[1]]; zoom(pin.z * Math.hypot(a.x - b.x, a.y - b.y) / pin.d); return; }
+      if (!drag) return; st.x = drag.ox + e.clientX - drag.x; st.y = drag.oy + e.clientY - drag.y; apply();
+    });
+    function end(e) {
+      delete pts[e.pointerId]; pin = null; var ids = Object.keys(pts);
+      if (ids.length === 1) { var p = pts[ids[0]]; drag = { x: p.x, y: p.y, ox: st.x, oy: st.y }; } else { drag = null; box.classList.remove('is-drag'); }
+    }
+    box.addEventListener('pointerup', end); box.addEventListener('pointercancel', end);
+    box.addEventListener('wheel', function (e) { if (!e.ctrlKey) return; e.preventDefault(); zoom(st.z - e.deltaY * .01); }, { passive: false });
+    box.addEventListener('keydown', function (e) {
+      var m = { ArrowLeft: [-8, 0], ArrowRight: [8, 0], ArrowUp: [0, -8], ArrowDown: [0, 8] }[e.key];
+      if (m) { st.x += m[0]; st.y += m[1]; apply(); e.preventDefault(); }
+      else if (e.key === '+' || e.key === '=') { zoom(st.z + .1); e.preventDefault(); } else if (e.key === '-') { zoom(st.z - .1); e.preventDefault(); }
+    });
+    $$('[data-z]', host).forEach(function (b) { b.addEventListener('click', function () { zoom(st.z + .2 * +b.dataset.z); }); });
+    $('[data-pick]', host).addEventListener('click', function () { file.click(); });
+    file.addEventListener('change', function () { var f = file.files[0]; if (!f) return; if (url) URL.revokeObjectURL(url); url = URL.createObjectURL(f); img.src = url; file.value = ''; });
+    $('[data-ok]', host).addEventListener('click', function () { Lz.toast('头像已更新', 'success'); });
+    new ResizeObserver(layout).observe(box);
+  })();
+
+  // 042 手写签名板：指针书写，撤销、清除与确认
+  (function () {
+    var host = $('#fm-sg'); if (!host) return;
+    var pad = $('.fm-sg__pad', host), cv = $('canvas', pad);
+    var viewPad = $('[data-view="pad"]', host), viewDone = $('[data-view="done"]', host);
+    var undo = $('[data-undo]', host), clear = $('[data-clear]', host), ok = $('[data-ok]', host);
+    var strokes = [], cur = null;
+    function ink() { return getComputedStyle(pad).color; }
+    function draw(c, k, list, tx, ty) {
+      var x = c.getContext('2d'), dpr = devicePixelRatio || 1, w = c.clientWidth, h = c.clientHeight;
+      if (c.width !== Math.round(w * dpr) || c.height !== Math.round(h * dpr)) { c.width = Math.round(w * dpr); c.height = Math.round(h * dpr); }
+      x.setTransform(1, 0, 0, 1, 0, 0); x.clearRect(0, 0, c.width, c.height);
+      x.setTransform(dpr * k, 0, 0, dpr * k, dpr * (tx || 0), dpr * (ty || 0));
+      x.strokeStyle = x.fillStyle = ink(); x.lineWidth = 2.6 / k; x.lineCap = x.lineJoin = 'round';
+      list.forEach(function (s) {
+        if (s.length === 1) { x.beginPath(); x.arc(s[0].x, s[0].y, 1.5 / k, 0, 7); x.fill(); return; }
+        x.beginPath(); x.moveTo(s[0].x, s[0].y);
+        for (var i = 1; i < s.length - 1; i++) x.quadraticCurveTo(s[i].x, s[i].y, (s[i].x + s[i + 1].x) / 2, (s[i].y + s[i + 1].y) / 2);
+        x.lineTo(s[s.length - 1].x, s[s.length - 1].y); x.stroke();
+      });
+    }
+    function sync() {
+      var n = strokes.length; pad.toggleAttribute('data-on', n > 0);
+      undo.disabled = clear.disabled = ok.disabled = n === 0; cv.setAttribute('aria-label', n ? '手写签名板 已书写 ' + n + ' 笔' : '手写签名板 尚未签名');
+      draw(cv, 1, strokes);
+    }
+    function pt(e) { var r = cv.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; }
+    cv.addEventListener('pointerdown', function (e) { if (e.button) return; cv.setPointerCapture(e.pointerId); cur = [pt(e)]; strokes.push(cur); sync(); });
+    cv.addEventListener('pointermove', function (e) { if (!cur) return; cur.push(pt(e)); draw(cv, 1, strokes); });
+    function end() { if (cur) { cur = null; sync(); } }
+    cv.addEventListener('pointerup', end); cv.addEventListener('pointercancel', end);
+    undo.addEventListener('click', function () { strokes.pop(); sync(); });
+    clear.addEventListener('click', function () { strokes = []; sync(); });
+    ok.addEventListener('click', function () {
+      viewPad.hidden = true; viewDone.hidden = false;
+      var dc = $('canvas', viewDone), xs = [], ys = [];
+      strokes.forEach(function (q) { q.forEach(function (p) { xs.push(p.x); ys.push(p.y); }); });
+      var x0 = Math.min.apply(null, xs), x1 = Math.max.apply(null, xs), y0 = Math.min.apply(null, ys), y1 = Math.max.apply(null, ys);
+      var bw = Math.max(x1 - x0, 1), bh = Math.max(y1 - y0, 1), k = Math.min(1, (dc.clientWidth - 32) / bw, (dc.clientHeight - 32) / bh);
+      draw(dc, k, strokes, (dc.clientWidth - bw * k) / 2 - x0 * k, (dc.clientHeight - bh * k) / 2 - y0 * k);
+      Lz.toast('签名已确认', 'success');
+    });
+    $('[data-redo]', host).addEventListener('click', function () { strokes = []; viewDone.hidden = true; viewPad.hidden = false; sync(); });
+    new ResizeObserver(function () { draw(cv, 1, strokes); }).observe(cv);
+    document.addEventListener('lz:skin', function () { draw(cv, 1, strokes); });
+    sync();
+  })();
+
+  // 043 数字键盘：验证码显示数字，支付密码显示圆点，可乱序
+  (function () {
+    var host = $('#fm-nk'); if (!host) return;
+    var cells = $('.fm-nk__cells', host), cs = $$('.fm-nk__c', host), pad = $('.fm-nk__pad', host), shuf = $('[data-shuffle]', host);
+    var val = '', mode = 'code', order = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
+    function paint() {
+      cells.setAttribute('aria-label', '已输入 ' + val.length + ' 位 共 6 位');
+      cs.forEach(function (c, i) { c.textContent = val[i] || ''; c.classList.toggle('is-on', i < val.length); c.classList.toggle('is-cur', i === val.length); });
+      $$('[data-k]', pad).forEach(function (k) { k.disabled = val.length >= 6; });
+    }
+    function build() {
+      var o = order, fn = function (c, t, a) { return '<button type="button" class="fm-nk__k fm-nk__k--fn" data-a="' + a + '" aria-label="' + t + '">' + t + '</button>'; };
+      var key = function (n) { return '<button type="button" class="fm-nk__k" data-k="' + n + '">' + n + '</button>'; };
+      pad.innerHTML = o.slice(0, 9).map(key).join('') + fn('', '清空', 'clear') + key(o[9]) + fn('', '删除', 'del');
+      paint();
+    }
+    function done() { Lz.toast(mode === 'code' ? '验证码已填写' : '支付密码已输入', 'success'); }
+    function put(n) { if (val.length >= 6) return; val += n; paint(); if (val.length === 6) done(); }
+    pad.addEventListener('click', function (e) {
+      var b = e.target.closest('button'); if (!b || b.disabled && !b.dataset.a) return;
+      if (b.dataset.k !== undefined) put(b.dataset.k); else if (b.dataset.a === 'del') { val = val.slice(0, -1); paint(); } else { val = ''; paint(); }
+    });
+    host.addEventListener('keydown', function (e) {
+      if (/^[0-9]$/.test(e.key)) { put(e.key); e.preventDefault(); } else if (e.key === 'Backspace') { val = val.slice(0, -1); paint(); e.preventDefault(); }
+    });
+    host.addEventListener('lz:seg', function (e) { mode = e.detail.key; cells.dataset.mode = mode; val = ''; paint(); });
+    shuf.addEventListener('click', function () {
+      var on = shuf.getAttribute('aria-pressed') !== 'true'; shuf.setAttribute('aria-pressed', String(on));
+      order = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
+      if (on) for (var i = order.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = order[i]; order[i] = order[j]; order[j] = t; }
+      build();
+    });
+    build();
+  })();
+})();
+</script>

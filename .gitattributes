@@ -1,0 +1,2 @@
+# Runtime receipts pin these upstream files byte for byte.
+/kit/frontend/vendor/** -text

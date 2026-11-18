@@ -29,11 +29,47 @@ def audit(html: str, *args: str) -> tuple[int, str]:
 GOOD = "<!doctype html><html lang='zh-CN'><meta charset='utf-8'><title>t</title><style>body{font:400 14px/22px sans-serif;color:#1d2129;background:#fff}button{min-height:40px;font:inherit}</style><h1 style='font-size:22px;font-weight:700'>标题</h1><p>正文</p><button>确定</button>"
 
 
+class ReportPolicyTests(unittest.TestCase):
+    """通用审计不制造组件配额；明确要求的能力仍须验证。"""
+
+    def data(self, **changes):
+        result = {"small": [], "italic": [], "weight": [], "contrast": [],
+                  "overflowX": False, "fonts": ["sans-serif"], "targets": [],
+                  "foreign": [], "components": [], "pageLum": 1, "centerLum": 1}
+        result.update(changes)
+        return result
+
+    def test_reading_page_has_no_component_quota_by_default(self):
+        sys.path.insert(0, str(HERE))
+        from audit_rendered import report
+        self.assertEqual(report("initial", self.data(), [], library=["element-plus"]), [])
+
+    def test_explicit_component_minimum_is_still_checked(self):
+        from audit_rendered import report
+        self.assertTrue(report("initial", self.data(components=["el-button"]), [],
+                               library=["element-plus"], min_components=2))
+
+    def test_foreign_control_is_rejected_without_a_component_quota(self):
+        from audit_rendered import report
+        errors = report("initial", self.data(foreign=["button.handmade"]), [], library=["element-plus"])
+        self.assertTrue(any("自造控件" in error for error in errors), errors)
+
+    def test_explicit_dark_request_still_rejects_a_light_result(self):
+        from audit_rendered import report
+        errors = report("initial", self.data(), [], scheme="dark")
+        self.assertTrue(any("scheme dark" in error for error in errors), errors)
+
+
 @unittest.skipUnless(browser_available(), "needs playwright and Microsoft Edge")
 class AuditRenderedTests(unittest.TestCase):
     def test_a_clean_page_passes(self):
         code, out = audit(GOOD)
         self.assertEqual((code, out.strip()), (0, "audit: ok"))
+
+    def test_explicit_dark_request_is_not_silently_ignored(self):
+        code, out = audit(GOOD, "--scheme", "dark")
+        self.assertEqual(code, 1, out)
+        self.assertIn("scheme dark", out)
 
     def test_small_italic_light_and_bold_text_are_found_on_the_rendered_page(self):
         bad = GOOD.replace("<p>正文</p>", "<p style='font-size:12px'>小字</p><p style='font-style:italic'>斜体</p><p style='color:#bbb'>浅色</p><p style='font-weight:700'>粗体</p><script>document.body.append(Object.assign(document.createElement('p'),{textContent:'脚本加的小字',style:'font-size:11px'}))</script>")
@@ -41,6 +77,15 @@ class AuditRenderedTests(unittest.TestCase):
         self.assertEqual(code, 1)
         for needle in ("under 14px", "italic", "contrast", "weight outside", "脚本加的小字"):
             self.assertIn(needle, out)
+
+    def test_the_simulated_device_chrome_is_not_judged_but_real_text_still_is(self):
+        faint = "<p style='color:#fff'>浅色字</p>"
+        self.assertEqual(audit(GOOD.replace("<p>正文</p>", faint))[0], 1, "faint text is found")
+        shell = "<div data-shell aria-hidden='true'><span style='color:#fff'>9:41</span></div>"
+        self.assertEqual(audit(GOOD.replace("<p>正文</p>", shell))[1].strip(), "audit: ok", "a hidden shell element (the status bar clock) is device chrome")
+        for attrs in ("data-shell", "aria-hidden='true'"):
+            code, out = audit(GOOD.replace("<p>正文</p>", f"<div {attrs}><span style='color:#fff'>9:41</span></div>"))
+            self.assertEqual(code, 1, f"{attrs} alone does not exempt a text: it must be both")
 
     def test_modern_colour_functions_are_measured_too(self):
         light = GOOD.replace("<p>正文</p>", "<p style='color: oklch(0.85 0 0)'>浅色</p><p style='color: color-mix(in oklch, white 80%, black)'>混色</p>")
@@ -54,6 +99,14 @@ class AuditRenderedTests(unittest.TestCase):
         small = GOOD.replace("min-height:40px", "height:30px")
         self.assertEqual(audit(small, "--width", "1280")[0], 0)               # a desktop pointer needs 24 px
         code, out = audit(small, "--width", "390")                           # a phone needs 40 px
+        self.assertEqual(code, 1)
+        self.assertIn("touch targets", out)
+
+    def test_a_control_extended_by_an_absolutely_positioned_pseudo_element_has_that_hit_area(self):
+        extended = GOOD.replace("min-height:40px", "height:30px;position:relative").replace("</style>", "button::after{content:'';position:absolute;inset:-8px 0}</style>")
+        self.assertEqual(audit(extended, "--width", "390")[0], 0)            # 30 + 16 = 46 px of hit area
+        short = GOOD.replace("min-height:40px", "height:30px;position:relative").replace("</style>", "button::after{content:'';position:absolute;inset:-2px 0}</style>")
+        code, out = audit(short, "--width", "390")                          # 34 px is still too small
         self.assertEqual(code, 1)
         self.assertIn("touch targets", out)
 
@@ -91,11 +144,15 @@ class ComponentSourceTests(unittest.TestCase):
         self.assertIn("select.sel", out)
         self.assertNotIn("el-button", out.split("自造控件")[1].split("]")[0])        # the library's own buttons are not listed
 
-    def test_a_page_that_only_loads_the_style_sheet_and_draws_its_own_widgets_fails(self):
+    def test_a_reading_page_does_not_need_extra_controls(self):
         own = "<!doctype html><html lang='zh-CN'><meta charset='utf-8'><title>t</title><style>body{font:400 14px/22px sans-serif;color:#1d2129;background:#fff}</style><div class='el-card'><p>正文</p></div>"
         code, out = audit(own, "--library", "element-plus")
-        self.assertEqual(code, 1)
-        self.assertIn("种组件库", out)
+        self.assertEqual((code, out.strip()), (0, "audit: ok"), out)
+
+    def test_one_labelled_component_without_an_icon_passes(self):
+        page = GOOD.replace("<button>", "<button class='el-button'>")
+        code, out = audit(page, "--library", "element-plus")
+        self.assertEqual((code, out.strip()), (0, "audit: ok"), out)
 
     def test_the_library_must_be_known(self):
         code, out = audit(LIBRARY_PAGE, "--library", "no-such-library")
@@ -186,18 +243,19 @@ class ComponentRootAttributeTests(unittest.TestCase):
         self.assertEqual(code, 1)
         self.assertIn("select.sel", out)
 
-    def test_too_few_kinds_of_component_fail_and_the_same_id_twice_is_one_kind(self):
-        code, out = audit(kit_page(kit_roots(3)), "--library", "luz-kit")
+    def test_only_an_explicit_minimum_rejects_fewer_kinds_and_counts_distinct_ids(self):
+        self.assertEqual(audit(kit_page(kit_roots(1)), "--library", "luz-kit")[0], 0)
+        code, out = audit(kit_page(kit_roots(3)), "--library", "luz-kit", "--min-components", "6")
         self.assertEqual(code, 1)
         self.assertIn("只有 3 种组件库", out)
-        code, out = audit(kit_page(kit_roots(8, same=True)), "--library", "luz-kit")
+        code, out = audit(kit_page(kit_roots(8, same=True)), "--library", "luz-kit", "--min-components", "6")
         self.assertEqual(code, 1)
         self.assertIn("只有 1 种组件库", out)
         self.assertEqual(audit(kit_page(kit_roots(3)), "--library", "luz-kit", "--min-components", "3")[1].strip(), "audit: ok")
 
     def test_the_prototype_shell_is_not_product_interface(self):
         shell = "<aside data-shell><button class='cfg' type='button'>主题色</button><div data-cid='MP-CARD-099'><button type='button'>配置里的</button></div></aside>"
-        code, out = audit(kit_page(kit_roots(5), shell=shell), "--library", "luz-kit")
+        code, out = audit(kit_page(kit_roots(5), shell=shell), "--library", "luz-kit", "--min-components", "6")
         self.assertEqual(code, 1)                                              # the shell's data-cid is not counted: five kinds, six needed
         self.assertIn("只有 5 种组件库", out)
         self.assertNotIn("button.cfg", out)                                    # and its hand-written button is not reported

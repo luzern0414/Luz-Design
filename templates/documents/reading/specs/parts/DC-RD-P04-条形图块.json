@@ -1,0 +1,29 @@
+{
+  "id": "DC-RD-P04",
+  "name": "条形图块",
+  "use": "类别比较：DOM 条形，名称、条、数值同行，数值带单位",
+  "fragment": {
+    "type": "chart",
+    "kind": "bar",
+    "caption": "图 4 配送方式订单数",
+    "unit": "单",
+    "max": 8,
+    "items": [
+      {
+        "name": "同城配送",
+        "value": 8
+      },
+      {
+        "name": "极速配送",
+        "value": 3
+      },
+      {
+        "name": "到店自提",
+        "value": 4
+      }
+    ]
+  },
+  "used_in": [
+    "DC-RD-001"
+  ]
+}

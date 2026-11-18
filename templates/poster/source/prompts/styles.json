@@ -1,0 +1,240 @@
+{
+  "version": 1,
+  "themes": [
+    {
+      "key": "rose",
+      "name": "雾粉",
+      "en": "dusty rose",
+      "hex": "#A85D79",
+      "secondary_name": "鼠尾草绿",
+      "secondary_en": "sage green",
+      "secondary_hex": "#8FA68E"
+    },
+    {
+      "key": "coral",
+      "name": "珊瑚",
+      "en": "muted coral",
+      "hex": "#A76352",
+      "secondary_name": "暖沙",
+      "secondary_en": "warm sand",
+      "secondary_hex": "#D6BE9B"
+    },
+    {
+      "key": "orange",
+      "name": "暖橙",
+      "en": "caramel amber",
+      "hex": "#9A6A3C",
+      "secondary_name": "橄榄绿",
+      "secondary_en": "olive green",
+      "secondary_hex": "#8B9462"
+    },
+    {
+      "key": "green",
+      "name": "草绿",
+      "en": "fresh sage green",
+      "hex": "#50804E",
+      "secondary_name": "奶油米",
+      "secondary_en": "warm cream",
+      "secondary_hex": "#EADFC4"
+    },
+    {
+      "key": "teal",
+      "name": "青碧",
+      "en": "muted teal",
+      "hex": "#457D81",
+      "secondary_name": "浅桃",
+      "secondary_en": "soft peach",
+      "secondary_hex": "#E8B49A"
+    },
+    {
+      "key": "blue",
+      "name": "天蓝",
+      "en": "dusty blue",
+      "hex": "#5577A4",
+      "secondary_name": "燕麦沙",
+      "secondary_en": "oat sand",
+      "secondary_hex": "#D9C7A6"
+    },
+    {
+      "key": "purple",
+      "name": "紫藤",
+      "en": "wisteria purple",
+      "hex": "#7D6CA5",
+      "secondary_name": "奶黄",
+      "secondary_en": "butter yellow",
+      "secondary_hex": "#E5D48F"
+    },
+    {
+      "key": "graphite",
+      "name": "石墨",
+      "en": "graphite grey",
+      "hex": "#4B515A",
+      "secondary_name": "香槟金",
+      "secondary_en": "warm champagne",
+      "secondary_hex": "#CDB894"
+    }
+  ],
+  "styles": [
+    {
+      "id": "ST-001",
+      "name": "柔光棚拍商品摄影",
+      "kind": "photo",
+      "use": "花束、绿植、礼盒、母婴、家居这类柔和的商品图，同一商品系列统一使用",
+      "lighting": "Soft diffused daylight from a large window at the upper left, one gentle natural contact shadow directly under the subject, no hard highlights.",
+      "material": "True-to-life textures, photorealistic editorial product photography, 85mm lens look, shallow depth of field, crisp focus on the subject.",
+      "color_rule": "Natural color, restrained saturation, warm neutral base, no color cast."
+    },
+    {
+      "id": "ST-002",
+      "name": "暖调餐饮美食摄影",
+      "kind": "photo",
+      "use": "咖啡、甜品、餐桌这类需要食欲感的图，暖光但不过饱和",
+      "lighting": "Warm window light from the left at about 45 degrees with a soft white fill from the right, gentle specular highlights on glaze and cream, no harsh shadows.",
+      "material": "True-to-life food and tableware textures: crumb, glaze, cream, ceramic, linen weave and wood grain; photorealistic editorial food photography, 70mm lens look, shallow depth of field.",
+      "color_rule": "Natural warm color, appetizing but not oversaturated, no orange cast."
+    },
+    {
+      "id": "ST-003",
+      "name": "冷调洁净棚拍",
+      "kind": "photo",
+      "use": "护肤、数码、药妆这类强调洁净与质感的商品图",
+      "lighting": "Large softbox from the front left, a thin cool rim light from behind, smooth soft reflections on the surface, soft shadow edges.",
+      "material": "Frosted glass, brushed metal, satin plastic and soft fabric rendered with true reflections and fine surface texture; photorealistic studio product photography, 100mm lens look, sharp focus across the product.",
+      "color_rule": "Clean cool-neutral base with a single accent color, no color cast, no neon."
+    },
+    {
+      "id": "ST-004",
+      "name": "自然光空间摄影",
+      "kind": "photo",
+      "use": "门店、客厅、户外、健身房这类空间场景，无人",
+      "lighting": "Natural window light in late morning, soft shadows with gentle falloff across the space, no direct sun glare.",
+      "material": "Real wood grain, linen, plaster, ceramic and glass, tidy and lived-in; photorealistic interior and lifestyle photography, 35mm lens look, eye-level camera, deep enough depth of field to read the whole space.",
+      "color_rule": "Natural color, low saturation, harmonious warm neutrals."
+    },
+    {
+      "id": "ST-005",
+      "name": "低对比可平铺纹理",
+      "kind": "texture",
+      "use": "放在正文后面的小图案底，四边无缝，对比极低",
+      "lighting": "Flat even lighting with no shadows, no vignette and no gradient across the tile.",
+      "material": "Delicate flat surface design with a hand-drawn feel, uniform motif density, all motifs small and evenly distributed.",
+      "color_rule": "Very low contrast, tone on tone, motifs at most about 12 percent darker than the base, almost-white ground."
+    },
+    {
+      "id": "ST-006",
+      "name": "柔和光感背景",
+      "kind": "background",
+      "use": "页面顶部、横幅、卡片后面的渐变与光晕，文字区保持干净",
+      "lighting": "Soft diffused glow with smooth gradient falloff, no hard edges and no visible banding.",
+      "material": "Smooth airy surface with a very fine grain to prevent banding, no objects and no pattern.",
+      "color_rule": "Two or three analogous tones, low contrast, the largest calm area left clean for copy."
+    },
+    {
+      "id": "ST-007",
+      "name": "软陶三维图标",
+      "kind": "icon",
+      "use": "入口与业务物件的三维软陶质感拼板",
+      "lighting": "Soft studio light from the upper left with gentle shading on the form of each object, no shadow falling outside the object.",
+      "material": "Smooth matte soft clay with slightly rounded edges and a faint surface softness, not glossy plastic.",
+      "color_rule": "One or two low-saturation colors plus white per object, different objects use different main hues."
+    },
+    {
+      "id": "ST-008",
+      "name": "真实质感图标",
+      "kind": "icon",
+      "use": "入口与业务物件的写实拼板，纸、陶、玻璃、金属保持真实纹理",
+      "lighting": "Soft studio light from the upper left with natural highlights on each object, no shadow falling outside the object.",
+      "material": "True-to-life materials such as paper, kraft, ribbon, ceramic, glass and metal with fine real surface texture, photorealistic object rendering.",
+      "color_rule": "Natural color, restrained saturation, one or two colors per object."
+    },
+    {
+      "id": "ST-009",
+      "name": "扁平彩色图标",
+      "kind": "icon",
+      "use": "二维实心扁平图标与抽象标记，无阴影无描边",
+      "lighting": "No cast shadow and no lighting effects, flat fills with at most one gentle tonal shade per shape.",
+      "material": "Clean flat vector-style shapes with uniform rounded corners and a consistent edge treatment, no outline stroke, no texture.",
+      "color_rule": "One or two low-saturation colors plus white per object, no gradients beyond one tonal step."
+    },
+    {
+      "id": "ST-010",
+      "name": "扁平空态插画",
+      "kind": "illustration",
+      "use": "空态与结果页的单物体插画，与扁平图标同一套画法",
+      "lighting": "No cast shadow and no ground shadow, at most one gentle tonal step inside each shape.",
+      "material": "Flat illustration built from simple rounded shapes with consistent proportions and minimal detail, drawn in the same style as the matching flat icon set.",
+      "color_rule": "Low-saturation palette tinted toward {{primary}} plus white, one small accent."
+    },
+    {
+      "id": "ST-011",
+      "name": "单线条标记",
+      "kind": "mark",
+      "use": "对象标识池的线性标记，线宽统一，无填充",
+      "lighting": "No lighting and no shadow, flat solid ink on a plain ground.",
+      "material": "Monoline strokes of one uniform width with round caps and round joins, open simple shapes, no fills and no gradients.",
+      "color_rule": "One ink color only, deep and low-saturation, on a plain ground."
+    },
+    {
+      "id": "ST-012",
+      "name": "海报摄影主视觉",
+      "kind": "poster",
+      "use": "促销、新品、开业这类以实物摄影为主的海报画面",
+      "lighting": "Directional soft light from the upper left, a long soft shadow falling to the right, a faint rim light on the edges.",
+      "material": "Real materials with crisp detail and fine surface texture, photorealistic still life, 70mm lens look, eye-level or slightly high camera.",
+      "color_rule": "Color-blocked backdrop in a tint of {{primary}}, one accent, no more than three hues in total."
+    },
+    {
+      "id": "ST-013",
+      "name": "海报剪纸拼贴",
+      "kind": "poster",
+      "use": "节日、招聘、课程这类以平面图形为主的海报画面",
+      "lighting": "No realistic lighting, flat layered shapes with a soft drop shadow between layers.",
+      "material": "Layered paper-cut shapes with a fine paper grain and crisp clean edges, graphic flat composition.",
+      "color_rule": "Bold limited palette of three hues built around {{primary}}, flat fills."
+    },
+    {
+      "id": "ST-014",
+      "name": "卡通动物头像",
+      "kind": "avatar",
+      "use": "不用真人照片时的默认头像，圆润简单",
+      "lighting": "Soft even light from the front, one subtle shadow under the chin.",
+      "material": "Smooth soft-clay cartoon finish with simple rounded forms, big simple eyes, a plain calm expression, no outline stroke.",
+      "color_rule": "Low-saturation natural animal colors, each animal one or two main colors plus white."
+    },
+    {
+      "id": "ST-015",
+      "name": "材质平铺底",
+      "kind": "texture",
+      "use": "纸、亚麻、石材这类真实材质的无缝底",
+      "lighting": "Flat even top-down light with no shadows, no vignette and no gradient across the image.",
+      "material": "Macro photograph of a real surface with fine natural fibers or grain, perfectly uniform detail across the whole image, seamless on every edge.",
+      "color_rule": "Very low contrast, a single warm-neutral tone with at most two close shades."
+    }
+  ],
+  "negatives": [
+    {
+      "id": "NG-001",
+      "name": "通用",
+      "use": "适用于背景、插画、标记等没有特别要求的画面，先写这一组再按需追加",
+      "text": "no text, letters, numbers, labels, captions, logos, brand marks, watermarks or signatures, no UI elements, no buttons, no borders or frames, no collage, one single coherent image"
+    },
+    {
+      "id": "NG-002",
+      "name": "摄影",
+      "use": "商品与场景摄影，包装留白，不出现手、人和品牌",
+      "text": "no text, letters, numbers, labels, logos, brand names, watermarks or signatures, all packaging left entirely blank, no hands, no people, no faces, no UI elements, no borders or frames, no collage, no plastic CGI look, no oversaturated or neon colors, no lens flare, no distorted proportions"
+    },
+    {
+      "id": "NG-003",
+      "name": "图标拼板",
+      "use": "4×4 元素拼板与标识池，防止粘连、跨格、网格线与重复物件",
+      "text": "no text, letters, numbers, labels, logos or watermarks, no grid lines, no borders, no overlapping or touching objects, no object crossing a cell edge, no cropped objects, no duplicate objects, no cast shadow on the background"
+    },
+    {
+      "id": "NG-004",
+      "name": "海报",
+      "use": "海报主视觉，文案区留空，不出现文字、二维码与真人",
+      "text": "no text, letters, numbers, typography, logos, brand marks, watermarks, QR codes or signatures, no UI elements, no buttons, no borders or frames, no collage of unrelated pictures, no real people or human faces, no recognizable real-world brands, nothing placed inside the reserved copy area"
+    }
+  ]
+}

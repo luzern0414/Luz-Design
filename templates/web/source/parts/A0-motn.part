@@ -1,0 +1,443 @@
+<!-- cat: MOTN | 动效 -->
+<style>
+  /* 动效：类名前缀 mo-。时长与曲线取 tokens 变量；每个演示带播放按钮，首次进入视野自动播一次；系统要求减少动态时直接显示最终状态 */
+  .mo-card { display: grid; gap: var(--s-1); align-content: start; min-width: 0; }
+  /* 舞台本身已是底框，预览直接放在上面；只有动画会改变高度的演示才预留高度，其余由内容撑开 */
+  .mo-view { display: grid; place-items: center; padding: var(--s-4); }
+  .mo-view--wide { place-items: center stretch; }
+  .mo-bar { display: flex; align-items: center; justify-content: center; gap: var(--s-2); }
+
+  /* 数字滚动 */
+  .mo-big { font-size: var(--fs-3xl); font-weight: 700; line-height: 1.2; font-variant-numeric: tabular-nums; }
+  .mo-big small { margin-right: 2px; font-size: var(--fs-lg); font-weight: 600; color: var(--ink-3); }
+  .mo-sub { display: block; margin-top: var(--s-1); font-size: var(--fs-sm); color: var(--ink-3); text-align: center; }
+
+  /* 徽标弹入 */
+  .mo-view--ring { padding: var(--s-6); }
+  .mo-ib { position: relative; display: grid; place-items: center; width: 72px; height: 72px; border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--elev-1); }
+  .mo-ib img { width: 36px; height: 36px; }
+  .mo-bdg { position: absolute; top: -8px; right: -8px; display: grid; place-items: center; min-width: 24px; height: 24px; padding: 0 6px; border-radius: var(--r-full); background: var(--danger); color: var(--surface); font-size: var(--fs-xs); font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums; box-shadow: 0 0 0 3px var(--bg); }
+  .mo-bdg.is-pop { animation: lz-pop var(--dur-slow) var(--ease-spring) both; }
+
+  /* 展开收起 */
+  .mo-view--hold { align-content: start; min-height: 177px; }
+  .mo-acc { width: 100%; overflow: hidden; }
+  .mo-acc .row__title, .mo-acc .row__meta { display: block; }
+
+  /* 标签滑动 */
+  .mo-slider { position: relative; display: inline-flex; padding: 4px; border-radius: var(--r-lg); background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); }
+  .mo-slider__tab { position: relative; z-index: 1; min-height: 40px; padding: 0 var(--s-5); border-radius: var(--r-md); font-size: var(--fs-sm); color: var(--ink-2); transition: color var(--dur-base) var(--ease-out); }
+  .mo-slider__tab[aria-selected="true"] { color: var(--surface); font-weight: 600; }
+  .mo-slider__pill { position: absolute; top: 4px; bottom: 4px; left: 0; width: 0; border-radius: var(--r-md); background: var(--action); box-shadow: 0 4px 12px color-mix(in srgb, var(--action) 28%, transparent); transition: transform var(--dur-base) var(--ease-spring), width var(--dur-base) var(--ease-out); }
+
+  /* 卡片尺寸 */
+  .mo-view--morph { min-height: 280px; }
+  .mo-morph { display: flex; flex-direction: column; width: 200px; height: 228px; padding: var(--s-2); gap: var(--s-2); border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--elev-1); text-align: left; overflow: hidden; transition: width var(--dur-slow) var(--ease-out), height var(--dur-slow) var(--ease-out), box-shadow var(--dur-base) var(--ease-out); }
+  .mo-morph[data-size="l"] { width: min(100%, 340px); height: 248px; box-shadow: var(--elev-3); }
+  .mo-morph img { flex: 1; min-height: 0; width: 100%; border-radius: var(--r-md); object-fit: cover; }
+  .mo-morph__t { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-2); padding: 0 var(--s-1); font-size: var(--fs-sm); font-weight: 600; }
+
+  /* 成功勾选 */
+  .mo-ok { position: relative; display: grid; place-items: center; width: 88px; height: 88px; border-radius: 50%; background: var(--success); }
+  .mo-ok img { width: 44px; height: 44px; filter: invert(1); }
+  .mo-ok.is-in { animation: lz-pop var(--dur-slow) var(--ease-spring) both; }
+  .mo-ok.is-in img { animation: lz-pop var(--dur-slow) var(--ease-spring) var(--dur-quick) both; }
+  .mo-ok.is-in::after { content: ""; position: absolute; inset: 0; border: 3px solid var(--success); border-radius: 50%; animation: mo-ring calc(var(--dur-slow) * 2) var(--ease-out) both; }
+  @keyframes mo-ring { from { transform: scale(1); opacity: .7; } to { transform: scale(1.7); opacity: 0; } }
+
+  /* 输入抖动 */
+  .mo-field { width: min(100%, 320px); }
+  .mo-field .field__err { visibility: hidden; }
+  .mo-field .field__err[data-show="true"] { visibility: visible; }
+
+  /* 骨架转内容 */
+  .mo-swap { display: grid; width: min(100%, 360px); border-radius: var(--r-md); background: var(--surface); box-shadow: var(--elev-1); }
+  .mo-swap__sk, .mo-swap__ct { grid-area: 1 / 1; display: flex; align-items: center; gap: var(--s-3); padding: var(--s-3); transition: opacity var(--dur-slow) var(--ease-out), transform var(--dur-slow) var(--ease-out); }
+  .mo-swap__ct { opacity: 0; transform: translateY(6px); }
+  .mo-swap[data-state="done"] .mo-swap__sk { opacity: 0; }
+  .mo-swap[data-state="done"] .mo-swap__ct { opacity: 1; transform: none; }
+  .mo-swap__ct img { width: 72px; height: 72px; border-radius: var(--r-md); object-fit: cover; }
+  .mo-swap__ln { display: grid; gap: var(--s-2); flex: 1; min-width: 0; }
+  .mo-swap__sk .skel:first-child { flex: none; }
+
+  /* 流式文字 */
+  .mo-st { display: grid; width: 100%; padding: var(--s-4); border-radius: var(--r-md); background: var(--surface); box-shadow: var(--elev-1); }
+  .mo-st > * { grid-area: 1 / 1; }
+  .mo-st__ghost { visibility: hidden; }
+  .mo-st__live.is-streaming::after { content: ""; display: inline-block; width: 2px; height: 1.1em; margin-left: 2px; vertical-align: text-bottom; background: var(--action); animation: lz-blink 1s steps(2) infinite; }
+
+  /* 悬停抬升 */
+  .mo-lift { display: grid; grid-template-columns: 88px minmax(0, 1fr); gap: var(--s-4); align-items: center; width: min(100%, 360px); padding: var(--s-3); border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--elev-1); transition: transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out); cursor: pointer; text-align: left; }
+  .mo-lift img { width: 88px; height: 88px; border-radius: var(--r-md); object-fit: cover; }
+  .mo-lift__t { display: grid; gap: var(--s-1); }
+  .mo-lift__t b { font-size: var(--fs-md); }
+  @media (hover: hover) { .mo-lift:hover { transform: translateY(-4px); box-shadow: var(--elev-3); } }
+  .mo-lift.is-on { transform: translateY(-4px); box-shadow: var(--elev-3); }
+
+  /* 错峰入场 */
+  .mo-stag { width: 100%; background: var(--surface); border-radius: var(--r-md); overflow: hidden; }
+  .mo-stag .row { min-height: 52px; padding-top: var(--s-2); padding-bottom: var(--s-2); }
+  .mo-stag .row__lead { width: 36px; height: 36px; border-radius: var(--r-sm); }
+  .mo-stag .row__title, .mo-stag .row__meta { display: block; }
+  .mo-stag .row { opacity: 0; }
+  .mo-stag.is-in .row { animation: lz-rise var(--dur-slow) var(--ease-out) both; animation-delay: calc(var(--i, 0) * 70ms); }
+  .mo-stag.is-done .row { opacity: 1; }
+  @media (prefers-reduced-motion: reduce) { .mo-stag .row { opacity: 1; } }
+
+  /* 视图切换 */
+  .mo-vw { display: grid; width: 100%; overflow: hidden; border-radius: var(--r-md); background: var(--surface); box-shadow: var(--elev-1); }
+  .mo-pane { grid-area: 1 / 1; display: grid; align-content: start; background: var(--surface); transition: transform var(--dur-slow) var(--ease-out), opacity var(--dur-slow) var(--ease-out), visibility 0s linear var(--dur-slow); }
+  .mo-pane[data-pane="detail"] { grid-template-rows: auto 1fr; align-content: stretch; }
+  .mo-pane[data-pos="right"] { transform: translateX(28%); opacity: 0; visibility: hidden; }
+  .mo-pane[data-pos="left"] { transform: translateX(-16%); opacity: 0; visibility: hidden; }
+  .mo-pane[data-pos="on"] { transform: none; opacity: 1; visibility: visible; transition-delay: 0s; }
+  .mo-pane .row { min-height: 60px; }
+  .mo-pane .row__lead { width: 40px; height: 40px; border-radius: var(--r-sm); }
+  .mo-pane .row__title, .mo-pane .row__meta { display: block; }
+  .mo-bar2 { display: flex; align-items: center; gap: var(--s-2); min-height: 52px; padding: 0 var(--s-2); border-bottom: 1px solid var(--line); }
+  .mo-bar2 h3 { font-size: var(--fs-md); font-weight: 600; }
+  .mo-det { display: grid; grid-template-columns: 88px minmax(0, 1fr); gap: var(--s-4); align-items: center; padding: var(--s-4); }
+  .mo-det img { width: 88px; height: 88px; border-radius: var(--r-md); object-fit: cover; }
+  .mo-det dl { display: grid; grid-template-columns: auto 1fr; gap: var(--s-1) var(--s-4); font-size: var(--fs-sm); }
+  .mo-det dt { color: var(--ink-3); }
+  .mo-det dd { margin: 0; font-weight: 600; }
+</style>
+
+<article class="demo" data-cid="WB-MOTN-001" data-name="数字滚动入场" data-cat="MOTN">
+  <div class="demo__head"><span class="demo__name">数字滚动入场</span></div>
+  <p class="demo__note">适合：关键指标进入视野时由零滚动到当前值</p>
+  <div class="demo__stage">
+    <div class="mo-card">
+      <div class="mo-view"><div><span class="mo-big"><small>¥</small><span id="mo-n" data-to="178880">178,880</span></span><span class="mo-sub">本周营业额</span></div></div>
+      <div class="mo-bar"><button type="button" class="btn btn--secondary btn--sm" data-mo="n">播放</button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="WB-MOTN-002" data-name="徽标弹入" data-cat="MOTN">
+  <div class="demo__head"><span class="demo__name">徽标弹入</span></div>
+  <p class="demo__note">适合：新消息到达时角标由小变大并回弹</p>
+  <div class="demo__stage">
+    <div class="mo-card">
+      <div class="mo-view mo-view--ring"><span class="mo-ib" id="mo-ib"><img src="../../kit/assets/line/message.webp" alt=""><span class="mo-bdg" role="status">3</span></span></div>
+      <div class="mo-bar"><button type="button" class="btn btn--secondary btn--sm" data-mo="b">播放</button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="WB-MOTN-003" data-name="展开收起" data-cat="MOTN">
+  <div class="demo__head"><span class="demo__name">展开收起</span></div>
+  <p class="demo__note">适合：行内就近展开，高度平滑过渡不跳动</p>
+  <div class="demo__stage">
+    <div class="mo-card">
+      <div class="mo-view mo-view--hold"><div class="card mo-acc">
+        <button type="button" class="row" id="mo-acc-b" aria-expanded="true" aria-controls="mo-acc-p"><span class="row__main"><span class="row__title">订单详情</span><span class="row__meta">3 件商品</span></span><span class="row__trail chev"></span></button>
+        <div class="expand" id="mo-acc-p" data-open="true"><div><div class="expand__body"><p class="row__title">红玫瑰花束 1 件</p><p class="row__meta">白郁金香 1 件 龟背竹盆栽 1 件</p></div></div></div>
+      </div></div>
+      <div class="mo-bar"><button type="button" class="btn btn--secondary btn--sm" data-mo="a">播放</button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="WB-MOTN-004" data-name="标签滑动指示" data-cat="MOTN">
+  <div class="demo__head"><span class="demo__name">标签滑动指示</span></div>
+  <p class="demo__note">适合：同级标签切换，选中底块带弹性滑到新位置</p>
+  <div class="demo__stage">
+    <div class="mo-card">
+      <div class="mo-view"><div class="mo-slider" id="mo-sl" role="tablist" aria-label="订单类别"><span class="mo-slider__pill" aria-hidden="true"></span><button type="button" class="mo-slider__tab" role="tab" aria-selected="true">全部</button><button type="button" class="mo-slider__tab" role="tab" aria-selected="false">待发货</button><button type="button" class="mo-slider__tab" role="tab" aria-selected="false">已完成</button></div></div>
+      <div class="mo-bar"><button type="button" class="btn btn--secondary btn--sm" data-mo="s">播放</button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="WB-MOTN-005" data-name="卡片尺寸变化" data-cat="MOTN">
+  <div class="demo__head"><span class="demo__name">卡片尺寸变化</span></div>
+  <p class="demo__note">适合：商品卡点开放大，宽高一起过渡</p>
+  <div class="demo__stage">
+    <div class="mo-card">
+      <div class="mo-view mo-view--morph"><button type="button" class="mo-morph" id="mo-mp" data-size="s" aria-label="切换卡片大小"><img src="../../kit/assets/photo/product-peony-pink.webp" alt=""><span class="mo-morph__t"><span>粉芍药花束</span><span class="price"><small>¥</small>239</span></span></button></div>
+      <div class="mo-bar"><button type="button" class="btn btn--secondary btn--sm" data-mo="m">播放</button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="WB-MOTN-006" data-name="成功勾选" data-cat="MOTN">
+  <div class="demo__head"><span class="demo__name">成功勾选</span></div>
+  <p class="demo__note">适合：提交成功后圆形勾选弹入并扩散一圈</p>
+  <div class="demo__stage">
+    <div class="mo-card">
+      <div class="mo-view mo-view--ring"><span class="mo-ok" id="mo-ok" role="img" aria-label="已完成"><img src="../../kit/assets/line/check.webp" alt=""></span></div>
+      <div class="mo-bar"><button type="button" class="btn btn--secondary btn--sm" data-mo="o">播放</button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="WB-MOTN-007" data-name="输入抖动" data-cat="MOTN">
+  <div class="demo__head"><span class="demo__name">输入抖动</span></div>
+  <p class="demo__note">适合：校验失败时输入框左右抖动，错误留在字段下</p>
+  <div class="demo__stage">
+    <div class="mo-card">
+      <div class="mo-view"><div class="field mo-field"><label class="field__label" for="mo-in">商品名称</label><input class="input" id="mo-in" value="红玫瑰花束" autocomplete="off"><p class="field__err" id="mo-er" data-show="false">名称不能为空</p></div></div>
+      <div class="mo-bar"><button type="button" class="btn btn--secondary btn--sm" data-mo="i">播放</button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="WB-MOTN-008" data-name="骨架转内容" data-cat="MOTN">
+  <div class="demo__head"><span class="demo__name">骨架转内容</span></div>
+  <p class="demo__note">适合：加载完成后骨架淡出，内容上浮淡入</p>
+  <div class="demo__stage">
+    <div class="mo-card">
+      <div class="mo-view"><div class="mo-swap" id="mo-sw" data-state="done">
+        <div class="mo-swap__sk" aria-hidden="true"><div class="skel" style="width:72px;height:72px;border-radius:var(--r-md)"></div><div class="mo-swap__ln"><div class="skel" style="width:70%;height:18px"></div><div class="skel" style="width:40%;height:16px"></div></div></div>
+        <div class="mo-swap__ct"><img src="../../kit/assets/photo/product-rose-red.webp" alt=""><div class="mo-swap__ln"><p class="row__title">红玫瑰花束</p><span class="price"><small>¥</small>199</span></div></div>
+      </div></div>
+      <div class="mo-bar"><button type="button" class="btn btn--secondary btn--sm" data-mo="k">播放</button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="WB-MOTN-009" data-name="流式文字" data-cat="MOTN">
+  <div class="demo__head"><span class="demo__name">流式文字</span></div>
+  <p class="demo__note">适合：智能体回答逐字出现，先出现等待点</p>
+  <div class="demo__stage">
+    <div class="mo-card">
+      <div class="mo-view mo-view--wide"><div class="bubble mo-st" id="mo-st"><span class="mo-st__ghost" aria-hidden="true">本周订单共 1,342 单，营业额 ¥178,880，较上周增长 12.4%，其中周六单量最高。</span><span class="mo-st__live" aria-live="polite">本周订单共 1,342 单，营业额 ¥178,880，较上周增长 12.4%，其中周六单量最高。</span></div></div>
+      <div class="mo-bar"><button type="button" class="btn btn--secondary btn--sm" data-mo="t">播放</button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="WB-MOTN-010" data-name="卡片悬停抬升" data-cat="MOTN">
+  <div class="demo__head"><span class="demo__name">卡片悬停抬升</span></div>
+  <p class="demo__note">适合：可点击卡片悬停时上浮并加深阴影</p>
+  <div class="demo__stage">
+    <div class="mo-card">
+      <div class="mo-view"><button type="button" class="mo-lift" id="mo-lf"><img src="../../kit/assets/photo/product-sunflower.webp" alt=""><span class="mo-lift__t"><b>向日葵花束</b><span class="price"><small>¥</small>159</span><span class="t-sub">库存 40 件</span></span></button></div>
+      <div class="mo-bar"><button type="button" class="btn btn--secondary btn--sm" data-mo="l">播放</button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="WB-MOTN-011" data-name="列表错峰入场" data-cat="MOTN">
+  <div class="demo__head"><span class="demo__name">列表错峰入场</span></div>
+  <p class="demo__note">适合：列表加载后逐行依次上浮，间隔均匀</p>
+  <div class="demo__stage">
+    <div class="mo-card">
+      <div class="mo-view"><div class="mo-stag is-done" id="mo-sg">
+        <div class="row" style="--i:0"><img class="row__lead" src="../../kit/assets/photo/product-rose-red.webp" alt=""><span class="row__main"><span class="row__title">红玫瑰花束</span><span class="row__meta">库存 36 件</span></span><span class="row__trail"><span class="price"><small>¥</small>199</span></span></div>
+        <div class="row" style="--i:1"><img class="row__lead" src="../../kit/assets/photo/product-peony-pink.webp" alt=""><span class="row__main"><span class="row__title">粉芍药花束</span><span class="row__meta">库存 24 件</span></span><span class="row__trail"><span class="price"><small>¥</small>239</span></span></div>
+        <div class="row" style="--i:2"><img class="row__lead" src="../../kit/assets/photo/product-sunflower.webp" alt=""><span class="row__main"><span class="row__title">向日葵花束</span><span class="row__meta">库存 40 件</span></span><span class="row__trail"><span class="price"><small>¥</small>159</span></span></div>
+        <div class="row" style="--i:3"><img class="row__lead" src="../../kit/assets/photo/product-tulip-white.webp" alt=""><span class="row__main"><span class="row__title">白郁金香</span><span class="row__meta">库存 52 件</span></span><span class="row__trail"><span class="price"><small>¥</small>179</span></span></div>
+        <div class="row" style="--i:4"><img class="row__lead" src="../../kit/assets/photo/product-monstera.webp" alt=""><span class="row__main"><span class="row__title">龟背竹盆栽</span><span class="row__meta">库存 18 件</span></span><span class="row__trail"><span class="price"><small>¥</small>159</span></span></div>
+      </div></div>
+      <div class="mo-bar"><button type="button" class="btn btn--secondary btn--sm" data-mo="g">播放</button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="WB-MOTN-012" data-name="视图切换" data-cat="MOTN">
+  <div class="demo__head"><span class="demo__name">视图切换</span></div>
+  <p class="demo__note">适合：列表进详情的横向推入，返回在左上并回到原处</p>
+  <div class="demo__stage">
+    <div class="mo-card">
+      <div class="mo-view"><div class="mo-vw" id="mo-vw">
+        <div class="mo-pane" data-pane="list" data-pos="on">
+          <button type="button" class="row" data-pick="1"><img class="row__lead" src="../../kit/assets/photo/product-rose-red.webp" alt=""><span class="row__main"><span class="row__title">红玫瑰花束</span><span class="row__meta">库存 36 件</span></span><span class="row__trail chev"></span></button>
+          <button type="button" class="row" data-pick="2"><img class="row__lead" src="../../kit/assets/photo/product-peony-pink.webp" alt=""><span class="row__main"><span class="row__title">粉芍药花束</span><span class="row__meta">库存 24 件</span></span><span class="row__trail chev"></span></button>
+          <button type="button" class="row" data-pick="3"><img class="row__lead" src="../../kit/assets/photo/product-sunflower.webp" alt=""><span class="row__main"><span class="row__title">向日葵花束</span><span class="row__meta">库存 40 件</span></span><span class="row__trail chev"></span></button>
+        </div>
+        <div class="mo-pane" data-pane="detail" data-pos="right" inert>
+          <div class="mo-bar2"><button type="button" class="ibtn" data-ret data-tip="返回" aria-label="返回"><img src="../../kit/assets/line/back.webp" alt=""></button><h3 data-t></h3></div>
+          <div class="mo-det"><img data-img src="../../kit/assets/photo/product-rose-red.webp" alt=""><dl><dt>售价</dt><dd data-p></dd><dt>库存</dt><dd data-s></dd><dt>状态</dt><dd>在售</dd></dl></div>
+        </div>
+      </div></div>
+      <div class="mo-bar"><button type="button" class="btn btn--secondary btn--sm" data-mo="v">播放</button></div>
+    </div>
+  </div>
+</article>
+
+<script>
+(() => {
+  const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  const rerun = (el, cls) => { el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); };
+  const once = (el, fn) => { const io = new IntersectionObserver(es => { if (es[0].isIntersecting) { io.disconnect(); fn(); } }, { threshold: .6 }); io.observe(el); };
+  const plays = {};
+
+  /* 001 数字滚动 */
+  plays.n = () => Lz.count($('#mo-n'), 178880, 1100);
+
+  /* 002 徽标弹入：数字加一并重播弹入 */
+  (() => { const b = $('#mo-ib .mo-bdg'); let n = 3; plays.b = () => { b.textContent = ++n; rerun(b, 'is-pop'); }; })();
+
+  /* 003 展开收起：点按钮可手动开合，播放时自动展开一次再收起 */
+  (() => {
+    const btn = $('#mo-acc-b'), p = $('#mo-acc-p');
+    const set = o => { p.dataset.open = String(o); p.inert = !o; btn.setAttribute('aria-expanded', String(o)); };
+    btn.addEventListener('click', () => set(p.dataset.open !== 'true'));
+    plays.a = async () => { if (p.dataset.open !== 'true') { set(true); await sleep(900); } set(false); await sleep(900); set(true); };
+  })();
+
+  /* 004 标签滑动：底块平移并变宽，方向键切换 */
+  (() => {
+    const s = $('#mo-sl'), tabs = $$('.mo-slider__tab', s), pill = $('.mo-slider__pill', s); let cur = 0;
+    const go = (i, instant) => { cur = i; tabs.forEach((t, k) => { t.setAttribute('aria-selected', String(k === i)); t.tabIndex = k === i ? 0 : -1; }); if (instant) pill.style.transition = 'none'; pill.style.width = tabs[i].offsetWidth + 'px'; pill.style.transform = `translateX(${tabs[i].offsetLeft}px)`; if (instant) { void pill.offsetWidth; pill.style.transition = ''; } };
+    tabs.forEach((t, i) => { t.addEventListener('click', () => go(i)); t.addEventListener('keydown', e => { const d = { ArrowRight: 1, ArrowLeft: -1 }[e.key]; if (!d) return; e.preventDefault(); const n = (i + d + tabs.length) % tabs.length; tabs[n].focus(); go(n); }); });
+    plays.s = async () => { go(0); for (const i of [1, 2, 0]) { await sleep(700); go(i); } };
+    new ResizeObserver(() => go(cur, true)).observe(s); go(0, true);
+  })();
+
+  /* 005 卡片尺寸：点击切换，播放时放大再还原 */
+  (() => {
+    const m = $('#mo-mp'); m.addEventListener('click', () => { m.dataset.size = m.dataset.size === 's' ? 'l' : 's'; });
+    plays.m = async () => { const to = m.dataset.size === 's' ? 'l' : 's'; m.dataset.size = to; await sleep(1500); m.dataset.size = to === 'l' ? 's' : 'l'; };
+  })();
+
+  /* 006 成功勾选 */
+  plays.o = () => rerun($('#mo-ok'), 'is-in');
+
+  /* 007 输入抖动：回车校验，播放时示范一次失败 */
+  (() => {
+    const inp = $('#mo-in'), err = $('#mo-er');
+    const bad = () => { inp.setAttribute('aria-invalid', 'true'); inp.setAttribute('aria-describedby', 'mo-er'); err.dataset.show = 'true'; rerun(inp, 'shake'); };
+    const ok = () => { inp.removeAttribute('aria-invalid'); err.dataset.show = 'false'; };
+    const valid = () => inp.value.trim().length > 0;
+    inp.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.isComposing) (valid() ? ok : bad)(); });
+    inp.addEventListener('input', () => { if (valid()) ok(); });
+    plays.i = async () => { inp.value = ''; bad(); await sleep(1600); inp.value = '红玫瑰花束'; ok(); };
+  })();
+
+  /* 008 骨架转内容 */
+  plays.k = async () => { const s = $('#mo-sw'); s.dataset.state = 'load'; await sleep(1200); s.dataset.state = 'done'; };
+
+  /* 009 流式文字：等待点后逐字输出 */
+  (() => {
+    const live = $('#mo-st .mo-st__live'), text = live.textContent; let busy = false;
+    plays.t = async () => { if (busy) return; busy = true; live.innerHTML = '<span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>'; await sleep(700); live.textContent = ''; await Lz.stream(live, text, 60); busy = false; };
+  })();
+
+  /* 010 悬停抬升：播放时持续抬升再落下，真实悬停同样触发 */
+  plays.l = async () => { const c = $('#mo-lf'); c.classList.add('is-on'); await sleep(1400); c.classList.remove('is-on'); };
+
+  /* 011 列表错峰入场 */
+  plays.g = () => { const l = $('#mo-sg'); l.classList.remove('is-in', 'is-done'); void l.offsetWidth; l.classList.add('is-in'); setTimeout(() => l.classList.add('is-done'), 1200); };
+
+  /* 012 视图切换：列表左移出、详情右移入，返回按钮在左上并回到触发行 */
+  (() => {
+    const vw = $('#mo-vw'), list = $('[data-pane="list"]', vw), det = $('[data-pane="detail"]', vw), back = $('[data-ret]', vw);
+    const D = { 1: ['红玫瑰花束', '¥199', '36 件', 'product-rose-red'], 2: ['粉芍药花束', '¥239', '24 件', 'product-peony-pink'], 3: ['向日葵花束', '¥159', '40 件', 'product-sunflower'] }; let last = null;
+    const open = k => { const d = D[k]; last = $(`[data-pick="${k}"]`, vw); $('[data-t]', det).textContent = d[0]; $('[data-p]', det).textContent = d[1]; $('[data-s]', det).textContent = d[2]; $('[data-img]', det).src = `../../kit/assets/photo/${d[3]}.webp`; list.dataset.pos = 'left'; list.inert = true; det.dataset.pos = 'on'; det.inert = false; setTimeout(() => back.focus({ preventScroll: true }), 30); };
+    const close = () => { det.dataset.pos = 'right'; det.inert = true; list.dataset.pos = 'on'; list.inert = false; if (last) setTimeout(() => last.focus({ preventScroll: true }), 30); };
+    list.addEventListener('click', e => { const r = e.target.closest('[data-pick]'); if (r) open(r.dataset.pick); });
+    back.addEventListener('click', close);
+    vw.addEventListener('keydown', e => { if (e.key === 'Escape' && det.dataset.pos === 'on') close(); });
+    plays.v = async () => { if (det.dataset.pos === 'on') { close(); await sleep(600); } open('2'); await sleep(1500); close(); };
+  })();
+
+  $$('[data-mo]').forEach(b => { if (plays[b.dataset.mo] && b.closest('[data-cat="MOTN"]')) b.addEventListener('click', () => plays[b.dataset.mo]()); });
+  [['#mo-n', 'n'], ['#mo-ib', 'b'], ['#mo-ok', 'o'], ['#mo-sw', 'k'], ['#mo-st', 't'], ['#mo-sg', 'g']].forEach(([s, k]) => once($(s), plays[k]));
+})();
+</script>
+
+<style>
+  /* 轮播滑动切换：类名前缀 mo-cr。当前张最大，两侧依次缩小淡出，循环切换；宽度够才露出第二张 */
+  .mo-cr { container-type: inline-size; }
+  .mo-cr__track { --w: clamp(232px, calc((50cqw - 14px) / 1.38), 296px); display: grid; place-items: center; padding: var(--s-4) 0; overflow: hidden; touch-action: pan-y; cursor: grab; user-select: none; -webkit-user-select: none; }
+  .mo-cr__track:focus-visible { outline-offset: -2px; }
+  .mo-cr__track[data-drag] { cursor: grabbing; }
+  .mo-cr__s { --x: 0px; --sc: 1; --op: 1; grid-area: 1 / 1; width: var(--w); margin: 0; display: grid; border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--elev-1); overflow: hidden; transform: translateX(calc(var(--x) + var(--dx, 0px))) scale(var(--sc)); opacity: var(--op); z-index: var(--z, 1); transition: transform calc(var(--dur-slow) * 1.5) var(--ease-out), opacity calc(var(--dur-slow) * 1.5) var(--ease-out), visibility 0s linear var(--vd, 0s), box-shadow var(--dur-base) var(--ease-out); }
+  .mo-cr__track[data-drag] .mo-cr__s, .mo-cr__s.is-jump { transition: none; }
+  .mo-cr__s[data-o="0"] { --z: 4; box-shadow: var(--elev-2); }
+  .mo-cr__s[data-o="1"], .mo-cr__s[data-o="-1"] { --sc: .88; --op: .82; --z: 3; cursor: pointer; }
+  .mo-cr__s[data-o="2"], .mo-cr__s[data-o="-2"] { --sc: .76; --op: .56; --z: 2; cursor: pointer; }
+  .mo-cr__s[data-o="3"], .mo-cr__s[data-o="-3"] { --sc: .64; --op: 0; --z: 1; --vd: calc(var(--dur-slow) * 1.5); visibility: hidden; pointer-events: none; }
+  .mo-cr__s[data-o="1"] { --x: calc(var(--w) * .94 + 14px); }
+  .mo-cr__s[data-o="-1"] { --x: calc((var(--w) * .94 + 14px) * -1); }
+  .mo-cr__s[data-o="2"] { --x: calc(var(--w) * 1.76 + 28px); }
+  .mo-cr__s[data-o="-2"] { --x: calc((var(--w) * 1.76 + 28px) * -1); }
+  .mo-cr__s[data-o="3"] { --x: calc(var(--w) * 2.46 + 42px); }
+  .mo-cr__s[data-o="-3"] { --x: calc((var(--w) * 2.46 + 42px) * -1); }
+  @container (max-width: 1329px) { .mo-cr__s[data-o="2"], .mo-cr__s[data-o="-2"] { --op: 0; --vd: calc(var(--dur-slow) * 1.5); visibility: hidden; pointer-events: none; } }
+  .mo-cr__s img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; background: var(--zone); -webkit-user-drag: none; }
+  .mo-cr__s figcaption { display: flex; align-items: center; justify-content: space-between; gap: var(--s-2); min-height: 52px; padding: 0 var(--s-4); font-size: var(--fs-md); }
+  .mo-cr__s figcaption b { font-weight: 600; white-space: nowrap; }
+  .mo-cr__s figcaption .tag { margin-right: auto; }
+  .mo-cr__dots { display: inline-flex; align-items: center; }
+  .mo-cr__dot { display: grid; place-items: center; width: 24px; height: 32px; }
+  .mo-cr__dot::before { content: ""; width: 8px; height: 8px; border-radius: var(--r-full); background: var(--line-strong); transition: width var(--dur-base) var(--ease-out), background var(--dur-base) var(--ease-out); }
+  .mo-cr__dot[aria-current="true"]::before { width: 20px; background: var(--action); }
+  .mo-cr__nav .chev { transform: rotate(0deg); }
+  .mo-cr__nav[data-d="-1"] .chev { transform: rotate(180deg); }
+</style>
+
+<article class="demo demo--span2" data-cid="WB-MOTN-013" data-name="轮播滑动切换" data-cat="MOTN">
+  <div class="demo__head"><span class="demo__name">轮播滑动切换</span></div>
+  <p class="demo__note">适合：轮播图的滑动缓动切换与循环</p>
+  <div class="demo__stage">
+    <div class="mo-card">
+      <div class="mo-cr" id="mo-cr" role="region" aria-roledescription="轮播" aria-label="本周主推商品">
+        <div class="mo-cr__track" tabindex="0" aria-live="polite">
+          <figure class="mo-cr__s"><img src="../../kit/assets/photo/product-rose-red.webp" alt=""><figcaption><b>红玫瑰花束</b><span class="tag" data-tone="price">热卖</span><span class="price"><small>¥</small>199</span></figcaption></figure>
+          <figure class="mo-cr__s"><img src="../../kit/assets/photo/product-peony-pink.webp" alt=""><figcaption><b>粉芍药花束</b><span class="tag" data-tone="action">新品</span><span class="price"><small>¥</small>239</span></figcaption></figure>
+          <figure class="mo-cr__s"><img src="../../kit/assets/photo/product-sunflower.webp" alt=""><figcaption><b>向日葵花束</b><span class="price"><small>¥</small>159</span></figcaption></figure>
+          <figure class="mo-cr__s"><img src="../../kit/assets/photo/product-tulip-white.webp" alt=""><figcaption><b>白郁金香</b><span class="price"><small>¥</small>179</span></figcaption></figure>
+          <figure class="mo-cr__s"><img src="../../kit/assets/photo/product-hydrangea-blue.webp" alt=""><figcaption><b>蓝绣球盆栽</b><span class="price"><small>¥</small>129</span></figcaption></figure>
+          <figure class="mo-cr__s"><img src="../../kit/assets/photo/product-monstera.webp" alt=""><figcaption><b>龟背竹盆栽</b><span class="price"><small>¥</small>159</span></figcaption></figure>
+          <figure class="mo-cr__s"><img src="../../kit/assets/photo/product-giftbox.webp" alt=""><figcaption><b>花礼盒</b><span class="tag" data-tone="action">新品</span><span class="price"><small>¥</small>259</span></figcaption></figure>
+        </div>
+      </div>
+      <div class="mo-bar">
+        <button type="button" class="ibtn mo-cr__nav" data-d="-1" data-tip="上一张" aria-label="上一张"><span class="chev" aria-hidden="true"></span></button>
+        <div class="mo-cr__dots" data-dots></div>
+        <button type="button" class="ibtn mo-cr__nav" data-d="1" data-tip="下一张" aria-label="下一张"><span class="chev" aria-hidden="true"></span></button>
+        <button type="button" class="btn btn--secondary btn--sm" data-cr-play>播放</button>
+      </div>
+    </div>
+  </div>
+</article>
+
+<script>
+(() => {
+  const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const root = $('#mo-cr'), track = $('.mo-cr__track', root), slides = $$('.mo-cr__s', root), n = slides.length, card = root.parentElement;
+  const dotBox = $('[data-dots]', card), play = $('[data-cr-play]', card), navs = $$('.mo-cr__nav', card);
+  const half = Math.floor(n / 2); let cur = 0, timer = 0, laps = 0, limit = 0, held = false, moved = false;
+  const NAMES = slides.map(s => $('b', s).textContent);
+  dotBox.innerHTML = NAMES.map((t, i) => `<button type="button" class="mo-cr__dot" data-i="${i}" data-tip="第 ${i + 1} 张" aria-label="第 ${i + 1} 张 ${t}"></button>`).join('');
+  const dots = $$('.mo-cr__dot', dotBox);
+  const off = i => ((i - cur + n + half) % n + n) % n - half;
+  const go = (k, instant) => {
+    cur = ((k % n) + n) % n;
+    slides.forEach((s, i) => {
+      const o = off(i), prev = s.dataset.o === undefined ? o : +s.dataset.o, jump = Math.abs(o - prev) > half;
+      if (jump || instant) { s.classList.add('is-jump'); }
+      s.dataset.o = String(o); s.setAttribute('aria-hidden', String(o !== 0)); s.setAttribute('role', 'group'); s.setAttribute('aria-roledescription', '幻灯片'); s.setAttribute('aria-label', `第 ${i + 1} 张 共 ${n} 张`);
+      if (jump || instant) { void s.offsetWidth; s.classList.remove('is-jump'); }
+    });
+    dots.forEach((d, i) => d.setAttribute('aria-current', String(i === cur)));
+  };
+  const setPlay = on => { play.textContent = on ? '暂停' : '播放'; track.setAttribute('aria-live', on ? 'off' : 'polite'); };
+  const stop = () => { clearInterval(timer); timer = 0; setPlay(false); };
+  const start = max => { stop(); laps = 0; limit = max; setPlay(true); timer = setInterval(() => { if (held) return; go(cur + 1); if (++laps >= limit) stop(); }, 2400); };
+  go(0, true);
+
+  navs.forEach(b => b.addEventListener('click', () => { stop(); go(cur + +b.dataset.d); }));
+  dotBox.addEventListener('click', e => { const d = e.target.closest('.mo-cr__dot'); if (d) { stop(); go(+d.dataset.i); } });
+  play.addEventListener('click', () => { timer ? stop() : start(n); });
+  track.addEventListener('keydown', e => { const k = { ArrowLeft: -1, ArrowRight: 1 }[e.key]; if (k) { e.preventDefault(); stop(); go(cur + k); } else if (e.key === 'Home') { e.preventDefault(); stop(); go(0); } else if (e.key === 'End') { e.preventDefault(); stop(); go(n - 1); } });
+  slides.forEach(s => s.addEventListener('click', () => { if (moved) return; const o = +s.dataset.o; if (o && Math.abs(o) <= half - 1) { stop(); go(cur + o); } }));
+
+  track.addEventListener('dragstart', e => e.preventDefault());
+  /* 拖动：跟手平移，松手超过五十像素切到前一张或后一张，否则弹回 */
+  let sx = 0, dx = 0, drag = false;
+  track.addEventListener('pointerdown', e => { if (e.button) return; drag = true; moved = false; sx = e.clientX; dx = 0; });
+  track.addEventListener('pointermove', e => { if (!drag) return; dx = e.clientX - sx; if (Math.abs(dx) > 6) { if (!moved) track.setPointerCapture(e.pointerId); moved = true; track.dataset.drag = ''; track.style.setProperty('--dx', dx + 'px'); } });
+  const end = () => { if (!drag) return; drag = false; delete track.dataset.drag; track.style.removeProperty('--dx'); if (Math.abs(dx) > 50) { stop(); go(cur + (dx < 0 ? 1 : -1)); } dx = 0; setTimeout(() => { moved = false; }, 0); };
+  track.addEventListener('pointerup', end); track.addEventListener('pointercancel', end);
+  root.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') held = true; }); root.addEventListener('pointerleave', () => { held = false; });
+  root.addEventListener('focusin', () => { held = true; }); root.addEventListener('focusout', () => { held = false; });
+
+  const io = new IntersectionObserver(es => { if (es[0].isIntersecting) { io.disconnect(); if (!Lz.reduce) start(3); } }, { threshold: .6 }); io.observe(root);
+})();
+</script>

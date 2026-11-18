@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>文件模板阶段汇总</title>
+<link rel="icon" href="data:image/webp;base64,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">
+<style>
+:root { color-scheme: light; --canvas: #f7f7f5; --paper: #ffffff; --ink: #202124; --muted: #5f6368; --line: #dadce0; --tint: #e9f2f5; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--canvas); color: var(--ink); font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", system-ui, sans-serif; }
+main { width: min(960px, calc(100% - 32px)); margin: 24px auto; padding: 48px; border-radius: 8px; background: var(--paper); }
+nav { margin: 32px 0; font-size: var(--md-table); } nav ul { columns: 2; column-gap: 32px; } nav li { break-inside: avoid; }
+a:focus-visible, h2:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+h2[id] { scroll-margin-top: 24px; }
+.table-wrap { margin: 0 0 24px; overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: middle; text-align: left; }
+th:first-child, td:first-child { min-width: 7em; }
+th { background: var(--tint); text-align: center; }
+td.center { text-align: center; } td.right { text-align: right; }
+@media (max-width: 768px) { main { width: auto; margin: 0; padding: 32px 16px; border-radius: 0; } nav ul { columns: 1; } }
+@media print { body { background: #fff; } main { width: auto; margin: 0; padding: 0; } nav { display: none; } tr, img { break-inside: avoid; } h2 { break-after: avoid; } }
+/* luz-md-type:start
+   阅读型网页的 Markdown 层级（母本：Luz-Design/references/md-type.css）。其他技能的样式文件里夹着同一段，
+   改这里之后运行 py -X utf8 scripts/sync_md_type.py --write 同步，不要在别处手改（不带参数运行只报告 SAME 或 DIFF）。
+   规则见 file-design.html 网页文件 › 排版参数（逐级数值表）与 visual-design.html 一 › 字体与字号 › 字阶表的阅读型网页一行：手机（小于 768）与桌面（768 及以上）各一套字号，
+   桌面正文 18，手机 16；每一级的字号、字重、行高、上下留白固定，页面只取这些级别，不另造样式。
+   只管文字层级，不管容器宽度、颜色主题与组件：颜色取页面已有的变量，缺省用下面的回退值。 */
+:root {
+  --md-body: 16px;  --md-body-lh: 1.75;
+  --md-h1: 28px;  --md-h2: 24px;  --md-h3: 20px;  --md-h4: 16px;  --md-h5: 14px;  --md-h6: 14px;
+  --md-table: 14px;  --md-aux: 14px;  --md-code: 14px;
+  --md-measure: 42em;
+}
+@media (min-width: 768px) {
+  :root {
+    --md-body: 18px;  --md-body-lh: 1.8;
+    --md-h1: 36px;  --md-h2: 28px;  --md-h3: 22px;  --md-h4: 18px;  --md-h5: 16px;  --md-h6: 14px;
+    --md-table: 16px;  --md-aux: 14px;  --md-code: 16px;
+  }
+}
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body { font-size: var(--md-body); line-height: var(--md-body-lh); font-weight: 400; font-kerning: normal; text-rendering: optimizeLegibility; overflow-wrap: break-word; }
+h1, h2, h3, h4, h5, h6 { font-family: inherit; font-style: normal; letter-spacing: 0; text-wrap: balance; }
+h1 { margin: 0 0 24px; font-size: var(--md-h1); line-height: 1.25; font-weight: 700; }
+h2 { margin: 56px 0 16px; padding-bottom: 12px; border-bottom: 1px solid var(--line, #d7e0e8); font-size: var(--md-h2); line-height: 1.3; font-weight: 700; }
+h3 { margin: 40px 0 12px; font-size: var(--md-h3); line-height: 1.4; font-weight: 600; }
+h4 { margin: 28px 0 8px; font-size: var(--md-h4); line-height: 1.5; font-weight: 600; }
+h5 { margin: 24px 0 8px; font-size: var(--md-h5); line-height: 1.5; font-weight: 600; color: var(--muted, var(--ink-2, #526071)); }
+h6 { margin: 20px 0 8px; font-size: var(--md-h6); line-height: 1.5; font-weight: 600; color: var(--muted, var(--ink-2, #526071)); }
+p { margin: 0 0 16px; }
+p, ul, ol, dl, blockquote { max-width: var(--md-measure); }
+ul, ol { margin: 0 0 16px; padding-left: 1.6em; }
+li { margin: 0; }
+li + li { margin-top: 6px; }
+li > ul, li > ol { margin: 6px 0 0; }
+ul { list-style: disc; }
+ul ul { list-style: circle; }
+ul ul ul { list-style: square; }
+li::marker { color: var(--muted, var(--ink-2, #526071)); }
+dt { font-weight: 600; }
+dd { margin: 2px 0 12px; padding-left: 1em; }
+strong, b { font-weight: 600; }
+em, i, cite, address { font-style: normal; font-weight: 600; }
+blockquote { margin: 0 0 16px; padding: 4px 0 4px 16px; border-left: 4px solid var(--line, #d7e0e8); color: var(--muted, var(--ink-2, #526071)); }
+blockquote > :last-child { margin-bottom: 0; }
+hr { margin: 40px 0; border: 0; border-top: 1px solid var(--line, #d7e0e8); }
+small, figcaption, caption, time, .aux, .src { font-size: var(--md-aux); line-height: 1.6; }
+caption, figcaption { margin: 0; padding: 0 0 10px; color: var(--muted, var(--ink-2, #526071)); text-align: center; }
+caption { caption-side: top; }
+table { font-size: var(--md-table); line-height: 1.65; font-variant-numeric: tabular-nums; }
+th { font-weight: 600; }
+td > :last-child, th > :last-child { margin-bottom: 0; }
+code, kbd, samp, pre { font-family: "Cascadia Mono", "Consolas", "Microsoft YaHei", monospace; font-size: var(--md-code); line-height: 1.6; }
+code, kbd, samp { padding: 2px 6px; border-radius: 8px; background: var(--surface-soft, var(--surface-2, #edf3f7)); overflow-wrap: anywhere; }
+pre { margin: 0 0 16px; padding: 16px 20px; overflow: auto; border: 1px solid var(--line, #d7e0e8); border-radius: 8px; background: var(--surface, #f7f9fc); }
+pre code { padding: 0; border-radius: 0; background: none; font-size: inherit; }
+@media print {
+  :root { --md-body: 11pt; --md-body-lh: 1.7; --md-h1: 22pt; --md-h2: 17pt; --md-h3: 14pt; --md-h4: 12pt; --md-h5: 11pt; --md-h6: 10.5pt; --md-table: 10.5pt; --md-aux: 10.5pt; --md-code: 10.5pt; }
+}
+/* luz-md-type:end */
+</style>
+</head>
+<body>
+<main>
+<h1>文件模板阶段汇总</h1>
+<section><h2>成果</h2><div class="table-wrap"><table><caption>表 1 阅读页成果</caption><thead><tr><th scope="col">名称</th><th scope="col">用途</th><th scope="col">位置</th></tr></thead><tbody><tr><td class="left"><a href="DC-RD-001-阅读报告.html" rel="noreferrer">阅读报告</a></td><td class="left">带图表与口径说明的分析报告</td><td class="left">DC-RD-001-阅读报告.html</td></tr><tr><td class="left"><a href="DC-RD-003-方案说明.html" rel="noreferrer">方案说明</a></td><td class="left">目标、范围、流程与验收的方案文档</td><td class="left">DC-RD-003-方案说明.html</td></tr><tr><td class="left"><a href="DC-RD-004-图文文章.html" rel="noreferrer">图文文章</a></td><td class="left">配图叙述型文章</td><td class="left">DC-RD-004-图文文章.html</td></tr><tr><td class="left"><a href="DC-RD-005-系统架构阅读页.html" rel="noreferrer">系统架构阅读页</a></td><td class="left">分层结构、模块职责与数据流</td><td class="left">DC-RD-005-系统架构阅读页.html</td></tr><tr><td class="left"><a href="DC-RD-006-技术方案阅读页.html" rel="noreferrer">技术方案阅读页</a></td><td class="left">方案选择、状态机、接口约定与验证计划</td><td class="left">DC-RD-006-技术方案阅读页.html</td></tr></tbody></table></div></section>
+<section><h2>依据</h2><div class="table-wrap"><table><caption>表 2 采用的依据</caption><thead><tr><th scope="col">来源</th><th scope="col">采用位置</th></tr></thead><tbody><tr><td class="left"><a href="https://www.w3.org/WAI/WCAG22/Understanding/use-of-color.html" rel="noreferrer">Understanding Success Criterion 1.4.1: Use of Color</a></td><td class="left">技术方案阅读页的状态展示约定</td></tr><tr><td class="left"><a href="https://diataxis.fr/reference/" rel="noreferrer">Reference</a></td><td class="left">技术方案阅读页的接口表写法</td></tr><tr><td class="left"><a href="https://c4model.com/abstractions/container" rel="noreferrer">Container</a></td><td class="left">系统架构阅读页的分层边界</td></tr></tbody></table></div></section>
+<section><h2>过程文件</h2><div class="table-wrap"><table><caption>表 3 过程文件</caption><thead><tr><th scope="col">文件</th><th scope="col">用途</th></tr></thead><tbody><tr><td class="left">01-描述文件/DC-RD-001-阅读报告.json</td><td class="left">阅读报告的页面描述</td></tr><tr><td class="left">01-描述文件/DC-RD-003-方案说明.json</td><td class="left">方案说明的页面描述</td></tr><tr><td class="left">01-描述文件/DC-RD-006-技术方案阅读页.json</td><td class="left">技术方案阅读页的页面描述</td></tr></tbody></table></div></section>
+</main>
+</body>
+</html>

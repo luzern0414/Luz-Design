@@ -74,13 +74,22 @@ def errors_of(spec: dict) -> list[dict]:
     return [f for f in pp.check_spec(spec, DATA) if f["level"] == "error"]
 
 
+def test_explicit_settings_and_sidebar_homes_stay_out_of_homepage():
+    spec = plan_of([
+        ent("FN-001", "修改密码", "account", "in-page", "/settings/account"),
+        ent("FN-002", "员工管理", "task", "sidebar", "/staff"),
+    ])
+    assert rejected(spec)["FN-001"]["goes_to"] == "in-page"
+    assert rejected(spec)["FN-002"]["goes_to"] == "sidebar"
+
+
 # ---------------------------------------------------------------- 数据完整性
 
 class DataTest(unittest.TestCase):
     def test_top_level_and_strength_tiers(self) -> None:
         self.assertEqual(DATA["version"], 1)
         self.assertEqual(set(DATA["strength"]), {"must", "default", "hint"})
-        for key in ("paradigms", "app_types", "entry_zones", "function_types", "pages", "rules", "density", "entrances_schema", "sources", "method"):
+        for key in ("paradigms", "app_types", "entry_zones", "function_types", "pages", "rules", "density", "sources", "method"):
             self.assertIn(key, DATA)
 
     def test_ids_are_unique_in_each_collection(self) -> None:
@@ -92,7 +101,7 @@ class DataTest(unittest.TestCase):
         have = {k: {i["id"] for i in DATA[k]} for k in ("paradigms", "app_types", "entry_zones", "pages", "rules")}
         for want, key in ((REQUIRED_PARADIGMS, "paradigms"), (REQUIRED_TYPES, "app_types"), (REQUIRED_PAGES, "pages"), (REQUIRED_ZONES, "entry_zones"), (REQUIRED_RULES, "rules")):
             self.assertEqual(set(want) - have[key], set(), key)
-        self.assertEqual({f["id"] for f in DATA["function_types"]}, set(pp.TYPES9))
+        self.assertEqual({f["id"] for f in DATA["function_types"]}, set(pp.entrances_contract().schema()["enums"]["type"]))
 
     def test_paradigm_shape_and_references(self) -> None:
         ptypes, pids = {t["id"] for t in DATA["app_types"]}, {p["id"] for p in DATA["paradigms"]}
@@ -159,7 +168,7 @@ class DataTest(unittest.TestCase):
         for rid in ("no-fill-dock", "first-module-answers-return-task", "five-questions", "modules-backend-switchable"):
             self.assertEqual(musts[rid]["strength"], "default", rid)
         for z in DATA["entry_zones"]:
-            self.assertTrue(set(z["allowed_function_types"]) <= set(pp.TYPES9), z["id"])
+            self.assertTrue(set(z["allowed_function_types"]) <= set(pp.entrances_contract().schema()["enums"]["type"]), z["id"])
             self.assertTrue(set(z["rules"]) <= rules, z["id"])
 
     def test_every_evidence_entry_resolves_and_is_honest(self) -> None:
@@ -219,13 +228,10 @@ class DataTest(unittest.TestCase):
         self.assertEqual(DATA["density"]["home"]["marketing_modules_max"]["value"], 2)
         self.assertEqual(DATA["density"]["home"]["marketing_modules_max"]["strength"], "must")
 
-    def test_entrances_schema_lists_the_fields_and_an_example_that_validates(self) -> None:
-        schema = DATA["entrances_schema"]
-        for field in ("fn", "name", "type", "category", "entry", "destination", "freq", "image", "limited"):
-            self.assertIn(field, schema["fields"])
-        rows, errors = pp.validate_entrances(schema["example"]["entrances"])
-        self.assertEqual(errors, [])
-        self.assertEqual(len(rows), len(schema["example"]["entrances"]))
+    def test_schema_command_uses_system_contract(self) -> None:
+        code, out = run(["show", "entrances"])
+        self.assertEqual(code, 0)
+        self.assertEqual(json.loads(out), pp.entrances_contract().schema())
 
 
 # ---------------------------------------------------------------- 规则页
@@ -298,13 +304,10 @@ class QueryTest(unittest.TestCase):
 # ---------------------------------------------------------------- 入口表与简报
 
 class BriefTest(unittest.TestCase):
-    def test_bad_entrance_rows_are_reported(self) -> None:
-        rows, errors = pp.validate_entrances([{"fn": "A", "name": "x", "type": "gadget", "category": "core", "entry": "home", "destination": "P1", "freq": "high"},
-                                              {"fn": "A", "name": "y", "type": "task", "category": "core", "entry": "home", "destination": "", "freq": "high"}])
-        text = "\n".join(errors)
-        self.assertIn("type=gadget", text)
-        self.assertIn("缺 destination", text)
-        self.assertIn("fn 重复", text)
+    def test_brief_refuses_a_wallet_misplaced_in_system_home_definition(self) -> None:
+        rows = [ent("FN-001", "我的优惠券", "account", "home", "P01", summary=True)]
+        with self.assertRaisesRegex(SystemExit, "我的优惠券.*摘要"):
+            pp.make_brief(None, {"entrances": rows}, "ecommerce", DATA)
 
     def test_brief_flags_unmapped_features_and_unknown_rows(self) -> None:
         features = {"modules": [{"id": "M01", "name": "报餐"}], "features": [
@@ -347,7 +350,7 @@ BASE_ROWS = [
     ent("FN-009", "新品专场", "marketing", "home", "P42", "mid", "marketing"),
     ent("FN-010", "我的会员", "account", "mine", "P50", "mid", "info", summary=True),
     ent("FN-011", "我的收藏", "account", "mine", "P51", "low", "aux"),
-    ent("FN-012", "优惠券", "account", "home", "P52", "mid", "aux"),
+    ent("FN-012", "优惠券", "account", "mine", "P52", "mid", "aux"),
     ent("FN-013", "门店公告", "content", "home", "P60", "mid", "info"),
     ent("FN-014", "新品推荐", "content", "home", "P61", "mid", "info"),
     ent("FN-015", "预约点餐", "task", "home", "P70"),
@@ -355,7 +358,7 @@ BASE_ROWS = [
     ent("FN-017", "团餐", "task", "home", "P72", "mid"),
     ent("FN-018", "礼品卡", "task", "home", "P73", "mid"),
     ent("FN-019", "外卖专送", "task", "home", "P74"),
-    ent("FN-020", "开发票", "tool", "home", "P80", "low", "aux"),
+    ent("FN-020", "开发票", "tool", "mine", "P80", "low", "aux"),
     ent("FN-021", "新人礼券入口", "marketing", "home", "P40", "mid", "marketing"),
     ent("FN-022", "点单", "task", "home", "P03"),
 ]
@@ -395,10 +398,7 @@ class PlanTest(unittest.TestCase):
         card = [i for i in self.mods["status-card"]["items"] if i["fn"] == "FN-006"]
         self.assertEqual(len(card), 1)
         self.assertTrue(card[0]["state_card"])
-        spec = plan_of([ent("FN-1", "全部订单", "order", "home", "P90")], tabbar=[{"name": "首页", "destination": "home"}, {"name": "我的", "destination": "P10"}])
-        item = mods(spec)["status-card"]["items"][0]
-        self.assertEqual((item["type"], item["name"], item["state_card"]), ("order", "进行中订单", True))
-        spec = plan_of([ent("FN-1", "全部订单", "order", "mine", "P90")], tabbar=[{"name": "首页", "destination": "home"}])
+        spec = plan_of([ent("FN-1", "全部订单", "order", "mine", "P90")], tabbar=[{"name": "首页", "destination": "home"}, {"name": "我的", "destination": "P10"}])
         self.assertNotIn("status-card", mods(spec))
         self.assertEqual(rejected(spec)["FN-1"]["code"], "order")
 
@@ -465,7 +465,7 @@ class PlanTest(unittest.TestCase):
         ids = [m["id"] for m in self.spec["modules"]]
         self.assertLess(ids.index("search-header"), ids.index("status-card"))
         self.assertLess(ids.index("status-card"), ids.index("banner-carousel"))
-        self.assertLess(ids.index("banner-carousel"), ids.index("dock-grid"))
+        self.assertLess(ids.index("dock-grid"), ids.index("banner-carousel"))
         self.assertEqual(ids[-1], "feed")
         self.assertEqual(sum(1 for m in self.spec["modules"] if m["first_screen"]), self.spec["first_screen_max"])
 

@@ -1,0 +1,2134 @@
+<!-- cat: FORM | 表单 -->
+<style>
+  /* 表单类：前缀 wb-fm-。后台控件 40 高，正文 14；错误紧贴字段；保存取消同排相邻；只改边线，不出彩色选中框 */
+  #cat-form .input, #cat-form .textarea { min-height: 40px; font-size: var(--fs-sm); }
+  #cat-form .textarea { min-height: 96px; }
+  #cat-form .input:focus-visible, #cat-form .textarea:focus-visible { outline: none; border-radius: var(--r-md); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ink) 8%, transparent); }
+  #cat-form .field__label { font-size: var(--fs-sm); }
+  #cat-form .field__err { font-size: var(--fs-sm); line-height: 1.4; }
+  #cat-form .t-sub { font-size: var(--fs-sm); }
+  .wb-fm-card { padding: var(--s-5); }
+  .wb-fm-stack { display: grid; gap: var(--s-4); }
+  .wb-fm-grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-4) var(--s-5); align-items: start; }
+  .wb-fm-grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-4) var(--s-5); align-items: start; }
+  .wb-fm-span { grid-column: 1 / -1; }
+  .wb-fm-lab { display: flex; align-items: center; justify-content: space-between; gap: var(--s-2); min-height: 22px; }
+  .wb-fm-cnt { font-size: var(--fs-xs); color: var(--ink-3); font-variant-numeric: tabular-nums; }
+  .wb-fm-cnt[data-full="true"] { color: var(--danger); }
+  #cat-form .demo__stage.wb-fm-room, #cat-form .demo__stage.wb-fm-room--l { overflow: visible; }
+  #cat-form .btn[disabled] { box-shadow: none; }
+  #cat-form .check[aria-checked="mixed"] { background: var(--action); border-color: var(--action); position: relative; }
+  #cat-form .check[aria-checked="mixed"]::after { content: ""; width: 10px; height: 2px; border-radius: 1px; background: var(--surface); }
+  #cat-form .check[aria-checked="mixed"] img { display: none; }
+  /* 操作条：贴着卡片底边的通栏，上下左右内距都是 20（与卡片内距一致）；整页表单的操作条落在舞台上，四边都是 12 */
+  .wb-fm-bar { display: flex; align-items: center; justify-content: flex-end; gap: var(--s-2); padding: var(--s-5); border-top: 1px solid var(--line); }
+  .wb-fm-bar .l { margin-right: auto; }
+  .wb-fm-bar .btn { min-height: 40px; }
+  .wb-fm-bar--stage { margin-top: var(--s-5); padding: var(--s-3) 0 0; }
+  #cat-form .input:disabled, #cat-form .textarea:disabled { background: var(--zone); color: var(--ink-3); border-color: var(--line); cursor: not-allowed; }
+  #cat-form .input.wb-fm-is-focus { border-color: var(--ink-2); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ink) 8%, transparent); }
+  #cat-form .textarea[aria-invalid="true"] { border-color: var(--danger); }
+  .wb-fm-sel { width: 100%; }
+  .wb-fm-sel .drop__btn { width: 100%; min-height: 40px; padding: 0 var(--s-3); justify-content: space-between; border-radius: var(--r-md); background: var(--surface); box-shadow: inset 0 0 0 1px var(--line-strong); font-size: var(--fs-sm); color: var(--ink); transition: box-shadow var(--dur-quick) var(--ease-out); }
+  .wb-fm-sel .drop__btn b { font-weight: 400; }
+  .wb-fm-sel .drop__btn b.wb-fm-ph { color: var(--ink-3); }
+  .wb-fm-sel[data-open="true"] .drop__btn { box-shadow: inset 0 0 0 1px var(--ink-2); }
+  .wb-fm-sel .drop__btn:focus-visible { outline: none; box-shadow: inset 0 0 0 1px var(--ink-2), 0 0 0 3px color-mix(in srgb, var(--ink) 8%, transparent); border-radius: var(--r-md); }
+  .wb-fm-sel .drop__btn[aria-invalid="true"] { box-shadow: inset 0 0 0 1px var(--danger); }
+  .wb-fm-sel .drop__btn[disabled] { background: var(--zone); color: var(--ink-3); box-shadow: inset 0 0 0 1px var(--line); }
+  .wb-fm-sel .drop__menu { left: 0; right: 0; }
+  .wb-fm-sel .drop__opt { min-height: 40px; }
+  .wb-fm-crumb img { width: 22px; height: 22px; border-radius: 6px; object-fit: cover; box-shadow: 0 0 0 1px var(--line); }
+  .wb-fm-strip { display: flex; flex-wrap: wrap; gap: var(--s-2); margin-top: var(--s-4); }
+  .wb-fm-pill { display: inline-flex; align-items: center; gap: var(--s-2); height: 36px; padding: 0 var(--s-3) 0 4px; border-radius: var(--r-full); background: var(--zone); font-size: var(--fs-sm); }
+  .wb-fm-pill img { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; }
+
+  /* 控件外观：用于下拉、级联、多选等触发框 */
+  .wb-fm-ctl { display: flex; align-items: center; justify-content: space-between; gap: var(--s-2); width: 100%; min-height: 40px; padding: 0 var(--s-3); background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--r-md); font-size: var(--fs-sm); text-align: left; transition: border-color var(--dur-quick) var(--ease-out), box-shadow var(--dur-quick) var(--ease-out); }
+  .wb-fm-ctl::after { content: ""; flex: none; width: 7px; height: 7px; border: solid var(--ink-3); border-width: 0 1.6px 1.6px 0; transform: rotate(45deg) translate(-1px, -2px); transition: transform var(--dur-base) var(--ease-out); }
+  [data-open="true"] > .wb-fm-ctl { border-color: var(--ink-2); }
+  [data-open="true"] > .wb-fm-ctl::after { transform: rotate(225deg) translate(-1px, -2px); }
+  .wb-fm-ctl:focus-visible { outline: none; border-color: var(--ink-2); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ink) 8%, transparent); border-radius: var(--r-md); }
+  .wb-fm-ctl[disabled] { background: var(--zone); color: var(--ink-3); pointer-events: none; }
+  .wb-fm-ph { color: var(--ink-3); }
+  .wb-fm-pick { position: relative; }
+  .wb-fm-pop { position: absolute; z-index: 30; top: calc(100% + 4px); left: 0; right: 0; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); box-shadow: var(--elev-3); opacity: 0; transform: scale(.97); transform-origin: top center; pointer-events: none; transition: opacity var(--dur-quick) var(--ease-out), transform var(--dur-quick) var(--ease-out); }
+  [data-open="true"] > .wb-fm-pop { opacity: 1; transform: none; pointer-events: auto; }
+  .wb-fm-opt { display: flex; align-items: center; gap: var(--s-3); width: 100%; min-height: 44px; padding: 0 var(--s-3); border-radius: var(--r-sm); text-align: left; font-size: var(--fs-sm); }
+  .wb-fm-opt img { width: 32px; height: 32px; border-radius: 8px; object-fit: cover; box-shadow: 0 0 0 1px var(--line); flex: none; }
+  .wb-fm-opt > span { display: grid; min-width: 0; line-height: 1.35; }
+  .wb-fm-opt small { font-size: var(--fs-xs); color: var(--ink-3); }
+  .wb-fm-opt[aria-selected="true"] { background: var(--action-tint); color: var(--action-press); font-weight: 600; }
+  @media (hover: hover) { .wb-fm-opt:hover { background: var(--zone); } }
+  .wb-fm-opt:focus-visible { outline: none; background: var(--zone); }
+
+  /* 前后缀 */
+  .wb-fm-group { display: flex; align-items: stretch; background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--r-md); overflow: hidden; transition: border-color var(--dur-quick) var(--ease-out), box-shadow var(--dur-quick) var(--ease-out); }
+  .wb-fm-group:focus-within { border-color: var(--ink-2); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ink) 8%, transparent); }
+  #cat-form .wb-fm-group > .input, #cat-form .wb-fm-group > input { flex: 1; min-width: 0; min-height: 38px; border: 0; border-radius: 0; box-shadow: none; background: none; padding: 0 var(--s-3); }
+  .wb-fm-addon { display: inline-flex; align-items: center; padding: 0 var(--s-3); background: var(--zone); color: var(--ink-2); font-size: var(--fs-sm); white-space: nowrap; }
+  .wb-fm-addon:first-child { border-right: 1px solid var(--line); }
+  .wb-fm-addon:last-child { border-left: 1px solid var(--line); }
+  .wb-fm-group[aria-invalid="true"] { border-color: var(--danger); }
+  .wb-fm-group .wb-fm-x, .wb-fm-wrap .wb-fm-x { width: 28px; height: 28px; align-self: center; margin-right: var(--s-2); border-radius: 50%; flex: none; }
+  .wb-fm-x img { width: 12px; height: 12px; opacity: .7; }
+  .wb-fm-x[hidden] { display: none; }
+  .wb-fm-link { flex: none; align-self: center; margin-right: var(--s-2); padding: 0 var(--s-2); min-height: 28px; border-radius: var(--r-sm); font-size: var(--fs-sm); color: var(--action-press); font-weight: 500; }
+  @media (hover: hover) { .wb-fm-link:hover { background: var(--zone); } }
+  .wb-fm-meter { display: grid; grid-template-columns: repeat(3, 1fr) auto; align-items: center; gap: 4px; margin-top: var(--s-2); }
+  .wb-fm-meter i { height: 4px; border-radius: 2px; background: var(--zone); transition: background var(--dur-base) var(--ease-out); }
+  .wb-fm-meter span { margin-left: var(--s-2); font-size: var(--fs-xs); color: var(--ink-3); min-width: 20px; }
+  .wb-fm-meter[data-s="1"] i:nth-child(-n+1) { background: var(--danger); }
+  .wb-fm-meter[data-s="2"] i:nth-child(-n+2) { background: var(--warning); }
+  .wb-fm-meter[data-s="3"] i:nth-child(-n+3) { background: var(--success); }
+
+  /* 标签：选择与输入 */
+  .wb-fm-chips { display: flex; flex-wrap: wrap; gap: var(--s-2); }
+  .wb-fm-chip { display: inline-flex; align-items: center; gap: var(--s-1); min-height: 34px; padding: 0 var(--s-3); border-radius: var(--r-full); background: var(--surface); box-shadow: inset 0 0 0 1px var(--line-strong); font-size: var(--fs-sm); color: var(--ink-2); transition: background var(--dur-quick) var(--ease-out), box-shadow var(--dur-quick) var(--ease-out), color var(--dur-quick) var(--ease-out); }
+  .wb-fm-chip[aria-pressed="true"] { background: var(--action-tint); box-shadow: inset 0 0 0 1px var(--action); color: var(--action-press); font-weight: 600; }
+  @media (hover: hover) { .wb-fm-chip:hover { background: var(--zone); } }
+  .wb-fm-chip[disabled] { opacity: .45; pointer-events: none; }
+  .wb-fm-chip img { width: 14px; height: 14px; }
+  .wb-fm-chip--tag { min-height: 28px; padding: 0 var(--s-1) 0 var(--s-3); background: var(--action-tint); box-shadow: inset 0 0 0 1px var(--action-edge); color: var(--action-press); font-weight: 500; }
+  .wb-fm-chip--tag .wb-fm-x { width: 22px; height: 22px; margin: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; }
+  .wb-fm-chip--tag .wb-fm-x img { width: 12px; height: 12px; }
+  @media (hover: hover) { .wb-fm-chip--tag .wb-fm-x:hover { background: var(--action-edge); } }
+  .wb-fm-tagbox { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2); min-height: 40px; padding: 5px var(--s-2); background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--r-md); cursor: text; transition: border-color var(--dur-quick) var(--ease-out), box-shadow var(--dur-quick) var(--ease-out); }
+  .wb-fm-tagbox:focus-within { border-color: var(--ink-2); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ink) 8%, transparent); }
+  #cat-form .wb-fm-tagbox input { flex: 1; min-width: 96px; min-height: 28px; border: 0; background: none; font-size: var(--fs-sm); padding: 0 var(--s-1); }
+  #cat-form .wb-fm-tagbox input:focus-visible { outline: none; box-shadow: none; }
+
+  /* 单选与勾选 */
+  .wb-fm-rds { display: grid; gap: var(--s-2); }
+  .wb-fm-rd { display: flex; align-items: center; gap: var(--s-3); min-height: 44px; padding: 0 var(--s-3); border: 1px solid var(--line); border-radius: var(--r-md); text-align: left; font-size: var(--fs-sm); background: var(--surface); transition: border-color var(--dur-quick) var(--ease-out), background var(--dur-quick) var(--ease-out); }
+  .wb-fm-rd > i { width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid var(--line-strong); flex: none; background: var(--surface); transition: border-color var(--dur-quick) var(--ease-out), background var(--dur-quick) var(--ease-out), box-shadow var(--dur-quick) var(--ease-out); }
+  .wb-fm-rd[aria-checked="true"] { border-color: var(--action); background: var(--action-tint); }
+  .wb-fm-rd[aria-checked="true"] > i { border-color: var(--action); background: var(--action); box-shadow: inset 0 0 0 4px var(--action-tint); }
+  .wb-fm-rd[aria-disabled="true"] { opacity: .5; pointer-events: none; }
+  .wb-fm-rd .t-sub { margin-left: auto; font-size: var(--fs-xs); }
+  @media (hover: hover) { .wb-fm-rd:hover { border-color: var(--line-strong); } .wb-fm-rd[aria-checked="true"]:hover { border-color: var(--action); } }
+  .wb-fm-rcs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-2); }
+  .wb-fm-rc { position: relative; display: grid; justify-items: center; gap: 2px; padding: var(--s-3) var(--s-2); border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface); text-align: center; transition: border-color var(--dur-quick) var(--ease-out), background var(--dur-quick) var(--ease-out); }
+  .wb-fm-rc img { width: 44px; height: 44px; object-fit: contain; }
+  .wb-fm-rc b { font-size: var(--fs-sm); font-weight: 600; }
+  .wb-fm-rc small { font-size: var(--fs-xs); color: var(--ink-3); }
+  .wb-fm-rc > i { position: absolute; top: 8px; right: 8px; width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid var(--line-strong); background: var(--surface); }
+  .wb-fm-rc[aria-checked="true"] { border-color: var(--action); background: var(--action-tint); }
+  .wb-fm-rc[aria-checked="true"] > i { border-color: var(--action); background: var(--action); box-shadow: inset 0 0 0 3px var(--action-tint); }
+  .wb-fm-rows { display: grid; }
+  .wb-fm-row { display: flex; align-items: center; gap: var(--s-3); min-height: 52px; padding: var(--s-2) 0; font-size: var(--fs-sm); text-align: left; }
+  .wb-fm-row:first-child { padding-top: 0; }
+  .wb-fm-row:last-child { padding-bottom: 0; }
+  .wb-fm-row:only-child { min-height: 40px; }
+  .wb-fm-row + .wb-fm-row { border-top: 1px solid var(--line); }
+  .wb-fm-row > span:first-child { flex: 1; min-width: 0; display: grid; }
+  .wb-fm-row b { font-weight: 600; }
+  .wb-fm-row small { font-size: var(--fs-xs); color: var(--ink-3); }
+  .wb-fm-row[role="checkbox"] { cursor: pointer; }
+  .wb-fm-row .check { order: -1; }
+
+  /* 滚轮 */
+  #cat-form .wheel { gap: var(--s-3); }
+  #cat-form .wheel .input { width: 84px; }
+  .wb-fm-time { display: flex; align-items: flex-start; gap: var(--s-4); }
+  .wb-fm-time .wheel { gap: var(--s-2); }
+  .wb-fm-time .wheel__col { width: 64px; }
+  #cat-form .wb-fm-time .wheel .input { width: 52px; padding: 0 var(--s-1); }
+  /* 滚轮与合计同一行并排，宽度不够时合计落到滚轮下方；合计面板上标题下数字并居中 */
+  .wb-fm-split { display: flex; flex-wrap: wrap; align-items: stretch; gap: var(--s-4); }
+  .wb-fm-split > .field { flex: none; align-content: start; }
+  .wb-fm-sum { flex: 1 1 160px; display: flex; flex-direction: column; align-items: stretch; justify-content: center; gap: var(--s-1); min-height: 72px; padding: var(--s-3) var(--s-4); border-radius: var(--r-md); background: var(--zone); font-size: var(--fs-sm); color: var(--ink-3); text-align: center; }
+  .wb-fm-sum .price { font-size: var(--fs-xl); }
+  .wb-fm-sum b { font-size: var(--fs-xl); font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
+
+  /* 搜索、筛选条 */
+  #cat-form .search { min-height: 40px; }
+  #cat-form .search input { height: 38px; font-size: var(--fs-sm); }
+  #cat-form input[type="search"]::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; display: none; }
+  .wb-fm-hits { display: grid; margin-top: var(--s-3); }
+  .wb-fm-hit { display: flex; align-items: center; gap: var(--s-3); min-height: 48px; padding: 0 var(--s-2); border-radius: var(--r-sm); text-align: left; font-size: var(--fs-sm); }
+  .wb-fm-hit img { width: 32px; height: 32px; border-radius: 8px; object-fit: cover; box-shadow: 0 0 0 1px var(--line); }
+  .wb-fm-hit small { margin-left: auto; color: var(--ink-3); font-size: var(--fs-xs); }
+  @media (hover: hover) { .wb-fm-hit:hover { background: var(--zone); } }
+  .wb-fm-hit mark { background: var(--action-tint); color: var(--action-press); font-weight: 600; border-radius: 3px; }
+  .wb-fm-none { padding: var(--s-4) var(--s-2); text-align: center; color: var(--ink-3); font-size: var(--fs-sm); }
+  /* 单行：搜索框先收窄，实在放不下才整体换行，「共 N 件」永远不拆开 */
+  .wb-fm-bandbar { display: flex; align-items: center; gap: var(--s-2); flex-wrap: wrap; min-width: 0; }
+  .wb-fm-bandbar .search { flex: 1 1 140px; min-width: 140px; max-width: 220px; }
+  .wb-fm-bandbar .drop__btn { min-height: 40px; padding: 0 var(--s-4); white-space: nowrap; }
+  .wb-fm-bandbar .btn, .wb-fm-bandbar .wb-fm-found { flex: none; white-space: nowrap; }
+  .wb-fm-bandbar .drop[data-on="true"] .drop__btn { background: var(--action-tint); box-shadow: inset 0 0 0 1px var(--action-edge); color: var(--action-press); }
+  .wb-fm-tail { display: flex; align-items: center; gap: var(--s-2); flex: none; margin-left: auto; }
+
+  /* 搜索表单 */
+  .wb-fm-sf { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-4) var(--s-5); }
+  .wb-fm-sfmore .expand__body { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-4) var(--s-5); padding: var(--s-4) 0 0; background: none; border-top: 0; }
+  /* 展开区里有下拉：展开动画结束后放开裁剪，选项层才不会被展开层切掉 */
+  .wb-fm-sfmore[data-open="true"] > div { animation: wb-fm-unclip 0s linear var(--dur-base) both; }
+  @keyframes wb-fm-unclip { from { overflow: hidden; } to { overflow: visible; } }
+  .wb-fm-range { display: flex; align-items: center; gap: var(--s-2); }
+  .wb-fm-range .input { text-align: center; }
+  .wb-fm-range i { width: 10px; height: 1.5px; background: var(--ink-3); flex: none; }
+  .wb-fm-sfbar { display: flex; align-items: center; flex-wrap: wrap; gap: var(--s-2); margin-top: var(--s-4); }
+  .wb-fm-sfbar .btn { min-height: 40px; white-space: nowrap; }
+  .wb-fm-tg { display: inline-flex; align-items: center; gap: var(--s-1); flex: none; min-height: 40px; padding: 0; font-size: var(--fs-sm); font-weight: 500; color: var(--action-press); white-space: nowrap; }
+  .wb-fm-tg::after { content: ""; width: 7px; height: 7px; border: solid currentColor; border-width: 0 1.6px 1.6px 0; transform: rotate(45deg) translate(-1px, -2px); transition: transform var(--dur-base) var(--ease-out); }
+  .wb-fm-tg[aria-expanded="true"]::after { transform: rotate(225deg) translate(-1px, -2px); }
+  .wb-fm-found { flex: none; font-size: var(--fs-sm); color: var(--ink-3); white-space: nowrap; }
+  .wb-fm-found b { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+
+  /* 上传 */
+  .wb-fm-ups { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s-3); }
+  .wb-fm-up { position: relative; aspect-ratio: 1; border-radius: var(--r-md); overflow: hidden; background: var(--zone); box-shadow: 0 0 0 1px var(--line); }
+  .wb-fm-up > img { width: 100%; height: 100%; object-fit: cover; }
+  .wb-fm-up .tag { position: absolute; left: 6px; top: 6px; background: color-mix(in srgb, var(--surface) 92%, transparent); }
+  .wb-fm-up .wb-fm-x { position: absolute; right: 6px; top: 6px; width: 26px; height: 26px; border-radius: 50%; background: color-mix(in srgb, var(--surface) 92%, transparent); box-shadow: var(--elev-1); display: inline-flex; align-items: center; justify-content: center; opacity: 0; transition: opacity var(--dur-quick) var(--ease-out); }
+  .wb-fm-up:hover .wb-fm-x, .wb-fm-up:focus-within .wb-fm-x { opacity: 1; }
+  .wb-fm-up .wb-fm-x img { width: 14px; height: 14px; }
+  .wb-fm-up[data-busy="true"]::after { content: ""; position: absolute; inset: 0; background: color-mix(in srgb, var(--surface) 60%, transparent); }
+  .wb-fm-up .progress { position: absolute; left: 8px; right: 8px; bottom: 8px; z-index: 1; height: 6px; }
+  .wb-fm-add { display: grid; place-items: center; aspect-ratio: 1; border-radius: var(--r-md); border: 1.5px dashed var(--action-edge); background: var(--action-tint); color: var(--action-press); font-size: var(--fs-sm); text-align: center; transition: background var(--dur-quick) var(--ease-out), border-color var(--dur-quick) var(--ease-out); }
+  .wb-fm-add span { display: grid; justify-items: center; gap: 4px; }
+  .wb-fm-add img { width: 22px; height: 22px; }
+  @media (hover: hover) { .wb-fm-add:hover { border-color: var(--action); } }
+  .wb-fm-zone { display: grid; width: 100%; justify-items: center; gap: var(--s-2); padding: var(--s-6) var(--s-4); border: 1.5px dashed var(--action-edge); border-radius: var(--r-lg); background: var(--action-tint); text-align: center; font-size: var(--fs-sm); color: var(--ink-2); transition: border-color var(--dur-quick) var(--ease-out), background var(--dur-quick) var(--ease-out); }
+  .wb-fm-zone img { width: 56px; height: 56px; object-fit: contain; }
+  .wb-fm-zone b { font-size: var(--fs-md); font-weight: 600; color: var(--ink); }
+  .wb-fm-zone[data-over="true"] { border-color: var(--action); background: color-mix(in srgb, var(--action) 8%, var(--surface)); }
+  .wb-fm-files { display: grid; margin-top: var(--s-3); }
+  .wb-fm-files:empty { display: none; }
+  .wb-fm-file { display: grid; grid-template-columns: 36px minmax(0, 1fr) auto auto; align-items: center; gap: 2px var(--s-3); padding: var(--s-3) 0; }
+  .wb-fm-file + .wb-fm-file { border-top: 1px solid var(--line); }
+  .wb-fm-file > img { width: 36px; height: 36px; grid-row: span 2; object-fit: contain; }
+  .wb-fm-file b, .wb-fm-file small { grid-column: 2; min-width: 0; }
+  .wb-fm-file b { font-size: var(--fs-sm); font-weight: 600; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .wb-fm-file small { font-size: var(--fs-xs); color: var(--ink-3); }
+  .wb-fm-file .progress { grid-column: 2; height: 6px; }
+  .wb-fm-file .tag { grid-column: 3; grid-row: 1 / span 2; }
+  .wb-fm-file .wb-fm-x { grid-column: 4; grid-row: 1 / span 2; width: 28px; height: 28px; justify-self: end; }
+
+  /* 步骤 */
+  .wb-fm-steps { display: flex; align-items: center; gap: var(--s-2); margin-bottom: var(--s-5); }
+  .wb-fm-step { display: flex; align-items: center; gap: var(--s-2); font-size: var(--fs-sm); color: var(--ink-3); white-space: nowrap; }
+  .wb-fm-step > span:first-child { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--zone); color: var(--ink-2); font-weight: 600; font-variant-numeric: tabular-nums; transition: background var(--dur-base) var(--ease-out), color var(--dur-base) var(--ease-out); }
+  .wb-fm-step[data-state="now"] { color: var(--ink); font-weight: 600; }
+  .wb-fm-step[data-state="now"] > span:first-child { background: var(--action); color: var(--surface); }
+  .wb-fm-step[data-state="done"] { color: var(--ink-2); }
+  .wb-fm-step[data-state="done"] > span:first-child { background: var(--action-tint); box-shadow: inset 0 0 0 1px var(--action-edge); }
+  .wb-fm-step img { width: 14px; height: 14px; }
+  .wb-fm-steps hr { flex: 1; min-width: 16px; height: 2px; border: 0; border-radius: 1px; background: var(--line-strong); }
+  .wb-fm-steps hr[data-done="true"] { background: var(--action); }
+  .wb-fm-pane[hidden] { display: none; }
+  .wb-fm-kv { display: grid; grid-template-columns: 88px minmax(0, 1fr); gap: var(--s-3) var(--s-4); font-size: var(--fs-sm); }
+  .wb-fm-kv dt { color: var(--ink-3); }
+  .wb-fm-kv dd { font-weight: 500; }
+
+  /* 提示条与标记 */
+  .wb-fm-alert { padding: var(--s-3) var(--s-4); border-radius: var(--r-md); background: var(--danger-tint); color: var(--danger); font-size: var(--fs-sm); font-weight: 500; }
+  .wb-fm-alert[hidden] { display: none; }
+  .wb-fm-req { display: inline-flex; align-items: center; gap: 6px; }
+  .wb-fm-req::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--danger); transition: background var(--dur-base) var(--ease-out); }
+  .wb-fm-req[data-ok="true"]::before { background: var(--success); }
+  .wb-fm-req--txt::before { display: none; }
+  .wb-fm-mark { display: inline-flex; align-items: center; height: 20px; padding: 0 6px; border-radius: 6px; font-size: var(--fs-xs); font-weight: 600; background: var(--danger-tint); color: var(--danger); transition: background var(--dur-base) var(--ease-out), color var(--dur-base) var(--ease-out); }
+  .wb-fm-mark[data-ok="true"] { background: var(--success-tint); color: var(--success); }
+  .wb-fm-mark--opt { background: var(--zone); color: var(--ink-3); }
+  .wb-fm-login { max-width: 360px; margin: 0 auto; }
+  .wb-fm-login__top { display: grid; justify-items: center; gap: var(--s-2); margin-bottom: var(--s-5); }
+  .wb-fm-login__top img { width: 64px; height: 64px; object-fit: contain; }
+  .wb-fm-login__top h3 { font-size: var(--fs-xl); font-weight: 700; line-height: var(--lh-tight); }
+  .wb-fm-login .wb-fm-opts { display: flex; align-items: center; justify-content: space-between; }
+  .wb-fm-ck { display: inline-flex; align-items: center; gap: var(--s-2); min-height: 32px; font-size: var(--fs-sm); color: var(--ink-2); cursor: pointer; }
+  .wb-fm-err-sum { margin-right: auto; font-size: var(--fs-sm); color: var(--danger); font-weight: 500; }
+  .wb-fm-dirty[hidden] { display: none; }
+  .wb-fm-shell { display: grid; }
+  .wb-fm-hrow { display: grid; grid-template-columns: 112px minmax(0, 1fr); align-items: center; gap: var(--s-4); min-height: 64px; }
+  .wb-fm-hrow + .wb-fm-hrow { border-top: 1px solid var(--line); }
+  .wb-fm-hrow > b { font-size: var(--fs-sm); font-weight: 600; color: var(--ink-2); }
+  .wb-fm-hrow > div { padding: var(--s-2) 0; min-width: 0; }
+  .wb-fm-hrow > .wb-fm-row { padding: 0; }
+  .wb-fm-first { margin-top: 0; }
+  #cat-form .textarea.wb-fm-ta--s { min-height: 72px; }
+  .wb-fm-inline { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: var(--s-2); }
+  .wb-fm-inline > .field__label, .wb-fm-inline > .field__err { grid-column: 1 / -1; }
+  .wb-fm-inline .btn { min-height: 40px; }
+  .wb-fm-result:empty { display: none; }
+  .wb-fm-result { display: flex; align-items: center; gap: var(--s-2); min-height: 28px; margin-top: var(--s-3); font-size: var(--fs-sm); }
+  .wb-fm-pop--cas { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); padding: var(--s-1); }
+  .wb-fm-cas { display: grid; align-content: start; max-height: 232px; overflow-y: auto; padding: var(--s-1); scrollbar-width: thin; }
+  .wb-fm-cas + .wb-fm-cas { border-left: 1px solid var(--line); }
+  .wb-fm-cas .wb-fm-opt { min-height: 40px; }
+  .wb-fm-cas .wb-fm-opt[data-more="true"]::after { content: ""; margin-left: auto; width: 6px; height: 6px; border: solid var(--ink-3); border-width: 0 1.4px 1.4px 0; transform: rotate(-45deg); flex: none; }
+  .wb-fm-crumb { display: inline-flex; align-items: center; gap: 6px; min-width: 0; }
+  .wb-fm-crumb i { width: 5px; height: 5px; border: solid var(--ink-3); border-width: 0 1.4px 1.4px 0; transform: rotate(-45deg); flex: none; }
+  .wb-fm-combo-s { display: flex; align-items: center; gap: var(--s-2); margin: var(--s-2); padding: 0 var(--s-3); min-height: 36px; border-radius: var(--r-sm); background: var(--zone); }
+  .wb-fm-combo-s img { width: 16px; height: 16px; }
+  #cat-form .wb-fm-combo-s input { flex: 1; min-width: 0; min-height: 34px; border: 0; background: none; font-size: var(--fs-sm); padding: 0; }
+  #cat-form .wb-fm-combo-s input:focus-visible { outline: none; box-shadow: none; }
+  .wb-fm-list { max-height: 220px; overflow-y: auto; padding: 0 var(--s-1) var(--s-1); scrollbar-width: thin; }
+
+  /* 整行宽的表单：窗口变窄时列数逐级减少，字段不被挤成窄条 */
+  @media (max-width: 880px) {
+    .wb-fm-grid3, .wb-fm-sf, .wb-fm-sfmore .expand__body { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 600px) {
+    .wb-fm-grid2, .wb-fm-grid3, .wb-fm-sf, .wb-fm-sfmore .expand__body { grid-template-columns: minmax(0, 1fr); }
+  }
+</style>
+
+<article class="demo" data-cid="WB-FORM-001" data-name="基础文本框" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">基础文本框</span></div>
+  <p class="demo__note">适合：商品名称等单行文字输入</p>
+  <div class="demo__stage"><div class="card wb-fm-card" id="wb-fm-t1">
+    <label class="field"><span class="wb-fm-lab"><span class="field__label">商品名称</span><span class="wb-fm-cnt"><b data-n>0</b>/20</span></span><input class="input" maxlength="20" placeholder="请输入商品名称" autocomplete="off"></label>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-FORM-002" data-name="文本框四态" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">文本框四态</span></div>
+  <p class="demo__note">适合：核对默认聚焦错误禁用四种外观</p>
+  <div class="demo__stage"><div class="card wb-fm-card wb-fm-stack" id="wb-fm-t2">
+    <label class="field"><span class="wb-fm-lab"><span class="field__label">商品名称</span><span class="tag">默认</span></span><input class="input" placeholder="请输入商品名称" autocomplete="off"></label>
+    <label class="field"><span class="wb-fm-lab"><span class="field__label">商品名称</span><span class="tag" data-tone="action">聚焦</span></span><input class="input wb-fm-is-focus" value="红玫瑰花束" autocomplete="off"></label>
+    <label class="field"><span class="wb-fm-lab"><span class="field__label">商品名称</span><span class="tag" data-tone="danger">错误</span></span><input class="input" data-err aria-invalid="true" placeholder="请输入商品名称" autocomplete="off"><span class="field__err">商品名称不能为空</span></label>
+    <label class="field"><span class="wb-fm-lab"><span class="field__label">商品名称</span><span class="tag">禁用</span></span><input class="input" value="粉芍药花束" disabled></label>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-FORM-003" data-name="前后缀文本框" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">前后缀文本框</span></div>
+  <p class="demo__note">适合：带货币区号单位的格式化输入</p>
+  <div class="demo__stage"><div class="card wb-fm-card wb-fm-stack" id="wb-fm-t3">
+    <label class="field"><span class="field__label">商品价格</span><span class="wb-fm-group"><span class="wb-fm-addon">¥</span><input class="input" data-f="money" inputmode="decimal" placeholder="0.00" autocomplete="off"><span class="wb-fm-addon">元</span></span></label>
+    <label class="field"><span class="field__label">联系电话</span><span class="wb-fm-group"><span class="wb-fm-addon">86</span><input class="input" data-f="phone" inputmode="numeric" maxlength="11" placeholder="请输入 11 位手机号" autocomplete="off"></span></label>
+    <label class="field"><span class="field__label">商品重量</span><span class="wb-fm-group"><input class="input" data-f="int" inputmode="numeric" maxlength="5" placeholder="请输入重量" autocomplete="off"><span class="wb-fm-addon">克</span></span></label>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-FORM-004" data-name="可清空文本框" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">可清空文本框</span></div>
+  <p class="demo__note">适合：长内容一键清掉重填</p>
+  <div class="demo__stage"><div class="card wb-fm-card" id="wb-fm-t4">
+    <label class="field"><span class="field__label">客户姓名</span><span class="wb-fm-group"><input class="input" value="林晓" placeholder="请输入客户姓名" autocomplete="off"><button type="button" class="ibtn wb-fm-x" data-tip="清空" aria-label="清空客户姓名"><img src="../../kit/assets/line/close.webp" alt=""></button></span></label>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-FORM-005" data-name="密码文本框" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">密码文本框</span></div>
+  <p class="demo__note">适合：设置密码并查看强度与明文</p>
+  <div class="demo__stage"><div class="card wb-fm-card" id="wb-fm-t5">
+    <label class="field"><span class="field__label">新密码</span><span class="wb-fm-group"><input class="input" type="password" placeholder="请输入至少 8 位密码" autocomplete="new-password"><button type="button" class="wb-fm-link" data-show aria-pressed="false">显示</button></span></label>
+    <div class="wb-fm-meter" data-s="0" aria-live="polite"><i></i><i></i><i></i><span>未填</span></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-FORM-006" data-name="多行文本域" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">多行文本域</span></div>
+  <p class="demo__note">适合：订单备注与商品描述等长文字</p>
+  <div class="demo__stage"><div class="card wb-fm-card" id="wb-fm-t6">
+    <label class="field"><span class="wb-fm-lab"><span class="field__label">订单备注</span><span class="wb-fm-cnt"><b data-n>0</b>/100</span></span><textarea class="textarea" maxlength="100" placeholder="请输入备注内容"></textarea></label>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-FORM-007" data-name="下拉选择" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">下拉选择</span></div>
+  <p class="demo__note">适合：选项固定的单选字段</p>
+  <div class="demo__stage wb-fm-room"><div class="card wb-fm-card wb-fm-stack" id="wb-fm-s7">
+    <div class="field"><span class="field__label">所属门店</span><div class="drop wb-fm-sel"><button type="button" class="drop__btn" aria-label="所属门店"><b></b></button><div class="drop__menu" role="listbox"><button type="button" class="drop__opt" aria-selected="true">建国路店</button><button type="button" class="drop__opt">徐汇滨江店</button><button type="button" class="drop__opt">浦东世纪店</button></div></div></div>
+    <div class="field"><span class="field__label">商品分类</span><div class="drop wb-fm-sel" data-placeholder><button type="button" class="drop__btn" aria-label="商品分类"><b class="wb-fm-ph">请选择分类</b></button><div class="drop__menu" role="listbox"><button type="button" class="drop__opt">鲜花</button><button type="button" class="drop__opt">绿植</button><button type="button" class="drop__opt">礼盒</button><button type="button" class="drop__opt">花器</button></div></div></div>
+    <div class="field"><span class="field__label">配送方式</span><div class="drop wb-fm-sel"><button type="button" class="drop__btn" aria-label="配送方式" disabled><b>极速配送</b></button><div class="drop__menu" role="listbox"><button type="button" class="drop__opt" aria-selected="true">极速配送</button></div></div></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-FORM-008" data-name="可搜索下拉" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">可搜索下拉</span></div>
+  <p class="demo__note">适合：选项很多时边输入边找</p>
+  <div class="demo__stage wb-fm-room"><div class="card wb-fm-card" id="wb-fm-cb">
+    <div class="field"><span class="field__label">关联商品</span>
+      <div class="wb-fm-pick" data-open="false">
+        <button type="button" class="wb-fm-ctl" aria-haspopup="listbox" aria-expanded="false"><span class="wb-fm-ph">请选择商品</span></button>
+        <div class="wb-fm-pop" inert><label class="wb-fm-combo-s"><img src="../../kit/assets/line/search.webp" alt=""><input type="search" placeholder="搜索商品或分类" aria-label="搜索商品或分类" autocomplete="off"></label><div class="wb-fm-list" role="listbox"></div></div>
+      </div>
+    </div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-FORM-009" data-name="级联选择" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">级联选择</span></div>
+  <p class="demo__note">适合：分类到商品逐级收窄的层级字段</p>
+  <div class="demo__stage wb-fm-room"><div class="card wb-fm-card" id="wb-fm-cs">
+    <div class="field"><span class="field__label">商品归属</span>
+      <div class="wb-fm-pick" data-open="false">
+        <button type="button" class="wb-fm-ctl" aria-haspopup="listbox" aria-expanded="false"><span class="wb-fm-ph">请选择分类与商品</span></button>
+        <div class="wb-fm-pop wb-fm-pop--cas" inert><div class="wb-fm-cas" data-l="0"></div><div class="wb-fm-cas" data-l="1"></div><div class="wb-fm-cas" data-l="2"></div></div>
+      </div>
+    </div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-FORM-010" data-name="多选标签" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">多选标签</span></div>
+  <p class="demo__note">适合：从固定词库里挑多个标签</p>
+  <div class="demo__stage"><div class="card wb-fm-card" id="wb-fm-mc">
+    <div class="field"><span class="wb-fm-lab"><span class="field__label">商品标签</span><span class="wb-fm-cnt">已选 <b data-n>2</b>/5</span></span>
+      <div class="wb-fm-chips" role="group" aria-label="商品标签">
+        <button type="button" class="wb-fm-chip" aria-pressed="true">新品</button><button type="button" class="wb-fm-chip" aria-pressed="true">热销</button><button type="button" class="wb-fm-chip" aria-pressed="false">满减</button><button type="button" class="wb-fm-chip" aria-pressed="false">包邮</button><button type="button" class="wb-fm-chip" aria-pressed="false">限量</button><button type="button" class="wb-fm-chip" aria-pressed="false">联名</button><button type="button" class="wb-fm-chip" aria-pressed="false">清仓</button><button type="button" class="wb-fm-chip" aria-pressed="false">会员价</button>
+      </div>
+    </div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-FORM-011" data-name="标签输入框" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">标签输入框</span></div>
+  <p class="demo__note">适合：自由添加关键词并逐个删除</p>
+  <div class="demo__stage"><div class="card wb-fm-card" id="wb-fm-ti">
+    <div class="field"><span class="wb-fm-lab"><span class="field__label">搜索关键词</span><span class="wb-fm-cnt"><b data-n>2</b>/6</span></span>
+      <div class="wb-fm-tagbox"><input placeholder="输入后按回车添加" aria-label="添加关键词" autocomplete="off"></div>
+      <span class="field__err" data-err hidden></span>
+    </div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-FORM-012" data-name="单选选项组" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">单选选项组</span></div>
+  <p class="demo__note">适合：互斥的几种配送或结算方式</p>
+  <div class="demo__stage"><div class="card wb-fm-card" id="wb-fm-rd">
+    <div class="field"><span class="field__label" id="wb-fm-rd-l">配送方式</span>
+      <div class="wb-fm-rds" role="radiogroup" aria-labelledby="wb-fm-rd-l">
+        <button type="button" class="wb-fm-rd" role="radio" aria-checked="true" tabindex="0"><i></i>极速配送<span class="t-sub">30 分钟</span></button>
+        <button type="button" class="wb-fm-rd" role="radio" aria-checked="false" tabindex="-1"><i></i>同城配送<span class="t-sub">当日达</span></button>
+        <button type="button" class="wb-fm-rd" role="radio" aria-checked="false" tabindex="-1"><i></i>门店自提</button>
+        <button type="button" class="wb-fm-rd" role="radio" aria-checked="false" aria-disabled="true" tabindex="-1"><i></i>快递配送<span class="t-sub">暂停</span></button>
+      </div>
+    </div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-FORM-013" data-name="单选卡片组" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">单选卡片组</span></div>
+  <p class="demo__note">适合：选项有图示的方式选择</p>
+  <div class="demo__stage"><div class="card wb-fm-card" id="wb-fm-rc">
+    <div class="field"><span class="field__label" id="wb-fm-rc-l">履约方式</span>
+      <div class="wb-fm-rcs" role="radiogroup" aria-labelledby="wb-fm-rc-l">
+        <button type="button" class="wb-fm-rc" role="radio" aria-checked="true" tabindex="0"><i></i><img data-ic="scooter" src="../../kit/assets/icons/flat/scooter.webp" alt=""><b>极速配送</b><small>30 分钟</small></button>
+        <button type="button" class="wb-fm-rc" role="radio" aria-checked="false" tabindex="-1"><i></i><img data-ic="pin" src="../../kit/assets/icons/flat/pin.webp" alt=""><b>门店自提</b><small>到店取</small></button>
+        <button type="button" class="wb-fm-rc" role="radio" aria-checked="false" tabindex="-1"><i></i><img data-ic="bag" src="../../kit/assets/icons/flat/bag.webp" alt=""><b>打包寄送</b><small>次日达</small></button>
+      </div>
+    </div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-FORM-014" data-name="勾选选项组" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">勾选选项组</span></div>
+  <p class="demo__note">适合：多门店适用范围的全选与半选</p>
+  <div class="demo__stage"><div class="card wb-fm-card" id="wb-fm-ck">
+    <div class="field"><span class="wb-fm-lab"><span class="field__label">适用门店</span><span class="wb-fm-cnt">已选 <b data-n>2</b>/3</span></span>
+      <div class="wb-fm-rows">
+        <div class="wb-fm-row" role="checkbox" aria-checked="mixed" data-all><span><b>全部门店</b></span><span class="check" aria-checked="mixed" aria-hidden="true"><img src="../../kit/assets/line/check.webp" alt=""></span></div>
+        <div class="wb-fm-row" role="checkbox" aria-checked="true" data-it><span>建国路店</span><span class="check" aria-checked="true" aria-hidden="true"><img src="../../kit/assets/line/check.webp" alt=""></span></div>
+        <div class="wb-fm-row" role="checkbox" aria-checked="true" data-it><span>徐汇滨江店</span><span class="check" aria-checked="true" aria-hidden="true"><img src="../../kit/assets/line/check.webp" alt=""></span></div>
+        <div class="wb-fm-row" role="checkbox" aria-checked="false" data-it><span>浦东世纪店</span><span class="check" aria-checked="false" aria-hidden="true"><img src="../../kit/assets/line/check.webp" alt=""></span></div>
+      </div>
+    </div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-FORM-015" data-name="开关设置行" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">开关设置行</span></div>
+  <p class="demo__note">适合：即时生效的功能开关，停业需确认</p>
+  <div class="demo__stage"><div class="card wb-fm-card" id="wb-fm-sw">
+    <div class="wb-fm-rows">
+      <div class="wb-fm-row"><span><b>自动接单</b><small data-s>已开启</small></span><button type="button" class="switch" role="switch" aria-checked="true" aria-label="自动接单"></button></div>
+      <div class="wb-fm-row"><span><b>消息提醒</b><small data-s>已关闭</small></span><button type="button" class="switch" role="switch" aria-checked="false" aria-label="消息提醒"></button></div>
+      <div class="wb-fm-row"><span><b>营业状态</b><small data-s>营业中</small></span><button type="button" class="switch" role="switch" aria-checked="true" aria-label="营业状态" data-ask="暂停营业"></button></div>
+    </div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-FORM-016" data-name="数量纵向滚轮" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">数量纵向滚轮</span></div>
+  <p class="demo__note">适合：补货数量等整数，可滚动或直接输入</p>
+  <div class="demo__stage"><div class="card wb-fm-card" id="wb-fm-wh">
+    <div class="wb-fm-split">
+      <div class="field"><span class="field__label">补货数量</span><div class="wheel" data-min="1" data-max="99" data-value="12" data-unit="件" data-label="补货数量"></div></div>
+      <div class="wb-fm-sum"><span>补货合计</span><span class="price" data-t><small>¥</small>1,068</span></div>
+    </div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-FORM-017" data-name="时间双滚轮" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">时间双滚轮</span></div>
+  <p class="demo__note">适合：营业开门时间的小时与分钟</p>
+  <div class="demo__stage"><div class="card wb-fm-card" id="wb-fm-tm">
+    <div class="wb-fm-split">
+      <div class="field"><span class="field__label">开门时间</span>
+        <div class="wb-fm-time"><div class="wheel" data-min="0" data-max="23" data-value="9" data-unit="时" data-label="小时"></div><div class="wheel" data-min="0" data-max="59" data-step="5" data-value="30" data-unit="分" data-label="分钟"></div></div>
+      </div>
+      <div class="wb-fm-sum"><span>每日开门</span><b data-t>09 时 30 分</b></div>
+    </div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-FORM-018" data-name="实时搜索框" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">实时搜索框</span></div>
+  <p class="demo__note">适合：输入即出结果的商品快速查找</p>
+  <div class="demo__stage"><div class="card wb-fm-card" id="wb-fm-sq">
+    <label class="search"><img src="../../kit/assets/line/search.webp" alt=""><input type="search" placeholder="搜索商品或分类" aria-label="搜索商品或分类" autocomplete="off"></label>
+    <div class="wb-fm-hits" aria-live="polite"></div>
+  </div></div>
+</article>
+
+<article class="demo demo--span2" data-cid="WB-FORM-019" data-name="单行筛选条" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">单行筛选条</span></div>
+  <p class="demo__note">适合：多个条件收进下拉保持一行</p>
+  <div class="demo__stage wb-fm-room"><div class="card wb-fm-card" id="wb-fm-fb">
+    <div class="wb-fm-bandbar">
+      <label class="search"><img src="../../kit/assets/line/search.webp" alt=""><input type="search" placeholder="搜索商品" aria-label="搜索商品" autocomplete="off"></label>
+      <div class="drop" data-k="m"><button type="button" class="drop__btn" aria-label="门店">门店 <b></b></button><div class="drop__menu" role="listbox"><button type="button" class="drop__opt" data-value="" aria-selected="true">全部</button><button type="button" class="drop__opt" data-value="建国路店">建国路店</button><button type="button" class="drop__opt" data-value="徐汇滨江店">徐汇滨江店</button><button type="button" class="drop__opt" data-value="浦东世纪店">浦东世纪店</button></div></div>
+      <div class="drop" data-k="c"><button type="button" class="drop__btn" aria-label="分类">分类 <b></b></button><div class="drop__menu" role="listbox"><button type="button" class="drop__opt" data-value="" aria-selected="true">全部</button><button type="button" class="drop__opt" data-value="鲜花">鲜花</button><button type="button" class="drop__opt" data-value="绿植">绿植</button><button type="button" class="drop__opt" data-value="礼盒">礼盒</button><button type="button" class="drop__opt" data-value="花器">花器</button></div></div>
+      <div class="drop" data-k="t"><button type="button" class="drop__btn" aria-label="状态">状态 <b></b></button><div class="drop__menu" role="listbox"><button type="button" class="drop__opt" data-value="" aria-selected="true">全部</button><button type="button" class="drop__opt" data-value="在售">在售</button><button type="button" class="drop__opt" data-value="售罄">售罄</button><button type="button" class="drop__opt" data-value="已下架">已下架</button></div></div>
+      <span class="wb-fm-tail"><button type="button" class="btn btn--text btn--sm" data-clear hidden>清除条件</button><span class="wb-fm-found">共 <b data-n>9</b> 件</span></span>
+    </div>
+  </div></div>
+</article>
+
+<article class="demo demo--span2" data-cid="WB-FORM-020" data-name="搜索表单" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">搜索表单</span></div>
+  <p class="demo__note">适合：条件多的订单查询，更多条件可展开</p>
+  <div class="demo__stage wb-fm-room"><div class="card wb-fm-card" id="wb-fm-sf">
+    <div class="wb-fm-sf">
+      <label class="field"><span class="field__label">订单号</span><input class="input" data-k="no" inputmode="numeric" placeholder="请输入订单号" autocomplete="off"></label>
+      <label class="field"><span class="field__label">客户</span><input class="input" data-k="who" placeholder="请输入客户姓名" autocomplete="off"></label>
+      <div class="field"><span class="field__label">状态</span><div class="drop wb-fm-sel" data-k="st"><button type="button" class="drop__btn" aria-label="状态"><b></b></button><div class="drop__menu" role="listbox"><button type="button" class="drop__opt" data-value="" aria-selected="true">全部状态</button><button type="button" class="drop__opt" data-value="待付款">待付款</button><button type="button" class="drop__opt" data-value="待发货">待发货</button><button type="button" class="drop__opt" data-value="待收货">待收货</button><button type="button" class="drop__opt" data-value="已完成">已完成</button><button type="button" class="drop__opt" data-value="售后">售后</button></div></div></div>
+    </div>
+      <div class="expand wb-fm-sfmore" id="wb-fm-sf-more"><div><div class="expand__body">
+        <div class="field"><span class="field__label">门店</span><div class="drop wb-fm-sel" data-k="store"><button type="button" class="drop__btn" aria-label="门店"><b></b></button><div class="drop__menu" role="listbox"><button type="button" class="drop__opt" data-value="" aria-selected="true">全部门店</button><button type="button" class="drop__opt" data-value="建国路店">建国路店</button><button type="button" class="drop__opt" data-value="徐汇滨江店">徐汇滨江店</button><button type="button" class="drop__opt" data-value="浦东世纪店">浦东世纪店</button></div></div></div>
+        <div class="field"><span class="field__label">金额范围</span><div class="wb-fm-range"><input class="input" data-k="min" inputmode="numeric" placeholder="最低" aria-label="最低金额" autocomplete="off"><i></i><input class="input" data-k="max" inputmode="numeric" placeholder="最高" aria-label="最高金额" autocomplete="off"></div></div>
+        <div class="field"><span class="field__label">下单时段</span><div class="drop wb-fm-sel" data-k="span"><button type="button" class="drop__btn" aria-label="下单时段"><b></b></button><div class="drop__menu" role="listbox"><button type="button" class="drop__opt" data-value="" aria-selected="true">全部时段</button><button type="button" class="drop__opt" data-value="近 7 天">近 7 天</button><button type="button" class="drop__opt" data-value="近 30 天">近 30 天</button><button type="button" class="drop__opt" data-value="近 90 天">近 90 天</button></div></div></div>
+      </div></div></div>
+      <div class="wb-fm-sfbar"><button type="button" class="wb-fm-tg" data-expand="wb-fm-sf-more">更多条件</button><span class="wb-fm-tail"><span class="wb-fm-found" aria-live="polite">共 <b data-n>8</b> 条</span><button type="button" class="btn btn--ghost" data-reset>重置</button><button type="button" class="btn btn--primary" data-go>查询</button></span></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-FORM-021" data-name="图片上传" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">图片上传</span></div>
+  <p class="demo__note">适合：商品主图与相册，限张数可删除</p>
+  <div class="demo__stage"><div class="card wb-fm-card" id="wb-fm-ph">
+    <div class="field"><span class="wb-fm-lab"><span class="field__label">商品相册</span><span class="wb-fm-cnt"><b data-n>3</b>/4</span></span>
+      <div class="wb-fm-ups"></div>
+      <input type="file" accept="image/*" hidden>
+    </div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-FORM-022" data-name="文件上传区" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">文件上传区</span></div>
+  <p class="demo__note">适合：批量导入商品表格，拖入或点选</p>
+  <div class="demo__stage"><div class="card wb-fm-card" id="wb-fm-fl">
+    <button type="button" class="wb-fm-zone" data-pick><img src="../../kit/assets/solid/biz-upload.webp" alt=""><b>拖入文件或点击选择</b><span>表格文件 单个不超过 10 兆</span></button>
+    <input type="file" accept=".csv,.xlsx,.xls" multiple hidden>
+    <div class="wb-fm-files" aria-live="polite"></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-FORM-023" data-name="单列表单" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">单列表单</span></div>
+  <p class="demo__note">适合：字段不多的新增与编辑，纵向逐项填</p>
+  <div class="demo__stage wb-fm-room"><form class="card" id="wb-fm-f1" novalidate>
+    <div class="wb-fm-card wb-fm-stack">
+      <label class="field"><span class="field__label wb-fm-req">商品名称</span><input class="input" data-k="n" placeholder="请输入商品名称" autocomplete="off"><span class="field__err" hidden>请输入商品名称</span></label>
+      <div class="field"><span class="field__label wb-fm-req">所属分类</span><div class="drop wb-fm-sel" data-placeholder data-k="c"><button type="button" class="drop__btn" aria-label="所属分类"><b class="wb-fm-ph">请选择分类</b></button><div class="drop__menu" role="listbox"><button type="button" class="drop__opt">鲜花</button><button type="button" class="drop__opt">绿植</button><button type="button" class="drop__opt">礼盒</button><button type="button" class="drop__opt">花器</button></div></div><span class="field__err" hidden>请选择所属分类</span></div>
+      <label class="field"><span class="field__label wb-fm-req">商品价格</span><span class="wb-fm-group"><span class="wb-fm-addon">¥</span><input class="input" data-k="p" data-f="money" inputmode="decimal" placeholder="0.00" autocomplete="off"><span class="wb-fm-addon">元</span></span><span class="field__err" hidden>请输入大于 0 的价格</span></label>
+      <div class="wb-fm-rows"><div class="wb-fm-row"><span><b>立即上架</b></span><button type="button" class="switch" role="switch" aria-checked="true" aria-label="立即上架"></button></div></div>
+    </div>
+    <div class="wb-fm-bar"><button type="button" class="btn btn--ghost" data-cancel>取消</button><button type="submit" class="btn btn--primary">保存</button></div>
+  </form></div>
+</article>
+
+<article class="demo demo--span2" data-cid="WB-FORM-024" data-name="两列表单" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">两列表单</span></div>
+  <p class="demo__note">适合：字段较多的编辑页，左右两列并排</p>
+  <div class="demo__stage wb-fm-room"><form class="card" id="wb-fm-f2" novalidate>
+    <div class="wb-fm-card wb-fm-grid2">
+      <label class="field"><span class="field__label wb-fm-req">商品名称</span><input class="input" data-k="n" value="红玫瑰花束" autocomplete="off"><span class="field__err" hidden>请输入商品名称</span></label>
+      <div class="field"><span class="field__label">所属分类</span><div class="drop wb-fm-sel"><button type="button" class="drop__btn" aria-label="所属分类"><b></b></button><div class="drop__menu" role="listbox"><button type="button" class="drop__opt" aria-selected="true">鲜花</button><button type="button" class="drop__opt">绿植</button><button type="button" class="drop__opt">礼盒</button><button type="button" class="drop__opt">花器</button></div></div></div>
+      <div class="field"><span class="field__label">所属门店</span><div class="drop wb-fm-sel"><button type="button" class="drop__btn" aria-label="所属门店"><b></b></button><div class="drop__menu" role="listbox"><button type="button" class="drop__opt" aria-selected="true">建国路店</button><button type="button" class="drop__opt">徐汇滨江店</button><button type="button" class="drop__opt">浦东世纪店</button></div></div></div>
+      <label class="field"><span class="field__label wb-fm-req">商品价格</span><span class="wb-fm-group"><span class="wb-fm-addon">¥</span><input class="input" data-k="p" data-f="money" inputmode="decimal" value="199.00" autocomplete="off"><span class="wb-fm-addon">元</span></span><span class="field__err" hidden>请输入大于 0 的价格</span></label>
+      <div class="field"><span class="field__label">库存数量</span><div class="wheel" data-min="0" data-max="500" data-step="1" data-value="86" data-unit="件" data-label="库存数量"></div></div>
+      <div class="wb-fm-rows"><div class="wb-fm-row"><span><b>立即上架</b></span><button type="button" class="switch" role="switch" aria-checked="true" aria-label="立即上架"></button></div><div class="wb-fm-row"><span><b>同城可售</b></span><button type="button" class="switch" role="switch" aria-checked="true" aria-label="同城可售"></button></div></div>
+      <label class="field wb-fm-span"><span class="wb-fm-lab"><span class="field__label">商品描述</span><span class="wb-fm-cnt"><b data-n>0</b>/200</span></span><textarea class="textarea" maxlength="200" placeholder="请输入商品描述"></textarea></label>
+    </div>
+    <div class="wb-fm-bar"><button type="button" class="btn btn--ghost" data-cancel>取消</button><button type="submit" class="btn btn--primary">保存</button></div>
+  </form></div>
+</article>
+
+<article class="demo demo--wide" data-cid="WB-FORM-025" data-name="分组表单" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">分组表单</span></div>
+  <p class="demo__note">适合：字段分块的长表单，组名在卡片外上方</p>
+  <div class="demo__stage wb-fm-room--l"><form id="wb-fm-f3" novalidate>
+    <section class="section wb-fm-first"><div class="section__head"><h2>基本信息</h2></div>
+      <div class="card wb-fm-card section__body"><div class="wb-fm-grid3">
+        <label class="field"><span class="field__label wb-fm-req">商品名称</span><input class="input" data-k="n" placeholder="请输入商品名称" autocomplete="off"><span class="field__err" hidden>请输入商品名称</span></label>
+        <div class="field"><span class="field__label">所属分类</span><div class="drop wb-fm-sel" data-placeholder><button type="button" class="drop__btn" aria-label="所属分类"><b class="wb-fm-ph">请选择分类</b></button><div class="drop__menu" role="listbox"><button type="button" class="drop__opt">鲜花</button><button type="button" class="drop__opt">绿植</button><button type="button" class="drop__opt">礼盒</button><button type="button" class="drop__opt">花器</button></div></div></div>
+        <div class="field"><span class="field__label">所属门店</span><div class="drop wb-fm-sel"><button type="button" class="drop__btn" aria-label="所属门店"><b></b></button><div class="drop__menu" role="listbox"><button type="button" class="drop__opt" aria-selected="true">全部门店</button><button type="button" class="drop__opt">建国路店</button><button type="button" class="drop__opt">徐汇滨江店</button><button type="button" class="drop__opt">浦东世纪店</button></div></div></div>
+      </div></div>
+    </section>
+    <section class="section"><div class="section__head"><h2>销售设置</h2></div>
+      <div class="card wb-fm-card section__body"><div class="wb-fm-grid3">
+        <label class="field"><span class="field__label wb-fm-req">销售价</span><span class="wb-fm-group"><span class="wb-fm-addon">¥</span><input class="input" data-f="money" inputmode="decimal" placeholder="0.00" autocomplete="off"><span class="wb-fm-addon">元</span></span></label>
+        <label class="field"><span class="field__label">划线价</span><span class="wb-fm-group"><span class="wb-fm-addon">¥</span><input class="input" data-f="money" inputmode="decimal" placeholder="0.00" autocomplete="off"><span class="wb-fm-addon">元</span></span></label>
+        <div class="field"><span class="field__label">每人限购</span><div class="drop wb-fm-sel"><button type="button" class="drop__btn" aria-label="每人限购"><b></b></button><div class="drop__menu" role="listbox"><button type="button" class="drop__opt" aria-selected="true">不限购</button><button type="button" class="drop__opt">1 件</button><button type="button" class="drop__opt">2 件</button><button type="button" class="drop__opt">5 件</button></div></div></div>
+      </div></div>
+    </section>
+    <section class="section"><div class="section__head"><h2>配送设置</h2></div>
+      <div class="card wb-fm-card section__body"><div class="wb-fm-grid3">
+        <div class="field"><span class="field__label">配送方式</span><div class="wb-fm-chips" role="group" aria-label="配送方式"><button type="button" class="wb-fm-chip" aria-pressed="true">极速配送</button><button type="button" class="wb-fm-chip" aria-pressed="true">同城配送</button><button type="button" class="wb-fm-chip" aria-pressed="false">门店自提</button></div></div>
+        <div class="field"><span class="field__label">配送范围</span><div class="drop wb-fm-sel"><button type="button" class="drop__btn" aria-label="配送范围"><b></b></button><div class="drop__menu" role="listbox"><button type="button" class="drop__opt" aria-selected="true">门店周边 3 公里</button><button type="button" class="drop__opt">门店周边 5 公里</button><button type="button" class="drop__opt">全城</button></div></div></div>
+        <label class="field"><span class="field__label">起送价</span><span class="wb-fm-group"><span class="wb-fm-addon">¥</span><input class="input" data-f="money" inputmode="decimal" placeholder="0.00" autocomplete="off"><span class="wb-fm-addon">元</span></span></label>
+      </div></div>
+    </section>
+    <div class="wb-fm-bar wb-fm-bar--stage"><button type="button" class="btn btn--ghost" data-cancel>取消</button><button type="submit" class="btn btn--primary">保存</button></div>
+  </form></div>
+</article>
+
+<article class="demo" data-cid="WB-FORM-026" data-name="分步表单" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">分步表单</span></div>
+  <p class="demo__note">适合：流程长的新增，分三步逐段确认</p>
+  <div class="demo__stage wb-fm-room"><div class="card" id="wb-fm-sp"><div class="wb-fm-card">
+    <div class="wb-fm-steps" aria-label="填写进度"><div class="wb-fm-step" data-state="now"><span>1</span>基本信息</div><hr><div class="wb-fm-step" data-state="todo"><span>2</span>价格库存</div><hr><div class="wb-fm-step" data-state="todo"><span>3</span>确认</div></div>
+    <div class="wb-fm-pane wb-fm-stack" data-p="0">
+      <label class="field"><span class="field__label wb-fm-req">商品名称</span><input class="input" data-k="n" placeholder="请输入商品名称" autocomplete="off"><span class="field__err" hidden>请输入商品名称</span></label>
+      <div class="field"><span class="field__label">所属分类</span><div class="drop wb-fm-sel" data-k="c"><button type="button" class="drop__btn" aria-label="所属分类"><b></b></button><div class="drop__menu" role="listbox"><button type="button" class="drop__opt" aria-selected="true">鲜花</button><button type="button" class="drop__opt">绿植</button><button type="button" class="drop__opt">礼盒</button><button type="button" class="drop__opt">花器</button></div></div></div>
+    </div>
+    <div class="wb-fm-pane wb-fm-stack" data-p="1" hidden>
+      <label class="field"><span class="field__label wb-fm-req">商品价格</span><span class="wb-fm-group"><span class="wb-fm-addon">¥</span><input class="input" data-k="p" data-f="money" inputmode="decimal" value="199.00" autocomplete="off"><span class="wb-fm-addon">元</span></span><span class="field__err" hidden>请输入大于 0 的价格</span></label>
+      <div class="field"><span class="field__label">库存数量</span><div class="wheel" data-min="0" data-max="500" data-value="50" data-unit="件" data-label="库存数量"></div></div>
+    </div>
+    <div class="wb-fm-pane" data-p="2" hidden><dl class="wb-fm-kv"><dt>商品名称</dt><dd data-v="n"></dd><dt>所属分类</dt><dd data-v="c"></dd><dt>商品价格</dt><dd data-v="p"></dd><dt>库存数量</dt><dd data-v="s"></dd></dl></div>
+    </div>
+    <div class="wb-fm-bar"><button type="button" class="btn btn--ghost" data-prev disabled>上一步</button><button type="button" class="btn btn--primary" data-next>下一步</button></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-FORM-027" data-name="行内表单" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">行内表单</span></div>
+  <p class="demo__note">适合：一个输入加一个动作的核销与查单</p>
+  <div class="demo__stage"><div class="card wb-fm-card" id="wb-fm-in">
+    <div class="wb-fm-inline"><label class="field__label" for="wb-fm-in-c">优惠券码</label><input class="input" id="wb-fm-in-c" inputmode="numeric" maxlength="6" placeholder="请输入 6 位券码" autocomplete="off"><button type="button" class="btn btn--primary" data-go>核销</button><span class="field__err" hidden></span></div>
+    <div class="wb-fm-result" aria-live="polite"></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-FORM-028" data-name="登录表单" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">登录表单</span></div>
+  <p class="demo__note">适合：后台账号登录，错误提示贴近输入</p>
+  <div class="demo__stage"><form class="card wb-fm-card wb-fm-login" id="wb-fm-lg" novalidate>
+    <div class="wb-fm-login__top"><img data-ic="bouquet" src="../../kit/assets/icons/flat/bouquet.webp" alt=""><h3>账号登录</h3></div>
+    <div class="wb-fm-stack">
+      <div class="wb-fm-alert" role="alert" hidden>账号或密码不正确</div>
+      <label class="field"><span class="field__label">手机号</span><input class="input" data-k="a" inputmode="numeric" maxlength="11" placeholder="请输入手机号" autocomplete="off"><span class="field__err" hidden>请输入 11 位手机号</span></label>
+      <label class="field"><span class="field__label">密码</span><span class="wb-fm-group"><input class="input" data-k="w" type="password" placeholder="请输入密码" autocomplete="off"><button type="button" class="wb-fm-link" data-show aria-pressed="false">显示</button></span><span class="field__err" hidden>请输入密码</span></label>
+      <div class="wb-fm-opts"><span class="wb-fm-ck" role="checkbox" aria-checked="true" aria-label="记住登录"><span class="check" aria-checked="true" aria-hidden="true"><img src="../../kit/assets/line/check.webp" alt=""></span>记住登录</span><button type="button" class="btn btn--text btn--sm" data-toast="已发送重置链接">忘记密码</button></div>
+      <button type="submit" class="btn btn--primary btn--block btn--lg">登录</button>
+    </div>
+  </form></div>
+</article>
+
+<article class="demo" data-cid="WB-FORM-029" data-name="校验错误提示" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">校验错误提示</span></div>
+  <p class="demo__note">适合：提交前逐项校验并汇总未通过项</p>
+  <div class="demo__stage"><form class="card" id="wb-fm-vd" novalidate>
+    <div class="wb-fm-card wb-fm-stack">
+      <label class="field"><span class="field__label">手机号</span><input class="input" data-r="phone" inputmode="numeric" maxlength="11" placeholder="请输入手机号" autocomplete="off"><span class="field__err" hidden></span></label>
+      <label class="field"><span class="field__label">折扣</span><span class="wb-fm-group"><input class="input" data-r="disc" inputmode="decimal" placeholder="请输入折扣" autocomplete="off"><span class="wb-fm-addon">折</span></span><span class="field__err" hidden></span></label>
+      <label class="field"><span class="field__label">备注</span><textarea class="textarea wb-fm-ta--s" data-r="note" placeholder="请输入备注内容"></textarea><span class="field__err" hidden></span></label>
+    </div>
+    <div class="wb-fm-bar"><span class="wb-fm-err-sum" aria-live="polite" hidden></span><button type="button" class="btn btn--ghost" data-reset>重置</button><button type="submit" class="btn btn--primary">提交</button></div>
+  </form></div>
+</article>
+
+<article class="demo" data-cid="WB-FORM-030" data-name="必填标记" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">必填标记</span></div>
+  <p class="demo__note">适合：区分必填与选填，填好后标记转绿</p>
+  <div class="demo__stage"><div class="card wb-fm-card wb-fm-stack" id="wb-fm-rq">
+    <label class="field"><span class="field__label"><span class="wb-fm-req" data-m>商品名称</span></span><input class="input" data-need placeholder="请输入商品名称" autocomplete="off"></label>
+    <label class="field"><span class="field__label">联系电话 <span class="wb-fm-mark" data-m data-t="必填">必填</span></span><input class="input" data-need inputmode="numeric" maxlength="11" placeholder="请输入联系电话" autocomplete="off"></label>
+    <label class="field"><span class="field__label">订单备注 <span class="wb-fm-mark wb-fm-mark--opt">选填</span></span><input class="input" placeholder="请输入备注内容" autocomplete="off"></label>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-FORM-031" data-name="表单提交条" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">表单提交条</span></div>
+  <p class="demo__note">适合：有改动才可保存，取消与保存同排</p>
+  <div class="demo__stage"><div class="card" id="wb-fm-sb">
+    <div class="wb-fm-card"><label class="field"><span class="wb-fm-lab"><span class="field__label">门店公告</span><span class="wb-fm-cnt"><b data-n>0</b>/60</span></span><textarea class="textarea" maxlength="60" data-saved="周末花艺课开放预约">周末花艺课开放预约</textarea></label></div>
+    <div class="wb-fm-bar"><span class="tag wb-fm-dirty l" data-tone="warning" hidden>有未保存的修改</span><button type="button" class="btn btn--ghost" data-cancel disabled>取消</button><button type="button" class="btn btn--primary" data-save disabled>保存</button></div>
+  </div></div>
+</article>
+
+<article class="demo demo--span2" data-cid="WB-FORM-032" data-name="表单卡壳" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">表单卡壳</span></div>
+  <p class="demo__note">适合：设置类页面，标签在左控件在右逐行排</p>
+  <div class="demo__stage"><section class="section wb-fm-first" id="wb-fm-sh"><div class="section__head"><h2>门店资料</h2></div>
+    <div class="card section__body">
+      <div class="wb-fm-card wb-fm-shell">
+        <div class="wb-fm-hrow"><b>门店名称</b><div class="field"><input class="input" data-k="n" value="建国路店" autocomplete="off"><span class="field__err" hidden>请输入门店名称</span></div></div>
+        <div class="wb-fm-hrow"><b>联系电话</b><div><span class="wb-fm-group"><span class="wb-fm-addon">86</span><input class="input" data-f="phone" inputmode="numeric" maxlength="11" value="13800138000" autocomplete="off"></span></div></div>
+        <div class="wb-fm-hrow"><b>起送价</b><div><span class="wb-fm-group"><span class="wb-fm-addon">¥</span><input class="input" data-f="money" inputmode="decimal" value="39.00" autocomplete="off"><span class="wb-fm-addon">元</span></span></div></div>
+        <div class="wb-fm-hrow"><b>营业状态</b><div class="wb-fm-row"><span><b data-s>营业中</b></span><button type="button" class="switch" role="switch" aria-checked="true" aria-label="营业状态" data-ask="暂停营业"></button></div></div>
+      </div>
+      <div class="wb-fm-bar"><button type="button" class="btn btn--ghost" data-cancel>取消</button><button type="button" class="btn btn--primary" data-save>保存</button></div>
+    </div>
+  </section></div>
+</article>
+
+<script>
+(function () {
+  const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  const fmt = (n, d = 2) => n.toLocaleString('zh-CN', { minimumFractionDigits: d, maximumFractionDigits: d });
+  const img = i => `../../kit/assets/photo/product-${i}.webp`;
+  const PR = [['红玫瑰花束', '鲜花', 199, 'rose-red', '建国路店', '在售'], ['粉芍药花束', '鲜花', 239, 'peony-pink', '徐汇滨江店', '在售'], ['向日葵花束', '鲜花', 159, 'sunflower', '浦东世纪店', '售罄'],
+    ['白郁金香', '鲜花', 179, 'tulip-white', '建国路店', '在售'], ['蓝绣球盆栽', '绿植', 129, 'hydrangea-blue', '徐汇滨江店', '在售'], ['龟背竹盆栽', '绿植', 159, 'monstera', '浦东世纪店', '售罄'],
+    ['多肉组合盆', '绿植', 89, 'succulent', '建国路店', '在售'], ['干花花瓶摆件', '花器', 129, 'pampas-vase', '建国路店', '已下架'], ['花礼盒', '礼盒', 259, 'giftbox', '徐汇滨江店', '在售']]
+    .map(([n, c, p, i, s, t]) => ({ n, c, p, i, s, t }));
+  const ORD = [['20388', '林晓', '红玫瑰花束', '建国路店', 199, '待付款'], ['20387', '陈默', '粉芍药花束', '徐汇滨江店', 239, '待发货'], ['20386', '周岚', '蓝绣球盆栽', '浦东世纪店', 258, '待收货'],
+    ['20385', '吴桐', '花礼盒', '建国路店', 259, '已完成'], ['20384', '郑一', '向日葵花束', '浦东世纪店', 159, '售后'], ['20383', '王宁', '龟背竹盆栽', '徐汇滨江店', 159, '已完成'],
+    ['20382', '赵悦', '白郁金香', '建国路店', 358, '待发货'], ['20381', '孙洁', '干花花瓶摆件', '浦东世纪店', 129, '待付款']].map(([no, who, item, store, amt, st]) => ({ no, who, item, store, amt, st }));
+
+  /* 校验标记：错误紧邻字段，保留输入 */
+  const mark = (field, bad, msg) => {
+    if (!field) return;
+    const c = $('.wb-fm-group, .input, .textarea, .drop__btn', field), e = $('.field__err', field);
+    if (c) c.setAttribute('aria-invalid', String(bad));
+    if (e) { if (msg) e.textContent = msg; e.hidden = !bad; }
+    if (bad && c) { c.classList.remove('shake'); void c.offsetWidth; c.classList.add('shake'); }
+  };
+  const fieldOf = el => el.closest('.field');
+
+  /* 输入过滤：金额两位小数，电话十一位数字，整数 */
+  const FILT = { money: v => { v = v.replace(/[^\d.]/g, ''); const p = v.split('.'); return p.length > 1 ? p[0] + '.' + p.slice(1).join('').slice(0, 2) : v; }, phone: v => v.replace(/\D/g, '').slice(0, 11), int: v => v.replace(/\D/g, '').slice(0, 5) };
+  document.addEventListener('input', e => { const i = e.target.closest('#cat-form input[data-f]'); if (!i || e.isComposing) return; const v = FILT[i.dataset.f](i.value); if (v !== i.value) i.value = v; });
+  document.addEventListener('focusout', e => { const i = e.target.closest && e.target.closest('#cat-form input[data-f="money"]'); if (i && i.value && !Number.isNaN(+i.value)) i.value = (+i.value).toFixed(2); });
+
+  /* 计数：有 maxlength 的字段在同一个字段里显示已输入字数 */
+  $$('#cat-form .field').forEach(f => {
+    const c = $('.wb-fm-cnt [data-n]', f), i = $('input[maxlength], textarea[maxlength]', f); if (!c || !i) return;
+    const u = () => { c.textContent = i.value.length; c.parentNode.dataset.full = String(i.value.length >= +i.maxLength); };
+    i.addEventListener('input', u); u();
+  });
+  document.addEventListener('lz:drop', e => { const b = $('b', e.target); if (b && b.classList.contains('wb-fm-ph')) b.classList.remove('wb-fm-ph'); });
+  /* 勾选行：整行是复选框，状态同步到里面的勾选图形 */
+  document.addEventListener('lz:toggle', e => { const el = e.target, c = el.matches('#cat-form [role="checkbox"]') && $('.check', el); if (c) c.setAttribute('aria-checked', el.getAttribute('aria-checked')); });
+  document.addEventListener('click', e => { const b = e.target.closest('#cat-form [data-toast]'); if (b) Lz.toast(b.dataset.toast, 'success'); });
+
+  /* 开关守卫：关闭重要状态要居中确认 */
+  const guard = root => {
+    const g = async e => {
+      const sw = e.target.closest('.switch[data-ask]'); if (!sw || sw.getAttribute('aria-checked') !== 'true') return;
+      if (e.type === 'keydown' && e.key !== ' ' && e.key !== 'Enter') return;
+      e.stopPropagation(); e.preventDefault();
+      if (await Lz.confirm({ title: sw.dataset.ask, ok: sw.dataset.ask.slice(0, 2), tone: 'danger' })) { sw.setAttribute('aria-checked', 'false'); sw.dispatchEvent(new CustomEvent('lz:toggle', { bubbles: true })); }
+    };
+    root.addEventListener('click', g, true); root.addEventListener('keydown', g, true);
+  };
+
+  /* 001 基础文本框 与 002 四态 */
+  (() => {
+    const i = $('[data-err]', $('#wb-fm-t2')), f = fieldOf(i);
+    i.addEventListener('input', () => mark(f, !i.value.trim()));
+  })();
+  /* 004 可清空 */
+  (() => {
+    const root = $('#wb-fm-t4'), i = $('input', root), x = $('.wb-fm-x', root), upd = () => { x.hidden = !i.value; };
+    i.addEventListener('input', upd); i.addEventListener('keydown', e => { if (e.key === 'Escape' && i.value) { i.value = ''; upd(); } });
+    x.addEventListener('click', () => { i.value = ''; upd(); i.focus(); }); upd();
+  })();
+  /* 005 密码：显示切换与强度 */
+  (() => {
+    const root = $('#wb-fm-t5'), i = $('input', root), b = $('[data-show]', root), m = $('.wb-fm-meter', root), L = ['未填', '弱', '中', '强'];
+    const score = v => !v ? 0 : 1 + (v.length >= 8 && /[a-zA-Z]/.test(v) && /\d/.test(v) ? 1 : 0) + (v.length >= 12 && /[^a-zA-Z\d]/.test(v) ? 1 : 0);
+    i.addEventListener('input', () => { const s = score(i.value); m.dataset.s = s; $('span', m).textContent = L[s]; });
+    b.addEventListener('click', () => { const on = i.type === 'password'; i.type = on ? 'text' : 'password'; b.textContent = on ? '隐藏' : '显示'; b.setAttribute('aria-pressed', String(on)); });
+  })();
+
+  /* 开合与键盘：自制选择层共用 */
+  const popup = (pick, onOpen) => {
+    const ctl = $('.wb-fm-ctl', pick), pop = $('.wb-fm-pop', pick);
+    const open = o => { pick.dataset.open = String(o); ctl.setAttribute('aria-expanded', String(o)); pop.inert = !o; if (o && onOpen) onOpen(); };
+    ctl.addEventListener('click', e => { e.stopPropagation(); $$('#cat-form .wb-fm-pick[data-open="true"]').forEach(p => { if (p !== pick) p._open(false); }); open(pick.dataset.open !== 'true'); });
+    pop.addEventListener('click', e => e.stopPropagation());
+    pick.addEventListener('keydown', e => { if (e.key === 'Escape' && pick.dataset.open === 'true') { open(false); ctl.focus(); } });
+    document.addEventListener('click', () => { if (pick.dataset.open === 'true') open(false); });
+    pick._open = open; return { ctl, pop, open };
+  };
+
+  /* 007 下拉选择与键盘 */
+  $$('#cat-form .drop').forEach(d => { const m = $('.drop__menu', d); if (!m) return; const s = () => { m.inert = d.dataset.open !== 'true'; }; new MutationObserver(s).observe(d, { attributes: true, attributeFilter: ['data-open'] }); s(); });
+  document.addEventListener('keydown', e => {
+    const d = e.target.closest && e.target.closest('#cat-form .drop'); if (!d || !['ArrowDown', 'ArrowUp'].includes(e.key)) return;
+    const opts = $$('.drop__opt', d); if (!opts.length) return; e.preventDefault();
+    if (d.dataset.open !== 'true') { $('.drop__btn', d).click(); setTimeout(() => (opts.find(o => o.getAttribute('aria-selected') === 'true') || opts[0]).focus(), 0); return; }
+    const i = opts.indexOf(document.activeElement); opts[Math.max(0, Math.min(opts.length - 1, i + (e.key === 'ArrowDown' ? 1 : -1)))].focus();
+  });
+
+  /* 008 可搜索下拉 */
+  (() => {
+    const root = $('#wb-fm-cb'), pick = $('.wb-fm-pick', root), q = $('input', root), list = $('.wb-fm-list', root); let sel = '';
+    const render = () => {
+      const k = q.value.trim(), r = PR.filter(p => !k || (p.n + p.c).includes(k));
+      list.innerHTML = r.length ? r.map(p => `<button type="button" class="wb-fm-opt" role="option" aria-selected="${sel === p.n}" data-n="${p.n}"><img src="${img(p.i)}" alt=""><span>${p.n}<small>${p.c}</small></span></button>`).join('') : '<p class="wb-fm-none">没有匹配的商品</p>';
+    };
+    const { ctl, open } = popup(pick, () => { q.value = ''; render(); setTimeout(() => q.focus(), 40); });
+    list.addEventListener('click', e => { const b = e.target.closest('.wb-fm-opt'); if (!b) return; sel = b.dataset.n; const p = PR.find(x => x.n === sel); ctl.innerHTML = `<span class="wb-fm-crumb"><img src="${img(p.i)}" alt="">${sel}</span>`; open(false); ctl.focus(); });
+    q.addEventListener('input', render);
+    root.addEventListener('keydown', e => {
+      if (!['ArrowDown', 'ArrowUp'].includes(e.key)) return; const o = $$('.wb-fm-opt', list); if (!o.length) return; e.preventDefault();
+      const i = o.indexOf(document.activeElement); if (e.key === 'ArrowDown') o[Math.min(o.length - 1, i + 1)].focus(); else if (i <= 0) q.focus(); else o[i - 1].focus();
+    });
+    render();
+  })();
+
+  /* 009 级联选择：三级逐列收窄，无下级时即完成 */
+  (() => {
+    const root = $('#wb-fm-cs'), pick = $('.wb-fm-pick', root), cols = $$('.wb-fm-cas', root);
+    const T = { 鲜花: { 花束: ['红玫瑰花束', '粉芍药花束', '向日葵花束', '白郁金香'], 鲜切单枝: null }, 绿植: { 盆栽: ['蓝绣球盆栽', '龟背竹盆栽', '多肉组合盆'], 水培: null }, 礼盒: { 节日礼盒: ['花礼盒'], 生日礼盒: null }, 花器: { 花瓶: ['干花花瓶摆件'], 花盆: null } };
+    let path = [];
+    const items = l => l === 0 ? Object.keys(T) : l === 1 ? Object.keys(T[path[0]] || {}) : (T[path[0]] && T[path[0]][path[1]]) || [];
+    const more = (l, v) => l === 0 || (l === 1 && Array.isArray(T[path[0]][v]));
+    const draw = () => cols.forEach((c, l) => { c.innerHTML = items(l).map(v => `<button type="button" class="wb-fm-opt" role="option" data-l="${l}" data-v="${v}" aria-selected="${path[l] === v}"${more(l, v) ? ' data-more="true"' : ''}>${v}</button>`).join(''); });
+    const { ctl, open } = popup(pick);
+    $('.wb-fm-pop', root).addEventListener('click', e => {
+      const b = e.target.closest('.wb-fm-opt'); if (!b) return; const l = +b.dataset.l, v = b.dataset.v;
+      path = path.slice(0, l); path[l] = v;
+      if (more(l, v)) { draw(); return; }
+      draw(); ctl.innerHTML = `<span class="wb-fm-crumb">${path.join('<i></i>')}</span>`; open(false); ctl.focus();
+    });
+    draw();
+  })();
+
+  /* 010 多选标签：最多五个 */
+  (() => {
+    const root = $('#wb-fm-mc'), chips = $$('.wb-fm-chip', root), n = $('[data-n]', root), MAX = 5;
+    const sync = () => { const c = chips.filter(x => x.getAttribute('aria-pressed') === 'true').length; n.textContent = c; chips.forEach(x => { x.disabled = c >= MAX && x.getAttribute('aria-pressed') !== 'true'; }); };
+    chips.forEach(b => b.addEventListener('click', () => { b.setAttribute('aria-pressed', String(b.getAttribute('aria-pressed') !== 'true')); sync(); }));
+    sync();
+  })();
+
+  /* 011 标签输入框：回车添加，退格删除末个 */
+  (() => {
+    const root = $('#wb-fm-ti'), box = $('.wb-fm-tagbox', root), inp = $('input', box), n = $('[data-n]', root), er = $('[data-err]', root), MAX = 6; let tags = ['玫瑰', '生日花束'];
+    const draw = () => {
+      $$('.wb-fm-chip', box).forEach(x => x.remove());
+      tags.forEach(t => inp.insertAdjacentHTML('beforebegin', `<span class="wb-fm-chip wb-fm-chip--tag">${t}<button type="button" class="wb-fm-x" data-t="${t}" data-tip="删除${t}" aria-label="删除${t}"><img src="../../kit/assets/line/close.webp" alt=""></button></span>`));
+      n.textContent = tags.length;
+    };
+    const say = m => { er.textContent = m || ''; er.hidden = !m; };
+    const add = () => {
+      const v = inp.value.replace(/[，,]/g, '').trim(); if (!v) { inp.value = ''; return; }
+      if (tags.includes(v)) return say('标签已存在'); if (v.length > 10) return say('标签不超过 10 个字'); if (tags.length >= MAX) return say('最多添加 6 个标签');
+      tags.push(v); inp.value = ''; say(''); draw();
+    };
+    inp.addEventListener('keydown', e => {
+      if (e.isComposing) return;
+      if (e.key === 'Enter' || e.key === ',' || e.key === '，') { e.preventDefault(); add(); }
+      else if (e.key === 'Backspace' && !inp.value && tags.length) { tags.pop(); draw(); }
+    });
+    inp.addEventListener('input', () => say(''));
+    box.addEventListener('click', e => { const x = e.target.closest('[data-t]'); if (x) { tags = tags.filter(t => t !== x.dataset.t); say(''); draw(); inp.focus(); } else inp.focus(); });
+    draw();
+  })();
+
+  /* 012 013 单选：点击与方向键，单一停靠 */
+  const radios = g => {
+    const items = $$('[role="radio"]:not([aria-disabled="true"])', g);
+    const set = o => items.forEach(p => { p.setAttribute('aria-checked', String(p === o)); p.tabIndex = p === o ? 0 : -1; });
+    items.forEach((o, i) => { o.addEventListener('click', () => set(o)); o.addEventListener('keydown', e => { const d = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 }[e.key]; if (!d) return; e.preventDefault(); const nx = items[(i + d + items.length) % items.length]; nx.focus(); set(nx); }); });
+  };
+  $$('#wb-fm-rd [role="radiogroup"], #wb-fm-rc [role="radiogroup"]').forEach(radios);
+
+  /* 014 勾选组：全选与半选 */
+  (() => {
+    const root = $('#wb-fm-ck'), all = $('[data-all]', root), its = $$('[data-it]', root), n = $('[data-n]', root);
+    document.addEventListener('lz:toggle', e => {
+      if (!root.contains(e.target)) return;
+      if (e.target === all) { const v = all.getAttribute('aria-checked'); its.forEach(i => { i.setAttribute('aria-checked', v); $('.check', i).setAttribute('aria-checked', v); }); }
+      const c = its.filter(i => i.getAttribute('aria-checked') === 'true').length; all.setAttribute('aria-checked', c === its.length ? 'true' : c ? 'mixed' : 'false'); $('.check', all).setAttribute('aria-checked', all.getAttribute('aria-checked')); n.textContent = c;
+    });
+    $$('.wb-fm-row', root).forEach(r => r.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); r.click(); } }));
+  })();
+
+  /* 015 开关设置行 */
+  (() => {
+    const root = $('#wb-fm-sw'); guard(root);
+    root.addEventListener('lz:toggle', e => { const sw = e.target.closest('.switch'); if (!sw) return; const on = sw.getAttribute('aria-checked') === 'true', t = sw.dataset.ask ? ['已暂停', '营业中'] : ['已关闭', '已开启']; $('[data-s]', sw.closest('.wb-fm-row')).textContent = on ? t[1] : t[0]; if (on && sw.dataset.ask) Lz.toast('已恢复营业', 'success'); });
+    $$('[data-s]', root).forEach(s => { const sw = $('.switch', s.closest('.wb-fm-row')); if (sw.dataset.ask && sw.getAttribute('aria-checked') === 'true') s.textContent = '营业中'; });
+  })();
+
+  /* 016 017 滚轮：合计与时间随值更新 */
+  (() => {
+    const root = $('#wb-fm-wh'), t = $('[data-t]', root);
+    const upd = v => { t.innerHTML = '<small>¥</small>' + fmt(Math.max(0, parseInt(v, 10) || 0) * 89, 0); };
+    document.addEventListener('lz:wheel', e => { if (e.target.closest('#wb-fm-wh')) upd(e.detail.value); });
+    document.addEventListener('input', e => { if (e.target.closest('#wb-fm-wh .input')) upd(e.target.value); });
+    const tm = $('#wb-fm-tm'), out = $('[data-t]', tm), pad = n => String(Math.max(0, parseInt(n, 10) || 0)).padStart(2, '0');
+    const draw = () => { const [h, m] = $$('.wheel .input', tm).map(i => i.value); out.textContent = `${pad(h)} 时 ${pad(m)} 分`; };
+    document.addEventListener('lz:wheel', e => { if (e.target.closest('#wb-fm-tm')) setTimeout(draw, 0); });
+    document.addEventListener('input', e => { if (e.target.closest('#wb-fm-tm .input')) draw(); });
+  })();
+
+  /* 018 实时搜索：命中词高亮 */
+  (() => {
+    const root = $('#wb-fm-sq'), q = $('input', root), box = $('.wb-fm-hits', root);
+    const render = () => {
+      const k = q.value.trim(), r = PR.filter(p => !k || (p.n + p.c).includes(k)).slice(0, 5);
+      box.innerHTML = r.length ? r.map(p => `<button type="button" class="wb-fm-hit"><img src="${img(p.i)}" alt=""><span>${k ? p.n.replace(k, m => `<mark>${m}</mark>`) : p.n}</span><small>${p.c}</small></button>`).join('') : '<p class="wb-fm-none">没有匹配的商品</p>';
+    };
+    q.addEventListener('input', render); box.addEventListener('click', e => { const b = e.target.closest('.wb-fm-hit'); if (b) { q.value = b.textContent.replace(/鲜花|绿植|礼盒|花器$/, ''); render(); } });
+    render();
+  })();
+
+  /* 019 单行筛选条：条件都收进下拉，结果同区更新 */
+  (() => {
+    const root = $('#wb-fm-fb'), q = $('.search input', root), n = $('[data-n]', root), clr = $('[data-clear]', root), f = { m: '', c: '', t: '' };
+    const strip = document.createElement('div'); strip.className = 'wb-fm-strip'; root.appendChild(strip);
+    const render = () => {
+      const k = q.value.trim(), r = PR.filter(p => (!f.m || p.s === f.m) && (!f.c || p.c === f.c) && (!f.t || p.t === f.t) && (!k || (p.n + p.c).includes(k)));
+      strip.innerHTML = r.length ? r.map(p => `<span class="wb-fm-pill"><img src="${img(p.i)}" alt="">${p.n}</span>`).join('') : '<p class="wb-fm-none">没有符合条件的商品</p>';
+      n.textContent = r.length; clr.hidden = !(f.m || f.c || f.t || k);
+    };
+    root.addEventListener('lz:drop', e => { const d = e.target.closest('.drop'); f[d.dataset.k] = e.detail.value; d.dataset.on = String(!!e.detail.value); render(); });
+    q.addEventListener('input', render);
+    clr.addEventListener('click', () => { q.value = ''; Object.keys(f).forEach(k => { f[k] = ''; }); $$('.drop', root).forEach(d => { $('b', d).textContent = '全部'; d.dataset.on = 'false'; $$('.drop__opt', d).forEach((o, i) => o.setAttribute('aria-selected', String(i === 0))); }); render(); });
+    render();
+  })();
+
+  /* 020 搜索表单：点查询才筛选，更多条件就近展开 */
+  (() => {
+    const root = $('#wb-fm-sf'), n = $('[data-n]', root), v = { st: '', store: '', span: '' };
+    const val = k => ($(`input[data-k="${k}"]`, root) || {}).value || '';
+    root.addEventListener('lz:drop', e => { const d = e.target.closest('.drop'); v[d.dataset.k] = e.detail.value; });
+    const go = () => {
+      const no = val('no').trim(), who = val('who').trim(), lo = parseFloat(val('min')), hi = parseFloat(val('max'));
+      const r = ORD.filter(o => (!no || o.no.includes(no)) && (!who || o.who.includes(who)) && (!v.st || o.st === v.st) && (!v.store || o.store === v.store) && (Number.isNaN(lo) || o.amt >= lo) && (Number.isNaN(hi) || o.amt <= hi));
+      n.textContent = r.length;
+    };
+    $('[data-go]', root).addEventListener('click', go);
+    root.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.matches('input') && !e.isComposing) go(); });
+    $('[data-reset]', root).addEventListener('click', () => { $$('input', root).forEach(i => { i.value = ''; }); Object.keys(v).forEach(k => { v[k] = ''; }); $$('.drop', root).forEach(d => { $('b', d).textContent = $('.drop__opt', d).textContent; $$('.drop__opt', d).forEach((o, i) => o.setAttribute('aria-selected', String(i === 0))); }); n.textContent = ORD.length; });
+  })();
+
+  /* 021 图片上传：真实选图，带进度，可删除，限四张 */
+  (() => {
+    const root = $('#wb-fm-ph'), box = $('.wb-fm-ups', root), file = $('input[type="file"]', root), cnt = $('[data-n]', root), MAX = 4;
+    let items = [{ src: img('rose-red') }, { src: img('peony-pink') }, { src: img('sunflower') }];
+    const draw = () => {
+      box.innerHTML = items.map((it, i) => `<div class="wb-fm-up"${it.busy ? ' data-busy="true"' : ''}><img src="${it.src}" alt="">${i === 0 ? '<span class="tag" data-tone="action">主图</span>' : ''}${it.busy ? `<span class="progress" style="--v:${it.pct}%"><i></i></span>` : `<button type="button" class="ibtn wb-fm-x" data-i="${i}" data-tip="删除图片" aria-label="删除第 ${i + 1} 张图片"><img src="../../kit/assets/line/close.webp" alt=""></button>`}</div>`).join('') + (items.length < MAX ? '<button type="button" class="wb-fm-add" data-add><span><img src="../../kit/assets/line/add.webp" alt="">添加图片</span></button>' : '');
+      cnt.textContent = items.length;
+    };
+    box.addEventListener('click', e => { if (e.target.closest('[data-add]')) file.click(); const x = e.target.closest('[data-i]'); if (x) { items.splice(+x.dataset.i, 1); draw(); } });
+    file.addEventListener('change', () => {
+      [...file.files].forEach(f => {
+        if (!f.type.startsWith('image/')) return Lz.toast('仅支持图片文件', 'danger');
+        if (items.length >= MAX) return Lz.toast('最多上传 4 张', 'danger');
+        const it = { src: URL.createObjectURL(f), busy: true, pct: 0 }; items.push(it); draw();
+        const t = setInterval(() => { it.pct = Math.min(100, it.pct + 14 + Math.round(Math.random() * 10)); if (it.pct >= 100) { clearInterval(t); it.busy = false; } draw(); }, 140);
+      });
+      file.value = '';
+    });
+    draw();
+  })();
+
+  /* 022 文件上传区：拖入或点选，逐个显示进度 */
+  (() => {
+    const root = $('#wb-fm-fl'), zone = $('.wb-fm-zone', root), file = $('input[type="file"]', root), list = $('.wb-fm-files', root); const rows = [];
+    const size = b => b < 1048576 ? Math.max(1, Math.round(b / 1024)) + ' 千字节' : (b / 1048576).toFixed(1) + ' 兆';
+    const draw = () => { list.innerHTML = rows.map((r, i) => `<div class="wb-fm-file"><img src="../../kit/assets/solid/solid-tasks.webp" alt=""><b>${r.name}</b>${r.pct >= 100 ? '<span class="tag" data-tone="success">已完成</span>' : ''}<small>${size(r.size)}</small>${r.pct < 100 ? `<span class="progress" style="--v:${r.pct}%"><i></i></span>` : ''}<button type="button" class="ibtn wb-fm-x" data-i="${i}" data-tip="移除文件" aria-label="移除${r.name}"><img src="../../kit/assets/line/close.webp" alt=""></button></div>`).join(''); };
+    const take = fs => [...fs].forEach(f => {
+      if (!/\.(csv|xlsx|xls)$/i.test(f.name)) return Lz.toast('仅支持表格文件', 'danger');
+      if (f.size > 10485760) return Lz.toast('文件超过 10 兆', 'danger');
+      const r = { name: f.name, size: f.size, pct: 0 }; rows.push(r); draw();
+      const t = setInterval(() => { r.pct = Math.min(100, r.pct + 12 + Math.round(Math.random() * 12)); if (r.pct >= 100) { clearInterval(t); Lz.toast('上传完成', 'success'); } if (rows.includes(r)) draw(); else clearInterval(t); }, 150);
+    });
+    zone.addEventListener('click', () => file.click());
+    file.addEventListener('change', () => { take(file.files); file.value = ''; });
+    ['dragenter', 'dragover'].forEach(t => zone.addEventListener(t, e => { e.preventDefault(); zone.dataset.over = 'true'; }));
+    ['dragleave', 'drop'].forEach(t => zone.addEventListener(t, e => { e.preventDefault(); zone.dataset.over = 'false'; if (t === 'drop') take(e.dataTransfer.files); }));
+    list.addEventListener('click', e => { const x = e.target.closest('[data-i]'); if (x) { rows.splice(+x.dataset.i, 1); draw(); } });
+  })();
+
+  /* 表单提交：逐项校验，失败聚焦首个错误并保留输入 */
+  const wire = (form, rules, done) => {
+    const check = r => { const bad = !r.ok(); mark(fieldOf(r.el), bad, bad ? r.msg : undefined); return !bad; };
+    rules.forEach(r => { const re = () => { if ($('[aria-invalid="true"]', fieldOf(r.el))) check(r); }; r.el.addEventListener('input', re); form.addEventListener('lz:drop', e => { if (fieldOf(r.el).contains(e.target)) re(); }); });
+    form.addEventListener('submit', async e => {
+      e.preventDefault(); let first = null;
+      rules.forEach(r => { if (!check(r) && !first) first = r; });
+      if (first) { const c = $('.input, .textarea, .drop__btn', fieldOf(first.el)); if (c) c.focus(); return; }
+      const b = $('[type="submit"]', form); b.classList.add('is-loading'); await sleep(800); b.classList.remove('is-loading'); Lz.toast('已保存', 'success'); if (done) done();
+    });
+    const cancel = $('[data-cancel]', form);
+    if (cancel) cancel.addEventListener('click', () => { form.reset(); $$('[aria-invalid="true"]', form).forEach(x => x.setAttribute('aria-invalid', 'false')); $$('.field__err', form).forEach(x => { x.hidden = true; }); Lz.toast('已取消'); });
+  };
+  const dropOk = d => !$('b', d).classList.contains('wb-fm-ph');
+  (() => {
+    const f = $('#wb-fm-f1'), c = $('.drop[data-k="c"]', f);
+    wire(f, [{ el: $('[data-k="n"]', f), ok: () => !!$('[data-k="n"]', f).value.trim() }, { el: c, ok: () => dropOk(c) }, { el: $('[data-k="p"]', f), ok: () => +$('[data-k="p"]', f).value > 0 }]);
+  })();
+  (() => { const f = $('#wb-fm-f2'), n = $('[data-k="n"]', f), p = $('[data-k="p"]', f); wire(f, [{ el: n, ok: () => !!n.value.trim() }, { el: p, ok: () => +p.value > 0 }]); })();
+  (() => { const f = $('#wb-fm-f3'), n = $('[data-k="n"]', f), p = $$('input[data-f="money"]', f)[0]; wire(f, [{ el: n, ok: () => !!n.value.trim() }, { el: p, ok: () => +p.value > 0, msg: '请输入大于 0 的价格' }]); $$('.wb-fm-chip', f).forEach(b => b.addEventListener('click', () => b.setAttribute('aria-pressed', String(b.getAttribute('aria-pressed') !== 'true')))); })();
+
+  /* 026 分步表单：每步校验后才能前进，完成步显示勾 */
+  (() => {
+    const root = $('#wb-fm-sp'), panes = $$('.wb-fm-pane', root), steps = $$('.wb-fm-step', root), bars = $$('.wb-fm-steps hr', root), prev = $('[data-prev]', root), next = $('[data-next]', root);
+    let cur = 0;
+    const draw = () => {
+      steps.forEach((s, i) => { s.dataset.state = i < cur ? 'done' : i === cur ? 'now' : 'todo'; $('span', s).innerHTML = i < cur ? '<img src="../../kit/assets/line/check.webp" alt="已完成">' : String(i + 1); });
+      bars.forEach((h, i) => { h.dataset.done = String(i < cur); });
+      panes.forEach((p, i) => { p.hidden = i !== cur; }); $$('.wheel', panes[cur]).forEach(w => w._lzSync && w._lzSync());
+      prev.disabled = cur === 0; next.textContent = cur === 2 ? '提交' : '下一步';
+      if (cur === 2) { const g = k => ($(`[data-k="${k}"]`, root) || {}); $('[data-v="n"]', root).textContent = g('n').value; $('[data-v="c"]', root).textContent = $('.drop[data-k="c"] b', root).textContent; $('[data-v="p"]', root).textContent = '¥' + fmt(+g('p').value || 0); $('[data-v="s"]', root).textContent = $('.wheel .input', root).value + ' 件'; }
+    };
+    next.addEventListener('click', async () => {
+      if (cur === 0) { const n = $('[data-k="n"]', root), bad = !n.value.trim(); mark(fieldOf(n), bad); if (bad) { n.focus(); return; } }
+      if (cur === 1) { const p = $('[data-k="p"]', root), bad = !(+p.value > 0); mark(fieldOf(p), bad); if (bad) { p.focus(); return; } }
+      if (cur === 2) { next.classList.add('is-loading'); await sleep(800); next.classList.remove('is-loading'); Lz.toast('已提交', 'success'); cur = 0; $('[data-k="n"]', root).value = ''; draw(); return; }
+      cur++; draw();
+    });
+    prev.addEventListener('click', () => { cur = Math.max(0, cur - 1); draw(); });
+    root.addEventListener('input', e => { const f = fieldOf(e.target); if (f && $('[aria-invalid="true"]', f)) mark(f, false); });
+    draw();
+  })();
+
+  /* 027 行内表单：券码核销 */
+  (() => {
+    const root = $('#wb-fm-in'), i = $('input', root), er = $('.field__err', root), go = $('[data-go]', root), out = $('.wb-fm-result', root); let busy = false;
+    const say = m => { er.textContent = m || ''; er.hidden = !m; i.setAttribute('aria-invalid', String(!!m)); };
+    const run = async () => {
+      if (busy) return; out.innerHTML = '';
+      if (!/^\d{6}$/.test(i.value)) { say('券码为 6 位数字'); i.focus(); return; }
+      say(''); busy = true; go.classList.add('is-loading'); await sleep(800); go.classList.remove('is-loading'); busy = false;
+      if (i.value === '123456') say('券码已核销'); else { out.innerHTML = '<span class="tag" data-tone="success">核销成功</span><span>满 99 减 20</span>'; Lz.toast('已核销', 'success'); i.value = ''; }
+    };
+    go.addEventListener('click', run); i.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.isComposing) run(); }); i.addEventListener('input', () => { i.value = i.value.replace(/\D/g, ''); say(''); out.innerHTML = ''; });
+  })();
+
+  /* 028 登录表单 */
+  (() => {
+    const f = $('#wb-fm-lg'), a = $('[data-k="a"]', f), w = $('[data-k="w"]', f), al = $('.wb-fm-alert', f), b = $('[data-show]', f);
+    a.addEventListener('input', () => { a.value = a.value.replace(/\D/g, ''); if ($('[aria-invalid="true"]', fieldOf(a))) mark(fieldOf(a), !/^1\d{10}$/.test(a.value)); al.hidden = true; });
+    w.addEventListener('input', () => { if ($('[aria-invalid="true"]', fieldOf(w))) mark(fieldOf(w), !w.value); al.hidden = true; });
+    b.addEventListener('click', () => { const on = w.type === 'password'; w.type = on ? 'text' : 'password'; b.textContent = on ? '隐藏' : '显示'; b.setAttribute('aria-pressed', String(on)); });
+    f.addEventListener('submit', async e => {
+      e.preventDefault(); al.hidden = true;
+      const badA = !/^1\d{10}$/.test(a.value), badW = !w.value; mark(fieldOf(a), badA); mark(fieldOf(w), badW);
+      if (badA || badW) { (badA ? a : w).focus(); return; }
+      const s = $('[type="submit"]', f); s.classList.add('is-loading'); await sleep(900); s.classList.remove('is-loading');
+      if (w.value === '000000') { al.hidden = false; return; } Lz.toast('登录成功', 'success');
+    });
+  })();
+
+  /* 029 校验错误提示 */
+  (() => {
+    const f = $('#wb-fm-vd'), sum = $('.wb-fm-err-sum', f);
+    const R = { phone: v => /^1\d{10}$/.test(v) ? '' : v ? '请输入 11 位手机号' : '请输入手机号', disc: v => !v ? '请输入折扣' : /^\d+(\.\d)?$/.test(v) && +v >= 1 && +v <= 9.9 ? '' : '折扣需在 1 到 9.9 之间', note: v => v.trim() ? '' : '请输入备注内容' };
+    const els = $$('[data-r]', f), touched = new Set();
+    const one = i => { const m = R[i.dataset.r](i.value); mark(fieldOf(i), !!m, m); return !m; };
+    const total = () => { const bad = els.filter(i => R[i.dataset.r](i.value)).length; sum.hidden = !(bad && touched.size === els.length); sum.textContent = `还有 ${bad} 项未通过`; };
+    els.forEach(i => { i.addEventListener('blur', () => { if (!i.value && !touched.has(i)) return; touched.add(i); one(i); total(); }); i.addEventListener('input', () => { if (touched.has(i)) { one(i); total(); } }); });
+    f.addEventListener('submit', async e => {
+      e.preventDefault(); els.forEach(i => touched.add(i)); const ok = els.map(one).every(Boolean); total();
+      if (!ok) { els.find(i => R[i.dataset.r](i.value)).focus(); return; }
+      const b = $('[type="submit"]', f); b.classList.add('is-loading'); await sleep(800); b.classList.remove('is-loading'); Lz.toast('已提交', 'success');
+    });
+    $('[data-reset]', f).addEventListener('click', () => { f.reset(); touched.clear(); els.forEach(i => mark(fieldOf(i), false)); sum.hidden = true; });
+  })();
+
+  /* 030 必填标记：填好后转绿 */
+  (() => {
+    const root = $('#wb-fm-rq');
+    $$('[data-need]', root).forEach(i => { const m = $('[data-m]', fieldOf(i)); const u = () => { const ok = !!i.value.trim(); m.dataset.ok = String(ok); if (m.dataset.t) m.textContent = ok ? '已填' : m.dataset.t; }; i.addEventListener('input', u); u(); });
+  })();
+
+  /* 031 提交条：有改动才可保存 */
+  (() => {
+    const root = $('#wb-fm-sb'), t = $('textarea', root), tag = $('.wb-fm-dirty', root), cancel = $('[data-cancel]', root), save = $('[data-save]', root);
+    const upd = () => { const d = t.value !== t.dataset.saved; tag.hidden = !d; cancel.disabled = !d; save.disabled = !d || !t.value.trim(); };
+    t.addEventListener('input', upd);
+    cancel.addEventListener('click', () => { t.value = t.dataset.saved; t.dispatchEvent(new Event('input')); });
+    save.addEventListener('click', async () => { save.classList.add('is-loading'); await sleep(800); save.classList.remove('is-loading'); t.dataset.saved = t.value; upd(); Lz.toast('已保存', 'success'); });
+    upd();
+  })();
+
+  /* 032 表单卡壳 */
+  (() => {
+    const root = $('#wb-fm-sh'); guard(root);
+    const ins = $$('input', root), init = ins.map(i => i.value), n = $('[data-k="n"]', root), sw = $('.switch', root), st = $('[data-s]', root);
+    root.addEventListener('lz:toggle', e => { const on = sw.getAttribute('aria-checked') === 'true'; st.textContent = on ? '营业中' : '已暂停'; });
+    n.addEventListener('input', () => { if (n.value.trim()) mark(fieldOf(n), false); });
+    $('[data-save]', root).addEventListener('click', async e => { if (!n.value.trim()) { mark(fieldOf(n), true); n.focus(); return; } const b = e.currentTarget; b.classList.add('is-loading'); await sleep(800); b.classList.remove('is-loading'); ins.forEach((i, k) => { init[k] = i.value; }); Lz.toast('已保存', 'success'); });
+    $('[data-cancel]', root).addEventListener('click', () => { ins.forEach((i, k) => { i.value = init[k]; }); mark(fieldOf(n), false); Lz.toast('已取消'); });
+  })();
+})();
+</script>
+
+<style>
+  /* 新增表单组件 033 至 045：沿用 wb-fm- 前缀，各组件再加自己的缩写（ms 多选、cal 月历、dt 日期时间、tr 树、tf 穿梭、otp 验证码、ie 原位编辑、rt 评分、cp 颜色、cmd 命令、crop 裁剪、mn 提及、au 自适应） */
+  .wb-fm-pick > .wb-fm-pop.wb-fm-ms-pop { padding: 0; }
+  .wb-fm-ms-sum { display: inline-flex; align-items: center; gap: var(--s-2); min-width: 0; }
+  .wb-fm-ms-sum .avatars .avatar { width: 24px; height: 24px; padding: 3px; margin-left: -6px; border-width: 1px; }
+  .wb-fm-ms-sum .avatars .avatar:first-child { margin-left: 0; }
+  .wb-fm-ms-list { max-height: 272px; overflow-y: auto; padding: 0 var(--s-1) var(--s-1); scrollbar-width: thin; }
+  .wb-fm-ms-gh { position: sticky; top: 0; z-index: 1; display: flex; align-items: center; justify-content: space-between; min-height: 32px; padding: 0 var(--s-2); background: var(--surface); font-size: var(--fs-xs); font-weight: 600; color: var(--ink-3); }
+  .wb-fm-ms-gt { min-height: 28px; padding: 0 var(--s-2); border-radius: var(--r-sm); font-size: var(--fs-xs); font-weight: 500; color: var(--action-press); }
+  .wb-fm-ms-row { display: flex; align-items: center; gap: var(--s-3); width: 100%; min-height: 44px; padding: 0 var(--s-2); border-radius: var(--r-sm); text-align: left; font-size: var(--fs-sm); transition: background var(--dur-quick) var(--ease-out); }
+  .wb-fm-ms-row .avatar { width: 28px; height: 28px; padding: 3px; }
+  .wb-fm-ms-nm { flex: 1; min-width: 0; }
+  .wb-fm-ms-row small { font-size: var(--fs-xs); color: var(--ink-3); }
+  .wb-fm-ms-row[aria-selected="true"] { background: var(--action-tint); }
+  .wb-fm-ms-row:disabled { opacity: .45; pointer-events: none; }
+  .wb-fm-ms-row mark, .wb-fm-tr-l mark, .wb-fm-tf-i mark, .wb-fm-cmd-i mark { background: var(--action-tint); color: var(--action-press); font-weight: 600; border-radius: 3px; }
+  @media (hover: hover) { .wb-fm-ms-row:hover, .wb-fm-ms-gt:hover { background: var(--zone); } }
+  .wb-fm-ms-row:focus-visible, .wb-fm-ms-gt:focus-visible { outline: none; background: var(--zone); }
+  .wb-fm-ms-foot { display: flex; align-items: center; justify-content: space-between; gap: var(--s-2); min-height: 52px; padding: var(--s-2) var(--s-3); border-top: 1px solid var(--line); font-size: var(--fs-sm); color: var(--ink-3); }
+  .wb-fm-ms-acts { display: flex; align-items: center; gap: var(--s-2); }
+  .wb-fm-ms-chosen:empty { display: none; }
+
+  /* 月历：日期选择框与日期时间选择器共用 */
+  .wb-fm-dp-pop, .wb-fm-dt-pop { right: auto; padding: var(--s-3); }
+  .wb-fm-dp-pop { width: 308px; max-width: 100%; }
+  .wb-fm-cal__bar { display: grid; grid-template-columns: 36px minmax(0, 1fr) 36px; align-items: center; gap: var(--s-1); margin-bottom: var(--s-2); }
+  .wb-fm-cal__n { position: relative; width: 36px; height: 36px; border-radius: var(--r-sm); transition: background var(--dur-quick) var(--ease-out); }
+  .wb-fm-cal__n::before { content: ""; position: absolute; left: 50%; top: 50%; width: 8px; height: 8px; border: solid var(--ink-2); border-width: 0 0 1.8px 1.8px; transform: translate(-30%, -50%) rotate(45deg); }
+  .wb-fm-cal__n--r::before { transform: translate(-70%, -50%) rotate(-135deg); }
+  .wb-fm-cal__t { min-height: 36px; border-radius: var(--r-sm); font-size: var(--fs-sm); font-weight: 600; text-align: center; transition: background var(--dur-quick) var(--ease-out); }
+  .wb-fm-cal__wk, .wb-fm-cal__g { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
+  .wb-fm-cal__wk span { display: grid; place-items: center; height: 28px; font-size: var(--fs-xs); color: var(--ink-3); }
+  .wb-fm-cal__g { gap: 2px; }
+  .wb-fm-cal__d { display: grid; place-items: center; height: 36px; border-radius: var(--r-sm); font-size: var(--fs-sm); font-variant-numeric: tabular-nums; transition: background var(--dur-quick) var(--ease-out), color var(--dur-quick) var(--ease-out); }
+  .wb-fm-cal__d[data-out="true"] { color: var(--ink-3); }
+  .wb-fm-cal__d[data-now="true"] { box-shadow: inset 0 0 0 1.5px var(--action); }
+  .wb-fm-cal__d[aria-pressed="true"] { background: var(--action); color: var(--surface); font-weight: 600; }
+  .wb-fm-cal__d:disabled { color: var(--ink-3); opacity: .4; pointer-events: none; }
+  .wb-fm-cal__m { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-2); }
+  .wb-fm-cal__mi { min-height: 52px; border-radius: var(--r-sm); font-size: var(--fs-sm); transition: background var(--dur-quick) var(--ease-out); }
+  .wb-fm-cal__mi[aria-pressed="true"] { background: var(--action); color: var(--surface); font-weight: 600; }
+  .wb-fm-cal__foot { display: flex; align-items: center; justify-content: space-between; margin-top: var(--s-2); padding-top: var(--s-2); border-top: 1px solid var(--line); }
+  @media (hover: hover) { .wb-fm-cal__n:hover, .wb-fm-cal__t:hover, .wb-fm-cal__mi:not([aria-pressed="true"]):hover, .wb-fm-cal__d:not([aria-pressed="true"]):not(:disabled):hover { background: var(--zone); } }
+  .wb-fm-cal__n:focus-visible, .wb-fm-cal__t:focus-visible, .wb-fm-cal__mi:focus-visible, .wb-fm-cal__d:focus-visible { outline: 2px solid var(--ink-2); outline-offset: -2px; }
+  .wb-fm-dt-pop { width: 436px; max-width: 100%; }
+  .wb-fm-dt-body { display: flex; align-items: stretch; gap: var(--s-3); }
+  .wb-fm-dt-cal { flex: 1; min-width: 0; }
+  .wb-fm-dt-time { display: grid; grid-template-columns: repeat(2, 52px); gap: var(--s-1); padding-left: var(--s-3); border-left: 1px solid var(--line); }
+  .wb-fm-dt-w { position: relative; min-height: 0; }
+  .wb-fm-dt-th { display: grid; place-items: center; height: 36px; margin-bottom: var(--s-2); font-size: var(--fs-xs); font-weight: 600; color: var(--ink-3); }
+  .wb-fm-dt-col { position: absolute; inset: 44px 0 0 0; display: grid; align-content: start; gap: 2px; overflow-y: auto; scrollbar-width: none; }
+  .wb-fm-dt-col::-webkit-scrollbar { display: none; }
+  .wb-fm-dt-i { display: grid; place-items: center; min-height: 36px; border-radius: var(--r-sm); font-size: var(--fs-sm); font-variant-numeric: tabular-nums; transition: background var(--dur-quick) var(--ease-out); }
+  .wb-fm-dt-i[aria-selected="true"] { background: var(--action-tint); color: var(--action-press); font-weight: 600; }
+  @media (hover: hover) { .wb-fm-dt-i:hover { background: var(--zone); } }
+  .wb-fm-dt-i:focus-visible { outline: 2px solid var(--ink-2); outline-offset: -2px; }
+
+  /* 树选择器 */
+  .wb-fm-tr-list { max-height: 252px; overflow-y: auto; padding: 0 var(--s-1) var(--s-1); scrollbar-width: thin; }
+  .wb-fm-tr-n { display: flex; align-items: center; gap: var(--s-1); min-height: 40px; padding: 0 var(--s-3) 0 calc(var(--s-1) + var(--lv, 0) * 22px); border-radius: var(--r-sm); font-size: var(--fs-sm); cursor: pointer; transition: background var(--dur-quick) var(--ease-out); }
+  .wb-fm-tr-t { position: relative; flex: none; width: 24px; height: 24px; border-radius: 6px; }
+  .wb-fm-tr-t[data-t]::before { content: ""; position: absolute; left: 50%; top: 50%; width: 6px; height: 6px; border: solid var(--ink-3); border-width: 0 1.6px 1.6px 0; transform: translate(-65%, -50%) rotate(-45deg); transition: transform var(--dur-base) var(--ease-out); }
+  .wb-fm-tr-n[aria-expanded="true"] > .wb-fm-tr-t::before { transform: translate(-50%, -65%) rotate(45deg); }
+  .wb-fm-tr-n > small { margin-left: auto; font-size: var(--fs-xs); color: var(--ink-3); }
+  .wb-fm-tr-n[aria-selected="true"] { background: var(--action-tint); color: var(--action-press); font-weight: 600; }
+  .wb-fm-tr-n[aria-disabled="true"] { opacity: .5; cursor: not-allowed; }
+  @media (hover: hover) { .wb-fm-tr-n:not([aria-selected="true"]):not([aria-disabled="true"]):hover { background: var(--zone); } .wb-fm-tr-t[data-t]:hover { background: var(--action-edge); } }
+  .wb-fm-tr-n:focus-visible { outline: none; background: var(--zone); }
+  .wb-fm-tr-n[aria-selected="true"]:focus-visible { background: var(--action-soft); }
+
+  /* 穿梭框 */
+  .wb-fm-tf { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: stretch; gap: var(--s-3); }
+  .wb-fm-tf-p { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto minmax(0, 1fr); min-width: 0; border: 1px solid var(--line-strong); border-radius: var(--r-md); overflow: hidden; background: var(--surface); }
+  .wb-fm-tf-h { display: flex; align-items: center; gap: var(--s-2); width: 100%; min-height: 44px; padding: 0 var(--s-3); background: var(--zone); font-size: var(--fs-sm); text-align: left; }
+  .wb-fm-tf-h b { font-weight: 600; }
+  .wb-fm-tf-h .wb-fm-cnt { margin-left: auto; }
+  .wb-fm-tf-h:disabled { cursor: default; }
+  .wb-fm-tf-l { height: 248px; overflow-y: auto; padding: 0 var(--s-1) var(--s-1); scrollbar-width: thin; }
+  .wb-fm-tf-i { display: flex; align-items: center; gap: var(--s-3); width: 100%; min-height: 40px; padding: 0 var(--s-2); border-radius: var(--r-sm); font-size: var(--fs-sm); text-align: left; transition: background var(--dur-quick) var(--ease-out); }
+  .wb-fm-tf-i[aria-selected="true"] { background: var(--action-tint); }
+  .wb-fm-tf-i:disabled { opacity: .45; pointer-events: none; }
+  .wb-fm-tf-i small { margin-left: auto; font-size: var(--fs-xs); color: var(--ink-3); }
+  @media (hover: hover) { .wb-fm-tf-i:not([aria-selected="true"]):hover { background: var(--zone); } }
+  .wb-fm-tf-i:focus-visible, .wb-fm-tf-h:focus-visible { outline: none; background: var(--zone); }
+  .wb-fm-tf-mid { display: grid; align-content: center; gap: var(--s-2); }
+  .wb-fm-tf-b { position: relative; width: 36px; height: 36px; border-radius: var(--r-sm); background: var(--action); transition: background var(--dur-quick) var(--ease-out), transform var(--dur-instant) var(--ease-out); }
+  .wb-fm-tf-b::before { content: ""; position: absolute; left: 50%; top: 50%; width: 8px; height: 8px; border: solid var(--surface); border-width: 0 0 2px 2px; transform: translate(-30%, -50%) rotate(45deg); }
+  .wb-fm-tf-b--r::before { transform: translate(-70%, -50%) rotate(-135deg); }
+  .wb-fm-tf-b:active { transform: scale(.94); }
+  .wb-fm-tf-b:disabled { background: var(--zone); pointer-events: none; }
+  .wb-fm-tf-b:disabled::before { border-color: var(--ink-3); opacity: .5; }
+  .wb-fm-tf-b:focus-visible { outline: 2px solid var(--ink-2); outline-offset: 2px; }
+
+  /* 验证码分格输入 */
+  .wb-fm-otp { max-width: 360px; margin: 0 auto; }
+  .wb-fm-otp__top { display: grid; justify-items: center; gap: var(--s-1); margin-bottom: var(--s-5); text-align: center; }
+  .wb-fm-otp__top h3 { font-size: var(--fs-xl); font-weight: 700; line-height: var(--lh-tight); }
+  .wb-fm-otp__row { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: var(--s-2); }
+  #cat-form .wb-fm-otp__c { min-height: 56px; padding: 0; text-align: center; font-size: var(--fs-xl); font-weight: 600; font-variant-numeric: tabular-nums; caret-color: var(--ink); transition: border-color var(--dur-quick) var(--ease-out), background var(--dur-quick) var(--ease-out); }
+  #cat-form .wb-fm-otp__c[data-v] { border-color: var(--ink-2); }
+  #cat-form .wb-fm-otp[data-st="bad"] .wb-fm-otp__c { border-color: var(--danger); background: var(--danger-tint); }
+  #cat-form .wb-fm-otp[data-st="ok"] .wb-fm-otp__c { border-color: var(--success); background: var(--success-tint); }
+  #cat-form .wb-fm-otp__c::selection { background: color-mix(in srgb, var(--action) 16%, transparent); color: inherit; }
+  #cat-form .wb-fm-otp__c:disabled { background: var(--zone); color: var(--ink-2); cursor: wait; }
+  .wb-fm-otp__msg { display: flex; align-items: center; justify-content: center; gap: var(--s-2); min-height: 24px; margin-top: var(--s-3); font-size: var(--fs-sm); }
+  .wb-fm-otp__msg[data-t="bad"] { color: var(--danger); font-weight: 500; }
+  .wb-fm-otp__re { display: flex; justify-content: center; margin-top: var(--s-1); }
+
+  /* 原位编辑文本 */
+  .wb-fm-ie-row { display: grid; grid-template-columns: 88px minmax(0, 1fr); align-items: start; gap: var(--s-4); padding: var(--s-3) 0; }
+  .wb-fm-ie-row:first-child { padding-top: 0; }
+  .wb-fm-ie-row:last-child { padding-bottom: 0; }
+  .wb-fm-ie-row + .wb-fm-ie-row { border-top: 1px solid var(--line); }
+  .wb-fm-ie-row > b { display: flex; align-items: center; min-height: 40px; font-size: var(--fs-sm); font-weight: 600; color: var(--ink-2); }
+  .wb-fm-ie-c { min-width: 0; }
+  .wb-fm-ie-v { display: flex; align-items: center; gap: var(--s-2); min-height: 40px; padding: 0 var(--s-1) 0 var(--s-3); border: 1px solid transparent; border-radius: var(--r-md); font-size: var(--fs-sm); cursor: text; transition: background var(--dur-quick) var(--ease-out), border-color var(--dur-quick) var(--ease-out); }
+  .wb-fm-ie-row[data-multi] .wb-fm-ie-v { align-items: flex-start; min-height: 0; padding-top: var(--s-3); padding-bottom: var(--s-3); line-height: var(--lh-body); }
+  .wb-fm-ie-row[data-multi] > b { align-items: flex-start; min-height: 0; padding-top: 13px; line-height: var(--lh-body); }
+  .wb-fm-ie-t { flex: 1; min-width: 0; overflow-wrap: anywhere; white-space: pre-wrap; }
+  .wb-fm-ie-t[data-empty="true"] { color: var(--ink-3); }
+  .wb-fm-ie-e { flex: none; width: 32px; height: 32px; opacity: .55; transition: opacity var(--dur-quick) var(--ease-out), background var(--dur-quick) var(--ease-out); }
+  .wb-fm-ie-row[data-multi] .wb-fm-ie-e { margin-top: -8px; margin-bottom: -8px; }
+  .wb-fm-ie-e img { width: 18px; height: 18px; }
+  @media (hover: hover) { .wb-fm-ie-v:hover { background: var(--zone); border-color: var(--line); } .wb-fm-ie-v:hover .wb-fm-ie-e { opacity: 1; } }
+  .wb-fm-ie-e:focus-visible { opacity: 1; }
+  .wb-fm-ie-ed { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: start; gap: var(--s-2); }
+  .wb-fm-ie-ed[hidden] { display: none; }
+  .wb-fm-ie-ed .btn { min-height: 40px; }
+  .wb-fm-ie-ed .field__err, .wb-fm-ie-ed .wb-fm-ie-box { grid-column: 1 / -1; }
+  .wb-fm-ie-ed .wb-fm-ie-box { display: grid; gap: var(--s-2); }
+  .wb-fm-ie-ed .wb-fm-ie-foot { grid-column: 1 / -1; display: flex; align-items: center; gap: var(--s-2); }
+  .wb-fm-ie-ed .wb-fm-ie-foot .wb-fm-cnt { margin-right: auto; }
+
+  /* 星级评分 */
+  .wb-fm-rt-line { display: flex; align-items: center; gap: var(--s-3); min-height: 40px; }
+  .wb-fm-rt { display: inline-flex; gap: var(--s-1); }
+  .wb-fm-rt-s { display: grid; place-items: center; width: 32px; height: 36px; border-radius: var(--r-sm); transition: transform var(--dur-quick) var(--ease-spring); }
+  .wb-fm-rt-s img { width: 28px; height: 28px; transition: opacity var(--dur-quick) var(--ease-out); }
+  #cat-form .wb-fm-rt-s:not(.is-on) img { filter: grayscale(1); opacity: .3; }
+  @media (hover: hover) { .wb-fm-rt-s:hover { transform: scale(1.12); } }
+  .wb-fm-rt-s:active { transform: scale(.94); }
+  .wb-fm-rt-s:focus-visible { outline: 2px solid var(--ink-2); outline-offset: 0; }
+  .wb-fm-rt-w { min-width: 72px; font-size: var(--fs-sm); color: var(--ink-2); font-variant-numeric: tabular-nums; }
+  .wb-fm-rt-line .btn { margin-left: auto; }
+  .wb-fm-rt-ro { position: relative; display: inline-flex; margin-left: 2px; padding: var(--s-1) 0; }
+  .wb-fm-rt-ro > span { display: inline-flex; gap: var(--s-2); }
+  .wb-fm-rt-ro img { width: 28px; height: 28px; flex: none; }
+  .wb-fm-rt-ro > span:first-child img { filter: grayscale(1); opacity: .3; }
+  .wb-fm-rt-ro > .wb-fm-rt-fill { position: absolute; left: 0; top: var(--s-1); bottom: var(--s-1); width: var(--v); overflow: hidden; }
+  .wb-fm-rt-off { opacity: .5; pointer-events: none; }
+  .wb-fm-rt-off img { padding: 0; }
+
+  /* 颜色选择器 */
+  .wb-fm-cp-lab { display: inline-flex; align-items: center; gap: var(--s-3); min-width: 0; }
+  .wb-fm-cp-sw { flex: none; width: 24px; height: 24px; border-radius: 8px; background: var(--c); box-shadow: inset 0 0 0 1px var(--line-strong); }
+  .wb-fm-cp-pop { right: auto; display: grid; gap: var(--s-3); width: 288px; max-width: 100%; padding: var(--s-3); }
+  .wb-fm-cp-sv, .wb-fm-cp-hue { position: relative; touch-action: none; cursor: crosshair; }
+  .wb-fm-cp-sv { height: 152px; border-radius: var(--r-md); }
+  .wb-fm-cp-hue { height: 14px; border-radius: 7px; }
+  .wb-fm-cp-sv canvas, .wb-fm-cp-hue canvas { display: block; width: 100%; height: 100%; border-radius: inherit; }
+  .wb-fm-cp-hd { position: absolute; width: 18px; height: 18px; margin: -9px 0 0 -9px; border-radius: 50%; border: 2px solid var(--surface); background: var(--c); box-shadow: var(--elev-2), 0 0 0 1px var(--line-strong); pointer-events: none; }
+  .wb-fm-cp-hue .wb-fm-cp-hd { top: 50%; }
+  .wb-fm-cp-row { display: grid; grid-template-columns: 40px minmax(0, 1fr); align-items: start; gap: var(--s-2); }
+  .wb-fm-cp-pv { width: 40px; height: 40px; border-radius: var(--r-md); background: var(--c); box-shadow: inset 0 0 0 1px var(--line-strong); }
+  .wb-fm-cp-sws { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: var(--s-2) 6px; }
+  .wb-fm-cp-s { position: relative; aspect-ratio: 1; border-radius: 8px; background: var(--c); box-shadow: inset 0 0 0 1px var(--line-strong); transition: transform var(--dur-quick) var(--ease-out); }
+  .wb-fm-cp-s[aria-checked="true"] { box-shadow: inset 0 0 0 1px var(--line-strong), 0 0 0 2px var(--surface), 0 0 0 3.5px var(--ink-2); }
+  @media (hover: hover) { .wb-fm-cp-s:hover { transform: scale(1.1); } }
+  .wb-fm-cp-s:focus-visible { outline: 2px solid var(--ink-2); outline-offset: 2px; }
+  .wb-fm-cp-ex { display: flex; align-items: center; flex-wrap: wrap; gap: var(--s-2); }
+  .wb-fm-cp-b, .wb-fm-cp-t { background: var(--c); transition: background var(--dur-quick) var(--ease-out), color var(--dur-quick) var(--ease-out); }
+  .wb-fm-cp-b[data-on="dark"], .wb-fm-cp-t[data-on="dark"] { color: var(--surface); }
+  .wb-fm-cp-b[data-on="light"], .wb-fm-cp-t[data-on="light"] { color: var(--ink); }
+  .wb-fm-cp-b { min-height: 32px; padding: 0 var(--s-3); border-radius: var(--r-sm); font-size: var(--fs-sm); }
+  .wb-fm-cp-t { height: 26px; padding: 0 var(--s-3); font-size: var(--fs-xs); }
+
+  /* 命令搜索面板：就近内嵌，不做居中弹窗 */
+  .wb-fm-cmd { border: 1px solid var(--line-strong); border-radius: var(--r-md); overflow: hidden; background: var(--surface); transition: border-color var(--dur-quick) var(--ease-out), box-shadow var(--dur-quick) var(--ease-out); }
+  .wb-fm-cmd:focus-within { border-color: var(--ink-2); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ink) 8%, transparent); }
+  .wb-fm-cmd-s { display: flex; align-items: center; gap: var(--s-3); min-height: 52px; padding: 0 var(--s-4); border-bottom: 1px solid var(--line); }
+  .wb-fm-cmd-s img { width: 20px; height: 20px; flex: none; }
+  #cat-form .wb-fm-cmd-s input { flex: 1; min-width: 0; height: 50px; border: 0; background: none; font-size: var(--fs-sm); }
+  #cat-form .wb-fm-cmd-s input:focus-visible { outline: none; box-shadow: none; }
+  #cat-form .wb-fm-cmd-s input::placeholder { color: var(--ink-3); }
+  .wb-fm-cmd-list { min-height: 112px; max-height: 392px; overflow-y: auto; padding: var(--s-1); scrollbar-width: thin; }
+  .wb-fm-cmd-gh { padding: var(--s-2) var(--s-3) var(--s-1); font-size: var(--fs-xs); font-weight: 600; color: var(--ink-3); }
+  .wb-fm-cmd-i { display: flex; align-items: center; gap: var(--s-3); width: 100%; min-height: 40px; padding: 0 var(--s-3); border-radius: var(--r-sm); font-size: var(--fs-sm); text-align: left; }
+  .wb-fm-cmd-i img { width: 20px; height: 20px; flex: none; }
+  .wb-fm-cmd-i > span { flex: 1; min-width: 0; }
+  .wb-fm-cmd-i small { font-size: var(--fs-xs); color: var(--ink-3); }
+  .wb-fm-cmd-i[aria-selected="true"] { background: var(--action-tint); color: var(--action-press); }
+  .wb-fm-cmd-foot { display: flex; align-items: center; gap: var(--s-4); min-height: 40px; padding: 0 var(--s-4); border-top: 1px solid var(--line); background: var(--zone); font-size: var(--fs-xs); color: var(--ink-3); }
+
+  /* 图片裁剪框 */
+  .wb-fm-crop-wrap { display: flex; justify-content: center; border-radius: var(--r-md); background: var(--zone); overflow: hidden; }
+  .wb-fm-crop-st { position: relative; width: 100%; aspect-ratio: 3 / 2; touch-action: none; user-select: none; overflow: hidden; }
+  .wb-fm-crop-st > img { width: 100%; height: 100%; object-fit: fill; pointer-events: none; }
+  .wb-fm-crop-fr { --g: color-mix(in srgb, var(--surface) 55%, transparent); position: absolute; border: 2px solid var(--surface); box-shadow: 0 0 0 999px color-mix(in srgb, var(--ink) 46%, transparent); cursor: move; background: linear-gradient(var(--g) 0 0) 33.33% 0 / 1px 100% no-repeat, linear-gradient(var(--g) 0 0) 66.66% 0 / 1px 100% no-repeat, linear-gradient(var(--g) 0 0) 0 33.33% / 100% 1px no-repeat, linear-gradient(var(--g) 0 0) 0 66.66% / 100% 1px no-repeat; }
+  .wb-fm-crop-fr:focus-visible { outline: 2px solid var(--action); outline-offset: 2px; border-radius: 0; }
+  .wb-fm-crop-fr i { position: absolute; width: 28px; height: 28px; }
+  .wb-fm-crop-fr i::after { content: ""; position: absolute; inset: 6px; border-radius: 4px; background: var(--surface); box-shadow: var(--elev-1); }
+  .wb-fm-crop-fr i[data-h="nw"] { left: 0; top: 0; cursor: nwse-resize; }
+  .wb-fm-crop-fr i[data-h="ne"] { right: 0; top: 0; cursor: nesw-resize; }
+  .wb-fm-crop-fr i[data-h="sw"] { left: 0; bottom: 0; cursor: nesw-resize; }
+  .wb-fm-crop-fr i[data-h="se"] { right: 0; bottom: 0; cursor: nwse-resize; }
+  .wb-fm-crop-bar { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); margin-top: var(--s-4); }
+  .wb-fm-crop-bar .seg__item[aria-checked="true"] { background: var(--action); color: var(--surface); font-weight: 600; }
+  .wb-fm-crop-zoom { display: flex; align-items: center; gap: var(--s-2); }
+  .wb-fm-crop-out { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--s-3); margin-top: var(--s-4); }
+  .wb-fm-crop-pv { display: flex; align-items: center; gap: var(--s-3); flex: none; }
+  .wb-fm-crop-p { flex: none; border-radius: var(--r-sm); background-color: var(--zone); background-repeat: no-repeat; box-shadow: 0 0 0 1px var(--line); }
+  .wb-fm-crop-p--c { border-radius: 50%; }
+  .wb-fm-crop-info { display: grid; gap: 2px; min-width: 0; font-size: var(--fs-sm); color: var(--ink-2); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .wb-fm-crop-info small { font-size: var(--fs-xs); color: var(--ink-3); }
+
+  /* 提及输入框 */
+  .wb-fm-mn-box { position: relative; }
+  .wb-fm-mn-box > .textarea { display: block; }
+  .wb-fm-mn-pop { position: absolute; z-index: 30; width: 248px; max-width: 100%; max-height: 236px; overflow-y: auto; scrollbar-width: thin; padding: var(--s-1); background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); box-shadow: var(--elev-3); opacity: 0; transform: scale(.97); transform-origin: top left; pointer-events: none; transition: opacity var(--dur-quick) var(--ease-out), transform var(--dur-quick) var(--ease-out); }
+  .wb-fm-mn-pop[data-open="true"] { opacity: 1; transform: none; pointer-events: auto; }
+  .wb-fm-mn-foot { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); margin-top: var(--s-3); }
+  .wb-fm-mn-foot .wb-fm-chips { flex: 1; min-width: 0; }
+  .wb-fm-mn-foot .btn { flex: none; min-height: 40px; }
+  .wb-fm-mn-feed { display: grid; gap: var(--s-3); margin-top: var(--s-4); padding-top: var(--s-4); border-top: 1px solid var(--line); }
+  .wb-fm-mn-feed:empty { display: none; }
+  .wb-fm-mn-c { display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: var(--s-3); align-items: start; font-size: var(--fs-sm); }
+  .wb-fm-mn-c .avatar { width: 32px; height: 32px; padding: 3px; }
+  .wb-fm-mn-c b { font-weight: 600; }
+  .wb-fm-mn-c small { margin-left: var(--s-2); font-size: var(--fs-xs); color: var(--ink-3); }
+  .wb-fm-mn-c p { margin-top: 2px; line-height: var(--lh-body); overflow-wrap: anywhere; white-space: pre-wrap; }
+  .wb-fm-mn-at { color: var(--action-press); font-weight: 600; }
+
+  /* 自适应文本域 */
+  #cat-form .textarea.wb-fm-au-t { min-height: 72px; resize: none; overflow-y: hidden; transition: height var(--dur-quick) var(--ease-out), border-color var(--dur-quick) var(--ease-out); }
+</style>
+
+<article class="demo" data-cid="WB-FORM-033" data-name="搜索多选面板" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">搜索多选面板</span></div>
+  <p class="demo__note">适合：成员与标签多选，面板内带搜索与分组</p>
+  <div class="demo__stage wb-fm-room"><div class="card wb-fm-card" id="wb-fm-ms">
+    <div class="field"><span class="wb-fm-lab"><span class="field__label" id="wb-fm-ms-l">协作成员</span><span class="wb-fm-cnt">已选 <b data-n>0</b>/5</span></span>
+      <div class="wb-fm-pick" data-open="false">
+        <button type="button" class="wb-fm-ctl" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="wb-fm-ms-l"><span class="wb-fm-ph">请选择成员</span></button>
+        <div class="wb-fm-pop wb-fm-ms-pop" inert>
+          <label class="wb-fm-combo-s"><img src="../../kit/assets/line/search.webp" alt=""><input type="search" placeholder="搜索成员姓名或岗位" aria-label="搜索成员姓名或岗位" autocomplete="off"></label>
+          <div class="wb-fm-ms-list" role="listbox" aria-multiselectable="true" aria-labelledby="wb-fm-ms-l"></div>
+          <div class="wb-fm-ms-foot"><span data-sum>已选 0 人</span><span class="wb-fm-ms-acts"><button type="button" class="btn btn--text btn--sm" data-clear>清空</button><button type="button" class="btn btn--primary btn--sm" data-done>完成</button></span></div>
+        </div>
+      </div>
+      <div class="wb-fm-chips wb-fm-ms-chosen" aria-label="已选成员"></div>
+    </div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-FORM-034" data-name="日期选择框" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">日期选择框</span></div>
+  <p class="demo__note">适合：筛选与预约选单日，月历就近展开并支持键盘输入</p>
+  <div class="demo__stage wb-fm-room"><div class="card wb-fm-card wb-fm-stack" id="wb-fm-dp">
+    <div class="field"><span class="field__label" id="wb-fm-dp-l1">预约日期</span>
+      <div class="wb-fm-pick" data-open="false"><span class="wb-fm-group"><input class="input" inputmode="numeric" placeholder="请选择或输入日期" aria-labelledby="wb-fm-dp-l1" autocomplete="off"><button type="button" class="wb-fm-link" aria-haspopup="dialog" aria-expanded="false" aria-label="展开预约日期的月历">日历</button></span><div class="wb-fm-pop wb-fm-dp-pop" role="dialog" aria-label="选择预约日期" inert></div></div>
+      <span class="field__err" hidden></span>
+    </div>
+    <div class="field"><span class="field__label" id="wb-fm-dp-l2">取花日期</span>
+      <div class="wb-fm-pick" data-open="false" data-init="2"><span class="wb-fm-group"><input class="input" inputmode="numeric" placeholder="请选择或输入日期" aria-labelledby="wb-fm-dp-l2" autocomplete="off"><button type="button" class="wb-fm-link" aria-haspopup="dialog" aria-expanded="false" aria-label="展开取花日期的月历">日历</button></span><div class="wb-fm-pop wb-fm-dp-pop" role="dialog" aria-label="选择取花日期" inert></div></div>
+      <span class="field__err" hidden></span>
+    </div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-FORM-035" data-name="树选择器" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">树选择器</span></div>
+  <p class="demo__note">适合：选部门、类目与区域，下拉里展开树</p>
+  <div class="demo__stage wb-fm-room"><div class="card wb-fm-card" id="wb-fm-tr">
+    <div class="field"><span class="field__label" id="wb-fm-tr-l">所属部门</span>
+      <div class="wb-fm-pick" data-open="false">
+        <button type="button" class="wb-fm-ctl" aria-haspopup="tree" aria-expanded="false" aria-labelledby="wb-fm-tr-l"><span class="wb-fm-ph">请选择部门</span></button>
+        <div class="wb-fm-pop" inert>
+          <label class="wb-fm-combo-s"><img src="../../kit/assets/line/search.webp" alt=""><input type="search" placeholder="搜索部门" aria-label="搜索部门" autocomplete="off"></label>
+          <div class="wb-fm-tr-list" role="tree" aria-labelledby="wb-fm-tr-l"></div>
+        </div>
+      </div>
+    </div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-FORM-036" data-name="穿梭框选择" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">穿梭框选择</span></div>
+  <p class="demo__note">适合：权限与成员分配，左右两栏互相移动</p>
+  <div class="demo__stage"><div class="card wb-fm-card" id="wb-fm-tf">
+    <div class="field"><span class="field__label" id="wb-fm-tf-l">角色权限</span>
+      <div class="wb-fm-tf" role="group" aria-labelledby="wb-fm-tf-l">
+        <section class="wb-fm-tf-p" data-side="l" aria-label="可选权限">
+          <button type="button" class="wb-fm-tf-h" data-all aria-label="全选可选权限"><span class="check" aria-checked="false" aria-hidden="true"><img src="../../kit/assets/line/check.webp" alt=""></span><b>可选权限</b><span class="wb-fm-cnt" data-c>0/0</span></button>
+          <label class="wb-fm-combo-s"><img src="../../kit/assets/line/search.webp" alt=""><input type="search" placeholder="搜索权限" aria-label="搜索可选权限" autocomplete="off"></label>
+          <div class="wb-fm-tf-l" role="listbox" aria-multiselectable="true" aria-label="可选权限列表"></div>
+        </section>
+        <div class="wb-fm-tf-mid">
+          <button type="button" class="wb-fm-tf-b wb-fm-tf-b--r" data-go="r" data-tip="添加所选权限" aria-label="添加所选权限" disabled></button>
+          <button type="button" class="wb-fm-tf-b" data-go="l" data-tip="移除所选权限" aria-label="移除所选权限" disabled></button>
+        </div>
+        <section class="wb-fm-tf-p" data-side="r" aria-label="已授权权限">
+          <button type="button" class="wb-fm-tf-h" data-all aria-label="全选已授权权限"><span class="check" aria-checked="false" aria-hidden="true"><img src="../../kit/assets/line/check.webp" alt=""></span><b>已授权</b><span class="wb-fm-cnt" data-c>0/0</span></button>
+          <label class="wb-fm-combo-s"><img src="../../kit/assets/line/search.webp" alt=""><input type="search" placeholder="搜索权限" aria-label="搜索已授权权限" autocomplete="off"></label>
+          <div class="wb-fm-tf-l" role="listbox" aria-multiselectable="true" aria-label="已授权权限列表"></div>
+        </section>
+      </div>
+    </div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-FORM-037" data-name="验证码分格输入" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">验证码分格输入</span></div>
+  <p class="demo__note">适合：登录与改密码时六格验证码逐格输入并自动跳格</p>
+  <div class="demo__stage"><div class="card wb-fm-card" id="wb-fm-otp"><div class="wb-fm-otp" data-st="idle">
+    <div class="wb-fm-otp__top"><h3>验证手机号</h3><span class="t-sub">验证码已发送至尾号 8000 的手机</span></div>
+    <div class="wb-fm-otp__row" role="group" aria-label="六位短信验证码">
+      <input class="input wb-fm-otp__c" inputmode="numeric" maxlength="1" aria-label="验证码第 1 位" autocomplete="one-time-code"><input class="input wb-fm-otp__c" inputmode="numeric" maxlength="1" aria-label="验证码第 2 位" autocomplete="off"><input class="input wb-fm-otp__c" inputmode="numeric" maxlength="1" aria-label="验证码第 3 位" autocomplete="off"><input class="input wb-fm-otp__c" inputmode="numeric" maxlength="1" aria-label="验证码第 4 位" autocomplete="off"><input class="input wb-fm-otp__c" inputmode="numeric" maxlength="1" aria-label="验证码第 5 位" autocomplete="off"><input class="input wb-fm-otp__c" inputmode="numeric" maxlength="1" aria-label="验证码第 6 位" autocomplete="off">
+    </div>
+    <div class="wb-fm-otp__msg" role="status" aria-live="polite"></div>
+    <div class="wb-fm-otp__re"><button type="button" class="btn btn--text btn--sm" data-resend disabled>60 秒后可重新获取</button></div>
+  </div></div></div>
+</article>
+
+<article class="demo" data-cid="WB-FORM-038" data-name="原位编辑文本" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">原位编辑文本</span></div>
+  <p class="demo__note">适合：名称与备注在阅读态与编辑态之间原位切换</p>
+  <div class="demo__stage"><div class="card wb-fm-card" id="wb-fm-ie">
+    <div class="wb-fm-ie-row" data-f="name"><b>门店名称</b>
+      <div class="wb-fm-ie-c">
+        <div class="wb-fm-ie-v" data-read><span class="wb-fm-ie-t">建国路店</span><button type="button" class="ibtn wb-fm-ie-e" data-tip="编辑门店名称" aria-label="编辑门店名称"><img src="../../kit/assets/line/edit.webp" alt=""></button></div>
+        <form class="wb-fm-ie-ed" data-edit hidden novalidate><input class="input" maxlength="20" aria-label="门店名称" autocomplete="off"><button type="button" class="btn btn--ghost" data-cancel>取消</button><button type="submit" class="btn btn--primary">保存</button><span class="field__err" hidden></span></form>
+      </div>
+    </div>
+    <div class="wb-fm-ie-row" data-f="note" data-multi><b>门店备注</b>
+      <div class="wb-fm-ie-c">
+        <div class="wb-fm-ie-v" data-read><span class="wb-fm-ie-t" data-empty="true">暂无备注</span><button type="button" class="ibtn wb-fm-ie-e" data-tip="编辑门店备注" aria-label="编辑门店备注"><img src="../../kit/assets/line/edit.webp" alt=""></button></div>
+        <form class="wb-fm-ie-ed" data-edit hidden novalidate><div class="wb-fm-ie-box"><textarea class="textarea wb-fm-ta--s" maxlength="60" aria-label="门店备注" placeholder="请输入备注内容"></textarea></div><div class="wb-fm-ie-foot"><span class="wb-fm-cnt"><b data-n>0</b>/60</span><button type="button" class="btn btn--ghost" data-cancel>取消</button><button type="submit" class="btn btn--primary">保存</button></div><span class="field__err" hidden></span></form>
+      </div>
+    </div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-FORM-039" data-name="日期时间选择器" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">日期时间选择器</span></div>
+  <p class="demo__note">适合：活动开始与结束需精确到时分的场景</p>
+  <div class="demo__stage wb-fm-room"><div class="card wb-fm-card wb-fm-stack" id="wb-fm-dt">
+    <div class="field"><span class="field__label" id="wb-fm-dt-l1">活动开始</span>
+      <div class="wb-fm-pick" data-open="false" data-k="s" data-init="3"><span class="wb-fm-group"><input class="input" inputmode="numeric" placeholder="请选择或输入开始时间" aria-labelledby="wb-fm-dt-l1" autocomplete="off"><button type="button" class="wb-fm-link" aria-haspopup="dialog" aria-expanded="false" aria-label="展开活动开始的月历与时间">日历</button></span><div class="wb-fm-pop wb-fm-dt-pop" role="dialog" aria-label="选择活动开始时间" inert></div></div>
+      <span class="field__err" hidden></span>
+    </div>
+    <div class="field"><span class="field__label" id="wb-fm-dt-l2">活动结束</span>
+      <div class="wb-fm-pick" data-open="false" data-k="e"><span class="wb-fm-group"><input class="input" inputmode="numeric" placeholder="请选择或输入结束时间" aria-labelledby="wb-fm-dt-l2" autocomplete="off"><button type="button" class="wb-fm-link" aria-haspopup="dialog" aria-expanded="false" aria-label="展开活动结束的月历与时间">日历</button></span><div class="wb-fm-pop wb-fm-dt-pop" role="dialog" aria-label="选择活动结束时间" inert></div></div>
+      <span class="field__err" hidden></span>
+    </div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-FORM-040" data-name="星级评分选择" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">星级评分选择</span></div>
+  <p class="demo__note">适合：后台录入或筛选评价星级</p>
+  <div class="demo__stage"><div class="card wb-fm-card wb-fm-stack" id="wb-fm-rt">
+    <div class="field"><span class="field__label" id="wb-fm-rt-l">商品评价</span>
+      <div class="wb-fm-rt-line">
+        <div class="wb-fm-rt" role="radiogroup" aria-labelledby="wb-fm-rt-l">
+          <button type="button" class="wb-fm-rt-s" role="radio" aria-checked="false" aria-label="1 星"><img data-ic="star" src="../../kit/assets/icons/flat/star.webp" alt=""></button><button type="button" class="wb-fm-rt-s" role="radio" aria-checked="false" aria-label="2 星"><img data-ic="star" src="../../kit/assets/icons/flat/star.webp" alt=""></button><button type="button" class="wb-fm-rt-s" role="radio" aria-checked="false" aria-label="3 星"><img data-ic="star" src="../../kit/assets/icons/flat/star.webp" alt=""></button><button type="button" class="wb-fm-rt-s" role="radio" aria-checked="false" aria-label="4 星"><img data-ic="star" src="../../kit/assets/icons/flat/star.webp" alt=""></button><button type="button" class="wb-fm-rt-s" role="radio" aria-checked="false" aria-label="5 星"><img data-ic="star" src="../../kit/assets/icons/flat/star.webp" alt=""></button>
+        </div>
+        <span class="wb-fm-rt-w" data-w aria-live="polite">未评分</span>
+        <button type="button" class="btn btn--text btn--sm" data-clear hidden>清除</button>
+      </div>
+    </div>
+    <div class="field"><span class="field__label">门店均分</span>
+      <div class="wb-fm-rt-line"><span class="wb-fm-rt-ro" data-ro="4.6" role="img" aria-label="门店均分 4.6 分，满分 5 分"></span><span class="wb-fm-rt-w">4.6 分</span></div>
+    </div>
+    <div class="field"><span class="field__label">已关闭评价</span>
+      <div class="wb-fm-rt-line wb-fm-rt-off"><span class="wb-fm-rt-ro" data-ro="3" role="img" aria-label="已关闭评价，停在 3 星"></span><span class="wb-fm-rt-w">已关闭</span></div>
+    </div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-FORM-041" data-name="颜色选择器" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">颜色选择器</span></div>
+  <p class="demo__note">适合：后台配置品牌主色与标签色，带色板与十六进制输入</p>
+  <div class="demo__stage wb-fm-room"><div class="card wb-fm-card wb-fm-stack" id="wb-fm-cp">
+    <div class="field"><span class="field__label" id="wb-fm-cp-l1">品牌主色</span>
+      <div class="wb-fm-pick" data-open="false" data-tok="--action">
+        <button type="button" class="wb-fm-ctl" aria-haspopup="dialog" aria-expanded="false" aria-labelledby="wb-fm-cp-l1"><span class="wb-fm-cp-lab"><span class="wb-fm-cp-sw"></span><span class="wb-fm-cp-v"></span></span></button>
+        <div class="wb-fm-pop wb-fm-cp-pop" role="dialog" aria-label="选择品牌主色" inert>
+          <div class="wb-fm-cp-sv" tabindex="0" role="slider" aria-label="饱和度与明度"><i class="wb-fm-cp-hd"></i></div>
+          <div class="wb-fm-cp-hue" tabindex="0" role="slider" aria-label="色相" aria-valuemin="0" aria-valuemax="360"><i class="wb-fm-cp-hd"></i></div>
+          <div class="wb-fm-cp-row"><span class="wb-fm-cp-pv"></span><div><span class="wb-fm-group"><span class="wb-fm-addon">#</span><input class="input wb-fm-cp-in" maxlength="7" placeholder="请输入色值" aria-label="十六进制色值" autocomplete="off"></span><span class="field__err" hidden>请输入 6 位十六进制色值</span></div></div>
+          <div class="wb-fm-cp-sws" role="radiogroup" aria-label="常用色板"></div>
+        </div>
+      </div>
+    </div>
+    <div class="field"><span class="field__label" id="wb-fm-cp-l2">标签颜色</span>
+      <div class="wb-fm-pick" data-open="false" data-tok="--info">
+        <button type="button" class="wb-fm-ctl" aria-haspopup="dialog" aria-expanded="false" aria-labelledby="wb-fm-cp-l2"><span class="wb-fm-cp-lab"><span class="wb-fm-cp-sw"></span><span class="wb-fm-cp-v"></span></span></button>
+        <div class="wb-fm-pop wb-fm-cp-pop" role="dialog" aria-label="选择标签颜色" inert>
+          <div class="wb-fm-cp-sv" tabindex="0" role="slider" aria-label="饱和度与明度"><i class="wb-fm-cp-hd"></i></div>
+          <div class="wb-fm-cp-hue" tabindex="0" role="slider" aria-label="色相" aria-valuemin="0" aria-valuemax="360"><i class="wb-fm-cp-hd"></i></div>
+          <div class="wb-fm-cp-row"><span class="wb-fm-cp-pv"></span><div><span class="wb-fm-group"><span class="wb-fm-addon">#</span><input class="input wb-fm-cp-in" maxlength="7" placeholder="请输入色值" aria-label="十六进制色值" autocomplete="off"></span><span class="field__err" hidden>请输入 6 位十六进制色值</span></div></div>
+          <div class="wb-fm-cp-sws" role="radiogroup" aria-label="常用色板"></div>
+        </div>
+      </div>
+    </div>
+    <div class="field"><span class="field__label">应用效果</span>
+      <div class="wb-fm-cp-ex"><span class="btn btn--sm wb-fm-cp-b" data-on="dark">主要按钮</span><span class="tag wb-fm-cp-t" data-on="dark">新品</span><span class="tag wb-fm-cp-t" data-on="dark">热销</span></div>
+    </div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-FORM-042" data-name="命令搜索面板" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">命令搜索面板</span></div>
+  <p class="demo__note">适合：快捷键唤出全局搜索与快捷动作列表</p>
+  <div class="demo__stage"><div class="card wb-fm-card" id="wb-fm-cmd"><div class="wb-fm-cmd">
+    <label class="wb-fm-cmd-s"><img src="../../kit/assets/line/search.webp" alt=""><input type="search" role="combobox" aria-expanded="true" aria-controls="wb-fm-cmd-l" aria-autocomplete="list" placeholder="搜索页面与快捷动作" aria-label="搜索页面与快捷动作" autocomplete="off"></label>
+    <div class="wb-fm-cmd-list" id="wb-fm-cmd-l" role="listbox" aria-label="搜索结果"></div>
+    <div class="wb-fm-cmd-foot"><span>上下键选择</span><span>回车执行</span><span>退出键清空</span></div>
+  </div></div></div>
+</article>
+
+<article class="demo" data-cid="WB-FORM-043" data-name="图片裁剪框" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">图片裁剪框</span></div>
+  <p class="demo__note">适合：上传封面与头像后框选裁剪</p>
+  <div class="demo__stage"><div class="card wb-fm-card" id="wb-fm-crop">
+    <div class="wb-fm-crop-wrap"><div class="wb-fm-crop-st" data-st>
+      <img src="../../kit/assets/photo/bg-floral.webp" alt="待裁剪的封面图" draggable="false">
+      <div class="wb-fm-crop-fr" data-fr tabindex="0" role="application" aria-label="裁剪框，方向键移动，加号减号缩放"><i data-h="nw"></i><i data-h="ne"></i><i data-h="sw"></i><i data-h="se"></i></div>
+    </div></div>
+    <div class="wb-fm-crop-bar">
+      <div class="seg" role="radiogroup" aria-label="裁剪比例"><button type="button" class="seg__item" role="radio" aria-checked="true" data-r="1">方形</button><button type="button" class="seg__item" role="radio" aria-checked="false" data-r="1.5">横版</button><button type="button" class="seg__item" role="radio" aria-checked="false" data-r="0.75">竖版</button></div>
+      <span class="wb-fm-crop-zoom"><button type="button" class="btn btn--ghost btn--sm" data-z="-1">缩小</button><button type="button" class="btn btn--ghost btn--sm" data-z="1">放大</button></span>
+    </div>
+    <div class="wb-fm-crop-out">
+      <div class="wb-fm-crop-pv"><span class="wb-fm-crop-p" data-pv="r" role="img" aria-label="裁剪结果预览"></span><span class="wb-fm-crop-p wb-fm-crop-p--c" data-pv="c" role="img" aria-label="圆形头像预览"></span><div class="wb-fm-crop-info"><b data-size>未选区域</b><small data-state>拖动框选区域</small></div></div>
+      <span class="wb-fm-tail"><button type="button" class="btn btn--ghost" data-pick>重选图片</button><button type="button" class="btn btn--primary" data-ok>确认裁剪</button></span>
+    </div>
+    <input type="file" accept="image/*" hidden>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-FORM-044" data-name="提及输入框" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">提及输入框</span></div>
+  <p class="demo__note">适合：备注与协作评论中输入艾特选择成员</p>
+  <div class="demo__stage wb-fm-room"><div class="card wb-fm-card" id="wb-fm-mn">
+    <div class="field"><span class="wb-fm-lab"><span class="field__label" id="wb-fm-mn-l">协作评论</span><span class="wb-fm-cnt"><b data-n>0</b>/200</span></span>
+      <div class="wb-fm-mn-box">
+        <textarea class="textarea" maxlength="200" placeholder="输入内容，用 @ 提及成员" aria-labelledby="wb-fm-mn-l" aria-haspopup="listbox" aria-expanded="false" aria-controls="wb-fm-mn-p"></textarea>
+        <div class="wb-fm-mn-pop" id="wb-fm-mn-p" role="listbox" aria-label="可提及的成员"></div>
+      </div>
+    </div>
+    <div class="wb-fm-mn-foot"><div class="wb-fm-chips" aria-label="已提及成员"></div><button type="button" class="btn btn--primary" data-send disabled>发表评论</button></div>
+    <div class="wb-fm-mn-feed" aria-live="polite"></div>
+  </div></div>
+</article>
+
+<article class="demo" data-cid="WB-FORM-045" data-name="自适应文本域" data-cat="FORM">
+  <div class="demo__head"><span class="demo__name">自适应文本域</span></div>
+  <p class="demo__note">适合：备注框随输入行数自动增高</p>
+  <div class="demo__stage"><div class="card wb-fm-card wb-fm-stack" id="wb-fm-au">
+    <label class="field"><span class="wb-fm-lab"><span class="field__label">订单备注</span><span class="wb-fm-cnt"><b data-n>0</b>/300</span></span><textarea class="textarea wb-fm-au-t" maxlength="300" placeholder="请输入备注内容" rows="2"></textarea></label>
+    <label class="field"><span class="wb-fm-lab"><span class="field__label">售后说明</span><span class="wb-fm-cnt"><b data-n>0</b>/300</span></span><textarea class="textarea wb-fm-au-t" maxlength="300" placeholder="请输入售后说明" rows="2">收到的玫瑰花束有三枝花头发蔫。
+已拍照留存，花头状态见附图。
+希望补发三枝同色玫瑰，或按比例退还差价。
+联系人为林晓，下午三点后方便接听电话。
+补发请与同城配送一起送达，附上原订单号。</textarea></label>
+  </div></div>
+</article>
+
+<script>
+(function () {
+  const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  const pad = n => String(n).padStart(2, '0');
+  const mk = n => `../../kit/assets/marks/mark-${n}.webp`;
+  const CHECK = '<img src="../../kit/assets/line/check.webp" alt="">';
+  const hl = (t, k) => (k ? t.replace(k, m => `<mark>${m}</mark>`) : t);
+  const MEM = [['林晓', '店长', '建国路店', '003'], ['陈默', '店长', '徐汇滨江店', '015'], ['周岚', '店长', '浦东世纪店', '009'], ['吴桐', '花艺师', '建国路店', '012'],
+    ['郑一', '花艺师', '徐汇滨江店', '008'], ['王宁', '花艺师', '浦东世纪店', '023'], ['赵悦', '客服', '总部', '005'], ['孙洁', '客服', '总部', '018']];
+  const avatar = m => `<img class="avatar avatar--mark" src="${mk(m[3])}" alt="">`;
+
+  /* 选择层共用：开合、点外面关闭、Escape 关闭并回到触发框、Tab 离开即关闭；与已有选择层互斥 */
+  const mkpick = (pick, trigger, hooks = {}) => {
+    const pop = $(':scope > .wb-fm-pop', pick);
+    const open = o => {
+      if (o === (pick.dataset.open === 'true')) return;
+      pick.dataset.open = String(o); trigger.setAttribute('aria-expanded', String(o)); pop.inert = !o;
+      if (o) {
+        $$('#cat-form .wb-fm-pick[data-open="true"]').forEach(p => { if (p !== pick && p._open) p._open(false); });
+        $$('#cat-form .drop[data-open="true"]').forEach(d => { d.dataset.open = 'false'; });
+        if (hooks.open) hooks.open();
+      } else if (hooks.close) hooks.close();
+    };
+    pick._open = open;
+    trigger.addEventListener('click', e => { e.stopPropagation(); open(pick.dataset.open !== 'true'); });
+    pop.addEventListener('click', e => e.stopPropagation());
+    document.addEventListener('click', () => open(false));
+    pick.addEventListener('keydown', e => { if (e.key === 'Escape' && pick.dataset.open === 'true') { e.stopPropagation(); open(false); trigger.focus(); } });
+    pick.addEventListener('focusout', e => { if (e.relatedTarget && !pick.contains(e.relatedTarget)) open(false); });
+    return open;
+  };
+  /* 重绘列表时保住键盘焦点与滚动位置：可聚焦元素带 data-fk */
+  const keep = (box, fn) => {
+    const a = document.activeElement, key = a && box.contains(a) ? a.dataset.fk : null, top = box.scrollTop;
+    fn(); box.scrollTop = top;
+    if (key) { const e = $(`[data-fk="${CSS.escape(key)}"]`, box); if (e && !e.disabled) e.focus({ preventScroll: true }); }
+  };
+  const field = el => el.closest('.field');
+  const say = (el, msg) => { const f = field(el), g = $('.wb-fm-group, .input, .textarea', f), e = $('.field__err', f); if (g) g.setAttribute('aria-invalid', String(!!msg)); if (e) { if (msg) e.textContent = msg; e.hidden = !msg; } };
+
+  /* 033 搜索多选面板：分组、搜索、全选本组、最多五人 */
+  (() => {
+    const root = $('#wb-fm-ms'), pick = $('.wb-fm-pick', root), ctl = $('.wb-fm-ctl', pick), q = $('input', pick), list = $('.wb-fm-ms-list', pick), chosen = $('.wb-fm-ms-chosen', root);
+    const cnt = $('[data-n]', root), sum = $('[data-sum]', pick), MAX = 5, sel = new Set(['林晓', '吴桐']);
+    const paint = () => {
+      const arr = MEM.filter(m => sel.has(m[0]));
+      cnt.textContent = arr.length; sum.textContent = `已选 ${arr.length} 人${arr.length >= MAX ? '，已达上限' : ''}`;
+      ctl.innerHTML = arr.length ? `<span class="wb-fm-ms-sum"><span class="avatars">${arr.slice(0, 3).map(avatar).join('')}</span><span>已选 ${arr.length} 人</span></span>` : '<span class="wb-fm-ph">请选择成员</span>';
+      chosen.innerHTML = arr.map(m => `<span class="wb-fm-chip wb-fm-chip--tag">${m[0]}<button type="button" class="wb-fm-x" data-n="${m[0]}" data-tip="移除${m[0]}" aria-label="移除${m[0]}"><img src="../../kit/assets/line/close.webp" alt=""></button></span>`).join('');
+    };
+    const draw = () => keep(list, () => {
+      const k = q.value.trim(), full = sel.size >= MAX; let html = '';
+      ['店长', '花艺师', '客服'].forEach(g => {
+        const rows = MEM.filter(m => m[1] === g && (!k || (m[0] + m[1] + m[2]).includes(k))); if (!rows.length) return;
+        const all = rows.every(m => sel.has(m[0]));
+        html += `<div role="group" aria-label="${g}"><div class="wb-fm-ms-gh"><span>${g}</span><button type="button" class="wb-fm-ms-gt" data-g="${g}" data-fk="g:${g}">${all ? '取消全选' : '全选'}</button></div>` + rows.map(m => `<button type="button" class="wb-fm-ms-row" role="option" tabindex="-1" aria-selected="${sel.has(m[0])}" data-n="${m[0]}" data-fk="n:${m[0]}"${full && !sel.has(m[0]) ? ' disabled' : ''}><span class="check" aria-checked="${sel.has(m[0])}" aria-hidden="true">${CHECK}</span>${avatar(m)}<span class="wb-fm-ms-nm">${hl(m[0], k)}</span><small>${m[2]}</small></button>`).join('') + '</div>';
+      });
+      list.innerHTML = html || '<p class="wb-fm-none">没有匹配的成员</p>';
+    });
+    const open = mkpick(pick, ctl, { open: () => { q.value = ''; draw(); setTimeout(() => q.focus(), 40); } });
+    list.addEventListener('click', e => {
+      const r = e.target.closest('.wb-fm-ms-row'), g = e.target.closest('.wb-fm-ms-gt');
+      if (r) { const n = r.dataset.n; if (sel.has(n)) sel.delete(n); else if (sel.size < MAX) sel.add(n); }
+      else if (g) { const rows = MEM.filter(m => m[1] === g.dataset.g && (!q.value.trim() || (m[0] + m[1] + m[2]).includes(q.value.trim()))); if (rows.every(m => sel.has(m[0]))) rows.forEach(m => sel.delete(m[0])); else rows.forEach(m => { if (sel.size < MAX) sel.add(m[0]); }); }
+      else return;
+      paint(); draw();
+    });
+    chosen.addEventListener('click', e => { const x = e.target.closest('[data-n]'); if (x) { sel.delete(x.dataset.n); paint(); if (pick.dataset.open === 'true') draw(); } });
+    q.addEventListener('input', draw);
+    $('[data-clear]', pick).addEventListener('click', () => { sel.clear(); paint(); draw(); });
+    $('[data-done]', pick).addEventListener('click', () => { open(false); ctl.focus(); });
+    ctl.addEventListener('keydown', e => { if (e.key === 'ArrowDown' && pick.dataset.open !== 'true') { e.preventDefault(); open(true); } });
+    pick.addEventListener('keydown', e => {
+      if (!['ArrowDown', 'ArrowUp'].includes(e.key) || pick.dataset.open !== 'true') return;
+      const rows = $$('.wb-fm-ms-row:not(:disabled)', list); if (!rows.length) return;
+      if (e.target === q) { if (e.key === 'ArrowDown') { e.preventDefault(); rows[0].focus(); } return; }
+      const i = rows.indexOf(document.activeElement); if (i < 0) return; e.preventDefault();
+      if (e.key === 'ArrowDown') rows[Math.min(rows.length - 1, i + 1)].focus(); else if (i === 0) q.focus(); else rows[i - 1].focus();
+    });
+    paint(); draw();
+  })();
+
+  /* 月历：日期选择框与日期时间选择器共用 */
+  const TODAY = (() => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), d.getDate()); })();
+  const day0 = d => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const addDays = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
+  const ymd = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  const sameDay = (a, b) => !!a && !!b && ymd(a) === ymd(b);
+  const parseDay = s => { const m = String(s).trim().match(/^(\d{4})[-\/.年]?(\d{1,2})[-\/.月]?(\d{1,2})日?$/); if (!m) return null; const d = new Date(+m[1], +m[2] - 1, +m[3]); return d.getMonth() === +m[2] - 1 && d.getDate() === +m[3] ? d : null; };
+  const makeCal = (host, o) => {
+    let view = new Date(TODAY.getFullYear(), TODAY.getMonth(), 1), sel = null, fd = null, mode = 'day';
+    host.innerHTML = '<div class="wb-fm-cal__bar"><button type="button" class="wb-fm-cal__n" data-nav="-1"></button><button type="button" class="wb-fm-cal__t" aria-live="polite"></button><button type="button" class="wb-fm-cal__n wb-fm-cal__n--r" data-nav="1"></button></div><div class="wb-fm-cal__body"></div><div class="wb-fm-cal__foot"><button type="button" class="btn btn--text btn--sm" data-a="clear">清除</button><button type="button" class="btn btn--text btn--sm" data-a="now">回到当月</button></div>';
+    const ttl = $('.wb-fm-cal__t', host), body = $('.wb-fm-cal__body', host), [prev, next] = $$('.wb-fm-cal__n', host);
+    const draw = () => {
+      const y = view.getFullYear(), m = view.getMonth(), min = o.minDay && o.minDay(), nm = mode === 'day' ? ['上一月', '下一月'] : ['上一年', '下一年'];
+      ttl.textContent = mode === 'day' ? `${y} 年 ${m + 1} 月` : `${y} 年`; ttl.setAttribute('aria-label', mode === 'day' ? `${y} 年 ${m + 1} 月，切换到选月份` : `${y} 年，切换到选日期`);
+      [prev, next].forEach((b, i) => { b.setAttribute('aria-label', nm[i]); b.dataset.tip = nm[i]; });
+      if (mode === 'month') {
+        body.innerHTML = '<div class="wb-fm-cal__m">' + Array.from({ length: 12 }, (_, i) => `<button type="button" class="wb-fm-cal__mi" data-m="${i}" aria-pressed="${i === m}">${i + 1} 月</button>`).join('') + '</div>'; return;
+      }
+      const first = new Date(y, m, 1), start = addDays(first, -((first.getDay() + 6) % 7));
+      const inView = d => d && d.getFullYear() === y && d.getMonth() === m;
+      const f = inView(fd) ? fd : inView(sel) ? sel : inView(TODAY) ? TODAY : first;
+      let h = '<div class="wb-fm-cal__wk">' + [...'一二三四五六日'].map(w => `<span>${w}</span>`).join('') + '</div><div class="wb-fm-cal__g">';
+      for (let i = 0; i < 42; i++) {
+        const d = addDays(start, i), off = min && d < min;
+        h += `<button type="button" class="wb-fm-cal__d" data-d="${ymd(d)}" aria-label="${d.getFullYear()} 年 ${d.getMonth() + 1} 月 ${d.getDate()} 日" aria-pressed="${sameDay(d, sel)}" tabindex="${sameDay(d, f) ? 0 : -1}"${d.getMonth() !== m ? ' data-out="true"' : ''}${sameDay(d, TODAY) ? ' data-now="true"' : ''}${off ? ' disabled' : ''}>${d.getDate()}</button>`;
+      }
+      body.innerHTML = h + '</div>';
+    };
+    const focusDay = d => { const b = $(`[data-d="${ymd(d)}"]`, body); if (b) b.focus(); };
+    host.addEventListener('click', e => {
+      const n = e.target.closest('[data-nav]'), t = e.target.closest('.wb-fm-cal__t'), d = e.target.closest('.wb-fm-cal__d'), mi = e.target.closest('.wb-fm-cal__mi'), a = e.target.closest('[data-a]');
+      if (n) { view = mode === 'day' ? new Date(view.getFullYear(), view.getMonth() + +n.dataset.nav, 1) : new Date(view.getFullYear() + +n.dataset.nav, view.getMonth(), 1); fd = null; draw(); }
+      else if (t) { mode = mode === 'day' ? 'month' : 'day'; draw(); }
+      else if (mi) { view = new Date(view.getFullYear(), +mi.dataset.m, 1); mode = 'day'; fd = null; draw(); }
+      else if (d) o.onPick(parseDay(d.dataset.d));
+      else if (a && a.dataset.a === 'clear') o.onPick(null);
+      else if (a) { view = new Date(TODAY.getFullYear(), TODAY.getMonth(), 1); mode = 'day'; fd = null; draw(); }
+    });
+    body.addEventListener('keydown', e => {
+      const b = e.target.closest('.wb-fm-cal__d'); if (!b) return;
+      const d = parseDay(b.dataset.d), dim = (y, m) => new Date(y, m + 1, 0).getDate(); let nd = null;
+      const step = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -7, ArrowDown: 7 }[e.key];
+      if (step) nd = addDays(d, step);
+      else if (e.key === 'PageUp' || e.key === 'PageDown') { const s = e.key === 'PageUp' ? -1 : 1, ym = new Date(d.getFullYear(), d.getMonth() + s, 1); nd = new Date(ym.getFullYear(), ym.getMonth(), Math.min(d.getDate(), dim(ym.getFullYear(), ym.getMonth()))); }
+      else if (e.key === 'Home') nd = addDays(d, -((d.getDay() + 6) % 7)); else if (e.key === 'End') nd = addDays(d, 6 - ((d.getDay() + 6) % 7));
+      if (!nd) return; e.preventDefault();
+      const min = o.minDay && o.minDay(); if (min && nd < min) return;
+      fd = nd; view = new Date(nd.getFullYear(), nd.getMonth(), 1); draw(); focusDay(nd);
+    });
+    draw();
+    return { set(d) { sel = d ? day0(d) : null; if (sel) { view = new Date(sel.getFullYear(), sel.getMonth(), 1); fd = sel; } mode = 'day'; draw(); }, refresh: draw, focusIn() { const b = $('.wb-fm-cal__d[tabindex="0"]', body); if (b) b.focus(); } };
+  };
+
+  /* 034 039 日期与日期时间字段：直接输入、月历选择、时分列、校验与联动 */
+  const dateField = (pick, o) => {
+    const input = $('input', pick), link = $('.wb-fm-link', pick), pop = $('.wb-fm-pop', pick), time = !!o.time; let val = null, cal, hc, mc;
+    if (time) {
+      pop.innerHTML = '<div class="wb-fm-dt-body"><div class="wb-fm-dt-cal"></div><div class="wb-fm-dt-time"><div class="wb-fm-dt-w"><div class="wb-fm-dt-th">时</div><div class="wb-fm-dt-col" role="listbox" aria-label="小时" data-k="h"></div></div><div class="wb-fm-dt-w"><div class="wb-fm-dt-th">分</div><div class="wb-fm-dt-col" role="listbox" aria-label="分钟" data-k="m"></div></div></div></div>';
+      hc = $('[data-k="h"]', pop); mc = $('[data-k="m"]', pop);
+      const col = (n, c) => { c.innerHTML = Array.from({ length: n }, (_, i) => `<button type="button" class="wb-fm-dt-i" role="option" data-v="${i}" aria-selected="false">${pad(i)}</button>`).join(''); };
+      col(24, hc); col(60, mc);
+    }
+    const fmt = v => (v ? ymd(v) + (time ? ` ${pad(v.getHours())}:${pad(v.getMinutes())}` : '') : '');
+    const parseVal = s => {
+      if (!time) return parseDay(s);
+      const m = String(s).trim().match(/^(\S+)\s+(\d{1,2})[:：时](\d{1,2})分?$/); if (!m) return null;
+      const d = parseDay(m[1]); if (!d || +m[2] > 23 || +m[3] > 59) return null; d.setHours(+m[2], +m[3]); return d;
+    };
+    const mark = () => { if (!time) return; [[hc, val && val.getHours()], [mc, val && val.getMinutes()]].forEach(([c, v]) => { $$('.wb-fm-dt-i', c).forEach(b => b.setAttribute('aria-selected', String(v !== null && v !== undefined && +b.dataset.v === v))); }); };
+    const scrollTime = () => { if (!time) return; [hc, mc].forEach(c => { const s = $('[aria-selected="true"]', c); c.scrollTop = s ? s.offsetTop - c.clientHeight / 2 + s.offsetHeight / 2 : 0; }); };
+    const commit = (v, text) => {
+      const m = v ? o.check(v) : ''; val = v && !m ? v : null;
+      input.value = text !== undefined ? text : fmt(v); say(input, v ? m : ''); cal.set(v); mark(); if (o.onChange) o.onChange();
+    };
+    cal = makeCal(time ? $('.wb-fm-dt-cal', pop) : pop, {
+      minDay: o.minDay,
+      onPick: d => {
+        if (!d) { commit(null); return; }
+        const v = new Date(d.getFullYear(), d.getMonth(), d.getDate(), time ? (val ? val.getHours() : 9) : 0, time ? (val ? val.getMinutes() : 0) : 0);
+        commit(v); if (!time) { open(false); input.focus(); }
+      }
+    });
+    const open = mkpick(pick, link, { open: () => { cal.set(val); setTimeout(scrollTime, 0); } });
+    if (time) {
+      pop.addEventListener('click', e => {
+        const b = e.target.closest('.wb-fm-dt-i'); if (!b) return;
+        const c = b.parentElement, base = val ? new Date(val) : new Date((o.minDay && o.minDay()) || TODAY);
+        if (!val) base.setHours(9, 0, 0, 0);
+        if (c === hc) base.setHours(+b.dataset.v); else base.setMinutes(+b.dataset.v);
+        commit(base);
+        if (c === mc) { open(false); input.focus(); }
+      });
+      pop.addEventListener('keydown', e => {
+        const b = e.target.closest('.wb-fm-dt-i'); if (!b || !['ArrowUp', 'ArrowDown'].includes(e.key)) return; e.preventDefault();
+        const n = e.key === 'ArrowDown' ? b.nextElementSibling : b.previousElementSibling; if (n) n.focus();
+      });
+    }
+    const settle = () => {
+      const s = input.value.trim(); if (!s) { commit(null); return; }
+      const v = parseVal(s); if (!v) { val = null; say(input, time ? '日期时间格式不正确' : '日期格式不正确'); if (o.onChange) o.onChange(); return; }
+      commit(v);
+    };
+    input.addEventListener('click', e => { e.stopPropagation(); open(true); });
+    input.addEventListener('input', e => { if (e.isComposing) return; const v = parseVal(input.value); if (v && !o.check(v)) { val = v; cal.set(v); mark(); say(input, ''); } else if (!input.value.trim()) say(input, ''); });
+    input.addEventListener('keydown', e => {
+      if (e.isComposing) return;
+      if (e.key === 'Enter') { e.preventDefault(); settle(); open(false); }
+      else if (e.key === 'ArrowDown') { e.preventDefault(); open(true); setTimeout(() => cal.focusIn(), 30); }
+    });
+    input.addEventListener('blur', e => { if (!pop.contains(e.relatedTarget)) settle(); });
+    pick.addEventListener('focusout', () => setTimeout(() => { if (!pick.contains(document.activeElement)) settle(); }, 0));
+    return { get val() { return val; }, set(v) { commit(v); }, revalidate() { if (input.value.trim()) settle(); }, redraw() { cal.refresh(); } };
+  };
+
+  /* 034 日期选择框：过去的日期不可选 */
+  (() => {
+    const root = $('#wb-fm-dp');
+    $$('.wb-fm-pick', root).forEach(p => {
+      const f = dateField(p, { minDay: () => TODAY, check: v => (v < TODAY ? '不能选择已过去的日期' : '') });
+      if (p.dataset.init) f.set(addDays(TODAY, +p.dataset.init));
+    });
+  })();
+
+  /* 039 日期时间选择器：结束时间必须晚于开始时间，结束月历里更早的日期不可选 */
+  (() => {
+    const root = $('#wb-fm-dt'), ps = $$('.wb-fm-pick', root), at = (d, h, m) => new Date(d.getFullYear(), d.getMonth(), d.getDate(), h, m);
+    let end = null;
+    const start = dateField(ps[0], { time: true, minDay: () => TODAY, check: v => (v < TODAY ? '不能早于当前日期' : ''), onChange: () => { if (end) { end.redraw(); end.revalidate(); } } });
+    end = dateField(ps[1], { time: true, minDay: () => (start.val ? day0(start.val) : TODAY), check: v => (start.val && v <= start.val ? '结束时间需晚于开始时间' : v < TODAY ? '不能早于当前日期' : '') });
+    start.set(at(addDays(TODAY, +ps[0].dataset.init), 9, 30));
+  })();
+
+  /* 035 树选择器：展开收起、搜索自动展开、停用节点不可选、方向键导航 */
+  (() => {
+    const root = $('#wb-fm-tr'), pick = $('.wb-fm-pick', root), ctl = $('.wb-fm-ctl', pick), q = $('input', pick), list = $('.wb-fm-tr-list', pick);
+    const T = { n: '花间集总部', c: [{ n: '运营中心', c: [{ n: '商品运营' }, { n: '会员运营' }, { n: '活动策划' }] }, { n: '门店管理', c: [{ n: '建国路店' }, { n: '徐汇滨江店' }, { n: '浦东世纪店' }] }, { n: '供应链', c: [{ n: '采购组' }, { n: '仓储配送', off: true }] }, { n: '客户服务' }] };
+    const opened = new Set([T.n, `${T.n}/门店管理`]); let val = null;
+    const flat = () => {
+      const k = q.value.trim(), out = [], has = n => !k || n.n.includes(k) || (n.c || []).some(has);
+      const go = (n, path, lv) => {
+        if (!has(n)) return; const key = path.concat(n.n).join('/'), kids = n.c || [], exp = k ? kids.some(has) : opened.has(key);
+        out.push({ n, key, lv, kids: kids.length, exp }); if (exp) kids.forEach(c => go(c, path.concat(n.n), lv + 1));
+      };
+      go(T, [], 0); return out;
+    };
+    const draw = () => keep(list, () => {
+      const k = q.value.trim(), rows = flat();
+      list.innerHTML = rows.length ? rows.map((r, i) => `<div class="wb-fm-tr-n" role="treeitem" tabindex="${val === r.key || (!val && i === 0) ? 0 : -1}" data-k="${r.key}" data-fk="${r.key}" aria-level="${r.lv + 1}"${r.kids ? ` aria-expanded="${r.exp}"` : ''} aria-selected="${val === r.key}"${r.n.off ? ' aria-disabled="true"' : ''} style="--lv:${r.lv}"><span class="wb-fm-tr-t"${r.kids ? ' data-t' : ''}></span><span class="wb-fm-tr-l">${hl(r.n.n, k)}</span>${r.n.off ? '<small>已停用</small>' : ''}</div>`).join('') : '<p class="wb-fm-none">没有匹配的部门</p>';
+    });
+    const open = mkpick(pick, ctl, { open: () => { q.value = ''; draw(); setTimeout(() => q.focus(), 40); } });
+    const choose = key => { val = key; const parts = key.split('/'); ctl.innerHTML = `<span class="wb-fm-crumb">${(parts.length > 1 ? parts.slice(1) : parts).join('<i></i>')}</span>`; open(false); ctl.focus(); draw(); };
+    const toggle = key => { if (opened.has(key)) opened.delete(key); else opened.add(key); draw(); };
+    list.addEventListener('click', e => {
+      const r = e.target.closest('.wb-fm-tr-n'); if (!r) return;
+      if (e.target.closest('[data-t]')) { toggle(r.dataset.k); return; }
+      if (r.getAttribute('aria-disabled') !== 'true') choose(r.dataset.k);
+    });
+    list.addEventListener('keydown', e => {
+      const r = e.target.closest('.wb-fm-tr-n'); if (!r) return;
+      const rows = $$('.wb-fm-tr-n:not([aria-disabled="true"])', list), i = rows.indexOf(r), exp = r.getAttribute('aria-expanded');
+      if (e.key === 'ArrowDown') { e.preventDefault(); (rows[i + 1] || r).focus(); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); if (i > 0) rows[i - 1].focus(); else q.focus(); }
+      else if (e.key === 'ArrowRight') { e.preventDefault(); if (exp === 'false') toggle(r.dataset.k); else if (exp === 'true' && rows[i + 1]) rows[i + 1].focus(); }
+      else if (e.key === 'ArrowLeft') { e.preventDefault(); if (exp === 'true' && !q.value.trim()) toggle(r.dataset.k); else { const lv = +r.getAttribute('aria-level'), p = rows.slice(0, i).reverse().find(x => +x.getAttribute('aria-level') === lv - 1); if (p) p.focus(); } }
+      else if ((e.key === 'Enter' || e.key === ' ') && r.getAttribute('aria-disabled') !== 'true') { e.preventDefault(); choose(r.dataset.k); }
+    });
+    q.addEventListener('input', draw);
+    q.addEventListener('keydown', e => { if (e.key === 'ArrowDown') { e.preventDefault(); const r = $('.wb-fm-tr-n:not([aria-disabled="true"])', list); if (r) r.focus(); } });
+    ctl.addEventListener('keydown', e => { if (e.key === 'ArrowDown' && pick.dataset.open !== 'true') { e.preventDefault(); open(true); } });
+    draw();
+  })();
+
+  /* 036 穿梭框选择：勾选后点中间按钮移动，双击单项直接移动，两栏各自搜索 */
+  (() => {
+    const root = $('#wb-fm-tf'), ALL = [['查看订单', 0], ['导出订单', 0], ['编辑商品', 0], ['上下架商品', 0], ['管理会员', 0], ['发放优惠券', 0], ['查看报表', 0], ['门店设置', 1]];
+    const S = { l: new Set(ALL.filter(x => x[0] !== '查看订单' && x[0] !== '编辑商品').map(x => x[0])), r: new Set(['查看订单', '编辑商品']) }, C = { l: new Set(), r: new Set() };
+    const P = { l: $('[data-side="l"]', root), r: $('[data-side="r"]', root) }, B = { r: $('[data-go="r"]', root), l: $('[data-go="l"]', root) };
+    const paint = s => {
+      const p = P[s], k = $('input', p).value.trim(), items = ALL.filter(x => S[s].has(x[0]) && (!k || x[0].includes(k))), en = items.filter(x => !x[1]), c = en.filter(x => C[s].has(x[0])).length;
+      keep($('.wb-fm-tf-l', p), () => {
+        $('.wb-fm-tf-l', p).innerHTML = items.length ? items.map(x => `<button type="button" class="wb-fm-tf-i" role="option" aria-selected="${C[s].has(x[0])}" data-n="${x[0]}" data-fk="${x[0]}"${x[1] ? ' disabled' : ''}><span class="check" aria-checked="${C[s].has(x[0])}" aria-hidden="true">${CHECK}</span><span>${hl(x[0], k)}</span>${x[1] ? '<small>仅店长</small>' : ''}</button>`).join('') : `<p class="wb-fm-none">${k ? '没有匹配的权限' : '暂无权限'}</p>`;
+      });
+      const h = $('[data-all]', p), st = !en.length || !c ? 'false' : c === en.length ? 'true' : 'mixed';
+      $('.check', h).setAttribute('aria-checked', st); h.disabled = !en.length; $('[data-c]', p).textContent = `${C[s].size}/${S[s].size}`;
+    };
+    const sync = () => { paint('l'); paint('r'); B.r.disabled = !C.l.size; B.l.disabled = !C.r.size; };
+    const move = (from, names) => { const to = from === 'l' ? 'r' : 'l'; names.forEach(n => { S[from].delete(n); C[from].delete(n); S[to].add(n); }); sync(); };
+    ['l', 'r'].forEach(s => {
+      const p = P[s];
+      p.addEventListener('click', e => {
+        const i = e.target.closest('.wb-fm-tf-i'), h = e.target.closest('[data-all]');
+        if (i) { const n = i.dataset.n; if (C[s].has(n)) C[s].delete(n); else C[s].add(n); sync(); }
+        else if (h) { const en = ALL.filter(x => S[s].has(x[0]) && !x[1] && x[0].includes($('input', p).value.trim())).map(x => x[0]); if (en.every(n => C[s].has(n))) en.forEach(n => C[s].delete(n)); else en.forEach(n => C[s].add(n)); sync(); }
+      });
+      p.addEventListener('dblclick', e => { const i = e.target.closest('.wb-fm-tf-i'); if (i) move(s, [i.dataset.n]); });
+      $('input', p).addEventListener('input', () => paint(s));
+    });
+    ['r', 'l'].forEach(d => B[d].addEventListener('click', () => { const from = d === 'r' ? 'l' : 'r'; move(from, [...C[from]]); }));
+    sync();
+  })();
+
+  /* 037 验证码分格输入：自动跳格、退格回退、粘贴分发、满六位自动校验 */
+  (() => {
+    const root = $('#wb-fm-otp'), wrap = $('.wb-fm-otp', root), cs = $$('.wb-fm-otp__c', root), msg = $('.wb-fm-otp__msg', root), re = $('[data-resend]', root), row = $('.wb-fm-otp__row', root);
+    let busy = false, left = 0, timer = null;
+    const code = () => cs.map(c => c.value).join('');
+    const state = (s, text, tone) => { wrap.dataset.st = s; msg.innerHTML = tone === 'ok' ? `<span class="tag" data-tone="success">${text}</span>` : text || ''; msg.dataset.t = tone || ''; };
+    const set = (c, v) => { c.value = v; if (v) c.dataset.v = '1'; else delete c.dataset.v; };
+    const verify = async () => {
+      if (busy) return; busy = true; state('busy', '正在验证'); cs.forEach(c => { c.disabled = true; });
+      await sleep(900); busy = false; cs.forEach(c => { c.disabled = false; });
+      if (code() === '123456') { state('bad', '验证码不正确，请重新输入', 'bad'); row.classList.remove('shake'); void row.offsetWidth; row.classList.add('shake'); }
+      else state('ok', '验证通过', 'ok');
+      cs[5].focus();
+    };
+    cs.forEach((c, i) => {
+      c.addEventListener('input', e => {
+        if (e.isComposing) return;
+        const v = c.value.replace(/\D/g, '').slice(-1); set(c, v);
+        if (wrap.dataset.st !== 'idle') state('idle');
+        if (v && i < 5) cs[i + 1].focus(); if (code().length === 6) verify();
+      });
+      c.addEventListener('keydown', e => {
+        if (e.isComposing) return;
+        if (e.key === 'Backspace' && !c.value && i > 0) { e.preventDefault(); set(cs[i - 1], ''); cs[i - 1].focus(); if (wrap.dataset.st !== 'idle') state('idle'); }
+        else if (e.key === 'ArrowLeft' && i > 0) { e.preventDefault(); cs[i - 1].focus(); }
+        else if (e.key === 'ArrowRight' && i < 5) { e.preventDefault(); cs[i + 1].focus(); }
+      });
+      c.addEventListener('focus', () => c.select());
+      c.addEventListener('paste', e => {
+        e.preventDefault(); const ds = (e.clipboardData.getData('text') || '').replace(/\D/g, '').slice(0, 6 - i); if (!ds) return;
+        [...ds].forEach((d, k) => set(cs[i + k], d)); state('idle'); cs[Math.min(5, i + ds.length)].focus(); if (code().length === 6) verify();
+      });
+    });
+    const tick = () => { re.disabled = left > 0; re.textContent = left > 0 ? `${left} 秒后可重新获取` : '重新获取'; };
+    const start = () => { left = 60; tick(); clearInterval(timer); timer = setInterval(() => { left -= 1; tick(); if (left <= 0) clearInterval(timer); }, 1000); };
+    re.addEventListener('click', () => { cs.forEach(c => set(c, '')); state('idle'); start(); cs[0].focus(); Lz.toast('验证码已发送', 'success'); });
+    state('idle'); start();
+  })();
+
+  /* 038 原位编辑文本：阅读态与编辑态同位置，回车保存、退出键取消，失败保留输入 */
+  (() => {
+    const root = $('#wb-fm-ie'), TAKEN = ['徐汇滨江店', '浦东世纪店'];
+    $$('.wb-fm-ie-row', root).forEach(row => {
+      const rd = $('[data-read]', row), ed = $('[data-edit]', row), t = $('.wb-fm-ie-t', row), inp = $('input, textarea', ed), er = $('.field__err', ed), save = $('[type="submit"]', ed), edit = $('.wb-fm-ie-e', row), n = $('[data-n]', ed);
+      const multi = row.hasAttribute('data-multi'); let saved = t.dataset.empty === 'true' ? '' : t.textContent, busy = false;
+      const show = () => { t.textContent = saved || (multi ? '暂无备注' : '未填写'); t.dataset.empty = String(!saved); };
+      const err = m => { er.textContent = m || ''; er.hidden = !m; inp.setAttribute('aria-invalid', String(!!m)); };
+      const enter = () => { rd.hidden = true; ed.hidden = false; inp.value = saved; err(''); if (n) n.textContent = inp.value.length; inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length); };
+      const leave = () => { ed.hidden = true; rd.hidden = false; edit.focus(); };
+      rd.addEventListener('click', enter);
+      $('[data-cancel]', ed).addEventListener('click', () => { if (!busy) leave(); });
+      ed.addEventListener('keydown', e => { if (e.key === 'Escape' && !busy) { e.stopPropagation(); leave(); } });
+      inp.addEventListener('input', () => { err(''); if (n) n.textContent = inp.value.length; });
+      ed.addEventListener('submit', async e => {
+        e.preventDefault(); if (busy) return; const v = inp.value.trim();
+        if (!multi && !v) { err('门店名称不能为空'); inp.focus(); return; }
+        busy = true; save.classList.add('is-loading'); await sleep(700); save.classList.remove('is-loading'); busy = false;
+        if (!multi && TAKEN.includes(v)) { err('门店名称已存在'); inp.focus(); return; }
+        saved = v; show(); leave(); Lz.toast('已保存', 'success');
+      });
+      show();
+    });
+  })();
+
+  /* 040 星级评分选择：悬停预览、点选、方向键、清除；均分只读按小数画星 */
+  (() => {
+    const root = $('#wb-fm-rt'), g = $('.wb-fm-rt[role="radiogroup"]', root), ss = $$('.wb-fm-rt-s', g), word = $('[data-w]', root), clr = $('[data-clear]', root), W = ['很差', '较差', '一般', '满意', '惊喜'];
+    let v = 0, hv = 0;
+    const paint = () => {
+      const s = hv || v; ss.forEach((b, i) => { b.classList.toggle('is-on', i < s); b.setAttribute('aria-checked', String(i + 1 === v)); b.tabIndex = (v ? i + 1 === v : i === 0) ? 0 : -1; });
+      word.textContent = s ? `${W[s - 1]} ${s} 星` : '未评分'; clr.hidden = !v;
+    };
+    ss.forEach((b, i) => {
+      b.addEventListener('click', () => { v = i + 1; paint(); });
+      b.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') { hv = i + 1; paint(); } });
+      b.addEventListener('keydown', e => {
+        const d = { ArrowRight: 1, ArrowUp: 1, ArrowLeft: -1, ArrowDown: -1 }[e.key];
+        if (d) { e.preventDefault(); v = Math.min(5, Math.max(1, (v || (d > 0 ? 0 : 6)) + d)); paint(); ss[v - 1].focus(); }
+        else if (e.key === 'Home' || e.key === 'End') { e.preventDefault(); v = e.key === 'Home' ? 1 : 5; paint(); ss[v - 1].focus(); }
+        else if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); v = 0; paint(); }
+      });
+    });
+    g.addEventListener('pointerleave', () => { hv = 0; paint(); });
+    clr.addEventListener('click', () => { v = 0; paint(); ss[0].focus(); });
+    $$('.wb-fm-rt-ro', root).forEach(el => {
+      const x = parseFloat(el.dataset.ro), stars = '<img data-ic="star" src="../../kit/assets/icons/flat/star.webp" alt="">'.repeat(5);
+      el.innerHTML = `<span aria-hidden="true">${stars}</span><span class="wb-fm-rt-fill" style="--v:${Math.floor(x) * 36 + (x % 1) * 28}px" aria-hidden="true">${stars}</span>`;
+    });
+    paint();
+  })();
+
+  /* 041 颜色选择器：色板取自主题令牌，明暗与色相拖动或方向键调节，十六进制输入校验 */
+  (() => {
+    const root = $('#wb-fm-cp'), probe = document.createElement('span'), cv = document.createElement('canvas'); cv.width = cv.height = 1;
+    probe.hidden = true; root.appendChild(probe); const cx = cv.getContext('2d', { willReadFrequently: true });
+    const tok = n => { probe.style.color = `var(${n})`; cx.clearRect(0, 0, 1, 1); cx.fillStyle = getComputedStyle(probe).color; cx.fillRect(0, 0, 1, 1); const d = cx.getImageData(0, 0, 1, 1).data; return [d[0], d[1], d[2]]; };
+    const hsv2rgb = (h, s, v) => { const f = n => { const k = (n + h / 60) % 6; return v - v * s * Math.max(0, Math.min(k, 4 - k, 1)); }; return [f(5), f(3), f(1)].map(x => Math.round(x * 255)); };
+    const rgb2hsv = ([r, g, b]) => { r /= 255; g /= 255; b /= 255; const mx = Math.max(r, g, b), d = mx - Math.min(r, g, b); let h = 0; if (d) h = mx === r ? ((g - b) / d + 6) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4; return [h * 60, mx ? d / mx : 0, mx]; };
+    const toHex = rgb => rgb.map(x => x.toString(16).padStart(2, '0')).join('').toUpperCase();
+    const fromHex = s => { s = s.replace(/^#/, ''); if (/^[0-9a-fA-F]{3}$/.test(s)) s = [...s].map(c => c + c).join(''); return /^[0-9a-fA-F]{6}$/.test(s) ? [0, 2, 4].map(i => parseInt(s.slice(i, i + 2), 16)) : null; };
+    const SW = [['主色', '--action'], ['辅色', '--accent'], ['成功', '--success'], ['警告', '--warning'], ['危险', '--danger'], ['信息', '--info'], ['价格', '--price'], ['文字', '--ink'], ['主色浅', '--action-soft'], ['辅色浅', '--accent-tint'], ['成功浅', '--success-tint'], ['警告浅', '--warning-tint'], ['危险浅', '--danger-tint'], ['信息浅', '--info-tint'], ['价格浅', '--price-tint'], ['分区', '--zone']];
+    const swatches = SW.map(([n, t]) => [n, toHex(tok(t))]);
+    const ex = $('.wb-fm-cp-ex', root), exs = [[$('.wb-fm-cp-b', ex)], $$('.wb-fm-cp-t', ex)];
+    const drag = (el, f) => {
+      const at = e => { const r = el.getBoundingClientRect(); f(Math.min(1, Math.max(0, (e.clientX - r.left) / r.width)), Math.min(1, Math.max(0, (e.clientY - r.top) / r.height))); };
+      el.addEventListener('pointerdown', e => { e.preventDefault(); el.setPointerCapture(e.pointerId); el.focus(); at(e); const mv = ev => at(ev), up = () => { el.removeEventListener('pointermove', mv); el.removeEventListener('pointerup', up); el.removeEventListener('pointercancel', up); }; el.addEventListener('pointermove', mv); el.addEventListener('pointerup', up); el.addEventListener('pointercancel', up); });
+    };
+    const mkCanvas = (host, w, h) => { const c = document.createElement('canvas'); c.width = w; c.height = h; host.insertBefore(c, host.firstChild); return c; };
+    $$('.wb-fm-pick', root).forEach((pick, idx) => {
+      const ctl = $('.wb-fm-ctl', pick), svh = $('.wb-fm-cp-sv', pick), hueh = $('.wb-fm-cp-hue', pick), svc = mkCanvas(svh, 264, 152), huec = mkCanvas(hueh, 264, 14);
+      const hdS = $('.wb-fm-cp-hd', svh), hdH = $('.wb-fm-cp-hd', hueh), inp = $('.wb-fm-cp-in', pick), pv = $('.wb-fm-cp-pv', pick), sws = $('.wb-fm-cp-sws', pick), sw = $('.wb-fm-cp-sw', pick), tx = $('.wb-fm-cp-v', pick);
+      let H = 0, S = 1, V = 1, lastH = -1;
+      const fill = (c, fn) => { const x = c.getContext('2d'), im = x.createImageData(c.width, c.height); for (let j = 0; j < c.height; j++) for (let i = 0; i < c.width; i++) { const p = fn(i / (c.width - 1), j / (c.height - 1)), k = (j * c.width + i) * 4; im.data[k] = p[0]; im.data[k + 1] = p[1]; im.data[k + 2] = p[2]; im.data[k + 3] = 255; } x.putImageData(im, 0, 0); };
+      fill(huec, x => hsv2rgb(x * 360, 1, 1));
+      sws.innerHTML = swatches.map(([n, h]) => `<button type="button" class="wb-fm-cp-s" role="radio" aria-checked="false" data-hex="${h}" data-tip="${n}" aria-label="选用${n}"></button>`).join('');
+      $$('.wb-fm-cp-s', sws).forEach(b => b.style.setProperty('--c', '#' + b.dataset.hex));
+      const paint = (fromInput) => {
+        const rgb = hsv2rgb(H, S, V), hex = toHex(rgb), cs = '#' + hex;
+        if (H !== lastH) { fill(svc, (x, y) => hsv2rgb(H, x, 1 - y)); lastH = H; }
+        svh.style.setProperty('--c', cs); hueh.style.setProperty('--c', '#' + toHex(hsv2rgb(H, 1, 1))); pick.style.setProperty('--c', cs);
+        hdS.style.left = S * 100 + '%'; hdS.style.top = (1 - V) * 100 + '%'; hdH.style.left = H / 360 * 100 + '%';
+        svh.setAttribute('aria-valuetext', `饱和度 ${Math.round(S * 100)}，明度 ${Math.round(V * 100)}`); hueh.setAttribute('aria-valuenow', Math.round(H)); hueh.setAttribute('aria-valuetext', `${Math.round(H)} 度`);
+        $$('.wb-fm-cp-sw, .wb-fm-cp-pv', pick).forEach(e => e.style.setProperty('--c', cs)); tx.textContent = '#' + hex;
+        if (!fromInput) { inp.value = hex; say(inp, ''); }
+        $$('.wb-fm-cp-s', sws).forEach(b => b.setAttribute('aria-checked', String(b.dataset.hex === hex)));
+        const on = (0.299 * rgb[0] + 0.587 * rgb[1] + 0.114 * rgb[2]) / 255 > 0.62 ? 'light' : 'dark';
+        exs[idx].forEach(e => { e.style.setProperty('--c', cs); e.dataset.on = on; });
+      };
+      const setRgb = (rgb, fromInput) => { const [h, s, v] = rgb2hsv(rgb); if (s > 0.001 && v > 0.001) H = h; S = s; V = v; paint(fromInput); };
+      drag(svh, (x, y) => { S = x; V = 1 - y; paint(); });
+      drag(hueh, x => { H = x * 360; paint(); });
+      svh.addEventListener('keydown', e => { const st = e.shiftKey ? 0.1 : 0.02, d = { ArrowLeft: [-st, 0], ArrowRight: [st, 0], ArrowUp: [0, st], ArrowDown: [0, -st] }[e.key]; if (!d) return; e.preventDefault(); S = Math.min(1, Math.max(0, S + d[0])); V = Math.min(1, Math.max(0, V + d[1])); paint(); });
+      hueh.addEventListener('keydown', e => { const st = e.shiftKey ? 15 : 2, d = { ArrowLeft: -st, ArrowDown: -st, ArrowRight: st, ArrowUp: st }[e.key]; if (!d) return; e.preventDefault(); H = Math.min(360, Math.max(0, H + d)); paint(); });
+      sws.addEventListener('click', e => { const b = e.target.closest('.wb-fm-cp-s'); if (b) setRgb(fromHex(b.dataset.hex)); });
+      inp.addEventListener('input', () => { inp.value = inp.value.replace(/[^0-9a-fA-F#]/g, '').slice(0, 7); const rgb = fromHex(inp.value); if (rgb) { say(inp, ''); setRgb(rgb, true); } else if (inp.getAttribute('aria-invalid') === 'true') say(inp, '请输入 6 位十六进制色值'); });
+      inp.addEventListener('blur', () => { const rgb = fromHex(inp.value); if (!rgb) { say(inp, inp.value ? '请输入 6 位十六进制色值' : ''); if (!inp.value) inp.value = toHex(hsv2rgb(H, S, V)); } else inp.value = toHex(rgb); });
+      inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); inp.blur(); } });
+      mkpick(pick, ctl);
+      setRgb(tok(pick.dataset.tok));
+    });
+  })();
+
+  /* 042 命令搜索面板：就近内嵌，分组、高亮、上下选择、回车执行；快捷键只作用于视野内的这一块 */
+  (() => {
+    const root = $('#wb-fm-cmd'), q = $('input', root), list = $('.wb-fm-cmd-list', root);
+    const IT = [['页面', '工作台', 'home', '总览', '首页'], ['页面', '商品列表', 'list', '商品管理', '上架 库存'], ['页面', '订单管理', 'archive', '订单管理', '发货 物流'], ['页面', '会员中心', 'people', '会员', '客户 积分'], ['快捷动作', '新建商品', 'file-add', '商品管理', '添加 上新'], ['快捷动作', '导出订单', 'upload', '订单管理', '下载 表格'], ['快捷动作', '发放优惠券', 'message', '营销中心', '满减 券'], ['快捷动作', '暂停营业', 'pause', '门店设置', '打烊 休息']];
+    let rows = [], act = 0;
+    const draw = () => {
+      const k = q.value.trim(); rows = IT.filter(x => !k || (x[1] + x[3] + x[4]).includes(k)); act = Math.min(act, Math.max(0, rows.length - 1)); let html = '', last = '';
+      rows.forEach((x, i) => {
+        if (x[0] !== last) { html += `<div class="wb-fm-cmd-gh" role="presentation">${x[0]}</div>`; last = x[0]; }
+        html += `<button type="button" class="wb-fm-cmd-i" role="option" id="wb-fm-cmd-o${i}" data-i="${i}" aria-selected="${i === act}" tabindex="-1"><img src="../../kit/assets/line/${x[2]}.webp" alt=""><span>${hl(x[1], k)}</span><small>${x[3]}</small></button>`;
+      });
+      list.innerHTML = html || '<p class="wb-fm-none">没有匹配的页面或动作</p>'; q.setAttribute('aria-activedescendant', rows.length ? `wb-fm-cmd-o${act}` : '');
+    };
+    const mark = () => { $$('.wb-fm-cmd-i', list).forEach((b, i) => b.setAttribute('aria-selected', String(i === act))); q.setAttribute('aria-activedescendant', `wb-fm-cmd-o${act}`); const a = $(`#wb-fm-cmd-o${act}`, list); if (a) a.scrollIntoView({ block: 'nearest' }); };
+    const run = async i => {
+      const x = rows[i]; if (!x) return;
+      if (x[1] === '暂停营业') { if (await Lz.confirm({ title: '暂停营业', ok: '暂停', tone: 'danger' })) Lz.toast('已暂停营业', 'success'); return; }
+      Lz.toast(x[0] === '页面' ? `已打开${x[1]}` : `已执行${x[1]}`, 'success');
+    };
+    q.addEventListener('input', () => { act = 0; draw(); });
+    q.addEventListener('keydown', e => {
+      if (e.isComposing) return;
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); if (rows.length) { act = (act + (e.key === 'ArrowDown' ? 1 : rows.length - 1)) % rows.length; mark(); } }
+      else if (e.key === 'Enter') { e.preventDefault(); run(act); }
+      else if (e.key === 'Escape') { if (q.value) { q.value = ''; act = 0; draw(); } else q.blur(); }
+    });
+    list.addEventListener('mousemove', e => { const b = e.target.closest('.wb-fm-cmd-i'); if (b && +b.dataset.i !== act) { act = +b.dataset.i; mark(); } });
+    list.addEventListener('click', e => { const b = e.target.closest('.wb-fm-cmd-i'); if (b) { act = +b.dataset.i; mark(); run(act); q.focus(); } });
+    document.addEventListener('keydown', e => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { const r = root.getBoundingClientRect(); if (r.bottom > 0 && r.top < innerHeight) { e.preventDefault(); q.focus(); q.select(); } }
+    });
+    draw();
+  })();
+
+  /* 043 图片裁剪框：拖动与四角缩放，比例锁定，方向键与加减键微调，实时预览，可重新选图 */
+  (() => {
+    const root = $('#wb-fm-crop'), wrap = $('.wb-fm-crop-wrap', root), st = $('[data-st]', root), img = $('img', st), fr = $('[data-fr]', st), file = $('input[type="file"]', root);
+    const pvR = $('[data-pv="r"]', root), pvC = $('[data-pv="c"]', root), size = $('[data-size]', root), state = $('[data-state]', root), seg = $$('[data-r]', root), MAXH = 340, MIN = 56;
+    let SW = 0, SH = 0, R = 1, F = { x: 0, y: 0, w: 0, h: 0 }, Q = { x: 0, y: 0, w: 0 }, url = null;
+    const sync = () => { Q = { x: F.x / SW, y: F.y / SH, w: F.w / SW }; };
+    const place = () => { fr.style.left = Math.round(F.x) + 'px'; fr.style.top = Math.round(F.y) + 'px'; fr.style.width = Math.round(F.w) + 'px'; fr.style.height = Math.round(F.h) + 'px'; };
+    const preview = () => {
+      const sc = img.naturalWidth / SW, s = Math.min(F.w, F.h), set = (el, x, y, w, h, ph) => { const k = ph / h; el.style.width = w * k + 'px'; el.style.height = ph + 'px'; el.style.backgroundImage = `url("${img.currentSrc || img.src}")`; el.style.backgroundSize = `${SW * k}px ${SH * k}px`; el.style.backgroundPosition = `${-x * k}px ${-y * k}px`; };
+      set(pvR, F.x, F.y, F.w, F.h, 64); set(pvC, F.x + (F.w - s) / 2, F.y + (F.h - s) / 2, s, s, 64);
+      size.textContent = `${Math.round(F.w * sc)}×${Math.round(F.h * sc)} 像素`; if (state.dataset.done) { delete state.dataset.done; state.textContent = '拖动框选区域'; }
+    };
+    const fit = () => {
+      const maxW = Math.min(SW, SH * R); F.w = Math.min(Math.max(F.w, MIN), maxW); F.h = F.w / R;
+      F.x = Math.min(Math.max(F.x, 0), SW - F.w); F.y = Math.min(Math.max(F.y, 0), SH - F.h); place(); preview();
+    };
+    const reset = () => { const w = Math.min(SW, SH * R) * 0.72; F = { x: 0, y: 0, w, h: w / R }; F.x = (SW - F.w) / 2; F.y = (SH - F.h) / 2; place(); preview(); sync(); };
+    const layout = () => {
+      if (!img.naturalWidth) return; const W = wrap.clientWidth, r = img.naturalWidth / img.naturalHeight; let w = W, h = W / r; if (h > MAXH) { h = MAXH; w = h * r; }
+      const ow = SW; if (ow && Math.abs(ow - w) < 0.5) return;
+      SW = w; SH = h; st.style.width = w + 'px'; st.style.height = h + 'px';
+      if (ow) { F = { x: Q.x * SW, y: Q.y * SH, w: Q.w * SW, h: Q.w * SW / R }; fit(); } else reset();
+    };
+    img.addEventListener('load', () => { SW = 0; layout(); });
+    if (img.complete) layout();
+    addEventListener('resize', layout);
+    let drag = null;
+    fr.addEventListener('pointerdown', e => {
+      e.preventDefault(); fr.focus(); fr.setPointerCapture(e.pointerId); const rc = st.getBoundingClientRect(), h = e.target.closest('[data-h]');
+      if (h) { const k = h.dataset.h, sx = k.includes('e') ? 1 : -1, sy = k.includes('s') ? 1 : -1; drag = { k: 'size', sx, sy, ax: sx > 0 ? F.x : F.x + F.w, ay: sy > 0 ? F.y : F.y + F.h, rc }; }
+      else drag = { k: 'move', dx: e.clientX - rc.left - F.x, dy: e.clientY - rc.top - F.y, rc };
+    });
+    fr.addEventListener('pointermove', e => {
+      if (!drag) return; const px = e.clientX - drag.rc.left, py = e.clientY - drag.rc.top;
+      if (drag.k === 'move') { F.x = Math.min(Math.max(px - drag.dx, 0), SW - F.w); F.y = Math.min(Math.max(py - drag.dy, 0), SH - F.h); }
+      else { const maxW = Math.min(drag.sx > 0 ? SW - drag.ax : drag.ax, (drag.sy > 0 ? SH - drag.ay : drag.ay) * R); const w = Math.min(Math.max(drag.sx * (px - drag.ax), MIN), maxW), h = w / R; F = { w, h, x: drag.sx > 0 ? drag.ax : drag.ax - w, y: drag.sy > 0 ? drag.ay : drag.ay - h }; }
+      place(); preview(); sync();
+    });
+    ['pointerup', 'pointercancel'].forEach(t => fr.addEventListener(t, () => { drag = null; }));
+    const zoom = k => { const cx = F.x + F.w / 2, cy = F.y + F.h / 2, w = Math.min(Math.max(F.w * (k > 0 ? 1.12 : 0.89), MIN), Math.min(SW, SH * R)); F = { w, h: w / R, x: cx - w / 2, y: cy - w / R / 2 }; fit(); sync(); };
+    $$('[data-z]', root).forEach(b => b.addEventListener('click', () => zoom(+b.dataset.z)));
+    fr.addEventListener('keydown', e => {
+      const d = { ArrowLeft: [-8, 0], ArrowRight: [8, 0], ArrowUp: [0, -8], ArrowDown: [0, 8] }[e.key];
+      if (d) { e.preventDefault(); F.x = Math.min(Math.max(F.x + d[0], 0), SW - F.w); F.y = Math.min(Math.max(F.y + d[1], 0), SH - F.h); place(); preview(); sync(); }
+      else if (e.key === '+' || e.key === '=') { e.preventDefault(); zoom(1); } else if (e.key === '-') { e.preventDefault(); zoom(-1); }
+    });
+    seg.forEach(b => b.addEventListener('click', () => { seg.forEach(x => x.setAttribute('aria-checked', String(x === b))); R = +b.dataset.r; reset(); }));
+    $('[data-pick]', root).addEventListener('click', () => file.click());
+    file.addEventListener('change', () => {
+      const f = file.files[0]; file.value = ''; if (!f) return;
+      if (!f.type.startsWith('image/')) { Lz.toast('仅支持图片文件', 'danger'); return; }
+      if (url) URL.revokeObjectURL(url); url = URL.createObjectURL(f); img.src = url;
+    });
+    $('[data-ok]', root).addEventListener('click', () => { state.dataset.done = '1'; state.textContent = '已完成裁剪'; Lz.toast(`已裁剪，${size.textContent}`, 'success'); });
+  })();
+
+  /* 044 提及输入框：输入艾特弹出成员，边输入边筛选，方向键与回车选取，已提及成员显示成标签 */
+  (() => {
+    const root = $('#wb-fm-mn'), box = $('.wb-fm-mn-box', root), ta = $('textarea', box), pop = $('.wb-fm-mn-pop', box), chips = $('.wb-fm-mn-foot .wb-fm-chips', root), send = $('[data-send]', root), feed = $('.wb-fm-mn-feed', root), cnt = $('[data-n]', root);
+    let at = -1, rows = [], act = 0;
+    const caret = pos => {
+      const cs = getComputedStyle(ta), m = document.createElement('div');
+      ['fontFamily', 'fontSize', 'fontWeight', 'lineHeight', 'letterSpacing', 'paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft', 'borderTopWidth', 'borderRightWidth', 'borderBottomWidth', 'borderLeftWidth', 'boxSizing'].forEach(k => { m.style[k] = cs[k]; });
+      m.style.cssText += `;position:absolute;top:0;left:0;visibility:hidden;white-space:pre-wrap;overflow-wrap:break-word;width:${ta.offsetWidth}px`;
+      m.textContent = ta.value.slice(0, pos); const s = document.createElement('span'); s.textContent = '​'; m.appendChild(s); box.appendChild(m);
+      const r = { x: s.offsetLeft - ta.scrollLeft, y: s.offsetTop - ta.scrollTop }; m.remove(); return r;
+    };
+    const close = () => { at = -1; pop.dataset.open = 'false'; ta.setAttribute('aria-expanded', 'false'); };
+    const show = q => {
+      rows = MEM.filter(m => !q || (m[0] + m[1]).includes(q)); act = 0;
+      if (!rows.length) { close(); return; }
+      pop.innerHTML = rows.map((m, i) => `<button type="button" class="wb-fm-ms-row" role="option" aria-selected="${i === act}" data-i="${i}">${avatar(m)}<span class="wb-fm-ms-nm">${hl(m[0], q)}</span><small>${m[1]}</small></button>`).join('');
+      const p = caret(ta.selectionStart), lh = parseFloat(getComputedStyle(ta).lineHeight) || 22;
+      pop.style.left = Math.max(0, Math.min(p.x, box.clientWidth - pop.offsetWidth)) + 'px'; pop.style.top = Math.min(p.y + lh + 6, ta.offsetHeight + 4) + 'px';
+      pop.dataset.open = 'true'; ta.setAttribute('aria-expanded', 'true');
+    };
+    const scan = () => {
+      const up = ta.value.slice(0, ta.selectionStart), m = up.match(/(?:^|\s)@([^\s@]{0,8})$/);
+      if (!m) { close(); return; } at = up.length - m[1].length - 1; show(m[1]);
+    };
+    const mark = () => { $$('.wb-fm-ms-row', pop).forEach((b, i) => b.setAttribute('aria-selected', String(i === act))); const a = $$('.wb-fm-ms-row', pop)[act]; if (a) a.scrollIntoView({ block: 'nearest' }); };
+    const pickRow = i => {
+      const m = rows[i]; if (!m || at < 0) return; const end = ta.selectionStart, ins = `@${m[0]} `;
+      ta.value = ta.value.slice(0, at) + ins + ta.value.slice(end); ta.selectionStart = ta.selectionEnd = at + ins.length; close(); ta.focus(); sync();
+    };
+    const names = () => MEM.filter(m => ta.value.includes(`@${m[0]}`)).map(m => m[0]);
+    const sync = () => {
+      cnt.textContent = ta.value.length; send.disabled = !ta.value.trim();
+      chips.innerHTML = names().map(n => `<span class="wb-fm-chip wb-fm-chip--tag">@${n}<button type="button" class="wb-fm-x" data-n="${n}" data-tip="取消提及${n}" aria-label="取消提及${n}"><img src="../../kit/assets/line/close.webp" alt=""></button></span>`).join('');
+    };
+    ta.addEventListener('input', e => { if (e.isComposing) return; sync(); scan(); });
+    ta.addEventListener('compositionend', () => { sync(); scan(); });
+    ta.addEventListener('click', scan);
+    ta.addEventListener('keyup', e => { if (['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) scan(); });
+    ta.addEventListener('blur', () => setTimeout(close, 120));
+    ta.addEventListener('keydown', e => {
+      if (e.isComposing || pop.dataset.open !== 'true') return;
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); act = (act + (e.key === 'ArrowDown' ? 1 : rows.length - 1)) % rows.length; mark(); }
+      else if (e.key === 'Enter' || e.key === 'Tab') { e.preventDefault(); pickRow(act); }
+      else if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); close(); }
+    });
+    pop.addEventListener('mousedown', e => e.preventDefault());
+    pop.addEventListener('click', e => { const b = e.target.closest('.wb-fm-ms-row'); if (b) pickRow(+b.dataset.i); });
+    chips.addEventListener('click', e => { const x = e.target.closest('[data-n]'); if (!x) return; ta.value = ta.value.split(`@${x.dataset.n} `).join('').split(`@${x.dataset.n}`).join(''); sync(); ta.focus(); });
+    send.addEventListener('click', () => {
+      const text = ta.value.trim(); if (!text) return; const nm = names().sort((a, b) => b.length - a.length);
+      const p = document.createElement('p'); let rest = text;
+      while (rest) {
+        const hit = nm.map(n => [rest.indexOf(`@${n}`), n]).filter(x => x[0] >= 0).sort((a, b) => a[0] - b[0])[0];
+        if (!hit) { p.appendChild(document.createTextNode(rest)); break; }
+        if (hit[0] > 0) p.appendChild(document.createTextNode(rest.slice(0, hit[0])));
+        const s = document.createElement('span'); s.className = 'wb-fm-mn-at'; s.textContent = `@${hit[1]}`; p.appendChild(s); rest = rest.slice(hit[0] + hit[1].length + 1);
+      }
+      const c = document.createElement('div'); c.className = 'wb-fm-mn-c'; c.innerHTML = `${avatar(MEM[3])}<div><div><b>${MEM[3][0]}</b><small>刚刚</small></div></div>`; c.lastChild.appendChild(p); feed.prepend(c);
+      ta.value = ''; sync(); close(); Lz.toast('已发表', 'success');
+    });
+    sync();
+  })();
+
+  /* 045 自适应文本域：随内容增高，最多六行，再多则内部滚动 */
+  (() => {
+    const root = $('#wb-fm-au'), MAX = 6;
+    const fit = t => {
+      const cs = getComputedStyle(t), lh = parseFloat(cs.lineHeight), bd = t.offsetHeight - t.clientHeight, pd = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom), max = lh * MAX + pd + bd;
+      t.style.height = 'auto'; const h = t.scrollHeight + bd; t.style.height = Math.min(h, max) + 'px'; t.style.overflowY = h > max + 1 ? 'auto' : 'hidden';
+    };
+    $$('textarea', root).forEach(t => { t.addEventListener('input', () => fit(t)); fit(t); if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => fit(t)); });
+    addEventListener('resize', () => $$('textarea', root).forEach(fit));
+  })();
+})();
+</script>

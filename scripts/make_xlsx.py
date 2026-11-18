@@ -6,30 +6,43 @@ Build a styled single-sheet spreadsheet that follows file-design.html (表格文
 
 spec.json:
 {
-  "title": "门店月度销售",                 # row 1, the only text outside the table: black, bold, centred on the header colour, body + 4 pt (16 pt)
-  "subtitle": "致：某某公司　·　V1.0　·　2026-10-20",   # optional row 2, one black body-size line (who it is for, version, date, what the colours mean)
+  "title": "门店月度客流",                 # row 1, the only text outside the table: black, bold, centred on the header colour, body + 4 pt (16 pt)
+  "subtitle": "",                          # retained for empty legacy specifications only; no explanatory subtitle
   "theme": "coffee",                       # accepted for compatibility; every sheet uses the standard look (宋体, black text, pale fills, thin black borders)
   "font": "宋体",                          # optional: 宋体 (default) or 微软雅黑; one family for the whole workbook
   "font_size": 12,                         # optional body size, 10-14 pt (default 12); the title is body + 4 pt
   "tint_by": "功能模块",                   # optional: every value of this column gets one of six pale fills, in order of first appearance, over the whole row
   "highlight": {"column": "类型", "values": ["可选"]},   # optional: rows whose value is listed get the amber highlight on their data cells
   "group_by": ["区域", "门店"],            # optional: grouping columns, biggest group first; moved to the front, rows sorted, cells merged
-  "sheet": "月度销售",                     # optional, defaults to the title (max 12 chars)
+  "sheet": "月度客流",                     # optional, defaults to the title (max 12 chars)
   "columns": [
     {"name": "区域", "merge": true},       # merge: equal consecutive values merge vertically
     {"name": "门店", "merge": true},       # a child column only merges inside its parent's group
     {"name": "月份", "type": "text"},
-    {"name": "销售额（元）", "type": "money"},
+    {"name": "到店人次", "type": "number"},
     {"name": "环比", "type": "percent"},
     {"name": "备注", "type": "longtext"},
     {"name": "类型", "tags": ["基础", "可选"]}   # tags: these values are shown bold; their colour is the row fill (tint_by, highlight), text stays black
   ],
-  "rows": [["华南", "科技园店", "9 月", 128000, 0.052, ""], ...],
-  "total": {"label": "合计", "sum": ["销售额（元）"]}   # optional, formulas
-  "footer": [{"label": "基础功能小计", "values": {"工时（人天）": 20, "报价（元）": 10000}}]   # optional summary rows under the table: the label
+  "rows": [["区域甲", "门店甲", "9 月", "<人次>", "<环比>", ""], ...],      # your own data; the builder never supplies a number
+  "total": {"label": "到店人次合计", "sum": ["到店人次"]}   # optional, formulas; a summary row is a 合计/小计/总计 label, which --allow quote releases (see estimate)
+  "footer": [{"label": "基础功能小计", "values": {"<列名>": "<人工提供的数>"}}]   # optional summary rows under the table: the label
                                              # (it must say 合计, 小计 or 总计) spans the columns left of the first value
-  "freeze": 3                                # optional: columns to freeze; default = leading group-name columns
+  "freeze": 3,                               # optional: columns to freeze; default = leading group-name columns
+  "estimate": {                              # optional and OFF by default: workday columns and amounts exist only when the project asked for them in words
+    "workdays": true, "quote": true,         # quote needs workdays; both need the evidence below, a missing field stops the build
+    "requested_by": "<谁要求的>", "request_note": "<要求的原话>",
+    "provided_by": "<提供数字的人：姓名或角色>", "evidence": "<提供数字的原话或来源文件，如 uploads/客户报价单.xlsx>"   # provided_by / evidence: quote only
+  },
+  "allow_quote": false,                      # the short form (the hardware list exporter): true needs "quote_evidence": {"requested_by": "<谁要求的>", "request_note": "<原话>"}
+                                             # (optionally provided_by / evidence: a person, or the source link of a reference price); without evidence nothing is released
 }
+
+Estimate policy (预算、人日与报价政策; file-design.html 表格文件 › 工时、金额与报价): a spreadsheet lists functions and facts. Columns, rows or sheets for
+工时 / 人天 / 金额 / 单价 / 小计 / 合计 / 报价 exist only when "estimate" turns them on with evidence; every price, discount and amount is typed by a person (the
+quotation they supplied), never filled in by the agent, never an example or a 暂估, and nothing in this skill ships a default one. Without "estimate" (or allow_quote with its evidence), the
+document checker reports any such header or summary label as an error; a 合计 counts as money only beside a currency (a sum of amperes or devices does not),
+and the evidence is written into the workbook's description ("报价依据：…") because the checker, which only sees the file, asks for it. The words are data in estimate_terms.py. Workdays an agent estimates are marked 拟定 until the person approves the file.
 
 Column types: text (default; the first one that names the row is bold and left, other short columns are centred; a column whose
 longest value is over 16 units, 8 Chinese characters, is treated as longtext so one column never mixes centred and left-aligned text),
@@ -40,7 +53,9 @@ automatically when "merge" is not given. No sequence-number column is ever added
 """
 from __future__ import annotations
 
+import argparse
 import json
+import re
 import sys
 from datetime import date, datetime
 from pathlib import Path
@@ -114,12 +129,25 @@ def arrange_groups(spec: dict) -> dict:
     return out
 
 
-def build(spec: dict, out: Path) -> Path:
+def build(spec: dict, out: Path, *, context=None, session=None, stage=None) -> Path:
+    """Business writer: validate evidence and the exact template before bytes."""
+    from design_output_gate import require_output_context, record_rendered_output
+    out = Path(out)
+    context = require_output_context(out, "xlsx", context=context, session=session, stage=stage)
+    result = _render_workbook(spec, out)
+    record_rendered_output(context, out, "xlsx", generator="Luz-Design/scripts/make_xlsx.py")
+    return result
+
+
+def _render_workbook(spec: dict, out: Path) -> Path:
     """One sheet from ``spec``; or several when ``spec["sheets"]`` lists them (each sheet spec adds to the shared title, theme,
     font_size). Several sheets are only for content the user asked to split by purpose; each one is a complete table."""
     from openpyxl import Workbook
 
+    evidence = estimate_evidence(spec)           # a switch without its evidence stops here, before any file is written
     wb = Workbook()
+    if evidence:
+        wb.properties.description = evidence
     if spec.get("sheets"):
         shared = {k: v for k, v in spec.items() if k != "sheets"}
         for k, sheet in enumerate(spec["sheets"]):
@@ -135,6 +163,8 @@ def _build_one(spec: dict, wb, first: bool) -> None:
     from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
     from openpyxl.utils import get_column_letter
     spec = arrange_groups(spec)
+    if spec.get("subtitle"):
+        raise ValueError("表格标题下禁止说明性副标题；请将真实业务字段放入数据区")
     body_pt = float(spec.get("font_size", SIZES["body"]))
     if not 10 <= body_pt <= 14:
         raise ValueError("font_size must be 10-14 pt")
@@ -182,13 +212,7 @@ def _build_one(spec: dict, wb, first: bool) -> None:
     ws.cell(1, 1).fill = fill(HEAD_FILL)
     ws.merge_cells(start_row=1, start_column=1, end_row=1, end_column=n)
     ws.row_dimensions[1].height = round(sizes["title"] * 2.4)
-    if spec.get("subtitle"):                                    # one line: who it is for, version, date, what the colours mean
-        ws.cell(2, 1, spec["subtitle"]).font = font(sizes["subtitle"])
-        ws.cell(2, 1).alignment = Alignment(horizontal="left", vertical="top", wrap_text=True)
-        ws.merge_cells(start_row=2, start_column=1, end_row=2, end_column=n)
-        ws.row_dimensions[2].height = 20
-    else:
-        ws.row_dimensions[2].height = 8
+    ws.row_dimensions[2].height = 8
     hr = 3
     for k, c in enumerate(columns, 1):
         cell = ws.cell(hr, k, c["name"])
@@ -353,25 +377,94 @@ def _build_one(spec: dict, wb, first: bool) -> None:
     ws.oddFooter.center.size = 9
 
 
-def verify_output(out: Path, kind: str, multi: bool = False) -> int:
+def estimate_block(spec: dict) -> dict:
+    """The switch of the 预算、人日与报价政策 in a spec, in one shape. Two ways to write it: ``estimate`` (workdays, quote, requested_by, request_note, provided_by, evidence),
+    or ``allow_quote: true`` with ``quote_evidence: {requested_by, request_note[, provided_by, evidence]}`` (the form the hardware list exporter uses)."""
+    est = dict(spec.get("estimate") or {})
+    if spec.get("allow_quote"):
+        proof = spec.get("quote_evidence")
+        if not isinstance(proof, dict):
+            raise ValueError("allow_quote needs quote_evidence: {requested_by: who asked, request_note: their words}; without evidence nothing is released")
+        est = {**proof, "workdays": True, "quote": True, **{k: v for k, v in est.items() if k not in ("workdays", "quote")}}
+    return est
+
+
+def estimate_allow(spec: dict) -> list[str]:
+    """The ``--allow`` kinds the spec earns (预算、人日与报价政策). Off by default; on only with the evidence, and a price only from a person."""
+    import estimate_terms as et
+    est = estimate_block(spec)
+    if not est or not (est.get("workdays") or est.get("quote")):
+        return []
+    missing = [k for k in ("requested_by", "request_note") if not str(est.get(k) or "").strip()]
+    if missing:
+        raise ValueError(f"estimate is switched on without its evidence: {', '.join(missing)} (who asked, and their words); workdays and amounts stay off until someone asked")
+    if et.not_a_person(str(est["requested_by"])):
+        raise ValueError(f"estimate.requested_by {est['requested_by']!r} is not a person: the agent, a skill, a tool or an example cannot be the one who asked")
+    if et.is_not_evidence(str(est["request_note"])):
+        raise ValueError(f"estimate.request_note {est['request_note']!r} is no evidence: write the words of the person who asked, not a placeholder")
+    if est.get("quote") and not est.get("workdays"):
+        raise ValueError("estimate.quote needs estimate.workdays: a quotation is built on workdays")
+    if est.get("quote"):
+        strict = bool(spec.get("estimate"))        # the estimate block names the figures' source; allow_quote with quote_evidence may carry reference prices with a source link
+        for key in (("provided_by", "evidence") if strict else ()):
+            if not str(est.get(key) or "").strip():
+                raise ValueError(f"estimate.quote needs {key}: the figures must come from a quotation a person supplied (who, and where it is written down)")
+        if est.get("evidence") and et.says_made_up(str(est["evidence"])):
+            raise ValueError(f"estimate.evidence {est['evidence']!r} says the figures are an estimate, made up or a default: they must come from a quotation a person supplied")
+        if est.get("evidence") and et.is_not_evidence(str(est["evidence"])):
+            raise ValueError(f"estimate.evidence {est['evidence']!r} is no evidence: write what the person said or where the quotation is written down")
+        if est.get("provided_by") and et.not_a_person(str(est["provided_by"])):
+            raise ValueError(f"estimate.provided_by {est['provided_by']!r} is not a person: the agent, a skill, a tool, an example or an estimate cannot supply a price")
+        return ["quote"]
+    return ["workdays"]
+
+
+def estimate_evidence(spec: dict) -> str:
+    """The text the workbook carries for its switch ('' when the switch is off)."""
+    import estimate_terms as et
+    if not estimate_allow(spec):
+        return ""
+    est = estimate_block(spec)
+    return et.evidence_text(str(est["requested_by"]), str(est["request_note"]), str(est.get("provided_by") or ""), str(est.get("evidence") or ""))
+
+
+def verify_output(out: Path, kind: str, multi: bool = False, allow: list[str] | None = None) -> int:
     """Run the document checker on what was just written; a builder never hands over a file that fails it."""
     import check_document
     print(f"rule card for this file: py -X utf8 scripts/context.py {kind}  (read it before writing the spec)", file=sys.stderr)
-    code = check_document.main([str(out), "--allow", "multi-sheet"] if multi else [str(out)])
+    argv = [str(out)] + (["--allow", "multi-sheet"] if multi else [])
+    for kind_allowed in allow or []:
+        argv += ["--allow", kind_allowed]
+    code = check_document.main(argv)
     if code:
         print(f"FAIL: {out.name} does not meet the {kind} rules above; fix the spec and build again", file=sys.stderr)
     return code
 
 
 def main(argv: list[str] | None = None) -> int:
-    argv = argv if argv is not None else sys.argv[1:]
-    if len(argv) != 2:
-        print(__doc__)
+    parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
+    parser.add_argument("spec")
+    parser.add_argument("output")
+    parser.add_argument("--session", help="Design session; otherwise inferred from environment or output path")
+    args = parser.parse_args(argv)
+    from design_output_gate import require_output_context, record_rendered_output
+    try:
+        context = require_output_context(args.output, "xlsx", session=args.session)
+    except ValueError as exc:
+        print(f"FAIL: {exc}", file=sys.stderr)
         return 2
-    spec = json.loads(Path(argv[0]).read_text(encoding="utf-8"))
-    out = build(spec, Path(argv[1]))
+    spec = json.loads(Path(args.spec).read_text(encoding="utf-8"))
+    try:
+        allow = estimate_allow(spec)
+    except ValueError as err:
+        print(f"ERROR {err}", file=sys.stderr)
+        return 2
+    out = build(spec, Path(args.output), context=context)
     print("wrote", out)
-    return verify_output(out, "xlsx", bool(spec.get("sheets")))
+    code = verify_output(out, "xlsx", bool(spec.get("sheets")), allow)
+    if code == 0:
+        record_rendered_output(context, out, "xlsx", generator="Luz-Design/scripts/make_xlsx.py")
+    return code
 
 
 if __name__ == "__main__":

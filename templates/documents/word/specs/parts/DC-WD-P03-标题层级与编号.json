@@ -1,0 +1,16 @@
+{
+  "number_format": "一、",
+  "sections": [
+    {
+      "heading": "需求分析",
+      "blocks": [
+        {
+          "sub": "使用方与核心需求"
+        },
+        {
+          "sub": "本期边界"
+        }
+      ]
+    }
+  ]
+}

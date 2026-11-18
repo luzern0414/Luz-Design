@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>花间集系统架构</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23003EB3'/%3E%3Cg fill='none' stroke='%23FFFFFF' stroke-width='2.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 9h5v5H9zM18 9h5v5h-5zM9 18h5v5H9zM18 18h5v5h-5z'/%3E%3C/g%3E%3C/svg%3E">
+<style>
+/* luz-md-type:start
+   阅读型网页的 Markdown 层级（母本：Luz-Design/references/md-type.css）。其他技能的样式文件里夹着同一段，
+   改这里之后运行 py -X utf8 scripts/sync_md_type.py --write 同步，不要在别处手改（不带参数运行只报告 SAME 或 DIFF）。
+   规则见 file-design.html 网页文件 › 排版参数（逐级数值表）与 visual-design.html 一 › 字体与字号 › 字阶表的阅读型网页一行：手机（小于 768）与桌面（768 及以上）各一套字号，
+   桌面正文 18，手机 16；每一级的字号、字重、行高、上下留白固定，页面只取这些级别，不另造样式。
+   只管文字层级，不管容器宽度、颜色主题与组件：颜色取页面已有的变量，缺省用下面的回退值。 */
+:root {
+  --md-body: 16px;  --md-body-lh: 1.75;
+  --md-h1: 28px;  --md-h2: 24px;  --md-h3: 20px;  --md-h4: 16px;  --md-h5: 14px;  --md-h6: 14px;
+  --md-table: 14px;  --md-aux: 14px;  --md-code: 14px;
+  --md-measure: 42em;
+}
+@media (min-width: 768px) {
+  :root {
+    --md-body: 18px;  --md-body-lh: 1.8;
+    --md-h1: 36px;  --md-h2: 28px;  --md-h3: 22px;  --md-h4: 18px;  --md-h5: 16px;  --md-h6: 14px;
+    --md-table: 16px;  --md-aux: 14px;  --md-code: 16px;
+  }
+}
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body { font-size: var(--md-body); line-height: var(--md-body-lh); font-weight: 400; font-kerning: normal; text-rendering: optimizeLegibility; overflow-wrap: break-word; }
+h1, h2, h3, h4, h5, h6 { font-family: inherit; font-style: normal; letter-spacing: 0; text-wrap: balance; }
+h1 { margin: 0 0 24px; font-size: var(--md-h1); line-height: 1.25; font-weight: 700; }
+h2 { margin: 56px 0 16px; padding-bottom: 12px; border-bottom: 1px solid var(--line, #d7e0e8); font-size: var(--md-h2); line-height: 1.3; font-weight: 700; }
+h3 { margin: 40px 0 12px; font-size: var(--md-h3); line-height: 1.4; font-weight: 600; }
+h4 { margin: 28px 0 8px; font-size: var(--md-h4); line-height: 1.5; font-weight: 600; }
+h5 { margin: 24px 0 8px; font-size: var(--md-h5); line-height: 1.5; font-weight: 600; color: var(--muted, var(--ink-2, #526071)); }
+h6 { margin: 20px 0 8px; font-size: var(--md-h6); line-height: 1.5; font-weight: 600; color: var(--muted, var(--ink-2, #526071)); }
+p { margin: 0 0 16px; }
+p, ul, ol, dl, blockquote { max-width: var(--md-measure); }
+ul, ol { margin: 0 0 16px; padding-left: 1.6em; }
+li { margin: 0; }
+li + li { margin-top: 6px; }
+li > ul, li > ol { margin: 6px 0 0; }
+ul { list-style: disc; }
+ul ul { list-style: circle; }
+ul ul ul { list-style: square; }
+li::marker { color: var(--muted, var(--ink-2, #526071)); }
+dt { font-weight: 600; }
+dd { margin: 2px 0 12px; padding-left: 1em; }
+strong, b { font-weight: 600; }
+em, i, cite, address { font-style: normal; font-weight: 600; }
+blockquote { margin: 0 0 16px; padding: 4px 0 4px 16px; border-left: 4px solid var(--line, #d7e0e8); color: var(--muted, var(--ink-2, #526071)); }
+blockquote > :last-child { margin-bottom: 0; }
+hr { margin: 40px 0; border: 0; border-top: 1px solid var(--line, #d7e0e8); }
+small, figcaption, caption, time, .aux, .src { font-size: var(--md-aux); line-height: 1.6; }
+caption, figcaption { margin: 0; padding: 0 0 10px; color: var(--muted, var(--ink-2, #526071)); text-align: center; }
+caption { caption-side: top; }
+table { font-size: var(--md-table); line-height: 1.65; font-variant-numeric: tabular-nums; }
+th { font-weight: 600; }
+td > :last-child, th > :last-child { margin-bottom: 0; }
+code, kbd, samp, pre { font-family: "Cascadia Mono", "Consolas", "Microsoft YaHei", monospace; font-size: var(--md-code); line-height: 1.6; }
+code, kbd, samp { padding: 2px 6px; border-radius: 8px; background: var(--surface-soft, var(--surface-2, #edf3f7)); overflow-wrap: anywhere; }
+pre { margin: 0 0 16px; padding: 16px 20px; overflow: auto; border: 1px solid var(--line, #d7e0e8); border-radius: 8px; background: var(--surface, #f7f9fc); }
+pre code { padding: 0; border-radius: 0; background: none; font-size: inherit; }
+@media print {
+  :root { --md-body: 11pt; --md-body-lh: 1.7; --md-h1: 22pt; --md-h2: 17pt; --md-h3: 14pt; --md-h4: 12pt; --md-h5: 11pt; --md-h6: 10.5pt; --md-table: 10.5pt; --md-aux: 10.5pt; --md-code: 10.5pt; }
+}
+/* luz-md-type:end */
+
+:root { color-scheme: light; --s1: #003EB3; --t1: #FFFFFF; --s2: #3365C2; --t2: #FFFFFF; --s3: #6187D0; --t3: #25201F; --s4: #85A2DB; --t4: #25201F; --s5: #A3BAE4; --t5: #25201F; --canvas: #F6FBFF; --paper: #FFFFFF; --ink: #25201F; --muted: #5D5356; --line: #C5D5F0; --tint: #E6F4FF; --action: #003EB3; --press: #002C8C; --link: #002C8C; --radius: 8px; }
+* { box-sizing: border-box; }
+html { background: var(--canvas); }
+body { margin: 0; background: var(--canvas); color: var(--ink); font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", system-ui, sans-serif; }
+main { width: min(880px, calc(100% - 32px)); margin: 0 auto; padding: 72px 0 112px; }
+h1 + section > h2:first-child { margin-top: 40px; }
+h2[id] { scroll-margin-top: 24px; }
+h2:focus-visible, a:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; border-radius: 4px; }
+a { color: var(--link); text-underline-offset: 3px; }
+a.cite { margin-left: 2px; font-size: var(--md-aux); font-weight: 600; text-decoration: none; }
+section > p, section > ul, section > ol { max-width: var(--md-measure); }
+.table-wrap { margin: 24px 0 36px; overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 11px 16px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: middle; }
+thead th { background: var(--tint); text-align: center; }
+thead th:first-child { border-radius: var(--radius) 0 0 var(--radius); }
+thead th:last-child { border-radius: 0 var(--radius) var(--radius) 0; }
+td:first-child { font-weight: 600; white-space: nowrap; }
+th, td.center, td.right { white-space: nowrap; }
+td.center { text-align: center; } td.right { text-align: right; }
+caption { text-align: left; }
+.conclusion { max-width: var(--md-measure); margin: 0 0 28px; padding: 16px 22px; border-left: 4px solid var(--action); border-radius: 0 var(--radius) var(--radius) 0; background: var(--tint); }
+.conclusion p { margin: 0; }
+blockquote { border-left-color: var(--action); }
+blockquote .src { margin: 8px 0 0; color: var(--muted); }
+.chart { margin: 8px 0 36px; }
+.chart figcaption { margin-top: 14px; text-align: left; }
+.bars { max-width: none; margin: 0; padding: 0; list-style: none; }
+.bars li { display: grid; grid-template-columns: 8.5em 1fr 4.5em; gap: 16px; align-items: center; margin: 0; padding: 7px 0; }
+.bars li + li { margin-top: 0; }
+.bar-name { font-size: var(--md-table); }
+.bar-track { display: block; height: 20px; border-radius: var(--radius); background: var(--tint); overflow: hidden; }
+.bar-fill { display: block; height: 20px; border-radius: var(--radius); background: var(--action); }
+.bar-value { font-size: var(--md-table); font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.stacks li { padding: 6px 0; }
+.stack { display: flex; gap: 2px; min-width: 0; }
+.fill { display: block; height: 20px; min-width: 0; overflow: hidden; border-radius: 4px; font-size: var(--md-aux); font-weight: 600; line-height: 20px; text-align: center; white-space: nowrap; }
+.legend { max-width: none; margin: 0; padding: 0; list-style: none; }
+.legend li { display: grid; grid-template-columns: 14px 1fr auto 4.5em; gap: 12px; align-items: center; margin: 0; padding: 7px 0; border-bottom: 1px solid var(--line); font-size: var(--md-table); }
+.legend li:last-child { border-bottom: 0; }
+.legend-inline { display: flex; flex-wrap: wrap; gap: 8px 24px; margin-bottom: 12px; }
+.legend-inline li { display: flex; gap: 8px; padding: 0; border: 0; }
+.lg-value, .lg-share { text-align: right; font-variant-numeric: tabular-nums; }
+.lg-value { font-weight: 600; }
+.swatch { width: 14px; height: 14px; border-radius: 4px; }
+.fill.s1, .swatch.s1 { background: var(--s1); color: var(--t1); }
+.fill.s2, .swatch.s2 { background: var(--s2); color: var(--t2); }
+.fill.s3, .swatch.s3 { background: var(--s3); color: var(--t3); }
+.fill.s4, .swatch.s4 { background: var(--s4); color: var(--t4); }
+.fill.s5, .swatch.s5 { background: var(--s5); color: var(--t5); }
+
+.donut-row { display: grid; grid-template-columns: 220px 1fr; gap: 48px; align-items: center; }
+.donut-wrap { position: relative; width: 220px; height: 220px; }
+.donut { display: block; width: 220px; height: 220px; }
+.donut-center { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; line-height: 1.2; }
+.donut-center strong { font-size: 28px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.donut-center span { font-size: var(--md-aux); color: var(--muted); }
+.flow { display: flex; max-width: none; margin: 8px 0 36px; padding: 0; list-style: none; gap: 28px; }
+.flow li { position: relative; flex: 1 1 0; margin: 0; padding: 14px 14px 14px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--paper); font-size: var(--md-table); line-height: 1.5; }
+.flow li + li { margin: 0; }
+.flow strong, .layer strong { display: block; font-weight: 600; }
+.flow span, .layer li span { display: block; margin-top: 2px; color: var(--muted); font-size: var(--md-aux); }
+.flow li:not(:last-child)::after { content: ""; position: absolute; top: 50%; right: -19px; width: 9px; height: 9px; border-top: 2px solid var(--action); border-right: 2px solid var(--action); transform: translateY(-50%) rotate(45deg); }
+.layers { margin: 8px 0 36px; }
+.layer { position: relative; display: grid; grid-template-columns: 7.5em 1fr; gap: 20px; align-items: center; padding: 16px 20px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--paper); }
+.layer + .layer { margin-top: 30px; }
+.layer + .layer::before { content: ""; position: absolute; top: -20px; left: 50%; width: 9px; height: 9px; border-right: 2px solid var(--action); border-bottom: 2px solid var(--action); transform: translateX(-50%) rotate(45deg); }
+.layer .layer-name { margin: 0; font-size: var(--md-h4); font-weight: 600; }
+.layer ul { display: flex; flex-wrap: wrap; gap: 10px; max-width: none; margin: 0; padding: 0; list-style: none; }
+.layer li { margin: 0; padding: 8px 14px; border-radius: var(--radius); background: var(--tint); font-size: var(--md-table); line-height: 1.5; }
+.layer li + li { margin-top: 0; }
+.figures { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin: 8px 0 32px; }
+.figures-wide { grid-template-columns: 1fr; }
+.figures figure { margin: 0; }
+.figures img { display: block; width: 100%; height: auto; border-radius: var(--radius); }
+.figures figcaption { padding: 10px 0 0; }
+.toc { margin: 36px 0 0; padding: 18px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.toc ul { columns: 2; column-gap: 40px; max-width: none; margin: 0; padding: 0; list-style: none; font-size: var(--md-table); }
+.toc li { break-inside: avoid; margin: 0; padding: 4px 0; }
+.toc li + li { margin-top: 0; }
+.sources { max-width: none; margin: 0; padding: 0; list-style: none; font-size: var(--md-table); }
+.sources li { display: grid; grid-template-columns: 2.6em 1fr; margin: 0 0 14px; }
+.sources li + li { margin-top: 0; }
+.sources .no { color: var(--muted); font-weight: 600; }
+pre { max-width: 100%; background: var(--paper); }
+@media (max-width: 767px) {
+  main { padding: 40px 0 72px; }
+  h1 + section > h2:first-child { margin-top: 32px; }
+  .bars li { grid-template-columns: 6.5em 1fr 4em; gap: 10px; }
+  .donut-row { grid-template-columns: 1fr; justify-items: center; gap: 28px; }
+  .donut-row .legend { width: 100%; }
+  .flow { flex-direction: column; gap: 26px; }
+  .flow li:not(:last-child)::after { top: auto; bottom: -19px; right: auto; left: 50%; transform: translateX(-50%) rotate(135deg); }
+  .layer { grid-template-columns: 1fr; gap: 10px; }
+  .figures { grid-template-columns: 1fr; }
+  .toc ul { columns: 1; }
+  th, td { padding: 10px 8px; }
+  .stacks li { grid-template-columns: 1fr auto; gap: 6px 10px; }
+  .stacks .bar-name { grid-column: 1; grid-row: 1; }
+  .stacks .bar-value { grid-column: 2; grid-row: 1; }
+  .stacks .stack { grid-column: 1 / -1; grid-row: 2; }
+}
+@media print {
+  html, body { background: #FFFFFF; }
+  main { width: auto; padding: 0; }
+  .toc { display: none; }
+  table, figure, pre, .flow, .layers, blockquote, .conclusion { break-inside: avoid; }
+  h2 { break-after: avoid; }
+}
+</style>
+</head>
+<body>
+<main>
+<h1>花间集系统架构</h1>
+<section><h2>系统分层</h2><div class="layers" role="group" aria-label="花间集系统分层"><div class="layer"><p class="layer-name">接入层</p><ul><li><strong>顾客小程序</strong><span>顾客使用</span></li><li><strong>管理后台</strong><span>店长与运营使用</span></li><li><strong>门店收银</strong><span>前台使用</span></li></ul></div><div class="layer"><p class="layer-name">业务层</p><ul><li><strong>商品</strong><span>分类与上下架</span></li><li><strong>订单</strong><span>状态流转</span></li><li><strong>会员</strong><span>等级与优惠券</span></li><li><strong>营销</strong><span>节日活动</span></li><li><strong>配送</strong><span>同城与极速</span></li></ul></div><div class="layer"><p class="layer-name">数据层</p><ul><li><strong>业务数据库</strong><span>订单与会员</span></li><li><strong>缓存</strong><span>库存与会话</span></li><li><strong>文件存储</strong><span>商品图片</span></li></ul></div><div class="layer"><p class="layer-name">外部服务</p><ul><li><strong>支付</strong><span>收款与退款</span></li><li><strong>短信通知</strong><span>订单提醒</span></li><li><strong>地图定位</strong><span>配送范围</span></li></ul></div></div><blockquote lang="en"><p>In the C4 model, a container represents an application or a data store.</p><p class="src"><a class="cite" href="#ref-1" aria-label="参考来源 1">[1]</a></p></blockquote><p>拟按容器粒度划定系统边界：小程序、管理后台与业务服务是应用，业务数据库、缓存与文件存储是数据存储<a class="cite" href="#ref-1" aria-label="参考来源 1">[1]</a>；支付、短信与地图属于外部服务，不计入自有容器。</p></section>
+<section><h2>模块职责</h2><div class="table-wrap"><table><caption>表 1 业务模块职责</caption><thead><tr><th scope="col">模块</th><th scope="col">职责</th><th scope="col">依赖</th><th scope="col">数据归属</th></tr></thead><tbody><tr><td class="left">商品</td><td class="left">维护分类、商品与库存，控制上下架</td><td class="left">文件存储</td><td class="left">商品、分类、库存</td></tr><tr><td class="left">订单</td><td class="left">创建订单，管理状态流转与售后</td><td class="left">商品、支付、配送</td><td class="left">订单、售后记录</td></tr><tr><td class="left">会员</td><td class="left">管理会员等级、优惠券领取与核销</td><td class="left">订单</td><td class="left">会员、优惠券</td></tr><tr><td class="left">营销</td><td class="left">配置节日活动与优惠券发放</td><td class="left">会员、商品</td><td class="left">活动、发放记录</td></tr><tr><td class="left">配送</td><td class="left">划定配送范围，分派同城与极速配送</td><td class="left">订单、地图定位</td><td class="left">配送单、配送范围</td></tr></tbody></table></div></section>
+<section><h2>订单数据流</h2><ol class="flow"><li><strong>提交订单</strong><span>小程序</span></li><li><strong>校验库存</strong><span>商品</span></li><li><strong>发起支付</strong><span>支付</span></li><li><strong>通知门店</strong><span>管理后台</span></li><li><strong>配送履约</strong><span>配送</span></li><li><strong>更新状态</strong><span>订单</span></li></ol><p>拟定库存在提交订单时锁定、支付成功后扣减；支付超时未完成的订单释放库存并取消。三家门店共用一套订单数据，按门店编号区分归属。</p></section>
+<section><h2>部署环境</h2><div class="table-wrap"><table><caption>表 2 部署环境</caption><thead><tr><th scope="col">环境</th><th scope="col">组成</th><th scope="col">用途</th></tr></thead><tbody><tr><td class="center">开发</td><td class="left">本地服务与测试数据库</td><td class="left">日常开发与联调</td></tr><tr><td class="center">测试</td><td class="left">独立服务与测试数据</td><td class="left">功能测试与验收</td></tr><tr><td class="center">生产</td><td class="left">应用服务、业务数据库与缓存</td><td class="left">对外提供服务</td></tr></tbody></table></div></section>
+<section><h2>非功能约束</h2><div class="table-wrap"><table><caption>表 3 非功能约束</caption><thead><tr><th scope="col">约束项</th><th scope="col">要求</th><th scope="col">验证方式</th></tr></thead><tbody><tr><td class="left">可用性</td><td class="left">支付回调与订单更新失败时可重试，且不重复扣减库存</td><td class="left">重复回调测试</td></tr><tr><td class="left">安全</td><td class="left">管理后台按角色限制菜单与接口，权限由服务端校验</td><td class="left">越权访问测试</td></tr><tr><td class="left">数据</td><td class="left">订单与会员数据每日备份，可按门店导出</td><td class="left">恢复演练</td></tr><tr><td class="left">审计</td><td class="left">订单状态变更保留操作记录</td><td class="left">记录抽查</td></tr></tbody></table></div></section>
+<section><h2>参考来源</h2><ol class="sources"><li id="ref-1"><span class="no">[1]</span><span>C4 model 站点，作者未提供。<a href="https://c4model.com/abstractions/container" rel="noreferrer">Container | C4 model</a>。页首定义句。核对于 2026-11-09</span></li></ol></section>
+</main>
+</body>
+</html>

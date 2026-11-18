@@ -16,9 +16,9 @@ sys.path.insert(0, str(SCRIPTS))
 
 import check_output_layout
 from add_mode import add_mode
-from new_session import OUTPUT_ROOT, create_session, main as new_session_main
+from new_session import create_session, main as new_session_main
 from publish import publish
-from validate_session import SCHEMA_VERSION, validate
+from validate_session import SCHEMA_VERSION, validate, local_links
 from validate_skill import validate_rule_page
 
 def tool_root(temp: str) -> Path:
@@ -93,7 +93,13 @@ def adopt_rules(session: Path, rule: str = "文件设计规范 › 核心规则 
     import validate_session
     sys.path.insert(0, str(ROOT.parent / "Luz-Crawl" / "scripts"))
     from test_crawl_preflight import complete_fixture
-    complete_fixture(session, "luz-design")
+    manifest = read_json(session / "raw" / "99-delivery" / "MANIFEST.json")
+    link = manifest.get("project")
+    complete_fixture(Path(link["state_root"]) if link else session, "luz-design", "design")
+    if not link:
+        from template_library import select
+        template = "design-visual-board" if manifest["modes"] == ["visual"] else "design-document-page"
+        select(session, "luz-design", "design", template, f"{session.name}.html")
     brief = session / "raw" / "BRIEF.md"
     text = brief.read_text(encoding="utf-8")
     head, tail = text.split("## 本次沉淀", 1)
@@ -222,7 +228,7 @@ class SessionFlowTests(unittest.TestCase):
         from openpyxl import Workbook
         from openpyxl.styles import Font
         from check_document import check_xlsx
-        from make_xlsx import build
+        from make_xlsx import _render_workbook as build
         with tempfile.TemporaryDirectory() as temp:
             good = build({"title": "硬件选型清单", "columns": [{"name": "子系统", "merge": True}, {"name": "设备"},
                                                          {"name": "数量", "type": "number"}],
@@ -275,7 +281,7 @@ class SessionFlowTests(unittest.TestCase):
     def test_contract_builder_passes_and_incomplete_contract_fails(self) -> None:
         import docx
         from check_document import check_docx
-        from make_docx import build, rmb_upper
+        from make_docx import _render_document as build, rmb_upper
         self.assertEqual(rmb_upper(128000), "壹拾贰万捌仟元整")
         self.assertEqual(rmb_upper(100500.5), "壹拾万零伍佰元伍角整")
         party = lambda role, name: {"role": role, "fields": [["名称", name], ["住所", "深圳市南山区"], ["联系人及电话", "张工 0755-1234 5678"]]}
@@ -304,7 +310,7 @@ class SessionFlowTests(unittest.TestCase):
         import check_document
         from check_document import check_docx
         from docx.oxml.ns import qn
-        from make_docx import build
+        from make_docx import _render_document as build
         spec = {"type": "general", "style": "paper", "title": "项目硬件开发资源申请",
                 "sections": [{"heading": "项目信息", "paragraphs": ["门店入口采用 A、B 双门门斗。"],
                               "table": {"header": ["项目", "内容"], "rows": [["协助周期", "一周"]]},
@@ -471,13 +477,34 @@ class SessionFlowTests(unittest.TestCase):
             self.assertIn("schema_version must be 3.0", joined)
             self.assertIn("system sessions belong to Luz-System", joined)
 
-    @unittest.skipUnless(next(OUTPUT_ROOT.glob("004-*"), None), "legacy 004 session is not on this machine")
-    def test_existing_legacy_004_session_gets_its_layout_findings_as_notes_only(self) -> None:
-        session = next(OUTPUT_ROOT.glob("004-*"))
-        notes: list[str] = []
-        errors = validate(session, notes=notes)
-        self.assertFalse([e for e in errors if "汇总页" in e or "根目录" in e or "found " in e], errors)
-        self.assertTrue(any("旧会话布局" in n for n in notes), notes)
+    def test_legacy_session_reports_layout_findings_as_notes_only(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            session = create_session(tool_root(temp), "旧布局", ["document"], skill_root=ROOT)
+            path = session / "raw" / "99-delivery" / "MANIFEST.json"
+            manifest = read_json(path)
+            del manifest["output_standard"]
+            write_json(path, manifest)
+            (session / "BRIEF.md").write_text("旧会话的制作记录", encoding="utf-8")
+
+            notes: list[str] = []
+            self.assertEqual(validate(session, notes=notes), [])
+            self.assertTrue(any("旧会话布局" in note and "BRIEF.md" in note for note in notes), notes)
+
+class FileLinkValidationTests(unittest.TestCase):
+    def test_file_uri_resolves_to_the_real_local_file(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path=Path(tmp)/'中文 reference #1.html';path.write_text('reference',encoding='utf-8')
+            links=local_links('<a href="'+path.as_uri()+'#section">reference</a>',html=True)
+            self.assertEqual(len(links),1)
+            self.assertEqual(Path(links[0]).resolve(),path.resolve())
+            self.assertTrue(Path(links[0]).is_file())
+
+    def test_missing_file_uri_is_checked_instead_of_ignored(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path=Path(tmp)/'missing reference.html'
+            links=local_links('<a href="'+path.as_uri()+'">reference</a>',html=True)
+            self.assertEqual(Path(links[0]).resolve(),path.resolve())
+            self.assertFalse(Path(links[0]).exists())
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

@@ -10,6 +10,7 @@ docx_layout.ps1), which also writes ``out.pdf`` next to the .docx: that PDF is t
 """
 from __future__ import annotations
 
+import argparse
 import json
 import re
 import subprocess
@@ -121,7 +122,28 @@ def verify_captions(docx: Path, pdf: Path) -> list[str]:
     return errors
 
 
-def build(spec: dict, out: Path, max_passes: int = 5) -> dict:
+def build(spec: dict, out: Path, max_passes: int = 5, *, context=None, session=None, stage=None) -> dict:
+    """Validate the public API before a DOCX, PDF or Office process is created."""
+    from design_output_gate import require_output_context, record_rendered_output, verified_output_context
+    out = Path(out)
+    context = require_output_context(out, "docx-paginated", context=context, session=session, stage=stage)
+    pdf = out.with_suffix(".pdf").resolve()
+    pdf_context = None
+    if context.template_target in {out.resolve(), pdf}:
+        # A directly selected Word also delivers its exported PDF. Both exact
+        # targets need a selection before Office creates either of them. An
+        # upstream raw working pair remains scoped to its selected final file.
+        pdf_context = verified_output_context(context.evidence_root, context.caller, context.stage,
+                                              pdf, "docx-paginated", template_root=context.template_root)
+    result = _render_paginated(spec, out, max_passes)
+    record_rendered_output(context, out, "docx-paginated", generator="Luz-Design/scripts/make_docx_paginated.py")
+    if pdf_context is not None:
+        record_rendered_output(pdf_context, pdf, "docx-paginated", generator="Luz-Design/scripts/make_docx_paginated.py:pdf")
+    return result
+
+
+def _render_paginated(spec: dict, out: Path, max_passes: int = 5) -> dict:
+    """Private layout loop; only public build() grants a business write."""
     spec = json.loads(json.dumps(spec))
     out = Path(out)
     pdf, report = out.with_suffix(".pdf"), Path(tempfile.gettempdir()) / (out.stem + ".layout.json")
@@ -130,7 +152,7 @@ def build(spec: dict, out: Path, max_passes: int = 5) -> dict:
         t["breaks"] = []
     lay: dict = {}
     for n in range(max_passes):
-        make_docx.build(spec, out)
+        make_docx._render_document(spec, out)
         lay = layout(out, pdf, report)
         changed, at = False, 0
         for t in tables:
@@ -148,7 +170,7 @@ def build(spec: dict, out: Path, max_passes: int = 5) -> dict:
     heads = lay["headings"]
     if heads:
         spec["toc_pages"] = [h[2] - heads[0][2] + 1 for h in heads]   # the page numbers the body shows (it restarts at 1)
-    make_docx.build(spec, out)
+    make_docx._render_document(spec, out)
     lay = layout(out, pdf, report)
     label_pdf(pdf, str(spec.get("title") or out.stem))
     errors = verify_captions(out, pdf)
@@ -158,12 +180,22 @@ def build(spec: dict, out: Path, max_passes: int = 5) -> dict:
 
 
 def main(argv: list[str] | None = None) -> int:
-    argv = argv if argv is not None else sys.argv[1:]
-    if len(argv) != 2:
-        print(__doc__)
+    parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
+    parser.add_argument("spec")
+    parser.add_argument("output")
+    parser.add_argument("--session", help="Design session; otherwise inferred from environment or output path")
+    args = parser.parse_args(argv)
+    from design_output_gate import require_output_context
+    try:
+        context = require_output_context(args.output, "docx-paginated", session=args.session)
+        raw = context.template_root if (context.template_root / "project.json").is_file() else context.template_root / "raw"
+        if not Path(args.output).resolve().is_relative_to(raw):
+            raise ValueError("分页 Word 的导出过程文件必须写到会话 raw，再用 deliver.py 放置成品")
+        lay = build(json.loads(Path(args.spec).read_text(encoding="utf-8-sig")), Path(args.output), context=context)
+    except ValueError as exc:
+        print(f"FAIL: {exc}", file=sys.stderr)
         return 2
-    lay = build(json.loads(Path(argv[0]).read_text(encoding="utf-8-sig")), Path(argv[1]))
-    print("wrote", argv[1], f"({lay['pages']} pages) and", Path(argv[1]).with_suffix(".pdf"))
+    print("wrote", args.output, f"({lay['pages']} pages) and", Path(args.output).with_suffix(".pdf"))
     return 0
 
 

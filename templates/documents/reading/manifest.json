@@ -1,0 +1,276 @@
+{
+  "type": "reading",
+  "title": "阅读网页",
+  "naming": "DC-RD-三位序号-中文名.html",
+  "items": [
+    {
+      "id": "DC-RD-001",
+      "name": "阅读报告",
+      "use": "数据分析报告：结论块、环形图、堆叠条形图、条形图与口径表，用于把一批记录的构成讲清楚",
+      "file": "samples/DC-RD-001-阅读报告.html",
+      "spec": "specs/DC-RD-001-阅读报告.json",
+      "generator": "本文件夹 tools/build_reading_samples.py（render_page，样例合成用）",
+      "checks": [
+        "check_document.py",
+        "浏览器 1440 与 390 宽查看",
+        "md-type.css 母本同步为 SAME"
+      ],
+      "fields": [
+        "title",
+        "theme",
+        "icon",
+        "sections"
+      ]
+    },
+    {
+      "id": "DC-RD-002",
+      "name": "阶段汇总页",
+      "use": "会话阶段汇总：成果、依据、过程文件三节，每节一张带表题的表",
+      "file": "samples/DC-RD-002-阶段汇总页.html",
+      "spec": "specs/DC-RD-002-阶段汇总页.json",
+      "generator": "Luz-Design/scripts/make_summary.py（render 函数；正式命令需要会话与门禁）",
+      "checks": [
+        "check_document.py",
+        "浏览器 1440 与 390 宽查看",
+        "md-type.css 母本同步为 SAME"
+      ],
+      "fields": [
+        "title",
+        "sections"
+      ]
+    },
+    {
+      "id": "DC-RD-003",
+      "name": "方案说明",
+      "use": "方案文档：目标、范围、角色、功能、流程、状态、里程碑、交付物与验收，超过 8 节带章节链接",
+      "file": "samples/DC-RD-003-方案说明.html",
+      "spec": "specs/DC-RD-003-方案说明.json",
+      "generator": "本文件夹 tools/build_reading_samples.py（render_page，样例合成用）",
+      "checks": [
+        "check_document.py",
+        "浏览器 1440 与 390 宽查看",
+        "md-type.css 母本同步为 SAME"
+      ],
+      "fields": [
+        "title",
+        "theme",
+        "icon",
+        "sections"
+      ]
+    },
+    {
+      "id": "DC-RD-004",
+      "name": "图文文章",
+      "use": "配图叙述文章：段落为主，内嵌实拍图，末尾一张分工表",
+      "file": "samples/DC-RD-004-图文文章.html",
+      "spec": "specs/DC-RD-004-图文文章.json",
+      "generator": "本文件夹 tools/build_reading_samples.py（render_page，样例合成用）",
+      "checks": [
+        "check_document.py",
+        "浏览器 1440 与 390 宽查看",
+        "md-type.css 母本同步为 SAME"
+      ],
+      "fields": [
+        "title",
+        "theme",
+        "icon",
+        "sections"
+      ]
+    },
+    {
+      "id": "DC-RD-005",
+      "name": "系统架构阅读页",
+      "use": "系统架构说明：分层结构图、模块职责表、数据流、部署与约束，带引用与来源",
+      "file": "samples/DC-RD-005-系统架构阅读页.html",
+      "spec": "specs/DC-RD-005-系统架构阅读页.json",
+      "generator": "本文件夹 tools/build_reading_samples.py（render_page，样例合成用）",
+      "checks": [
+        "check_document.py",
+        "浏览器 1440 与 390 宽查看",
+        "md-type.css 母本同步为 SAME"
+      ],
+      "fields": [
+        "title",
+        "theme",
+        "icon",
+        "sections",
+        "sources"
+      ]
+    },
+    {
+      "id": "DC-RD-006",
+      "name": "技术方案阅读页",
+      "use": "技术方案：方案对比、状态机、接口表与代码示例、幂等与风险、验证计划，带引用与来源",
+      "file": "samples/DC-RD-006-技术方案阅读页.html",
+      "spec": "specs/DC-RD-006-技术方案阅读页.json",
+      "generator": "本文件夹 tools/build_reading_samples.py（render_page，样例合成用）",
+      "checks": [
+        "check_document.py",
+        "浏览器 1440 与 390 宽查看",
+        "md-type.css 母本同步为 SAME"
+      ],
+      "fields": [
+        "title",
+        "theme",
+        "icon",
+        "sections",
+        "sources"
+      ]
+    }
+  ],
+  "parts": [
+    {
+      "id": "DC-RD-P01",
+      "name": "页头",
+      "file": "specs/parts/DC-RD-P01-页头.json",
+      "used_in": [
+        "DC-RD-001",
+        "DC-RD-002",
+        "DC-RD-003",
+        "DC-RD-004",
+        "DC-RD-005",
+        "DC-RD-006"
+      ]
+    },
+    {
+      "id": "DC-RD-P02",
+      "name": "章节",
+      "file": "specs/parts/DC-RD-P02-章节.json",
+      "used_in": [
+        "DC-RD-001",
+        "DC-RD-002",
+        "DC-RD-003",
+        "DC-RD-004",
+        "DC-RD-005",
+        "DC-RD-006"
+      ]
+    },
+    {
+      "id": "DC-RD-P03",
+      "name": "带题表格",
+      "file": "specs/parts/DC-RD-P03-带题表格.json",
+      "used_in": [
+        "DC-RD-001",
+        "DC-RD-002",
+        "DC-RD-003",
+        "DC-RD-004",
+        "DC-RD-005",
+        "DC-RD-006"
+      ]
+    },
+    {
+      "id": "DC-RD-P04",
+      "name": "条形图块",
+      "file": "specs/parts/DC-RD-P04-条形图块.json",
+      "used_in": [
+        "DC-RD-001"
+      ]
+    },
+    {
+      "id": "DC-RD-P05",
+      "name": "环形图块",
+      "file": "specs/parts/DC-RD-P05-环形图块.json",
+      "used_in": [
+        "DC-RD-001"
+      ]
+    },
+    {
+      "id": "DC-RD-P06",
+      "name": "堆叠条形图块",
+      "file": "specs/parts/DC-RD-P06-堆叠条形图块.json",
+      "used_in": [
+        "DC-RD-001"
+      ]
+    },
+    {
+      "id": "DC-RD-P07",
+      "name": "结论块",
+      "file": "specs/parts/DC-RD-P07-结论块.json",
+      "used_in": [
+        "DC-RD-001",
+        "DC-RD-006"
+      ]
+    },
+    {
+      "id": "DC-RD-P08",
+      "name": "引用块",
+      "file": "specs/parts/DC-RD-P08-引用块.json",
+      "used_in": [
+        "DC-RD-005",
+        "DC-RD-006"
+      ]
+    },
+    {
+      "id": "DC-RD-P09",
+      "name": "章节目录",
+      "file": "specs/parts/DC-RD-P09-章节目录.json",
+      "used_in": [
+        "DC-RD-003"
+      ]
+    },
+    {
+      "id": "DC-RD-P10",
+      "name": "来源列表",
+      "file": "specs/parts/DC-RD-P10-来源列表.json",
+      "used_in": [
+        "DC-RD-005",
+        "DC-RD-006"
+      ]
+    },
+    {
+      "id": "DC-RD-P11",
+      "name": "标签页图标",
+      "file": "specs/parts/DC-RD-P11-标签页图标.json",
+      "used_in": [
+        "DC-RD-001",
+        "DC-RD-003",
+        "DC-RD-004",
+        "DC-RD-005",
+        "DC-RD-006"
+      ]
+    },
+    {
+      "id": "DC-RD-P12",
+      "name": "流程块",
+      "file": "specs/parts/DC-RD-P12-流程块.json",
+      "used_in": [
+        "DC-RD-003",
+        "DC-RD-005",
+        "DC-RD-006"
+      ]
+    },
+    {
+      "id": "DC-RD-P13",
+      "name": "分层结构图块",
+      "file": "specs/parts/DC-RD-P13-分层结构图块.json",
+      "used_in": [
+        "DC-RD-005"
+      ]
+    },
+    {
+      "id": "DC-RD-P14",
+      "name": "代码块",
+      "file": "specs/parts/DC-RD-P14-代码块.json",
+      "used_in": [
+        "DC-RD-006"
+      ]
+    },
+    {
+      "id": "DC-RD-P15",
+      "name": "配图块",
+      "file": "specs/parts/DC-RD-P15-配图块.json",
+      "used_in": [
+        "DC-RD-004"
+      ]
+    },
+    {
+      "id": "DC-RD-P16",
+      "name": "列表",
+      "file": "specs/parts/DC-RD-P16-列表.json",
+      "used_in": [
+        "DC-RD-003",
+        "DC-RD-006"
+      ]
+    }
+  ]
+}

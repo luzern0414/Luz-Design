@@ -1,0 +1,33 @@
+{
+ "id": "DC-SL-P13",
+ "name": "环形图页",
+ "layout": "chart",
+ "title": "同城鲜花贡献近六成",
+ "chart": {
+  "type": "doughnut",
+  "caption": "销售构成 单位 百分比",
+  "categories": [
+   "同城鲜花",
+   "节日礼盒",
+   "绿植盆栽",
+   "周期订花"
+  ],
+  "series": [
+   {
+    "name": "占比",
+    "values": [
+     58,
+     18,
+     14,
+     10
+    ]
+   }
+  ]
+ },
+ "stat": {
+  "icon": "bouquet",
+  "label": "同城鲜花占比",
+  "value": "58",
+  "unit": "%"
+ }
+}

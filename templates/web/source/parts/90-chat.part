@@ -1,0 +1,915 @@
+<!-- cat: CHAT | 智能体 -->
+<style>
+  .cht-log:empty { display: none; }
+  /* 智能体：类名前缀 ag-。样式沿用 agent.css 的对话原语，这里只补组件库展示需要的容器与状态 */
+  .ag-card { display: grid; gap: var(--s-4); padding: var(--s-5); align-content: start; min-width: 0; }
+  .ag-card .chat { padding: 0; }
+  .ag-card--flush { padding: 0; gap: 0; overflow: hidden; }
+  .ag-stage { display: grid; gap: var(--s-3); align-content: start; min-width: 0; }
+  .ag-stage .chat { padding: 0; }
+  /* 示例卡片是舞台上唯一的一层白卡：卡里的列表不再自带边框，行首与卡的内容边对齐 */
+  .ag-card .card.list { border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+  .ag-card .card.list .task, .ag-card .card.list .row { padding-left: 0; padding-right: 0; }
+  .ag-card .card.list .row + .row::before { left: 0; }
+  .ag-nb { white-space: nowrap; }
+  .bubble p.is-streaming::after { content: ""; display: inline-block; width: 2px; height: 1.1em; margin-left: 2px; vertical-align: text-bottom; background: var(--action); animation: lz-blink 1s steps(2) infinite; }
+  .ag-bar { display: flex; align-items: center; gap: var(--s-2); flex-wrap: wrap; }
+  .ag-bar--end { justify-content: flex-end; }
+  .ag-bar--between { justify-content: space-between; }
+  .msg__body > * { min-width: 0; }
+  .msg__body > .tag { justify-self: start; }
+  .msg--user .tag { margin-top: var(--s-1); }
+  .msg--user[data-queued] .bubble { opacity: .6; }
+
+  /* 消息操作：悬停或聚焦时出现，触屏常显 */
+  .ag-meta { display: flex; align-items: center; justify-content: flex-end; gap: var(--s-2); }
+  .ag-meta .tag { margin: 0; }
+  .ag-acts { display: flex; align-items: center; gap: var(--s-1); opacity: 0; transition: opacity var(--dur-quick) var(--ease-out); }
+  .msg:hover .ag-acts, .msg:focus-within .ag-acts, .ag-acts:focus-within { opacity: 1; }
+  @media (hover: none) { .ag-acts { opacity: 1; } }
+  .ag-acts .ibtn { width: 32px; height: 32px; border-radius: var(--r-sm); }
+  .ag-acts .ibtn img { width: 16px; height: 16px; }
+  .msg--user .ag-wrap { display: grid; justify-items: end; gap: var(--s-1); max-width: 86%; }
+  .msg--user .ag-wrap .bubble { max-width: 100%; }
+  .ag-edit { display: grid; gap: var(--s-2); width: min(100%, 420px); }
+  .ag-edit .textarea { min-height: 72px; }
+
+  /* 反馈按钮 */
+  .ag-fb { display: inline-flex; align-items: center; gap: var(--s-2); }
+  .ag-fb button[aria-pressed="true"] { background: var(--action-tint); color: var(--action-press); box-shadow: inset 0 0 0 1px var(--action-edge); }
+
+  /* 思考过程与工具 */
+  .think__steps li { animation: lz-rise var(--dur-base) var(--ease-out) both; }
+  .tool { cursor: pointer; }
+  .tool small { font-size: var(--fs-xs); color: var(--ink-3); }
+  .tool[aria-expanded="true"] { background: var(--zone); border-color: var(--line-strong); }
+  .io { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--s-1) var(--s-3); }
+  .io dt { color: var(--ink-3); }
+  .io dd { margin: 0; color: var(--ink); }
+  .io__bar { margin-top: var(--s-3); }
+  .ag-toolset { display: grid; gap: 0; }
+  .ag-toolset .tools { justify-content: center; }
+
+  /* 引用与产物 */
+  .cite { cursor: pointer; }
+  .ag-nb .cite { margin: 0 var(--s-1) 0 2px; }
+  .cite.is-hit { background: var(--action); color: var(--surface); }
+  .ag-src { overflow: hidden; }
+  .ag-src .row { min-height: 52px; padding-top: var(--s-2); padding-bottom: var(--s-2); }
+  .ag-src .row[aria-current="true"] { background: var(--action-tint); }
+  .ag-src .row__title, .ag-src .row__meta { display: block; }
+  .ag-src .cite { margin: 0; flex: none; }
+  .artifact { position: relative; }
+  .artifact .expand { grid-column: 1 / -1; }
+  .art__prev { margin-top: var(--s-3); border-top: 1px solid var(--line); overflow-x: auto; }
+  .art__prev .table { font-size: var(--fs-sm); }
+  .art__prev .table th, .art__prev .table td { padding: var(--s-2) var(--s-3); }
+  .art__prev .table tbody tr { cursor: default; }
+  .artifact > div, .task > div { min-width: 0; }
+  .task .row__title, .task .row__meta, .artifact .row__title, .artifact .row__meta { display: block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .task__end { display: flex; align-items: center; gap: var(--s-2); }
+  .approval .tag { justify-self: start; height: 28px; padding: 0 var(--s-3); font-size: var(--fs-sm); }
+  .opt:focus-visible { outline-offset: -2px; }
+  .ag-done { display: flex; align-items: center; gap: var(--s-2); }
+
+  /* 输入栏 */
+  .prompt:focus-within { border-color: var(--ink-2); }
+  .prompt textarea:focus-visible { outline: none; }
+  .prompt__bar { flex-wrap: wrap; }
+  .ag-files { display: flex; flex-wrap: wrap; gap: var(--s-2); }
+  .ag-files .tool { padding-right: var(--s-1); cursor: default; }
+  .ag-files .tool::before { display: none; }
+  .ag-files .ibtn { width: 28px; height: 28px; }
+  .ag-files .ibtn img { width: 14px; height: 14px; }
+  .ag-mic[aria-pressed="true"] { background: var(--action-tint); }
+  .ag-log { display: grid; gap: var(--s-3); }
+  .ag-log:empty { display: none; }
+  .suggest { -webkit-mask-image: linear-gradient(90deg, var(--ink) 88%, transparent); mask-image: linear-gradient(90deg, var(--ink) 88%, transparent); padding-right: var(--s-6); }
+  .ag-fill { display: flex; align-items: center; min-height: 44px; padding: 0 var(--s-3); border: 1px solid var(--line-strong); border-radius: var(--r-md); background: var(--surface); font-size: var(--fs-md); }
+  .ag-fill[data-empty] { color: var(--ink-3); }
+
+  /* 排队 */
+  .ag-q { display: grid; gap: var(--s-3); }
+  .ag-qi { display: flex; align-items: center; justify-content: flex-end; gap: var(--s-2); }
+  .ag-qi .bubble { max-width: 70%; padding: var(--s-3) var(--s-4); border-radius: var(--r-xl) var(--r-sm) var(--r-xl) var(--r-xl); background: var(--action-tint); }
+  .ag-qi[data-q] .bubble { opacity: .6; }
+  .ag-wait { display: flex; align-items: center; gap: var(--s-3); }
+
+  /* 会话历史与右栏 */
+  .ag-side { display: grid; }
+  .ag-find { padding: var(--s-3); border-bottom: 1px solid var(--line); }
+  .ag-list .row { min-height: 60px; }
+  .ag-list .row[aria-current="true"] { background: var(--action-tint); }
+  .ag-list .row[aria-current="true"] .row__title { color: var(--action-press); }
+  .ag-list .row__title, .ag-list .row__meta { display: block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .ag-ctx { display: grid; gap: var(--s-3); padding: var(--s-4); }
+  .ag-ctx__top { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-3); }
+  .ag-ctx[data-warn="true"] .progress > i { background: var(--warning); }
+  .ag-ctx[data-full="true"] .progress > i { background: var(--danger); }
+  .ag-rp__seg { padding: var(--s-2); border-bottom: 1px solid var(--line); }
+  .ag-rp__seg .seg { padding: 0; margin: 0; }
+  .ag-rp__seg .seg__item { flex: 1; padding: 0 var(--s-2); white-space: nowrap; }
+  .ag-rp__panels { min-height: 186px; }
+  .ag-rp__panels .row__title, .ag-rp__panels .row__meta { display: block; }
+  .ag-stack { display: grid; gap: var(--s-2); }
+  .ag-stack .artifact { border: 0; border-radius: 0; }
+  .ag-empty { display: grid; justify-items: center; gap: var(--s-3); padding: var(--s-8) var(--s-4); text-align: center; color: var(--ink-3); }
+  .ag-card > .ag-empty { padding: var(--s-1) var(--s-4); }
+  .ag-empty img { width: 72px; height: 72px; object-fit: contain; }
+  .ag-empty .suggest { justify-content: center; flex-wrap: wrap; -webkit-mask-image: none; mask-image: none; padding-right: 0; }
+</style>
+
+<article class="demo" data-cid="WB-CHAT-001" data-name="用户消息气泡" data-cat="CHAT">
+  <div class="demo__head"><span class="demo__name">用户消息气泡</span></div>
+  <p class="demo__note">适合：右对齐的提问，可原位编辑与重新发送</p>
+  <div class="demo__stage">
+    <div class="card ag-card">
+      <div class="chat" id="ag-u">
+        <div class="msg msg--user">
+          <div class="ag-wrap">
+            <div class="bubble" data-text>核对本周线上订单与支付流水的差异</div>
+            <div class="ag-meta"><div class="ag-acts"><button type="button" class="ibtn" data-edit data-tip="编辑" aria-label="编辑提问"><img src="../../kit/assets/line/edit.webp" alt=""></button><button type="button" class="ibtn" data-resend data-tip="重新发送" aria-label="重新发送"><img src="../../kit/assets/line/undo.webp" alt=""></button></div><span class="tag" data-state>已发送</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="WB-CHAT-002" data-name="智能体回答气泡" data-cat="CHAT">
+  <div class="demo__head"><span class="demo__name">智能体回答气泡</span></div>
+  <p class="demo__note">适合：带头像的回答正文，附有帮助与否的反馈</p>
+  <div class="demo__stage">
+    <div class="card ag-card">
+      <div class="chat">
+        <div class="msg">
+          <img class="msg__avatar" src="../../kit/assets/marks/mark-023.webp" alt="">
+          <div class="msg__body">
+            <div class="bubble"><p>本周线上订单共 1,342 单，营业额 ¥178,880，客单价 ¥133。</p><p>周六单量最高，为 258 单，占全周 19.2%。</p></div>
+            <div class="ag-fb" role="group" aria-label="回答反馈"><button type="button" class="btn btn--ghost btn--xs" aria-pressed="false" data-fb="好">有帮助</button><button type="button" class="btn btn--ghost btn--xs" aria-pressed="false" data-fb="差">没帮助</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="WB-CHAT-003" data-name="思考过程折叠" data-cat="CHAT">
+  <div class="demo__head"><span class="demo__name">思考过程折叠</span></div>
+  <p class="demo__note">适合：展示推理步骤，进行中展开，完成后自动收起</p>
+  <div class="demo__stage">
+    <div class="ag-stage">
+      <div class="think" id="ag-think">
+        <button type="button" class="think__head" aria-expanded="false" aria-controls="ag-think-p"><span class="dots" aria-hidden="true" hidden><i></i><i></i><i></i></span><span data-t>已思考 3 秒</span></button>
+        <div class="expand" id="ag-think-p" data-open="false" inert><div><ul class="think__steps"><li data-state="done"><span>确定对账范围为本周线上订单</span></li><li data-state="done"><span>读取订单与支付流水</span></li><li data-state="done"><span>逐笔比对金额并标出差异</span></li></ul></div></div>
+      </div>
+      <div class="ag-bar ag-bar--end"><button type="button" class="btn btn--secondary btn--sm" id="ag-rethink">重新思考</button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="WB-CHAT-004" data-name="工具调用行" data-cat="CHAT">
+  <div class="demo__head"><span class="demo__name">工具调用行</span></div>
+  <p class="demo__note">适合：显示调用了哪些工具，点开看输入输出，失败可重试</p>
+  <div class="demo__stage">
+    <div class="card ag-card">
+      <div class="ag-toolset" id="ag-tools">
+        <div class="tools"></div>
+      </div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="WB-CHAT-005" data-name="流式回答" data-cat="CHAT">
+  <div class="demo__head"><span class="demo__name">流式回答</span></div>
+  <p class="demo__note">适合：逐字输出的回答，可随时停止与重新生成</p>
+  <div class="demo__stage">
+    <div class="card ag-card" id="ag-stream">
+      <div class="chat">
+        <div class="msg">
+          <img class="msg__avatar" src="../../kit/assets/marks/mark-023.webp" alt="">
+          <div class="msg__body"><div class="bubble" data-b></div><span class="tag" data-tag hidden></span></div>
+        </div>
+      </div>
+      <div class="ag-bar ag-bar--end"><button type="button" class="btn btn--ghost btn--sm" data-stop hidden>停止</button><button type="button" class="btn btn--secondary btn--sm" data-regen>重新生成</button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="WB-CHAT-006" data-name="审批确认卡" data-cat="CHAT">
+  <div class="demo__head"><span class="demo__name">审批确认卡</span></div>
+  <p class="demo__note">适合：智能体执行有影响的动作前，由人选择并批准</p>
+  <div class="demo__stage">
+    <div class="ag-stage">
+      <div class="approval" id="ag-appr" data-state="pending">
+        <p class="approval__q">标记 3 笔差异订单为待核实</p>
+        <div class="approval__opts" role="radiogroup" aria-label="处理方式">
+          <button type="button" class="opt" role="radio" aria-checked="true" tabindex="0"><span class="check" aria-checked="true"><img src="../../kit/assets/line/check.webp" alt=""></span>仅标记差异订单</button>
+          <button type="button" class="opt" role="radio" aria-checked="false" tabindex="-1"><span class="check" aria-checked="false"><img src="../../kit/assets/line/check.webp" alt=""></span>标记并通知财务</button>
+        </div>
+        <div class="btn-group" data-acts><button type="button" class="btn btn--ghost btn--sm" data-act="reject">拒绝</button><button type="button" class="btn btn--primary btn--sm" data-act="approve">批准</button></div>
+      </div>
+      <div class="ag-bar ag-bar--end"><button type="button" class="btn btn--text btn--sm" id="ag-appr-reset" hidden>重新审批</button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="WB-CHAT-007" data-name="任务状态行" data-cat="CHAT">
+  <div class="demo__head"><span class="demo__name">任务状态行</span></div>
+  <p class="demo__note">适合：智能体拆出的跟进任务，逐项推进状态</p>
+  <div class="demo__stage">
+    <div class="ag-stage">
+      <div class="ag-wait"><span class="stat__label" data-sum>已完成 1 项 共 3 项</span><div class="progress" style="flex:1" role="progressbar" aria-label="任务完成进度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="33"><i style="--v:33%"></i></div></div>
+      <div class="card list" id="ag-tasks"></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="WB-CHAT-008" data-name="产物结果卡" data-cat="CHAT">
+  <div class="demo__head"><span class="demo__name">产物结果卡</span></div>
+  <p class="demo__note">适合：智能体生成的表格或报告，就近展开预览</p>
+  <div class="demo__stage">
+    <div class="ag-stage">
+      <div class="artifact" id="ag-art">
+        <img class="task__ic" src="../../kit/assets/solid/bill.webp" alt="">
+        <div><p class="row__title">对账结果</p><p class="row__meta">差异 3 笔 合计 ¥417.00</p></div>
+        <div class="ag-bar"><button type="button" class="btn btn--secondary btn--sm" data-open-prev aria-expanded="false" aria-controls="ag-art-p">打开</button><button type="button" class="btn btn--ghost btn--sm" data-export>导出</button></div>
+        <div class="expand" id="ag-art-p" data-open="false" inert><div><div class="art__prev"><table class="table"><colgroup><col style="width:30%"><col style="width:28%"><col style="width:42%"></colgroup><thead><tr><th>订单</th><th class="t-r">金额</th><th class="t-l">原因</th></tr></thead><tbody><tr><td>10382</td><td class="t-r">¥199.00</td><td class="t-l">微信延迟入账</td></tr><tr><td>10517</td><td class="t-r">¥148.00</td><td class="t-l">微信延迟入账</td></tr><tr><td>10890</td><td class="t-r">¥70.00</td><td class="t-l">银行退回</td></tr></tbody></table></div></div></div>
+      </div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="WB-CHAT-009" data-name="引用角标" data-cat="CHAT">
+  <div class="demo__head"><span class="demo__name">引用角标</span></div>
+  <p class="demo__note">适合：回答里的数字角标，点击对应来源行高亮</p>
+  <div class="demo__stage">
+    <div class="ag-stage" id="ag-cite">
+      <div class="bubble">本周订单金额与支付流水相差 3 笔，合计 ¥417.00<span class="ag-nb">。<button type="button" class="cite" data-ref="1" aria-label="查看引用 1">1</button></span>其中 2 笔属于微信延迟入账<span class="ag-nb">。<button type="button" class="cite" data-ref="2" aria-label="查看引用 2">2</button></span>仅 1 笔仍需核实<span class="ag-nb">。<button type="button" class="cite" data-ref="3" aria-label="查看引用 3">3</button></span></div>
+      <div class="card list ag-src">
+        <button type="button" class="row" data-ref="1" aria-current="true"><span class="cite">1</span><span class="row__main"><span class="row__title">订单系统</span><span class="row__meta">本周线上订单</span></span></button>
+        <button type="button" class="row" data-ref="2" aria-current="false"><span class="cite">2</span><span class="row__main"><span class="row__title">支付平台</span><span class="row__meta">流水明细</span></span></button>
+        <button type="button" class="row" data-ref="3" aria-current="false"><span class="cite">3</span><span class="row__main"><span class="row__title">人工备注</span><span class="row__meta">差异核实记录</span></span></button>
+      </div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="WB-CHAT-010" data-name="对话输入栏" data-cat="CHAT">
+  <div class="demo__head"><span class="demo__name">对话输入栏</span></div>
+  <p class="demo__note">适合：多行输入、附件、语音与发送，回车发送</p>
+  <div class="demo__stage">
+    <div class="ag-stage" id="ag-comp">
+      <div class="ag-log chat" role="log" aria-live="polite" aria-label="已发送的提问"></div>
+      <form class="prompt" autocomplete="off">
+        <div class="ag-files" hidden></div>
+        <textarea rows="1" placeholder="输入问题" aria-label="输入问题"></textarea>
+        <div class="prompt__bar">
+          <button type="button" class="ibtn" data-attach data-tip="添加附件" aria-label="添加附件"><img src="../../kit/assets/line/upload.webp" alt=""></button>
+          <input type="file" hidden>
+          <button type="button" class="ibtn ag-mic" data-mic data-tip="语音输入" aria-label="语音输入" aria-pressed="false"><img src="../../kit/assets/line/mic.webp" alt=""></button>
+          <span class="prompt__sp"></span>
+          <button type="button" class="btn btn--ghost btn--sm" data-stop hidden>停止</button>
+          <button type="submit" class="btn btn--primary btn--sm" data-send disabled>发送</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="WB-CHAT-011" data-name="建议问法条" data-cat="CHAT">
+  <div class="demo__head"><span class="demo__name">建议问法条</span></div>
+  <p class="demo__note">适合：输入栏上方的横滑问法，点击填入</p>
+  <div class="demo__stage">
+    <div class="card ag-card" id="ag-sug">
+      <div class="suggest" aria-label="建议问法">
+        <button type="button">汇总本周退款原因</button><button type="button">对比上周新客转化率</button><button type="button">列出库存预警商品</button><button type="button">检查支付流水差异</button><button type="button">导出本周对账明细</button>
+      </div>
+      <div class="ag-fill" data-fill data-empty>输入问题</div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="WB-CHAT-012" data-name="排队提示" data-cat="CHAT">
+  <div class="demo__head"><span class="demo__name">排队提示</span></div>
+  <p class="demo__note">适合：回答生成中继续提问，排队条数与取消</p>
+  <div class="demo__stage">
+    <div class="card ag-card" id="ag-queue">
+      <div class="ag-wait"><span class="tag" data-tone="action" data-gen>生成中</span><span class="tag" data-tone="warning" data-qn role="status"></span></div>
+      <div class="ag-q"></div>
+      <div class="ag-bar ag-bar--end"><button type="button" class="btn btn--ghost btn--sm" data-add>再提一问</button><button type="button" class="btn btn--secondary btn--sm" data-done>完成当前回答</button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="WB-CHAT-013" data-name="会话历史列表" data-cat="CHAT">
+  <div class="demo__head"><span class="demo__name">会话历史列表</span></div>
+  <p class="demo__note">适合：左栏会话切换，带搜索与生成中状态</p>
+  <div class="demo__stage">
+    <div id="ag-hist">
+      <div class="section" style="margin-top:0">
+        <div class="section__head"><h2>会话</h2><div class="section__acts"><button type="button" class="ibtn" data-new data-tip="新会话" aria-label="新会话"><img src="../../kit/assets/line/add.webp" alt=""></button></div></div>
+        <div class="card section__body ag-card--flush">
+          <div class="ag-find"><label class="search"><img src="../../kit/assets/line/search.webp" alt=""><input type="search" placeholder="搜索会话" aria-label="搜索会话"></label></div>
+          <div class="ag-list" data-list style="max-height:300px;overflow-y:auto"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="WB-CHAT-014" data-name="上下文用量" data-cat="CHAT">
+  <div class="demo__head"><span class="demo__name">上下文用量</span></div>
+  <p class="demo__note">适合：提示当前对话占用的上下文，接近上限变色</p>
+  <div class="demo__stage">
+    <div id="ag-ctx">
+      <div class="section" style="margin-top:0">
+        <div class="section__head"><h2>上下文</h2><span class="tag" data-tone="warning" data-warn hidden>接近上限</span></div>
+        <div class="card section__body ag-ctx">
+          <div class="ag-ctx__top"><span class="stat__label">已用</span><span class="stat__val" data-v></span></div>
+          <div class="progress" role="progressbar" aria-label="上下文用量" aria-valuemin="0" aria-valuemax="100"><i></i></div>
+          <p class="row__meta" data-m></p>
+          <div class="ag-bar"><button type="button" class="btn btn--secondary btn--sm" data-more>读取更多</button><button type="button" class="btn btn--ghost btn--sm" data-clean>清理上下文</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="WB-CHAT-015" data-name="空会话起始页" data-cat="CHAT">
+  <div class="demo__head"><span class="demo__name">空会话起始页</span></div>
+  <p class="demo__note">适合：新会话的起始页，点问法即开始</p>
+  <div class="demo__stage">
+    <div class="card ag-card" id="ag-empty">
+      <div class="ag-empty" data-empty>
+        <img src="../../kit/assets/solid/biz-notes.webp" alt="">
+        <div class="suggest" aria-label="问法示例"><button type="button">汇总本周退款原因</button><button type="button">对比上周新客转化率</button><button type="button">列出库存预警商品</button></div>
+      </div>
+      <div class="chat" data-chat hidden></div>
+      <div class="ag-bar ag-bar--end" data-reset hidden><button type="button" class="btn btn--text btn--sm">新会话</button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="WB-CHAT-016" data-name="生成失败重试" data-cat="CHAT">
+  <div class="demo__head"><span class="demo__name">生成失败重试</span></div>
+  <p class="demo__note">适合：回答中途失败，保留已出内容并从断点重试</p>
+  <div class="demo__stage">
+    <div class="card ag-card" id="ag-fail">
+      <div class="chat">
+        <div class="msg">
+          <img class="msg__avatar" src="../../kit/assets/marks/mark-023.webp" alt="">
+          <div class="msg__body"><div class="bubble" data-b>本周退款共 23 单，合计 ¥4,860.00，其中尺码不合适占 39%</div><div class="ag-done"><span class="tag" data-tone="danger" data-tag role="alert">生成失败</span><button type="button" class="btn btn--secondary btn--xs" data-retry>重试</button></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="WB-CHAT-017" data-name="运行记录面板" data-cat="CHAT">
+  <div class="demo__head"><span class="demo__name">运行记录面板</span></div>
+  <p class="demo__note">适合：右栏分过程产物引用三类，只切换下方内容</p>
+  <div class="demo__stage">
+    <div>
+      <div class="section" style="margin-top:0">
+        <div class="section__head"><h2>运行记录</h2></div>
+        <div class="card section__body ag-card--flush">
+          <div class="ag-rp__seg"><div class="seg" data-seg="ag-rp" aria-label="记录类别"><button class="seg__item" data-key="proc" aria-selected="true">过程 3</button><button class="seg__item" data-key="art">产物 1</button><button class="seg__item" data-key="ref">引用 2</button></div></div>
+          <div class="ag-rp__panels">
+            <div data-panel="ag-rp" data-key="proc" class="list">
+              <div class="task"><img class="task__ic" src="../../kit/assets/solid/order.webp" alt=""><div><p class="row__title">查询订单</p><p class="row__meta">读取 1,342 单</p></div><span class="tag" data-tone="success">已完成</span></div>
+              <div class="task"><img class="task__ic" src="../../kit/assets/solid/bill.webp" alt=""><div><p class="row__title">汇总金额</p><p class="row__meta">订单与流水</p></div><span class="tag" data-tone="success">已完成</span></div>
+              <div class="task"><img class="task__ic" src="../../kit/assets/solid/layout.webp" alt=""><div><p class="row__title">生成图表</p><p class="row__meta">连接超时</p></div><span class="tag" data-tone="danger">失败</span></div>
+            </div>
+            <div data-panel="ag-rp" data-key="art" class="ag-stack" hidden>
+              <div class="artifact"><img class="task__ic" src="../../kit/assets/solid/bill.webp" alt=""><div><p class="row__title">对账结果</p><p class="row__meta">差异 3 笔</p></div><span class="tag" data-tone="action">表格</span></div>
+            </div>
+            <div data-panel="ag-rp" data-key="ref" class="list" hidden>
+              <div class="row"><span class="cite">1</span><span class="row__main"><span class="row__title">订单系统</span><span class="row__meta">本周线上订单</span></span></div>
+              <div class="row"><span class="cite">2</span><span class="row__main"><span class="row__title">支付平台</span><span class="row__meta">流水明细</span></span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</article>
+
+<script>
+(() => {
+  const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const demo = id => document.querySelector(`[data-cid="${id}"]`);
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  const A = '../../kit/assets';
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const el = html => { const t = document.createElement('template'); t.innerHTML = html.trim(); return t.content.firstElementChild; };
+  const setOpen = (btn, panel, open) => { panel.dataset.open = String(open); panel.inert = !open; btn.setAttribute('aria-expanded', String(open)); };
+
+  /* 001 用户气泡：原位编辑与重新发送，保存取消同排 */
+  (() => {
+    const root = $('#ag-u'), bubble = $('[data-text]', root), tag = $('[data-state]', root), wrap = $('.ag-wrap', root), acts = $('.ag-meta', root);
+    $('[data-edit]', root).addEventListener('click', () => {
+      const old = bubble.textContent, box = el(`<div class="ag-edit"><textarea class="textarea" aria-label="编辑提问"></textarea><div class="btn-group"><button type="button" class="btn btn--ghost btn--sm" data-c>取消</button><button type="button" class="btn btn--primary btn--sm" data-s>保存</button></div></div>`);
+      const ta = $('textarea', box); ta.value = old;
+      bubble.hidden = true; acts.hidden = true; wrap.insertBefore(box, bubble); ta.focus(); ta.setSelectionRange(old.length, old.length);
+      const close = txt => { if (txt != null) bubble.textContent = txt; box.remove(); bubble.hidden = false; acts.hidden = false; $('[data-edit]', root).focus(); };
+      $('[data-c]', box).addEventListener('click', () => close());
+      $('[data-s]', box).addEventListener('click', () => { const v = ta.value.trim(); if (!v) { ta.setAttribute('aria-invalid', 'true'); return; } close(v); Lz.toast('已更新', 'success'); });
+      ta.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
+    });
+    $('[data-resend]', root).addEventListener('click', async () => { tag.textContent = '发送中'; tag.dataset.tone = 'action'; await sleep(900); tag.textContent = '已发送'; tag.removeAttribute('data-tone'); Lz.toast('已重新发送', 'success'); });
+  })();
+
+  /* 002 回答气泡：反馈二选一 */
+  (() => {
+    const bs = $$('.ag-fb button', demo('WB-CHAT-002'));
+    bs.forEach(b => b.addEventListener('click', () => { const on = b.getAttribute('aria-pressed') !== 'true'; bs.forEach(x => x.setAttribute('aria-pressed', 'false')); b.setAttribute('aria-pressed', String(on)); if (on) Lz.toast('已记录反馈', 'success'); }));
+  })();
+
+  /* 003 思考过程：逐步追加，完成后收起 */
+  (() => {
+    const root = $('#ag-think'), head = $('.think__head', root), p = $('#ag-think-p'), ul = $('ul', root), t = $('[data-t]', root), dots = $('.dots', root), btn = $('#ag-rethink'); let busy = false;
+    const STEPS = ['确定对账范围为本周线上订单', '读取订单与支付流水', '逐笔比对金额并标出差异'];
+    head.addEventListener('click', () => setOpen(head, p, p.dataset.open !== 'true'));
+    btn.addEventListener('click', async () => {
+      if (busy) return; busy = true; btn.disabled = true; ul.innerHTML = ''; dots.hidden = false; t.textContent = '思考中'; setOpen(head, p, true); const t0 = Date.now();
+      for (let i = 0; i < STEPS.length; i++) { await sleep(i ? 750 : 500); const prev = $('li[data-state="now"]', ul); if (prev) prev.dataset.state = 'done'; ul.appendChild(el(`<li data-state="now"><span>${STEPS[i]}</span></li>`)); }
+      await sleep(700); $('li[data-state="now"]', ul).dataset.state = 'done'; dots.hidden = true; t.textContent = `已思考 ${Math.max(1, Math.round((Date.now() - t0) / 1000))} 秒`; await sleep(500); setOpen(head, p, false); busy = false; btn.disabled = false;
+    });
+  })();
+
+  /* 004 工具调用：点开看输入输出，失败后重试变成功 */
+  (() => {
+    const box = $('#ag-tools'), row = $('.tools', box);
+    const T = [{ n: '查询订单', i: '本周线上订单', o: '读取 1,342 单', s: '0.8 秒', st: 'done' }, { n: '汇总金额', i: '订单金额与支付流水', o: '订单 17.89 万元 流水 17.85 万元', s: '0.4 秒', st: 'done' }, { n: '生成图表', i: '差异金额按日分布', o: '图表服务连接超时', s: '1.1 秒', st: 'fail', ok: '已生成 1 张图表' }];
+    T.forEach((t, k) => {
+      row.appendChild(el(`<button type="button" class="tool" data-k="${k}" data-state="${t.st}" aria-expanded="false" aria-controls="ag-tp${k}"><span>${t.n}</span><small>${t.st === 'fail' ? '失败' : t.s}</small></button>`));
+      box.appendChild(el(`<div class="expand" id="ag-tp${k}" data-open="false" inert><div><div class="tool__io"><dl class="io"><dt>输入</dt><dd>${t.i}</dd><dt>输出</dt><dd data-out>${t.o}</dd></dl>${t.st === 'fail' ? '<div class="io__bar"><button type="button" class="btn btn--secondary btn--sm" data-retry>重试</button></div>' : ''}</div></div></div>`));
+    });
+    row.addEventListener('click', e => { const b = e.target.closest('.tool'); if (!b) return; const open = b.getAttribute('aria-expanded') !== 'true'; $$('.tool', row).forEach(x => { const p = $('#ag-tp' + x.dataset.k); setOpen(x, p, x === b && open); }); });
+    box.addEventListener('click', async e => { const r = e.target.closest('[data-retry]'); if (!r) return; const p = r.closest('.expand'), k = p.id.replace('ag-tp', ''), pill = $(`.tool[data-k="${k}"]`, row), t = T[+k]; pill.dataset.state = 'run'; $('small', pill).textContent = '运行中'; $('[data-out]', p).textContent = '运行中'; r.hidden = true; await sleep(1000); pill.dataset.state = 'done'; $('small', pill).textContent = t.s; $('[data-out]', p).textContent = t.ok; Lz.toast('已重试', 'success'); });
+  })();
+
+  /* 005 流式回答：思考点、逐字输出与引用，每句一行，引用紧跟句号；可停止与重新生成 */
+  (() => {
+    const root = $('#ag-stream'), b = $('[data-b]', root), tag = $('[data-tag]', root), stop = $('[data-stop]', root), regen = $('[data-regen]', root);
+    const SEG = [['本周共 1,342 单，营业额 ¥178,880。', 1], ['客单价 ¥133，周六单量最高。', 2]];
+    let run = null; const cite = n => el(`<button type="button" class="cite" aria-label="查看引用 ${n}">${n}</button>`);
+    const play = async () => {
+      if (run) return; run = { stopped: false, cur: null }; tag.hidden = true; stop.hidden = false; regen.hidden = true; b.innerHTML = '<span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>'; await sleep(700); if (run.stopped) return finish(true);
+      b.textContent = '';
+      for (const [txt, n] of SEG) { const p = document.createElement('p'); b.appendChild(p); run.cur = Lz.stream(p, txt, 40); await run.cur; if (run.stopped) return finish(true); p.appendChild(cite(n)); }
+      finish(false);
+    };
+    const finish = stopped => { if (stopped) { tag.textContent = '已停止'; tag.hidden = false; } run = null; stop.hidden = true; regen.hidden = false; regen.textContent = '重新生成'; };
+    stop.addEventListener('click', () => { if (!run) return; run.stopped = true; if (run.cur) run.cur.cancel(); });
+    regen.addEventListener('click', play);
+    SEG.forEach(([txt, n]) => { const p = document.createElement('p'); p.appendChild(document.createTextNode(txt)); p.appendChild(cite(n)); b.appendChild(p); });
+    const io = new IntersectionObserver(es => { if (es[0].isIntersecting) { io.disconnect(); play(); } }, { threshold: .6 }); io.observe(b);
+  })();
+
+  /* 006 审批：单选加批准拒绝，决定后整卡定格 */
+  (() => {
+    const card = $('#ag-appr'), reset = $('#ag-appr-reset'), opts = $$('.opt', card);
+    const pick = o => { opts.forEach(x => { const on = x === o; x.setAttribute('aria-checked', String(on)); x.tabIndex = on ? 0 : -1; $('.check', x).setAttribute('aria-checked', String(on)); }); o.focus(); };
+    opts.forEach((o, i) => { o.addEventListener('click', () => pick(o)); o.addEventListener('keydown', e => { const d = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 }[e.key]; if (!d) return; e.preventDefault(); pick(opts[(i + d + opts.length) % opts.length]); }); });
+    card.addEventListener('click', e => { const a = e.target.closest('[data-act]'); if (!a) return; const ok = a.dataset.act === 'approve', label = $('.opt[aria-checked="true"]', card).textContent.trim(); card.dataset.state = 'done'; $('[data-acts]', card).replaceWith(el(`<span class="tag" data-tone="${ok ? 'success' : 'danger'}" data-res>${ok ? '已批准 ' + label : '已拒绝'}</span>`)); reset.hidden = false; Lz.toast(ok ? '已批准' : '已拒绝', ok ? 'success' : 'neutral'); });
+    reset.addEventListener('click', () => { card.dataset.state = 'pending'; $('[data-res]', card).replaceWith(el('<div class="btn-group" data-acts><button type="button" class="btn btn--ghost btn--sm" data-act="reject">拒绝</button><button type="button" class="btn btn--primary btn--sm" data-act="approve">批准</button></div>')); reset.hidden = true; });
+  })();
+
+  /* 007 任务状态行：逐项推进，进度同步 */
+  (() => {
+    const root = demo('WB-CHAT-007'), list = $('#ag-tasks'), prog = $('.progress', root), sum = $('[data-sum]', root);
+    const T = [['跟进 1 笔待核实差异', '林晓 负责', 1], ['补记 2 笔延迟入账', '系统已处理', 2], ['通知采购补货', '吴桐 负责', 0]];
+    const ST = [['待处理', 'warning', '开始'], ['进行中', 'action', '完成'], ['已完成', 'success', '']];
+    const paint = () => {
+      list.innerHTML = T.map((t, i) => `<div class="task" data-i="${i}"><img class="task__ic" src="${A}/solid/solid-tasks.webp" alt=""><div><p class="row__title">${t[0]}</p><p class="row__meta">${t[1]}</p></div><span class="task__end"><span class="tag" data-tone="${ST[t[2]][1]}">${ST[t[2]][0]}</span>${ST[t[2]][2] ? `<button type="button" class="btn btn--secondary btn--xs" data-adv>${ST[t[2]][2]}</button>` : ''}</span></div>`).join('');
+      const n = T.filter(t => t[2] === 2).length; sum.textContent = `已完成 ${n} 项 共 ${T.length} 项`; const v = Math.round(n / T.length * 100); $('i', prog).style.setProperty('--v', v + '%'); prog.setAttribute('aria-valuenow', v);
+    };
+    list.addEventListener('click', e => { const b = e.target.closest('[data-adv]'); if (!b) return; const i = +b.closest('.task').dataset.i; T[i][2]++; paint(); const nb = $(`.task[data-i="${i}"] [data-adv]`, list); if (nb) nb.focus(); });
+    paint();
+  })();
+
+  /* 008 产物卡：就近展开预览，导出给回执 */
+  (() => {
+    const root = $('#ag-art'), btn = $('[data-open-prev]', root), p = $('#ag-art-p');
+    btn.addEventListener('click', () => { const open = p.dataset.open !== 'true'; setOpen(btn, p, open); btn.textContent = open ? '收起' : '打开'; });
+    $('[data-export]', root).addEventListener('click', () => Lz.toast('已导出', 'success'));
+  })();
+
+  /* 009 引用角标：角标与来源行双向高亮 */
+  (() => {
+    const root = $('#ag-cite'), cites = $$('.bubble .cite', root), rows = $$('.row', root);
+    const hit = n => { cites.forEach(c => c.classList.toggle('is-hit', c.dataset.ref === n)); rows.forEach(r => r.setAttribute('aria-current', String(r.dataset.ref === n))); };
+    cites.forEach(c => c.addEventListener('click', () => { hit(c.dataset.ref); $(`.row[data-ref="${c.dataset.ref}"]`, root).scrollIntoView({ block: 'nearest', behavior: Lz.reduce ? 'auto' : 'smooth' }); }));
+    rows.forEach(r => r.addEventListener('click', () => hit(r.dataset.ref)));
+    hit('1');
+  })();
+
+  /* 010 输入栏：自增高、回车发送（输入法确认不发送）、附件、语音、发送中可停止 */
+  (() => {
+    const root = $('#ag-comp'), form = $('form', root), ta = $('textarea', root), send = $('[data-send]', root), stop = $('[data-stop]', root), log = $('.ag-log', root), files = $('.ag-files', root), file = $('input[type=file]', root), mic = $('[data-mic]', root);
+    const att = []; let rec = null, timer = 0;
+    const sync = () => { send.disabled = !ta.value.trim(); };
+    const size = () => { ta.style.height = 'auto'; ta.style.height = Math.min(ta.scrollHeight, 160) + 'px'; };
+    const renderFiles = () => { files.hidden = !att.length; files.innerHTML = att.map((f, i) => `<span class="tool"><span>${esc(f)}</span><button type="button" class="ibtn" data-rm="${i}" data-tip="移除附件" aria-label="移除附件"><img src="${A}/line/close.webp" alt=""></button></span>`).join(''); };
+    const submit = () => {
+      const v = ta.value.trim(); if (!v) return; const u = el(`<div class="msg msg--user"><div class="bubble">${esc(v)}</div>${att.length ? att.map(f => `<span class="tag">${esc(f)}</span>`).join('') : ''}<span class="tag" data-tone="action">发送中</span></div>`);
+      log.appendChild(u); while (log.children.length > 3) log.firstElementChild.remove(); ta.value = ''; att.length = 0; renderFiles(); size(); sync(); send.hidden = true; stop.hidden = false;
+      timer = setTimeout(() => { const t = $('.tag[data-tone="action"]', u); if (t) { t.textContent = '已发送'; t.removeAttribute('data-tone'); } send.hidden = false; stop.hidden = true; }, 1300);
+    };
+    stop.addEventListener('click', () => { clearTimeout(timer); const t = $('.tag[data-tone="action"]', log.lastElementChild); if (t) { t.textContent = '已停止'; t.removeAttribute('data-tone'); } send.hidden = false; stop.hidden = true; });
+    form.addEventListener('submit', e => { e.preventDefault(); submit(); });
+    ta.addEventListener('input', () => { size(); sync(); });
+    ta.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing && e.keyCode !== 229) { e.preventDefault(); submit(); } });
+    $('[data-attach]', root).addEventListener('click', () => file.click());
+    file.addEventListener('change', e => { const f = e.target.files[0]; if (f) { att.push(f.name); renderFiles(); } e.target.value = ''; });
+    files.addEventListener('click', e => { const r = e.target.closest('[data-rm]'); if (r) { att.splice(+r.dataset.rm, 1); renderFiles(); } });
+    mic.addEventListener('click', () => {
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition; if (!SR) { Lz.toast('当前浏览器不支持语音输入', 'danger'); return; }
+      if (rec) { rec.stop(); return; } rec = new SR(); rec.lang = 'zh-CN';
+      rec.onresult = e => { ta.value += e.results[0][0].transcript; size(); sync(); }; rec.onerror = () => Lz.toast('语音输入失败', 'danger'); rec.onend = () => { rec = null; mic.setAttribute('aria-pressed', 'false'); };
+      try { rec.start(); mic.setAttribute('aria-pressed', 'true'); } catch (err) { rec = null; }
+    });
+  })();
+
+  /* 011 建议问法：点击填入输入框 */
+  (() => {
+    const root = $('#ag-sug'), fill = $('[data-fill]', root);
+    $('.suggest', root).addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; fill.textContent = b.textContent.trim(); fill.removeAttribute('data-empty'); $$('.suggest button', root).forEach(x => x.setAttribute('aria-pressed', String(x === b))); });
+  })();
+
+  /* 012 排队：当前回答之后的提问排队，可取消，完成当前后顺延 */
+  (() => {
+    const root = $('#ag-queue'), box = $('.ag-q', root), qn = $('[data-qn]', root), gen = $('[data-gen]', root);
+    const Q = ['对比上周新客转化率', '列出库存预警商品']; const POOL = ['检查支付流水差异', '汇总本周退款原因', '导出本周对账明细']; let cur = '核对本周线上订单与支付流水的差异', k = 0;
+    const paint = () => {
+      box.innerHTML = (cur ? `<div class="msg msg--user"><div class="bubble">${esc(cur)}</div></div><div class="msg"><img class="msg__avatar" src="${A}/marks/mark-023.webp" alt=""><div class="msg__body"><div class="bubble"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span></div></div></div>` : '') + Q.map((q, i) => `<div class="ag-qi" data-q="${i}"><button type="button" class="btn btn--text btn--xs" data-cancel="${i}">取消排队</button><div class="bubble">${esc(q)}</div></div>`).join('');
+      qn.hidden = !Q.length; qn.textContent = `排队 ${Q.length} 条`; gen.hidden = !cur;
+      $('[data-add]', root).disabled = Q.length >= 4; $('[data-done]', root).disabled = !cur;
+    };
+    root.addEventListener('click', e => {
+      if (e.target.closest('[data-add]')) { Q.push(POOL[k++ % POOL.length]); paint(); }
+      const c = e.target.closest('[data-cancel]'); if (c) { Q.splice(+c.dataset.cancel, 1); paint(); Lz.toast('已取消排队'); }
+      if (e.target.closest('[data-done]')) { cur = Q.shift() || null; paint(); }
+    });
+    paint();
+  })();
+
+  /* 013 会话历史：搜索、选中、新会话 */
+  (() => {
+    const root = $('#ag-hist'), list = $('[data-list]', root), q = $('input', root);
+    const C = [['本周对账结果核对', '刚刚', true], ['本周退款原因汇总', '昨天', false], ['库存预警商品清单', '3 天前', false], ['新客转化率周对比', '上周', false]]; let cur = 0;
+    const paint = () => { const kw = q.value.trim(); const rows = C.map((c, i) => [c, i]).filter(([c]) => !kw || c[0].includes(kw)); list.innerHTML = rows.length ? rows.map(([c, i]) => `<button type="button" class="row" data-i="${i}" aria-current="${i === cur}"><span class="row__main"><span class="row__title">${c[0]}</span><span class="row__meta">${c[1]}</span></span><span class="row__trail">${c[2] ? '<span class="tag" data-tone="action">生成中</span>' : ''}</span></button>`).join('') : '<div class="ag-empty"><img src="' + A + '/solid/solid-office.webp" alt=""><p>无匹配会话</p><button type="button" class="btn btn--secondary btn--sm" data-clear>清空搜索</button></div>'; };
+    list.addEventListener('click', e => { const r = e.target.closest('.row'); if (r) { cur = +r.dataset.i; paint(); } if (e.target.closest('[data-clear]')) { q.value = ''; paint(); q.focus(); } });
+    q.addEventListener('input', paint);
+    $('[data-new]', root).addEventListener('click', () => { if (C[0][0] === '新会话') { cur = 0; paint(); return; } C.unshift(['新会话', '刚刚', false]); cur = 0; q.value = ''; paint(); Lz.toast('已新建会话', 'success'); });
+    paint();
+  })();
+
+  /* 014 上下文用量：读取增加，清理回落，高位变色 */
+  (() => {
+    const root = $('#ag-ctx'), card = $('.ag-ctx', root), v = $('[data-v]', root), bar = $('.progress', root), m = $('[data-m]', root), warn = $('[data-warn]', root); let used = 18, read = 342;
+    const paint = () => { v.innerHTML = `${used}<small>%</small>`; $('i', bar).style.setProperty('--v', used + '%'); bar.setAttribute('aria-valuenow', used); m.textContent = `已读取 ${read.toLocaleString('zh-CN')} 条记录`; card.dataset.warn = String(used >= 80); card.dataset.full = String(used >= 96); warn.hidden = used < 80; $('[data-more]', root).disabled = used >= 96; };
+    $('[data-more]', root).addEventListener('click', () => { used = Math.min(96, used + 26); read += 780; paint(); }); $('[data-clean]', root).addEventListener('click', () => { used = 8; read = 120; paint(); Lz.toast('已清理上下文', 'success'); });
+    paint();
+  })();
+
+  /* 015 空会话：点问法开始，出现提问与回答，可开新会话 */
+  (() => {
+    const root = $('#ag-empty'), empty = $('[data-empty]', root), chat = $('[data-chat]', root), reset = $('[data-reset]', root);
+    $('.suggest', root).addEventListener('click', async e => { const b = e.target.closest('button'); if (!b) return; empty.hidden = true; chat.hidden = false; reset.hidden = false;
+      chat.innerHTML = `<div class="msg msg--user"><div class="bubble">${esc(b.textContent.trim())}</div></div><div class="msg"><img class="msg__avatar" src="${A}/marks/mark-023.webp" alt=""><div class="msg__body"><div class="bubble" data-b><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span></div></div></div>`;
+      await sleep(800); const bb = $('[data-b]', chat); bb.textContent = ''; Lz.stream(bb, '本周退款共 23 单，合计 ¥4,860.00，其中尺码不合适占 39%。', 40); });
+    $('.btn', reset).addEventListener('click', () => { chat.hidden = true; chat.innerHTML = ''; reset.hidden = true; empty.hidden = false; $('.suggest button', empty).focus(); });
+  })();
+
+  /* 016 生成失败：保留已出内容，重试后续写完成 */
+  (() => {
+    const root = $('#ag-fail'), b = $('[data-b]', root), tag = $('[data-tag]', root), btn = $('[data-retry]', root);
+    btn.addEventListener('click', async () => { btn.disabled = true; tag.textContent = '重新生成中'; tag.dataset.tone = 'action'; tag.setAttribute('role', 'status'); await sleep(700); tag.hidden = true; btn.hidden = true; btn.closest('.ag-done').hidden = true; await Lz.stream(b, '，商品瑕疵占 26%，其余为配送延迟与描述不符。', 40); Lz.toast('已重新生成', 'success'); });
+  })();
+})();
+</script>
+
+<style>
+  /* 智能体（补充）：消息操作条 ag-ba、对话代码块 ag-cb、来源引用列表 ag-sr、计划步骤卡 ag-pl、文件树结构卡 ag-ft */
+
+  /* 消息操作条：复制、重新生成、反馈与版本切换，文字按钮，键盘左右键移动 */
+  .ag-ba { display: flex; align-items: center; gap: var(--s-1); margin-left: calc(var(--s-2) * -1); }
+  .ag-ba__b { min-height: 32px; padding: 0 var(--s-2); border-radius: var(--r-sm); font-size: var(--fs-sm); color: var(--ink-3); white-space: nowrap; transition: background var(--dur-quick) var(--ease-out), color var(--dur-quick) var(--ease-out); }
+  @media (hover: hover) { .ag-ba__b:hover:not(:disabled) { background: var(--zone); color: var(--ink); } }
+  .ag-ba__b[aria-pressed="true"] { background: var(--action-tint); color: var(--action-press); font-weight: 600; box-shadow: inset 0 0 0 1px var(--action-edge); }
+  .ag-ba__b[data-done] { color: var(--success); font-weight: 600; }
+  .ag-ba__b:disabled { opacity: .45; cursor: default; pointer-events: none; }
+  .ag-ba__sep { width: 1px; height: 16px; margin: 0 var(--s-1); background: var(--line-strong); }
+  .ag-ba__ver { display: inline-flex; align-items: center; margin-left: auto; font-size: var(--fs-sm); color: var(--ink-3); font-variant-numeric: tabular-nums; }
+  .ag-ba__ver .ibtn { width: 32px; height: 32px; }
+  .ag-ba__ver .ibtn:disabled { opacity: .35; pointer-events: none; }
+  .ag-ba__ver [data-v="-1"] .chev { transform: rotate(180deg); }
+  .ag-ba__ver span:not(.chev) { min-width: 40px; text-align: center; }
+
+  /* 对话代码块：中文键值配置，行号、复制、折叠 */
+  .ag-cb { margin: 0; border: 1px solid var(--line-strong); border-radius: var(--r-md); background: var(--surface); overflow: hidden; }
+  .ag-cb__bar { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); min-height: 48px; padding: 0 var(--s-2) 0 var(--s-4); border-bottom: 1px solid var(--line); background: var(--zone); }
+  .ag-cb__name { display: inline-flex; align-items: center; gap: var(--s-2); font-size: var(--fs-sm); font-weight: 600; color: var(--ink-2); }
+  .ag-cb__bar .btn[data-done] { color: var(--success); }
+  .ag-cb__code { counter-reset: ln; padding: var(--s-3) 0; }
+  .ag-cb__code--more { counter-reset: ln 6; padding-top: 0; }
+  .ag-cb__ln { counter-increment: ln; display: grid; grid-template-columns: 44px minmax(0, 1fr); font-size: var(--fs-sm); line-height: 1.9; font-variant-numeric: tabular-nums; }
+  .ag-cb__ln::before { content: counter(ln); padding-right: var(--s-3); text-align: right; color: var(--ink-3); user-select: none; }
+  .ag-cb__ln > span { padding-left: calc(var(--d, 0) * 2em); padding-right: var(--s-4); white-space: pre-wrap; overflow-wrap: anywhere; }
+  .ag-cb__k { font-weight: 600; color: var(--ink); }
+  .ag-cb__p { color: var(--ink-3); }
+  .ag-cb__v { color: var(--action-press); }
+  .ag-cb__t { display: flex; align-items: center; justify-content: center; gap: var(--s-2); width: 100%; min-height: 44px; border-top: 1px solid var(--line); font-size: var(--fs-sm); color: var(--ink-2); transition: background var(--dur-quick) var(--ease-out); }
+  @media (hover: hover) { .ag-cb__t:hover { background: var(--zone); } }
+
+  /* 来源引用列表：末尾折叠，点来源行就近展开摘录 */
+  .ag-sr { display: grid; gap: var(--s-2); }
+  .ag-sr__head { display: inline-flex; align-items: center; gap: var(--s-2); width: fit-content; min-height: 36px; padding: 0 var(--s-3); border-radius: var(--r-full); background: var(--zone); font-size: var(--fs-sm); font-weight: 600; color: var(--ink-2); transition: background var(--dur-quick) var(--ease-out); }
+  @media (hover: hover) { .ag-sr__head:hover { background: var(--action-soft); } }
+  .ag-sr__list { border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface); }
+  .ag-sr__item + .ag-sr__item { border-top: 1px solid var(--line); }
+  .ag-sr__row .row__title, .ag-sr__row .row__meta { display: block; }
+  .ag-sr__row .row__trail { flex-direction: row; align-items: center; gap: var(--s-2); }
+  .ag-sr__row .cite { margin: 0; flex: none; }
+  .ag-sr__row[aria-expanded="true"] { background: var(--action-tint); }
+  .ag-sr__q { margin-top: 2px; font-size: var(--fs-sm); color: var(--ink); line-height: 1.6; }
+
+  /* 计划步骤卡：已完成、进行中、待执行，可暂停继续 */
+  .ag-pl { display: grid; gap: var(--s-4); padding: var(--s-5); }
+  .ag-pl__top { display: flex; align-items: center; gap: var(--s-3); }
+  .ag-pl__t { font-size: var(--fs-md); font-weight: 600; }
+  .ag-pl__n { margin-left: auto; font-size: var(--fs-sm); color: var(--ink-3); font-variant-numeric: tabular-nums; }
+  .ag-pl__steps { display: grid; }
+  .ag-pl__s { position: relative; display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; align-items: center; column-gap: var(--s-3); height: 56px; }
+  .ag-pl__s:not(:last-child)::before { content: ""; position: absolute; left: 13px; top: 42px; width: 2px; height: 28px; background: var(--line-strong); }
+  .ag-pl__s[data-state="done"]:not(:last-child)::before { background: var(--success); }
+  .ag-pl__m { position: relative; z-index: 1; display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--line-strong); background: var(--surface); font-size: var(--fs-sm); color: var(--ink-3); font-variant-numeric: tabular-nums; }
+  .ag-pl__m img { width: 14px; height: 14px; filter: invert(1); }
+  .ag-pl__s[data-state="done"] .ag-pl__m { border-color: var(--success); background: var(--success); }
+  .ag-pl__s[data-state="now"] .ag-pl__m { border-color: var(--action-edge); border-top-color: var(--action); animation: lz-spin .9s linear infinite; }
+  .ag-pl[data-run="false"] .ag-pl__s[data-state="now"] .ag-pl__m { animation: none; border-color: var(--action); }
+  .ag-pl__s:not([data-state="done"]) .ag-pl__m img { display: none; }
+  .ag-pl__s[data-state="done"] .ag-pl__no, .ag-pl__s[data-state="now"] .ag-pl__no { display: none; }
+  .ag-pl__s[data-state="wait"] .ag-pl__b { opacity: .72; }
+  .ag-pl__b { min-width: 0; }
+  .ag-pl__b .row__title, .ag-pl__b .row__meta { display: block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+
+  /* 文件树结构卡：文件夹可展开，方向键移动，选中显示路径 */
+  .ag-ft__top { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); }
+  .ag-ft__t { display: inline-flex; align-items: center; gap: var(--s-2); font-size: var(--fs-md); font-weight: 600; }
+  .ag-ft { display: grid; gap: 2px; }
+  .ag-ft__i { display: flex; align-items: center; gap: var(--s-2); width: 100%; min-height: 36px; padding: 0 var(--s-3) 0 calc(var(--s-2) + var(--d, 0) * 22px); border-radius: var(--r-sm); font-size: var(--fs-sm); text-align: left; transition: background var(--dur-quick) var(--ease-out); }
+  @media (hover: hover) { .ag-ft__i:hover { background: var(--zone); } }
+  .ag-ft__i[aria-selected="true"] { background: var(--action-tint); box-shadow: inset 0 0 0 1px var(--action-edge); }
+  .ag-ft__i .chev, .ag-ft__sp { flex: none; width: 16px; justify-content: center; }
+  .ag-ft__i img { width: 20px; height: 20px; flex: none; object-fit: contain; }
+  .ag-ft__n { flex: 1; min-width: 0; font-weight: 600; }
+  .ag-ft__m { color: var(--ink-3); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .ag-ft__foot { display: flex; align-items: center; gap: var(--s-2); min-height: 40px; padding: var(--s-3) var(--s-3) 0; border-top: 1px solid var(--line); font-size: var(--fs-sm); color: var(--ink-3); }
+  .ag-ft__foot b { font-weight: 600; color: var(--ink); }
+</style>
+
+<article class="demo" data-cid="WB-CHAT-018" data-name="消息操作条" data-cat="CHAT">
+  <div class="demo__head"><span class="demo__name">消息操作条</span></div>
+  <p class="demo__note">适合：回答下方的复制、重新生成与点赞按钮条</p>
+  <div class="demo__stage">
+    <div class="card ag-card" id="ag-ba">
+      <div class="chat">
+        <div class="msg">
+          <img class="msg__avatar" src="../../kit/assets/marks/mark-023.webp" alt="">
+          <div class="msg__body">
+            <div class="bubble" data-b></div>
+            <div class="ag-ba" role="toolbar" aria-label="回答操作">
+              <button type="button" class="ag-ba__b" data-a="copy">复制</button>
+              <button type="button" class="ag-ba__b" data-a="regen">重新生成</button>
+              <span class="ag-ba__sep" aria-hidden="true"></span>
+              <button type="button" class="ag-ba__b" data-a="up" aria-pressed="false">有帮助</button>
+              <button type="button" class="ag-ba__b" data-a="down" aria-pressed="false">没帮助</button>
+              <span class="ag-ba__ver" data-ver hidden><button type="button" class="ibtn" data-v="-1" data-tip="上一版" aria-label="上一版"><span class="chev" aria-hidden="true"></span></button><span data-vn></span><button type="button" class="ibtn" data-v="1" data-tip="下一版" aria-label="下一版"><span class="chev" aria-hidden="true"></span></button></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="WB-CHAT-019" data-name="对话代码块" data-cat="CHAT">
+  <div class="demo__head"><span class="demo__name">对话代码块</span></div>
+  <p class="demo__note">适合：回答中的配置或代码片段，带复制按钮</p>
+  <div class="demo__stage">
+    <div class="card ag-card" id="ag-cb">
+      <div class="chat">
+        <div class="msg">
+          <img class="msg__avatar" src="../../kit/assets/marks/mark-023.webp" alt="">
+          <div class="msg__body">
+            <div class="bubble"><p>已按三家门店生成库存预警配置</p></div>
+            <figure class="ag-cb" aria-label="库存预警配置">
+              <div class="ag-cb__bar"><span class="ag-cb__name">库存预警配置<span class="tag" data-tone="action">9 行</span></span><button type="button" class="btn btn--secondary btn--sm" data-cp>复制</button></div>
+              <ol class="ag-cb__code" data-head></ol>
+              <div class="expand" id="ag-cb-p" data-open="false" inert><div><ol class="ag-cb__code ag-cb__code--more" data-more></ol></div></div>
+              <button type="button" class="ag-cb__t" aria-expanded="false" aria-controls="ag-cb-p"><span data-tt>展开全部 9 行</span><span class="chev" aria-hidden="true"></span></button>
+            </figure>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="WB-CHAT-020" data-name="来源引用列表" data-cat="CHAT">
+  <div class="demo__head"><span class="demo__name">来源引用列表</span></div>
+  <p class="demo__note">适合：回答末尾可展开的参考来源列表</p>
+  <div class="demo__stage">
+    <div class="card ag-card" id="ag-sr">
+      <div class="chat">
+        <div class="msg">
+          <img class="msg__avatar" src="../../kit/assets/marks/mark-023.webp" alt="">
+          <div class="msg__body">
+            <div class="bubble"><p>本周订单与支付流水相差 3 笔，合计 ¥417.00，其中 2 笔为微信延迟入账。</p></div>
+            <div class="ag-sr">
+              <button type="button" class="ag-sr__head" aria-expanded="false" aria-controls="ag-sr-p"><span>参考来源</span><span class="tag" data-tone="action">3</span><span class="chev" aria-hidden="true"></span></button>
+              <div class="expand" id="ag-sr-p" data-open="false" inert><div>
+                <div class="ag-sr__list">
+                  <div class="ag-sr__item"><button type="button" class="row ag-sr__row" aria-expanded="false" aria-controls="ag-sr-e1"><span class="cite">1</span><span class="row__main"><span class="row__title">订单系统</span><span class="row__meta">本周线上订单</span></span><span class="row__trail"><span class="tag" data-tone="action">数据表</span><span class="chev" aria-hidden="true"></span></span></button><div class="expand" id="ag-sr-e1" data-open="false" inert><div><div class="expand__body"><p class="row__meta">摘录</p><p class="ag-sr__q">本周线上订单 1,342 单，营业额 ¥178,880，客单价 ¥133</p></div></div></div></div>
+                  <div class="ag-sr__item"><button type="button" class="row ag-sr__row" aria-expanded="false" aria-controls="ag-sr-e2"><span class="cite">2</span><span class="row__main"><span class="row__title">支付平台</span><span class="row__meta">流水明细</span></span><span class="row__trail"><span class="tag" data-tone="info">流水</span><span class="chev" aria-hidden="true"></span></span></button><div class="expand" id="ag-sr-e2" data-open="false" inert><div><div class="expand__body"><p class="row__meta">摘录</p><p class="ag-sr__q">本周支付流水 1,339 笔，微信延迟入账 2 笔，合计 ¥347.00</p></div></div></div></div>
+                  <div class="ag-sr__item"><button type="button" class="row ag-sr__row" aria-expanded="false" aria-controls="ag-sr-e3"><span class="cite">3</span><span class="row__main"><span class="row__title">人工备注</span><span class="row__meta">差异核实记录</span></span><span class="row__trail"><span class="tag" data-tone="warning">备注</span><span class="chev" aria-hidden="true"></span></span></button><div class="expand" id="ag-sr-e3" data-open="false" inert><div><div class="expand__body"><p class="row__meta">摘录</p><p class="ag-sr__q">订单 10890 银行退回 ¥70.00，待财务核实</p></div></div></div></div>
+                </div>
+              </div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="WB-CHAT-021" data-name="计划步骤卡" data-cat="CHAT">
+  <div class="demo__head"><span class="demo__name">计划步骤卡</span></div>
+  <p class="demo__note">适合：智能体先列出计划步骤并标注已完成与进行中</p>
+  <div class="demo__stage">
+    <div class="card ag-pl" id="ag-pl" data-run="false">
+      <div class="ag-pl__top"><span class="ag-pl__t">对账计划</span><span class="tag" data-tone="action" data-st>进行中</span><span class="ag-pl__n" data-n></span></div>
+      <div class="progress" role="progressbar" aria-label="计划完成进度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i></i></div>
+      <ol class="ag-pl__steps"></ol>
+      <div class="ag-bar ag-bar--end"><button type="button" class="btn btn--ghost btn--sm" data-reset>重新计划</button><button type="button" class="btn btn--primary btn--sm" data-go>开始执行</button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="WB-CHAT-022" data-name="文件树结构卡" data-cat="CHAT">
+  <div class="demo__head"><span class="demo__name">文件树结构卡</span></div>
+  <p class="demo__note">适合：展示智能体生成的目录与文件树</p>
+  <div class="demo__stage">
+    <div class="card ag-card" id="ag-ft">
+      <div class="ag-ft__top"><span class="ag-ft__t">生成的文件<span class="tag" data-tone="action" data-cnt></span></span><button type="button" class="btn btn--text btn--sm" data-all>全部收起</button></div>
+      <div class="ag-ft" role="tree" aria-label="生成的文件"></div>
+      <div class="ag-ft__foot" role="status" aria-live="polite" data-foot></div>
+    </div>
+  </div>
+</article>
+
+<script>
+(() => {
+  const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const A = '../../kit/assets';
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  const mk = html => { const t = document.createElement('template'); t.innerHTML = html.trim(); return t.content.firstElementChild; };
+  const setOpen = (btn, panel, open) => { panel.dataset.open = String(open); panel.inert = !open; btn.setAttribute('aria-expanded', String(open)); };
+  const copy = async txt => {
+    try { await navigator.clipboard.writeText(txt); return true; } catch (e) { /* 退回到选中复制 */ }
+    try { const ta = document.createElement('textarea'); ta.value = txt; ta.setAttribute('readonly', ''); ta.style.cssText = 'position:fixed;left:-999px;top:0;opacity:0'; document.body.appendChild(ta); ta.select(); const ok = document.execCommand('copy'); ta.remove(); return ok; } catch (e) { return false; }
+  };
+  const flash = (btn, txt, ms = 1600) => { const old = btn.dataset.old || btn.textContent; btn.dataset.old = old; btn.textContent = txt; btn.setAttribute('data-done', ''); clearTimeout(btn._t); btn._t = setTimeout(() => { btn.textContent = old; btn.removeAttribute('data-done'); }, ms); };
+
+  /* 018 消息操作条：复制回执、重新生成出新版本、反馈二选一、版本前后切换 */
+  (() => {
+    const root = $('#ag-ba'), b = $('[data-b]', root), bar = $('.ag-ba', root), ver = $('[data-ver]', root), vn = $('[data-vn]', root);
+    const V = [
+      ['本周线上订单共 1,342 单，营业额 ¥178,880，客单价 ¥133。', '周六单量最高，为 258 单，占全周 19.2%。'],
+    ];
+    const POOL = [
+      ['本周营业额 ¥178,880，较上周增长 12.4%。', '线上订单 1,342 单，客单价 ¥133。'],
+      ['线上订单共 1,342 单，周六最高，为 258 单。', '营业额 ¥178,880，客单价 ¥133。'],
+    ];
+    let cur = 0, busy = false;
+    const show = i => { cur = i; b.innerHTML = V[i].map(t => `<p>${t}</p>`).join(''); const n = V.length; ver.hidden = n < 2; vn.textContent = `${i + 1} / ${n}`; $('[data-v="-1"]', ver).disabled = i === 0; $('[data-v="1"]', ver).disabled = i === n - 1; };
+    const fresh = () => { $$('[aria-pressed]', bar).forEach(x => x.setAttribute('aria-pressed', 'false')); };
+    show(0);
+    bar.addEventListener('click', async e => {
+      const x = e.target.closest('button'); if (!x || busy) return;
+      if (x.dataset.a === 'copy') { const ok = await copy($$('p', b).map(p => p.textContent).join('\n')); flash(x, ok ? '已复制' : '复制失败'); return; }
+      if (x.dataset.a === 'up' || x.dataset.a === 'down') { const on = x.getAttribute('aria-pressed') !== 'true'; $$('[aria-pressed]', bar).forEach(y => y.setAttribute('aria-pressed', 'false')); x.setAttribute('aria-pressed', String(on)); if (on) Lz.toast('已记录反馈', 'success'); return; }
+      if (x.dataset.a === 'regen') {
+        busy = true; $$('button', bar).forEach(y => { y.disabled = true; }); fresh();
+        const next = POOL[(V.length - 1) % POOL.length]; b.innerHTML = '<span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>'; await sleep(700); b.textContent = '';
+        for (const t of next) { const p = document.createElement('p'); b.appendChild(p); await Lz.stream(p, t, 40); }
+        V.push(next); show(V.length - 1); busy = false; $$('button', bar).forEach(y => { y.disabled = false; }); show(cur);
+        if (V.length >= 3) $('[data-a="regen"]', bar).disabled = true;
+        $('[data-v="-1"]', ver).focus(); return;
+      }
+      if (x.dataset.v) { show(cur + +x.dataset.v); fresh(); }
+    });
+    bar.addEventListener('keydown', e => {
+      const d = { ArrowRight: 1, ArrowLeft: -1 }[e.key]; if (!d) return;
+      const list = $$('button:not(:disabled)', bar), i = list.indexOf(document.activeElement); if (i < 0) return; e.preventDefault(); list[(i + d + list.length) % list.length].focus();
+    });
+  })();
+
+  /* 019 代码块：中文键值，缩进与行号，复制给回执，超过六行折叠 */
+  (() => {
+    const root = $('#ag-cb'), head = $('[data-head]', root), more = $('[data-more]', root), p = $('#ag-cb-p'), tg = $('.ag-cb__t', root), tt = $('[data-tt]', root), cb = $('[data-cp]', root);
+    const L = [[0, '预警线', '10 件'], [0, '检查频率', '每 30 分钟'], [0, '检查范围', ''], [1, '', '- 建国路店'], [1, '', '- 徐汇滨江店'], [1, '', '- 浦东世纪店'], [0, '通知方式', '站内通知、短信'], [0, '免打扰时段', '22:00 至 07:00'], [0, '售罄处理', '自动下架']];
+    const ln = l => `<li class="ag-cb__ln"><span style="--d:${l[0]}">${l[1] ? `<span class="ag-cb__k">${l[1]}</span><span class="ag-cb__p">：</span>` : ''}<span class="ag-cb__v">${l[2]}</span></span></li>`;
+    head.innerHTML = L.slice(0, 6).map(ln).join(''); more.innerHTML = L.slice(6).map(ln).join('');
+    tg.addEventListener('click', () => { const o = p.dataset.open !== 'true'; setOpen(tg, p, o); tt.textContent = o ? '收起' : `展开全部 ${L.length} 行`; });
+    cb.addEventListener('click', async () => { const txt = L.map(l => '  '.repeat(l[0]) + (l[1] ? l[1] + '：' : '') + l[2]).join('\n'); const ok = await copy(txt); flash(cb, ok ? '已复制' : '复制失败'); if (ok) Lz.toast('配置已复制', 'success'); });
+  })();
+
+  /* 020 来源引用：头部开合整张列表，来源行单开摘录 */
+  (() => {
+    const root = $('#ag-sr'), head = $('.ag-sr__head', root), p = $('#ag-sr-p'), rows = $$('.ag-sr__row', root);
+    head.addEventListener('click', () => { const o = p.dataset.open !== 'true'; setOpen(head, p, o); if (!o) rows.forEach(r => setOpen(r, $('#' + r.getAttribute('aria-controls')), false)); });
+    rows.forEach(r => r.addEventListener('click', () => { const o = r.getAttribute('aria-expanded') !== 'true'; rows.forEach(x => setOpen(x, $('#' + x.getAttribute('aria-controls')), x === r && o)); }));
+  })();
+
+  /* 021 计划步骤：进行中的步骤按进度推进，可暂停继续，重新计划回到初始 */
+  (() => {
+    const root = $('#ag-pl'), ol = $('.ag-pl__steps', root), st = $('[data-st]', root), n = $('[data-n]', root), prog = $('.progress', root), go = $('[data-go]', root), reset = $('[data-reset]', root);
+    const S = [
+      { t: '确定对账范围', w: '本周线上订单', d: '本周线上订单', max: 1, p: 1 },
+      { t: '读取订单与支付流水', w: '订单系统与支付平台', d: '订单 1,342 单 流水 1,339 笔', max: 1, p: 1 },
+      { t: '逐笔比对金额', w: '按订单号逐笔比对', d: '已比对 1,342 单', max: 1342, p: 612, run: p => `已比对 ${p.toLocaleString('zh-CN')} / 1,342 单`, inc: 90 },
+      { t: '标出差异订单', w: '金额不一致的订单', d: '共标出 3 笔 合计 ¥417.00', max: 3, p: 0, run: p => `已标出 ${p} 笔`, inc: 1 },
+      { t: '生成对账结果', w: '表格含差异原因', d: '已生成 1 张表格', max: 4, p: 0, run: p => '正在生成', inc: 1 },
+    ];
+    const init = S.map(s => s.p); let timer = 0, running = false;
+    const cur = () => S.findIndex(s => s.p < s.max);
+    ol.innerHTML = S.map((s, i) => `<li class="ag-pl__s"><span class="ag-pl__m"><img src="${A}/line/check.webp" alt=""><span class="ag-pl__no">${i + 1}</span></span><div class="ag-pl__b"><p class="row__title">${s.t}</p><p class="row__meta"></p></div><span class="tag"></span></li>`).join('');
+    const lis = $$('.ag-pl__s', ol);
+    const paint = () => {
+      const c = cur(), done = S.filter(s => s.p >= s.max).length, all = c < 0;
+      lis.forEach((li, i) => { const s = S[i], state = s.p >= s.max ? 'done' : i === c ? 'now' : 'wait'; const tag = $('.tag', li);
+        li.dataset.state = state; $('.row__meta', li).textContent = state === 'done' ? s.d : state === 'now' ? s.run(s.p) : s.w;
+        tag.textContent = state === 'done' ? '已完成' : state === 'now' ? (running ? '进行中' : '已暂停') : '待执行';
+        const tone = state === 'done' ? 'success' : state === 'now' ? (running ? 'action' : 'warning') : ''; if (tone) tag.dataset.tone = tone; else tag.removeAttribute('data-tone'); });
+      root.dataset.run = String(running); n.textContent = `已完成 ${done} 项 共 ${S.length} 项`;
+      const v = Math.round(done / S.length * 100); $('i', prog).style.setProperty('--v', v + '%'); prog.setAttribute('aria-valuenow', v);
+      st.textContent = all ? '已完成' : running ? '进行中' : '已暂停'; st.dataset.tone = all ? 'success' : running ? 'action' : 'warning';
+      go.textContent = all ? '已完成' : running ? '暂停' : (done > 2 || S[2].p > init[2] ? '继续执行' : '开始执行'); go.disabled = all; go.className = 'btn btn--sm ' + (running ? 'btn--ghost' : 'btn--primary');
+    };
+    const stop = () => { clearInterval(timer); timer = 0; running = false; };
+    const start = () => { if (timer || cur() < 0) return; running = true; timer = setInterval(() => { const c = cur(); if (c < 0) { stop(); paint(); return; } const s = S[c]; s.p = Math.min(s.max, s.p + s.inc || 1); if (cur() < 0) stop(); paint(); }, 320); paint(); };
+    go.addEventListener('click', () => { running ? (stop(), paint()) : start(); });
+    reset.addEventListener('click', () => { stop(); S.forEach((s, i) => { s.p = init[i]; }); paint(); });
+    paint();
+    const io = new IntersectionObserver(es => { if (es[0].isIntersecting) { io.disconnect(); if (!Lz.reduce) start(); } }, { threshold: .6 }); io.observe(root);
+  })();
+
+  /* 022 文件树：树形键盘操作，文件夹开合，选中文件在底部给出路径 */
+  (() => {
+    const root = $('#ag-ft'), tree = $('.ag-ft', root), foot = $('[data-foot]', root), all = $('[data-all]', root), cnt = $('[data-cnt]', root);
+    const T = [
+      { n: '本周对账', d: 0, f: true, open: true },
+      { n: '订单', d: 1, f: true, open: true },
+      { n: '线上订单明细', d: 2, ic: 'solid/bill', m: '表格 1,342 行' },
+      { n: '退款订单明细', d: 2, ic: 'solid/bill', m: '表格 23 行' },
+      { n: '流水', d: 1, f: true, open: false },
+      { n: '微信流水', d: 2, ic: 'solid/bill', m: '表格 1,087 行' },
+      { n: '银行流水', d: 2, ic: 'solid/bill', m: '表格 252 行' },
+      { n: '对账汇总', d: 1, ic: 'solid/biz-notes', m: '报告 3 页', nw: true },
+      { n: '差异明细', d: 1, ic: 'solid/bill', m: '表格 3 行', nw: true },
+      { n: '差异分布', d: 1, ic: 'solid/layout', m: '图表 1 张', nw: true },
+    ];
+    let sel = -1, focus = 0;
+    const parent = i => { for (let k = i - 1; k >= 0; k--) if (T[k].d < T[i].d) return k; return -1; };
+    const vis = i => { for (let k = parent(i); k >= 0; k = parent(k)) if (!T[k].open) return false; return true; };
+    const path = i => { const a = []; for (let k = i; k >= 0; k = parent(k)) a.unshift(T[k].n); return a.join(' / '); };
+    const files = T.filter(t => !t.f).length;
+    cnt.textContent = `${files} 个文件`;
+    const paint = () => {
+      tree.innerHTML = T.map((t, i) => !vis(i) ? '' :
+        `<button type="button" class="ag-ft__i" role="treeitem" aria-level="${t.d + 1}" ${t.f ? `aria-expanded="${t.open}"` : ''} aria-selected="${i === sel}" data-i="${i}" tabindex="${i === focus ? 0 : -1}" style="--d:${t.d}">${t.f ? '<span class="chev" aria-hidden="true"></span>' : '<span class="ag-ft__sp"></span>'}<img src="${A}/${t.f ? 'line/folder' : t.ic}.webp" alt=""><span class="ag-ft__n">${t.n}</span>${t.nw ? '<span class="tag" data-tone="action">新</span>' : ''}${t.m ? `<span class="ag-ft__m">${t.m}</span>` : ''}</button>`).join('');
+      const open = T.some(t => t.f && t.open); all.textContent = open ? '全部收起' : '全部展开';
+      foot.innerHTML = sel < 0 ? '选择文件查看路径' : `已选 <b>${path(sel)}</b>`;
+    };
+    const go = i => { focus = i; paint(); const el = $(`[data-i="${i}"]`, tree); if (el) el.focus(); };
+    const visible = () => T.map((_, i) => i).filter(vis);
+    tree.addEventListener('click', e => { const b = e.target.closest('.ag-ft__i'); if (!b) return; const i = +b.dataset.i; focus = i; if (T[i].f) T[i].open = !T[i].open; else sel = i; go(i); });
+    tree.addEventListener('keydown', e => {
+      const b = e.target.closest('.ag-ft__i'); if (!b) return; const i = +b.dataset.i, v = visible(), k = v.indexOf(i), t = T[i];
+      if (e.key === 'ArrowDown') { e.preventDefault(); go(v[Math.min(v.length - 1, k + 1)]); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); go(v[Math.max(0, k - 1)]); }
+      else if (e.key === 'Home') { e.preventDefault(); go(v[0]); }
+      else if (e.key === 'End') { e.preventDefault(); go(v[v.length - 1]); }
+      else if (e.key === 'ArrowRight') { e.preventDefault(); if (t.f && !t.open) { t.open = true; go(i); } else if (t.f) go(i + 1); }
+      else if (e.key === 'ArrowLeft') { e.preventDefault(); if (t.f && t.open) { t.open = false; go(i); } else if (parent(i) >= 0) go(parent(i)); }
+    });
+    all.addEventListener('click', () => { const open = T.some(t => t.f && t.open); T.forEach(t => { if (t.f) t.open = !open; }); if (!vis(focus)) focus = 0; paint(); });
+    paint();
+  })();
+})();
+</script>

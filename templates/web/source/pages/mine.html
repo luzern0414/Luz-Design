@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="navy" data-bg="none" data-ic-base="../../../../kit/assets/icons">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>账号设置</title>
+<link rel="icon" href="../../../../kit/assets/icons/flat/heart.webp">
+<link rel="stylesheet" href="../../../../kit/tokens.css">
+<link rel="stylesheet" href="../../../../kit/ui.css">
+<link rel="stylesheet" href="../../../../kit/kit.css">
+<link rel="stylesheet" href="../../../../kit/web.css">
+<style>
+  /* 侧栏标识、胶囊标签与表格的统一细节 */
+  .tag { height: 24px; padding: 0 var(--s-3); border-radius: var(--r-full); }
+  .tag--dot::before { content: ""; width: 6px; height: 6px; margin-right: 6px; border-radius: 50%; background: currentColor; }
+  .table th { height: 48px; }
+  .table td { height: 60px; padding-top: 0; padding-bottom: 0; }
+  .table tbody tr { cursor: default; }
+
+  /* 本页专属：概览带、原位修改行、偏好行与设备表 */
+  .main .subbar { margin: 0 calc(var(--s-8) * -1); padding: 0 var(--s-6); background: var(--action-tint); border-bottom-color: var(--action-edge); }
+  @media (max-width: 760px) { .main .subbar { margin: 0 calc(var(--s-4) * -1); padding: 0 var(--s-3); } }
+  .btn--warn { color: var(--danger); }
+
+  /* 概览带：平面，头像与昵称在左，三个数据在右 */
+  .band { display: flex; align-items: center; justify-content: space-between; gap: var(--s-6); margin-top: var(--s-5); }
+  .ident { display: flex; align-items: center; gap: var(--s-5); min-width: 0; }
+  .avatar--xl { width: 92px; height: 92px; border: 4px solid var(--surface); background: var(--surface); box-shadow: var(--elev-2); }
+  .ident__name { font-size: var(--fs-xl); font-weight: 700; line-height: var(--lh-tight); }
+  .ident__sub { display: flex; align-items: center; gap: var(--s-2); margin-top: var(--s-2); }
+  .band .stats { flex: none; width: min(100%, 520px); }
+  .band .stats > * + * { border-left-color: var(--action-edge); }
+  .band .stat__val { font-size: var(--fs-2xl); }
+  @media (max-width: 900px) { .band { flex-direction: column; align-items: stretch; } .band .stats { width: 100%; } }
+
+  .profile-grid { margin-top: var(--s-5); }
+  .profile-grid > :not(:last-child) { border-end-start-radius: 0; border-end-end-radius: 0; }
+  .profile-grid > .span-2 { border-block-start-width: 0; border-start-start-radius: 0; border-start-end-radius: 0; }
+  @media (max-width: 760px) {
+    .profile-grid > :nth-child(2) { border-block-start-width: 0; border-start-start-radius: 0; border-start-end-radius: 0; }
+  }
+  .fill { display: flex; flex-direction: column; }
+  .fill .section__body { flex: 1; }
+  .kvi { grid-template-columns: 96px minmax(0, 1fr); grid-auto-rows: minmax(52px, auto); align-items: center; padding-top: var(--s-3); padding-bottom: var(--s-3); }
+  .kvi dt { line-height: var(--lh-tight); }
+  .kvi dd { display: flex; align-items: center; min-height: 52px; }
+  .inl { display: flex; align-items: center; gap: var(--s-1); min-width: 0; width: 100%; }
+  .inl__v { min-width: 0; }
+  .inl__edit { display: grid; gap: var(--s-1); width: 100%; }
+  .inl__row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2); }
+  .inl__row .input { flex: 1 1 180px; min-width: 0; min-height: 40px; }
+  .ibtn--sm { width: 32px; height: 32px; }
+  .ibtn--sm img { width: 18px; height: 18px; }
+  .pref { display: flex; flex-direction: column; }
+  .pref .row { flex: 1; min-height: 72px; padding-left: var(--s-5); padding-right: var(--s-5); }
+  .pref .row + .row::before { left: var(--s-5); }
+  .row .btn--sm.btn--warn { padding: 0; justify-self: start; }
+
+  .table { min-width: 560px; }
+  .table .tag + .tag { margin-left: var(--s-1); }
+  .skrow { pointer-events: none; }
+  .skrow td > .skel { height: 16px; margin: 0 auto; }
+
+  /* 账号安全：整行进入修改页，退出登录单独一行 */
+  .sec .row { padding-left: var(--s-5); padding-right: var(--s-5); min-height: 64px; }
+  .sec .row + .row::before { left: var(--s-5); }
+  .sec .row__lead { width: 28px; height: 28px; border-radius: 0; object-fit: contain; }
+
+  /* 修改密码填写页 */
+  .form-page { max-width: 720px; }
+  .pw-grid { display: grid; gap: var(--s-4); padding: var(--s-5); }
+  .form-acts { justify-content: flex-end; padding: 0 var(--s-5) var(--s-5); }
+</style>
+</head>
+<body class="web-body">
+<div class="web">
+  <!-- 左侧主导航：图文同行，当前项有背景与指示线；不放产品名 -->
+  <nav class="rail" data-cid="WB-NAV-001" data-name="左侧主导航" aria-label="主导航">
+    <img class="rail__logo" data-ic="bouquet" src="../../../../kit/assets/icons/flat/bouquet.webp" alt="">
+    <a class="rail__item" href="home.html"><img src="../../../../kit/assets/line/home.webp" alt=""><span>工作台</span></a>
+    <a class="rail__item" href="list.html"><img src="../../../../kit/assets/line/list.webp" alt=""><span>列表</span></a>
+    <a class="rail__item" href="orders.html"><img src="../../../../kit/assets/line/archive.webp" alt=""><span>订单</span></a>
+    <a class="rail__item" href="agent.html"><img src="../../../../kit/assets/line/message.webp" alt=""><span>助手</span></a>
+    <span class="rail__sp"></span>
+    <a class="rail__item" href="mine.html" aria-current="page"><img src="../../../../kit/assets/line/user.webp" alt=""><span>我的</span></a>
+  </nav>
+
+  <main class="main"><div class="main__in">
+
+    <div class="view" id="pg" data-view="main">
+      <!-- 顶部：标题加平面概览带，头像、昵称、角色与三个数据 -->
+      <header class="head" data-cid="WB-MINE-001" data-name="账号概览顶部">
+        <div class="head__row"><h1>账号设置</h1></div>
+        <div class="band">
+          <div class="ident">
+            <img class="avatar avatar--xl" src="../../../../kit/assets/marks/mark-006.webp" alt="">
+            <div>
+              <p class="ident__name one-line" id="bandName">林晓</p>
+              <p class="ident__sub"><span class="tag tag--dot" data-tone="action">门店店长</span></p>
+            </div>
+          </div>
+          <div class="stats">
+            <div class="stat"><span class="stat__label">登录设备</span><span class="stat__val"><span data-count data-to="4" id="stDev">0</span><small>台</small></span></div>
+            <div class="stat"><span class="stat__label">本月处理</span><span class="stat__val"><span data-count data-to="128">0</span><small>单</small></span></div>
+            <div class="stat"><span class="stat__label">待办</span><span class="stat__val"><span data-count data-to="6">0</span><small>项</small></span></div>
+          </div>
+        </div>
+      </header>
+
+      <div class="grid card-grid cols-2 profile-grid">
+        <!-- 基本资料：昵称与岗位原位修改，阅读态不显示保存取消 -->
+        <section class="card section fill" data-cid="WB-MINE-002" data-name="基本资料键值卡">
+          <div class="section__head"><h2>基本资料</h2></div>
+          <div class="section__body">
+            <dl class="kv kvi" id="kv">
+              <dt>昵称</dt><dd><div class="inl" data-f="nick"></div></dd>
+              <dt>手机号尾号</dt><dd>5021</dd>
+              <dt>岗位</dt><dd><div class="inl" data-f="post"></div></dd>
+              <dt>所属门店</dt><dd>建国路店</dd>
+            </dl>
+          </div>
+        </section>
+
+        <!-- 偏好设置：行加开关，切换即轻提示 -->
+        <section class="card section fill" data-cid="WB-MINE-003" data-name="偏好开关设置卡">
+          <div class="section__head"><h2>偏好设置</h2></div>
+          <div class="list pref section__body" id="prefs">
+            <div class="row row--no-lead"><img class="compact-icon" src="../../../../kit/assets/line/archive.webp" alt=""><div class="row__main"><span class="row__title">订单提醒</span></div><button type="button" class="switch" role="switch" aria-checked="true" aria-label="订单提醒"></button></div>
+            <div class="row row--no-lead"><img class="compact-icon" src="../../../../kit/assets/line/folder.webp" alt=""><div class="row__main"><span class="row__title">库存预警</span></div><button type="button" class="switch" role="switch" aria-checked="true" aria-label="库存预警"></button></div>
+            <div class="row row--no-lead"><img class="compact-icon" src="../../../../kit/assets/line/location.webp" alt=""><div class="row__main"><span class="row__title">登录提醒</span></div><button type="button" class="switch" role="switch" aria-checked="false" aria-label="登录提醒"></button></div>
+          </div>
+        </section>
+
+        <!-- 登录设备：不适用新建，所以标题右侧没有图标 -->
+        <section class="card section span-2" data-cid="WB-MINE-004" data-name="登录设备表格卡">
+          <div class="section__head"><h2>登录设备</h2></div>
+          <div class="section__body" style="overflow:hidden">
+            <div class="table-wrap">
+              <table class="table">
+                <colgroup><col><col style="width:18%"><col style="width:20%"><col style="width:20%"><col style="width:16%"></colgroup>
+                <thead><tr><th class="t-l">设备</th><th>位置</th><th>最近活跃</th><th>状态</th><th>操作</th></tr></thead>
+                <tbody id="devs"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 账号安全：修改密码进入独立填写页，退出登录先确认 -->
+        <section class="card section span-2" data-cid="WB-MINE-005" data-name="账号安全操作卡">
+          <div class="section__head"><h2>账号安全</h2></div>
+          <div class="list sec section__body">
+            <button type="button" class="row row--no-lead row--link" data-open="password"><img class="row__lead" src="../../../../kit/assets/line/shield.webp" alt=""><span class="row__main"><span class="row__title">修改密码</span></span><span class="row__trail"></span></button>
+            <div class="row row--no-lead"><button type="button" class="btn btn--sm btn--warn" id="logout">退出登录</button><span></span></div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- 独立填写页：顶部左侧返回，取消与保存相邻 -->
+    <form class="view" id="pw" data-view="password" data-cid="WB-MINE-006" data-name="修改密码填写页" novalidate hidden>
+      <div class="subbar">
+        <button type="button" class="ibtn" data-back data-tip="返回" aria-label="返回"><img src="../../../../kit/assets/line/back.webp" alt=""></button>
+        <h1>修改密码</h1>
+        <span></span>
+      </div>
+      <div class="form-page section">
+        <div class="card">
+          <div class="pw-grid">
+            <div class="field"><label class="field__label" for="p-old">原密码</label><input class="input" id="p-old" name="old" type="password" autocomplete="current-password" placeholder="请输入原密码"><p class="field__err" id="e-old" hidden></p></div>
+            <div class="field"><label class="field__label" for="p-new">新密码</label><input class="input" id="p-new" name="new" type="password" autocomplete="new-password" placeholder="请输入新密码"><p class="field__err" id="e-new" hidden></p></div>
+            <div class="field"><label class="field__label" for="p-cfm">确认新密码</label><input class="input" id="p-cfm" name="cfm" type="password" autocomplete="new-password" placeholder="请再次输入新密码"><p class="field__err" id="e-cfm" hidden></p></div>
+          </div>
+          <div class="btn-group form-acts"><button type="button" class="btn btn--ghost" data-back>取消</button><button type="submit" class="btn btn--primary">保存</button></div>
+        </div>
+      </div>
+    </form>
+
+  </div></main>
+</div>
+<script src="../../../../kit/ui.js"></script>
+<script>
+  const $ = Lz.$, $$ = Lz.$$;
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+  /* 基本资料：昵称与岗位原位修改 */
+  const prof = { nick: '林晓', post: '门店运营主管' };
+  const FIELD = {
+    nick: { label: '昵称', check: v => (!v ? '请输入昵称' : v.length > 12 ? '昵称不超过 12 个字' : '') },
+    post: { label: '岗位', check: v => (!v ? '请输入岗位' : v.length > 12 ? '岗位名称过长' : '') },
+  };
+  function inl(f, editing) {
+    const box = $(`.inl[data-f="${f}"]`), L = FIELD[f].label;
+    box.innerHTML = editing
+      ? `<div class="inl__edit"><div class="inl__row"><input class="input" data-in="${f}" value="${esc(prof[f])}" aria-label="${L}" autocomplete="off"><div class="btn-group"><button type="button" class="btn btn--primary btn--sm" data-save="${f}">保存</button><button type="button" class="btn btn--ghost btn--sm" data-cancel="${f}">取消</button></div></div><p class="field__err" hidden></p></div>`
+      : `<span class="inl__v one-line">${esc(prof[f])}</span><button type="button" class="ibtn ibtn--sm" data-edit="${f}" data-tip="修改${L}" aria-label="修改${L}"><img src="../../../../kit/assets/line/edit.webp" alt=""></button>`;
+  }
+  function save(f) {
+    const i = $(`[data-in="${f}"]`), err = $('.field__err', i.closest('.inl__edit')), v = i.value.trim(), msg = FIELD[f].check(v);
+    if (msg) { i.setAttribute('aria-invalid', 'true'); err.textContent = msg; err.hidden = false; i.focus(); return; }
+    prof[f] = v; inl(f, false); if (f === 'nick') $('#bandName').textContent = v;
+    Lz.toast(`${FIELD[f].label}已更新`, 'success'); $(`[data-edit="${f}"]`).focus();
+  }
+  $('#kv').addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    if (b.dataset.edit) { inl(b.dataset.edit, true); const i = $(`[data-in="${b.dataset.edit}"]`); i.focus(); i.select(); }
+    else if (b.dataset.cancel) { inl(b.dataset.cancel, false); $(`[data-edit="${b.dataset.cancel}"]`).focus(); }
+    else if (b.dataset.save) save(b.dataset.save);
+  });
+  $('#kv').addEventListener('keydown', e => {
+    const i = e.target.closest('[data-in]'); if (!i || e.isComposing) return;
+    if (e.key === 'Enter') { e.preventDefault(); save(i.dataset.in); }
+    if (e.key === 'Escape') { inl(i.dataset.in, false); $(`[data-edit="${i.dataset.in}"]`).focus(); }
+  });
+  $('#kv').addEventListener('input', e => { const i = e.target.closest('[data-in]'); if (i) { i.removeAttribute('aria-invalid'); $('.field__err', i.closest('.inl__edit')).hidden = true; } });
+  inl('nick', false); inl('post', false);
+
+  /* 偏好设置：切换即轻提示 */
+  document.addEventListener('lz:toggle', e => {
+    const sw = e.target.closest('#prefs [role="switch"]'); if (!sw) return;
+    Lz.toast(`${sw.getAttribute('aria-label')}已${sw.getAttribute('aria-checked') === 'true' ? '开启' : '关闭'}`, 'success');
+  });
+
+  /* 登录设备：最近活跃用相对时间，其他设备可下线 */
+  let devs = [
+    { id: 1, name: '办公电脑', loc: '上海', t: '刚刚', cur: true },
+    { id: 2, name: '手机', loc: '上海', t: '3 小时前' },
+    { id: 3, name: '平板电脑', loc: '苏州', t: '昨天' },
+    { id: 4, name: '家用电脑', loc: '杭州', t: '5 天前' },
+  ];
+  const rows = $('#devs');
+  const devRow = d => `<tr data-id="${d.id}"><td class="t-l">${d.name}</td><td>${d.loc}</td><td>${d.t}</td><td><span class="tag tag--dot" data-tone="${d.cur ? 'success' : ''}">${d.cur ? '当前设备' : '其他'}</span></td><td>${d.cur ? '' : `<button type="button" class="btn btn--ghost btn--sm btn--warn" data-off="${d.id}">下线</button>`}</td></tr>`;
+  const skeleton = () => Array.from({ length: 4 }, () => `<tr class="skrow"><td class="t-l"><div class="skel" style="width:96px;margin:0"></div></td><td><div class="skel" style="width:40px"></div></td><td><div class="skel" style="width:64px"></div></td><td><div class="skel" style="width:56px"></div></td><td><div class="skel" style="width:48px;height:28px"></div></td></tr>`).join('');
+  const renderDevs = () => { rows.innerHTML = devs.map(devRow).join(''); $('#stDev').dataset.to = devs.length; };
+  rows.innerHTML = skeleton(); setTimeout(renderDevs, 700);
+  rows.addEventListener('click', async e => {
+    const b = e.target.closest('[data-off]'); if (!b) return; const d = devs.find(x => x.id === +b.dataset.off);
+    if (!(await Lz.confirm({ title: `下线 ${d.name}`, ok: '下线', tone: 'danger' }))) return;
+    devs = devs.filter(x => x.id !== d.id); renderDevs(); $('#stDev').textContent = devs.length; Lz.toast(`${d.name}已下线`, 'success');
+  });
+
+  /* 退出登录 */
+  $('#logout').addEventListener('click', async () => {
+    if (await Lz.confirm({ title: '退出登录', ok: '退出', tone: 'danger' })) Lz.toast('已退出登录', 'success');
+  });
+
+  /* 修改密码：校验错误贴着字段，保存成功后返回并轻提示 */
+  const form = $('#pw'), K = ['old', 'new', 'cfm'], inp = k => $(`#p-${k}`), errEl = k => $(`#e-${k}`);
+  const setErr = (k, m) => { inp(k).setAttribute('aria-invalid', 'true'); inp(k).setAttribute('aria-describedby', `e-${k}`); errEl(k).textContent = m; errEl(k).hidden = false; };
+  const clearErr = k => { inp(k).removeAttribute('aria-invalid'); errEl(k).hidden = true; };
+  document.addEventListener('lz:view', e => { if (e.detail.id === 'password') K.forEach(k => { inp(k).value = ''; clearErr(k); }); });
+  form.addEventListener('input', e => { const k = K.find(x => inp(x) === e.target); if (k) clearErr(k); });
+  form.addEventListener('submit', e => {
+    e.preventDefault(); K.forEach(clearErr);
+    const o = inp('old').value, n = inp('new').value, c = inp('cfm').value; let bad = null;
+    if (!o) { setErr('old', '请输入原密码'); bad = bad || inp('old'); }
+    if (!n) { setErr('new', '请输入新密码'); bad = bad || inp('new'); }
+    else if (n.length < 8) { setErr('new', '密码至少 8 位'); bad = bad || inp('new'); }
+    else if (n === o) { setErr('new', '新密码不能与原密码相同'); bad = bad || inp('new'); }
+    if (!c) { setErr('cfm', '请再次输入新密码'); bad = bad || inp('cfm'); }
+    else if (n && c !== n) { setErr('cfm', '两次输入不一致'); bad = bad || inp('cfm'); }
+    if (bad) { bad.focus(); return; }
+    Lz.back(); Lz.toast('密码已更新', 'success');
+  });
+</script>
+</body>
+</html>

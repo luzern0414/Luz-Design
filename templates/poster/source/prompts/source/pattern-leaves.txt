@@ -1,0 +1,7 @@
+Use case: stylized-concept
+Asset type: a subtle tiled background texture
+Primary request: A seamless repeating surface pattern of small delicate sage leaves and tiny stems. Very low contrast pale sage green on an almost white background. Sparse, refined, quiet, all motifs small and evenly distributed, flat texture suitable behind readable app content. Seamless on every edge.
+Style/medium: delicate flat surface design
+Text: none. All product packaging must be entirely blank.
+Constraints: no text, no typography, no logo, no brand, no watermark, no UI, no buttons, no collage, no border. A single coherent image.
+These are fictional visual examples for an internal HTML reference, not images of real branded products.

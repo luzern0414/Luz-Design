@@ -1,0 +1,1148 @@
+<!-- cat: NAVI | 导航 -->
+<style>
+/* 导航：手机屏框内展示，底栏全宽贴框底、不透明；所有类名带 nv- 前缀 */
+.demo__stage.nv-st { border: 0; }
+.nv-screen { position: relative; display: flex; flex-direction: column; overflow: hidden; outline: 1px solid var(--line); outline-offset: -1px; border-radius: var(--r-md); background: var(--bg); }
+.nv-screen--tall { height: 280px; }
+.nv-screen .tabbar { position: relative; left: auto; bottom: auto; width: 100%; transform: none; flex: none; }
+.nv-body { flex: 1; min-height: 0; display: grid; grid-template-columns: 1fr 1fr; grid-auto-rows: max-content; align-content: start; gap: var(--s-3); padding: var(--s-4); overflow: hidden; }
+.nv-mock { display: grid; align-content: start; gap: var(--s-2); padding-bottom: var(--s-3); overflow: hidden; border-radius: var(--r-md); background: var(--surface); box-shadow: var(--elev-1); }
+.nv-mock img { width: 100%; height: 76px; object-fit: cover; background: var(--zone); }
+.nv-mock > div { padding: 0 var(--s-3); }
+.nv-mock i { display: block; height: 8px; border-radius: var(--r-full); background: var(--zone); }
+.nv-mock i + i { width: 50%; margin-top: 8px; }
+.nv-swap .nv-mock { animation: lz-fade var(--dur-base) var(--ease-out) both; }
+.tabbar button.tabbar__item { font-family: inherit; }
+.nv-dot { position: absolute; top: 6px; right: calc(50% - 20px); width: 10px; height: 10px; border-radius: 50%; background: var(--danger); box-shadow: 0 0 0 2px var(--bg); animation: lz-pop var(--dur-slow) var(--ease-spring) both; }
+.nv-gone { opacity: 0; transform: scale(.4); transition: opacity var(--dur-quick), transform var(--dur-quick); }
+
+/* 三项顶线底栏：选中项上方一条主色线滑动 */
+.nv-top3 .tabbar__item[aria-current="page"] { background: none; box-shadow: none; }
+.nv-line { position: absolute; top: -1px; left: var(--s-2); width: calc((100% - 6 * var(--s-1)) / 3); height: 3px; border-radius: 0 0 3px 3px; background: var(--action); transition: transform var(--dur-slow) var(--ease-spring); }
+.nv-screen[data-i="1"] .nv-line { transform: translateX(calc(100% + var(--s-1))); }
+.nv-screen[data-i="2"] .nv-line { transform: translateX(calc(200% + 2 * var(--s-1))); }
+
+/* 中间凸起底栏 */
+.nv-fabitem { gap: 2px; }
+.nv-fab { display: grid; place-items: center; width: 56px; height: 56px; margin-top: -30px; border-radius: 50%; background: var(--surface); box-shadow: 0 0 0 5px var(--bg), var(--elev-3); transition: transform var(--dur-base) var(--ease-spring); }
+.nv-fab img { width: 38px; height: 38px; object-fit: contain; filter: drop-shadow(0 4px 5px color-mix(in srgb, var(--ink) 18%, transparent)); }
+.nv-fabitem:active { transform: none; }
+.nv-fabitem:active .nv-fab { transform: scale(.9); }
+.nv-fabitem span:last-child { color: var(--action-press); font-weight: 600; }
+
+/* 顶栏 */
+.nv-head { display: flex; align-items: center; justify-content: space-between; min-height: 56px; padding: 0 var(--s-2) 0 var(--s-4); background: var(--bg); border-bottom: 1px solid var(--line); }
+.nv-head h2 { font-size: var(--fs-xl); font-weight: 700; line-height: var(--lh-tight); }
+.nv-head__a { display: flex; }
+.nv-nav { display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; min-height: 52px; padding: 0 var(--s-2); background: var(--bg); border-bottom: 1px solid var(--line); }
+.nv-nav h2 { font-size: var(--fs-lg); font-weight: 600; line-height: var(--lh-tight); text-align: center; }
+.nv-sbar { display: flex; align-items: center; gap: var(--s-1); min-height: 56px; padding: 0 var(--s-2); background: var(--bg); border-bottom: 1px solid var(--line); }
+.nv-sbar .search { flex: 1; min-width: 0; }
+.nv-sbar .search input::-webkit-search-cancel-button, .nv-lbar .search input::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; display: none; }
+.nv-sbar .search button { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; }
+.nv-sbar .search button img { width: 16px; height: 16px; }
+.nv-sbar .btn--text { flex: none; min-height: 40px; font-size: var(--fs-md); font-weight: 600; }
+.nv-lbar { position: relative; display: flex; align-items: center; gap: var(--s-2); min-height: 56px; padding: 0 var(--s-2) 0 var(--s-3); background: var(--bg); border-bottom: 1px solid var(--line); }
+.nv-lbar .loc { max-width: 124px; flex: none; font-size: var(--fs-md); }
+.nv-lbar .loc .chev::after { margin-left: 2px; transform: rotate(45deg) translateY(-2px); }
+.nv-lbar .loc[aria-expanded="true"] .chev::after { transform: rotate(225deg); }
+.nv-lbar .search { flex: 1; min-width: 0; }
+.nv-menu { position: absolute; z-index: 8; top: calc(100% - 2px); left: var(--s-3); width: 216px; padding: var(--s-1); border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface); box-shadow: var(--elev-3); transform-origin: top left; animation: lz-dialog var(--dur-quick) var(--ease-out) both; }
+.nv-menu button { display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 44px; padding: 0 var(--s-3); border-radius: var(--r-sm); font-size: var(--fs-sm); text-align: left; }
+.nv-menu button img { width: 16px; height: 16px; opacity: 0; }
+.nv-menu button[aria-selected="true"] { background: var(--action-tint); color: var(--action-press); font-weight: 600; }
+.nv-menu button[aria-selected="true"] img { opacity: 1; }
+@media (hover: hover) { .nv-menu button:hover { background: var(--zone); } }
+
+/* 透明叠图顶栏：随滚动由透明过渡为实底 */
+.nv-ov__bar { position: absolute; z-index: 3; top: 0; left: 0; right: 0; display: flex; align-items: center; justify-content: space-between; gap: var(--s-2); min-height: 56px; padding: 0 var(--s-3); isolation: isolate; }
+.nv-ov__bar::before { content: ""; position: absolute; inset: 0; z-index: -1; background: var(--bg); border-bottom: 1px solid var(--line); opacity: var(--p, 0); }
+.nv-ov__b { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; background: color-mix(in srgb, var(--surface) 86%, transparent); box-shadow: var(--elev-1); transition: background var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out); }
+.nv-ov__b img { width: 20px; height: 20px; }
+.nv-ov__t { flex: 1; font-size: var(--fs-md); font-weight: 600; text-align: center; opacity: var(--p, 0); }
+.nv-ov.is-solid .nv-ov__b { background: transparent; box-shadow: none; }
+.nv-ov__sc { flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: none; }
+.nv-ov__sc::-webkit-scrollbar { display: none; }
+.nv-ov__cover { width: 100%; height: 168px; object-fit: cover; }
+.nv-ov__info { position: relative; display: grid; gap: var(--s-2); margin-top: -18px; padding: var(--s-4); border-radius: var(--r-lg) var(--r-lg) 0 0; background: var(--bg); }
+.nv-ov__info b { font-size: var(--fs-lg); font-weight: 700; line-height: var(--lh-tight); }
+.nv-ov__tags { display: flex; gap: var(--s-2); }
+.nv-ov__lines { display: grid; gap: var(--s-3); padding: var(--s-2) var(--s-4) var(--s-6); }
+.nv-ov__lines i { display: block; height: 10px; border-radius: var(--r-full); background: var(--zone); }
+
+/* 大标题顶栏：折叠为居中小标题 */
+.nv-lg__bar { position: relative; z-index: 3; display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; min-height: 48px; padding: 0 var(--s-2); background: var(--bg); isolation: isolate; }
+.nv-lg__bar::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; border-bottom: 1px solid var(--line); opacity: var(--p, 0); }
+.nv-lg__bar h2 { font-size: var(--fs-md); font-weight: 600; text-align: center; opacity: var(--p, 0); }
+.nv-lg__sc { flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: none; padding: 0 var(--s-4) var(--s-4); }
+.nv-lg__sc::-webkit-scrollbar { display: none; }
+.nv-lg__t { padding: 0 0 var(--s-3) var(--s-1); font-size: var(--fs-2xl); font-weight: 700; line-height: var(--lh-tight); opacity: calc(1 - var(--p, 0)); transform: translateY(calc(var(--p, 0) * -6px)); transform-origin: left center; }
+.nv-lg__sc .row__lead { width: 48px; height: 48px; }
+
+/* 滑块分段切换 */
+.nv-sw { position: relative; display: grid; grid-template-columns: repeat(3, 1fr); padding: 3px; border-radius: var(--r-md); background: var(--zone); }
+.nv-sw__t { position: absolute; top: 3px; bottom: 3px; left: 3px; width: calc((100% - 6px) / 3); border-radius: 9px; background: var(--surface); box-shadow: var(--elev-1); transition: transform var(--dur-slow) var(--ease-spring); }
+.nv-sw[data-i="1"] .nv-sw__t { transform: translateX(100%); }
+.nv-sw[data-i="2"] .nv-sw__t { transform: translateX(200%); }
+.nv-sw button { position: relative; min-height: 40px; font-size: var(--fs-sm); color: var(--ink-2); border-radius: 9px; transition: color var(--dur-quick) var(--ease-out); }
+.nv-sw button[aria-selected="true"] { color: var(--action-press); font-weight: 600; }
+.nv-sw__info { display: grid; grid-template-columns: 44px 1fr auto; align-items: center; column-gap: var(--s-3); margin-top: var(--s-3); padding: var(--s-3) var(--s-4); }
+.nv-sw__info img { width: 44px; height: 44px; object-fit: contain; filter: drop-shadow(0 4px 6px color-mix(in srgb, var(--ink) 14%, transparent)); }
+.nv-sw__info b { display: block; font-size: var(--fs-md); font-weight: 600; line-height: var(--lh-tight); }
+.nv-sw__info div span { font-size: var(--fs-sm); color: var(--ink-3); }
+
+/* 胶囊标签栏下的订单示意 */
+.nv-ol { display: grid; margin-top: var(--s-3); }
+.nv-ol .row { min-height: 60px; padding: var(--s-2) var(--s-4); }
+.nv-ol .row__lead { width: 44px; height: 44px; }
+
+/* 下划线标签栏 */
+.nv-ul { position: relative; display: grid; grid-template-columns: repeat(4, 1fr); border-bottom: 1px solid var(--line); }
+.nv-ul button { min-height: 48px; font-size: var(--fs-md); color: var(--ink-2); transition: color var(--dur-quick) var(--ease-out); }
+.nv-ul button[aria-selected="true"] { color: var(--ink); font-weight: 600; }
+.nv-ul small { margin-left: 2px; font-size: var(--fs-xs); color: var(--ink-3); font-weight: 400; }
+.nv-ul__bar { position: absolute; left: 0; bottom: -1px; height: 3px; border-radius: 3px 3px 0 0; background: var(--action); transition: transform var(--dur-slow) var(--ease-out), width var(--dur-slow) var(--ease-out); }
+.nv-ulp { min-height: 76px; padding: var(--s-4); animation: lz-fade var(--dur-base) var(--ease-out) both; }
+.nv-ulp .row { padding: 0; min-height: 0; }
+.nv-ulp__kv { display: flex; justify-content: space-between; font-size: var(--fs-sm); color: var(--ink-2); }
+.nv-ulp__kv + .nv-ulp__kv { margin-top: var(--s-2); }
+.nv-ulp__kv b { color: var(--ink); font-weight: 600; }
+.nv-ulp__tn { display: flex; gap: var(--s-3); }
+.nv-ulp__tn img { width: 64px; height: 64px; border-radius: var(--r-md); object-fit: cover; }
+
+/* 步骤条 */
+.nv-steps { display: grid; grid-template-columns: repeat(4, 1fr); padding: var(--s-4) var(--s-2) var(--s-3); }
+.nv-steps li { position: relative; display: grid; justify-items: center; }
+.nv-steps li + li::before { content: ""; position: absolute; top: 15px; left: -50%; width: 100%; height: 3px; border-radius: 3px; background: var(--zone); transition: background var(--dur-slow) var(--ease-out); }
+.nv-steps li[data-s="done"]::before, .nv-steps li[data-s="now"]::before { background: var(--action); }
+.nv-step { position: relative; display: grid; justify-items: center; gap: var(--s-2); font-size: var(--fs-sm); color: var(--ink-3); }
+.nv-step i { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; background: var(--zone); font-style: normal; font-size: var(--fs-sm); font-weight: 600; color: var(--ink-3); transition: background var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out), color var(--dur-base) var(--ease-out); }
+.nv-step i img { display: none; width: 16px; height: 16px; filter: invert(1); }
+li[data-s="done"] .nv-step i { background: var(--action); }
+li[data-s="done"] .nv-step i img { display: block; }
+li[data-s="done"] .nv-step i b { display: none; }
+li[data-s="now"] .nv-step i { background: var(--surface); color: var(--action-press); box-shadow: inset 0 0 0 2px var(--action), 0 0 0 5px var(--action-tint); }
+li[data-s="now"] .nv-step, li[data-s="done"] .nv-step { color: var(--ink); }
+li[data-s="now"] .nv-step span { font-weight: 600; }
+
+/* 锚点分类侧栏 */
+.nv-anc { display: grid; grid-template-columns: 88px 1fr; height: 300px; overflow: hidden; }
+.nv-anc__rail { display: grid; align-content: start; gap: var(--s-1); padding: var(--s-2); border-right: 1px solid var(--line); }
+.nv-anc__rail button { min-height: 48px; padding: 0 var(--s-1); border-radius: var(--r-md); font-size: var(--fs-sm); color: var(--ink-2); text-align: center; transition: background var(--dur-quick) var(--ease-out), color var(--dur-quick) var(--ease-out); }
+.nv-anc__rail button[aria-selected="true"] { background: var(--action-tint); color: var(--action-press); font-weight: 600; box-shadow: inset 0 0 0 1px var(--action-edge); }
+.nv-anc__sc { overflow-y: auto; scrollbar-width: none; scroll-behavior: smooth; }
+.nv-anc__sc::-webkit-scrollbar { display: none; }
+.nv-anc__sec h3 { position: sticky; top: 0; z-index: 1; padding: var(--s-3) var(--s-4) var(--s-2); background: var(--surface); font-size: var(--fs-sm); font-weight: 600; color: var(--ink-3); }
+.nv-anc__sec .row { min-height: 64px; padding: var(--s-2) var(--s-3); }
+.nv-anc__sec .row__lead { width: 48px; height: 48px; }
+.nv-anc__sec .row__title { font-size: var(--fs-sm); }
+.nv-anc__pad { height: 220px; }
+
+/* 筛选条 */
+.nv-flt { display: flex; align-items: center; justify-content: space-between; gap: var(--s-1); padding: 0 var(--s-1); }
+.nv-flt > button, .nv-flt .drop__btn { display: inline-flex; align-items: center; gap: var(--s-1); min-height: 48px; padding: 0 var(--s-3); border-radius: var(--r-md); background: none; font-size: var(--fs-sm); color: var(--ink-2); }
+.nv-flt .drop__btn b { font-weight: 400; color: inherit; }
+.nv-flt [data-on] { color: var(--action-press); font-weight: 600; }
+.nv-flt .drop__btn[data-on] b { font-weight: 600; }
+.nv-flt .drop__menu { left: var(--s-1); min-width: 132px; }
+.nv-flt img { width: 18px; height: 18px; }
+.nv-sort { display: inline-grid; gap: 3px; }
+.nv-sort i { width: 6px; height: 6px; border: solid var(--line-strong); border-width: 1.6px 0 0 1.6px; transform: rotate(45deg); }
+.nv-sort i + i { transform: rotate(225deg); }
+[data-s="asc"] .nv-sort i:first-child, [data-s="desc"] .nv-sort i:last-child { border-color: var(--action); }
+.nv-plist { display: grid; margin-top: var(--s-3); }
+.nv-plist .row { min-height: 64px; padding: var(--s-2) var(--s-4); animation: lz-rise var(--dur-base) var(--ease-out) both; }
+.nv-plist .row__lead { width: 48px; height: 48px; }
+
+/* 返回顶部 */
+.nv-up__sc { flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: none; display: grid; grid-template-columns: 1fr 1fr; grid-auto-rows: max-content; align-content: start; gap: var(--s-3); padding: var(--s-4); }
+.nv-up__sc::-webkit-scrollbar { display: none; }
+.nv-up { position: absolute; right: var(--s-4); bottom: var(--s-4); display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; background: conic-gradient(var(--action) calc(var(--p, 0) * 1%), var(--line-strong) 0); box-shadow: var(--elev-2); opacity: 0; transform: scale(.6); pointer-events: none; transition: opacity var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-spring); }
+.nv-up::before { content: ""; position: absolute; inset: 3px; border-radius: 50%; background: var(--surface); }
+.nv-up img { position: relative; width: 22px; height: 22px; transform: rotate(90deg); }
+.nv-up.is-on { opacity: 1; transform: none; pointer-events: auto; }
+.nv-up:active { transform: scale(.92); }
+</style>
+
+<!-- 底栏 -->
+<article class="demo" data-cid="AP-NAVI-001" data-name="五项底栏" data-cat="NAVI">
+  <div class="demo__head"><span class="demo__name">五项底栏</span></div>
+  <p class="demo__note">适合：主导航五个目的地，外层全宽贴底，选中项圆角浅底</p>
+  <div class="demo__stage is-plain nv-st">
+    <div class="nv-screen" data-tabs>
+      <div class="nv-body"><div class="nv-mock"><img src="../../kit/assets/photo/product-rose-red.webp" alt=""><div><i></i><i></i></div></div><div class="nv-mock"><img src="../../kit/assets/photo/product-peony-pink.webp" alt=""><div><i></i><i></i></div></div></div>
+      <nav class="tabbar" aria-label="主导航">
+        <button class="tabbar__item" aria-current="page"><img src="../../kit/assets/line/home.webp" alt=""><span>首页</span></button>
+        <button class="tabbar__item"><img src="../../kit/assets/line/list.webp" alt=""><span>分类</span></button>
+        <button class="tabbar__item"><img src="../../kit/assets/line/archive.webp" alt=""><span>订单</span></button>
+        <button class="tabbar__item"><img src="../../kit/assets/line/message.webp" alt=""><span>助手</span></button>
+        <button class="tabbar__item"><img src="../../kit/assets/line/user.webp" alt=""><span>我的</span></button>
+      </nav>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-NAVI-002" data-name="四项底栏" data-cat="NAVI">
+  <div class="demo__head"><span class="demo__name">四项底栏</span></div>
+  <p class="demo__note">适合：内容型应用，四个主目的地，每项更宽松</p>
+  <div class="demo__stage is-plain nv-st">
+    <div class="nv-screen" data-tabs>
+      <div class="nv-body"><div class="nv-mock"><img src="../../kit/assets/photo/product-sunflower.webp" alt=""><div><i></i><i></i></div></div><div class="nv-mock"><img src="../../kit/assets/photo/product-tulip-white.webp" alt=""><div><i></i><i></i></div></div></div>
+      <nav class="tabbar" aria-label="主导航">
+        <button class="tabbar__item" aria-current="page"><img src="../../kit/assets/line/home.webp" alt=""><span>首页</span></button>
+        <button class="tabbar__item"><img src="../../kit/assets/line/list.webp" alt=""><span>分类</span></button>
+        <button class="tabbar__item"><img src="../../kit/assets/line/archive.webp" alt=""><span>订单</span></button>
+        <button class="tabbar__item"><img src="../../kit/assets/line/user.webp" alt=""><span>我的</span></button>
+      </nav>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-NAVI-003" data-name="三项顶线底栏" data-cat="NAVI">
+  <div class="demo__head"><span class="demo__name">三项顶线底栏</span></div>
+  <p class="demo__note">适合：目的地很少的轻量应用，选中项上方主色线滑动</p>
+  <div class="demo__stage is-plain nv-st">
+    <div class="nv-screen nv-top3" data-tabs data-i="0">
+      <div class="nv-body"><div class="nv-mock"><img src="../../kit/assets/photo/product-hydrangea-blue.webp" alt=""><div><i></i><i></i></div></div><div class="nv-mock"><img src="../../kit/assets/photo/product-monstera.webp" alt=""><div><i></i><i></i></div></div></div>
+      <nav class="tabbar" aria-label="主导航">
+        <i class="nv-line"></i>
+        <button class="tabbar__item" aria-current="page"><img src="../../kit/assets/line/home.webp" alt=""><span>首页</span></button>
+        <button class="tabbar__item"><img src="../../kit/assets/line/message.webp" alt=""><span>消息</span></button>
+        <button class="tabbar__item"><img src="../../kit/assets/line/user.webp" alt=""><span>我的</span></button>
+      </nav>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-NAVI-004" data-name="带角标底栏" data-cat="NAVI">
+  <div class="demo__head"><span class="demo__name">带角标底栏</span></div>
+  <p class="demo__note">适合：有未读与待办的主导航，数字、红点、新标，进入后清除</p>
+  <div class="demo__stage is-plain nv-st">
+    <div class="nv-screen" data-tabs data-clear>
+      <div class="nv-body"><div class="nv-mock"><img src="../../kit/assets/photo/product-succulent.webp" alt=""><div><i></i><i></i></div></div><div class="nv-mock"><img src="../../kit/assets/photo/product-giftbox.webp" alt=""><div><i></i><i></i></div></div></div>
+      <nav class="tabbar" aria-label="主导航">
+        <button class="tabbar__item" aria-current="page"><img src="../../kit/assets/line/home.webp" alt=""><span>首页</span></button>
+        <button class="tabbar__item"><img src="../../kit/assets/line/list.webp" alt=""><span>分类</span><span class="badge" data-b>新</span></button>
+        <button class="tabbar__item"><img src="../../kit/assets/line/archive.webp" alt=""><span>订单</span><i class="nv-dot" data-b></i></button>
+        <button class="tabbar__item"><img src="../../kit/assets/line/message.webp" alt=""><span>消息</span><span class="badge" data-b>3</span></button>
+        <button class="tabbar__item"><img src="../../kit/assets/line/user.webp" alt=""><span>我的</span></button>
+      </nav>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-NAVI-005" data-name="中间凸起底栏" data-cat="NAVI">
+  <div class="demo__head"><span class="demo__name">中间凸起底栏</span></div>
+  <p class="demo__note">适合：有核心高频动作的应用，中间图标圆钮凸起</p>
+  <div class="demo__stage is-plain nv-st">
+    <div class="nv-screen nv-fabbar" data-tabs data-skip="2">
+      <div class="nv-body"><div class="nv-mock"><img src="../../kit/assets/photo/product-pampas-vase.webp" alt=""><div><i></i><i></i></div></div><div class="nv-mock"><img src="../../kit/assets/photo/product-rose-red.webp" alt=""><div><i></i><i></i></div></div></div>
+      <nav class="tabbar" aria-label="主导航">
+        <button class="tabbar__item" aria-current="page"><img src="../../kit/assets/line/home.webp" alt=""><span>首页</span></button>
+        <button class="tabbar__item"><img src="../../kit/assets/line/list.webp" alt=""><span>分类</span></button>
+        <button class="tabbar__item nv-fabitem" data-fab><span class="nv-fab"><img data-ic="bouquet" src="../../kit/assets/icons/flat/bouquet.webp" alt=""></span><span>订花</span></button>
+        <button class="tabbar__item"><img src="../../kit/assets/line/archive.webp" alt=""><span>订单</span></button>
+        <button class="tabbar__item"><img src="../../kit/assets/line/user.webp" alt=""><span>我的</span></button>
+      </nav>
+    </div>
+  </div>
+</article>
+
+<!-- 顶栏 -->
+<article class="demo" data-cid="AP-NAVI-006" data-name="标题顶栏" data-cat="NAVI">
+  <div class="demo__head"><span class="demo__name">标题顶栏</span></div>
+  <p class="demo__note">适合：一级页面，标题靠左，右侧放搜索与消息</p>
+  <div class="demo__stage is-plain nv-st">
+    <div class="nv-screen">
+      <header class="nv-head"><h2>精选花束</h2><div class="nv-head__a"><button class="ibtn" aria-label="搜索" data-tip="搜索"><img src="../../kit/assets/line/search.webp" alt=""></button><button class="ibtn" aria-label="消息" data-tip="消息"><img src="../../kit/assets/line/message.webp" alt=""><span class="badge">2</span></button></div></header>
+      <div class="nv-body"><div class="nv-mock"><img src="../../kit/assets/photo/bouquet-white.webp" alt=""><div><i></i><i></i></div></div><div class="nv-mock"><img src="../../kit/assets/photo/bouquet-tulip.webp" alt=""><div><i></i><i></i></div></div></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-NAVI-007" data-name="返回顶栏" data-cat="NAVI">
+  <div class="demo__head"><span class="demo__name">返回顶栏</span></div>
+  <p class="demo__note">适合：二级详情页，返回固定左上，标题居中，右侧联系客服</p>
+  <div class="demo__stage is-plain nv-st">
+    <div class="nv-screen">
+      <header class="nv-nav"><button class="ibtn" aria-label="返回" data-tip="返回" data-nv-toast="已返回上一页"><img src="../../kit/assets/line/back.webp" alt=""></button><h2>订单详情</h2><button class="ibtn" aria-label="联系客服" data-tip="联系客服" data-nv-toast="已打开客服"><img src="../../kit/assets/line/support.webp" alt=""></button></header>
+      <div class="nv-body"><div class="nv-mock"><img src="../../kit/assets/photo/product-peony-pink.webp" alt=""><div><i></i><i></i></div></div><div class="nv-mock"><img src="../../kit/assets/photo/product-sunflower.webp" alt=""><div><i></i><i></i></div></div></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-NAVI-008" data-name="搜索顶栏" data-cat="NAVI">
+  <div class="demo__head"><span class="demo__name">搜索顶栏</span></div>
+  <p class="demo__note">适合：搜索页与结果页，输入后出现清除，右侧文字按钮提交</p>
+  <div class="demo__stage is-plain nv-st">
+    <div class="nv-screen" id="nv-sb">
+      <header class="nv-sbar"><button class="ibtn" aria-label="返回" data-tip="返回" data-nv-toast="已返回上一页"><img src="../../kit/assets/line/back.webp" alt=""></button><label class="search"><img src="../../kit/assets/line/search.webp" alt=""><input type="search" placeholder="搜索花束、绿植、礼盒" aria-label="搜索花束、绿植、礼盒"><button type="button" hidden aria-label="清除" data-tip="清除"><img src="../../kit/assets/line/close.webp" alt=""></button></label><button class="btn btn--text" type="button">搜索</button></header>
+      <div class="nv-body"><div class="nv-mock"><img src="../../kit/assets/photo/product-tulip-white.webp" alt=""><div><i></i><i></i></div></div><div class="nv-mock"><img src="../../kit/assets/photo/product-hydrangea-blue.webp" alt=""><div><i></i><i></i></div></div></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-NAVI-009" data-name="定位顶栏" data-cat="NAVI">
+  <div class="demo__head"><span class="demo__name">定位顶栏</span></div>
+  <p class="demo__note">适合：按门店配送的首页，定位在左，点开选门店</p>
+  <div class="demo__stage is-plain nv-st">
+    <div class="nv-screen" id="nv-lb">
+      <header class="nv-lbar">
+        <button class="loc" aria-label="切换门店" aria-expanded="false"><img src="../../kit/assets/line/location.webp" alt=""><span class="one-line">建国路店</span><span class="chev"></span></button>
+        <label class="search"><img src="../../kit/assets/line/search.webp" alt=""><input type="search" placeholder="搜索商品" aria-label="搜索商品"></label>
+        <button class="ibtn" aria-label="消息" data-tip="消息"><img src="../../kit/assets/line/message.webp" alt=""><span class="badge">3</span></button>
+        <div class="nv-menu" role="listbox" aria-label="选择门店" hidden>
+          <button role="option" aria-selected="true">建国路店<img src="../../kit/assets/line/check.webp" alt=""></button>
+          <button role="option" aria-selected="false">徐汇滨江店<img src="../../kit/assets/line/check.webp" alt=""></button>
+          <button role="option" aria-selected="false">浦东世纪店<img src="../../kit/assets/line/check.webp" alt=""></button>
+        </div>
+      </header>
+      <div class="nv-body"><div class="nv-mock"><img src="../../kit/assets/photo/product-rose-red.webp" alt=""><div><i></i><i></i></div></div><div class="nv-mock"><img src="../../kit/assets/photo/product-succulent.webp" alt=""><div><i></i><i></i></div></div></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-NAVI-010" data-name="透明叠图顶栏" data-cat="NAVI">
+  <div class="demo__head"><span class="demo__name">透明叠图顶栏</span></div>
+  <p class="demo__note">适合：商品详情首屏大图，向上滑动后渐变为实底并显示标题</p>
+  <div class="demo__stage is-plain nv-st">
+    <div class="nv-screen nv-screen--tall nv-ov" id="nv-ov">
+      <div class="nv-ov__bar"><button class="nv-ov__b" aria-label="返回" data-tip="返回" data-nv-toast="已返回上一页"><img src="../../kit/assets/line/back.webp" alt=""></button><span class="nv-ov__t">红玫瑰花束</span><button class="nv-ov__b" aria-label="分享" data-tip="分享" data-nv-toast="已打开分享"><img src="../../kit/assets/line/upload.webp" alt=""></button></div>
+      <div class="nv-ov__sc">
+        <img class="nv-ov__cover" src="../../kit/assets/photo/scene-hero-pink.webp" alt="">
+        <div class="nv-ov__info"><span class="price" style="font-size: var(--fs-xl)"><small>¥</small>199</span><b>红玫瑰花束</b><div class="nv-ov__tags"><span class="tag" data-tone="price">热卖</span><span class="tag" data-tone="action">2 小时达</span></div></div>
+        <div class="nv-ov__lines"><i style="width:92%"></i><i style="width:76%"></i><i style="width:84%"></i><i style="width:60%"></i><i style="width:88%"></i><i style="width:70%"></i></div>
+      </div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-NAVI-011" data-name="大标题顶栏" data-cat="NAVI">
+  <div class="demo__head"><span class="demo__name">大标题顶栏</span></div>
+  <p class="demo__note">适合：列表型页面，大标题随滚动折叠为居中小标题</p>
+  <div class="demo__stage is-plain nv-st">
+    <div class="nv-screen nv-screen--tall" id="nv-lg">
+      <header class="nv-lg__bar"><button class="ibtn" aria-label="返回" data-tip="返回" data-nv-toast="已返回上一页"><img src="../../kit/assets/line/back.webp" alt=""></button><h2>我的收藏</h2><button class="ibtn" aria-label="搜索" data-tip="搜索" data-nv-toast="已打开搜索"><img src="../../kit/assets/line/search.webp" alt=""></button></header>
+      <div class="nv-lg__sc">
+        <p class="nv-lg__t">我的收藏</p>
+        <div class="card list">
+          <div class="row"><img class="row__lead" src="../../kit/assets/photo/product-rose-red.webp" alt=""><div class="row__main"><p class="row__title one-line">红玫瑰花束</p><p class="row__meta">同城 2 小时达</p></div><div class="row__trail"><span class="price"><small>¥</small>199</span></div></div>
+          <div class="row"><img class="row__lead" src="../../kit/assets/photo/product-peony-pink.webp" alt=""><div class="row__main"><p class="row__title one-line">粉芍药花束</p><p class="row__meta">同城 2 小时达</p></div><div class="row__trail"><span class="price"><small>¥</small>239</span></div></div>
+          <div class="row"><img class="row__lead" src="../../kit/assets/photo/product-sunflower.webp" alt=""><div class="row__main"><p class="row__title one-line">向日葵花束</p><p class="row__meta">同城 2 小时达</p></div><div class="row__trail"><span class="price"><small>¥</small>159</span></div></div>
+          <div class="row"><img class="row__lead" src="../../kit/assets/photo/product-tulip-white.webp" alt=""><div class="row__main"><p class="row__title one-line">白郁金香</p><p class="row__meta">同城 2 小时达</p></div><div class="row__trail"><span class="price"><small>¥</small>179</span></div></div>
+          <div class="row"><img class="row__lead" src="../../kit/assets/photo/product-monstera.webp" alt=""><div class="row__main"><p class="row__title one-line">龟背竹盆栽</p><p class="row__meta">次日达</p></div><div class="row__trail"><span class="price"><small>¥</small>159</span></div></div>
+          <div class="row"><img class="row__lead" src="../../kit/assets/photo/product-succulent.webp" alt=""><div class="row__main"><p class="row__title one-line">多肉组合盆</p><p class="row__meta">次日达</p></div><div class="row__trail"><span class="price"><small>¥</small>89</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</article>
+
+<!-- 标签与分段 -->
+<article class="demo" data-cid="AP-NAVI-012" data-name="滑块分段切换" data-cat="NAVI">
+  <div class="demo__head"><span class="demo__name">滑块分段切换</span></div>
+  <p class="demo__note">适合：同一对象的二至三种方式切换，白色滑块跟随</p>
+  <div class="demo__stage">
+    <div class="nv-sw" id="nv-sw" role="tablist" aria-label="配送方式" data-i="0">
+      <i class="nv-sw__t"></i>
+      <button role="tab" aria-selected="true">同城配送</button>
+      <button role="tab" aria-selected="false">到店自提</button>
+      <button role="tab" aria-selected="false">全国快递</button>
+    </div>
+    <div class="card nv-sw__info"><img data-ic="scooter" src="../../kit/assets/icons/flat/scooter.webp" alt=""><div><b>同城配送</b><span>2 小时内送达</span></div><span class="price"><small>¥</small>8</span></div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-NAVI-013" data-name="胶囊标签栏" data-cat="NAVI">
+  <div class="demo__head"><span class="demo__name">胶囊标签栏</span></div>
+  <p class="demo__note">适合：订单状态等六个以内的类别，单行横滑，只筛选下方内容</p>
+  <div class="demo__stage">
+    <div class="seg" data-seg="nv-ol" data-seg-for="#nv-ol" role="tablist" aria-label="订单状态">
+      <button class="seg__item" data-key="all" aria-selected="true">全部</button>
+      <button class="seg__item" data-key="pay" aria-selected="false">待付款<small>1</small></button>
+      <button class="seg__item" data-key="ship" aria-selected="false">待发货<small>1</small></button>
+      <button class="seg__item" data-key="recv" aria-selected="false">待收货<small>1</small></button>
+      <button class="seg__item" data-key="done" aria-selected="false">已完成</button>
+      <button class="seg__item" data-key="after" aria-selected="false">售后</button>
+    </div>
+    <div class="card list nv-ol" id="nv-ol">
+      <div class="row" data-cat="pay"><img class="row__lead" src="../../kit/assets/photo/product-rose-red.webp" alt=""><div class="row__main"><p class="row__title one-line">红玫瑰花束</p><p class="row__meta">¥199</p></div><span class="tag" data-tone="warning">待付款</span></div>
+      <div class="row" data-cat="ship"><img class="row__lead" src="../../kit/assets/photo/product-peony-pink.webp" alt=""><div class="row__main"><p class="row__title one-line">粉芍药花束</p><p class="row__meta">¥239</p></div><span class="tag" data-tone="info">待发货</span></div>
+      <div class="row" data-cat="recv"><img class="row__lead" src="../../kit/assets/photo/product-monstera.webp" alt=""><div class="row__main"><p class="row__title one-line">龟背竹盆栽</p><p class="row__meta">¥159</p></div><span class="tag" data-tone="action">待收货</span></div>
+      <div class="row" data-cat="done"><img class="row__lead" src="../../kit/assets/photo/product-giftbox.webp" alt=""><div class="row__main"><p class="row__title one-line">花礼盒</p><p class="row__meta">¥259</p></div><span class="tag" data-tone="success">已完成</span></div>
+      <div class="row" data-cat="after"><img class="row__lead" src="../../kit/assets/photo/product-hydrangea-blue.webp" alt=""><div class="row__main"><p class="row__title one-line">蓝绣球盆栽</p><p class="row__meta">¥129</p></div><span class="tag" data-tone="danger">售后</span></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-NAVI-014" data-name="下划线标签栏" data-cat="NAVI">
+  <div class="demo__head"><span class="demo__name">下划线标签栏</span></div>
+  <p class="demo__note">适合：商品详情的分区切换，下划线按文字宽度滑动</p>
+  <div class="demo__stage">
+    <div class="card" id="nv-ul">
+      <div class="nv-ul" role="tablist" aria-label="详情分区">
+        <button role="tab" aria-selected="true" data-k="0"><span>商品</span></button>
+        <button role="tab" aria-selected="false" data-k="1"><span>评价<small>326</small></span></button>
+        <button role="tab" aria-selected="false" data-k="2"><span>详情</span></button>
+        <button role="tab" aria-selected="false" data-k="3"><span>推荐</span></button>
+        <i class="nv-ul__bar"></i>
+      </div>
+      <div class="nv-ulp" role="tabpanel"></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-NAVI-015" data-name="横向步骤条" data-cat="NAVI">
+  <div class="demo__head"><span class="demo__name">横向步骤条</span></div>
+  <p class="demo__note">适合：订单与售后进度，已完成、进行中、未开始三态，可点按切换</p>
+  <div class="demo__stage">
+    <div class="card">
+      <ol class="nv-steps" id="nv-steps" aria-label="订单进度">
+        <li data-s="done"><button class="nv-step"><i><img src="../../kit/assets/line/check.webp" alt=""><b>1</b></i><span>下单</span></button></li>
+        <li data-s="done"><button class="nv-step"><i><img src="../../kit/assets/line/check.webp" alt=""><b>2</b></i><span>支付</span></button></li>
+        <li data-s="now"><button class="nv-step" aria-current="step"><i><img src="../../kit/assets/line/check.webp" alt=""><b>3</b></i><span>配送</span></button></li>
+        <li data-s="todo"><button class="nv-step"><i><img src="../../kit/assets/line/check.webp" alt=""><b>4</b></i><span>签收</span></button></li>
+      </ol>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-NAVI-016" data-name="锚点分类侧栏" data-cat="NAVI">
+  <div class="demo__head"><span class="demo__name">锚点分类侧栏</span></div>
+  <p class="demo__note">适合：商品较多的分类页，点按定位到分区，滚动时侧栏跟随高亮</p>
+  <div class="demo__stage">
+    <div class="card nv-anc" id="nv-anc">
+      <div class="nv-anc__rail" role="tablist" aria-label="商品分区">
+        <button role="tab" aria-selected="true" data-k="0">鲜花</button>
+        <button role="tab" aria-selected="false" data-k="1">绿植</button>
+        <button role="tab" aria-selected="false" data-k="2">礼盒</button>
+        <button role="tab" aria-selected="false" data-k="3">花器</button>
+      </div>
+      <div class="nv-anc__sc">
+        <section class="nv-anc__sec"><h3>鲜花</h3>
+          <div class="row"><img class="row__lead" src="../../kit/assets/photo/product-rose-red.webp" alt=""><div class="row__main"><p class="row__title one-line">红玫瑰花束</p><p class="row__meta"><span class="price"><small>¥</small>199</span></p></div></div>
+          <div class="row"><img class="row__lead" src="../../kit/assets/photo/product-peony-pink.webp" alt=""><div class="row__main"><p class="row__title one-line">粉芍药花束</p><p class="row__meta"><span class="price"><small>¥</small>239</span></p></div></div>
+          <div class="row"><img class="row__lead" src="../../kit/assets/photo/product-sunflower.webp" alt=""><div class="row__main"><p class="row__title one-line">向日葵花束</p><p class="row__meta"><span class="price"><small>¥</small>159</span></p></div></div>
+        </section>
+        <section class="nv-anc__sec"><h3>绿植</h3>
+          <div class="row"><img class="row__lead" src="../../kit/assets/photo/product-hydrangea-blue.webp" alt=""><div class="row__main"><p class="row__title one-line">蓝绣球盆栽</p><p class="row__meta"><span class="price"><small>¥</small>129</span></p></div></div>
+          <div class="row"><img class="row__lead" src="../../kit/assets/photo/product-monstera.webp" alt=""><div class="row__main"><p class="row__title one-line">龟背竹盆栽</p><p class="row__meta"><span class="price"><small>¥</small>159</span></p></div></div>
+          <div class="row"><img class="row__lead" src="../../kit/assets/photo/product-succulent.webp" alt=""><div class="row__main"><p class="row__title one-line">多肉组合盆</p><p class="row__meta"><span class="price"><small>¥</small>89</span></p></div></div>
+        </section>
+        <section class="nv-anc__sec"><h3>礼盒</h3>
+          <div class="row"><img class="row__lead" src="../../kit/assets/photo/product-giftbox.webp" alt=""><div class="row__main"><p class="row__title one-line">花礼盒</p><p class="row__meta"><span class="price"><small>¥</small>259</span></p></div></div>
+          <div class="row"><img class="row__lead" src="../../kit/assets/photo/bouquet-rose.webp" alt=""><div class="row__main"><p class="row__title one-line">玫瑰礼束</p><p class="row__meta"><span class="price"><small>¥</small>219</span></p></div></div>
+        </section>
+        <section class="nv-anc__sec"><h3>花器</h3>
+          <div class="row"><img class="row__lead" src="../../kit/assets/photo/product-pampas-vase.webp" alt=""><div class="row__main"><p class="row__title one-line">干花花瓶摆件</p><p class="row__meta"><span class="price"><small>¥</small>129</span></p></div></div>
+        </section>
+        <div class="nv-anc__pad"></div>
+      </div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-NAVI-017" data-name="单行筛选条" data-cat="NAVI">
+  <div class="demo__head"><span class="demo__name">单行筛选条</span></div>
+  <p class="demo__note">适合：商品列表排序，放不下的条件收进下拉，只影响下方列表</p>
+  <div class="demo__stage">
+    <div class="card nv-flt" id="nv-flt">
+      <div class="drop" data-key="comp">
+        <button class="drop__btn"><b>综合排序</b></button>
+        <div class="drop__menu" role="listbox">
+          <button class="drop__opt" data-k="comp">综合排序</button>
+          <button class="drop__opt" data-k="rate">好评优先</button>
+          <button class="drop__opt" data-k="near">距离最近</button>
+        </div>
+      </div>
+      <button data-sales>销量</button>
+      <button data-price>价格<span class="nv-sort"><i></i><i></i></span></button>
+      <button data-more><img src="../../kit/assets/line/filter.webp" alt="">筛选</button>
+    </div>
+    <div class="card list nv-plist" id="nv-plist"></div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-NAVI-018" data-name="返回顶部按钮" data-cat="NAVI">
+  <div class="demo__head"><span class="demo__name">返回顶部按钮</span></div>
+  <p class="demo__note">适合：长列表页，滚动后出现，圆环显示阅读进度</p>
+  <div class="demo__stage is-plain nv-st">
+    <div class="nv-screen nv-screen--tall" id="nv-up">
+      <div class="nv-up__sc">
+        <div class="nv-mock"><img src="../../kit/assets/photo/product-rose-red.webp" alt=""><div><i></i><i></i></div></div>
+        <div class="nv-mock"><img src="../../kit/assets/photo/product-peony-pink.webp" alt=""><div><i></i><i></i></div></div>
+        <div class="nv-mock"><img src="../../kit/assets/photo/product-sunflower.webp" alt=""><div><i></i><i></i></div></div>
+        <div class="nv-mock"><img src="../../kit/assets/photo/product-tulip-white.webp" alt=""><div><i></i><i></i></div></div>
+        <div class="nv-mock"><img src="../../kit/assets/photo/product-hydrangea-blue.webp" alt=""><div><i></i><i></i></div></div>
+        <div class="nv-mock"><img src="../../kit/assets/photo/product-monstera.webp" alt=""><div><i></i><i></i></div></div>
+        <div class="nv-mock"><img src="../../kit/assets/photo/product-succulent.webp" alt=""><div><i></i><i></i></div></div>
+        <div class="nv-mock"><img src="../../kit/assets/photo/product-pampas-vase.webp" alt=""><div><i></i><i></i></div></div>
+        <div class="nv-mock"><img src="../../kit/assets/photo/product-giftbox.webp" alt=""><div><i></i><i></i></div></div>
+        <div class="nv-mock"><img src="../../kit/assets/photo/product-rose-red.webp" alt=""><div><i></i><i></i></div></div>
+      </div>
+      <button class="nv-up" aria-label="返回顶部" data-tip="返回顶部"><img src="../../kit/assets/line/back.webp" alt=""></button>
+    </div>
+  </div>
+</article>
+
+<script>
+(function () {
+  var $ = function (s, r) { return (r || document).querySelector(s); }, $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var PH = ['product-rose-red', 'product-peony-pink', 'product-sunflower', 'product-tulip-white', 'product-hydrangea-blue', 'product-monstera'];
+  var PHOTO = '../../kit/assets/photo/';
+  var clamp = function (v, a, b) { return Math.min(b, Math.max(a, v)); };
+  function icon(img, name) { img.dataset.ic = name; img.src = '../../kit/assets/icons/' + Lz.iconSet() + '/' + name + '.webp'; }
+
+  // 底栏：切换选中项，页面示意随之换图；带角标的项进入后清除角标
+  $$('.nv-screen[data-tabs]').forEach(function (sc) {
+    var tabs = $$('.tabbar__item', sc), imgs = $$('.nv-mock img', sc), body = $('.nv-body', sc), pos = 0;
+    tabs.forEach(function (t, i) {
+      t.addEventListener('click', function () {
+        if (t.hasAttribute('data-fab')) { Lz.toast('开始订花'); return; }
+        tabs.forEach(function (x) { if (x === t) x.setAttribute('aria-current', 'page'); else x.removeAttribute('aria-current'); });
+        var k = tabs.filter(function (x) { return !x.hasAttribute('data-fab'); }).indexOf(t);
+        sc.dataset.i = k;
+        imgs.forEach(function (im, j) { im.src = PHOTO + PH[(k * 2 + j + 1) % PH.length] + '.webp'; });
+        body.classList.remove('nv-swap'); void body.offsetWidth; body.classList.add('nv-swap');
+        if (sc.hasAttribute('data-clear')) $$('[data-b]', t).forEach(function (b) { b.classList.add('nv-gone'); setTimeout(function () { b.remove(); }, 160); });
+      });
+    });
+  });
+
+  // 顶栏图标：给出轻提示
+  $$('[data-nv-toast]').forEach(function (b) { b.addEventListener('click', function () { Lz.toast(b.dataset.nvToast); }); });
+
+  // 搜索顶栏：清除与提交
+  (function () {
+    var host = $('#nv-sb'); if (!host) return;
+    var inp = $('input', host), clr = $('.search button', host), go = $('.btn--text', host);
+    inp.addEventListener('input', function () { clr.hidden = !inp.value; });
+    clr.addEventListener('click', function () { inp.value = ''; clr.hidden = true; inp.focus(); });
+    function submit() { var v = inp.value.trim(); Lz.toast(v ? '搜索 ' + v : '请输入关键词', v ? 'success' : 'danger'); }
+    go.addEventListener('click', submit);
+    inp.addEventListener('keydown', function (e) { if (e.key === 'Enter' && !e.isComposing) submit(); });
+  })();
+
+  // 定位顶栏：选门店
+  (function () {
+    var host = $('#nv-lb'); if (!host) return;
+    var loc = $('.loc', host), menu = $('.nv-menu', host), label = $('.loc span', host);
+    var toggle = function (open) { menu.hidden = !open; loc.setAttribute('aria-expanded', String(open)); };
+    loc.addEventListener('click', function (e) { e.stopPropagation(); toggle(menu.hidden); });
+    $$('button', menu).forEach(function (b) {
+      b.addEventListener('click', function () {
+        $$('button', menu).forEach(function (x) { x.setAttribute('aria-selected', String(x === b)); });
+        label.textContent = b.firstChild.textContent; toggle(false); loc.focus();
+      });
+    });
+    document.addEventListener('click', function (e) { if (!menu.hidden && !menu.contains(e.target)) toggle(false); });
+    host.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !menu.hidden) { toggle(false); loc.focus(); } });
+  })();
+
+  // 透明叠图顶栏
+  (function () {
+    var host = $('#nv-ov'); if (!host) return;
+    var sc = $('.nv-ov__sc', host), bar = $('.nv-ov__bar', host);
+    function sync() { var p = clamp((sc.scrollTop - 60) / 70, 0, 1); bar.style.setProperty('--p', p); host.classList.toggle('is-solid', p > .6); }
+    sc.addEventListener('scroll', sync, { passive: true }); sync();
+  })();
+
+  // 大标题顶栏
+  (function () {
+    var host = $('#nv-lg'); if (!host) return;
+    var sc = $('.nv-lg__sc', host);
+    function sync() { host.style.setProperty('--p', clamp(sc.scrollTop / 34, 0, 1)); }
+    sc.addEventListener('scroll', sync, { passive: true }); sync();
+  })();
+
+  // 滑块分段切换
+  (function () {
+    var host = $('#nv-sw'); if (!host) return;
+    var tabs = $$('[role="tab"]', host), card = host.parentElement.querySelector('.nv-sw__info');
+    var data = [['scooter', '同城配送', '2 小时内送达', '8'], ['pin', '到店自提', '建国路店', '0'], ['bag', '全国快递', '次日达', '12']];
+    function set(i) {
+      host.dataset.i = i; tabs.forEach(function (t, j) { t.setAttribute('aria-selected', String(j === i)); t.tabIndex = j === i ? 0 : -1; });
+      var d = data[i]; icon($('img', card), d[0]); $('b', card).textContent = d[1]; $('div span', card).textContent = d[2];
+      $('.price', card).innerHTML = d[3] === '0' ? '免费' : '<small>¥</small>' + d[3];
+    }
+    tabs.forEach(function (t, i) {
+      t.addEventListener('click', function () { set(i); });
+      t.addEventListener('keydown', function (e) { var d = { ArrowRight: 1, ArrowLeft: -1 }[e.key]; if (!d) return; var n = (i + d + tabs.length) % tabs.length; set(n); tabs[n].focus(); e.preventDefault(); });
+    });
+    set(0);
+  })();
+
+  // 下划线标签栏
+  (function () {
+    var host = $('#nv-ul'); if (!host) return;
+    var tabs = $$('[role="tab"]', host), bar = $('.nv-ul__bar', host), panel = $('.nv-ulp', host);
+    var views = [
+      '<div class="row"><img class="row__lead" src="' + PHOTO + 'product-rose-red.webp" alt=""><div class="row__main"><p class="row__title">红玫瑰花束</p><p class="row__meta">19 枝 牛皮纸包装</p></div><span class="price"><small>¥</small>199</span></div>',
+      '<div class="nv-ulp__kv"><span>好评率</span><b>98%</b></div><div class="nv-ulp__kv"><span>带图评价</span><b>128 条</b></div><div class="nv-ulp__kv"><span>追加评价</span><b>41 条</b></div>',
+      '<div class="nv-ulp__kv"><span>花材</span><b>红玫瑰 配尤加利</b></div><div class="nv-ulp__kv"><span>花期</span><b>5 至 7 天</b></div><div class="nv-ulp__kv"><span>配送</span><b>同城 2 小时</b></div>',
+      '<div class="nv-ulp__tn"><img src="' + PHOTO + 'product-peony-pink.webp" alt=""><img src="' + PHOTO + 'product-sunflower.webp" alt=""><img src="' + PHOTO + 'product-tulip-white.webp" alt=""></div>'
+    ];
+    function place(btn) { var t = $('span', btn); bar.style.width = t.offsetWidth + 'px'; bar.style.transform = 'translateX(' + (btn.offsetLeft + (btn.offsetWidth - t.offsetWidth) / 2) + 'px)'; }
+    function set(i, instant) {
+      tabs.forEach(function (t, j) { t.setAttribute('aria-selected', String(j === i)); t.tabIndex = j === i ? 0 : -1; });
+      if (instant) bar.style.transition = 'none'; place(tabs[i]); if (instant) { void bar.offsetWidth; bar.style.transition = ''; }
+      panel.style.animation = 'none'; void panel.offsetWidth; panel.style.animation = ''; panel.innerHTML = views[i];
+    }
+    tabs.forEach(function (t, i) {
+      t.addEventListener('click', function () { set(i); });
+      t.addEventListener('keydown', function (e) { var d = { ArrowRight: 1, ArrowLeft: -1 }[e.key]; if (!d) return; var n = clamp(i + d, 0, tabs.length - 1); set(n); tabs[n].focus(); e.preventDefault(); });
+    });
+    set(0, true); new ResizeObserver(function () { place(tabs.filter(function (t) { return t.getAttribute('aria-selected') === 'true'; })[0]); }).observe(host);
+  })();
+
+  // 步骤条：点按设为当前步，之前的为已完成
+  (function () {
+    var host = $('#nv-steps'); if (!host) return;
+    var items = $$('li', host);
+    items.forEach(function (li, i) {
+      $('.nv-step', li).addEventListener('click', function () {
+        items.forEach(function (x, j) {
+          x.dataset.s = j < i ? 'done' : j === i ? 'now' : 'todo';
+          var b = $('.nv-step', x); if (j === i) b.setAttribute('aria-current', 'step'); else b.removeAttribute('aria-current');
+        });
+      });
+    });
+  })();
+
+  // 锚点分类侧栏：点按定位，滚动时高亮
+  (function () {
+    var host = $('#nv-anc'); if (!host) return;
+    var sc = $('.nv-anc__sc', host), tabs = $$('.nv-anc__rail button', host), secs = $$('.nv-anc__sec', host), lock = 0;
+    function mark(i) { tabs.forEach(function (t, j) { t.setAttribute('aria-selected', String(j === i)); }); }
+    tabs.forEach(function (t, i) { t.addEventListener('click', function () { lock = Date.now() + 600; mark(i); sc.scrollTo({ top: secs[i].offsetTop, behavior: Lz.reduce ? 'auto' : 'smooth' }); }); });
+    sc.addEventListener('scroll', function () {
+      if (Date.now() < lock) return;
+      var cur = 0; secs.forEach(function (s, i) { if (s.offsetTop - 12 <= sc.scrollTop) cur = i; }); mark(cur);
+    }, { passive: true });
+  })();
+
+  // 单行筛选条：排序真实改变下方列表
+  (function () {
+    var host = $('#nv-flt'); if (!host) return;
+    var list = $('#nv-plist'), drop = $('.drop', host), sales = $('[data-sales]', host), price = $('[data-price]', host), more = $('[data-more]', host);
+    var all = [['红玫瑰花束', 199, 2860, 98, 1.2, 'product-rose-red'], ['粉芍药花束', 239, 1890, 99, 2.4, 'product-peony-pink'], ['向日葵花束', 159, 2214, 96, .8, 'product-sunflower'], ['白郁金香', 179, 1530, 97, 3.1, 'product-tulip-white']];
+    var st = { base: 'comp', sales: false, price: '' };
+    function render() {
+      var a = all.slice();
+      if (st.price) a.sort(function (x, y) { return st.price === 'asc' ? x[1] - y[1] : y[1] - x[1]; });
+      else if (st.sales) a.sort(function (x, y) { return y[2] - x[2]; });
+      else if (st.base === 'rate') a.sort(function (x, y) { return y[3] - x[3]; });
+      else if (st.base === 'near') a.sort(function (x, y) { return x[4] - y[4]; });
+      list.innerHTML = a.map(function (p, i) {
+        return '<div class="row" style="animation-delay:' + i * 40 + 'ms"><img class="row__lead" src="' + PHOTO + p[5] + '.webp" alt=""><div class="row__main"><p class="row__title one-line">' + p[0] + '</p><p class="row__meta">已售 ' + p[2] + ' 好评 ' + p[3] + '%</p></div><span class="price"><small>¥</small>' + p[1] + '</span></div>';
+      }).join('');
+      sales.toggleAttribute('data-on', st.sales && !st.price); price.toggleAttribute('data-on', !!st.price); price.dataset.s = st.price;
+      $('.drop__btn', drop).toggleAttribute('data-on', st.base !== 'comp' && !st.sales && !st.price);
+    }
+    drop.addEventListener('lz:drop', function (e) { var k = $('[aria-selected="true"]', drop); st.base = k ? k.dataset.k : 'comp'; st.sales = false; st.price = ''; render(); });
+    sales.addEventListener('click', function () { st.sales = !st.sales; st.price = ''; render(); });
+    price.addEventListener('click', function () { st.price = st.price === '' ? 'asc' : st.price === 'asc' ? 'desc' : ''; st.sales = false; render(); });
+    more.addEventListener('click', function () { var on = more.hasAttribute('data-on'); more.toggleAttribute('data-on', !on); Lz.toast(on ? '已清除筛选' : '已打开筛选页'); });
+    render();
+  })();
+
+  // 返回顶部
+  (function () {
+    var host = $('#nv-up'); if (!host) return;
+    var sc = $('.nv-up__sc', host), btn = $('.nv-up', host);
+    function sync() { var max = sc.scrollHeight - sc.clientHeight; btn.style.setProperty('--p', max > 0 ? sc.scrollTop / max * 100 : 0); btn.classList.toggle('is-on', sc.scrollTop > 90); }
+    sc.addEventListener('scroll', sync, { passive: true }); sync();
+    btn.addEventListener('click', function () { sc.scrollTo({ top: 0, behavior: Lz.reduce ? 'auto' : 'smooth' }); });
+  })();
+})();
+</script>
+
+<style>
+/* 新增：下拉筛选、吸顶标签、已选条件、纵向步骤、页码点、翻页器；类名带 nv-dd- nv-sk- nv-ct- nv-vs- nv-pd- nv-pn- */
+@keyframes nv-drop { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
+
+/* 下拉筛选菜单：选项层贴着筛选条展开，下方列表压暗但不移动 */
+.nv-dd { position: relative; overflow: hidden; }
+.nv-dd__bar { display: grid; grid-template-columns: repeat(3, 1fr); border-bottom: 1px solid var(--line); background: var(--surface); }
+.nv-dd__t { display: inline-flex; align-items: center; justify-content: center; gap: var(--s-1); min-height: 48px; padding: 0 var(--s-2); font-size: var(--fs-sm); color: var(--ink-2); white-space: nowrap; transition: color var(--dur-quick) var(--ease-out); }
+.nv-dd__t::after { content: ""; width: 6px; height: 6px; border: solid var(--ink-3); border-width: 0 1.6px 1.6px 0; transform: rotate(45deg) translate(-1px, -1px); transition: transform var(--dur-base) var(--ease-out), border-color var(--dur-quick) var(--ease-out); }
+.nv-dd__t[aria-expanded="true"] { color: var(--ink); font-weight: 600; }
+.nv-dd__t[aria-expanded="true"]::after { transform: rotate(225deg) translate(-1px, -1px); border-color: var(--ink); }
+.nv-dd__t[data-on] { color: var(--action-press); font-weight: 600; }
+.nv-dd__t[data-on]::after { border-color: var(--action); }
+.nv-dd__list { min-height: 240px; }
+.nv-dd__list .row { min-height: 60px; padding: var(--s-2) var(--s-4); animation: lz-rise var(--dur-base) var(--ease-out) both; }
+.nv-dd__none { display: grid; justify-items: center; align-content: center; gap: var(--s-3); min-height: 240px; font-size: var(--fs-sm); color: var(--ink-3); }
+.nv-dd__mask { position: absolute; z-index: 4; left: 0; right: 0; top: 49px; bottom: 0; background: color-mix(in srgb, var(--ink) 34%, transparent); animation: lz-fade var(--dur-quick) var(--ease-out) both; }
+.nv-dd__layer { position: absolute; z-index: 5; left: 0; right: 0; top: 49px; overflow: hidden; border-radius: 0 0 var(--r-md) var(--r-md); background: var(--surface); box-shadow: var(--elev-2); animation: nv-drop var(--dur-base) var(--ease-out) both; }
+.nv-dd__opt { display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 48px; padding: 0 var(--s-4); font-size: var(--fs-md); text-align: left; transition: background var(--dur-quick) var(--ease-out); }
+.nv-dd__opt + .nv-dd__opt { border-top: 1px solid var(--line); }
+.nv-dd__opt img { width: 18px; height: 18px; opacity: 0; }
+.nv-dd__opt[aria-selected="true"] { background: var(--action-tint); color: var(--action-press); font-weight: 600; }
+.nv-dd__opt[aria-selected="true"] img { opacity: 1; }
+@media (hover: hover) { .nv-dd__opt:not([aria-selected="true"]):hover { background: var(--zone); } }
+.nv-dd__grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s-2); padding: var(--s-4); }
+.nv-dd__chip { min-height: 40px; padding: 0 var(--s-2); border-radius: var(--r-md); background: var(--zone); font-size: var(--fs-sm); color: var(--ink-2); white-space: nowrap; transition: background var(--dur-quick) var(--ease-out), box-shadow var(--dur-quick) var(--ease-out); }
+.nv-dd__chip[aria-selected="true"], .nv-dd__chip[aria-pressed="true"] { background: var(--action-tint); box-shadow: inset 0 0 0 1.5px var(--action); color: var(--action-press); font-weight: 600; }
+.nv-dd__chip:active { transform: scale(.96); }
+.nv-dd__foot { display: flex; gap: var(--s-2); padding: 0 var(--s-4) var(--s-4); }
+.nv-dd__foot .btn { flex: 1; }
+
+/* 吸顶分类标签栏：滚过头图后标签贴住顶部，滚动时高亮跟随 */
+.nv-sk__sc { position: relative; flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: none; }
+.nv-sk__sc::-webkit-scrollbar { display: none; }
+.nv-sk__cover { display: block; width: 100%; height: 104px; object-fit: cover; }
+.nv-sk__tabs { position: sticky; top: 0; z-index: 3; display: grid; grid-template-columns: repeat(4, 1fr); background: var(--bg); border-bottom: 1px solid transparent; transition: box-shadow var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out); }
+.nv-sk__tabs.is-stuck { border-bottom-color: var(--line); box-shadow: var(--elev-1); }
+.nv-sk__tabs button { position: relative; min-height: 48px; font-size: var(--fs-md); color: var(--ink-2); transition: color var(--dur-quick) var(--ease-out); }
+.nv-sk__tabs button[aria-selected="true"] { color: var(--ink); font-weight: 600; }
+.nv-sk__tabs button[aria-selected="true"]::after { content: ""; position: absolute; left: 50%; bottom: 6px; width: 20px; height: 3px; margin-left: -10px; border-radius: 3px; background: var(--action); }
+.nv-sk__sec { padding: var(--s-3) var(--s-4) 0; }
+.nv-sk__sec h3 { padding: 0 0 var(--s-2) var(--s-1); font-size: var(--fs-md); font-weight: 600; line-height: var(--lh-tight); }
+.nv-sk__sec .row { min-height: 64px; padding: var(--s-2) var(--s-3); }
+.nv-sk__sec .row__lead { width: 48px; height: 48px; }
+.nv-sk__pad { height: 120px; }
+
+/* 已选条件标签条：单行，放不下的收进“更多”下拉 */
+.nv-ct { position: relative; }
+.nv-ct__bar { display: flex; align-items: center; gap: var(--s-2); padding: var(--s-3); }
+.nv-ct__chips { flex: 1; min-width: 0; display: flex; align-items: center; gap: var(--s-2); overflow: hidden; }
+.nv-ct__chip, .nv-ct__more { flex: none; display: inline-flex; align-items: center; gap: 2px; min-height: 32px; border-radius: var(--r-full); font-size: var(--fs-sm); font-weight: 500; white-space: nowrap; transition: opacity var(--dur-quick) var(--ease-out), transform var(--dur-quick) var(--ease-out), background var(--dur-quick) var(--ease-out); }
+.nv-ct__chip { padding: 0 4px 0 var(--s-3); background: var(--action-tint); box-shadow: inset 0 0 0 1px var(--action-edge); color: var(--action-press); }
+.nv-ct__chip.is-out { opacity: 0; transform: scale(.8); }
+.nv-ct__x { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; transition: background var(--dur-quick) var(--ease-out); }
+.nv-ct__x img { width: 12px; height: 12px; }
+@media (hover: hover) { .nv-ct__x:hover { background: var(--action-soft); } }
+.nv-ct__more { padding: 0 var(--s-3); background: var(--zone); color: var(--ink-2); }
+.nv-ct__more[aria-expanded="true"] { background: var(--action-soft); color: var(--action-press); }
+.nv-ct__none { padding-left: var(--s-1); font-size: var(--fs-sm); color: var(--ink-3); }
+.nv-ct__clear { flex: none; min-height: 32px; }
+.nv-ct__sum { display: flex; align-items: center; min-height: 36px; padding: 0 var(--s-4); border-top: 1px solid var(--line); font-size: var(--fs-sm); color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.nv-ct__list { min-height: 112px; }
+.nv-ct__list .row { min-height: 56px; padding: var(--s-2) var(--s-4); animation: lz-rise var(--dur-base) var(--ease-out) both; }
+.nv-ct__list .row__lead { width: 40px; height: 40px; }
+.nv-ct__pop { position: absolute; z-index: 6; top: 52px; left: var(--s-3); width: 208px; padding: var(--s-1); border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface); box-shadow: var(--elev-3); animation: nv-drop var(--dur-quick) var(--ease-out) both; }
+.nv-ct__pr { display: flex; align-items: center; justify-content: space-between; min-height: 44px; padding: 0 var(--s-1) 0 var(--s-3); border-radius: var(--r-sm); font-size: var(--fs-sm); }
+
+/* 纵向步骤条 */
+.nv-vs { padding: var(--s-4); }
+.nv-vs .seg { padding: 0; margin-bottom: var(--s-4); }
+.nv-vs__list { display: grid; }
+.nv-vs__it { position: relative; display: grid; grid-template-columns: 28px 1fr auto; column-gap: var(--s-3); width: 100%; padding-bottom: var(--s-5); text-align: left; border-radius: var(--r-md); }
+li:last-child > .nv-vs__it { padding-bottom: 0; }
+.nv-vs__it::before { content: ""; position: absolute; left: 13px; top: 32px; bottom: 4px; width: 2px; border-radius: 2px; background: var(--line-strong); transition: background var(--dur-slow) var(--ease-out); }
+li:last-child > .nv-vs__it::before { display: none; }
+.nv-vs__it[data-s="done"]::before { background: var(--action); }
+.nv-vs__dot { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--zone); transition: background var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out); }
+.nv-vs__dot b { font-size: var(--fs-sm); font-weight: 600; color: var(--ink-3); }
+.nv-vs__dot img { display: none; width: 14px; height: 14px; filter: invert(1); }
+.nv-vs__it[data-s="done"] .nv-vs__dot { background: var(--action); }
+.nv-vs__it[data-s="done"] .nv-vs__dot img { display: block; }
+.nv-vs__it[data-s="done"] .nv-vs__dot b { display: none; }
+.nv-vs__it[data-s="now"] .nv-vs__dot { background: var(--surface); box-shadow: inset 0 0 0 2px var(--action), 0 0 0 5px var(--action-tint); }
+.nv-vs__it[data-s="now"] .nv-vs__dot b { color: var(--action-press); }
+.nv-vs__t { min-width: 0; }
+.nv-vs__t b { display: block; font-size: var(--fs-md); font-weight: 600; line-height: 28px; }
+.nv-vs__it[data-s="todo"] .nv-vs__t b { font-weight: 500; color: var(--ink-3); }
+.nv-vs__t small { display: block; font-size: var(--fs-sm); line-height: 1.45; color: var(--ink-3); }
+.nv-vs__tm { font-size: var(--fs-sm); line-height: 28px; color: var(--ink-3); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.nv-vs__it[data-s="now"] .nv-vs__tm { color: var(--action-press); font-weight: 600; }
+
+/* 页码指示点：同一页码驱动四种样式 */
+.nv-pd { display: grid; gap: var(--s-3); padding: var(--s-4); }
+.nv-pd__view { position: relative; overflow: hidden; border-radius: var(--r-md); background: var(--zone); }
+.nv-pd__img { display: block; width: 100%; aspect-ratio: 2 / 1; object-fit: cover; object-position: center 42%; animation: lz-fade var(--dur-base) var(--ease-out) both; }
+.nv-pd__cap { position: absolute; left: var(--s-3); bottom: var(--s-3); height: 28px; padding: 0 var(--s-3); border-radius: var(--r-full); background: color-mix(in srgb, var(--ink) 56%, transparent); color: var(--surface); font-size: var(--fs-sm); line-height: 28px; }
+.nv-pd__nav { position: absolute; top: 50%; display: grid; place-items: center; width: 32px; height: 32px; margin-top: -16px; border-radius: 50%; background: color-mix(in srgb, var(--surface) 90%, transparent); box-shadow: var(--elev-1); transition: transform var(--dur-instant) var(--ease-out); }
+.nv-pd__nav--l { left: var(--s-2); }
+.nv-pd__nav--r { right: var(--s-2); }
+.nv-pd__nav .chev::after { margin: 0; }
+.nv-pd__nav--l .chev::after { transform: rotate(135deg); }
+.nv-pd__nav:active { transform: scale(.92); }
+.nv-pd__rows { display: grid; }
+.nv-pd__r { display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; min-height: 44px; }
+.nv-pd__r + .nv-pd__r { border-top: 1px solid var(--line); }
+.nv-pd__r > span { font-size: var(--fs-sm); color: var(--ink-3); }
+.nv-pd__i { display: flex; align-items: center; justify-content: center; }
+.nv-pd__i button { display: grid; place-items: center; height: 32px; }
+.nv-pd__i--dots button { width: 22px; }
+.nv-pd__i--dots button::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--line-strong); transition: background var(--dur-quick) var(--ease-out), transform var(--dur-base) var(--ease-spring); }
+.nv-pd__i--dots button[aria-selected="true"]::before { background: var(--action); transform: scale(1.25); }
+.nv-pd__i--bar button { width: 26px; }
+.nv-pd__i--bar button::before { content: ""; width: 18px; height: 4px; border-radius: var(--r-full); background: var(--line-strong); transition: width var(--dur-base) var(--ease-out), background var(--dur-quick) var(--ease-out); }
+.nv-pd__i--bar button[aria-selected="true"]::before { width: 26px; background: var(--action); }
+.nv-pd__i--seg { gap: var(--s-1); }
+.nv-pd__i--seg button { width: 40px; }
+.nv-pd__i--seg button::before { content: ""; width: 100%; height: 4px; border-radius: var(--r-full); background: var(--line-strong); transition: background var(--dur-base) var(--ease-out); }
+.nv-pd__i--seg button[data-s="done"]::before { background: var(--action-edge); }
+.nv-pd__i--seg button[data-s="now"]::before { background: var(--action); }
+.nv-pd__num { height: 28px; padding: 0 var(--s-3); border-radius: var(--r-full); background: color-mix(in srgb, var(--ink) 56%, transparent); color: var(--surface); font-size: var(--fs-sm); line-height: 28px; font-variant-numeric: tabular-nums; }
+
+/* 底部翻页器 */
+.nv-pn { overflow: hidden; }
+.nv-pn__list { min-height: 280px; }
+.nv-pn__list .row { min-height: 56px; padding: var(--s-2) var(--s-4); animation: lz-fade var(--dur-base) var(--ease-out) both; }
+.nv-pn__amt { font-weight: 600; font-variant-numeric: tabular-nums; }
+.nv-pn__amt[data-up] { color: var(--success); }
+.nv-pn__list .row__trail small { font-size: var(--fs-xs); color: var(--ink-3); }
+.nv-pn__bar { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: var(--s-3); padding: var(--s-3) var(--s-4); border-top: 1px solid var(--line); }
+.nv-pn__bar .btn:first-child { justify-self: start; }
+.nv-pn__bar .btn:last-child { justify-self: end; }
+.nv-pn__bar .btn { padding: 0 var(--s-4); }
+.nv-pn__mid { font-size: var(--fs-sm); color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.nv-pn__mid b { font-size: var(--fs-md); font-weight: 600; color: var(--ink); }
+</style>
+
+<article class="demo" data-cid="AP-NAVI-019" data-name="下拉筛选菜单" data-cat="NAVI">
+  <div class="demo__head"><span class="demo__name">下拉筛选菜单</span></div>
+  <p class="demo__note">适合：筛选条点击后在条下就近展开选项层，选中条件常显</p>
+  <div class="demo__stage">
+    <div class="card nv-dd" id="nv-dd">
+      <div class="nv-dd__bar" role="toolbar" aria-label="筛选条件">
+        <button type="button" class="nv-dd__t" data-k="sort" aria-haspopup="listbox" aria-expanded="false" aria-controls="nv-dd-layer"><span>综合排序</span></button>
+        <button type="button" class="nv-dd__t" data-k="cat" aria-haspopup="listbox" aria-expanded="false" aria-controls="nv-dd-layer"><span>全部品类</span></button>
+        <button type="button" class="nv-dd__t" data-k="scene" aria-haspopup="true" aria-expanded="false" aria-controls="nv-dd-layer"><span>适用场景</span></button>
+      </div>
+      <div class="nv-dd__list" aria-live="polite"></div>
+      <div class="nv-dd__mask" hidden></div>
+      <div class="nv-dd__layer" id="nv-dd-layer" hidden></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-NAVI-020" data-name="吸顶分类标签栏" data-cat="NAVI">
+  <div class="demo__head"><span class="demo__name">吸顶分类标签栏</span></div>
+  <p class="demo__note">适合：长页滚动时分类标签贴住顶部，点按定位到分区</p>
+  <div class="demo__stage is-plain nv-st">
+    <div class="nv-screen nv-screen--tall" id="nv-sk">
+      <div class="nv-sk__sc">
+        <img class="nv-sk__cover" src="../../kit/assets/photo/bg-floral.webp" alt="">
+        <div class="nv-sk__tabs" role="tablist" aria-label="商品分类">
+          <button type="button" role="tab" aria-selected="true">鲜花</button>
+          <button type="button" role="tab" aria-selected="false" tabindex="-1">绿植</button>
+          <button type="button" role="tab" aria-selected="false" tabindex="-1">礼盒</button>
+          <button type="button" role="tab" aria-selected="false" tabindex="-1">花器</button>
+        </div>
+        <section class="nv-sk__sec"><h3>鲜花</h3>
+          <div class="card list">
+            <div class="row"><img class="row__lead" src="../../kit/assets/photo/product-rose-red.webp" alt=""><div class="row__main"><p class="row__title one-line">红玫瑰花束</p><p class="row__meta">同城 2 小时达</p></div><span class="price"><small>¥</small>199</span></div>
+            <div class="row"><img class="row__lead" src="../../kit/assets/photo/product-peony-pink.webp" alt=""><div class="row__main"><p class="row__title one-line">粉芍药花束</p><p class="row__meta">同城 2 小时达</p></div><span class="price"><small>¥</small>239</span></div>
+          </div>
+        </section>
+        <section class="nv-sk__sec"><h3>绿植</h3>
+          <div class="card list">
+            <div class="row"><img class="row__lead" src="../../kit/assets/photo/product-monstera.webp" alt=""><div class="row__main"><p class="row__title one-line">龟背竹盆栽</p><p class="row__meta">次日达</p></div><span class="price"><small>¥</small>159</span></div>
+            <div class="row"><img class="row__lead" src="../../kit/assets/photo/product-succulent.webp" alt=""><div class="row__main"><p class="row__title one-line">多肉组合盆</p><p class="row__meta">次日达</p></div><span class="price"><small>¥</small>89</span></div>
+          </div>
+        </section>
+        <section class="nv-sk__sec"><h3>礼盒</h3>
+          <div class="card list">
+            <div class="row"><img class="row__lead" src="../../kit/assets/photo/product-giftbox.webp" alt=""><div class="row__main"><p class="row__title one-line">花礼盒</p><p class="row__meta">同城 2 小时达</p></div><span class="price"><small>¥</small>259</span></div>
+            <div class="row"><img class="row__lead" src="../../kit/assets/photo/bouquet-rose.webp" alt=""><div class="row__main"><p class="row__title one-line">玫瑰礼束</p><p class="row__meta">同城 2 小时达</p></div><span class="price"><small>¥</small>219</span></div>
+          </div>
+        </section>
+        <section class="nv-sk__sec"><h3>花器</h3>
+          <div class="card list">
+            <div class="row"><img class="row__lead" src="../../kit/assets/photo/product-pampas-vase.webp" alt=""><div class="row__main"><p class="row__title one-line">干花花瓶摆件</p><p class="row__meta">次日达</p></div><span class="price"><small>¥</small>129</span></div>
+          </div>
+        </section>
+        <div class="nv-sk__pad"></div>
+      </div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-NAVI-021" data-name="已选条件标签条" data-cat="NAVI">
+  <div class="demo__head"><span class="demo__name">已选条件标签条</span></div>
+  <p class="demo__note">适合：筛选后列表上方一行显示已选条件，可逐个移除</p>
+  <div class="demo__stage">
+    <div class="card nv-ct" id="nv-ct">
+      <div class="nv-ct__bar">
+        <div class="nv-ct__chips"></div>
+        <button type="button" class="btn btn--text nv-ct__clear">清空</button>
+      </div>
+      <div class="nv-ct__pop" role="group" aria-label="更多已选条件" hidden></div>
+      <div class="nv-ct__list" aria-live="polite"></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-NAVI-022" data-name="纵向步骤条" data-cat="NAVI">
+  <div class="demo__head"><span class="demo__name">纵向步骤条</span></div>
+  <p class="demo__note">适合：订单进度与售后流程按先后竖排，标出当前步</p>
+  <div class="demo__stage">
+    <div class="card nv-vs" id="nv-vs">
+      <div class="seg" data-seg="nv-vs" aria-label="流程类型">
+        <button class="seg__item" data-key="order" aria-selected="true">订单进度</button>
+        <button class="seg__item" data-key="after" aria-selected="false">售后流程</button>
+      </div>
+      <ol class="nv-vs__list" aria-label="订单进度"></ol>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-NAVI-023" data-name="页码指示点" data-cat="NAVI">
+  <div class="demo__head"><span class="demo__name">页码指示点</span></div>
+  <p class="demo__note">适合：轮播与分页内容底部的当前页指示，含四种样式</p>
+  <div class="demo__stage">
+    <div class="card nv-pd" id="nv-pd">
+      <div class="nv-pd__view">
+        <img class="nv-pd__img" src="../../kit/assets/photo/product-rose-red.webp" alt="">
+        <span class="nv-pd__cap">红玫瑰花束</span>
+        <button type="button" class="nv-pd__nav nv-pd__nav--l" aria-label="上一张" data-tip="上一张"><span class="chev"></span></button>
+        <button type="button" class="nv-pd__nav nv-pd__nav--r" aria-label="下一张" data-tip="下一张"><span class="chev"></span></button>
+      </div>
+      <div class="nv-pd__rows">
+        <div class="nv-pd__r"><span>圆点</span><div class="nv-pd__i nv-pd__i--dots" role="tablist" aria-label="圆点页码"></div></div>
+        <div class="nv-pd__r"><span>长条</span><div class="nv-pd__i nv-pd__i--bar" role="tablist" aria-label="长条页码"></div></div>
+        <div class="nv-pd__r"><span>数字</span><div class="nv-pd__i"><span class="nv-pd__num" role="status">1 / 5</span></div></div>
+        <div class="nv-pd__r"><span>分段</span><div class="nv-pd__i nv-pd__i--seg" role="tablist" aria-label="分段页码"></div></div>
+      </div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-NAVI-024" data-name="底部翻页器" data-cat="NAVI">
+  <div class="demo__head"><span class="demo__name">底部翻页器</span></div>
+  <p class="demo__note">适合：对账与记录类长列表用上一页下一页翻页</p>
+  <div class="demo__stage">
+    <div class="card nv-pn" id="nv-pn">
+      <div class="nv-pn__list list" aria-live="polite"></div>
+      <div class="nv-pn__bar">
+        <button type="button" class="btn btn--ghost" data-d="-1">上一页</button>
+        <span class="nv-pn__mid"><b>1</b> / 4</span>
+        <button type="button" class="btn btn--secondary" data-d="1">下一页</button>
+      </div>
+    </div>
+  </div>
+</article>
+
+<script>
+(function () {
+  var $ = function (s, r) { return (r || document).querySelector(s); }, $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var PHOTO = '../../kit/assets/photo/', LINE = '../../kit/assets/line/';
+  var clamp = function (v, a, b) { return Math.min(b, Math.max(a, v)); };
+  var CHK = '<img src="' + LINE + 'check.webp" alt="">', XIC = '<img src="' + LINE + 'close.webp" alt="">';
+  function prodRow(p, meta) {
+    return '<div class="row"><img class="row__lead" src="' + PHOTO + p.img + '.webp" alt=""><div class="row__main"><p class="row__title one-line">' + p.name + '</p><p class="row__meta">' + meta + '</p></div><span class="price"><small>¥</small>' + p.price + '</span></div>';
+  }
+
+  // 019 下拉筛选菜单：选项层贴着筛选条展开，选中条件常显在条上
+  (function () {
+    var host = $('#nv-dd'); if (!host) return;
+    var trig = $$('.nv-dd__t', host), mask = $('.nv-dd__mask', host), layer = $('.nv-dd__layer', host), list = $('.nv-dd__list', host);
+    var SORT = [['comp', '综合排序'], ['sales', '销量优先'], ['low', '价格最低'], ['high', '价格最高']];
+    var CATS = ['全部品类', '鲜花', '绿植', '礼盒'], SCENES = ['生日', '纪念日', '探望', '开业'];
+    var PRODS = [
+      { name: '红玫瑰花束', price: 199, sold: 2860, cat: '鲜花', scene: ['纪念日', '生日'], img: 'product-rose-red' },
+      { name: '粉芍药花束', price: 239, sold: 1890, cat: '鲜花', scene: ['生日', '探望'], img: 'product-peony-pink' },
+      { name: '蓝绣球盆栽', price: 129, sold: 760, cat: '绿植', scene: ['开业', '探望'], img: 'product-hydrangea-blue' },
+      { name: '花礼盒', price: 259, sold: 980, cat: '礼盒', scene: ['生日', '开业', '纪念日'], img: 'product-giftbox' }
+    ];
+    var st = { sort: 'sales', cat: '全部品类', scenes: [] }, tmp = [], open = '';
+    function view() {
+      var a = PRODS.filter(function (p) { return (st.cat === '全部品类' || p.cat === st.cat) && (!st.scenes.length || st.scenes.some(function (s) { return p.scene.indexOf(s) >= 0; })); });
+      if (st.sort === 'sales') a.sort(function (x, y) { return y.sold - x.sold; });
+      else if (st.sort === 'low') a.sort(function (x, y) { return x.price - y.price; });
+      else if (st.sort === 'high') a.sort(function (x, y) { return y.price - x.price; });
+      return a;
+    }
+    function sync() {
+      var name = SORT.filter(function (o) { return o[0] === st.sort; })[0][1];
+      var lab = [name, st.cat, st.scenes.length ? (st.scenes.length === 1 ? st.scenes[0] : '场景 ' + st.scenes.length + ' 项') : '适用场景'];
+      var on = [st.sort !== 'comp', st.cat !== '全部品类', st.scenes.length > 0];
+      trig.forEach(function (t, i) { $('span', t).textContent = lab[i]; t.toggleAttribute('data-on', on[i]); });
+      var a = view();
+      list.innerHTML = a.length ? a.map(function (p) { return prodRow(p, '已售 ' + p.sold + ' ' + p.cat); }).join('') : '<div class="nv-dd__none"><span>没有符合条件的商品</span><button type="button" class="btn btn--secondary btn--sm" data-reset>清除条件</button></div>';
+    }
+    function build(k) {
+      if (k === 'sort') return '<div role="listbox" aria-label="排序方式">' + SORT.map(function (o) { return '<button type="button" role="option" class="nv-dd__opt" data-v="' + o[0] + '" aria-selected="' + (st.sort === o[0]) + '">' + o[1] + CHK + '</button>'; }).join('') + '</div>';
+      if (k === 'cat') return '<div class="nv-dd__grid" role="listbox" aria-label="商品品类">' + CATS.map(function (c) { return '<button type="button" role="option" class="nv-dd__chip" aria-selected="' + (st.cat === c) + '">' + c + '</button>'; }).join('') + '</div>';
+      return '<div class="nv-dd__grid" role="group" aria-label="适用场景">' + SCENES.map(function (c) { return '<button type="button" class="nv-dd__chip" aria-pressed="' + (tmp.indexOf(c) >= 0) + '">' + c + '</button>'; }).join('') + '</div><div class="nv-dd__foot"><button type="button" class="btn btn--ghost" data-reset>重置</button><button type="button" class="btn btn--primary" data-ok>确定</button></div>';
+    }
+    function show(k, quiet) {
+      open = k; if (k === 'scene') tmp = st.scenes.slice();
+      layer.innerHTML = build(k); mask.hidden = false; layer.hidden = false;
+      trig.forEach(function (t) { t.setAttribute('aria-expanded', String(t.dataset.k === k)); });
+      if (!quiet) { var f = $('[aria-selected="true"], [aria-pressed="true"], button', layer); if (f) f.focus(); }
+    }
+    function hide(back) {
+      var k = open; open = ''; mask.hidden = true; layer.hidden = true;
+      trig.forEach(function (t) { t.setAttribute('aria-expanded', 'false'); });
+      if (back) { var t = trig.filter(function (x) { return x.dataset.k === k; })[0]; if (t) t.focus(); }
+    }
+    trig.forEach(function (t) { t.addEventListener('click', function () { if (open === t.dataset.k) hide(); else show(t.dataset.k); }); });
+    layer.addEventListener('click', function (e) {
+      var b = e.target.closest('button'); if (!b) return;
+      if (open === 'sort') { st.sort = b.dataset.v; hide(true); sync(); }
+      else if (open === 'cat') { st.cat = b.textContent; hide(true); sync(); }
+      else if (b.hasAttribute('data-reset')) { tmp = []; layer.innerHTML = build('scene'); $('[data-reset]', layer).focus(); }
+      else if (b.hasAttribute('data-ok')) { st.scenes = tmp.slice(); hide(true); sync(); }
+      else { var s = b.textContent, i = tmp.indexOf(s); if (i >= 0) tmp.splice(i, 1); else tmp.push(s); b.setAttribute('aria-pressed', String(i < 0)); }
+    });
+    layer.addEventListener('keydown', function (e) {
+      var d = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 }[e.key]; if (!d) return;
+      var items = $$('button', layer), i = items.indexOf(document.activeElement); if (i < 0) return;
+      items[(i + d + items.length) % items.length].focus(); e.preventDefault();
+    });
+    mask.addEventListener('click', function () { hide(true); });
+    host.addEventListener('keydown', function (e) { if (e.key === 'Escape' && open) { hide(true); e.preventDefault(); } });
+    document.addEventListener('click', function (e) { if (open && !host.contains(e.target)) hide(false); });
+    list.addEventListener('click', function (e) { if (e.target.closest('[data-reset]')) { st = { sort: 'comp', cat: '全部品类', scenes: [] }; sync(); } });
+    sync(); show('cat', true);
+  })();
+
+  // 020 吸顶分类标签栏：滚过头图后贴顶，点按定位，滚动时高亮跟随
+  (function () {
+    var host = $('#nv-sk'); if (!host) return;
+    var sc = $('.nv-sk__sc', host), cover = $('.nv-sk__cover', host), bar = $('.nv-sk__tabs', host), tabs = $$('[role="tab"]', bar), secs = $$('.nv-sk__sec', host), lock = 0;
+    function mark(i) { tabs.forEach(function (t, j) { t.setAttribute('aria-selected', String(j === i)); t.tabIndex = j === i ? 0 : -1; }); }
+    function spy() {
+      bar.classList.toggle('is-stuck', sc.scrollTop >= cover.offsetHeight - 1);
+      if (Date.now() < lock) return;
+      var cur = 0; secs.forEach(function (s, i) { if (s.offsetTop - bar.offsetHeight - 8 <= sc.scrollTop) cur = i; }); mark(cur);
+    }
+    function go(i) { lock = Date.now() + 600; mark(i); sc.scrollTo({ top: secs[i].offsetTop - bar.offsetHeight, behavior: Lz.reduce ? 'auto' : 'smooth' }); }
+    tabs.forEach(function (t, i) {
+      t.addEventListener('click', function () { go(i); });
+      t.addEventListener('keydown', function (e) { var d = { ArrowRight: 1, ArrowLeft: -1 }[e.key]; if (!d) return; var k = clamp(i + d, 0, tabs.length - 1); go(k); tabs[k].focus(); e.preventDefault(); });
+    });
+    sc.addEventListener('scroll', spy, { passive: true }); spy();
+  })();
+
+  // 021 已选条件标签条：逐个移除，放不下的收进更多
+  (function () {
+    var host = $('#nv-ct'); if (!host) return;
+    var box = $('.nv-ct__chips', host), clear = $('.nv-ct__clear', host), pop = $('.nv-ct__pop', host), list = $('.nv-ct__list', host);
+    var DEF = [{ k: 'cat', t: '鲜花' }, { k: 'price', t: '100 至 200 元' }, { k: 'fast', t: '2 小时达' }];
+    var P = [
+      { name: '红玫瑰花束', cat: '鲜花', price: 199, fast: true, img: 'product-rose-red' },
+      { name: '粉芍药花束', cat: '鲜花', price: 239, fast: true, img: 'product-peony-pink' },
+      { name: '向日葵花束', cat: '鲜花', price: 159, fast: true, img: 'product-sunflower' },
+      { name: '白郁金香', cat: '鲜花', price: 179, fast: false, img: 'product-tulip-white' },
+      { name: '龟背竹盆栽', cat: '绿植', price: 159, fast: false, img: 'product-monstera' }
+    ];
+    var conds = DEF.slice(), shown = 0;
+    function has(k) { return conds.some(function (c) { return c.k === k; }); }
+    function renderList() {
+      var a = P.filter(function (p) { return (!has('cat') || p.cat === '鲜花') && (!has('price') || (p.price >= 100 && p.price <= 200)) && (!has('fast') || p.fast); });
+      list.innerHTML = '<div class="nv-ct__sum">共 ' + a.length + ' 件</div>' + a.map(function (p) { return prodRow(p, p.fast ? '同城 2 小时达' : '次日达'); }).join('');
+    }
+    function chip(c) { return '<span class="nv-ct__chip" data-k="' + c.k + '">' + c.t + '<button type="button" class="nv-ct__x" aria-label="移除 ' + c.t + '" data-tip="移除">' + XIC + '</button></span>'; }
+    function closePop(back) { if (pop.hidden) return; pop.hidden = true; var m = $('.nv-ct__more', box); if (m) { m.setAttribute('aria-expanded', 'false'); if (back) m.focus(); } }
+    function renderPop() {
+      pop.innerHTML = conds.slice(shown).map(function (c) { return '<div class="nv-ct__pr" data-k="' + c.k + '"><span>' + c.t + '</span><button type="button" class="nv-ct__x" aria-label="移除 ' + c.t + '" data-tip="移除">' + XIC + '</button></div>'; }).join('');
+    }
+    function fit() {
+      var chips = $$('.nv-ct__chip', box), mb = $('.nv-ct__more', box), n = chips.length;
+      if (!mb) { closePop(); return; }
+      var gap = 8, avail = box.clientWidth;
+      var wid = function (l) { return l.reduce(function (a, c) { return a + c.offsetWidth; }, 0) + gap * Math.max(0, l.length - 1); };
+      chips.forEach(function (c) { c.hidden = false; }); mb.hidden = true;
+      var k = n;
+      if (wid(chips) > avail) {
+        for (k = n - 1; k >= 0; k--) {
+          mb.innerHTML = '更多 ' + (n - k) + '<span class="chev"></span>'; mb.hidden = false;
+          if (wid(chips.slice(0, k)) + (k ? gap : 0) + mb.offsetWidth <= avail) break;
+        }
+        k = Math.max(0, k);
+      }
+      chips.forEach(function (c, i) { c.hidden = i >= k; });
+      mb.hidden = k >= n; shown = k;
+      if (k >= n) closePop(); else if (!pop.hidden) renderPop();
+    }
+    function render() {
+      closePop();
+      box.innerHTML = conds.length ? conds.map(chip).join('') + '<button type="button" class="nv-ct__more" hidden aria-haspopup="true" aria-expanded="false" aria-controls="nv-ct-pop"></button>' : '<span class="nv-ct__none">未选条件</span>';
+      clear.textContent = conds.length ? '清空' : '重选';
+      fit(); renderList();
+    }
+    function drop(k) { conds = conds.filter(function (c) { return c.k !== k; }); render(); }
+    pop.id = 'nv-ct-pop';
+    box.addEventListener('click', function (e) {
+      var x = e.target.closest('.nv-ct__x'), m = e.target.closest('.nv-ct__more');
+      if (x) { var c = x.closest('.nv-ct__chip'); c.classList.add('is-out'); setTimeout(function () { drop(c.dataset.k); }, Lz.reduce ? 0 : 140); }
+      else if (m) { if (pop.hidden) { renderPop(); pop.hidden = false; m.setAttribute('aria-expanded', 'true'); } else closePop(); }
+    });
+    pop.addEventListener('click', function (e) {
+      var x = e.target.closest('.nv-ct__x'); if (!x) return;
+      drop(x.closest('.nv-ct__pr').dataset.k);
+      var m = $('.nv-ct__more', box); if (m && !m.hidden) { renderPop(); pop.hidden = false; m.setAttribute('aria-expanded', 'true'); }
+    });
+    clear.addEventListener('click', function () { conds = conds.length ? [] : DEF.slice(); render(); });
+    document.addEventListener('click', function (e) { if (!pop.hidden && !pop.contains(e.target) && !e.target.closest('.nv-ct__more')) closePop(); });
+    host.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !pop.hidden) { closePop(true); e.preventDefault(); } });
+    new ResizeObserver(fit).observe(box);
+    render();
+  })();
+
+  // 022 纵向步骤条：点按设为当前步，之前的为已完成
+  (function () {
+    var host = $('#nv-vs'); if (!host) return;
+    var list = $('.nv-vs__list', host);
+    var FLOWS = {
+      order: ['订单进度', [['已下单', '11-09 09:12', '订单已提交 等待商家接单'], ['商家接单', '11-09 09:20', '花艺师正在包扎'], ['配送中', '11-09 10:05', '骑手已取货 预计 10:40 送达'], ['已签收', '', '']]],
+      after: ['售后进度', [['提交申请', '11-09 11:30', '已选择退货退款'], ['商家审核', '11-09 14:02', '审核通过 请寄回商品'], ['商品寄回', '11-09 16:45', '等待快递揽收'], ['退款到账', '', '原路退回']]]
+    };
+    var key = 'order', now = { order: 2, after: 1 };
+    function render() {
+      var f = FLOWS[key], cur = now[key];
+      list.setAttribute('aria-label', f[0]);
+      list.innerHTML = f[1].map(function (s, i) {
+        var t = i < cur ? 'done' : i === cur ? 'now' : 'todo';
+        return '<li><button type="button" class="nv-vs__it" data-s="' + t + '" data-i="' + i + '"' + (t === 'now' ? ' aria-current="step"' : '') + '><span class="nv-vs__dot"><img src="' + LINE + 'check.webp" alt=""><b>' + (i + 1) + '</b></span><span class="nv-vs__t"><b>' + s[0] + '</b>' + (t !== 'todo' && s[2] ? '<small>' + s[2] + '</small>' : '') + '</span><span class="nv-vs__tm">' + (t === 'done' ? s[1] : t === 'now' ? '进行中' : '') + '</span></button></li>';
+      }).join('');
+    }
+    list.addEventListener('click', function (e) {
+      var b = e.target.closest('.nv-vs__it'); if (!b) return;
+      now[key] = +b.dataset.i; render(); $('[data-i="' + b.dataset.i + '"]', list).focus({ preventScroll: true });
+    });
+    host.addEventListener('lz:seg', function (e) { key = e.detail.key; render(); });
+    render();
+  })();
+
+  // 023 页码指示点：一个页码驱动圆点、长条、数字与分段
+  (function () {
+    var host = $('#nv-pd'); if (!host) return;
+    var PAGES = [['红玫瑰花束', 'product-rose-red'], ['粉芍药花束', 'product-peony-pink'], ['向日葵花束', 'product-sunflower'], ['白郁金香', 'product-tulip-white'], ['蓝绣球盆栽', 'product-hydrangea-blue']];
+    var n = PAGES.length, cur = 0;
+    var img = $('.nv-pd__img', host), cap = $('.nv-pd__cap', host), num = $('.nv-pd__num', host), groups = $$('[role="tablist"]', host);
+    groups.forEach(function (g) {
+      g.innerHTML = PAGES.map(function (p, i) { return '<button type="button" role="tab" aria-selected="false" aria-label="第 ' + (i + 1) + ' 页" data-tip="第 ' + (i + 1) + ' 页" data-i="' + i + '"></button>'; }).join('');
+      g.addEventListener('click', function (e) { var b = e.target.closest('button'); if (b) set(+b.dataset.i); });
+      g.addEventListener('keydown', function (e) {
+        var d = { ArrowRight: 1, ArrowLeft: -1 }[e.key]; if (!d) return;
+        var k = clamp(cur + d, 0, n - 1); set(k); $('[data-i="' + k + '"]', g).focus(); e.preventDefault();
+      });
+    });
+    function set(i) {
+      cur = (i + n) % n;
+      img.src = PHOTO + PAGES[cur][1] + '.webp'; cap.textContent = PAGES[cur][0]; num.textContent = (cur + 1) + ' / ' + n;
+      img.style.animation = 'none'; void img.offsetWidth; img.style.animation = '';
+      groups.forEach(function (g) { $$('button', g).forEach(function (b, j) { b.setAttribute('aria-selected', String(j === cur)); b.tabIndex = j === cur ? 0 : -1; b.dataset.s = j < cur ? 'done' : j === cur ? 'now' : 'todo'; }); });
+    }
+    $('.nv-pd__nav--l', host).addEventListener('click', function () { set(cur - 1); });
+    $('.nv-pd__nav--r', host).addEventListener('click', function () { set(cur + 1); });
+    set(0);
+  })();
+
+  // 024 底部翻页器：上一页下一页，首末页对应按钮禁用
+  (function () {
+    var host = $('#nv-pn'); if (!host) return;
+    var list = $('.nv-pn__list', host), prev = $('[data-d="-1"]', host), next = $('[data-d="1"]', host), mid = $('.nv-pn__mid', host);
+    var R = [['11-08 19:16', '订单消费', -159, 151], ['11-08 14:32', '储值充值', 200, 310], ['11-07 21:03', '订单退款', 89, 110], ['11-07 09:27', '订单消费', -89, 21], ['11-06 18:44', '订单消费', -239, 110], ['11-05 12:51', '储值充值', 300, 349], ['11-04 16:09', '订单消费', -199, 49], ['11-03 10:40', '储值充值', 200, 248], ['11-02 13:22', '订单消费', -159, 48], ['11-01 17:36', '订单消费', -179, 207], ['10-30 09:58', '订单消费', -259, 386], ['10-28 14:15', '储值充值', 500, 645], ['10-26 19:07', '订单消费', -89, 145], ['10-24 11:26', '订单消费', -128, 234], ['10-22 15:48', '储值充值', 300, 362], ['10-20 10:12', '订单消费', -239, 62], ['10-18 20:33', '订单退款', 159, 301], ['10-16 12:05', '订单消费', -159, 142], ['10-13 18:20', '订单消费', -199, 301], ['10-12 09:41', '储值充值', 500, 500]];
+    var SIZE = 5, pages = Math.ceil(R.length / SIZE), cur = 0;
+    function render(keep) {
+      list.innerHTML = R.slice(cur * SIZE, cur * SIZE + SIZE).map(function (r) {
+        return '<div class="row"><div class="row__main"><p class="row__title">' + r[1] + '</p><p class="row__meta">' + r[0] + '</p></div><div class="row__trail"><span class="nv-pn__amt"' + (r[2] > 0 ? ' data-up' : '') + '>' + (r[2] > 0 ? '+' : '-') + '¥' + Math.abs(r[2]).toFixed(2) + '</span><small>余额 ¥' + r[3].toFixed(2) + '</small></div></div>';
+      }).join('');
+      mid.innerHTML = '<b>' + (cur + 1) + '</b> / ' + pages;
+      var focused = document.activeElement;
+      prev.disabled = cur === 0; next.disabled = cur === pages - 1;
+      if ((prev.disabled && focused === prev) || (next.disabled && focused === next)) (prev.disabled ? next : prev).focus();
+    }
+    [prev, next].forEach(function (b) { b.addEventListener('click', function () { cur = clamp(cur + +b.dataset.d, 0, pages - 1); render(); }); });
+    render();
+  })();
+})();
+</script>

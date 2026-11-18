@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="navy" data-bg="none" data-ic-base="../../../../kit/assets/icons">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>会员中心</title>
+<link rel="icon" href="../../../../kit/assets/icons/flat/heart.webp">
+<link rel="stylesheet" href="../../../../kit/tokens.css">
+<link rel="stylesheet" href="../../../../kit/ui.css">
+<link rel="stylesheet" href="../../../../kit/kit.css">
+<link rel="stylesheet" href="../../../../kit/app.css">
+<style>
+  /* 本页专属：资料区、数据卡、成长卡、地址行原位改名、新建地址页 */
+  .top { background: linear-gradient(160deg, var(--action-press) 0%, var(--action) 100%); padding-top: var(--s-4); padding-bottom: var(--s-12); }
+  .mine__id { gap: var(--s-4); min-height: 72px; }
+  .mine__who { display: grid; justify-items: start; gap: var(--s-2); min-width: 0; }
+  .mine__name { font-size: var(--fs-xl); font-weight: 700; line-height: var(--lh-tight); }
+  .mine__tag { display: inline-flex; align-items: center; gap: var(--s-1); height: 24px; padding: 0 var(--s-3) 0 var(--s-2); border-radius: var(--r-full); background: var(--accent-tint); color: var(--accent); font-size: var(--fs-xs); font-weight: 600; line-height: 1; }
+  .mine__tag img { width: 16px; height: 16px; object-fit: contain; }
+  .top .avatar { border: 3px solid rgba(255, 255, 255, .92); background: var(--surface); box-shadow: var(--elev-2); }
+
+  /* 数据卡：压在顶部平面区的下沿，上标题下数字与单位，居中 */
+  .profile-stack { position: relative; margin-block-start: -32px; }
+  .mine__stats { padding: var(--s-2) 0; }
+  .stat__label { display: inline-flex; flex-direction: column; align-items: center; gap: var(--s-1); }
+  .stat__val > span { font-variant-numeric: tabular-nums; }
+
+  .grow { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; column-gap: var(--s-4); padding: var(--s-4); }
+  .grow__main { display: grid; gap: var(--s-3); }
+  .grow__row { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-3); }
+  .grow__num { font-size: var(--fs-xl); font-weight: 700; line-height: var(--lh-tight); font-variant-numeric: tabular-nums; color: var(--accent); }
+  .grow__num small { margin-left: 2px; font-size: var(--fs-sm); font-weight: 400; color: var(--ink-3); }
+  .grow .progress { background: var(--zone); }
+
+  .addr { gap: var(--s-3); }
+  .addr__line { display: flex; align-items: center; gap: var(--s-2); min-height: 32px; }
+  .addr__name { font-size: var(--fs-md); font-weight: 600; line-height: var(--lh-tight); }
+  .addr__edit { display: none; flex: 1; min-width: 0; align-items: center; gap: var(--s-2); }
+  .addr__edit .input { flex: 1; min-width: 0; min-height: 36px; }
+  .addr[data-editing] .addr__name, .addr[data-editing] .addr__tail, .addr[data-editing] .addr__def, .addr[data-editing] .row__trail { display: none; }
+  .addr[data-editing] .addr__edit { display: flex; }
+  .addr .field__err { margin-top: var(--s-1); }
+  .btn--sm { --btn-h: 32px; }
+
+  .mine__shortcuts { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .row--out { justify-content: center; }
+  .row > .switch { margin-left: auto; }
+  .is-danger { color: var(--danger); }
+
+  .subbar h1 { min-width: 0; }
+  .aform { display: grid; gap: var(--s-5); margin-top: var(--s-4); }
+  .aform .card.fcard { display: grid; gap: var(--s-5); padding: var(--s-4); }
+  .aform .field__label { padding: 0 var(--s-1); }
+  .aform .drop { display: block; }
+  .aform .drop__btn { width: 100%; min-height: 44px; justify-content: space-between; border-radius: var(--r-md); background: var(--surface); box-shadow: inset 0 0 0 1px var(--line-strong); font-size: var(--fs-md); color: var(--ink); }
+  .aform .drop__opt { font-size: var(--fs-md); min-height: 44px; }
+  .aform__acts { justify-content: flex-end; }
+</style>
+</head>
+<body class="app-body">
+<div class="app">
+
+  <div data-view="main">
+    <main class="page view">
+      <!-- 顶部：平面资料区，头像昵称会员标签，设置在右；数据卡压在其下沿 -->
+      <header class="top" data-cid="AP-MINE-001" data-name="顶部资料数据区">
+        <div class="top__row mine__id">
+          <img class="avatar avatar--lg" src="../../../../kit/assets/marks/mark-006.webp" alt="林晓的头像">
+          <div class="mine__who"><h2 class="mine__name one-line">林晓</h2><span class="mine__tag"><img src="../../../../kit/assets/line/shield.webp" alt="">金卡会员</span></div>
+          <span class="top__sp"></span>
+          <button class="ibtn" id="to-prefs" data-tip="设置" aria-label="设置"><img src="../../../../kit/assets/line/settings.webp" alt=""></button>
+        </div>
+      </header>
+      <div class="card-stack profile-stack">
+        <div class="card stats mine__stats" role="group" aria-label="账户数据">
+          <div class="stat" data-reveal><span class="stat__label"><img class="compact-icon" src="../../../../kit/assets/line/archive.webp" alt="">优惠券</span><span class="stat__val"><span data-to="3">3</span><small>张</small></span></div>
+          <div class="stat" data-reveal><span class="stat__label"><img class="compact-icon" src="../../../../kit/assets/line/book.webp" alt="">积分</span><span class="stat__val"><span data-to="1280">1,280</span><small>分</small></span></div>
+          <div class="stat" data-reveal><span class="stat__label"><img class="compact-icon" src="../../../../kit/assets/line/folder.webp" alt="">余额</span><span class="stat__val"><span data-to="120">120</span><small>元</small></span></div>
+        </div>
+
+        <section class="card section" data-cid="AP-MINE-002" data-name="会员成长卡">
+          <div class="section__head"><h2>会员成长</h2></div>
+          <div class="grow section__body">
+            <img class="compact-icon" src="../../../../kit/assets/line/check.webp" alt="">
+            <div class="grow__main">
+              <div class="grow__row"><p class="row__title">距铂金会员</p><p class="grow__num"><span>320</span><small>成长值</small></p></div>
+              <div class="progress" role="progressbar" aria-label="成长值进度" aria-valuemin="0" aria-valuemax="2000" aria-valuenow="1680"><i id="grow-bar" style="--v:0%"></i></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card section" data-cid="AP-MINE-003" data-name="收货地址列表">
+          <div class="section__head">
+            <h2 class="heading-with-icon"><img src="../../../../kit/assets/line/location.webp" alt=""><span>收货地址</span></h2>
+            <div class="section__acts"><button class="ibtn" data-open="address" data-tip="新建地址" aria-label="新建地址"><img src="../../../../kit/assets/line/add.webp" alt=""></button></div>
+          </div>
+          <div class="list section__body" id="addrs"></div>
+        </section>
+
+        <section class="card section" id="prefs" data-cid="AP-MINE-005" data-name="偏好设置列表">
+          <div class="section__head"><h2>偏好设置</h2></div>
+          <div class="list section__body">
+            <div class="row"><span class="row__title" id="pf1">消息通知</span><button class="switch" role="switch" aria-checked="true" aria-labelledby="pf1" data-pref="消息通知"></button></div>
+            <div class="row"><span class="row__title" id="pf2">个性推荐</span><button class="switch" role="switch" aria-checked="false" aria-labelledby="pf2" data-pref="个性推荐"></button></div>
+          </div>
+        </section>
+
+        <section class="card section" data-cid="AP-MINE-006" data-name="更多快捷入口">
+          <div class="section__head"><h2>更多</h2></div>
+          <div class="list section__body">
+            <div class="entries mine__shortcuts">
+              <button type="button" class="entry" data-link="客服已接入"><img class="compact-icon" src="../../../../kit/assets/line/support.webp" alt=""><span>联系客服</span></button>
+              <button type="button" class="entry" data-link="当前版本 2.4.0"><img class="compact-icon" src="../../../../kit/assets/line/book.webp" alt=""><span>关于我们</span></button>
+              <button type="button" class="entry" data-link="隐私协议已打开"><img class="compact-icon" src="../../../../kit/assets/line/shield.webp" alt=""><span>隐私协议</span></button>
+            </div>
+            <button class="row row--out" id="logout"><span class="row__title is-danger">退出登录</span></button>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <nav class="tabbar" data-cid="AP-NAV-001" data-name="底部主导航" aria-label="主导航">
+      <a class="tabbar__item" href="home.html"><img src="../../../../kit/assets/line/home.webp" alt=""><span>首页</span></a>
+      <a class="tabbar__item" href="list.html"><img src="../../../../kit/assets/line/list.webp" alt=""><span>分类</span></a>
+      <a class="tabbar__item" href="orders.html"><img src="../../../../kit/assets/line/archive.webp" alt=""><span>订单</span></a>
+      <a class="tabbar__item" href="agent.html"><img src="../../../../kit/assets/line/message.webp" alt=""><span>助手</span></a>
+      <a class="tabbar__item" href="mine.html" aria-current="page"><img src="../../../../kit/assets/line/user.webp" alt=""><span>我的</span></a>
+    </nav>
+  </div>
+
+  <!-- 新建地址：独立填写页，取消与保存同一行相邻，校验错误在字段下方 -->
+  <div data-view="address" hidden>
+    <header class="subbar">
+      <button class="ibtn" data-back data-tip="返回" aria-label="返回"><img src="../../../../kit/assets/line/back.webp" alt=""></button>
+      <h1 class="one-line">新建地址</h1>
+    </header>
+    <main class="page view" data-cid="AP-MINE-007" data-name="新建地址页">
+      <form class="aform" id="af" novalidate>
+        <div class="card fcard">
+          <div class="field">
+            <label class="field__label" for="f-name">收件人</label>
+            <input class="input" id="f-name" name="name" autocomplete="off">
+            <p class="field__err" id="e-name" role="alert" hidden>请填写收件人</p>
+          </div>
+          <div class="field">
+            <label class="field__label" for="f-tel">手机号</label>
+            <input class="input" id="f-tel" name="tel" inputmode="numeric" maxlength="11" autocomplete="off">
+            <p class="field__err" id="e-tel" role="alert" hidden>请输入 11 位手机号</p>
+          </div>
+          <div class="field">
+            <span class="field__label" id="region-l">所在地区</span>
+            <div class="drop" id="f-region">
+              <button type="button" class="drop__btn" aria-labelledby="region-l"><b>上海市 浦东新区</b></button>
+              <div class="drop__menu" role="listbox" aria-label="所在地区">
+                <button type="button" class="drop__opt" role="option" aria-selected="false">上海市 静安区</button>
+                <button type="button" class="drop__opt" role="option" aria-selected="false">上海市 徐汇区</button>
+                <button type="button" class="drop__opt" role="option" aria-selected="true">上海市 浦东新区</button>
+                <button type="button" class="drop__opt" role="option" aria-selected="false">北京市 朝阳区</button>
+                <button type="button" class="drop__opt" role="option" aria-selected="false">杭州市 西湖区</button>
+              </div>
+            </div>
+          </div>
+          <div class="field">
+            <label class="field__label" for="f-detail">详细地址</label>
+            <input class="input" id="f-detail" name="detail" autocomplete="off">
+            <p class="field__err" id="e-detail" role="alert" hidden>请填写详细地址</p>
+          </div>
+        </div>
+        <div class="card list"><div class="row"><span class="row__title" id="def-l">设为默认</span><button type="button" class="switch" id="f-def" role="switch" aria-checked="false" aria-labelledby="def-l"></button></div></div>
+        <div class="btn-group aform__acts">
+          <button type="button" class="btn btn--ghost" data-back>取消</button>
+          <button type="submit" class="btn btn--primary">保存</button>
+        </div>
+      </form>
+    </main>
+  </div>
+</div>
+
+<!-- 地址行：阅读态显示收件人与默认标签，编辑图标让名称就地变输入框 -->
+<template id="tpl-addr">
+  <div class="row addr" data-cid="AP-MINE-004" data-name="地址行">
+    <img class="compact-icon" src="../../../../kit/assets/line/location.webp" alt="">
+    <div class="row__main">
+      <div class="addr__line">
+        <span class="addr__name one-line" data-f="name"></span>
+        <span class="t-sub addr__tail" data-f="tail"></span>
+        <span class="tag addr__def" data-tone="action">默认</span>
+        <form class="addr__edit" data-f="form" novalidate>
+          <input class="input" data-f="input" aria-label="收件人姓名" autocomplete="off">
+          <div class="btn-group"><button type="button" class="btn btn--ghost btn--sm" data-f="cancel">取消</button><button type="submit" class="btn btn--primary btn--sm">保存</button></div>
+        </form>
+      </div>
+      <p class="field__err" data-f="err" role="alert" hidden>请填写收件人</p>
+      <p class="row__meta one-line" data-f="addr"></p>
+    </div>
+    <div class="row__trail"><button class="ibtn" data-f="edit" data-tip="修改姓名" aria-label="修改姓名"><img src="../../../../kit/assets/line/edit.webp" alt=""></button></div>
+  </div>
+</template>
+
+<script src="../../../../kit/ui.js"></script>
+<script>
+  const { $, $$ } = Lz;
+  const A = [
+    { id: 'a1', name: '林晓', tail: '6208', addr: '上海市静安区南京西路 1266 号', def: true },
+    { id: 'a2', name: '林远', tail: '3317', addr: '上海市徐汇区漕溪北路 88 号', def: false },
+  ];
+  const addrs = $('#addrs'), tpl = $('#tpl-addr');
+
+  /* 成长进度入场 */
+  requestAnimationFrame(() => requestAnimationFrame(() => $('#grow-bar').style.setProperty('--v', '84%')));
+
+  /* 地址行：就地改名，保存与取消紧邻输入框，阅读态不显示 */
+  let first = true;
+  function makeAddr(a) {
+    const n = tpl.content.firstElementChild.cloneNode(true);
+    if (!first) { n.removeAttribute('data-cid'); n.removeAttribute('data-name'); } first = false;
+    n.dataset.id = a.id; a.node = n;
+    const f = k => $(`[data-f="${k}"]`, n), input = f('input'), err = f('err');
+    const leave = refocus => { delete n.dataset.editing; err.hidden = true; input.removeAttribute('aria-invalid'); if (refocus) f('edit').focus(); };
+    f('edit').addEventListener('click', () => {
+      $$('.addr[data-editing]').forEach(r => { r !== n && $('[data-f="cancel"]', r).click(); });
+      n.dataset.editing = 'true'; input.value = a.name; input.focus(); input.select();
+    });
+    f('cancel').addEventListener('click', () => { input.value = a.name; leave(true); });
+    input.addEventListener('keydown', e => { if (e.key === 'Escape' && !e.isComposing) { e.preventDefault(); f('cancel').click(); } });
+    f('form').addEventListener('submit', e => {
+      e.preventDefault();
+      const v = input.value.trim();
+      if (!v) { err.hidden = false; input.setAttribute('aria-invalid', 'true'); input.focus(); return; }
+      a.name = v; paint(a); leave(true); Lz.toast('姓名已更新', 'success');
+    });
+    paint(a); return n;
+  }
+  function paint(a) {
+    const n = a.node;
+    $('[data-f="name"]', n).textContent = a.name; $('[data-f="tail"]', n).textContent = `尾号 ${a.tail}`; $('[data-f="addr"]', n).textContent = a.addr;
+    $('.addr__def', n).hidden = !a.def;
+    $('[data-f="edit"]', n).setAttribute('aria-label', `修改${a.name}的姓名`);
+  }
+  A.forEach(a => addrs.appendChild(makeAddr(a)));
+
+  /* 偏好设置：切换即轻提示 */
+  $('#prefs').addEventListener('lz:toggle', e => {
+    const on = e.target.getAttribute('aria-checked') === 'true';
+    Lz.toast(`${on ? '已开启' : '已关闭'}${e.target.dataset.pref}`, on ? 'success' : 'neutral');
+  });
+  $('#to-prefs').addEventListener('click', () => {
+    $('#prefs').scrollIntoView({ behavior: Lz.reduce ? 'auto' : 'smooth', block: 'start' });
+    $('#prefs .switch').focus({ preventScroll: true });
+  });
+
+  /* 更多：行链接与退出登录 */
+  $$('[data-link]').forEach(b => b.addEventListener('click', () => Lz.toast(b.dataset.link)));
+  $('#logout').addEventListener('click', async () => {
+    if (await Lz.confirm({ title: '退出登录', ok: '退出', cancel: '取消', tone: 'danger' })) Lz.toast('已退出登录');
+  });
+
+  /* 新建地址：进入时带入初值，保存后追加一行并返回 */
+  const form = $('#af'), region = $('#f-region'), defSw = $('#f-def');
+  const DEFAULTS = { name: '林晓', tel: '13800006208', detail: '世纪大道 100 号' };
+  function setDrop(d, i) {
+    const opts = $$('.drop__opt', d); opts.forEach((x, k) => x.setAttribute('aria-selected', String(k === i)));
+    $('.drop__btn b', d).textContent = opts[i].textContent; d.dataset.value = opts[i].dataset.value || opts[i].textContent;
+  }
+  document.addEventListener('lz:view', e => {
+    if (e.detail.id !== 'address') return;
+    $('#f-name').value = DEFAULTS.name; $('#f-tel').value = DEFAULTS.tel; $('#f-detail').value = DEFAULTS.detail;
+    setDrop(region, 2); defSw.setAttribute('aria-checked', 'false');
+    $$('.field__err', form).forEach(x => (x.hidden = true)); $$('[aria-invalid]', form).forEach(x => x.removeAttribute('aria-invalid'));
+  });
+  [['#f-name', '#e-name'], ['#f-tel', '#e-tel'], ['#f-detail', '#e-detail']].forEach(([i, er]) => $(i).addEventListener('input', () => { $(er).hidden = true; $(i).removeAttribute('aria-invalid'); }));
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const name = $('#f-name').value.trim(), tel = $('#f-tel').value.trim(), detail = $('#f-detail').value.trim();
+    const checks = [['#f-name', '#e-name', !!name], ['#f-tel', '#e-tel', /^1\d{10}$/.test(tel)], ['#f-detail', '#e-detail', !!detail]];
+    let bad = null;
+    checks.forEach(([i, er, ok]) => { $(er).hidden = ok; if (ok) $(i).removeAttribute('aria-invalid'); else { $(i).setAttribute('aria-invalid', 'true'); bad = bad || $(i); } });
+    if (bad) { bad.focus(); return; }
+    const isDef = defSw.getAttribute('aria-checked') === 'true';
+    if (isDef) A.forEach(a => { a.def = false; paint(a); });
+    const a = { id: 'a' + (A.length + 1), name, tail: tel.slice(-4), addr: `${region.dataset.value.replace(' ', '')}${detail}`, def: isDef };
+    A.push(a);
+    const n = makeAddr(a); n.classList.add('reveal'); addrs.appendChild(n); requestAnimationFrame(() => (n.dataset.in = ''));
+    Lz.toast('地址已保存', 'success'); Lz.back();
+  });
+</script>
+</body>
+</html>

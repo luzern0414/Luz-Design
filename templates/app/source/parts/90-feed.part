@@ -1,0 +1,1229 @@
+<!-- cat: FEED | 反馈与状态 -->
+<style>
+  /* 反馈与状态组件专属样式：前缀 fed-。颜色只取令牌，字号只取字阶 */
+  .fed-card { display: grid; gap: var(--s-3); padding: var(--s-4); }
+  .fed-center { display: grid; justify-items: center; gap: var(--s-4); padding: var(--s-4) 0 var(--s-2); }
+  .fed-bar { display: flex; align-items: center; justify-content: center; gap: var(--s-2); }
+  .fed-after { margin-top: var(--s-3); }
+  .fed-res .tag { background: var(--surface); }
+  .fed-res .tag[data-tone] { background: var(--success-tint); }
+  .fed-res { display: flex; align-items: center; justify-content: center; gap: var(--s-2); min-height: 28px; font-size: var(--fs-sm); color: var(--ink-2); }
+
+  /* 轻提示样张：与真实提示同一套类，静态居中 */
+  .fed-toast-sample { display: grid; justify-items: center; padding: var(--s-5) 0 var(--s-4); }
+  .fed-toast-sample .toast { animation: none; }
+
+  /* 确认框样张 */
+  .fed-dlg { width: min(100%, 320px); padding: var(--s-5); background: var(--surface); border-radius: var(--r-xl); box-shadow: var(--elev-3); }
+  .fed-dlg .dialog__acts { margin-top: var(--s-4); }
+
+  /* 结果页 */
+  .fed-result { display: grid; justify-items: center; gap: var(--s-2); padding: var(--s-4); text-align: center; }
+  .fed-ring { display: grid; place-items: center; width: 76px; height: 76px; margin-bottom: var(--s-2); border-radius: 50%; background: var(--success); box-shadow: 0 0 0 8px var(--success-tint); transition: background var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out); }
+  .fed-ring img { width: 38px; height: 38px; filter: invert(1); }
+  .fed-ring[data-tone="danger"] { background: var(--danger); box-shadow: 0 0 0 8px var(--danger-tint); }
+  .fed-ring[data-play] { animation: fed-ring 640ms var(--ease-out) both; }
+  .fed-ring[data-play] img { animation: lz-pop var(--dur-slow) var(--ease-spring) 140ms both; }
+  @keyframes fed-ring { 0% { transform: scale(.5); opacity: 0; } 60% { transform: scale(1.06); opacity: 1; } 100% { transform: scale(1); } }
+  .fed-result h3 { font-size: var(--fs-xl); font-weight: 700; line-height: var(--lh-tight); }
+  .fed-result .price { font-size: var(--fs-2xl); font-weight: 700; line-height: 1.2; }
+  .fed-result__rows { width: 100%; margin-top: var(--s-3); padding: var(--s-1) var(--s-4); border-radius: var(--r-md); background: var(--zone); }
+  .fed-result__rows div { display: flex; justify-content: space-between; gap: var(--s-3); min-height: 40px; align-items: center; font-size: var(--fs-sm); color: var(--ink-2); }
+  .fed-result__rows div + div { border-top: 1px solid var(--line); }
+  .fed-result__rows b { font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .fed-result .btn-group { flex-wrap: wrap; justify-content: center; margin-top: var(--s-3); }
+
+  /* 空态：3D 图标加柔光底，标题加一个动作 */
+  .fed-empty { display: grid; justify-items: center; gap: var(--s-3); padding: var(--s-5) var(--s-4) var(--s-4); text-align: center; }
+  .fed-empty__art { position: relative; display: grid; place-items: center; width: 132px; height: 120px; }
+  .fed-empty__art::before { content: ""; position: absolute; inset: 6px 10px 0; border-radius: 50%; background: radial-gradient(closest-side, var(--action-tint) 55%, transparent 100%); }
+  .fed-empty__art::after { content: ""; position: absolute; bottom: 4px; width: 64px; height: 10px; border-radius: 50%; background: radial-gradient(closest-side, color-mix(in srgb, var(--ink) 16%, transparent), transparent); }
+  .fed-empty__art img { position: relative; z-index: 1; width: 92px; height: 92px; object-fit: contain; filter: drop-shadow(0 8px 10px color-mix(in srgb, var(--ink) 14%, transparent)); }
+  .fed-empty h3 { font-size: var(--fs-lg); font-weight: 600; line-height: var(--lh-tight); }
+  .fed-empty .search { width: 100%; text-align: left; }
+  .fed-empty .btn { margin-top: var(--s-1); }
+  .fed-list { width: 100%; text-align: left; }
+  .fed-list.card { border: 0; border-radius: 0; background: none; box-shadow: none; }
+  .fed-list .row { padding-inline: 0; }
+  .fed-list .row + .row::before { left: 0; }
+
+  /* 骨架：共用骨架在白卡上对比太弱，这里加深一档 */
+  [data-cid^="AP-FEED"] .skel { background: linear-gradient(100deg, color-mix(in srgb, var(--action) 11%, var(--surface)) 30%, color-mix(in srgb, var(--action) 4%, var(--surface)) 50%, color-mix(in srgb, var(--action) 11%, var(--surface)) 70%) 0 0 / 200% 100%; animation: lz-shimmer 1.4s linear infinite; }
+  /* 骨架 */
+  .fed-skel-card { overflow: hidden; }
+  .fed-skel-card .skel { border-radius: 0; }
+  .fed-skel-card__body { display: grid; gap: var(--s-2); padding: var(--s-3); }
+  .fed-skel-row { display: grid; grid-template-columns: 56px 1fr auto; align-items: center; column-gap: var(--s-3); min-height: 72px; padding: var(--s-3) var(--s-4); }
+  .fed-skel-row__main { display: grid; gap: var(--s-2); }
+
+  /* 加载中 */
+  .fed-spin { width: 36px; height: 36px; border-radius: 50%; border: 3px solid var(--action-edge); border-top-color: var(--action); animation: lz-spin .8s linear infinite; }
+  .fed-spin--sm { width: 18px; height: 18px; border-width: 2px; }
+  .fed-load { display: grid; justify-items: center; align-content: center; gap: var(--s-3); min-height: 96px; font-size: var(--fs-sm); color: var(--ink-2); }
+  .fed-load__ok { display: none; width: 36px; height: 36px; place-items: center; border-radius: 50%; background: var(--success); }
+  .fed-load__ok img { width: 20px; height: 20px; filter: invert(1); animation: lz-pop var(--dur-slow) var(--ease-spring) both; }
+  .fed-load[data-done] .fed-spin { display: none; }
+  .fed-load[data-done] .fed-load__ok { display: grid; }
+
+  /* 顶部进度条：贴着页面顶边 */
+  .fed-frame { position: relative; overflow: hidden; border-radius: var(--r-lg); background: var(--surface); border: 1px solid var(--line); box-shadow: var(--elev-1); }
+  .fed-frame__bar { position: absolute; z-index: 2; left: 0; top: 0; height: 3px; width: 0; border-radius: 0 3px 3px 0; background: var(--action); box-shadow: 0 0 8px color-mix(in srgb, var(--action) 60%, transparent); opacity: 0; transition: width var(--dur-slow) var(--ease-out), opacity var(--dur-base) var(--ease-out); }
+  .fed-frame__bar[data-on] { opacity: 1; }
+  .fed-frame__body { display: grid; gap: var(--s-3); padding: var(--s-4); }
+
+  /* 下拉刷新 */
+  .fed-ptr { position: relative; overflow: hidden; border-radius: var(--r-lg); touch-action: none; user-select: none; -webkit-user-select: none; }
+  .fed-ptr__hint { position: absolute; left: 0; right: 0; top: 0; display: flex; align-items: center; justify-content: center; gap: var(--s-2); height: 56px; font-size: var(--fs-sm); color: var(--ink-2); }
+  .fed-ptr__hint .fed-spin { display: none; }
+  .fed-ptr[data-busy] .fed-spin { display: block; }
+  .fed-ptr__body { position: relative; transform: translateY(var(--y, 0px)); transition: transform var(--dur-base) var(--ease-out); cursor: grab; }
+  .fed-ptr[data-drag] .fed-ptr__body { transition: none; cursor: grabbing; }
+  .fed-grip { width: 36px; height: 4px; margin: 0 auto var(--s-2); border-radius: 4px; background: var(--line-strong); }
+  .fed-ord { display: grid; grid-template-columns: 44px 1fr auto; align-items: center; column-gap: var(--s-3); }
+  .fed-ord .row__lead { width: 44px; height: 44px; }
+  .fed-new { animation: lz-rise var(--dur-slow) var(--ease-out) both; }
+  .fed-more--busy { grid-auto-flow: column; justify-content: center; gap: var(--s-2); }
+
+  /* 角标 */
+  .fed-icons { display: flex; align-items: center; justify-content: center; gap: var(--s-6); padding: var(--s-4) 0; }
+  .fed-ico { position: relative; display: grid; place-items: center; width: 56px; height: 56px; border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--elev-1); transition: transform var(--dur-instant) var(--ease-out); }
+  .fed-ico:active { transform: scale(.94); }
+  .fed-ico img { width: 28px; height: 28px; }
+  .fed-ico .badge { top: -6px; right: -6px; border: 2px solid var(--bg); box-sizing: content-box; }
+  .fed-dot { position: absolute; top: 6px; right: 6px; width: 12px; height: 12px; border-radius: 50%; background: var(--danger); box-shadow: 0 0 0 2px var(--surface); transition: transform var(--dur-base) var(--ease-spring), opacity var(--dur-base) var(--ease-out); }
+  .fed-dot[data-off] { transform: scale(0); opacity: 0; }
+
+  /* 状态标签 */
+  .fed-tags { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: var(--s-1); }
+  .fed-tags .tag { justify-content: center; height: 28px; padding: 0 var(--s-1); font-size: var(--fs-sm); border-radius: 9px; }
+  .fed-tags .tag[data-tone="action"], .fed-ord2 .tag[data-tone="action"] { background: var(--action-edge); }
+  .fed-ord2 { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: var(--s-3); padding: var(--s-3) var(--s-4); }
+  .fed-ord2 .tag { height: 28px; padding: 0 var(--s-3); font-size: var(--fs-sm); border-radius: 9px; transition: background var(--dur-base) var(--ease-out), color var(--dur-base) var(--ease-out); }
+  .fed-dotline { display: inline-flex; align-items: center; gap: var(--s-2); font-size: var(--fs-sm); color: var(--ink-2); }
+  .fed-dotline::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--c, var(--ink-3)); box-shadow: 0 0 0 3px color-mix(in srgb, var(--c, var(--ink-3)) 18%, transparent); }
+
+  /* 状态条 */
+  .fed-strip { display: grid; grid-template-columns: 1fr auto auto; align-items: center; column-gap: var(--s-2); min-height: 48px; padding: 0 var(--s-2) 0 var(--s-4); border-radius: var(--r-md); font-size: var(--fs-sm); font-weight: 600; background: var(--info-tint); color: var(--info); transition: background var(--dur-base) var(--ease-out), color var(--dur-base) var(--ease-out); }
+  .fed-strip[data-tone="success"] { background: var(--success-tint); color: var(--success); }
+  .fed-strip[data-tone="warning"] { background: var(--warning-tint); color: var(--warning); }
+  .fed-strip[data-tone="danger"] { background: var(--danger-tint); color: var(--danger); }
+  .fed-strip .btn--text { color: inherit; font-size: var(--fs-sm); }
+  .fed-strip .ibtn { width: 36px; height: 36px; }
+  .fed-strip .ibtn img { width: 18px; height: 18px; }
+  .fed-strip[data-gone] { display: none; }
+
+  /* 错误重试 */
+  .fed-err { display: grid; justify-items: center; gap: var(--s-3); padding: var(--s-5) var(--s-4); text-align: center; }
+  .fed-err h3 { font-size: var(--fs-md); font-weight: 600; }
+  .fed-err__mark { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; background: var(--danger-tint); }
+  .fed-err__mark img { width: 24px; height: 24px; }
+
+  /* 按钮成功态 */
+  .fed-save { min-width: 148px; transition: background var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out), transform var(--dur-instant) var(--ease-out); }
+  .fed-save[data-ok] { background: var(--success); box-shadow: 0 6px 16px color-mix(in srgb, var(--success) 28%, transparent); pointer-events: none; }
+  .fed-save [data-txt] { display: contents; }
+  .fed-save img { display: none; width: 20px; height: 20px; filter: invert(1); }
+  .fed-save[data-ok] img { display: block; animation: lz-pop var(--dur-slow) var(--ease-spring) both; }
+</style>
+
+<article class="demo" data-cid="AP-FEED-001" data-name="成功轻提示" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">成功轻提示</span></div>
+  <p class="demo__note">适合：保存、领取、加购后的即时反馈</p>
+  <div class="demo__stage is-tint">
+    <div class="fed-toast-sample"><div class="toast" data-tone="success">已加入购物车</div></div>
+    <div class="fed-bar"><button class="btn btn--primary btn--sm" data-fire="已加入购物车" data-tone="success">弹出提示</button></div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FEED-002" data-name="失败轻提示" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">失败轻提示</span></div>
+  <p class="demo__note">适合：网络与提交失败，不抢焦点不挡操作</p>
+  <div class="demo__stage is-tint">
+    <div class="fed-toast-sample"><div class="toast" data-tone="danger">网络异常 请稍后重试</div></div>
+    <div class="fed-bar"><button class="btn btn--primary btn--sm" data-fire="网络异常 请稍后重试" data-tone="danger">弹出提示</button></div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FEED-003" data-name="普通轻提示" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">普通轻提示</span></div>
+  <p class="demo__note">适合：复制、切换等中性的轻量结果</p>
+  <div class="demo__stage is-tint">
+    <div class="fed-toast-sample"><div class="toast">已复制订单号</div></div>
+    <div class="fed-bar"><button class="btn btn--primary btn--sm" data-fire="已复制订单号" data-tone="neutral">弹出提示</button></div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FEED-004" data-name="危险确认框" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">危险确认框</span></div>
+  <p class="demo__note">适合：删除、取消订单等不可撤回的操作</p>
+  <div class="demo__stage is-tint">
+    <div class="fed-center">
+      <div class="fed-dlg"><h4 class="dialog__title">确认删除订单</h4><div class="dialog__acts"><button class="btn btn--ghost" data-pick="no">取消</button><button class="btn btn--danger" data-pick="yes">删除</button></div></div>
+      <div class="fed-res" role="status">结果<span class="tag" data-res>待确认</span></div>
+      <button class="btn btn--secondary btn--sm" data-open>弹出确认框</button>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FEED-005" data-name="普通确认框" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">普通确认框</span></div>
+  <p class="demo__note">适合：提交订单等需要二次确认的操作</p>
+  <div class="demo__stage is-tint">
+    <div class="fed-center">
+      <div class="fed-dlg"><h4 class="dialog__title">确认提交订单</h4><div class="dialog__acts"><button class="btn btn--ghost" data-pick="no">再看看</button><button class="btn btn--primary" data-pick="yes">提交</button></div></div>
+      <div class="fed-res" role="status">结果<span class="tag" data-res>待确认</span></div>
+      <button class="btn btn--secondary btn--sm" data-open>弹出确认框</button>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FEED-006" data-name="成功结果页" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">成功结果页</span></div>
+  <p class="demo__note">适合：支付、提交完成后的独立结果页</p>
+  <div class="demo__stage">
+    <div class="card fed-result">
+      <div class="fed-ring" data-play role="img" aria-label="支付成功"><img src="../../kit/assets/line/check.webp" alt=""></div>
+      <h3>支付成功</h3>
+      <p class="price"><small>¥</small>199.00</p>
+      <div class="fed-result__rows"><div><span>订单编号</span><b>20817365</b></div><div><span>配送门店</span><b>建国路店</b></div></div>
+      <div class="btn-group"><button class="btn btn--primary" data-toast="已打开订单">查看订单</button><button class="btn btn--ghost" data-toast="已返回首页">返回首页</button></div>
+    </div>
+    <div class="fed-bar fed-after"><button class="btn btn--text btn--sm" data-replay>重播</button></div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FEED-007" data-name="失败结果页" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">失败结果页</span></div>
+  <p class="demo__note">适合：支付、提交失败后，保留订单并可重试</p>
+  <div class="demo__stage">
+    <div class="card fed-result" data-fail>
+      <div class="fed-ring" data-tone="danger" data-play role="img" aria-label="支付失败"><img src="../../kit/assets/line/close.webp" alt=""></div>
+      <h3>支付失败</h3>
+      <p class="price"><small>¥</small>199.00</p>
+      <div class="fed-result__rows"><div><span>订单编号</span><b>20817365</b></div><div><span>失败原因</span><b data-why>银行卡余额不足</b></div></div>
+      <div class="btn-group"><button class="btn btn--primary" data-retry>重新支付</button><button class="btn btn--ghost" data-toast="订单已保留">稍后再付</button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FEED-008" data-name="订单空态" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">订单空态</span></div>
+  <p class="demo__note">适合：订单列表没有记录时，给出去选花的动作</p>
+  <div class="demo__stage">
+    <div class="card fed-empty"><div class="fed-empty__art"><img data-ic="bag" src="../../kit/assets/icons/flat/bag.webp" alt=""></div><h3>暂无订单</h3><button class="btn btn--primary btn--pill" data-toast="已前往挑选">去选花</button></div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FEED-009" data-name="购物车空态" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">购物车空态</span></div>
+  <p class="demo__note">适合：购物车清空后，引导回到商品</p>
+  <div class="demo__stage">
+    <div class="card fed-empty"><div class="fed-empty__art"><img data-ic="cart" src="../../kit/assets/icons/flat/cart.webp" alt=""></div><h3>购物车是空的</h3><button class="btn btn--primary btn--pill" data-toast="已前往商品">去逛逛</button></div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FEED-010" data-name="搜索无结果" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">搜索无结果</span></div>
+  <p class="demo__note">适合：关键词没有匹配商品，可一键清除搜索</p>
+  <div class="demo__stage">
+    <div class="card fed-empty" data-search>
+      <label class="search"><img src="../../kit/assets/line/search.webp" alt=""><input type="search" value="百合" placeholder="搜索商品" aria-label="搜索商品" autocomplete="off"></label>
+      <div class="fed-list card list" data-list hidden>
+        <div class="row" data-w="红玫瑰 花束"><img class="row__lead" src="../../kit/assets/photo/product-rose-red.webp" alt=""><div class="row__main"><p class="row__title one-line">红玫瑰花束</p></div><span class="price"><small>¥</small>199</span></div>
+        <div class="row" data-w="粉芍药 花束"><img class="row__lead" src="../../kit/assets/photo/product-peony-pink.webp" alt=""><div class="row__main"><p class="row__title one-line">粉芍药花束</p></div><span class="price"><small>¥</small>239</span></div>
+        <div class="row" data-w="向日葵 花束"><img class="row__lead" src="../../kit/assets/photo/product-sunflower.webp" alt=""><div class="row__main"><p class="row__title one-line">向日葵花束</p></div><span class="price"><small>¥</small>159</span></div>
+        <div class="row" data-w="多肉 盆栽"><img class="row__lead" src="../../kit/assets/photo/product-succulent.webp" alt=""><div class="row__main"><p class="row__title one-line">多肉组合盆</p></div><span class="price"><small>¥</small>89</span></div>
+      </div>
+      <div data-none class="fed-empty" style="padding:var(--s-2) 0 0"><div class="fed-empty__art"><img data-ic="seedling" src="../../kit/assets/icons/flat/seedling.webp" alt=""></div><h3>没有找到相关商品</h3><button class="btn btn--secondary btn--pill" data-clear>清除搜索</button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FEED-011" data-name="网络异常态" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">网络异常态</span></div>
+  <p class="demo__note">适合：整页或整块内容因断网无法加载</p>
+  <div class="demo__stage">
+    <div class="card fed-empty"><div class="fed-empty__art"><img data-ic="scooter" src="../../kit/assets/icons/flat/scooter.webp" alt=""></div><h3>网络连接失败</h3><button class="btn btn--primary btn--pill" data-reload>重新加载</button></div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FEED-012" data-name="无权限态" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">无权限态</span></div>
+  <p class="demo__note">适合：账号没有查看或操作该内容的权限</p>
+  <div class="demo__stage">
+    <div class="card fed-empty"><div class="fed-empty__art"><img data-ic="giftcard" src="../../kit/assets/icons/flat/giftcard.webp" alt=""></div><h3>暂无访问权限</h3><button class="btn btn--primary btn--pill" data-ask>申请权限</button></div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FEED-013" data-name="骨架商品卡" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">骨架商品卡</span></div>
+  <p class="demo__note">适合：商品网格加载中，保持图文的位置关系</p>
+  <div class="demo__stage">
+    <div class="grid2" aria-busy="true" aria-label="商品加载中">
+      <div class="card fed-skel-card"><div class="skel" style="aspect-ratio:1"></div><div class="fed-skel-card__body"><div class="skel" style="height:16px;width:76%"></div><div class="skel" style="height:14px;width:42%"></div></div></div>
+      <div class="card fed-skel-card"><div class="skel" style="aspect-ratio:1"></div><div class="fed-skel-card__body"><div class="skel" style="height:16px;width:64%"></div><div class="skel" style="height:14px;width:50%"></div></div></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FEED-014" data-name="骨架列表行" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">骨架列表行</span></div>
+  <p class="demo__note">适合：订单、消息等列表首次加载</p>
+  <div class="demo__stage">
+    <div class="card list" aria-busy="true" aria-label="列表加载中">
+      <div class="fed-skel-row"><div class="skel" style="width:56px;height:56px;border-radius:var(--r-md)"></div><div class="fed-skel-row__main"><div class="skel" style="height:16px;width:70%"></div><div class="skel" style="height:14px;width:46%"></div></div><div class="skel" style="height:16px;width:44px"></div></div>
+      <div class="fed-skel-row"><div class="skel" style="width:56px;height:56px;border-radius:var(--r-md)"></div><div class="fed-skel-row__main"><div class="skel" style="height:16px;width:58%"></div><div class="skel" style="height:14px;width:62%"></div></div><div class="skel" style="height:16px;width:44px"></div></div>
+      <div class="fed-skel-row"><div class="skel" style="width:56px;height:56px;border-radius:var(--r-md)"></div><div class="fed-skel-row__main"><div class="skel" style="height:16px;width:64%"></div><div class="skel" style="height:14px;width:40%"></div></div><div class="skel" style="height:16px;width:44px"></div></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FEED-015" data-name="加载中旋转" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">加载中旋转</span></div>
+  <p class="demo__note">适合：内容块整体加载，完成后切换为对勾</p>
+  <div class="demo__stage">
+    <div class="card fed-card">
+      <div class="fed-load" role="status"><span class="fed-spin"></span><span class="fed-load__ok"><img src="../../kit/assets/line/check.webp" alt=""></span><span data-txt>加载中</span></div>
+      <div class="fed-bar"><button class="btn btn--secondary btn--sm" data-replay>重新加载</button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FEED-016" data-name="顶部进度条" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">顶部进度条</span></div>
+  <p class="demo__note">适合：页面切换与数据请求时的细条进度</p>
+  <div class="demo__stage">
+    <div class="fed-frame">
+      <div class="fed-frame__bar" role="progressbar" aria-label="页面加载进度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div>
+      <div class="fed-frame__body">
+        <div class="skel" style="height:18px;width:50%"></div><div class="skel" style="height:96px"></div><div class="skel" style="height:14px;width:78%"></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:var(--s-3)"><span class="t-sub" role="status" data-pct>等待加载</span><button class="btn btn--secondary btn--sm" data-start>开始加载</button></div>
+      </div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FEED-017" data-name="下拉刷新" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">下拉刷新</span></div>
+  <p class="demo__note">适合：订单、消息列表，向下拖动后松手刷新</p>
+  <div class="demo__stage">
+    <div class="fed-ptr" data-ptr>
+      <div class="fed-ptr__hint" aria-hidden="true"><span class="fed-spin fed-spin--sm"></span><span data-label>下拉刷新</span></div>
+      <div class="fed-ptr__body">
+        <div class="fed-grip"></div>
+        <div class="card list" data-list>
+          <div class="row fed-ord"><img class="row__lead" src="../../kit/assets/photo/product-rose-red.webp" alt=""><div class="row__main"><p class="row__title one-line">红玫瑰花束</p><p class="row__meta">待发货</p></div><div class="row__trail"><span class="price"><small>¥</small>199</span><span>昨天</span></div></div>
+          <div class="row fed-ord"><img class="row__lead" src="../../kit/assets/photo/product-peony-pink.webp" alt=""><div class="row__main"><p class="row__title one-line">粉芍药花束</p><p class="row__meta">待收货</p></div><div class="row__trail"><span class="price"><small>¥</small>239</span><span>昨天</span></div></div>
+          <div class="row fed-ord"><img class="row__lead" src="../../kit/assets/photo/product-monstera.webp" alt=""><div class="row__main"><p class="row__title one-line">龟背竹盆栽</p><p class="row__meta">已完成</p></div><div class="row__trail"><span class="price"><small>¥</small>159</span><span>昨天</span></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="fed-bar fed-after"><button class="btn btn--text btn--sm" data-refresh>点击刷新</button></div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FEED-018" data-name="加载更多" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">加载更多</span></div>
+  <p class="demo__note">适合：长列表分页，加载中与到底状态清楚</p>
+  <div class="demo__stage">
+    <div class="card list" data-list>
+      <div class="row fed-ord"><img class="row__lead" src="../../kit/assets/photo/product-sunflower.webp" alt=""><div class="row__main"><p class="row__title one-line">向日葵花束</p><p class="row__meta">待付款</p></div><div class="row__trail"><span class="price"><small>¥</small>159</span></div></div>
+      <div class="row fed-ord"><img class="row__lead" src="../../kit/assets/photo/product-tulip-white.webp" alt=""><div class="row__main"><p class="row__title one-line">白郁金香</p><p class="row__meta">待发货</p></div><div class="row__trail"><span class="price"><small>¥</small>179</span></div></div>
+      <div class="row fed-ord"><img class="row__lead" src="../../kit/assets/photo/product-hydrangea-blue.webp" alt=""><div class="row__main"><p class="row__title one-line">蓝绣球盆栽</p><p class="row__meta">待收货</p></div><div class="row__trail"><span class="price"><small>¥</small>129</span></div></div>
+    </div>
+    <div class="more" role="status" data-more><button class="btn btn--text btn--sm" data-load>加载更多</button></div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FEED-019" data-name="红点角标" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">红点角标</span></div>
+  <p class="demo__note">适合：只提示有新内容、不显示数量的入口</p>
+  <div class="demo__stage">
+    <div class="fed-icons">
+      <button class="fed-ico" aria-label="消息 有新内容" data-tip="消息"><img src="../../kit/assets/line/message.webp" alt=""><span class="fed-dot"></span></button>
+      <button class="fed-ico" aria-label="订单 有新内容" data-tip="订单"><img src="../../kit/assets/line/archive.webp" alt=""><span class="fed-dot"></span></button>
+      <button class="fed-ico" aria-label="我的 无新内容" data-tip="我的"><img src="../../kit/assets/line/user.webp" alt=""></button>
+    </div>
+    <div class="fed-bar"><button class="btn btn--secondary btn--sm" data-reset>重置红点</button></div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FEED-020" data-name="数字角标" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">数字角标</span></div>
+  <p class="demo__note">适合：未读消息与待办数量</p>
+  <div class="demo__stage">
+    <div class="fed-icons">
+      <button class="fed-ico" aria-label="消息 3 条未读" data-tip="消息" data-n="3"><img src="../../kit/assets/line/message.webp" alt=""><span class="badge">3</span></button>
+      <button class="fed-ico" aria-label="订单 128 条待办" data-tip="订单" data-n="128"><img src="../../kit/assets/line/archive.webp" alt=""><span class="badge">99+</span></button>
+    </div>
+    <div class="fed-bar"><button class="btn btn--secondary btn--sm" data-add>加一条</button><button class="btn btn--ghost btn--sm" data-clear>全部已读</button></div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FEED-021" data-name="订单状态标签" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">订单状态标签</span></div>
+  <p class="demo__note">适合：订单全流程的状态，跨页面同状态同色</p>
+  <div class="demo__stage">
+    <div class="card fed-card">
+      <div class="fed-tags"><span class="tag" data-tone="warning">待付款</span><span class="tag" data-tone="info">待发货</span><span class="tag" data-tone="action">待收货</span><span class="tag" data-tone="success">已完成</span><span class="tag" data-tone="danger">售后</span></div>
+      <div class="card fed-ord2 card--flat" style="background:var(--zone)">
+        <div><p class="row__title">订单 20817365</p><p class="row__meta">红玫瑰花束 共 1 件</p></div>
+        <span class="tag" data-tone="warning" data-state>待付款</span>
+      </div>
+      <div class="fed-bar"><button class="btn btn--secondary btn--sm" data-next>推进状态</button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FEED-022" data-name="状态点标签" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">状态点标签</span></div>
+  <p class="demo__note">适合：门店营业与设备在线这类持续状态</p>
+  <div class="demo__stage">
+    <div class="card list">
+      <div class="row"><div class="row__main"><p class="row__title">建国路店</p></div><span class="fed-dotline" style="--c:var(--success)" data-st>营业中</span></div>
+      <div class="row"><div class="row__main"><p class="row__title">徐汇滨江店</p></div><span class="fed-dotline" style="--c:var(--warning)" data-st>备货中</span></div>
+      <div class="row"><div class="row__main"><p class="row__title">浦东世纪店</p></div><span class="fed-dotline" style="--c:var(--ink-3)" data-st>已打烊</span></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FEED-023" data-name="状态通知条" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">状态通知条</span></div>
+  <p class="demo__note">适合：页面顶部的待办、断网与结果提示条</p>
+  <div class="demo__stage">
+    <div class="fed-card" style="padding:0">
+      <div class="seg seg--chips" data-seg="fed-strip" aria-label="状态类型">
+        <button class="seg__item" data-key="info" aria-selected="true">提示</button>
+        <button class="seg__item" data-key="success" aria-selected="false">成功</button>
+        <button class="seg__item" data-key="warning" aria-selected="false">警告</button>
+        <button class="seg__item" data-key="danger" aria-selected="false">错误</button>
+      </div>
+      <div class="fed-strip" role="status" data-tone="info"><span data-txt>有 2 笔订单待付款</span><button class="btn btn--text btn--sm" data-act>去支付</button><button class="ibtn" data-close aria-label="关闭状态条" data-tip="关闭"><img src="../../kit/assets/line/close.webp" alt=""></button></div>
+      <div class="fed-bar" data-back hidden><button class="btn btn--secondary btn--sm" data-show>重新显示</button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FEED-024" data-name="悬浮说明" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">悬浮说明</span></div>
+  <p class="demo__note">适合：无文字图标按钮的中文名提示</p>
+  <div class="demo__stage">
+    <div class="fed-icons" style="gap:var(--s-5)">
+      <button class="fed-ico" data-tip="消息" aria-label="消息"><img src="../../kit/assets/line/message.webp" alt=""></button>
+      <button class="fed-ico" data-tip="扫码" aria-label="扫码"><img src="../../kit/assets/line/scan.webp" alt=""></button>
+      <button class="fed-ico" data-tip="联系客服" aria-label="联系客服"><img src="../../kit/assets/line/support.webp" alt=""></button>
+      <button class="fed-ico" data-tip="设置" aria-label="设置"><img src="../../kit/assets/line/settings.webp" alt=""></button>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FEED-025" data-name="错误重试块" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">错误重试块</span></div>
+  <p class="demo__note">适合：局部模块加载失败，原位重试不离开页面</p>
+  <div class="demo__stage">
+    <div class="card" data-box>
+      <div class="fed-err" data-fail><div class="fed-err__mark"><img src="../../kit/assets/line/close.webp" alt=""></div><h3>热销榜加载失败</h3><button class="btn btn--primary btn--pill btn--sm" data-retry>重试</button></div>
+      <div class="list" data-load hidden>
+        <div class="fed-skel-row"><div class="skel" style="width:56px;height:56px;border-radius:var(--r-md)"></div><div class="fed-skel-row__main"><div class="skel" style="height:16px;width:70%"></div><div class="skel" style="height:14px;width:46%"></div></div><div class="skel" style="height:16px;width:44px"></div></div>
+        <div class="fed-skel-row"><div class="skel" style="width:56px;height:56px;border-radius:var(--r-md)"></div><div class="fed-skel-row__main"><div class="skel" style="height:16px;width:58%"></div><div class="skel" style="height:14px;width:62%"></div></div><div class="skel" style="height:16px;width:44px"></div></div>
+      </div>
+      <div class="list" data-ok hidden>
+        <div class="row fed-ord fed-new"><img class="row__lead" src="../../kit/assets/photo/product-monstera.webp" alt=""><div class="row__main"><p class="row__title one-line">龟背竹盆栽</p><p class="row__meta">已售 2860 件</p></div><span class="price"><small>¥</small>159</span></div>
+        <div class="row fed-ord fed-new"><img class="row__lead" src="../../kit/assets/photo/product-succulent.webp" alt=""><div class="row__main"><p class="row__title one-line">多肉组合盆</p><p class="row__meta">已售 2214 件</p></div><span class="price"><small>¥</small>89</span></div>
+      </div>
+    </div>
+    <div class="fed-bar fed-after" data-back hidden><button class="btn btn--text btn--sm" data-reset>恢复失败状态</button></div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FEED-026" data-name="按钮成功态" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">按钮成功态</span></div>
+  <p class="demo__note">适合：保存、提交按钮从加载到完成的原位反馈</p>
+  <div class="demo__stage">
+    <div class="fed-center">
+      <button class="btn btn--primary btn--lg fed-save"><img src="../../kit/assets/line/check.webp" alt=""><span data-txt>保存修改</span></button>
+    </div>
+  </div>
+</article>
+
+<script>
+(function () {
+  const { $, $$ } = Lz;
+  const D = cid => document.querySelector(`[data-cid="${cid}"]`);
+  const sleep = ms => new Promise(r => setTimeout(r, Lz.reduce ? 0 : ms));
+  const el = html => { const t = document.createElement('template'); t.innerHTML = html.trim(); return t.content.firstElementChild; };
+  const root = document;
+
+  /* 001 至 003 轻提示：点按钮弹出真实提示 */
+  ['AP-FEED-001', 'AP-FEED-002', 'AP-FEED-003'].forEach(c => { const b = $('[data-fire]', D(c)); b.addEventListener('click', () => Lz.toast(b.dataset.fire, b.dataset.tone)); });
+
+  /* 004、005 确认框：真实对话框与样张的按钮都写回结果 */
+  const CONF = { 'AP-FEED-004': { title: '确认删除订单', ok: '删除', cancel: '取消', tone: 'danger' }, 'AP-FEED-005': { title: '确认提交订单', ok: '提交', cancel: '再看看', tone: 'primary' } };
+  Object.entries(CONF).forEach(([cid, opts]) => {
+    const r = D(cid), res = $('[data-res]', r);
+    const set = ok => { res.textContent = ok ? '已确认' : '已取消'; res.dataset.tone = ok ? 'success' : ''; };
+    $('[data-open]', r).addEventListener('click', async () => set(await Lz.confirm(opts)));
+    $$('[data-pick]', r).forEach(b => b.addEventListener('click', () => set(b.dataset.pick === 'yes')));
+  });
+
+  /* 通用：带 data-toast 的按钮点击即提示 */
+  document.addEventListener('click', e => { const t = e.target.closest('[data-cid^="AP-FEED"] [data-toast]'); if (t) Lz.toast(t.dataset.toast, 'success'); });
+
+  /* 006 成功结果页：重播入场 */
+  (() => { const r = D('AP-FEED-006'), ring = $('.fed-ring', r); $('[data-replay]', r).addEventListener('click', () => { ring.removeAttribute('data-play'); void ring.offsetWidth; ring.setAttribute('data-play', ''); }); })();
+
+  /* 007 失败结果页：重新支付，成功后整页转为成功 */
+  (() => {
+    const r = D('AP-FEED-007'), card = $('.fed-result', r), ring = $('.fed-ring', r), btn = $('[data-retry]', r);
+    btn.addEventListener('click', async () => {
+      btn.classList.add('is-loading'); await sleep(1100); btn.classList.remove('is-loading');
+      ring.dataset.tone = 'success'; $('img', ring).src = '../../kit/assets/line/check.webp'; ring.setAttribute('aria-label', '支付成功');
+      $('h3', card).textContent = '支付成功'; $('[data-why]', card).previousElementSibling.textContent = '支付方式'; $('[data-why]', card).textContent = '微信支付';
+      ring.removeAttribute('data-play'); void ring.offsetWidth; ring.setAttribute('data-play', ''); btn.hidden = true; $('.btn--ghost', card).textContent = '查看订单'; Lz.toast('支付成功', 'success');
+    });
+  })();
+
+  /* 010 搜索无结果：输入即过滤，没有匹配才出现空态 */
+  (() => {
+    const r = D('AP-FEED-010'), inp = $('input', r), rows = $$('[data-w]', r), list = $('[data-list]', r), none = $('[data-none]', r);
+    const run = () => { const q = inp.value.trim(); let n = 0; rows.forEach(x => { const ok = !q || x.dataset.w.includes(q) || x.textContent.includes(q); x.hidden = !ok; if (ok) n++; }); list.hidden = n === 0; none.hidden = n > 0; };
+    inp.addEventListener('input', run); $('[data-clear]', r).addEventListener('click', () => { inp.value = ''; run(); inp.focus(); }); run();
+  })();
+
+  /* 011 网络异常：重新加载仍失败时给失败提示 */
+  (() => { const b = $('[data-reload]', D('AP-FEED-011')); b.addEventListener('click', async () => { b.classList.add('is-loading'); await sleep(1100); b.classList.remove('is-loading'); Lz.toast('仍无法连接网络', 'danger'); }); })();
+
+  /* 012 无权限：申请后按钮变为已申请 */
+  (() => { const b = $('[data-ask]', D('AP-FEED-012')); b.addEventListener('click', () => { b.textContent = '已申请'; b.disabled = true; Lz.toast('申请已提交', 'success'); }); })();
+
+  /* 015 加载中：到时间后切换为对勾 */
+  (() => {
+    const r = D('AP-FEED-015'), box = $('.fed-load', r), txt = $('[data-txt]', r); let t;
+    const start = () => { clearTimeout(t); box.removeAttribute('data-done'); txt.textContent = '加载中'; t = setTimeout(() => { box.setAttribute('data-done', ''); txt.textContent = '已加载'; }, Lz.reduce ? 0 : 2200); };
+    $('[data-replay]', r).addEventListener('click', start); start();
+  })();
+
+  /* 016 顶部进度条：分段推进到 100% 后淡出 */
+  (() => {
+    const r = D('AP-FEED-016'), bar = $('.fed-frame__bar', r), pct = $('[data-pct]', r), btn = $('[data-start]', r);
+    const set = v => { bar.style.width = v + '%'; bar.setAttribute('aria-valuenow', v); pct.textContent = v >= 100 ? '加载完成' : `已加载 ${v}%`; };
+    btn.addEventListener('click', async () => {
+      btn.disabled = true; bar.style.transition = 'none'; set(0); void bar.offsetWidth; bar.style.transition = ''; bar.setAttribute('data-on', '');
+      for (const v of [18, 42, 67, 85, 100]) { await sleep(420); set(v); }
+      await sleep(520); bar.removeAttribute('data-on'); await sleep(260); bar.style.transition = 'none'; bar.style.width = '0%'; void bar.offsetWidth; bar.style.transition = ''; btn.disabled = false; btn.textContent = '再次加载';
+    });
+  })();
+
+  /* 017 下拉刷新：拖动超过阈值松手刷新，也可点按钮 */
+  (() => {
+    const r = D('AP-FEED-017'), box = $('[data-ptr]', r), body = $('.fed-ptr__body', box), label = $('[data-label]', box), list = $('[data-list]', box), TH = 56;
+    let y0 = null, pull = 0, busy = false, n = 0;
+    const NEW = [['白郁金香', 'product-tulip-white', 179], ['向日葵花束', 'product-sunflower', 159], ['干花花瓶摆件', 'product-pampas-vase', 129]];
+    const setY = v => body.style.setProperty('--y', v + 'px');
+    async function refresh() {
+      if (busy) return; busy = true; box.setAttribute('data-busy', ''); label.textContent = '正在刷新'; setY(TH);
+      await sleep(1100);
+      const [name, img, price] = NEW[n++ % NEW.length];
+      const row = el(`<div class="row fed-ord fed-new"><img class="row__lead" src="../../kit/assets/photo/${img}.webp" alt=""><div class="row__main"><p class="row__title one-line">${name}</p><p class="row__meta">待付款</p></div><div class="row__trail"><span class="price"><small>¥</small>${price}</span><span>刚刚</span></div></div>`);
+      list.prepend(row); if (list.children.length > 5) list.lastElementChild.remove();
+      box.removeAttribute('data-busy'); label.textContent = '刷新完成'; await sleep(600); setY(0); busy = false; await sleep(300); label.textContent = '下拉刷新';
+    }
+    body.addEventListener('pointerdown', e => { if (busy) return; y0 = e.clientY; box.setAttribute('data-drag', ''); body.setPointerCapture(e.pointerId); });
+    body.addEventListener('pointermove', e => { if (y0 == null) return; pull = Math.max(0, Math.min(88, (e.clientY - y0) * .55)); setY(pull); label.textContent = pull >= TH ? '松开刷新' : '下拉刷新'; });
+    const end = () => { if (y0 == null) return; y0 = null; box.removeAttribute('data-drag'); if (pull >= TH) refresh(); else { setY(0); label.textContent = '下拉刷新'; } pull = 0; };
+    body.addEventListener('pointerup', end); body.addEventListener('pointercancel', end);
+    $('[data-refresh]', r).addEventListener('click', refresh);
+  })();
+
+  /* 018 加载更多：点按钮加载一页，到第二页后提示没有更多 */
+  (() => {
+    const r = D('AP-FEED-018'), list = $('[data-list]', r), more = $('[data-more]', r); let page = 0;
+    const PAGES = [[['干花花瓶摆件', 'product-pampas-vase', '已完成', 129], ['多肉组合盆', 'product-succulent', '已完成', 89]], [['花礼盒', 'product-giftbox', '售后', 259]]];
+    const btnHtml = '<button class="btn btn--text btn--sm" data-load>加载更多</button>';
+    const bind = () => $('[data-load]', more).addEventListener('click', load);
+    async function load() {
+      more.innerHTML = '<span class="fed-spin fed-spin--sm"></span><span>加载中</span>'; more.classList.add('fed-more--busy'); await sleep(900);
+      PAGES[page].forEach(([n, img, st, p]) => list.append(el(`<div class="row fed-ord fed-new"><img class="row__lead" src="../../kit/assets/photo/${img}.webp" alt=""><div class="row__main"><p class="row__title one-line">${n}</p><p class="row__meta">${st}</p></div><div class="row__trail"><span class="price"><small>¥</small>${p}</span></div></div>`)));
+      page++; more.classList.remove('fed-more--busy');
+      if (page >= PAGES.length) more.textContent = '没有更多了'; else { more.innerHTML = btnHtml; bind(); }
+    }
+    bind();
+  })();
+
+  /* 019 红点：点开后红点消失 */
+  (() => {
+    const r = D('AP-FEED-019'), items = $$('.fed-ico', r);
+    items.forEach(b => b.addEventListener('click', () => { const d = $('.fed-dot', b); if (d && !d.hasAttribute('data-off')) { d.setAttribute('data-off', ''); b.setAttribute('aria-label', b.dataset.tip + ' 无新内容'); } }));
+    $('[data-reset]', r).addEventListener('click', () => items.slice(0, 2).forEach(b => { const d = $('.fed-dot', b); d.removeAttribute('data-off'); b.setAttribute('aria-label', b.dataset.tip + ' 有新内容'); }));
+  })();
+
+  /* 020 数字角标：增减后重新弹入，零则隐藏，超过 99 显示 99+ */
+  (() => {
+    const r = D('AP-FEED-020'), items = $$('.fed-ico', r);
+    const paint = (b, pop) => {
+      const n = +b.dataset.n; let bd = $('.badge', b);
+      if (n <= 0) { if (bd) bd.remove(); b.setAttribute('aria-label', b.dataset.tip + ' 无未读'); return; }
+      if (!bd) { bd = el('<span class="badge"></span>'); b.append(bd); }
+      bd.textContent = n > 99 ? '99+' : n; b.setAttribute('aria-label', `${b.dataset.tip} ${n} 条未读`);
+      if (pop) { bd.style.animation = 'none'; void bd.offsetWidth; bd.style.animation = ''; }
+    };
+    $('[data-add]', r).addEventListener('click', () => items.forEach(b => { b.dataset.n = +b.dataset.n + 1; paint(b, true); }));
+    $('[data-clear]', r).addEventListener('click', () => items.forEach(b => { b.dataset.n = 0; paint(b); }));
+  })();
+
+  /* 021 状态标签：推进订单状态，颜色跟着语义走 */
+  (() => {
+    const r = D('AP-FEED-021'), tag = $('[data-state]', r), S = [['待付款', 'warning'], ['待发货', 'info'], ['待收货', 'action'], ['已完成', 'success'], ['售后', 'danger']]; let i = 0;
+    $('[data-next]', r).addEventListener('click', () => { i = (i + 1) % S.length; tag.textContent = S[i][0]; tag.dataset.tone = S[i][1]; });
+  })();
+
+  /* 022 状态点：点一行轮换状态 */
+  (() => {
+    const S = [['营业中', 'var(--success)'], ['备货中', 'var(--warning)'], ['已打烊', 'var(--ink-3)']];
+    $$('.row', D('AP-FEED-022')).forEach(row => { row.tabIndex = 0; row.style.cursor = 'pointer'; const st = $('[data-st]', row); const go = () => { const i = (S.findIndex(s => s[0] === st.textContent) + 1) % S.length; st.textContent = S[i][0]; st.style.setProperty('--c', S[i][1]); }; row.addEventListener('click', go); row.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } }); });
+  })();
+
+  /* 023 状态条：切换类型，可关闭并重新显示 */
+  (() => {
+    const r = D('AP-FEED-023'), strip = $('.fed-strip', r), txt = $('[data-txt]', strip), act = $('[data-act]', strip), back = $('[data-back]', r);
+    const T = { info: ['有 2 笔订单待付款', '去支付'], success: ['订单已提交成功', '查看'], warning: ['网络不稳定 部分内容较慢', '检查'], danger: ['网络已断开', '重试'] };
+    r.addEventListener('lz:seg', e => { const k = e.detail.key; strip.dataset.tone = k; txt.textContent = T[k][0]; act.textContent = T[k][1]; strip.removeAttribute('data-gone'); back.hidden = true; });
+    act.addEventListener('click', () => Lz.toast(act.textContent + '已处理', 'success'));
+    $('[data-close]', strip).addEventListener('click', () => { strip.setAttribute('data-gone', ''); back.hidden = false; });
+    $('[data-show]', back).addEventListener('click', () => { strip.removeAttribute('data-gone'); back.hidden = true; });
+  })();
+
+  /* 025 错误重试：失败 → 骨架 → 内容 */
+  (() => {
+    const r = D('AP-FEED-025'), fail = $('[data-fail]', r), load = $('[data-load]', r), ok = $('[data-ok]', r), back = $('[data-back]', r), reset = $('[data-reset]', r), btn = $('[data-retry]', r);
+    btn.addEventListener('click', async () => { fail.hidden = true; load.hidden = false; await sleep(1200); load.hidden = true; ok.hidden = false; back.hidden = false; });
+    reset.addEventListener('click', () => { ok.hidden = true; fail.hidden = false; back.hidden = true; });
+  })();
+
+  /* 026 按钮成功态：加载 → 已保存 → 复原 */
+  (() => {
+    const b = $('.fed-save', D('AP-FEED-026')), txt = $('[data-txt]', b);
+    b.addEventListener('click', async () => {
+      if (b.classList.contains('is-loading') || b.hasAttribute('data-ok')) return;
+      b.classList.add('is-loading'); await sleep(1000); b.classList.remove('is-loading'); b.setAttribute('data-ok', ''); txt.textContent = '已保存'; await sleep(1800); b.removeAttribute('data-ok'); txt.textContent = '保存修改';
+    });
+  })();
+})();
+</script>
+
+<article class="demo" data-cid="AP-FEED-027" data-name="图片预览浏览" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">图片预览浏览</span></div>
+  <p class="demo__note">适合：点缩略图全屏浏览多图并显示页码</p>
+  <div class="demo__stage">
+    <div class="fedx-gv" data-gv>
+      <div class="section__head"><h2>买家实拍</h2><span class="tag">共 9 张</span></div>
+      <div class="card fed-card">
+        <div class="fedx-gv__grid">
+          <button class="fedx-gv__th" data-name="红玫瑰花束" aria-label="查看第 1 张 红玫瑰花束" aria-haspopup="dialog"><img src="../../kit/assets/photo/product-rose-red.webp" alt=""></button>
+          <button class="fedx-gv__th" data-name="粉芍药花束" aria-label="查看第 2 张 粉芍药花束" aria-haspopup="dialog"><img src="../../kit/assets/photo/product-peony-pink.webp" alt=""></button>
+          <button class="fedx-gv__th" data-name="向日葵花束" aria-label="查看第 3 张 向日葵花束" aria-haspopup="dialog"><img src="../../kit/assets/photo/product-sunflower.webp" alt=""></button>
+          <button class="fedx-gv__th" data-name="白郁金香" aria-label="查看第 4 张 白郁金香" aria-haspopup="dialog"><img src="../../kit/assets/photo/product-tulip-white.webp" alt=""></button>
+          <button class="fedx-gv__th" data-name="蓝绣球盆栽" aria-label="查看第 5 张 蓝绣球盆栽" aria-haspopup="dialog"><img src="../../kit/assets/photo/product-hydrangea-blue.webp" alt=""></button>
+          <button class="fedx-gv__th" data-name="龟背竹盆栽" aria-label="查看第 6 张 龟背竹盆栽" aria-haspopup="dialog"><img src="../../kit/assets/photo/product-monstera.webp" alt=""></button>
+          <button class="fedx-gv__th" data-name="多肉组合盆" aria-label="查看第 7 张 多肉组合盆" aria-haspopup="dialog"><img src="../../kit/assets/photo/product-succulent.webp" alt=""></button>
+          <button class="fedx-gv__th" data-name="花礼盒" aria-label="查看第 8 张 花礼盒" aria-haspopup="dialog"><img src="../../kit/assets/photo/product-giftbox.webp" alt=""></button>
+          <button class="fedx-gv__th" data-name="干花花瓶摆件" aria-label="查看第 9 张 干花花瓶摆件" aria-haspopup="dialog"><img src="../../kit/assets/photo/product-pampas-vase.webp" alt=""></button>
+        </div>
+      </div>
+      <div class="fedx-vw" role="dialog" aria-modal="true" aria-label="图片预览" hidden>
+        <div class="fedx-vw__top"><span></span><span class="fedx-vw__page" role="status" aria-live="polite" data-page>1 / 9</span><button class="fedx-vw__x" data-x>关闭</button></div>
+        <div class="fedx-vw__stage" tabindex="0" aria-label="图片区域 左右滑动切换" data-stage><div class="fedx-vw__track" data-track></div></div>
+        <div class="fedx-vw__bar"><button class="fedx-vw__b" data-prev>上一张</button><span class="fedx-vw__cap" data-cap></span><button class="fedx-vw__b" data-next>下一张</button></div>
+      </div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FEED-028" data-name="居中详情弹层" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">居中详情弹层</span></div>
+  <p class="demo__note">适合：只读详情与图文预览居中悬浮并带关闭</p>
+  <div class="demo__stage">
+    <div class="fedx-pv" data-pv>
+      <div class="card list" data-list>
+        <button class="row row--link" data-k="0" aria-haspopup="dialog"><img class="row__lead" src="../../kit/assets/photo/product-rose-red.webp" alt=""><div class="row__main"><p class="row__title one-line">红玫瑰花束</p><p class="row__meta one-line">同城 2 小时送达</p></div><div class="row__trail"><span class="price"><small>¥</small>199</span></div></button>
+        <button class="row row--link" data-k="1" aria-haspopup="dialog"><img class="row__lead" src="../../kit/assets/photo/product-peony-pink.webp" alt=""><div class="row__main"><p class="row__title one-line">粉芍药花束</p><p class="row__meta one-line">同城 2 小时送达</p></div><div class="row__trail"><span class="price"><small>¥</small>239</span></div></button>
+        <button class="row row--link" data-k="2" aria-haspopup="dialog"><img class="row__lead" src="../../kit/assets/photo/product-sunflower.webp" alt=""><div class="row__main"><p class="row__title one-line">向日葵花束</p><p class="row__meta one-line">同城 2 小时送达</p></div><div class="row__trail"><span class="price"><small>¥</small>159</span></div></button>
+        <button class="row row--link" data-k="3" aria-haspopup="dialog"><img class="row__lead" src="../../kit/assets/photo/product-tulip-white.webp" alt=""><div class="row__main"><p class="row__title one-line">白郁金香</p><p class="row__meta one-line">同城 2 小时送达</p></div><div class="row__trail"><span class="price"><small>¥</small>179</span></div></button>
+        <button class="row row--link" data-k="4" aria-haspopup="dialog"><img class="row__lead" src="../../kit/assets/photo/product-hydrangea-blue.webp" alt=""><div class="row__main"><p class="row__title one-line">蓝绣球盆栽</p><p class="row__meta one-line">快递 次日达</p></div><div class="row__trail"><span class="price"><small>¥</small>129</span></div></button>
+      </div>
+      <div class="fedx-pv__scrim" data-scrim>
+        <div class="fedx-pv__dlg" role="dialog" aria-modal="true" aria-labelledby="fedx-pv-t">
+          <div class="fedx-pv__media"><img data-img src="../../kit/assets/photo/product-rose-red.webp" alt=""><button class="ibtn ibtn--round fedx-pv__x" data-x aria-label="关闭详情" data-tip="关闭"><img src="../../kit/assets/line/close.webp" alt=""></button></div>
+          <div class="fedx-pv__body">
+            <div class="fedx-pv__head"><h3 id="fedx-pv-t" data-name>红玫瑰花束</h3><span class="price"><small>¥</small><span data-price>199</span></span></div>
+            <div class="fedx-pv__rows"><div><span>花材</span><b data-f1>红玫瑰 19 枝</b></div><div><span>配送</span><b data-f2>同城 2 小时送达</b></div><div><span>门店</span><b data-f3>建国路店</b></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FEED-029" data-name="底部动作面板" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">底部动作面板</span></div>
+  <p class="demo__note">适合：点更多后列出分享、收藏、举报等动作选项</p>
+  <div class="demo__stage">
+    <div class="card list fedx-ac">
+      <button class="row" data-expand="fedx-ac-1"><img class="row__lead" src="../../kit/assets/photo/product-rose-red.webp" alt=""><div class="row__main"><p class="row__title one-line">红玫瑰花束</p><p class="row__meta one-line"><span class="price"><small>¥</small>199</span> 同城 2 小时送达</p></div><span class="fedx-more">更多<span class="chev" aria-hidden="true"></span></span></button>
+      <div class="expand" id="fedx-ac-1" data-open="true"><div>
+        <div class="fedx-acts" role="menu" aria-label="更多操作">
+          <div class="fedx-acts__grp">
+            <button class="fedx-act" role="menuitem" data-act="share">分享给好友</button>
+            <button class="fedx-act" role="menuitemcheckbox" aria-checked="false" data-act="fav">收藏商品</button>
+            <button class="fedx-act" role="menuitem" data-act="copy">复制商品链接</button>
+            <button class="fedx-act" role="menuitem" data-act="report" data-tone="danger">举报商品</button>
+          </div>
+          <div class="fedx-acts__grp"><button class="fedx-act fedx-act--cancel" role="menuitem" data-act="cancel">取消</button></div>
+        </div>
+      </div></div>
+    </div>
+    <div class="fed-bar fed-after"><button class="btn btn--text btn--sm" data-reset>重置状态</button></div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FEED-030" data-name="分享面板" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">分享面板</span></div>
+  <p class="demo__note">适合：把商品或活动分享给好友的渠道面板</p>
+  <div class="demo__stage">
+    <div class="card list fedx-ac">
+      <div class="row"><img class="row__lead" src="../../kit/assets/photo/scene-hero-pink.webp" alt=""><div class="row__main"><p class="row__title one-line">春日鲜花节</p><p class="row__meta one-line">同城 2 小时送达</p></div><button class="btn btn--secondary btn--sm" data-expand="fedx-sh-1">分享</button></div>
+      <div class="expand" id="fedx-sh-1" data-open="true"><div>
+        <div class="fedx-share">
+          <div class="fedx-share__grid" role="group" aria-label="分享渠道">
+            <button class="fedx-chan" data-ok="已发送" data-msg="已发送给好友"><span class="fedx-chan__ic"><img src="../../kit/assets/line/people.webp" alt=""></span><span class="fedx-chan__t">好友</span></button>
+            <button class="fedx-chan" data-ok="已发送" data-msg="已发送到群聊"><span class="fedx-chan__ic"><img src="../../kit/assets/line/message.webp" alt=""></span><span class="fedx-chan__t">群聊</span></button>
+            <button class="fedx-chan" data-ok="已生成" data-msg="二维码已生成"><span class="fedx-chan__ic"><img src="../../kit/assets/line/scan.webp" alt=""></span><span class="fedx-chan__t">二维码</span></button>
+            <button class="fedx-chan" data-ok="已保存" data-msg="图片已保存"><span class="fedx-chan__ic"><img src="../../kit/assets/line/upload.webp" alt=""></span><span class="fedx-chan__t">保存图片</span></button>
+          </div>
+          <div class="fedx-share__foot"><button class="btn btn--ghost btn--sm" data-act="cancel">取消</button><button class="btn btn--primary btn--sm" data-act="copy">复制链接</button></div>
+        </div>
+      </div></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FEED-031" data-name="气泡操作菜单" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">气泡操作菜单</span></div>
+  <p class="demo__note">适合：点击或长按对象旁弹出的就近操作菜单</p>
+  <div class="demo__stage">
+    <div class="fedx-pop" data-pop>
+      <div class="card list" data-list>
+        <button class="row fedx-pop__row" data-o="0" aria-haspopup="menu" aria-expanded="false"><img class="avatar avatar--mark" src="../../kit/assets/marks/mark-001.webp" alt=""><div class="row__main"><div class="fedx-pop__t"><p class="row__title one-line">建国路店</p><span class="tag" data-tone="action" hidden>置顶</span></div><p class="row__meta one-line">新订单 3 笔 待接单</p></div><span class="fedx-pop__unread" data-n="3">3</span></button>
+        <button class="row fedx-pop__row" data-o="1" aria-haspopup="menu" aria-expanded="false"><img class="avatar avatar--mark" src="../../kit/assets/marks/mark-002.webp" alt=""><div class="row__main"><div class="fedx-pop__t"><p class="row__title one-line">徐汇滨江店</p><span class="tag" data-tone="action" hidden>置顶</span></div><p class="row__meta one-line">备货完成 等待骑手</p></div><span class="fedx-pop__unread" data-n="1">1</span></button>
+        <button class="row fedx-pop__row" data-o="2" aria-haspopup="menu" aria-expanded="false"><img class="avatar avatar--mark" src="../../kit/assets/marks/mark-003.webp" alt=""><div class="row__main"><div class="fedx-pop__t"><p class="row__title one-line">浦东世纪店</p><span class="tag" data-tone="action" hidden>置顶</span></div><p class="row__meta one-line">白郁金香库存低于安全线</p></div></button>
+      </div>
+      <div class="fedx-pop__menu" role="menu" aria-label="会话操作" hidden>
+        <button role="menuitem" data-do="pin">置顶</button><button role="menuitem" data-do="read">标为已读</button><button role="menuitem" data-do="del" data-tone="danger">删除</button>
+        <i class="fedx-pop__arrow" aria-hidden="true"></i>
+      </div>
+    </div>
+    <div class="fed-bar fed-after" data-back hidden><button class="btn btn--text btn--sm" data-reset>恢复列表</button></div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FEED-032" data-name="浮动面板" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">浮动面板</span></div>
+  <p class="demo__note">适合：地图或列表页底部可拖动停靠的信息面板</p>
+  <div class="demo__stage">
+    <div class="fedx-dock bg-leaves" data-dock>
+      <button class="fedx-pin" data-k="0" style="left:24%;top:22%" aria-label="徐汇滨江店" aria-pressed="false" data-tip="徐汇滨江店"><img data-ic="pin" src="../../kit/assets/icons/flat/pin.webp" alt=""></button>
+      <button class="fedx-pin" data-k="1" style="left:62%;top:15%" aria-label="浦东世纪店" aria-pressed="false" data-tip="浦东世纪店"><img data-ic="pin" src="../../kit/assets/icons/flat/pin.webp" alt=""></button>
+      <button class="fedx-pin" data-k="2" style="left:42%;top:34%" aria-label="静安寺店" aria-pressed="false" data-tip="静安寺店"><img data-ic="pin" src="../../kit/assets/icons/flat/pin.webp" alt=""></button>
+      <button class="fedx-pin" data-k="3" style="left:80%;top:33%" aria-label="虹桥天地店" aria-pressed="false" data-tip="虹桥天地店"><img data-ic="pin" src="../../kit/assets/icons/flat/pin.webp" alt=""></button>
+      <section class="fedx-dock__panel" data-panel aria-label="附近门店">
+        <div class="fedx-dock__top" data-top>
+          <div class="fedx-dock__grip" role="slider" tabindex="0" aria-label="调整面板高度" aria-orientation="vertical" aria-valuemin="0" aria-valuemax="2" aria-valuenow="1" aria-valuetext="半屏" data-grip data-tip="拖动调整高度"><i></i></div>
+          <div class="fedx-dock__head"><h3 class="card__title">附近门店</h3><span class="tag">4 家</span></div>
+        </div>
+        <div class="fedx-dock__list" data-list>
+          <button class="row" data-k="0"><img class="avatar avatar--mark" src="../../kit/assets/marks/mark-004.webp" alt=""><div class="row__main"><p class="row__title one-line">徐汇滨江店</p><p class="row__meta one-line">距离 0.8 公里</p></div><span class="tag" data-tone="success">营业中</span></button>
+          <button class="row" data-k="1"><img class="avatar avatar--mark" src="../../kit/assets/marks/mark-005.webp" alt=""><div class="row__main"><p class="row__title one-line">浦东世纪店</p><p class="row__meta one-line">距离 2.4 公里</p></div><span class="tag" data-tone="warning">备货中</span></button>
+          <button class="row" data-k="2"><img class="avatar avatar--mark" src="../../kit/assets/marks/mark-006.webp" alt=""><div class="row__main"><p class="row__title one-line">静安寺店</p><p class="row__meta one-line">距离 3.1 公里</p></div><span class="tag" data-tone="success">营业中</span></button>
+          <button class="row" data-k="3"><img class="avatar avatar--mark" src="../../kit/assets/marks/mark-007.webp" alt=""><div class="row__main"><p class="row__title one-line">虹桥天地店</p><p class="row__meta one-line">距离 5.6 公里</p></div><span class="tag">已打烊</span></button>
+        </div>
+      </section>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FEED-033" data-name="滚动公告栏" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">滚动公告栏</span></div>
+  <p class="demo__note">适合：首页顶部横向滚动的店铺公告，可暂停与关闭</p>
+  <div class="demo__stage">
+    <div class="fedx-nbw" data-nb>
+      <div class="fedx-nb" role="region" aria-label="店铺公告" data-bar>
+        <span class="tag">公告</span>
+        <div class="fedx-nb__view" role="button" tabindex="0" aria-label="查看公告 春日鲜花节全场花束满 199 减 30 元" data-view>
+          <div class="fedx-nb__track" data-track>
+            <div class="fedx-nb__grp"><span>春日鲜花节 全场花束满 199 减 30 元</span><span>建国路店 20:00 提前打烊</span><span>荷兰郁金香已到店 限量 200 束</span></div>
+            <div class="fedx-nb__grp" aria-hidden="true"><span>春日鲜花节 全场花束满 199 减 30 元</span><span>建国路店 20:00 提前打烊</span><span>荷兰郁金香已到店 限量 200 束</span></div>
+          </div>
+        </div>
+        <button class="ibtn" data-pause aria-label="暂停滚动" data-tip="暂停滚动"><img src="../../kit/assets/line/pause.webp" alt=""></button>
+        <button class="ibtn" data-close aria-label="关闭公告" data-tip="关闭公告"><img src="../../kit/assets/line/close.webp" alt=""></button>
+      </div>
+      <div class="seg seg--chips" data-seg="fedx-nsp" aria-label="滚动速度">
+        <button class="seg__item" data-key="slow" aria-selected="false">慢速</button>
+        <button class="seg__item" data-key="normal" aria-selected="true">常速</button>
+        <button class="seg__item" data-key="fast" aria-selected="false">快速</button>
+      </div>
+      <div class="fed-bar" data-back hidden><button class="btn btn--secondary btn--sm" data-show>重新显示</button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FEED-034" data-name="图片失败占位" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">图片失败占位</span></div>
+  <p class="demo__note">适合：图片未加载或失败时显示统一占位</p>
+  <div class="demo__stage">
+    <div class="card fed-card" data-ph>
+      <div class="fedx-phs">
+        <div class="fedx-ph" data-st="ok">
+          <i class="fedx-ph__bg"></i>
+          <img class="fedx-ph__pic" src="../../kit/assets/photo/product-rose-red.webp" alt="红玫瑰花束">
+          <div class="fedx-ph__s" data-for="load"><span class="fed-spin fed-spin--sm"></span><span>加载中</span></div>
+          <div class="fedx-ph__s" data-for="fail"><img class="fedx-ph__art" data-ic="bouquet" src="../../kit/assets/icons/flat/bouquet.webp" alt=""><span>加载失败</span><button class="btn btn--secondary btn--xs" data-retry>重新加载</button></div>
+        </div>
+        <div class="fedx-ph" data-st="load">
+          <i class="fedx-ph__bg"></i>
+          <img class="fedx-ph__pic" src="../../kit/assets/photo/product-peony-pink.webp" alt="粉芍药花束">
+          <div class="fedx-ph__s" data-for="load"><span class="fed-spin fed-spin--sm"></span><span>加载中</span></div>
+          <div class="fedx-ph__s" data-for="fail"><img class="fedx-ph__art" data-ic="bouquet" src="../../kit/assets/icons/flat/bouquet.webp" alt=""><span>加载失败</span><button class="btn btn--secondary btn--xs" data-retry>重新加载</button></div>
+        </div>
+        <div class="fedx-ph" data-st="fail">
+          <i class="fedx-ph__bg"></i>
+          <img class="fedx-ph__pic" src="../../kit/assets/photo/product-sunflower.webp" alt="向日葵花束">
+          <div class="fedx-ph__s" data-for="load"><span class="fed-spin fed-spin--sm"></span><span>加载中</span></div>
+          <div class="fedx-ph__s" data-for="fail"><img class="fedx-ph__art" data-ic="bouquet" src="../../kit/assets/icons/flat/bouquet.webp" alt=""><span>加载失败</span><button class="btn btn--secondary btn--xs" data-retry>重新加载</button></div>
+        </div>
+        <div class="fedx-ph" data-st="none">
+          <i class="fedx-ph__bg"></i>
+          <div class="fedx-ph__s" data-for="none"><img class="fedx-ph__art" data-ic="vase" src="../../kit/assets/icons/flat/vase.webp" alt=""><span>暂无图片</span></div>
+        </div>
+      </div>
+      <div class="fed-bar"><button class="btn btn--secondary btn--sm" data-all>重新加载全部</button></div>
+    </div>
+  </div>
+</article>
+
+<article class="demo" data-cid="AP-FEED-035" data-name="顶部消息通知条" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">顶部消息通知条</span></div>
+  <p class="demo__note">适合：订单状态变化时从顶部短暂出现的通知条</p>
+  <div class="demo__stage">
+    <div class="fedx-nf" data-nf>
+      <div class="card list">
+        <div class="row"><img class="row__lead" src="../../kit/assets/photo/product-sunflower.webp" alt=""><div class="row__main"><p class="row__title one-line">向日葵花束</p><p class="row__meta">订单 20817360</p></div><span class="tag" data-tone="success">已完成</span></div>
+        <div class="row"><img class="row__lead" src="../../kit/assets/photo/product-rose-red.webp" alt=""><div class="row__main"><p class="row__title one-line">红玫瑰花束</p><p class="row__meta">订单 20817365</p></div><span class="tag" data-tone="warning" data-state>待付款</span></div>
+        <div class="row"><img class="row__lead" src="../../kit/assets/photo/product-succulent.webp" alt=""><div class="row__main"><p class="row__title one-line">多肉组合盆</p><p class="row__meta">订单 20817352</p></div><span class="tag" data-tone="success">已完成</span></div>
+      </div>
+      <div class="fedx-nf__slot" role="status" aria-live="polite" data-slot></div>
+    </div>
+    <div class="fed-bar fed-after fedx-wrap"><button class="btn btn--secondary btn--sm" data-fire="paid">付款成功</button><button class="btn btn--secondary btn--sm" data-fire="ship">商家发货</button><button class="btn btn--secondary btn--sm" data-fire="done">确认送达</button><button class="btn btn--text btn--sm" data-reset>重置</button></div>
+  </div>
+</article>
+
+<style>
+  /* 新增 027 至 035：前缀 fedx-。颜色只取令牌，字号只取字阶 */
+  .fedx-wrap { flex-wrap: wrap; }
+
+  /* 027 图片预览：缩略图九宫格，点开后在舞台内全屏浏览 */
+  .fedx-gv { position: relative; display: grid; gap: var(--s-1); }
+  .fedx-gv__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-2); }
+  .fedx-gv__th { position: relative; aspect-ratio: 1; overflow: hidden; border-radius: var(--r-md); background: var(--zone); transition: transform var(--dur-quick) var(--ease-out); }
+  .fedx-gv__th img { width: 100%; height: 100%; object-fit: cover; }
+  .fedx-gv__th:active { transform: scale(.96); }
+  .fedx-vw { position: absolute; inset: 0; z-index: 5; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; border-radius: var(--r-lg); overflow: hidden; background: var(--ink); color: var(--surface); animation: lz-fade var(--dur-base) var(--ease-out) both; }
+  .fedx-vw :focus-visible { outline-color: var(--surface); }
+  .fedx-vw__top { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; min-height: 48px; padding: 0 var(--s-2) 0 var(--s-4); }
+  .fedx-vw__page { font-size: var(--fs-sm); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .fedx-vw__x { justify-self: end; min-height: 36px; padding: 0 var(--s-3); border-radius: var(--r-sm); font-size: var(--fs-sm); font-weight: 600; color: var(--surface); background: color-mix(in srgb, var(--surface) 14%, transparent); }
+  .fedx-vw__stage { position: relative; min-height: 0; overflow: hidden; touch-action: pan-y; cursor: grab; }
+  .fedx-vw__stage[data-drag] { cursor: grabbing; }
+  .fedx-vw__stage:focus-visible { outline-offset: -3px; border-radius: var(--r-md); }
+  .fedx-vw__track { display: flex; height: 100%; transform: translateX(calc(var(--i, 0) * -100% + var(--dx, 0px))); transition: transform var(--dur-slow) var(--ease-out); }
+  .fedx-vw__stage[data-drag] .fedx-vw__track { transition: none; }
+  .fedx-vw__track figure { flex: none; width: 100%; height: 100%; padding: 0 var(--s-3); }
+  .fedx-vw__track img { width: 100%; height: 100%; object-fit: contain; border-radius: var(--r-md); user-select: none; -webkit-user-drag: none; }
+  .fedx-vw__bar { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: var(--s-2); min-height: 56px; padding: var(--s-2) var(--s-3); }
+  .fedx-vw__b { min-height: 36px; padding: 0 var(--s-3); border-radius: var(--r-sm); font-size: var(--fs-sm); font-weight: 600; color: var(--surface); background: color-mix(in srgb, var(--surface) 14%, transparent); transition: opacity var(--dur-quick) var(--ease-out); }
+  .fedx-vw__b[aria-disabled="true"] { opacity: .35; pointer-events: none; }
+  .fedx-vw__cap { text-align: center; font-size: var(--fs-sm); color: color-mix(in srgb, var(--surface) 80%, transparent); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+
+  /* 028 居中详情弹层：舞台内的整页遮罩，弹层居中悬浮 */
+  .fedx-pv { position: relative; border-radius: var(--r-lg); overflow: hidden; }
+  .fedx-pv__scrim { position: absolute; inset: 0; z-index: 5; display: grid; place-items: center; padding: var(--s-2); background: var(--scrim); animation: lz-fade var(--dur-base) var(--ease-out) both; }
+  .fedx-pv__dlg { width: min(100%, 288px); max-height: 100%; overflow: auto; border-radius: var(--r-xl); background: var(--surface); box-shadow: var(--elev-4); animation: lz-dialog var(--dur-base) var(--ease-out) both; }
+  .fedx-pv__media { position: relative; aspect-ratio: 16 / 9; background: var(--zone); }
+  .fedx-pv__media > img { width: 100%; height: 100%; object-fit: cover; }
+  .fedx-pv__x { position: absolute; top: var(--s-2); right: var(--s-2); }
+  .fedx-pv__body { display: grid; gap: var(--s-1); padding: var(--s-3) var(--s-4) var(--s-3); }
+  .fedx-pv__head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-3); }
+  .fedx-pv__head h3 { font-size: var(--fs-lg); font-weight: 600; line-height: var(--lh-tight); }
+  .fedx-pv__head .price { font-size: var(--fs-lg); }
+  .fedx-pv__rows div { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); min-height: 36px; font-size: var(--fs-sm); color: var(--ink-2); }
+  .fedx-pv__rows div + div { border-top: 1px solid var(--line); }
+  .fedx-pv__rows b { font-weight: 600; color: var(--ink); }
+
+  /* 029 动作面板：就近展开在对象下方，成组的动作行加单独的取消 */
+  .fedx-ac { overflow: hidden; }
+  .fedx-more { display: inline-flex; align-items: center; gap: 2px; font-size: var(--fs-sm); color: var(--ink-2); }
+  .fedx-acts { display: grid; gap: var(--s-2); padding: var(--s-3); background: var(--zone); border-top: 1px solid var(--line); }
+  .fedx-acts__grp { overflow: hidden; border-radius: var(--r-md); background: var(--surface); }
+  .fedx-act { display: flex; align-items: center; justify-content: center; width: 100%; min-height: 48px; padding: 0 var(--s-4); font-size: var(--fs-md); color: var(--ink); transition: background var(--dur-quick) var(--ease-out), color var(--dur-quick) var(--ease-out); }
+  .fedx-act + .fedx-act { border-top: 1px solid var(--line); }
+  .fedx-act:focus-visible { outline-offset: -3px; }
+  @media (hover: hover) { .fedx-act:hover { background: var(--action-tint); } }
+  .fedx-act:active { background: var(--action-soft); }
+  .fedx-act[data-tone="danger"] { color: var(--danger); }
+  .fedx-act[aria-checked="true"] { color: var(--action-press); font-weight: 600; }
+  .fedx-act[aria-disabled="true"] { color: var(--ink-3); pointer-events: none; }
+  .fedx-act--cancel { font-weight: 600; }
+
+  /* 030 分享面板：渠道上图下字，复制链接与取消相邻 */
+  .fedx-share { display: grid; gap: var(--s-4); padding: var(--s-4) var(--s-3) var(--s-3); background: var(--zone); border-top: 1px solid var(--line); }
+  .fedx-share__grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s-2); }
+  .fedx-chan { display: grid; justify-items: center; align-content: start; gap: var(--s-2); font-size: var(--fs-sm); color: var(--ink-2); }
+  .fedx-chan__ic { display: grid; place-items: center; width: 52px; height: 52px; border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--elev-1); transition: transform var(--dur-instant) var(--ease-out), background var(--dur-base) var(--ease-out); }
+  .fedx-chan__ic img { width: 26px; height: 26px; }
+  .fedx-chan:active .fedx-chan__ic { transform: scale(.92); }
+  .fedx-chan[data-done] { pointer-events: none; color: var(--success); font-weight: 600; }
+  .fedx-chan[data-done] .fedx-chan__ic { background: var(--success-tint); }
+  .fedx-share__foot { display: flex; align-items: center; justify-content: flex-end; gap: var(--s-2); }
+
+  /* 031 气泡操作菜单：在对象旁就近弹出，空间不足时翻到上方，箭头指向点按处 */
+  .fedx-pop { position: relative; }
+  .fedx-pop .row { user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; transition: background var(--dur-quick) var(--ease-out), opacity var(--dur-base) var(--ease-out); }
+  .fedx-pop .row[aria-expanded="true"], .fedx-pop .row[data-pin] { background: var(--zone); }
+  .fedx-pop .row[data-gone] { opacity: 0; }
+  .fedx-pop__t { display: flex; align-items: center; gap: var(--s-2); min-width: 0; }
+  .fedx-pop__unread { display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: var(--r-full); background: var(--danger); color: var(--surface); font-size: var(--fs-xs); font-weight: 600; line-height: 1; }
+  .fedx-pop__menu { position: absolute; z-index: 6; display: flex; align-items: stretch; border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface); box-shadow: var(--elev-3); animation: lz-toast var(--dur-quick) var(--ease-out) both; }
+  .fedx-pop__menu button { min-height: 44px; padding: 0 var(--s-4); font-size: var(--fs-sm); font-weight: 600; white-space: nowrap; transition: background var(--dur-quick) var(--ease-out); }
+  .fedx-pop__menu button:first-of-type { border-radius: calc(var(--r-md) - 1px) 0 0 calc(var(--r-md) - 1px); }
+  .fedx-pop__menu button:last-of-type { border-radius: 0 calc(var(--r-md) - 1px) calc(var(--r-md) - 1px) 0; }
+  .fedx-pop__menu button + button { border-left: 1px solid var(--line); }
+  .fedx-pop__menu button[data-tone="danger"] { color: var(--danger); }
+  @media (hover: hover) { .fedx-pop__menu button:hover { background: var(--zone); } }
+  .fedx-pop__arrow { position: absolute; left: var(--ax, 24px); width: 12px; height: 12px; background: var(--surface); border: 0 solid var(--line); transform: translateX(-50%) rotate(45deg); }
+  .fedx-pop__menu[data-side="below"] .fedx-pop__arrow { top: -7px; border-width: 1px 0 0 1px; }
+  .fedx-pop__menu[data-side="above"] .fedx-pop__arrow { bottom: -7px; border-width: 0 1px 1px 0; }
+
+  /* 032 浮动面板：底部信息面板停靠在收起、半屏、展开三档 */
+  .fedx-dock { position: relative; height: 380px; overflow: hidden; border-radius: var(--r-lg); box-shadow: inset 0 0 0 1px var(--line); }
+  .fedx-pin { position: absolute; display: grid; place-items: center; width: 40px; height: 44px; transform: translate(-50%, -100%); transform-origin: bottom center; transition: transform var(--dur-base) var(--ease-spring); }
+  .fedx-pin img { width: 34px; height: 34px; object-fit: contain; }
+  .fedx-pin[aria-pressed="true"] { transform: translate(-50%, -100%) scale(1.3); z-index: 2; }
+  .fedx-dock__panel { position: absolute; z-index: 3; left: 0; right: 0; bottom: 0; display: grid; grid-template-rows: auto minmax(0, 1fr); height: var(--h, 200px); border-radius: var(--r-xl) var(--r-xl) 0 0; background: var(--surface); box-shadow: var(--elev-3); transition: height var(--dur-slow) var(--ease-spring); }
+  .fedx-dock[data-drag] .fedx-dock__panel { transition: none; }
+  .fedx-dock__top { padding: 0 var(--s-4) var(--s-3); touch-action: none; user-select: none; -webkit-user-select: none; cursor: grab; }
+  .fedx-dock[data-drag] .fedx-dock__top { cursor: grabbing; }
+  .fedx-dock__grip { display: grid; place-items: center; width: 88px; height: 24px; margin: 0 auto; border-radius: var(--r-sm); }
+  .fedx-dock__grip i { display: block; width: 36px; height: 4px; border-radius: 4px; background: var(--line-strong); }
+  .fedx-dock__head { display: flex; align-items: center; justify-content: space-between; gap: var(--s-2); }
+  .fedx-dock__list { position: relative; min-height: 0; overflow: hidden; }
+  .fedx-dock[data-at="2"] .fedx-dock__list { overflow-y: auto; }
+  .fedx-dock__list .row { min-height: 64px; }
+  .fedx-dock__list .row[aria-current="true"] { background: var(--action-tint); }
+
+  /* 033 滚动公告栏：文字横向无缝滚动，可暂停、变速、关闭 */
+  .fedx-nbw { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s-3); }
+  .fedx-nb { display: flex; align-items: center; gap: var(--s-2); min-height: 48px; padding: 0 var(--s-1) 0 var(--s-3); border-radius: var(--r-md); background: var(--action-tint); box-shadow: inset 0 0 0 1px var(--action-edge); font-size: var(--fs-sm); color: var(--action-press); }
+  .fedx-nb .tag { flex: none; background: var(--action); color: var(--surface); }
+  .fedx-nb__view { flex: 1; min-width: 0; align-self: stretch; display: flex; align-items: center; -webkit-mask-image: linear-gradient(90deg, transparent, var(--ink) 6%, var(--ink) 94%, transparent); mask-image: linear-gradient(90deg, transparent, var(--ink) 6%, var(--ink) 94%, transparent); overflow: hidden; cursor: pointer; border-radius: var(--r-sm); }
+  .fedx-nb__track { display: flex; width: max-content; animation: fedx-marq var(--dur, 14s) linear infinite; }
+  .fedx-nb[data-paused] .fedx-nb__track { animation-play-state: paused; }
+  .fedx-nb__grp { display: flex; flex: none; }
+  .fedx-nb__grp span { flex: none; padding-right: var(--s-12); white-space: nowrap; }
+  @keyframes fedx-marq { to { transform: translateX(-50%); } }
+  .fedx-nb .ibtn { width: 36px; height: 36px; flex: none; }
+  .fedx-nb .ibtn img { width: 18px; height: 18px; }
+  @media (prefers-reduced-motion: reduce) { .fedx-nb__track { animation: none; } }
+
+  /* 034 图片失败占位：加载中、失败可重试、无图片、已加载 */
+  .fedx-phs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-3); }
+  .fedx-ph { position: relative; aspect-ratio: 1; overflow: hidden; border-radius: var(--r-md); font-size: var(--fs-sm); color: var(--ink-3); text-align: center; }
+  .fedx-ph__bg { display: block; width: 100%; height: 100%; background: var(--zone); }
+  .fedx-ph__pic { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; animation: lz-fade var(--dur-slow) var(--ease-out) both; }
+  .fedx-ph:not([data-st="ok"]) .fedx-ph__pic { display: none; }
+  .fedx-ph__s { position: absolute; inset: 0; display: none; place-content: center; justify-items: center; gap: var(--s-2); }
+  .fedx-ph[data-st="load"] [data-for="load"], .fedx-ph[data-st="fail"] [data-for="fail"], .fedx-ph[data-st="none"] [data-for="none"] { display: grid; }
+  .fedx-ph__art { width: 56px; height: 56px; object-fit: contain; opacity: .6; }
+  .fedx-ph[data-st="load"] .fedx-ph__bg { background: linear-gradient(100deg, color-mix(in srgb, var(--action) 11%, var(--surface)) 30%, color-mix(in srgb, var(--action) 4%, var(--surface)) 50%, color-mix(in srgb, var(--action) 11%, var(--surface)) 70%) 0 0 / 200% 100%; animation: lz-shimmer 1.4s linear infinite; }
+
+  /* 035 顶部消息通知条：从顶部落下，几秒后自动收起，悬停时暂停 */
+  .fedx-nf { position: relative; border-radius: var(--r-lg); overflow: hidden; }
+  .fedx-nf__slot { position: absolute; z-index: 4; top: var(--s-2); left: var(--s-2); right: var(--s-2); pointer-events: none; }
+  .fedx-nf__bar { --c: var(--info); position: relative; display: flex; align-items: center; gap: var(--s-3); min-height: 52px; padding: 0 var(--s-1) 0 var(--s-4); overflow: hidden; border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface); box-shadow: var(--elev-3); pointer-events: auto; animation: fedx-drop var(--dur-base) var(--ease-out) both; }
+  .fedx-nf__bar[data-tone="success"] { --c: var(--success); }
+  .fedx-nf__bar[data-tone="warning"] { --c: var(--warning); }
+  .fedx-nf__bar[data-tone="action"] { --c: var(--action); }
+  .fedx-nf__bar[data-leave] { animation: fedx-lift var(--dur-quick) var(--ease-out) both; }
+  .fedx-nf__dot { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--c); box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 18%, transparent); }
+  .fedx-nf__t { flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: var(--fs-sm); font-weight: 600; }
+  .fedx-nf__timer { position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: var(--c); transform-origin: left center; animation: fedx-timer var(--ms, 3200ms) linear both; }
+  .fedx-nf__bar:hover .fedx-nf__timer, .fedx-nf__bar:focus-within .fedx-nf__timer { animation-play-state: paused; }
+  @keyframes fedx-drop { from { opacity: 0; transform: translateY(-16px); } to { opacity: 1; transform: none; } }
+  @keyframes fedx-lift { to { opacity: 0; transform: translateY(-10px); } }
+  @keyframes fedx-timer { to { transform: scaleX(0); } }
+</style>
+
+<script>
+(function () {
+  const { $, $$ } = Lz;
+  const D = cid => document.querySelector(`[data-cid="${cid}"]`);
+  const sleep = ms => new Promise(r => setTimeout(r, Lz.reduce ? 0 : ms));
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  const LINE = '../../kit/assets/line/';
+
+  /* 横向拖动：以横向位移为准，竖向滚动让给页面；拖动结束后短暂标记，便于忽略随后的点击 */
+  function drag(host, { move, end, guard }) {
+    let id = null, x0 = 0, y0 = 0, lx = 0, lt = 0, vx = 0, on = false;
+    host.addEventListener('pointerdown', e => { if (e.button > 0 || (guard && guard())) return; id = e.pointerId; x0 = lx = e.clientX; y0 = e.clientY; lt = performance.now(); vx = 0; on = false; });
+    host.addEventListener('pointermove', e => {
+      if (e.pointerId !== id) return;
+      const dx = e.clientX - x0, dy = e.clientY - y0;
+      if (!on) { if (Math.abs(dx) < 6) return; if (Math.abs(dy) > Math.abs(dx)) { id = null; return; } on = true; host.setPointerCapture(e.pointerId); host.setAttribute('data-drag', ''); }
+      const t = performance.now(); vx = .7 * vx + .3 * ((e.clientX - lx) / Math.max(1, t - lt)); lx = e.clientX; lt = t; move(dx);
+    });
+    const up = e => { if (e.pointerId !== id) return; id = null; if (!on) return; on = false; host.removeAttribute('data-drag'); host._dragged = true; setTimeout(() => { host._dragged = false; }, 0); end(e.clientX - x0, vx); };
+    host.addEventListener('pointerup', up); host.addEventListener('pointercancel', up);
+  }
+
+  /* 027 图片预览浏览：点缩略图进入全屏，左右滑动或按键切换，页码实时更新 */
+  (() => {
+    const r = D('AP-FEED-027'), box = $('[data-gv]', r), card = $('.fed-card', box), vw = $('.fedx-vw', box), track = $('[data-track]', vw), stage = $('[data-stage]', vw), page = $('[data-page]', vw), cap = $('[data-cap]', vw), prev = $('[data-prev]', vw), next = $('[data-next]', vw);
+    const ths = $$('.fedx-gv__th', box), N = ths.length; let cur = 0, opener = null;
+    track.innerHTML = ths.map(t => `<figure><img src="${$('img', t).getAttribute('src')}" alt="${t.dataset.name}" draggable="false"></figure>`).join('');
+    const show = i => {
+      cur = clamp(i, 0, N - 1); track.style.setProperty('--i', cur); track.style.setProperty('--dx', '0px');
+      page.textContent = `${cur + 1} / ${N}`; cap.textContent = ths[cur].dataset.name;
+      prev.setAttribute('aria-disabled', String(cur === 0)); next.setAttribute('aria-disabled', String(cur === N - 1));
+    };
+    const open = (i, from) => { opener = from; show(i); vw.hidden = false; card.inert = true; stage.focus({ preventScroll: true }); };
+    const close = () => { vw.hidden = true; card.inert = false; if (opener) opener.focus({ preventScroll: true }); };
+    ths.forEach((t, i) => t.addEventListener('click', () => open(i, t)));
+    $('[data-x]', vw).addEventListener('click', close);
+    prev.addEventListener('click', () => show(cur - 1)); next.addEventListener('click', () => show(cur + 1));
+    vw.addEventListener('keydown', e => {
+      if (e.key === 'Escape') { e.preventDefault(); close(); }
+      else if (e.key === 'ArrowLeft') { e.preventDefault(); show(cur - 1); }
+      else if (e.key === 'ArrowRight') { e.preventDefault(); show(cur + 1); }
+      else if (e.key === 'Home') { e.preventDefault(); show(0); }
+      else if (e.key === 'End') { e.preventDefault(); show(N - 1); }
+    });
+    drag(stage, {
+      move: dx => { const edge = (cur === 0 && dx > 0) || (cur === N - 1 && dx < 0); track.style.setProperty('--dx', (edge ? dx * .3 : dx) + 'px'); },
+      end: (dx, v) => { const w = stage.clientWidth; show(cur + (dx < -w * .2 || v < -.4 ? 1 : dx > w * .2 || v > .4 ? -1 : 0)); }
+    });
+  })();
+
+  /* 028 居中详情弹层：点商品行居中弹出只读详情，关闭按钮、遮罩、Esc 都能收起，焦点回到触发行 */
+  (() => {
+    const r = D('AP-FEED-028'), box = $('[data-pv]', r), list = $('[data-list]', box), scrim = $('[data-scrim]', box), rows = $$('[data-k]', list);
+    const DATA = [
+      ['红玫瑰花束', 'product-rose-red', 199, '红玫瑰 19 枝', '同城 2 小时送达', '建国路店'],
+      ['粉芍药花束', 'product-peony-pink', 239, '粉芍药 9 枝', '同城 2 小时送达', '徐汇滨江店'],
+      ['向日葵花束', 'product-sunflower', 159, '向日葵 6 枝', '同城 2 小时送达', '浦东世纪店'],
+      ['白郁金香', 'product-tulip-white', 179, '郁金香 10 枝', '同城 2 小时送达', '建国路店'],
+      ['蓝绣球盆栽', 'product-hydrangea-blue', 129, '绣球 1 盆', '快递 次日达', '徐汇滨江店']
+    ];
+    let opener = null;
+    const fill = k => { const d = DATA[k]; $('[data-img]', scrim).src = `../../kit/assets/photo/${d[1]}.webp`; $('[data-name]', scrim).textContent = d[0]; $('[data-price]', scrim).textContent = d[2]; $('[data-f1]', scrim).textContent = d[3]; $('[data-f2]', scrim).textContent = d[4]; $('[data-f3]', scrim).textContent = d[5]; };
+    const open = (k, from) => { opener = from; fill(k); scrim.hidden = false; list.inert = true; $('[data-x]', scrim).focus({ preventScroll: true }); };
+    const close = () => { scrim.hidden = true; list.inert = false; if (opener) opener.focus({ preventScroll: true }); };
+    rows.forEach(b => b.addEventListener('click', () => open(+b.dataset.k, b)));
+    $('[data-x]', scrim).addEventListener('click', close);
+    scrim.addEventListener('click', e => { if (e.target === scrim) close(); });
+    box.addEventListener('keydown', e => { if (e.key === 'Escape' && !scrim.hidden) { e.preventDefault(); close(); } });
+    fill(0); list.inert = true;
+  })();
+
+  /* 029 动作面板：就近展开的动作行；收藏可切换，举报先居中确认再变为已举报，取消收起 */
+  (() => {
+    const r = D('AP-FEED-029'), panel = $('.fedx-acts', r), trig = $('[data-expand]', r), fav = $('[data-act="fav"]', r), rep = $('[data-act="report"]', r);
+    const items = () => $$('.fedx-act', panel).filter(b => b.getAttribute('aria-disabled') !== 'true');
+    const paintFav = on => { fav.setAttribute('aria-checked', String(on)); fav.textContent = on ? '已收藏' : '收藏商品'; };
+    panel.addEventListener('click', async e => {
+      const b = e.target.closest('[data-act]'); if (!b || b.getAttribute('aria-disabled') === 'true') return;
+      switch (b.dataset.act) {
+        case 'share': Lz.toast('已分享给好友', 'success'); break;
+        case 'fav': { const on = fav.getAttribute('aria-checked') !== 'true'; paintFav(on); Lz.toast(on ? '已收藏' : '已取消收藏', 'success'); break; }
+        case 'copy': Lz.toast('已复制商品链接', 'success'); break;
+        case 'report': if (await Lz.confirm({ title: '确认举报该商品', ok: '举报', cancel: '取消', tone: 'danger' })) { rep.textContent = '已举报'; rep.setAttribute('aria-disabled', 'true'); Lz.toast('举报已提交', 'success'); } break;
+        case 'cancel': trig.click(); trig.focus(); break;
+      }
+    });
+    panel.addEventListener('keydown', e => {
+      const d = { ArrowDown: 1, ArrowUp: -1 }[e.key]; if (!d) return;
+      e.preventDefault(); const list = items(), i = list.indexOf(document.activeElement); list[(i + d + list.length) % list.length].focus();
+    });
+    $('[data-reset]', r).addEventListener('click', () => { paintFav(false); rep.textContent = '举报商品'; rep.removeAttribute('aria-disabled'); if (trig.getAttribute('aria-expanded') !== 'true') trig.click(); });
+  })();
+
+  /* 030 分享面板：点渠道原位变为已完成，几秒后复原；复制链接给出提示，取消收起 */
+  (() => {
+    const r = D('AP-FEED-030'), trig = $('[data-expand]', r);
+    $$('.fedx-chan', r).forEach(b => {
+      const t = $('.fedx-chan__t', b), img = $('img', b), name = t.textContent, src = img.getAttribute('src');
+      b.addEventListener('click', async () => {
+        if (b.hasAttribute('data-done')) return;
+        b.setAttribute('data-done', ''); t.textContent = b.dataset.ok; img.src = LINE + 'check.webp'; Lz.toast(b.dataset.msg, 'success');
+        await sleep(1600); b.removeAttribute('data-done'); t.textContent = name; img.src = src;
+      });
+    });
+    $('[data-act="copy"]', r).addEventListener('click', () => Lz.toast('已复制链接', 'success'));
+    $('[data-act="cancel"]', r).addEventListener('click', () => { trig.click(); trig.focus(); });
+  })();
+
+  /* 031 气泡操作菜单：点击、右键或长按会话行，在点按处旁弹出菜单；置顶、已读、删除都会改变列表 */
+  (() => {
+    const r = D('AP-FEED-031'), pop = $('[data-pop]', r), list = $('[data-list]', pop), menu = $('.fedx-pop__menu', pop), back = $('[data-back]', r);
+    const initial = list.innerHTML; let cur = null, timer = 0, pressed = false;
+    const rows = () => $$('.fedx-pop__row', list);
+    const rowOf = t => t.closest && t.closest('.fedx-pop__row');
+    const paint = row => {
+      const pin = row.hasAttribute('data-pin'); $('.tag', row).hidden = !pin;
+      const un = $('.fedx-pop__unread', row); const has = !!un && !un.hidden;
+      row.dataset.has = has ? '1' : '0';
+    };
+    const sort = () => rows().sort((a, b) => (b.hasAttribute('data-pin') - a.hasAttribute('data-pin')) || (a.dataset.o - b.dataset.o)).forEach(x => list.append(x));
+    const labels = row => { $('[data-do="pin"]', menu).textContent = row.hasAttribute('data-pin') ? '取消置顶' : '置顶'; const un = $('.fedx-pop__unread', row); $('[data-do="read"]', menu).hidden = !un; $('[data-do="read"]', menu).textContent = un && un.hidden ? '标为未读' : '标为已读'; };
+    function place(row, x) {
+      menu.hidden = false; menu.style.visibility = 'hidden';
+      const p = pop.getBoundingClientRect(), rr = row.getBoundingClientRect(), mw = menu.offsetWidth, mh = menu.offsetHeight;
+      let side = 'below', top = rr.bottom - p.top + 10;
+      if (top + mh > p.height) { side = 'above'; top = rr.top - p.top - mh - 10; }
+      if (top < 0) { side = 'below'; top = clamp(rr.bottom - p.top + 10, 0, Math.max(0, p.height - mh)); }
+      const left = clamp(x - p.left - mw / 2, 4, p.width - mw - 4);
+      menu.style.left = left + 'px'; menu.style.top = top + 'px'; menu.dataset.side = side; menu.style.setProperty('--ax', clamp(x - p.left - left, 18, mw - 18) + 'px');
+      menu.style.visibility = ''; menu.style.animation = 'none'; void menu.offsetWidth; menu.style.animation = '';
+    }
+    function close(focus) { if (!cur) return; const row = cur; cur = null; row.setAttribute('aria-expanded', 'false'); menu.hidden = true; if (focus) row.focus({ preventScroll: true }); }
+    function openFor(row, x, byKey) {
+      if (cur && cur !== row) cur.setAttribute('aria-expanded', 'false');
+      cur = row; row.setAttribute('aria-expanded', 'true'); labels(row); place(row, x);
+      if (byKey) $$('button', menu).find(b => !b.hidden).focus();
+    }
+    list.addEventListener('click', e => {
+      const row = rowOf(e.target); if (!row) return;
+      if (pressed) { pressed = false; return; }
+      if (cur === row) { close(); return; }
+      const rc = row.getBoundingClientRect(); openFor(row, e.detail === 0 ? rc.left + rc.width * .5 : e.clientX, e.detail === 0);
+    });
+    list.addEventListener('pointerdown', e => { const row = rowOf(e.target); if (!row || e.button > 0) return; const x = e.clientX; clearTimeout(timer); timer = setTimeout(() => { pressed = true; openFor(row, x, false); }, 450); });
+    ['pointerup', 'pointercancel', 'pointerleave'].forEach(t => list.addEventListener(t, () => clearTimeout(timer)));
+    list.addEventListener('contextmenu', e => { const row = rowOf(e.target); if (!row) return; e.preventDefault(); clearTimeout(timer); if (cur !== row) openFor(row, e.clientX, false); });
+    document.addEventListener('click', e => { if (cur && !menu.contains(e.target) && !rowOf(e.target)) close(); });
+    pop.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && cur) { e.preventDefault(); close(true); }
+      const d = { ArrowRight: 1, ArrowLeft: -1 }[e.key]; if (d && menu.contains(document.activeElement)) { e.preventDefault(); const bs = $$('button', menu).filter(b => !b.hidden), i = bs.indexOf(document.activeElement); bs[(i + d + bs.length) % bs.length].focus(); }
+    });
+    addEventListener('resize', () => close());
+    menu.addEventListener('click', async e => {
+      const b = e.target.closest('[data-do]'); if (!b || !cur) return; const row = cur, a = b.dataset.do; close(true);
+      if (a === 'pin') { const on = !row.hasAttribute('data-pin'); row.toggleAttribute('data-pin', on); paint(row); sort(); Lz.toast(on ? '已置顶' : '已取消置顶', 'success'); }
+      else if (a === 'read') { const un = $('.fedx-pop__unread', row); if (un) { un.hidden = !un.hidden; Lz.toast(un.hidden ? '已标为已读' : '已标为未读', 'success'); } }
+      else if (a === 'del') {
+        row.setAttribute('data-gone', ''); await sleep(tok('--dur-base')); row.remove(); back.hidden = false; Lz.toast('已删除会话', 'success');
+        if (!rows().length) list.innerHTML = '<div class="empty" style="padding:var(--s-6) var(--s-4)">没有更多会话</div>';
+      }
+    });
+    $('[data-reset]', r).addEventListener('click', () => { close(); list.innerHTML = initial; back.hidden = true; });
+    function tok(n) { return parseFloat(getComputedStyle(document.documentElement).getPropertyValue(n)); }
+  })();
+
+  /* 032 浮动面板：拖动顶部手柄，松手停靠到最近一档；点手柄或按上下键逐档切换；点图钉与列表联动 */
+  (() => {
+    const r = D('AP-FEED-032'), box = $('[data-dock]', r), panel = $('[data-panel]', box), top = $('[data-top]', box), grip = $('[data-grip]', box), list = $('[data-list]', box), pins = $$('.fedx-pin', box), rows = $$('[data-k]', list);
+    const LAB = ['收起', '半屏', '展开']; let A = [], at = 1, sel = -1;
+    const calc = () => { const H = box.clientHeight; A = [top.offsetHeight + 4, top.offsetHeight + rows[0].offsetHeight * 2, H - 40]; };
+    const set = i => { at = clamp(i, 0, 2); panel.style.setProperty('--h', A[at] + 'px'); box.dataset.at = at; grip.setAttribute('aria-valuenow', at); grip.setAttribute('aria-valuetext', LAB[at]); };
+    const pick = k => {
+      sel = k; pins.forEach(p => p.setAttribute('aria-pressed', String(+p.dataset.k === k))); rows.forEach(w => w.setAttribute('aria-current', String(+w.dataset.k === k)));
+      set(k >= 2 ? 2 : Math.max(at, 1)); const w = rows[k]; list.scrollTop = Math.max(0, w.offsetTop - 8);
+    };
+    pins.forEach(p => p.addEventListener('click', () => pick(+p.dataset.k)));
+    rows.forEach(w => w.addEventListener('click', () => pick(+w.dataset.k)));
+    let id = null, y0 = 0, h0 = 0, ly = 0, lt = 0, vy = 0, moved = false;
+    top.addEventListener('pointerdown', e => { if (e.button > 0) return; id = e.pointerId; top.setPointerCapture(id); y0 = ly = e.clientY; h0 = panel.offsetHeight; lt = performance.now(); vy = 0; moved = false; });
+    top.addEventListener('pointermove', e => {
+      if (e.pointerId !== id) return; const dy = e.clientY - y0;
+      if (!moved) { if (Math.abs(dy) < 5) return; moved = true; box.setAttribute('data-drag', ''); document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' })); }
+      const t = performance.now(); vy = .7 * vy + .3 * ((e.clientY - ly) / Math.max(1, t - lt)); ly = e.clientY; lt = t;
+      let h = h0 - dy; if (h < A[0]) h = A[0] - (A[0] - h) * .3; if (h > A[2]) h = A[2] + (h - A[2]) * .3; panel.style.setProperty('--h', h + 'px');
+    });
+    const up = e => {
+      if (e.pointerId !== id) return; id = null;
+      if (!moved) { set(at < 2 ? at + 1 : 0); return; }
+      box.removeAttribute('data-drag'); const proj = panel.offsetHeight - vy * 160;
+      set(A.reduce((b, v, i) => (Math.abs(v - proj) < Math.abs(A[b] - proj) ? i : b), 0));
+    };
+    top.addEventListener('pointerup', up); top.addEventListener('pointercancel', up);
+    grip.addEventListener('keydown', e => { const d = { ArrowUp: 1, ArrowDown: -1 }[e.key]; if (d) { e.preventDefault(); set(at + d); } else if (e.key === 'Home') { e.preventDefault(); set(0); } else if (e.key === 'End') { e.preventDefault(); set(2); } else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); set(at < 2 ? at + 1 : 0); } });
+    new ResizeObserver(() => { calc(); set(at); }).observe(box); calc(); set(1);
+  })();
+
+  /* 033 滚动公告栏：文字无缝横向滚动；悬停或点暂停会停住，可调速，关闭后可重新显示 */
+  (() => {
+    const r = D('AP-FEED-033'), bar = $('[data-bar]', r), view = $('[data-view]', bar), track = $('[data-track]', bar), pause = $('[data-pause]', bar), pimg = $('img', pause), back = $('[data-back]', r);
+    const SPD = { slow: 36, normal: 60, fast: 100 }; let speed = SPD.normal, manual = false, hover = false;
+    const fit = () => track.style.setProperty('--dur', (track.scrollWidth / 2 / speed).toFixed(1) + 's');
+    const paint = () => {
+      bar.toggleAttribute('data-paused', manual || hover);
+      pimg.src = LINE + (manual ? 'play' : 'pause') + '.webp'; pause.setAttribute('aria-label', manual ? '继续滚动' : '暂停滚动'); pause.dataset.tip = manual ? '继续滚动' : '暂停滚动';
+    };
+    pause.addEventListener('click', () => { manual = !manual; paint(); });
+    view.addEventListener('pointerenter', () => { hover = true; paint(); }); view.addEventListener('pointerleave', () => { hover = false; paint(); });
+    view.addEventListener('focus', () => { hover = true; paint(); }); view.addEventListener('blur', () => { hover = false; paint(); });
+    const open = () => Lz.toast('已打开公告', 'success');
+    view.addEventListener('click', open); view.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
+    r.addEventListener('lz:seg', e => { speed = SPD[e.detail.key] || SPD.normal; fit(); });
+    $('[data-close]', bar).addEventListener('click', () => { bar.hidden = true; back.hidden = false; $('[data-show]', back).focus(); });
+    $('[data-show]', back).addEventListener('click', () => { bar.hidden = false; back.hidden = true; fit(); });
+    new ResizeObserver(fit).observe(view); fit();
+  })();
+
+  /* 034 图片失败占位：失败的位置点重新加载，转为加载中，再成功显示；重新加载全部会按顺序重试 */
+  (() => {
+    const r = D('AP-FEED-034'), tiles = $$('.fedx-ph', r);
+    const st = (t, s) => { t.dataset.st = s; };
+    const retry = async (t, ok = true) => { st(t, 'load'); await sleep(1100); st(t, ok ? 'ok' : 'fail'); };
+    tiles.forEach(t => { const b = $('[data-retry]', t); if (b) b.addEventListener('click', () => retry(t)); });
+    $('[data-all]', r).addEventListener('click', async () => {
+      const b = $('[data-all]', r); b.disabled = true;
+      const pics = tiles.filter(t => $('.fedx-ph__pic', t)); pics.forEach(t => st(t, 'load'));
+      await sleep(700); st(pics[0], 'ok'); await sleep(450); st(pics[1], 'ok'); await sleep(450); st(pics[2], 'fail'); b.disabled = false;
+    });
+  })();
+
+  /* 035 顶部消息通知条：订单状态变化时从顶部落下，几秒后自动收起；悬停暂停计时，新通知替换旧通知 */
+  (() => {
+    const r = D('AP-FEED-035'), slot = $('[data-slot]', r), tag = $('[data-state]', r);
+    const EV = {
+      paid: ['订单 20817365 已付款', 'success', ['待发货', 'info']],
+      ship: ['订单 20817365 已发货', 'info', ['待收货', 'action']],
+      done: ['订单 20817365 已送达', 'success', ['已完成', 'success']]
+    };
+    const MS = 3200; let cur = null, t = 0;
+    const hide = async () => { const b = cur; if (!b) return; cur = null; clearTimeout(t); b.setAttribute('data-leave', ''); await sleep(160); b.remove(); };
+    const arm = () => { clearTimeout(t); t = setTimeout(hide, Lz.reduce ? 600 : MS); };
+    async function fire(k) {
+      const [text, tone, state] = EV[k]; await hide();
+      const b = document.createElement('div'); b.className = 'fedx-nf__bar'; b.dataset.tone = tone; b.style.setProperty('--ms', MS + 'ms');
+      b.innerHTML = `<span class="fedx-nf__dot"></span><span class="fedx-nf__t">${text}</span><button class="btn btn--text btn--sm" data-see>查看</button><i class="fedx-nf__timer"></i>`;
+      slot.append(b); cur = b; tag.textContent = state[0]; tag.dataset.tone = state[1]; arm();
+      b.addEventListener('pointerenter', () => clearTimeout(t)); b.addEventListener('pointerleave', () => { if (cur === b) { const tm = $('.fedx-nf__timer', b); tm.style.animation = 'none'; void tm.offsetWidth; tm.style.animation = ''; arm(); } });
+      b.addEventListener('focusin', () => clearTimeout(t)); b.addEventListener('focusout', () => { if (cur === b) arm(); });
+      $('[data-see]', b).addEventListener('click', () => { Lz.toast('已打开订单', 'success'); hide(); });
+    }
+    $$('[data-fire]', r).forEach(b => b.addEventListener('click', () => fire(b.dataset.fire)));
+    $('[data-reset]', r).addEventListener('click', async () => { await hide(); tag.textContent = '待付款'; tag.dataset.tone = 'warning'; });
+    const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { io.disconnect(); fire('paid'); } }), { threshold: .6 }); io.observe(r);
+  })();
+})();
+</script>

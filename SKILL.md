@@ -24,7 +24,7 @@ App 与 Web 从已确认的逐页功能说明开始。System 规定业务模块�
 1. 运行 `python -X utf8 scripts/context.py list`，读所选规则卡和[成品要求](references/design/hard-rules.md)。`new_session.py` 按所选类别开会话，海报使用 `--standalone-poster`。在简报写使用者、主任务、内容和要检查的状态。
 2. 按原始请求选择[阶段依据](../Luz-Crawl/references/evidence-policy.md)。项目或生成器需要记录时依[前置检索](../Luz-Crawl/references/preflight.md)完成 `run` 与 `check`，联网先核对实际正文或图像再 `conclude`。
 3. `template_library.py list/select` 将模板绑定到实际路径。按所选类别的生成器制作，登记最终哈希，`deliver.py` 或 `publish.py` 复核。正式文档按[内容依据与成品验收](references/document-evidence.md)。
-4. 用真实内容和目标尺寸检查成品。前端走主要用户流程、状态和无障碍检查，项目的 UX、AX 和 DX 规则用 `quality_rules.py list/plan` 选取并 `check`。
+4. 用真实内容和目标尺寸检查成品。前端逐个点击标签，核对落地页首屏从业务内容开始，按[界面导航](references/design/hard-rules.md#界面导航)删除标签名称及介绍。继续走主要流程、状态与无障碍检查，项目的 UX、AX 和 DX 规则用 `quality_rules.py list/plan` 选取并 `check`。
 5. BRIEF 写“采用的规则”和“本次沉淀”，用 `experience.py note` 更新同键经验。只适用于项目、技能维护或已写入规范的经验分别用 `--scope project`、`--scope maintenance`、`--codified`。
 
 ## 按产出选规则

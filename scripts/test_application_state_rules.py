@@ -4,6 +4,7 @@ import pytest
 from playwright.sync_api import sync_playwright
 
 RULES = Path(__file__).with_name('application_state_rules.js').read_text(encoding='utf8')
+INTERACTION_RULES = Path(__file__).with_name('audit_ui_rules.js').read_text(encoding='utf8')
 
 
 @pytest.fixture(scope='module')
@@ -49,6 +50,44 @@ def test_blocked_state(page,html,rule):
 ])
 def test_allowed_state(page,html):
     assert scan(page,html)==set()
+
+
+def test_selected_tab_landing_content_after_click(page):
+    page.set_content("""
+      <nav role="tablist">
+        <button role="tab" aria-selected="true" aria-controls="tasks">待办</button>
+        <button role="tab" aria-selected="false" aria-controls="kb">知识库</button>
+      </nav>
+      <main>
+        <section id="tasks" role="tabpanel"><button>新建任务</button></section>
+        <section id="kb" role="tabpanel" aria-label="知识库" hidden>
+          <header><h1>知识库管理</h1><p>在这里统一管理资料</p></header>
+          <input type="search" aria-label="搜索资料"><button>新建知识库</button>
+          <article><h2>采购合同</h2></article>
+        </section>
+      </main>
+      <script>
+        const tabs = [...document.querySelectorAll('[role=tab]')];
+        for (const tab of tabs) tab.onclick = () => {
+          for (const item of tabs) {
+            item.setAttribute('aria-selected', String(item === tab));
+            document.getElementById(item.getAttribute('aria-controls')).hidden = item !== tab;
+          }
+        };
+      </script>
+    """)
+
+    def findings():
+        return [item['text'] for item in page.locator('html').evaluate(INTERACTION_RULES, [])['violations']
+                if item['rule'] == 'tab-landing-header-copy']
+
+    assert findings() == []
+    page.get_by_role('tab', name='知识库').click()
+    assert findings() == ['知识库管理', '在这里统一管理资料']
+    page.locator('#kb header').evaluate('header => header.remove()')
+    assert page.get_by_role('searchbox', name='搜索资料').is_visible()
+    assert page.get_by_role('button', name='新建知识库').is_visible()
+    assert findings() == []
 
 
 @pytest.mark.parametrize('kind,cases', [

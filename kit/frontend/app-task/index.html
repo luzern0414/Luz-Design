@@ -7,10 +7,9 @@
     <fieldset class="category-fields"><legend>分类</legend><div><button v-for="c in categories.slice(1)" type="button" :aria-pressed="newCategory===c.name" :class="{selected:newCategory===c.name}" @click="newCategory=c.name">{{c.name}}</button></div></fieldset>
     <div class="form-actions" data-action-group><van-button class="text-action" native-type="button" aria-label="取消" @click="closeNew">取消</van-button><van-button class="text-action confirm-action" native-type="submit" aria-label="保存任务">保存</van-button></div></van-form>
   </ui-form-page>
-  <section v-if="!creating" aria-labelledby="tasks-title">
+  <section v-if="!creating" :aria-label="tab==='pending'?'待办':'完成'">
     <header class="task-banner">
-      <h1 id="tasks-title">任务清单</h1>
-      <p class="task-banner-caption">{{tab==='pending'?'待办':'已完成'}} {{scoped.length}} 项</p>
+      <p class="task-banner-caption">共 {{scoped.length}} 项</p>
     </header>
     <div class="task-filters">
       <input v-model="query" aria-label="搜索当前清单" placeholder="搜索任务" type="search">

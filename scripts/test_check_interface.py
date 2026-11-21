@@ -100,10 +100,18 @@ class TitleAndNavTest(unittest.TestCase):
             errors, _ = run(body)
             self.assertFalse([e for e in errors if "repeats the highlighted" in e], body)
 
-    def test_mini_program_tab_bar_is_not_navigation_here(self) -> None:
+    def test_mini_program_tab_bar_counts_as_navigation(self) -> None:
         body = '<div class="tabbar"><button aria-current="page">我的</button></div><div class="page-title">我的</div>'
         errors, _ = run(body)
-        self.assertFalse([e for e in errors if "repeats the highlighted" in e])
+        self.assertTrue([e for e in errors if "repeats the highlighted" in e])
+
+    def test_tab_panel_has_no_landing_header_copy(self) -> None:
+        tabs = '<div role="tablist"><button role="tab" aria-selected="true">知识库</button></div>'
+        errors, _ = run(tabs + '<section role="tabpanel"><header><h2>知识库</h2><p class="tab-description">统一管理资料</p></header></section>')
+        self.assertTrue(any("repeats the highlighted" in e for e in errors))
+        self.assertTrue(any("tab introduction" in e for e in errors))
+        errors, _ = run(tabs + '<section role="tabpanel" aria-label="知识库"><button>新建知识库</button><h2>采购合同</h2></section>')
+        self.assertFalse([e for e in errors if "repeats the highlighted" in e or "tab introduction" in e])
 
     def test_group_label_equal_to_only_item(self) -> None:
         body = '<nav class="menu"><div class="group"><div class="group-title">概览</div><a href="#">概览</a></div>' \

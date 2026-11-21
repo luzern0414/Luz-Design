@@ -1136,6 +1136,7 @@ AUX_CLASS = re.compile(r"(?:^|[\s_-])(?:meta|hint|time|unit|badge|tag|caption|au
 EMPTY_CELL = {"", "—", "-", "–", "--", "——", "/"}
 CONTROL_TAGS = {"button", "a", "input", "select", "textarea", "img", "svg", "progress", "meter"}
 NAV_CLASS = re.compile(r"nav|menu|side-?bar|\bside\b", re.I)
+TAB_BAR_CLASS = re.compile(r"^(?:tab-?bar|bottom-tabs|mobile-tabs|van-tabbar)$", re.I)
 ACTIVE_CLASS = re.compile(r"active|current|selected", re.I)
 STATE_PSEUDO = re.compile(r":(?:hover|focus|active|disabled|checked|visited|focus-within|focus-visible|placeholder|invalid|valid|"
                           r"empty|target|indeterminate|read-only|placeholder-shown|-webkit-[\w-]+|-moz-[\w-]+)\b|::|:before|:after|:marker", re.I)
@@ -1561,25 +1562,32 @@ def check_interface_layout(source: str, resolve, errors: list[str], warnings: li
                       "12px only for elements whose class has the word meta, hint, time, unit, badge, tag, caption or aux")
 
     def in_nav(n: Node) -> bool:
-        return any(a.tag in {"nav", "aside"} or (a.attrs.get("role") or "") in {"navigation", "menu", "menubar", "tree"}
-                   or NAV_CLASS.search(a.cls()) for a in [n] + list(n.ancestors()))
+        return any(a.tag in {"nav", "aside"} or a.attrs.get("role") in {"navigation", "menu", "menubar", "tree", "tablist", "tab"}
+                   or NAV_CLASS.search(a.cls()) or any(TAB_BAR_CLASS.fullmatch(c) for c in a.classes)
+                   for a in [n] + list(n.ancestors()))
 
     def norm(text: str) -> str:
         return re.sub(r"\s+", "", text)
 
     # 2. The page title repeats the highlighted navigation item.
-    active = [n for n in nodes if in_nav(n) and (ACTIVE_CLASS.search(n.cls()) or (n.attrs.get("aria-current") or "false").lower() != "false"
-                                                 and "aria-current" in n.attrs)]
+    active = [n for n in nodes if in_nav(n) and (
+        n.attrs.get("aria-selected") == "true" or (n.attrs.get("aria-current") or "false").lower() != "false"
+        or (n.attrs.get("aria-selected") != "false" and ACTIVE_CLASS.search(n.cls())))]
     active_text = {norm(n.text()): n for n in active if norm(n.text())}
     titles = [n for n in nodes if not in_nav(n) and (
         n.tag == "h1" or re.search(r"page[-_]?(?:title|head|header|name)", n.cls(), re.I)
-        or (n.tag in {"h2", "h3", "h4"} and any(re.search(r"page[-_]?(?:title|head)|(?:^|[-_\s])title\b", a.cls(), re.I) for a in [n] + list(n.ancestors())[:2])))]
+        or (n.tag in {"h2", "h3", "h4"} and any(a.tag == "header" or re.search(r"page[-_]?(?:title|head)|(?:^|[-_\s])title\b", a.cls(), re.I)
+                                                for a in [n] + list(n.ancestors())[:2])))]
     reported: set[str] = set()
     for t in titles:
         text = norm(t.text())
         if text in active_text and text not in reported:
             reported.add(text)
             errors.append(f"page title {t.text()!r} repeats the highlighted navigation item: drop the title and use the header row for actions and filters")
+    if active_text and any(n.text() and not in_nav(n) and
+                           ({"tab-intro", "tab-description"} & n.classes or "data-tab-intro" in n.attrs or "data-tab-description" in n.attrs)
+                           for n in nodes):
+        errors.append("tab landing page contains a tab introduction: start the page with its first business content")
 
     # 3. A navigation group whose label equals its only item.
     def clickables(scope: list[Node]) -> list[Node]:

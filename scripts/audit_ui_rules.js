@@ -6,6 +6,33 @@
   const all=selector=>Array.from(root.querySelectorAll(selector)).filter(visible);
   const violations=[...applicationFindings];
   const suggestions=[];
+  const tabBar='nav,[role=navigation],[role=tablist],.tabbar,.tab-bar,.bottom-tabs,.mobile-tabs,.van-tabbar';
+  const title='h1,[role=heading][aria-level="1"],.page-title,[data-page-title],header h2,header h3';
+  const intro='[data-tab-intro],[data-tab-description],.tab-intro,.tab-description';
+  const normalize=value=>value.normalize('NFKC').toLowerCase().replace(/\s+/g,'').replace(/[：:。.!！]+$/u,'');
+  const checkedCopy=new Set();
+  for(const selected of all('[aria-current="page"],[aria-current="true"],[aria-selected="true"],.van-tabbar-item--active')){
+    const bar=selected.closest(tabBar);
+    if(!bar)continue;
+    const panelId=selected.getAttribute('aria-controls');
+    const panel=panelId&&selected.ownerDocument.getElementById(panelId);
+    // Top navigation opens the main region. A local selector qualifies only when it opens a tab panel.
+    const scope=panel?.matches('[role=tabpanel]') ? panel
+      : !bar.closest('main,[role=main],[role=tabpanel]') ? all('main,[role=main]')[0] : null;
+    const label=normalize(selected.innerText||selected.getAttribute('aria-label')||'');
+    if(!scope||!label)continue;
+    for(const el of scope.querySelectorAll(title+','+intro+',header p,[data-page-header] p,.page-header p')){
+      if(checkedCopy.has(el)||!visible(el)||el.closest(tabBar+',[data-form-page],[data-detail-page],dialog,button,a,[role=alert],[role=status]'))continue;
+      const value=normalize(el.innerText||'');
+      if(!value)continue;
+      const repeats=el.matches(title)&&(value===label||value.replace(/(?:管理|中心|介绍|简介|概览|说明|功能)$/u,'')===label);
+      const introduces=el.matches(intro)||!el.matches(title)&&/^(?:欢迎(?:来到|使用)|(?:在这里|在此|本页|本页面|此处)(?:可以|用于|集中|统一|支持))/u.test(value);
+      if(repeats||introduces){
+        checkedCopy.add(el);
+        violations.push({rule:'tab-landing-header-copy',tab:selected.innerText.trim(),text:el.innerText.trim()});
+      }
+    }
+  }
   const text=all('*').flatMap(el=>Array.from(el.childNodes).filter(n=>n.nodeType===3&&n.textContent.trim()).map(n=>n.textContent.trim())).join('\n');
   const placeholders=all('input,textarea').map(el=>el.getAttribute('placeholder')||'').join('\n');
   const content=text+'\n'+placeholders;

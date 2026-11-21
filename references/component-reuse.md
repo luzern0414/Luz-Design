@@ -37,6 +37,7 @@ App 与 Web 前端默认直接构建完整成品：先检查现有工程、依�
 另需：
 - `generated-assets.json` 记录原图指纹、派生步骤及实际用图指纹。起步工程携带清单与使用的素材。原图、请求和回执保存在制作会话。已有工程采用生成素材时登记相同信息，`loaded_assets` 记录浏览器实际加载的图。
 - `hard_rules: {sha256, reviewed, violations}`：`reviewed` 取 `frontend.py` 的 `REVIEW_RULES` 全部机器标识，`violations` 必须为空；规则哈希或素材字节变化会使旧审阅失效。
+- `tab_landing_copy` 按逐个点击后的实际首屏核对。自动检查同名标题与常见介绍，人工核对改名复述、原生导航标题及空壳。
 - `experience_axes`：UX、AX、DX 三个独立对象，各含 `status: verified`、真实 `observed`、`limitations` 与 `evidence: [{path,sha256}]`，缺一不可。具体指标另执行中央 `quality_rules.py`，不在本技能复制阈值。
 - `browser_report` 与 `quality_assessment` 两个 path 与 SHA-256 引用：浏览器报告记录当前 `bundle_sha256`、实际 `observations` 与 `limitations`；中央评估 scope 对独立设计与设计阶段为 `luz-design/design`；商业项目第二批编制工程设计说明，第三批运行原型的评估为 `luz-design/demo`，沿用 Design 的界面指标，绑定封存后 `luz-frontend.json` 的 `receipt_sha256` 与浏览器报告的 `browser_report_sha256`。缺失、陈旧或阶段错误的评估不能通过；旧包须重新封存与审阅。
 

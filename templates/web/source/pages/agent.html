@@ -23,7 +23,6 @@
   }
   .agent-workspace .rail__item { font-size: var(--fs-sm); }
   .agent-workspace .head { padding-block: var(--s-3); }
-  .agent-workspace .head h1 { font-size: var(--fs-2xl); }
   .tag { height: 24px; padding: 0 var(--s-3); border-radius: var(--r-full); }
   .tag--dot::before { content: ""; width: 6px; height: 6px; margin-right: 6px; border-radius: 50%; background: currentColor; }
   /* 会话、对话和运行记录共用一组卡片边线，宽屏内部独立滚动。 */
@@ -172,7 +171,6 @@
     .agent-workspace .web { display: block; }
     .agent-workspace .main { padding-block-end: calc(var(--agent-nav-height) + var(--s-4)); }
     .agent-workspace .head { padding-block-start: max(var(--s-3), env(safe-area-inset-top, 0px)); }
-    .agent-workspace .head h1 { font-size: var(--fs-xl); }
     .agent-workspace .rail {
       position: fixed;
       z-index: 32;
@@ -218,11 +216,9 @@
     <a class="rail__item" href="mine.html"><img src="../../../../kit/assets/line/user.webp" alt=""><span>我的</span></a>
   </nav>
 
-  <main class="main"><div class="main__in">
-    <!-- 页面顶部：平面区，标题单行，右侧只放新会话 -->
-    <header class="head" data-cid="WB-AGNT-001" data-name="页面顶部标题新会话">
+  <main class="main" aria-label="助手"><div class="main__in">
+    <header class="head" data-cid="WB-AGNT-001" data-name="新会话操作">
       <div class="head__row">
-        <h1>经营问答</h1>
         <div class="head__acts">
           <button class="ibtn ibtn--round" id="newConv" data-tip="新会话" aria-label="新会话"><img src="../../../../kit/assets/line/add.webp" alt=""></button>
         </div>

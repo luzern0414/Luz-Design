@@ -3486,7 +3486,7 @@
   },
   {
    "id": "WB-AGNT-001",
-   "name": "页面顶部标题新会话",
+   "name": "新会话操作",
    "cat": "AGNT",
    "file": "templates/web/source/pages/agent.html",
    "end": "web",
@@ -6006,7 +6006,7 @@
   },
   {
    "id": "WB-HOME-001",
-   "name": "工作台标题与范围",
+   "name": "工作台数据范围",
    "cat": "HOME",
    "file": "templates/web/source/pages/home.html",
    "end": "web",
@@ -6348,7 +6348,7 @@
   },
   {
    "id": "WB-LIST-001",
-   "name": "页面顶部标题搜索",
+   "name": "商品搜索",
    "cat": "LIST",
    "file": "templates/web/source/pages/list.html",
    "end": "web",
@@ -6609,7 +6609,7 @@
   },
   {
    "id": "WB-ORDR-001",
-   "name": "页面顶部标题搜索",
+   "name": "订单搜索",
    "cat": "ORDR",
    "file": "templates/web/source/pages/orders.html",
    "end": "web",

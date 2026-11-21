@@ -2,9 +2,8 @@
 <html lang="zh-CN" data-ui-surface="web"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>任务清单</title><link rel="icon" type="image/webp" href="artwork/solid-tasks.webp"><link rel="stylesheet" href="vendor/element-plus.css"><link rel="stylesheet" href="style.css?v=292ce0215702"><link rel="stylesheet" href="shared/typography.css?v=bdbea47fe324"><link rel="stylesheet" href="shared/interaction.css?v=265b8557f003"></head><body><div id="app" v-cloak>
 <div class="workspace"><nav class="main-nav" aria-label="主导航"><button v-for="n in navigation" :key="n.value" :class="{active:tab===n.value}" :aria-current="tab===n.value?'page':undefined" @click="changeTab(n.value)"><img :src="'artwork/'+n.icon+'.webp'" alt=""><span>{{n.label}}</span></button></nav>
 <main class="content">
-<section v-if="!creating&&!detailOpen" aria-labelledby="workspace-title">
+<section v-if="!creating&&!detailOpen" :aria-label="tab==='pending'?'待办':'完成'">
   <header class="task-banner">
-    <h1 id="workspace-title">任务清单</h1>
     <dl class="metrics">
       <div><dt>任务</dt><dd>{{scoped.length}} 项</dd></div>
       <div><dt>分类</dt><dd>{{new Set(scoped.map(t=>t.category)).size}} 类</dd></div>

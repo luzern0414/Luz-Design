@@ -28,7 +28,7 @@ RECEIPT = 'luz-frontend.json'
 REGISTRY = 'frontend_outputs'
 HARD_RULES = ROOT / 'references/design/hard-rules.md'
 QUALITY_RULES = ROOT.parent / 'Luz-Project/scripts/quality_rules.py'
-REVIEW_RULES = frozenset({'form_page_and_notice_boundary','tab_ownership','hover_focus_hints',
+REVIEW_RULES = frozenset({'form_page_and_notice_boundary','tab_ownership','tab_landing_copy','hover_focus_hints',
     'in_place_edit','append_business_history','on_demand_form_actions',
     'meaningful_data_views','chart_missing_values','chart_touch_keyboard_values',
     'stable_unique_identities','adjacent_result_or_detail_page','restore_origin_context',

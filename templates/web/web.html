@@ -12941,9 +12941,9 @@
     <a class="rail__item" href="mine.html"><img src="../../kit/assets/line/user.webp" alt=""><span>我的</span></a>
   </nav>
 
-  <main class="main"><div class="main__in">
-    <header class="head" data-cid="WB-HOME-001" data-name="工作台标题与范围">
-      <div class="head__row"><h1>经营概览</h1><span class="head__period">本周</span></div>
+  <main class="main" aria-label="工作台"><div class="main__in">
+    <header class="head" data-cid="WB-HOME-001" data-name="工作台数据范围">
+      <div class="head__row"><span class="head__period">本周</span></div>
     </header>
 
     <div class="dashboard">
@@ -13163,7 +13163,7 @@
     <a class="rail__item" href="mine.html"><img src="../../kit/assets/line/user.webp" alt=""><span>我的</span></a>
   </nav>
 
-  <main class="main"><div class="main__in">
+  <main class="main" aria-label="列表"><div class="main__in">
 
     <!-- 主视图：顶部、状态分段、左表右详情；填写页是另一个独立视图 -->
     <div class="view" id="pg" data-view="list" data-pane="list">
@@ -13176,9 +13176,8 @@
       </div>
 
       <div class="pg-chrome">
-        <header class="head" data-cid="WB-LIST-001" data-name="页面顶部标题搜索">
+        <header class="head" data-cid="WB-LIST-001" data-name="商品搜索">
           <div class="head__row">
-            <h1>商品管理</h1>
             <div class="head__acts">
               <label class="search"><img src="../../kit/assets/line/search.webp" alt=""><input id="q" type="search" placeholder="搜索商品名称" aria-label="搜索商品名称" autocomplete="off"></label>
             </div>
@@ -13633,13 +13632,12 @@
     <a class="rail__item" href="mine.html"><img src="../../kit/assets/line/user.webp" alt=""><span>我的</span></a>
   </nav>
 
-  <main class="main"><div class="main__in">
+  <main class="main" aria-label="订单"><div class="main__in">
 
     <!-- 主视图：顶部、状态分段、订单表；详情是另一个独立视图 -->
     <div class="view" id="pg" data-view="list">
-      <header class="head" data-cid="WB-ORDR-001" data-name="页面顶部标题搜索">
+      <header class="head" data-cid="WB-ORDR-001" data-name="订单搜索">
         <div class="head__row">
-          <h1>交易明细</h1>
           <div class="head__acts">
             <label class="search"><img src="../../kit/assets/line/search.webp" alt=""><input id="q" type="search" placeholder="搜索订单号或客户" aria-label="搜索订单号或客户" autocomplete="off"></label>
           </div>
@@ -13992,12 +13990,11 @@
     <a class="rail__item" href="mine.html" aria-current="page"><img src="../../kit/assets/line/user.webp" alt=""><span>我的</span></a>
   </nav>
 
-  <main class="main"><div class="main__in">
+  <main class="main" aria-label="我的"><div class="main__in">
 
     <div class="view" id="pg" data-view="main">
-      <!-- 顶部：标题加平面概览带，头像、昵称、角色与三个数据 -->
+      <!-- 顶部资料与账户数据 -->
       <header class="head" data-cid="WB-MINE-001" data-name="账号概览顶部">
-        <div class="head__row"><h1>账号设置</h1></div>
         <div class="band">
           <div class="ident">
             <img class="avatar avatar--xl" src="../../kit/assets/line/user.webp" alt="">
@@ -14198,7 +14195,6 @@
   }
   .agent-workspace .rail__item { font-size: var(--fs-sm); }
   .agent-workspace .head { padding-block: var(--s-3); }
-  .agent-workspace .head h1 { font-size: var(--fs-2xl); }
   .tag { height: 24px; padding: 0 var(--s-3); border-radius: var(--r-full); }
   .tag--dot::before { content: ""; width: 6px; height: 6px; margin-right: 6px; border-radius: 50%; background: currentColor; }
   /* 会话、对话和运行记录共用一组卡片边线，宽屏内部独立滚动。 */
@@ -14347,7 +14343,6 @@
     .agent-workspace .web { display: block; }
     .agent-workspace .main { padding-block-end: calc(var(--agent-nav-height) + var(--s-4)); }
     .agent-workspace .head { padding-block-start: max(var(--s-3), env(safe-area-inset-top, 0px)); }
-    .agent-workspace .head h1 { font-size: var(--fs-xl); }
     .agent-workspace .rail {
       position: fixed;
       z-index: 32;
@@ -14393,11 +14388,9 @@
     <a class="rail__item" href="mine.html"><img src="../../kit/assets/line/user.webp" alt=""><span>我的</span></a>
   </nav>
 
-  <main class="main"><div class="main__in">
-    <!-- 页面顶部：平面区，标题单行，右侧只放新会话 -->
-    <header class="head" data-cid="WB-AGNT-001" data-name="页面顶部标题新会话">
+  <main class="main" aria-label="助手"><div class="main__in">
+    <header class="head" data-cid="WB-AGNT-001" data-name="新会话操作">
       <div class="head__row">
-        <h1>经营问答</h1>
         <div class="head__acts">
           <button class="ibtn ibtn--round" id="newConv" data-tip="新会话" aria-label="新会话"><img src="../../kit/assets/line/add.webp" alt=""></button>
         </div>
@@ -14880,7 +14873,7 @@
 <script src="../../kit/ui.js"></script>
 <script>
 (function () {
-  const CFG = {"key": "web", "theme": "navy", "tabs": ["pages", "components"], "presets": [{"id": "rose", "name": "玫瑰", "action": "#A75F6D"}, {"id": "wine", "name": "酒红", "action": "#7E2C41"}, {"id": "coral", "name": "珊瑚", "action": "#AB6056"}, {"id": "terracotta", "name": "赤陶", "action": "#A26548"}, {"id": "amber", "name": "琥珀", "action": "#9B6B33"}, {"id": "sand", "name": "沙金", "action": "#87723E"}, {"id": "olive", "name": "橄榄", "action": "#74783E"}, {"id": "cyan", "name": "湖蓝", "action": "#307E98"}, {"id": "sky", "name": "天蓝", "action": "#3D79AB"}, {"id": "blue", "name": "靛蓝", "action": "#5373BC"}, {"id": "navy", "name": "藏青", "action": "#33476D"}, {"id": "indigo", "name": "靛紫", "action": "#716CBB"}, {"id": "purple", "name": "紫藤", "action": "#8069A9"}, {"id": "mauve", "name": "雾紫", "action": "#876C8D"}, {"id": "plum", "name": "梅紫", "action": "#9F608A"}, {"id": "graphite", "name": "石墨", "action": "#4E5359"}, {"id": "slate", "name": "岩灰", "action": "#536672"}, {"id": "stone", "name": "暖灰", "action": "#696259"}, {"id": "mocha", "name": "摩卡", "action": "#6A5243"}, {"id": "ink", "name": "墨黑", "action": "#222429"}], "effects": [{"id": "glow", "name": "柔光"}, {"id": "none", "name": "无"}, {"id": "dots", "name": "点阵"}, {"id": "grid", "name": "网格"}, {"id": "lines", "name": "斜纹"}, {"id": "rings", "name": "同心圆"}, {"id": "petal", "name": "花瓣"}, {"id": "leaf", "name": "叶片"}, {"id": "wave", "name": "波纹"}], "background": "none", "workbench": "pages", "device": "desktop", "pages": [{"id": "home", "name": "工作台", "logic": [["来源", "左侧主导航工作台，登录后默认进入"], ["主操作", "看核心指标与趋势；切换图表周期；待处理事项进入对应列表"], ["返回", "工作台是一级页面，没有返回"], ["完成后", "处理待办后事项从列表消失，指标随之更新"]], "ids": [{"id": "WB-HOME-001", "name": "工作台标题与范围"}, {"id": "WB-HOME-003", "name": "折线趋势图卡"}, {"id": "WB-HOME-004", "name": "环形占比图卡"}, {"id": "WB-HOME-007", "name": "待处理事项列表"}, {"id": "WB-HOME-002", "name": "核心指标卡"}]}, {"id": "list", "name": "列表", "logic": [["来源", "左侧主导航列表；工作台待办跳入时带筛选"], ["主操作", "状态分段、表头筛选与排序；勾选后批量操作；点行右侧出现关联详情；新建进入独立填写页"], ["返回", "新建填写页返回列表并保留筛选与页码"], ["完成后", "保存后回到列表，新记录在首行并提示已保存；删除前居中确认"]], "ids": [{"id": "WB-LIST-001", "name": "页面顶部标题搜索"}, {"id": "WB-LIST-002", "name": "状态分段筛选"}, {"id": "WB-LIST-003", "name": "筛选批量工具条"}, {"id": "WB-LIST-004", "name": "商品数据表格"}, {"id": "WB-LIST-005", "name": "表格分页器"}, {"id": "WB-LIST-006", "name": "商品关联详情卡"}, {"id": "WB-LIST-007", "name": "商品新建填写页"}, {"id": "WB-LIST-008", "name": "新建商品预览卡"}]}, {"id": "orders", "name": "订单", "logic": [["来源", "左侧主导航订单"], ["主操作", "状态分段与导出；行内展开看明细；点订单号进入独立详情"], ["返回", "详情返回订单列表并保留状态与页码"], ["完成后", "导出完成提示文件已生成；改状态后行内状态标签即时更新"]], "ids": [{"id": "WB-ORDR-001", "name": "页面顶部标题搜索"}, {"id": "WB-ORDR-002", "name": "状态分段筛选"}, {"id": "WB-ORDR-003", "name": "筛选导出工具条"}, {"id": "WB-ORDR-004", "name": "订单表格行内展开"}, {"id": "WB-ORDR-005", "name": "表格分页器"}, {"id": "WB-ORDR-006", "name": "配送时间线卡"}, {"id": "WB-ORDR-007", "name": "商品明细列表卡"}, {"id": "WB-ORDR-008", "name": "交易信息键值卡"}, {"id": "WB-ORDR-009", "name": "金额明细卡"}]}, {"id": "mine", "name": "我的", "logic": [["来源", "左侧主导航底部我的"], ["主操作", "资料原位改名；偏好开关即点即存；修改密码进入独立填写页"], ["返回", "修改密码页返回我的，未保存时居中确认"], ["完成后", "改密后要求重新登录的提示放在确认框里"]], "ids": [{"id": "WB-MINE-001", "name": "账号概览顶部"}, {"id": "WB-MINE-002", "name": "基本资料键值卡"}, {"id": "WB-MINE-003", "name": "偏好开关设置卡"}, {"id": "WB-MINE-004", "name": "登录设备表格卡"}, {"id": "WB-MINE-005", "name": "账号安全操作卡"}, {"id": "WB-MINE-006", "name": "修改密码填写页"}]}, {"id": "agent", "name": "智能体", "logic": [["来源", "左侧主导航助手"], ["主操作", "输入问题或点建议问法；流式回答可停止；右侧看过程与产物引用；涉及改动时出现审批确认卡"], ["返回", "会话历史切换会话，当前会话内容保留"], ["完成后", "回答结束保留产物结果卡；加载失败显示重试态"]], "ids": [{"id": "WB-AGNT-001", "name": "页面顶部标题新会话"}, {"id": "WB-AGNT-002", "name": "会话历史卡"}, {"id": "WB-AGNT-003", "name": "对话消息流"}, {"id": "WB-AGNT-004", "name": "建议问法横滑条"}, {"id": "WB-AGNT-005", "name": "提问输入栏"}, {"id": "WB-AGNT-006", "name": "过程产物引用面板"}, {"id": "WB-AGNT-007", "name": "上下文用量卡"}, {"id": "WB-AGNT-008", "name": "思考过程折叠"}, {"id": "WB-AGNT-009", "name": "工具调用行"}, {"id": "WB-AGNT-011", "name": "产物结果卡"}, {"id": "WB-AGNT-012", "name": "跟进任务行"}, {"id": "WB-AGNT-013", "name": "审批确认卡"}, {"id": "WB-AGNT-010", "name": "流式回答气泡"}, {"id": "WB-AGNT-015", "name": "对话加载骨架"}, {"id": "WB-AGNT-016", "name": "加载失败重试态"}, {"id": "WB-AGNT-014", "name": "空会话空态"}], "theme": "ink"}]};
+  const CFG = {"key": "web", "theme": "navy", "tabs": ["pages", "components"], "presets": [{"id": "rose", "name": "玫瑰", "action": "#A75F6D"}, {"id": "wine", "name": "酒红", "action": "#7E2C41"}, {"id": "coral", "name": "珊瑚", "action": "#AB6056"}, {"id": "terracotta", "name": "赤陶", "action": "#A26548"}, {"id": "amber", "name": "琥珀", "action": "#9B6B33"}, {"id": "sand", "name": "沙金", "action": "#87723E"}, {"id": "olive", "name": "橄榄", "action": "#74783E"}, {"id": "cyan", "name": "湖蓝", "action": "#307E98"}, {"id": "sky", "name": "天蓝", "action": "#3D79AB"}, {"id": "blue", "name": "靛蓝", "action": "#5373BC"}, {"id": "navy", "name": "藏青", "action": "#33476D"}, {"id": "indigo", "name": "靛紫", "action": "#716CBB"}, {"id": "purple", "name": "紫藤", "action": "#8069A9"}, {"id": "mauve", "name": "雾紫", "action": "#876C8D"}, {"id": "plum", "name": "梅紫", "action": "#9F608A"}, {"id": "graphite", "name": "石墨", "action": "#4E5359"}, {"id": "slate", "name": "岩灰", "action": "#536672"}, {"id": "stone", "name": "暖灰", "action": "#696259"}, {"id": "mocha", "name": "摩卡", "action": "#6A5243"}, {"id": "ink", "name": "墨黑", "action": "#222429"}], "effects": [{"id": "glow", "name": "柔光"}, {"id": "none", "name": "无"}, {"id": "dots", "name": "点阵"}, {"id": "grid", "name": "网格"}, {"id": "lines", "name": "斜纹"}, {"id": "rings", "name": "同心圆"}, {"id": "petal", "name": "花瓣"}, {"id": "leaf", "name": "叶片"}, {"id": "wave", "name": "波纹"}], "background": "none", "workbench": "pages", "device": "desktop", "pages": [{"id": "home", "name": "工作台", "logic": [["来源", "左侧主导航工作台，登录后默认进入"], ["主操作", "看核心指标与趋势；切换图表周期；待处理事项进入对应列表"], ["返回", "工作台是一级页面，没有返回"], ["完成后", "处理待办后事项从列表消失，指标随之更新"]], "ids": [{"id": "WB-HOME-001", "name": "工作台数据范围"}, {"id": "WB-HOME-003", "name": "折线趋势图卡"}, {"id": "WB-HOME-004", "name": "环形占比图卡"}, {"id": "WB-HOME-007", "name": "待处理事项列表"}, {"id": "WB-HOME-002", "name": "核心指标卡"}]}, {"id": "list", "name": "列表", "logic": [["来源", "左侧主导航列表；工作台待办跳入时带筛选"], ["主操作", "状态分段、表头筛选与排序；勾选后批量操作；点行右侧出现关联详情；新建进入独立填写页"], ["返回", "新建填写页返回列表并保留筛选与页码"], ["完成后", "保存后回到列表，新记录在首行并提示已保存；删除前居中确认"]], "ids": [{"id": "WB-LIST-001", "name": "商品搜索"}, {"id": "WB-LIST-002", "name": "状态分段筛选"}, {"id": "WB-LIST-003", "name": "筛选批量工具条"}, {"id": "WB-LIST-004", "name": "商品数据表格"}, {"id": "WB-LIST-005", "name": "表格分页器"}, {"id": "WB-LIST-006", "name": "商品关联详情卡"}, {"id": "WB-LIST-007", "name": "商品新建填写页"}, {"id": "WB-LIST-008", "name": "新建商品预览卡"}]}, {"id": "orders", "name": "订单", "logic": [["来源", "左侧主导航订单"], ["主操作", "状态分段与导出；行内展开看明细；点订单号进入独立详情"], ["返回", "详情返回订单列表并保留状态与页码"], ["完成后", "导出完成提示文件已生成；改状态后行内状态标签即时更新"]], "ids": [{"id": "WB-ORDR-001", "name": "订单搜索"}, {"id": "WB-ORDR-002", "name": "状态分段筛选"}, {"id": "WB-ORDR-003", "name": "筛选导出工具条"}, {"id": "WB-ORDR-004", "name": "订单表格行内展开"}, {"id": "WB-ORDR-005", "name": "表格分页器"}, {"id": "WB-ORDR-006", "name": "配送时间线卡"}, {"id": "WB-ORDR-007", "name": "商品明细列表卡"}, {"id": "WB-ORDR-008", "name": "交易信息键值卡"}, {"id": "WB-ORDR-009", "name": "金额明细卡"}]}, {"id": "mine", "name": "我的", "logic": [["来源", "左侧主导航底部我的"], ["主操作", "资料原位改名；偏好开关即点即存；修改密码进入独立填写页"], ["返回", "修改密码页返回我的，未保存时居中确认"], ["完成后", "改密后要求重新登录的提示放在确认框里"]], "ids": [{"id": "WB-MINE-001", "name": "账号概览顶部"}, {"id": "WB-MINE-002", "name": "基本资料键值卡"}, {"id": "WB-MINE-003", "name": "偏好开关设置卡"}, {"id": "WB-MINE-004", "name": "登录设备表格卡"}, {"id": "WB-MINE-005", "name": "账号安全操作卡"}, {"id": "WB-MINE-006", "name": "修改密码填写页"}]}, {"id": "agent", "name": "智能体", "logic": [["来源", "左侧主导航助手"], ["主操作", "输入问题或点建议问法；流式回答可停止；右侧看过程与产物引用；涉及改动时出现审批确认卡"], ["返回", "会话历史切换会话，当前会话内容保留"], ["完成后", "回答结束保留产物结果卡；加载失败显示重试态"]], "ids": [{"id": "WB-AGNT-001", "name": "新会话操作"}, {"id": "WB-AGNT-002", "name": "会话历史卡"}, {"id": "WB-AGNT-003", "name": "对话消息流"}, {"id": "WB-AGNT-004", "name": "建议问法横滑条"}, {"id": "WB-AGNT-005", "name": "提问输入栏"}, {"id": "WB-AGNT-006", "name": "过程产物引用面板"}, {"id": "WB-AGNT-007", "name": "上下文用量卡"}, {"id": "WB-AGNT-008", "name": "思考过程折叠"}, {"id": "WB-AGNT-009", "name": "工具调用行"}, {"id": "WB-AGNT-011", "name": "产物结果卡"}, {"id": "WB-AGNT-012", "name": "跟进任务行"}, {"id": "WB-AGNT-013", "name": "审批确认卡"}, {"id": "WB-AGNT-010", "name": "流式回答气泡"}, {"id": "WB-AGNT-015", "name": "对话加载骨架"}, {"id": "WB-AGNT-016", "name": "加载失败重试态"}, {"id": "WB-AGNT-014", "name": "空会话空态"}], "theme": "ink"}]};
   const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
   const state = { theme: CFG.theme, color: null, bg: CFG.background || 'glow', icons: 'mono' };
   const frames = new Map();

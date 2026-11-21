@@ -1,5 +1,7 @@
 # 组件
 
+应用状态按[成品要求](hard-rules.md)核对：全局纯白、界面禁绿与青绿、图形头像、独立业务页面及就近反馈。
+
 App 与 Web 的组件怎么选、怎么取、怎么借鉴参考站。控件的语义与行为优先用成熟实现；布局、内容组件、令牌与业务连接代码可以自写。
 
 ## 取用顺序
@@ -29,7 +31,7 @@ templates/
 
 新增或改动组件后，用 `py -X utf8 scripts/audit_gallery.py app|web --cats 分类 --width 1440` 与 `--width min` 逐个组件检测越界、重叠、折行、被裁、留白、内距不等、字号下限、含英文、title 属性与内联 svg，末行页面错误必须是 0；再加 `--view` 把分类截成长图，两个宽度各看一遍。检测只给线索，悬浮层、照片底上有意靠左、跑马灯与轮播的有意裁切会被标出，要人工判断。构建后还要过 `template_registry.py check`、`validate_skill.py --package-only` 与 `scripts/test_template_html_library.py`：源码里不得出现 `type="range"` 与原生 `<dialog>`（只读详情用页内居中浮层），脚本里素材路径不要拼进 `src="…"` 字符串。
 
-打开 `app.html` 或 `web.html`，在顶部切换“整页模板”和“组件库”。整页模板左侧选页面，中间看预览，右侧有页面逻辑与组件编号。组件库按分类和搜索浏览，卡片沿网格对齐，组件编号可复制。顶部的主题色、背景和图标选择同时作用在两个页签。
+打开 `app.html` 或 `web.html`，在顶部切换“整页模板”和“组件库”。整页模板左侧选页面，中间看预览，右侧有页面逻辑与组件编号。组件库按分类和搜索浏览，卡片沿网格对齐，组件编号可复制。复用历史样例时，页面铺底换成纯白，组件色底按项目品牌与内容调整，字符图标换成图形。见[前端背景、头像与图标](hard-rules.md#前端背景头像与图标)。
 
 用 `scripts/template_registry.py` 按编号取用，四类编号共用一套：
 
@@ -64,6 +66,7 @@ py -X utf8 scripts/template_registry.py write                  刷新 references
 |---|---|
 | 布局 | `.app` `.page` `.top`；`.web` `.rail` `.main` `.head` `.grid` `.cols-*` `.split` |
 | 表面与模块 | `.card` `.card-stack` `.card-grid` `.card--tint` `.card--press` `.section` `.section__head` `.section__body` |
+| App 独立卡片与设置行 | `.app-card-stack` `.settings-list` `.settings-card`，见[字体与间距](app.md#字体与间距) |
 | 列表 | `.list` `.row` `.row--link` `.expand` `.table` `.kv` `.tl` |
 | 操作 | `.btn` `.btn--primary` `.btn--soft` `.btn--secondary` `.btn--outline` `.btn--pill` `.btn--tint` `.btn--ghost` `.btn--danger` `.ibtn` |
 | 切换与筛选 | `.seg` `.seg__item` `.drop` `.filter` `.toolbar` `.pager` |
@@ -115,4 +118,4 @@ py -X utf8 scripts/template_registry.py write                  刷新 references
 - 背景粒子、流星、故障文字、鼠标跟随、磁吸按钮等装饰特效：违反“不堆装饰、动效必须有目的”的要求。
 - 毛玻璃导航、浮岛式底栏：底栏必须全宽贴底、不透明。
 - 弹窗表单、侧滑面板、边缘滑出选择器：硬规则禁止，对应场景改为独立页面或就近展开。
-- 暗色整页主题：卡片不做深色底，需要例外须用户确认。
+- 整页有色铺底或跨区渐变。页面使用纯白，卡片、按钮与图标可以使用项目自选的纯色或渐变。

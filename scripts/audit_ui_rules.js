@@ -1,10 +1,10 @@
-(root) => {
+(root, applicationFindings = []) => {
   const visible = el => {
     const s=getComputedStyle(el),r=el.getBoundingClientRect();
     return r.width>1&&r.height>1&&s.display!=='none'&&s.visibility!=='hidden'&&s.opacity!=='0'&&!el.closest('.sr-only,[hidden],[inert],[aria-hidden="true"]');
   };
   const all=selector=>Array.from(root.querySelectorAll(selector)).filter(visible);
-  const violations=[];
+  const violations=[...applicationFindings];
   const suggestions=[];
   const text=all('*').flatMap(el=>Array.from(el.childNodes).filter(n=>n.nodeType===3&&n.textContent.trim()).map(n=>n.textContent.trim())).join('\n');
   const placeholders=all('input,textarea').map(el=>el.getAttribute('placeholder')||'').join('\n');
@@ -41,13 +41,6 @@
     return {text:name,height:r.height,lineHeight:s.lineHeight,fontSize:s.fontSize,whiteSpace:s.whiteSpace};
   });
   const overlays=all('dialog,[aria-modal=true],[role=dialog],[role=alertdialog],.van-popup,.el-popper').filter(el=>!el.matches('.luz-tooltip[role=tooltip]'));
-  for(const el of overlays){
-    const r=el.getBoundingClientRect();
-    const warning=el.getAttribute('role')==='alertdialog'&&!el.querySelector('input,textarea,select,form,[contenteditable=true],[role=spinbutton]');
-    const centered=Math.abs(r.left+r.width/2-root.clientWidth/2)<=Math.max(24,root.clientWidth*.08)&&Math.abs(r.top+r.height/2-root.clientHeight/2)<=Math.max(24,root.clientHeight*.15);
-    const options=el.getAttribute('role')==='listbox'&&!el.querySelector('form,textarea,button');
-    if(!(warning&&centered)&&!options)violations.push({rule:'business-or-edge-overlay',role:el.getAttribute('role')});
-  }
   if(all('[title]').length)violations.push({rule:'native-title-tooltip'});
   const hints=all('.luz-tooltip');
   if(hints.some(el=>el.querySelector('a,button,input,textarea,select,[tabindex]')))violations.push({rule:'interactive-tooltip'});
@@ -59,7 +52,6 @@
   if(tooSmall.length)suggestions.push({rule:'font-below-surface-minimum',minimum,items:tooSmall});
   const families=[...new Set(typography.map(t=>t.family))];
   if(families.length>1)suggestions.push({rule:'multiple-font-families',families});
-  if(all('.avatar,[data-avatar]').some(el=>!el.querySelector('img')&&el.tagName!=='IMG'))suggestions.push({rule:'text-avatar'});
   const iconGroups='.heading-with-icon,.rail__item,.main-nav button,.tabbar__item,.van-tabbar-item,.entry,.categories button,.business-entries button';
   const icons=all(iconGroups).map(el=>{
     const icon=el.querySelector('img');

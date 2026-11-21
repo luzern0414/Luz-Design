@@ -1,23 +1,51 @@
 /* App 端布局：单列触控；预览时居中为 430 宽的手机列，真机全宽。 */
 
-body.app-body { background: var(--zone); --toast-bottom: 88px; }
+body.app-body {
+  --fs-md: 1rem;
+  --app-card-gap: calc(var(--fs-md) * .5);
+  --lh-body: 1.5;
+  --lh-tight: var(--lh-body);
+  --toast-bottom: 88px;
+  background: var(--zone);
+}
 .app { position: relative; max-width: 430px; min-height: 100vh; margin: 0 auto; background: var(--bg); }
 @media (min-width: 560px) { .app { box-shadow: 0 0 0 1px var(--line), var(--elev-3); } }
 .page { padding: 0 var(--s-4) calc(76px + env(safe-area-inset-bottom) + var(--s-4)); }
 .page--bare { padding-bottom: calc(var(--s-6) + env(safe-area-inset-bottom)); }
 
-/* 顶部使用实色主题。内容按页面任务组合。 */
-.top { position: relative; isolation: isolate; margin: 0 calc(var(--s-4) * -1); padding: var(--s-3) var(--s-4) var(--s-6); background: var(--action-press); color: var(--surface); }
-.top .ibtn img, .top .loc img { filter: brightness(0) invert(1); }
-.top :is(.ibtn, .loc, .hero):focus-visible { outline-color: var(--surface); }
+/* 收起或隐藏的卡片不占间距。 */
+.app-card-stack { display: grid; grid-template-columns: minmax(0, 1fr); }
+.app-card-stack > :where(.card, .expand[data-open="true"]):not([hidden]) ~ :where(.card, .expand[data-open="true"]):not([hidden]) {
+  margin-block-start: var(--app-card-gap);
+}
+.app-body .row__title + .row__meta { margin-block-start: 1em; }
+
+/* 设置入口的行框、内距和触控高度分别计算。 */
+.card.settings-card > .section__head { min-block-size: 0; padding-block: .5em 0; }
+.settings-card > .section__head h2 { font-size: 1.125em; }
+.card.settings-card > .settings-list { margin-block-start: .25em; }
+.settings-list > .row { column-gap: .5em; font-size: 1rem; min-block-size: 44px; padding-block: .75em; }
+.settings-list .row__title { font-size: 1em; overflow-wrap: break-word; }
+.settings-list .row__trail { font-size: .875em; }
+.settings-list .row > .switch::before {
+  content: "";
+  position: absolute;
+  inset: calc((100% - 44px) / 2) 0;
+}
+
+/* 顶部使用白底与深色前景。内容按页面任务组合。 */
+.top { position: relative; isolation: isolate; margin: 0 calc(var(--s-4) * -1); padding: var(--s-3) var(--s-4) var(--s-6); background: var(--surface); color: var(--ink); }
+.top .ibtn img, .top .loc img { filter: none; }
+.top :is(.ibtn, .loc, .hero):focus-visible { outline-color: var(--ink); }
 .top .ibtn:hover { background: color-mix(in srgb, var(--surface) 16%, transparent); }
 .top .btn--white, .top .search { color: var(--ink); }
 .top--img { background-size: cover; background-position: center; }
-.top--img::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, color-mix(in srgb, var(--action) 62%, transparent) 0%, color-mix(in srgb, var(--action) 20%, transparent) 100%); }
+
 .top > * { position: relative; }
 .top__row { display: flex; align-items: center; gap: var(--s-2); min-height: 44px; }
-.loc { display: inline-flex; align-items: center; gap: var(--s-1); min-width: 0; min-height: 44px; font-size: var(--fs-md); font-weight: 600; }
+.loc { display: inline-flex; align-items: center; gap: .5em; min-width: 0; min-height: 44px; font-size: var(--fs-md); font-weight: 600; }
 .loc img { flex: none; width: 1em; height: 1em; }
+.app-body .heading-with-icon { gap: .5em; }
 .top__row .search { flex: 1; }
 .top__row .ibtn { width: 44px; height: 44px; flex: none; }
 .top__sp { flex: 1; }
@@ -49,7 +77,7 @@ html:is(:not([data-icons]), [data-icons="mono"]) .entries-card[data-theme] {
 
 /* 底部主导航使用透明底图标，整项标记当前页。 */
 .tabbar { position: fixed; z-index: 50; bottom: 0; left: 50%; width: min(100%, 430px); transform: translateX(-50%); display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: var(--s-1); padding: var(--s-1) var(--s-2) calc(var(--s-1) + env(safe-area-inset-bottom)); background: var(--surface); border-top: 1px solid var(--line); }
-.tabbar__item { position: relative; display: grid; justify-items: center; align-content: center; gap: 3px; min-height: 56px; border-radius: var(--r-md); font-size: var(--fs-xs); color: var(--ink-2); transition: background var(--dur-quick) var(--ease-out), color var(--dur-quick) var(--ease-out); }
+.tabbar__item { position: relative; display: grid; justify-items: center; align-content: center; gap: .5em; min-height: 56px; border-radius: var(--r-md); font-size: var(--fs-xs); color: var(--ink-2); transition: background var(--dur-quick) var(--ease-out), color var(--dur-quick) var(--ease-out); }
 .tabbar__item img { width: 20px; height: 20px; object-fit: contain; }
 .tabbar__item[aria-current="page"] { background: var(--zone); color: var(--action-press); font-weight: 700; }
 .tabbar__item[aria-current="page"] > span:not(.badge) { text-decoration: underline; text-underline-offset: .18em; }
@@ -57,13 +85,13 @@ html:is(:not([data-icons]), [data-icons="mono"]) .entries-card[data-theme] {
 .tabbar .badge { top: 4px; right: calc(50% - 22px); }
 
 /* 横向滑动与商品卡：上图下字 */
-.hscroll { display: flex; gap: var(--s-3); margin: 0 calc(var(--s-4) * -1); padding: 2px var(--s-4); overflow-x: auto; scroll-snap-type: x proximity; scroll-padding-inline: var(--s-4); scrollbar-width: none; }
+.hscroll { display: flex; gap: var(--app-card-gap); margin: 0 calc(var(--s-4) * -1); padding: 2px var(--s-4); overflow-x: auto; scroll-snap-type: x proximity; scroll-padding-inline: var(--s-4); scrollbar-width: none; }
 .hscroll::-webkit-scrollbar { display: none; }
 .hscroll > * { flex: none; scroll-snap-align: start; }
-.grid2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--s-3); }
+.grid2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--app-card-gap); }
 .product { display: grid; text-align: left; overflow: hidden; }
 .product__img { width: 100%; aspect-ratio: 1; object-fit: cover; background: var(--zone); }
-.product__body { display: grid; gap: var(--s-1); padding: var(--s-3); }
+.product__body { display: grid; gap: 1em; padding: .5em var(--s-3); }
 .product__name { font-size: var(--fs-md); font-weight: 600; line-height: var(--lh-tight); }
 .product__foot { display: flex; align-items: center; justify-content: space-between; gap: var(--s-2); }
 .hscroll .product { width: 148px; }

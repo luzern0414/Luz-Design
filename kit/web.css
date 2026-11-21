@@ -45,14 +45,17 @@ body.web-body { background: var(--bg); }
 .toolbar__sp { flex: 1; }
 .toolbar .search { width: 240px; flex: none; }
 
-/* 表格：表头居中；短值居中；长文本左对齐并缩进；金额右对齐；列宽稳定 */
+/* 表格：表头沿用对应数据的对齐。短文本可共享列内的居中内容宽度。 */
 .table-wrap { overflow-x: auto; position: relative; }
 .table { width: 100%; border-collapse: collapse; font-size: var(--fs-sm); table-layout: fixed; }
 .table th { padding: var(--s-3) var(--s-4); background: var(--zone); font-size: var(--fs-sm); font-weight: 600; color: var(--ink-2); text-align: center; white-space: nowrap; }
 .table td { padding: var(--s-3) var(--s-4); border-top: 1px solid var(--line); text-align: center; vertical-align: middle; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.table td.t-l { text-align: left; padding-left: var(--s-5); }
-.table td.t-r { text-align: right; font-variant-numeric: tabular-nums; }
-.table th.t-r { font-variant-numeric: tabular-nums; }
+.table :is(th, td).t-l { text-align: start; }
+.table :is(th, td).t-r { text-align: end; font-variant-numeric: tabular-nums; }
+.table__field {
+  display: block; width: 100%; max-width: var(--field-width, 100%); margin-inline: auto;
+  text-align: start; overflow: hidden; text-overflow: ellipsis;
+}
 .table tbody tr { transition: background var(--dur-quick) var(--ease-out); cursor: pointer; }
 @media (hover: hover) { .table tbody tr:hover { background: var(--zone); } .table--static tbody tr:hover { background: transparent; } }
 .table--static tbody tr { cursor: default; }
@@ -71,9 +74,12 @@ body.web-body { background: var(--bg); }
 .kv { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: var(--s-3) var(--s-4); padding: var(--s-4) var(--s-5); font-size: var(--fs-md); }
 .kv dt { color: var(--ink-3); font-size: var(--fs-sm); line-height: 1.8; }
 .kv dd { min-width: 0; }
+.kv--center { max-width: 36rem; margin-inline: auto; align-items: baseline; text-align: start; }
+.kv--center dd { overflow-wrap: anywhere; }
 .kv-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-4) var(--s-5); }
 
-.form-page { max-width: 720px; }
+.form-page { width: 100%; max-width: 720px; margin-inline: auto; text-align: start; }
+.form-page > .section__head { padding-inline: var(--s-5); }
 .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-4) var(--s-5); padding: var(--s-5); }
 .form-grid .span-2 { grid-column: span 2; }
 @media (max-width: 760px) { .form-grid { grid-template-columns: minmax(0, 1fr); } .form-grid .span-2 { grid-column: auto; } .kv-grid { grid-template-columns: minmax(0, 1fr); } }

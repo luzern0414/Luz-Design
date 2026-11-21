@@ -1,6 +1,6 @@
 <!-- cat: FORM | 表单 -->
 <style>
-/* 表单：文本框聚焦只加深边线；错误用语义红加文字；所有类名带 fm- 前缀 */
+/* 表单：文本框用色底反馈，错误用提示文字。 */
 .fm-stack { display: grid; gap: var(--s-4); }
 [data-cid^="AP-FORM-"] .input:focus-visible, [data-cid^="AP-FORM-"] .textarea:focus-visible { outline: none; }
 [data-cid^="AP-FORM-"] input::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; display: none; }
@@ -21,10 +21,9 @@
 .fm-float span { position: absolute; left: var(--s-3); top: 16px; font-size: var(--fs-md); color: var(--ink-3); pointer-events: none; transition: top var(--dur-base) var(--ease-out), font-size var(--dur-base) var(--ease-out), color var(--dur-base) var(--ease-out); }
 .fm-float .input:focus + span, .fm-float .input:not(:placeholder-shown) + span { top: 7px; font-size: var(--fs-xs); font-weight: 600; color: var(--ink-2); }
 
-/* 带图标、带单位、组合：外框承载边线 */
-.fm-ico { display: flex; align-items: center; gap: var(--s-2); min-height: 48px; padding: 0 var(--s-3); background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--r-md); transition: border-color var(--dur-quick) var(--ease-out); }
-.fm-ico:focus-within { border-color: var(--ink-2); }
-.fm-ico[data-invalid] { border-color: var(--danger); }
+/* 带图标、单位和操作的组合输入。 */
+.fm-ico { display: flex; align-items: center; gap: var(--s-2); min-height: 48px; padding: 0 var(--s-3); border-radius: var(--r-md); }
+.fm-ico[data-invalid] { --field-fill: var(--danger-tint); --field-active: var(--danger-tint); }
 .fm-ico > img { width: 20px; height: 20px; flex: none; }
 .fm-ico input { flex: 1; width: 0; min-width: 0; height: 46px; border: 0; background: none; font-size: var(--fs-md); }
 .fm-ico input:focus-visible { outline: none; }
@@ -44,10 +43,8 @@
 
 /* 六格验证码 */
 .fm-otp { display: flex; justify-content: space-between; gap: var(--s-2); }
-.fm-otp input { width: 100%; max-width: 52px; height: 60px; padding: 0; border: 1px solid var(--line-strong); border-radius: var(--r-md); background: var(--surface); text-align: center; font-size: var(--fs-2xl); font-weight: 600; font-variant-numeric: tabular-nums; transition: border-color var(--dur-quick) var(--ease-out), background var(--dur-quick) var(--ease-out); }
-.fm-otp input:focus { border-color: var(--ink-2); }
-.fm-otp input:focus-visible { outline: none; }
-.fm-otp input.is-filled { border-color: var(--action); background: var(--action-tint); }
+.fm-otp input { width: 100%; max-width: 52px; height: 60px; padding: 0; border-radius: var(--r-md); text-align: center; font-size: var(--fs-2xl); font-weight: 600; font-variant-numeric: tabular-nums; }
+.fm-otp input.is-filled { --field-fill: var(--action-tint); }
 
 /* 密码强度 */
 .fm-meter { display: grid; grid-template-columns: repeat(3, 1fr) auto; align-items: center; gap: var(--s-1); margin-top: var(--s-2); }
@@ -74,7 +71,7 @@
 @media (hover: hover) { .search .fm-scan:hover { background: var(--zone); } }
 .fm-xs { position: relative; height: 44px; }
 .fm-xs__t { position: absolute; left: var(--s-1); top: 0; line-height: 44px; font-size: var(--fs-xl); font-weight: 700; transition: opacity var(--dur-base) var(--ease-out); }
-.fm-xs__box { position: absolute; top: 0; right: 0; width: 44px; height: 44px; overflow: hidden; border-radius: var(--r-full); background: var(--surface); border: 1px solid var(--line-strong); box-shadow: var(--elev-1); transition: width var(--dur-slow) var(--ease-out), right var(--dur-slow) var(--ease-out); }
+.fm-xs__box { position: absolute; top: 0; right: 0; width: 44px; height: 44px; overflow: hidden; border-radius: var(--r-full); transition: width var(--dur-slow) var(--ease-out), right var(--dur-slow) var(--ease-out); }
 .fm-xs__box > label { position: absolute; inset: 0; display: flex; align-items: center; gap: var(--s-2); padding: 0 var(--s-3) 0 11px; }
 .fm-xs__box img { width: 20px; height: 20px; flex: none; }
 .fm-xs__box input { flex: 1; min-width: 0; height: 42px; border: 0; background: none; font-size: var(--fs-md); opacity: 0; pointer-events: none; transition: opacity var(--dur-base) var(--ease-out) var(--dur-quick); }
@@ -271,7 +268,7 @@
 <!-- 输入框 -->
 <article class="demo" data-cid="AP-FORM-001" data-name="默认输入框" data-cat="FORM">
   <div class="demo__head"><span class="demo__name">默认输入框</span></div>
-  <p class="demo__note">适合：单行文字录入，聚焦时只加深边线</p>
+  <p class="demo__note">适合：单行文字录入，点按后以底色提示当前输入。</p>
   <div class="demo__stage">
     <div class="field"><label class="field__label" for="fm-i1">收货人</label><input class="input" id="fm-i1" placeholder="请输入收货人姓名" autocomplete="off"></div>
   </div>
@@ -312,8 +309,8 @@
   <p class="demo__note">适合：收货人、地址等有明确语义的字段，输入后可一键清除</p>
   <div class="demo__stage">
     <div class="fm-stack">
-      <label class="fm-ico"><img src="../../kit/assets/line/user.webp" alt=""><input placeholder="收货人姓名" aria-label="收货人姓名" autocomplete="off"><button type="button" class="fm-ico__x" hidden aria-label="清除" data-tip="清除"><img src="../../kit/assets/line/close.webp" alt=""></button></label>
-      <label class="fm-ico"><img src="../../kit/assets/line/location.webp" alt=""><input placeholder="小区或写字楼" aria-label="小区或写字楼" autocomplete="off" value="建国路 88 号"><button type="button" class="fm-ico__x" aria-label="清除" data-tip="清除"><img src="../../kit/assets/line/close.webp" alt=""></button></label>
+      <label class="fm-ico field-shell"><img src="../../kit/assets/line/user.webp" alt=""><input placeholder="收货人姓名" aria-label="收货人姓名" autocomplete="off"><button type="button" class="fm-ico__x" hidden aria-label="清除" data-tip="清除"><img src="../../kit/assets/line/close.webp" alt=""></button></label>
+      <label class="fm-ico field-shell"><img src="../../kit/assets/line/location.webp" alt=""><input placeholder="小区或写字楼" aria-label="小区或写字楼" autocomplete="off" value="建国路 88 号"><button type="button" class="fm-ico__x" aria-label="清除" data-tip="清除"><img src="../../kit/assets/line/close.webp" alt=""></button></label>
     </div>
   </div>
 </article>
@@ -323,8 +320,8 @@
   <p class="demo__note">适合：重量与尺寸等带单位的数值，单位固定在框内，只收数字</p>
   <div class="demo__stage">
     <div class="fm-stack">
-      <div class="field"><span class="field__label">花束重量</span><label class="fm-ico"><input inputmode="decimal" placeholder="0" aria-label="花束重量" data-num="1" autocomplete="off" value="1.2"><span class="fm-ico__u">千克</span></label></div>
-      <div class="field"><span class="field__label">花瓶高度</span><label class="fm-ico"><input inputmode="numeric" placeholder="0" aria-label="花瓶高度" data-num="0" autocomplete="off" value="32"><span class="fm-ico__u">厘米</span></label></div>
+      <div class="field"><span class="field__label">花束重量</span><label class="fm-ico field-shell"><input inputmode="decimal" placeholder="0" aria-label="花束重量" data-num="1" autocomplete="off" value="1.2"><span class="fm-ico__u">千克</span></label></div>
+      <div class="field"><span class="field__label">花瓶高度</span><label class="fm-ico field-shell"><input inputmode="numeric" placeholder="0" aria-label="花瓶高度" data-num="0" autocomplete="off" value="32"><span class="fm-ico__u">厘米</span></label></div>
     </div>
   </div>
 </article>
@@ -334,8 +331,8 @@
   <p class="demo__note">适合：手机号登录与绑定，获取后六十秒倒计时</p>
   <div class="demo__stage" id="fm-vc">
     <div class="fm-stack">
-      <label class="fm-ico"><img src="../../kit/assets/line/user.webp" alt=""><input inputmode="numeric" placeholder="手机号码" aria-label="手机号码" data-ph autocomplete="off"></label>
-      <label class="fm-ico"><img src="../../kit/assets/line/shield.webp" alt=""><input inputmode="numeric" placeholder="验证码" aria-label="验证码" data-code autocomplete="off"><span class="fm-ico__sep"></span><button class="btn btn--text" type="button" data-send>获取验证码</button></label>
+      <label class="fm-ico field-shell"><img src="../../kit/assets/line/user.webp" alt=""><input inputmode="numeric" placeholder="手机号码" aria-label="手机号码" data-ph autocomplete="off"></label>
+      <label class="fm-ico field-shell"><img src="../../kit/assets/line/shield.webp" alt=""><input inputmode="numeric" placeholder="验证码" aria-label="验证码" data-code autocomplete="off"><span class="fm-ico__sep"></span><button class="btn btn--text" type="button" data-send>获取验证码</button></label>
     </div>
   </div>
 </article>
@@ -345,12 +342,12 @@
   <p class="demo__note">适合：短信验证码，自动跳格，支持退格与整串粘贴</p>
   <div class="demo__stage">
     <div class="fm-otp" id="fm-otp" role="group" aria-label="验证码">
-      <input inputmode="numeric" maxlength="1" aria-label="第 1 位" autocomplete="one-time-code">
-      <input inputmode="numeric" maxlength="1" aria-label="第 2 位">
-      <input inputmode="numeric" maxlength="1" aria-label="第 3 位">
-      <input inputmode="numeric" maxlength="1" aria-label="第 4 位">
-      <input inputmode="numeric" maxlength="1" aria-label="第 5 位">
-      <input inputmode="numeric" maxlength="1" aria-label="第 6 位">
+      <input class="field-shell" inputmode="numeric" maxlength="1" aria-label="第 1 位" autocomplete="one-time-code">
+      <input class="field-shell" inputmode="numeric" maxlength="1" aria-label="第 2 位">
+      <input class="field-shell" inputmode="numeric" maxlength="1" aria-label="第 3 位">
+      <input class="field-shell" inputmode="numeric" maxlength="1" aria-label="第 4 位">
+      <input class="field-shell" inputmode="numeric" maxlength="1" aria-label="第 5 位">
+      <input class="field-shell" inputmode="numeric" maxlength="1" aria-label="第 6 位">
     </div>
   </div>
 </article>
@@ -359,7 +356,7 @@
   <div class="demo__head"><span class="demo__name">密码显隐输入框</span></div>
   <p class="demo__note">适合：登录与修改密码，文字按钮切换明文</p>
   <div class="demo__stage">
-    <div class="field"><label class="field__label" for="fm-i9">登录密码</label><div class="fm-ico"><img src="../../kit/assets/line/shield.webp" alt=""><input id="fm-i9" type="password" placeholder="请输入密码" autocomplete="off" value="88886666"><button class="btn btn--text" type="button" id="fm-eye" aria-pressed="false">显示</button></div></div>
+    <div class="field"><label class="field__label" for="fm-i9">登录密码</label><div class="fm-ico field-shell"><img src="../../kit/assets/line/shield.webp" alt=""><input id="fm-i9" type="password" placeholder="请输入密码" autocomplete="off" value="88886666"><button class="btn btn--text" type="button" id="fm-eye" aria-pressed="false">显示</button></div></div>
   </div>
 </article>
 
@@ -377,7 +374,7 @@
   <div class="demo__head"><span class="demo__name">组合兑换输入框</span></div>
   <p class="demo__note">适合：兑换码与优惠码，输入框与按钮连成一体</p>
   <div class="demo__stage" id="fm-cp">
-    <div class="field"><span class="field__label">兑换码</span><div class="fm-join"><label class="fm-ico"><input placeholder="输入兑换码" aria-label="兑换码" autocomplete="off" maxlength="8"></label><button class="btn btn--primary" type="button">兑换</button></div><p class="field__err" role="alert" hidden>兑换码为 8 位</p></div>
+    <div class="field"><span class="field__label">兑换码</span><div class="fm-join"><label class="fm-ico field-shell"><input placeholder="输入兑换码" aria-label="兑换码" autocomplete="off" maxlength="8"></label><button class="btn btn--primary" type="button">兑换</button></div><p class="field__err" role="alert" hidden>兑换码为 8 位</p></div>
   </div>
 </article>
 
@@ -396,7 +393,7 @@
   <div class="demo__stage" id="fm-xs">
     <div class="fm-xs" data-open="false">
       <span class="fm-xs__t">当季鲜花</span>
-      <div class="fm-xs__box"><label><img src="../../kit/assets/line/search.webp" alt=""><input type="search" placeholder="搜索花束" aria-label="搜索花束" tabindex="-1"></label><button class="fm-xs__ok" type="button" aria-label="搜索" data-tip="搜索"></button></div>
+      <div class="fm-xs__box field-shell"><label><img src="../../kit/assets/line/search.webp" alt=""><input type="search" placeholder="搜索花束" aria-label="搜索花束" tabindex="-1"></label><button class="fm-xs__ok" type="button" aria-label="搜索" data-tip="搜索"></button></div>
       <button class="btn btn--text fm-xs__c" type="button" tabindex="-1">取消</button>
     </div>
   </div>
@@ -1095,9 +1092,8 @@
 .fm-tk__h { display: flex; align-items: baseline; justify-content: space-between; }
 .fm-tk__n { font-size: var(--fs-sm); color: var(--ink-3); font-variant-numeric: tabular-nums; }
 .fm-tk__n[data-full] { color: var(--warning); font-weight: 600; }
-.fm-tk__box { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2); min-height: 52px; padding: 9px var(--s-2); border: 1px solid var(--line-strong); border-radius: var(--r-md); background: var(--surface); cursor: text; transition: border-color var(--dur-quick) var(--ease-out); }
-.fm-tk__box:focus-within { border-color: var(--ink-2); }
-.fm-tk__box[data-invalid] { border-color: var(--danger); }
+.fm-tk__box { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2); min-height: 52px; padding: 9px var(--s-2); border-radius: var(--r-md); cursor: text; }
+.fm-tk__box[data-invalid] { --field-fill: var(--danger-tint); --field-active: var(--danger-tint); }
 .fm-tk__t { display: inline-flex; align-items: center; gap: 2px; min-height: 32px; padding: 0 2px 0 var(--s-3); border-radius: var(--r-full); background: var(--action-tint); box-shadow: inset 0 0 0 1px var(--action-edge); color: var(--action-press); font-size: var(--fs-sm); font-weight: 500; white-space: nowrap; animation: lz-pop var(--dur-base) var(--ease-spring) both; }
 .fm-tk__t.is-out { opacity: 0; transform: scale(.8); transition: opacity var(--dur-quick), transform var(--dur-quick); }
 .fm-tk__x { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; transition: background var(--dur-quick) var(--ease-out); }
@@ -1115,15 +1111,15 @@
 .fm-pc__h { display: flex; align-items: center; justify-content: space-between; min-height: 36px; }
 .fm-pc__h b { font-size: var(--fs-md); font-weight: 600; }
 .fm-pc__boxes { position: relative; display: grid; grid-template-columns: repeat(6, 1fr); gap: var(--s-2); }
-.fm-pc__b { position: relative; display: grid; place-items: center; height: 52px; border: 1px solid var(--line-strong); border-radius: var(--r-md); background: var(--surface); transition: border-color var(--dur-quick) var(--ease-out), background var(--dur-quick) var(--ease-out); }
+.fm-pc__b { position: relative; display: grid; place-items: center; height: 52px; border-radius: var(--r-md); background: var(--field-fill); }
 .fm-pc__b.is-on::before { content: ""; width: 12px; height: 12px; border-radius: 50%; background: var(--ink); animation: lz-pop var(--dur-base) var(--ease-spring) both; }
 .fm-pc__boxes[data-show] .fm-pc__b.is-on::before { content: attr(data-c); width: auto; height: auto; border-radius: 0; background: none; font-size: var(--fs-xl); font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums; }
-.fm-pc__boxes:focus-within .fm-pc__b.is-cur { border-color: var(--ink-2); }
+.fm-pc__boxes:focus-within .fm-pc__b.is-cur { background-color: var(--field-active); }
 .fm-pc__boxes:focus-within .fm-pc__b.is-cur::after { content: ""; position: absolute; width: 2px; height: 22px; border-radius: 2px; background: var(--action); animation: lz-blink 1s steps(2) infinite; }
 .fm-pc__in { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; border: 0; font-size: var(--fs-md); cursor: text; }
 .fm-pc__in:disabled { cursor: not-allowed; }
-.fm-pc[data-st="err"] .fm-pc__b { border-color: var(--danger); }
-.fm-pc[data-st="ok"] .fm-pc__b { border-color: var(--success); background: var(--success-tint); }
+.fm-pc[data-st="err"] .fm-pc__b { --field-fill: var(--danger-tint); }
+.fm-pc[data-st="ok"] .fm-pc__b { --field-fill: var(--success-tint); }
 .fm-pc__msg { font-size: var(--fs-sm); color: var(--ink-3); }
 .fm-pc__msg:empty { display: none; }
 .fm-pc[data-st="err"] .fm-pc__msg { color: var(--danger); }
@@ -1269,7 +1265,7 @@
   <div class="demo__stage" id="fm-tk">
     <div class="field">
       <div class="fm-tk__h"><label class="field__label" for="fm-tk-i">过敏原与禁忌</label><span class="fm-tk__n" role="status">3/6</span></div>
-      <div class="fm-tk__box"><input class="fm-tk__in" id="fm-tk-i" placeholder="输入后按回车添加" autocomplete="off" maxlength="12" aria-describedby="fm-tk-e"></div>
+      <div class="fm-tk__box field-shell"><input class="fm-tk__in" id="fm-tk-i" placeholder="输入后按回车添加" autocomplete="off" maxlength="12" aria-describedby="fm-tk-e"></div>
       <p class="field__err" id="fm-tk-e" role="alert" hidden></p>
     </div>
     <div class="fm-tk__sug"><div class="fm-hist__h">常用选项</div><div class="fm-tags"></div></div>

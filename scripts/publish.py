@@ -78,14 +78,15 @@ def document_errors(source: Path, allow: list[str] | None, *, session=None, deli
 
 
 def project_page_target(link: dict, as_name: str | None) -> Path:
-    """docs/02-产品开发/NN-名称.html inside the project folder the session was made for."""
+    """Resolve a numbered HTML page in the linked project's development documents."""
     import check_output_layout
+    area = "03-开发资料" if link.get("workflow") == "commercial-v1" else PROJECT_PAGE_DIR
     if not as_name:
-        raise ValueError("this session is for a project: name the page with --as NN-名称 (it is written to docs/02-产品开发/ of the project and the session root keeps no copy)")
+        raise ValueError(f"name the project page with --as NN-名称 to write it to docs/{area}/")
     name = as_name[:-5] if as_name.lower().endswith(".html") else as_name
     if not check_output_layout.DOC_FILE.match(name) or re.search(r'[\\/:*?"<>|]', name):
         raise ValueError(f"--as must look like NN-名称 (two-digit number, hyphen, name), got {as_name}")
-    return Path(str(link.get("deliver_root") or "")) / "docs" / PROJECT_PAGE_DIR / f"{name}.html"
+    return Path(str(link.get("deliver_root") or "")) / "docs" / area / f"{name}.html"
 
 
 def publish(folder: Path, stage: str, allow: list[str] | None = None, as_name: str | None = None) -> Path:
@@ -195,7 +196,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--allow", action="append", default=[], metavar="KIND",
                         help="passed to check_document.py: only kinds the user explicitly asked for (see its --help)")
     parser.add_argument("--as", dest="as_name", metavar="NN-名称",
-                        help="project sessions only: the file name in the project's docs/02-产品开发/ (two-digit number, hyphen, name)")
+                        help="project sessions only: the file name in the project's development document folder (two-digit number, hyphen, name)")
     args = parser.parse_args(argv)
     try:
         target = publish(Path(args.session), args.stage, args.allow, args.as_name)

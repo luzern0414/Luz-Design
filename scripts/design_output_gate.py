@@ -97,6 +97,8 @@ def _check(root, caller, stage, target, template_id, output, template_root=None)
             raise ValueError(f"正式输出上下文没有对应的真实项目阶段: {stage}")
         if caller == "luz-project":
             evidence_caller = item["owner"]
+        elif manifest.get("workflow") == "commercial-v1" and caller in item.get("contributors", []):
+            evidence_caller = module.stage_evidence_caller(root, caller, stage)
         elif item["owner"] != caller:
             raise ValueError(f"正式输出上下文不能借用其他技能的项目阶段: {stage}")
         approved = item.get("status") in {"approved", "completed"}

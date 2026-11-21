@@ -7,7 +7,7 @@
 描述文件（JSON）：{"id","name","theme","title","slides":[{"layout": ...}]}。版式：
     cover 封面  section 章节页  bullets 要点页  two-column 双栏对比  image-text 图文页
     table 表格页  chart 图表页  quote 引言页  end 结束页  steps 流程页  stats 数据页
-字段见 README.md。主题色与底色读 ../../../kit/tokens.css，不在这里另存一份。
+字段见 README.md。默认从 Luz-Design 的参考主题生成色值，可用 --tokens 指定 CSS 令牌。
 字阶按规则卡：封面与大标题 40 磅，页标题 28 磅，正文 20 磅，图表与标注 18 磅，不用其他字号。
 """
 from __future__ import annotations
@@ -35,7 +35,8 @@ from pptx.oxml.ns import qn
 from pptx.util import Emu, Inches, Pt
 
 HERE = Path(__file__).resolve().parent
-SHARED = (HERE / ".." / ".." / ".." / "kit").resolve()
+DESIGN = HERE.parents[2]
+SHARED = DESIGN / "kit"
 
 FONT = "微软雅黑"
 SLIDE_W, SLIDE_H = 12192000, 6858000          # 13.333 x 7.5 英寸
@@ -50,7 +51,6 @@ PAGE_Y = 6.45                                 # 页码框上沿；框底 6.85 �
 RADIUS = 0.22                                 # 卡片圆角（英寸）
 
 LAYOUTS = ["cover", "section", "bullets", "two-column", "image-text", "table", "chart", "quote", "end", "steps", "stats"]
-THEMES = ["rose", "coral", "orange", "green", "teal", "blue", "purple", "graphite"]
 
 PHOTO_ALT = {
     "bouquet-rose": "粉色玫瑰花束", "bouquet-tulip": "黄色郁金香花束", "bouquet-white": "白色洋桔梗花束",
@@ -92,10 +92,18 @@ def opaque_hex(value: str) -> str:
     return "".join(digit * 2 for digit in digits) if len(digits) == 3 else digits
 
 
-def load_tokens(path: Path, theme: str) -> dict[str, str]:
-    if not path.is_file():
-        sys.exit(f"找不到令牌文件 {path}（幻灯片的色值读 kit/tokens.css）")
-    text = path.read_text(encoding="utf-8")
+def load_tokens(path: Path | None, theme: str) -> dict[str, str]:
+    if path is None:
+        sys.path.insert(0, str(DESIGN / "scripts"))
+        from sync_template_tokens import render
+
+        text = render(application=False)
+        if theme == "orange":
+            theme = "amber"
+    else:
+        if not path.is_file():
+            sys.exit(f"找不到令牌文件 {path}")
+        text = path.read_text(encoding="utf-8")
     base: dict[str, str] = {}
     themed: dict[str, dict[str, str]] = {}
     for match in re.finditer(r'(:root|\[data-theme="(\w+)"\])\s*\{(.*?)\}', text, re.S):
@@ -1106,7 +1114,7 @@ def colors_for_points(deck: Deck, count: int) -> list[str]:
 
 # ------------------------------------------------------------------ 入口
 
-def build(spec_path: Path, out: Path, theme: str | None, tokens: Path) -> bool:
+def build(spec_path: Path, out: Path, theme: str | None, tokens: Path | None) -> bool:
     warnings.clear()
     errors.clear()
     spec = json.loads(spec_path.read_text(encoding="utf-8"))
@@ -1141,8 +1149,8 @@ def main(argv=None) -> int:
     parser.add_argument("spec", nargs="?", type=Path)
     parser.add_argument("out", nargs="?", type=Path)
     parser.add_argument("--all", action="store_true", help="把 specs 里每个模板生成到 samples")
-    parser.add_argument("--theme", choices=THEMES, help="覆盖描述文件里的主题")
-    parser.add_argument("--tokens", type=Path, default=SHARED / "tokens.css")
+    parser.add_argument("--theme", help="覆盖描述文件里的主题")
+    parser.add_argument("--tokens", type=Path, help="使用指定的 CSS 令牌文件")
     parser.add_argument("--strict", action="store_true", help="提醒也算失败")
     args = parser.parse_args(argv)
     jobs: list[tuple[Path, Path]] = []

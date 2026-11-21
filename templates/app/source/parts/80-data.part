@@ -1076,6 +1076,7 @@ th[aria-sort="ascending"] .chev::after { opacity: 1; transform: rotate(-135deg) 
     };
     const draw = () => {
       const { ctx, w, h } = fit(cv), m = M[key], cx = w / 2, cy = h - 28, lw = 18, R = Math.min(w / 2 - 30, h - 62), frac = v => (v - m.lo) / (m.hi - m.lo), ang = f => Math.PI + f * Math.PI;
+      if (R <= 0) return;
       ctx.lineCap = 'round';
       ctx.beginPath(); ctx.arc(cx, cy, R, Math.PI, 2 * Math.PI); ctx.strokeStyle = css('--zone'); ctx.lineWidth = lw; ctx.stroke();
       for (let i = 0; i <= 10; i++) { const a = ang(i / 10), r1 = R - lw / 2 - 5, r2 = r1 - (i % 5 ? 4 : 8); ctx.beginPath(); ctx.moveTo(cx + Math.cos(a) * r1, cy + Math.sin(a) * r1); ctx.lineTo(cx + Math.cos(a) * r2, cy + Math.sin(a) * r2); ctx.strokeStyle = css('--line-strong'); ctx.lineWidth = 1.5; ctx.stroke(); }

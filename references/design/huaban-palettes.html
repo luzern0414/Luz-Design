@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>花瓣色卡与应用配色</title>
+  <link rel="stylesheet" href="../guidelines.css">
+  <link rel="stylesheet" href="../../kit/frontend/shared/pastel-300.css">
+  <style>
+    :root { --surface: #fff; --surface-soft: #fff; --ink: #34313b; }
+    .recipes th[scope="row"] { width: 23%; }
+    .recipes td:last-child { width: 32%; }
+    .color-values { display: block; font-weight: 400; }
+    .color-values code { padding: 0; font-size: .78rem; }
+    .swatch {
+      display: block;
+      width: 100%;
+      max-width: 11rem;
+      height: 1rem;
+      margin-bottom: .45rem;
+      border-radius: 3px;
+      background: linear-gradient(90deg, var(--first) 50%, var(--second) 50%);
+    }
+    .swatch.blend {
+      height: 2rem;
+      background: linear-gradient(90deg, var(--first) 50%, var(--second) 50%) top / 100% .9rem no-repeat,
+                  linear-gradient(90deg, var(--first), var(--second)) bottom / 100% .9rem no-repeat;
+    }
+    @media (max-width: 640px) {
+      .recipes { display: block; }
+      .recipes thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+      .recipes tbody, .recipes tr, .recipes th[scope="row"], .recipes td { display: block; }
+      .recipes th[scope="row"], .recipes td, .recipes td:last-child { width: auto; border: 0; padding: .35rem .85rem; }
+      .recipes th[scope="row"] { padding-top: .85rem; }
+      .recipes td:last-child { padding-bottom: .85rem; }
+      .recipes tr + tr { border-top: 1px solid var(--line); }
+    }
+  </style>
+</head>
+<body>
+<main aria-label="花瓣色卡与应用配色">
+  <h1>花瓣色卡与应用配色</h1>
+  <section aria-labelledby="scope">
+  <h2 id="scope">适用范围</h2>
+    <p>原色卡保存出处原貌。应用组件按 <a href="hard-rules.md">成品要求</a> 取非绿色、非青绿色色标，页面和全局导航使用纯白。</p>
+  <p>App、Web 和小程序的页面、页头、导航与主内容区保持纯白 <code>#FFFFFF</code>。下表的 12 组搭配和组件用法仅供参考。项目可自选其他色系、自由组合或调整渐变。这里展示的色样取自 <a href="../../kit/frontend/shared/pastel-300.css">Pastel 300 组件色表</a>。</p>
+  </section>
+  <section aria-labelledby="recipes">
+  <h2 id="recipes">组件配色组合</h2>
+  <p>并排色块展示两种颜色如何呼应，第二条色带展示一种渐变效果。可只借用冷暖或明暗关系，颜色、数量、搭配及组件用途均按项目选择。</p>
+  <table class="recipes" aria-label="Pastel 300 色样、组件用法与花瓣参考">
+    <thead><tr><th scope="col">Pastel 300 色样</th><th scope="col">组件用法示例</th><th scope="col">花瓣色卡依据</th></tr></thead>
+    <tbody>
+        <tr>
+          <th scope="row" style="--first: var(--pastel-blue-300); --second: var(--pastel-peach-300)">
+            <span class="swatch" aria-hidden="true"></span>雾蓝与蜜桃
+            <small class="color-values"><code>#9FC5E5</code> / <code>#F0B98F</code></small>
+          </th>
+          <td>让雾蓝主按钮承接主要动作，蜜桃放在旁边的附件图标底板上。按钮保留明确的动词。</td>
+          <td>两档蓝色与日出桃色并置。<br><a href="https://huaban.com/pins/3563348992/">晨光海面 · Morning Light（采集）</a> · <a href="https://p2.ssl.qhimgs1.com/sdr/400__/t018f7760d2bcb687b8.jpg">该图预览</a></td>
+        </tr>
+        <tr>
+          <th scope="row" style="--first: var(--pastel-blue-300); --second: var(--pastel-yellow-300)">
+            <span class="swatch blend" aria-hidden="true"></span>雾蓝至奶黄
+            <small class="color-values"><code>#9FC5E5</code> / <code>#ECD77D</code></small>
+          </th>
+          <td>为同类功能入口的图标底板做柔和渐变。用同一套深色线稿区分功能。</td>
+          <td>上排是单色，下排圆形示范相邻颜色的过渡。<br><a href="https://huaban.com/boards/52791540/">五色渐变卡（画板）</a> · <a href="https://p1.ssl.qhimgs1.com/sdr/400__/t04044a20a7447d2c77.jpg">该图预览</a></td>
+        </tr>
+        <tr>
+          <th scope="row" style="--first: var(--pastel-yellow-300); --second: var(--pastel-oat-300)">
+            <span class="swatch" aria-hidden="true"></span>奶黄与燕麦
+            <small class="color-values"><code>#ECD77D</code> / <code>#D3BFAE</code></small>
+          </th>
+          <td>当季花材卡用奶黄，植物分类图标用雾蓝。两种颜色都收在组件边界内。</td>
+          <td>花瓣的浅黄连到叶片的黄绿。<br><a href="https://huaban.com/boards/39047325/">黄郁金香（画板）</a> · <a href="https://p2.ssl.qhimgs1.com/sdr/400__/t0494f777a9edcb74b2.png">该图预览</a></td>
+        </tr>
+        <tr>
+          <th scope="row" style="--first: var(--pastel-periwinkle-300); --second: var(--pastel-lilac-300)">
+            <span class="swatch blend" aria-hidden="true"></span>长春花蓝至丁香紫
+            <small class="color-values"><code>#AFB9E5</code> / <code>#BFA9DD</code></small>
+          </th>
+          <td>在一张作品集封面卡内，从偏蓝的紫色过渡到丁香紫。封面标题与作者名使用深色。</td>
+          <td>花瓣由蓝紫过渡到浅紫。<br><a href="https://huaban.com/pins/3145241008/">紫花近景 · Macro Purple（采集）</a> · <a href="https://p1.ssl.qhimgs1.com/sdr/400__/t017634903bf371c8f1.png">该图预览</a></td>
+        </tr>
+        <tr>
+          <th scope="row" style="--first: var(--pastel-peach-300); --second: var(--pastel-coral-300)">
+            <span class="swatch blend" aria-hidden="true"></span>蜜桃至珊瑚
+            <small class="color-values"><code>#F0B98F</code> / <code>#EEAB98</code></small>
+          </th>
+          <td>将暖色渐变用于一张当期活动卡。卡旁的时间、地点与后续活动排在白底上。</td>
+          <td>浅桃、杏橙和珊瑚色取自同一片浪面。<br><a href="https://huaban.com/boards/44235521/">暖色海浪（画板）</a> · <a href="https://p2.ssl.qhimgs1.com/sdr/400__/t01e0451267d7ec408c.png">该图预览</a></td>
+        </tr>
+        <tr>
+          <th scope="row" style="--first: var(--pastel-pink-300); --second: var(--pastel-gray-300)">
+            <span class="swatch" aria-hidden="true"></span>樱花粉与雾灰
+            <small class="color-values"><code>#E1A8C1</code> / <code>#BFC4CC</code></small>
+          </th>
+          <td>平级栏目可分别用粉色和雾灰图标底板。每个栏目配自己的图形与名称，换页后保持对应关系。</td>
+          <td>粉色与灰绿出现在同一排色块中。<br><a href="https://huaban.com/boards/33139652/">Pink Color Schemes（画板）</a> · <a href="https://p2.ssl.qhimgs1.com/sdr/400__/t010caf4f1d34a097dc.jpg">该图预览</a></td>
+        </tr>
+        <tr>
+          <th scope="row" style="--first: var(--pastel-periwinkle-300); --second: var(--pastel-blue-300)">
+            <span class="swatch blend" aria-hidden="true"></span>长春花蓝至雾蓝
+            <small class="color-values"><code>#AFB9E5</code> / <code>#9FC5E5</code></small>
+          </th>
+          <td>在单张数据摘要卡内使用冷色渐变。图上的关键值、折线标记和标题另用深色。</td>
+          <td>蓝色与偏绿的水青排在同一组。<br><a href="https://huaban.com/boards/33139652/">Blue Color Schemes（画板）</a> · <a href="https://p1.ssl.qhimgs1.com/sdr/400__/t0110ce1b6cc09cf471.jpg">该图预览</a></td>
+        </tr>
+        <tr>
+          <th scope="row" style="--first: var(--pastel-oat-300); --second: var(--pastel-peach-300)">
+            <span class="swatch" aria-hidden="true"></span>燕麦与蜜桃
+            <small class="color-values"><code>#D3BFAE</code> / <code>#F0B98F</code></small>
+          </th>
+          <td>资料摘要卡可用燕麦底，关联文件夹用蜜桃色底板。长篇内容与表格留在白色阅读区。</td>
+          <td>浅米色、暖墙色与褐色来自街景。<br><a href="https://huaban.com/boards/38470570/">街角单车（画板）</a> · <a href="https://p1.ssl.qhimgs1.com/sdr/400__/t01445098776d5a90e7.jpg">该图预览</a></td>
+        </tr>
+        <tr>
+          <th scope="row" style="--first: var(--pastel-red-300); --second: var(--pastel-gray-300)">
+            <span class="swatch" aria-hidden="true"></span>柔红与雾灰
+            <small class="color-values"><code>#E9A09B</code> / <code>#BFC4CC</code></small>
+          </th>
+          <td>收藏入口用柔红图标底板，归档入口用雾灰。已收藏同时用实心图形及可访问状态表示。</td>
+          <td>第二组把柔红、灰调与浅色并置。<br><a href="https://huaban.com/boards/30026939/">四色组拼卡（画板）</a> · <a href="https://p0.ssl.qhimgs1.com/sdr/400__/t01378c856234df725e.jpg">该图预览</a></td>
+        </tr>
+        <tr>
+          <th scope="row" style="--first: var(--pastel-blue-300); --second: var(--pastel-yellow-300)">
+            <span class="swatch" aria-hidden="true"></span>雾蓝与奶黄
+            <small class="color-values"><code>#9FC5E5</code> / <code>#ECD77D</code></small>
+          </th>
+          <td>两组并列数据可各选一种填色，直接标注系列名称。柱形边界承载信息时加清晰描边。</td>
+          <td>浅黄和薄荷色呼应海湾的暖光与水色。<br><a href="https://huaban.com/pins/3563350485/">海湾 · Rio Hues（采集）</a> · <a href="https://p2.ssl.qhimgs1.com/sdr/400__/t0148e2cbbff0b0cecc.jpg">该图预览</a></td>
+        </tr>
+        <tr>
+          <th scope="row" style="--first: var(--pastel-lilac-300); --second: var(--pastel-pink-300)">
+            <span class="swatch blend" aria-hidden="true"></span>丁香紫至樱花粉
+            <small class="color-values"><code>#BFA9DD</code> / <code>#E1A8C1</code></small>
+          </th>
+          <td>作品或收藏夹的封面卡可用粉紫渐变。把名称写在对比充足的位置，卡片的选中态加深色勾选图形。</td>
+          <td>紫调中出现浅紫与粉紫。<br><a href="https://huaban.com/pins/3563349475/">仙人掌 · Prickly Purples（采集）</a> · <a href="https://p1.ssl.qhimgs1.com/sdr/400__/t01e45706fe529ab4eb.jpg">该图预览</a></td>
+        </tr>
+        <tr>
+          <th scope="row" style="--first: var(--pastel-coral-300); --second: var(--pastel-pink-300)">
+            <span class="swatch" aria-hidden="true"></span>珊瑚与樱花粉
+            <small class="color-values"><code>#EEAB98</code> / <code>#E1A8C1</code></small>
+          </th>
+          <td>活动入口图标可用珊瑚色，相关收藏标签可用樱花粉。同页的保存按钮沿用产品既定主操作颜色。</td>
+          <td>橙色与玫粉花瓣并置，色卡保留两支暖色。<br><a href="https://huaban.com/boards/44235521/">橙粉花束（画板）</a> · <a href="https://p2.ssl.qhimgs1.com/sdr/400__/t0143306e263fa12432.png">该图预览</a></td>
+        </tr>
+    </tbody>
+  </table>
+  </section>
+  <section aria-labelledby="application">
+  <h2 id="application">文字、图标与状态</h2>
+  <ul>
+    <li><strong>按钮与标签。</strong>普通字号文字至少达到 4.5:1。深色 <code>#34313B</code> 在这 14 个示例实色底上的对比度约为 6.03:1 至 8.85:1，白字约为 1.44:1 至 2.11:1。这组填色用深字更清楚。主操作的标签写明动作，次要操作可保留白底。 <a href="https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html">WCAG 文字对比度</a></li>
+    <li><strong>图标与头像。</strong>功能图标和头像用图形路径或位图。Pastel 可做底板，辨识动作、状态和焦点所需的轮廓应与相邻颜色达到 3:1。纯白页面上的浅色装饰面可保留，必要信息由深色图形、文字或边线承担。头像回退也用人物图形。 <a href="https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast.html">WCAG 非文字对比度</a></li>
+    <li><strong>渐变。</strong>渐变的颜色、色标数量、位置和方向可按组件内容调整。渐变裁在组件内部，核对两端、过渡区及文字和图形实际覆盖处。可从 <code>linear-gradient(135deg, var(--pastel-periwinkle-300), var(--pastel-blue-300))</code> 起步。 <a href="https://www.w3.org/WAI/WCAG22/Techniques/general/G18">W3C 渐变上的文字检查方法</a></li>
+    <li><strong>状态与数据。</strong>成功、警告和错误沿用业务语义色，并写明结果或修正动作。选中项增加勾选或下划线，图表用直接标签、不同线型或图案区分系列。分类色在筛选、换页和图例中保持对应。 <a href="https://www.w3.org/WAI/WCAG22/Understanding/use-of-color.html">WCAG 颜色的使用</a> · <a href="https://www.w3.org/WAI/WCAG22/Techniques/general/G111">W3C 图案与颜色</a></li>
+  </ul>
+  </section>
+  <section aria-labelledby="sources">
+  <h2 id="sources">色卡来源</h2>
+  <p>本次逐张查看了 27 张带花瓣出处的公开索引预览，回溯到 18 个采集或画板链接。表中保留可辨认的作品标题或画面描述。每组附花瓣出处及对应的缩略图链接，方便在同一画板中辨认具体作品。花瓣详情页当时触发访问验证，原作者、原图标注色值与授权情况未逐项核实。表中的组件用途和渐变方向用于演示搭配效果。</p>
+  </section>
+</main>
+</body>
+</html>

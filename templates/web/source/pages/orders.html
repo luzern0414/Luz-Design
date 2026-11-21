@@ -17,8 +17,8 @@
   .table td { height: 68px; padding-top: 0; padding-bottom: 0; }
   .thumb { width: 44px; height: 44px; border-radius: var(--r-md); object-fit: cover; background: var(--zone); flex: none; box-shadow: 0 0 0 1px var(--line); }
   .pname { display: flex; align-items: center; gap: var(--s-3); min-width: 0; }
-  .seg--chips .seg__item { background: var(--surface); box-shadow: inset 0 0 0 1px var(--line-strong); min-height: 40px; padding: 0 var(--s-5); }
-  .seg--chips .seg__item[aria-selected="true"] { background: var(--action); box-shadow: none; }
+  .seg--chips .seg__item { background: var(--surface); box-shadow: inset 0 0 0 1px var(--line-strong); padding: 0 var(--s-5); }
+  .seg--chips .seg__item[aria-selected="true"] { background: var(--surface); box-shadow: none; }
   @media (hover: hover) { .seg--chips .seg__item[aria-selected="false"]:hover { background: var(--action-tint); } }
 
   /* 本页专属：工具条、订单表格的行内展开、详情页两栏与金额明细 */
@@ -33,6 +33,7 @@
 
   .table-wrap { container-type: inline-size; }
   .table { min-width: 900px; }
+  .table .order-number { --field-width: 7em; }
   .table tbody tr { cursor: default; }
   .table .c-ex { padding: 0 0 0 var(--s-2); }
   .table .who { vertical-align: middle; }
@@ -136,7 +137,7 @@
               <colgroup><col style="width:48px"><col style="width:136px"><col style="width:140px"><col><col style="width:112px"><col style="width:112px"><col style="width:112px"></colgroup>
               <thead><tr>
                 <th class="c-ex"><span class="sr-only">展开</span></th>
-                <th>订单号</th>
+                <th class="order-number"><span class="table__field">订单号</span></th>
                 <th class="t-l">客户</th>
                 <th class="t-l">商品摘要</th>
                 <th class="t-r">金额</th>
@@ -190,7 +191,7 @@
         <div>
           <section class="section" style="margin-top:var(--s-4)" data-cid="WB-ORDR-008" data-name="交易信息键值卡">
             <div class="section__head"><h2>交易信息</h2></div>
-            <div class="card section__body"><dl class="kv" id="dkv"></dl></div>
+            <div class="card section__body"><dl class="kv kv--center" id="dkv"></dl></div>
           </section>
           <section class="section" data-cid="WB-ORDR-009" data-name="金额明细卡">
             <div class="section__head"><h2>金额明细</h2></div>
@@ -266,8 +267,8 @@
     const items = o.items.map(([id, q]) => `<div class="exb__item"><img class="thumb" src="${IMG(P[id][2])}" alt=""><span class="one-line">${P[id][0]}</span><span class="exb__qty">×${q}</span><span class="price"><small>¥</small>${money(P[id][1] * q)}</span></div>`).join('');
     return `<tr class="orow" data-id="${o.id}">
       <td class="c-ex"><button type="button" class="ibtn chev" data-expand="ex-${o.id}" data-tip="展开明细" aria-label="展开订单 ${o.no}"></button></td>
-      <td class="t-num">${o.no}</td>
-      <td class="t-l"><span class="who"><img src="${MARK(o.mark)}" alt=""><span class="one-line">${esc(o.name)}</span></span></td>
+      <td class="order-number"><span class="table__field t-num">${o.no}</span></td>
+      <td class="t-l"><span class="who"><img data-avatar src="${MARK(o.mark)}" alt=""><span class="one-line">${esc(o.name)}</span></span></td>
       <td class="t-l"><span class="pname"><img class="thumb" src="${IMG(P[o.items[0][0]][2])}" alt=""><span class="one-line">${summary(o)}</span></span></td>
       <td class="t-r price"><small>¥</small>${money(totalOf(o))}</td>
       <td><span class="tag tag--dot" data-tone="${st[1]}">${st[0]}</span></td>
@@ -347,7 +348,7 @@
     $('#dtag').innerHTML = `<span class="tag tag--dot" data-tone="${st[1]}">${st[0]}</span>`;
     $('#dtl').innerHTML = trail(o).map((x, i) => `<div class="tl__item" data-state="${i === 0 ? 'now' : 'done'}"><span class="tl__dot"></span><div><p class="row__title">${x.s}</p>${x.m ? `<p class="row__meta">${x.m}</p>` : ''}</div><span class="tl__time">${x.t}</span></div>`).join('');
     $('#ditems').innerHTML = o.items.map(([pid, q]) => `<div class="row"><img class="row__lead" src="${IMG(P[pid][2])}" alt=""><div class="row__main"><p class="row__title">${P[pid][0]}</p><p class="row__meta">单价 ¥${money(P[pid][1])}</p></div><div class="row__trail"><span class="price"><small>¥</small>${money(P[pid][1] * q)}</span><span>×${q}</span></div></div>`).join('');
-    $('#dkv').innerHTML = `<dt>订单号</dt><dd class="t-num">${o.no}</dd><dt>客户</dt><dd><span class="cust"><img src="${MARK(o.mark)}" alt="">${esc(o.name)}</span></dd><dt>下单门店</dt><dd>${o.store}</dd><dt>支付方式</dt><dd>${o.pay}</dd><dt>下单时间</dt><dd>${o.t}</dd><dt>收货人</dt><dd>${esc(o.name)}</dd><dt>联系电话</dt><dd class="t-num">${o.phone}</dd><dt>收货地址</dt><dd>${o.addr}</dd>`;
+    $('#dkv').innerHTML = `<dt>订单号</dt><dd class="t-num">${o.no}</dd><dt>客户</dt><dd><span class="cust"><img data-avatar src="${MARK(o.mark)}" alt="">${esc(o.name)}</span></dd><dt>下单门店</dt><dd>${o.store}</dd><dt>支付方式</dt><dd>${o.pay}</dd><dt>下单时间</dt><dd>${o.t}</dd><dt>收货人</dt><dd>${esc(o.name)}</dd><dt>联系电话</dt><dd class="t-num">${o.phone}</dd><dt>收货地址</dt><dd>${o.addr}</dd>`;
     $('#damt').innerHTML = `<div class="amt"><span>商品金额</span><span class="t-num">¥${money(sumOf(o))}</span></div><div class="amt"><span>配送费</span><span class="t-num">¥${money(shipOf(o))}</span></div><div class="amt"><span>优惠</span><span class="t-num">${o.disc ? '-¥' + money(o.disc) : '¥0.00'}</span></div><div class="amt amt--sum"><span>实付金额</span><span class="price"><small>¥</small>${money(totalOf(o))}</span></div>`;
   }
   /* 捕获阶段先渲染详情，再由通用视图切换打开 */

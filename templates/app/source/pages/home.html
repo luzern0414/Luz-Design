@@ -11,13 +11,13 @@
 <link rel="stylesheet" href="../../../../kit/app.css">
 <style>
   /* 本页专属：横幅、券面、排行 */
-  .hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(90px, 40%); align-items: center; gap: var(--s-3); min-height: 148px; margin-top: var(--s-3); padding: var(--s-5); overflow: hidden; border-radius: var(--r-lg); background: var(--action); border: 1px solid color-mix(in srgb, var(--surface) 32%, transparent); color: var(--surface); }
+  .hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(90px, 40%); align-items: center; gap: var(--s-3); min-height: 148px; margin-top: var(--s-3); padding: var(--s-5); overflow: hidden; border-radius: var(--r-lg); background: var(--surface); border: 1px solid var(--line); color: var(--ink); }
   .hero h2 { font-size: var(--fs-2xl); font-weight: 700; line-height: var(--lh-tight); }
   .hero__img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: var(--r-md); }
   .hero__txt { display: grid; justify-items: start; gap: var(--s-2); }
   .hero__txt p { font-size: var(--fs-sm); opacity: .94; }
   .top { padding-bottom: var(--s-5); }
-  .home-stack { border-block-start: 0; border-start-start-radius: 0; border-start-end-radius: 0; }
+  .home-stack { margin-block-start: var(--app-card-gap); }
   .home-stack .hscroll { margin-inline: 0; padding-block-end: var(--s-4); }
   .coupon { display: grid; grid-template-columns: auto 1fr auto; align-items: center; column-gap: var(--s-4); padding: var(--s-4) var(--s-4) var(--s-4) var(--s-5); }
   .coupon__amt { display: flex; align-items: baseline; gap: 2px; }
@@ -59,14 +59,14 @@
       <a class="entry" href="list.html"><img data-ic="scooter" src="../../../../kit/assets/icons/flat/scooter.webp" alt=""><span>极速配送</span></a>
     </nav>
 
-    <div class="card-stack home-stack">
+    <div class="app-card-stack home-stack">
       <!-- 新人礼券：领取后整块收起 -->
       <div class="expand" id="coupon-wrap" data-open="true">
         <div>
           <section class="card section" data-cid="AP-HOME-003" data-name="礼券领取卡">
             <div class="section__head"><h2>新人礼券</h2></div>
             <div class="coupon section__body">
-              <img class="compact-icon" data-icon-tone="peach" src="../../../../kit/assets/line/archive.webp" alt="">
+              <img class="compact-icon" src="../../../../kit/assets/line/archive.webp" alt="">
               <div><div class="coupon__amt"><span class="price"><small>¥</small>20</span></div><p class="row__meta">满 99 元可用</p></div>
               <button class="btn btn--primary btn--sm" id="claim">立即领取</button>
             </div>

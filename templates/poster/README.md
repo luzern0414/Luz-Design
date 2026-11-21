@@ -47,7 +47,7 @@ scripts/export_poster.py  导出 PNG 与 PDF
 
 ## 换主题
 
-地址加参数，例如 `PS-001-活动竖版.html?theme=green`。主题色有 24 个预设（`rose`、`wine`、`coral`、`sage`、`green`、`teal`、`sky`、`blue`、`purple`、`graphite` 等，全部列在 `kit/tokens.css`），也可以 `?color=%232f9e6a` 自选；`?bg=dots` 换背景效果，`?icons=3d` 换图标形态。样式只引用 `kit/tokens.css` 的变量，不写色值，所以全部跟着变。
+可用 `PS-001-活动竖版.html?theme=navy` 切换预设，完整列表见 `kit/tokens.css`。用 `?color=%23385fa8` 设置自定义主色，`?bg=dots` 切换背景效果，`?icons=3d` 切换图标形态。模板从共享令牌读取色值。
 
 目录页的主题色按钮通过 `postMessage({ lz: 'skin', theme })` 让预览里的海报同步换色，页面自己也支持这条消息。
 

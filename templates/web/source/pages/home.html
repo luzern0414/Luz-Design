@@ -10,85 +10,70 @@
 <link rel="stylesheet" href="../../../../kit/kit.css">
 <link rel="stylesheet" href="../../../../kit/web.css">
 <style>
-  /* 侧栏标识、胶囊标签与表格的统一细节 */
-  .tag { height: 24px; padding: 0 var(--s-3); border-radius: var(--r-full); }
-  .tag--dot::before { content: ""; width: 6px; height: 6px; margin-right: 6px; border-radius: 50%; background: currentColor; }
-  .clip { overflow: hidden; }
-  .table th { height: 48px; }
-  .table td { height: 64px; padding-top: 0; padding-bottom: 0; }
-  .table tbody tr { cursor: default; }
-  .table .who img { width: 36px; height: 36px; background: var(--zone); }
-  .pname { display: flex; align-items: center; gap: var(--s-3); min-width: 0; }
-  .thumb { width: 44px; height: 44px; border-radius: var(--r-md); object-fit: cover; background: var(--zone); flex: none; box-shadow: 0 0 0 1px var(--line); }
-  .seg--box { display: inline-flex; gap: 4px; padding: 3px; border-radius: var(--r-lg); background: var(--zone); box-shadow: inset 0 0 0 1px var(--line); }
-  .seg--box .seg__item { min-height: 32px; background: transparent; }
-  .seg--box .seg__item[aria-selected="true"] { background: var(--action); }
-
-  /* 指标卡：实色主卡与白卡，图标在指标名上方 */
-  .dashboard { --dashboard-columns: repeat(5, minmax(0, 1fr)); margin-top: var(--s-5); }
-  .dashboard > .card-grid { grid-template-columns: var(--dashboard-columns); }
-  .dashboard .hero, .dashboard .cols-main > :last-child { grid-column: span 2; }
-  .dashboard .cols-main > :first-child { grid-column: span 3; }
-  .dashboard > .card-grid + .card-grid > :is(.card, .card-stack) {
+  .dashboard {
+    --chart-main: #285b88;
+    --channel-online: #34758e;
+    --channel-store: #7055a1;
+    --channel-phone: #a36025;
+    margin-top: var(--s-5);
+  }
+  .head__period { color: var(--ink-2); font-size: var(--fs-sm); }
+  .dashboard__overview, .dashboard__totals { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .dashboard__overview > :first-child, .dashboard__totals > .card { grid-column: span 2; }
+  .dashboard .card { min-width: 0; overflow: hidden; }
+  .dashboard .section__head { padding: var(--s-4) var(--s-5) 0; }
+  .dashboard .section__body { margin-top: 0; }
+  .dashboard__overview > .card {
+    border-end-start-radius: 0; border-end-end-radius: 0;
+  }
+  .dashboard__totals > .card {
     border-block-start-width: 0; border-start-start-radius: 0; border-start-end-radius: 0;
   }
-  .dashboard > .card-grid:not(:last-child) > :is(.card, .card-stack) { border-end-start-radius: 0; border-end-end-radius: 0; }
-  .kpi { position: relative; display: flex; flex-direction: column; justify-content: space-between; gap: var(--s-3); min-height: 188px; padding: var(--s-5) var(--s-6); overflow: hidden; }
-  .kpi:not(.hero) { justify-content: flex-start; gap: var(--s-2); }
-  .kpi:not(.hero) > div:last-child { margin-top: auto; }
-  .kpi__label { display: flex; align-items: center; gap: var(--s-2); font-size: var(--fs-md); font-weight: 600; color: var(--ink-2); }
-  .kpi__val { font-size: var(--fs-2xl); font-weight: 700; line-height: var(--lh-tight); font-variant-numeric: tabular-nums; }
-  .kpi__val small { margin-left: 2px; font-size: var(--fs-sm); font-weight: 400; color: var(--ink-3); }
-  .kpi__delta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2); margin-top: var(--s-2); font-size: var(--fs-sm); color: var(--ink-3); }
-  .hero { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: 1fr auto; align-items: start; column-gap: var(--s-5); background: var(--action); box-shadow: none; }
-  .hero .kpi__label, .hero .kpi__delta { color: color-mix(in srgb, var(--surface) 90%, transparent); }
-  .hero .kpi__label .tag { background: color-mix(in srgb, var(--surface) 22%, transparent); color: var(--surface); }
-  .hero .kpi__val { font-size: var(--fs-3xl); color: var(--surface); }
-  .hero .kpi__val small { font-size: var(--fs-lg); font-weight: 600; color: inherit; margin: 0 2px 0 0; }
-  .hero__img { width: 116px; height: 116px; border-radius: var(--r-md); object-fit: cover; }
-  .hero__stores { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-4); margin-top: var(--s-4); padding-top: var(--s-3); border-top: 1px solid color-mix(in srgb, var(--surface) 28%, transparent); font-size: var(--fs-sm); }
-  .hero__stores li { display: grid; gap: 2px; min-width: 0; }
-  .hero__stores span { color: color-mix(in srgb, var(--surface) 84%, transparent); }
-  .hero__stores b { font-weight: 600; font-variant-numeric: tabular-nums; }
 
-  /* 同一行的卡片等高：末项随行拉伸 */
-  .fill, .col > .section:last-child { display: flex; flex-direction: column; }
-  .fill > .section__body, .col > .section:last-child > .section__body { flex: 1; }
-  .col > .section:last-child { flex: 1; }
-
-  /* 图表卡 */
-  .chart-card { padding: var(--s-5) var(--s-6); }
-  .chart canvas { height: 248px; cursor: crosshair; }
-  .chart__read { display: flex; align-items: center; gap: var(--s-2); margin-top: var(--s-3); padding-top: var(--s-3); border-top: 1px solid var(--line); font-size: var(--fs-md); font-weight: 600; color: var(--ink); }
-  .dn { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: var(--s-8); min-height: 332px; }
-  .chart-card .donut { --size: 156px; --c3: var(--action-edge); background: conic-gradient(var(--c1) 0 var(--p1), var(--c2) var(--p1) var(--p2), var(--c3) var(--p2) 100%); flex: none; }
-  .chart-card .donut::after { inset: 20%; box-shadow: 0 0 0 1px var(--line); }
-  .dn .legend { gap: var(--s-4); min-width: 170px; }
-  .dn .legend li { display: grid; grid-template-columns: 12px 1fr auto; column-gap: var(--s-3); align-items: center; }
-  .dn .legend span { color: var(--ink-2); }
-  .dn .legend b { font-size: var(--fs-lg); font-weight: 600; font-variant-numeric: tabular-nums; }
-  .dn .stat__label { display: block; }
-
-  /* 分类销量：横向条形，条长按金额占比 */
-  .cats { display: grid; gap: var(--s-4); padding: var(--s-5) var(--s-6); }
-  .cat { display: grid; gap: var(--s-2); }
-  .cat__top { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-3); }
-  .cat__top b { font-weight: 600; font-variant-numeric: tabular-nums; }
-  .cat .progress { height: 10px; }
-
-  /* 待处理：三维图标加处理按钮 */
-  .todo { min-height: 72px; transition: opacity var(--dur-base) var(--ease-out); }
-  .todo + .todo::before { left: var(--s-5); }
-  .todo { padding-left: var(--s-5); padding-right: var(--s-5); }
-  @media (max-width: 1360px) { .hero__img { width: 104px; height: 104px; } .chart-card .donut { --size: 132px; } .dn { gap: var(--s-5); } .dn .legend { min-width: 150px; } .kpi { padding: var(--s-5); } }
-  @media (max-width: 1100px) {
-    .dashboard { --dashboard-columns: repeat(3, minmax(0, 1fr)); }
-    .dashboard .hero, .dashboard .cols-main > :first-child, .dashboard .cols-main > :last-child { grid-column: 1 / -1; }
-    .dashboard .kpi:not(.hero) { border-start-start-radius: 0; border-start-end-radius: 0; }
-    .dashboard .cols-main > :first-child { border-end-start-radius: 0; border-end-end-radius: 0; }
-    .dn { min-height: 0; }
+  .chart-card { padding: var(--s-3) var(--s-5) var(--s-4); }
+  .chart canvas { height: 218px; cursor: crosshair; }
+  .chart canvas:focus-visible { outline-offset: -2px; }
+  .chart__read {
+    min-height: 36px; padding-top: var(--s-2); margin-top: var(--s-2);
+    border-top: 1px solid var(--line); color: var(--ink-2);
+    font-size: var(--fs-sm); font-variant-numeric: tabular-nums;
   }
-  @media (max-width: 700px) { .dashboard { --dashboard-columns: minmax(0, 1fr); } }
+  .chart__unit { font-size: var(--fs-xs); color: var(--ink-3); font-weight: 400; }
+  .channel-chart { display: grid; gap: var(--s-3); justify-items: center; align-content: start; }
+  .channel-chart .donut {
+    --size: 132px; --c1: var(--channel-online); --c2: var(--channel-store); --c3: var(--channel-phone);
+    --p1: 55%; --p2: 85%;
+  }
+  .channel-chart .donut::after { inset: 17%; }
+  .channel-chart .legend { width: min(100%, 17rem); }
+  .channel-chart .legend li { display: grid; grid-template-columns: 10px minmax(0, 1fr) auto; }
+  .channel-chart .legend b { font-variant-numeric: tabular-nums; }
+
+  .dashboard__totals .stat {
+    display: grid; justify-items: start; align-content: start; gap: var(--s-1);
+    width: min(100%, 18rem); margin-inline: auto; padding: var(--s-4) var(--s-5);
+  }
+  .dashboard__totals .stat dt { color: var(--ink-2); font-weight: 600; }
+  .dashboard__totals .stat dd { font-size: var(--fs-2xl); font-weight: 700; font-variant-numeric: tabular-nums; }
+  .dashboard__totals .stat small { margin-inline-start: 3px; font-size: var(--fs-sm); font-weight: 400; color: var(--ink-2); }
+
+  .todo { min-height: 56px; }
+  .todo .row__title { overflow-wrap: anywhere; }
+  .todo .btn { flex-shrink: 0; padding-inline: var(--s-2); }
+  .todo:has(.btn:disabled) .row__title { color: var(--ink-3); }
+  @media (max-width: 1160px) {
+    .dashboard__overview, .dashboard__totals { grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); }
+    .dashboard__overview > :first-child, .dashboard__totals > .card { grid-column: auto; }
+    .dashboard__tasks { grid-column: 1 / -1; border-block-start-width: 0; border-start-start-radius: 0; border-start-end-radius: 0; }
+  }
+  @media (max-width: 760px) {
+    .dashboard__overview, .dashboard__totals { grid-template-columns: minmax(0, 1fr); }
+    .dashboard__overview > .card + .card { border-block-start-width: 0; border-start-start-radius: 0; border-start-end-radius: 0; }
+    .dashboard__totals > .card:not(:last-child) { border-end-start-radius: 0; border-end-end-radius: 0; }
+    .dashboard .section__head { padding-inline: var(--s-3); }
+    .chart-card { padding-inline: var(--s-3); }
+    .chart canvas { height: 184px; }
+  }
 </style>
 </head>
 <body class="web-body">
@@ -105,159 +90,112 @@
   </nav>
 
   <main class="main"><div class="main__in">
-    <!-- 页面顶部：白底与细边线，右侧放本页搜索与消息 -->
-    <header class="head" data-cid="WB-HOME-001" data-name="页面顶部标题搜索">
-      <div class="head__row">
-        <h1>经营概览</h1>
-        <div class="head__acts">
-          <label class="search"><img src="../../../../kit/assets/line/search.webp" alt=""><input type="search" placeholder="搜索订单或客户" aria-label="搜索订单或客户"></label>
-          <button class="ibtn ibtn--round" data-tip="消息" aria-label="消息"><img src="../../../../kit/assets/line/message.webp" alt=""><span class="badge">3</span></button>
-        </div>
-      </div>
+    <header class="head" data-cid="WB-HOME-001" data-name="工作台标题与范围">
+      <div class="head__row"><h1>经营概览</h1><span class="head__period">本周</span></div>
     </header>
 
     <div class="dashboard">
-      <!-- 核心指标：品牌主卡为销售额与三门店分账，其余三张白卡；上标题下数字与单位，数字入场 -->
-      <section class="grid card-grid kpis" data-cid="WB-HOME-002" data-name="核心指标卡">
-        <article class="card card--hero pattern-over kpi hero" data-reveal>
-          <div>
-            <p class="kpi__label">销售额<span class="tag">本周</span></p>
-            <p class="kpi__val" style="margin-top:var(--s-3)"><small>¥</small><span data-to="128640">0</span></p>
-            <p class="kpi__delta"><span class="tag tag--dot" data-tone="success">增长 12.4%</span>较上周</p>
-          </div>
-          <img class="hero__img" src="../../../../kit/assets/photo/bouquet-rose.webp" alt="">
-          <ul class="hero__stores">
-            <li><span>建国路店</span><b>¥52,300</b></li>
-            <li><span>徐汇滨江店</span><b>¥41,800</b></li>
-            <li><span>浦东世纪店</span><b>¥34,540</b></li>
-          </ul>
-        </article>
-        <article class="card kpi" data-reveal>
-          <img class="compact-icon" src="../../../../kit/assets/line/archive.webp" alt="">
-          <p class="kpi__label">订单数</p>
-          <div><p class="kpi__val"><span data-to="842">0</span><small>单</small></p><p class="kpi__delta"><span class="tag tag--dot" data-tone="success">增长 8.1%</span>较上周</p></div>
-        </article>
-        <article class="card kpi" data-reveal>
-          <img class="compact-icon" data-icon-tone="mint" src="../../../../kit/assets/line/people.webp" alt="">
-          <p class="kpi__label">新增会员</p>
-          <div><p class="kpi__val"><span data-to="316">0</span><small>人</small></p><p class="kpi__delta"><span class="tag tag--dot" data-tone="danger">下降 3.2%</span>较上周</p></div>
-        </article>
-        <article class="card kpi" data-reveal>
-          <img class="compact-icon" data-icon-tone="lilac" src="../../../../kit/assets/line/check.webp" alt="">
-          <p class="kpi__label">复购率</p>
-          <div><p class="kpi__val"><span data-to="38.6">0</span><small>%</small></p><p class="kpi__delta"><span class="tag tag--dot" data-tone="success">增长 2.5 个点</span>较上周</p></div>
-        </article>
-      </section>
-
-      <div class="grid card-grid cols-main">
-        <section class="card section fill" data-cid="WB-HOME-003" data-name="折线趋势图卡">
-          <div class="section__head"><h2>销售趋势</h2>
-            <div class="seg seg--box" data-seg="trend"><button class="seg__item" data-key="amt" aria-selected="true">金额</button><button class="seg__item" data-key="cnt">订单数</button></div>
-          </div>
+      <div class="grid card-grid dashboard__overview">
+        <section class="card section" data-cid="WB-HOME-003" data-name="折线趋势图卡">
+          <div class="section__head"><h2>销售趋势</h2><span class="chart__unit">万元</span></div>
           <div class="chart-card section__body">
-            <div class="chart"><canvas id="trend" aria-label="一周销售趋势折线图"></canvas><p class="chart__read" id="trend-read" aria-live="polite"></p></div>
+            <div class="chart">
+              <canvas id="trend" tabindex="0" aria-label="本周销售额折线图，左右方向键查看每日数值" aria-describedby="trend-read"></canvas>
+              <p class="chart__read" id="trend-read" aria-live="polite"></p>
+            </div>
           </div>
         </section>
-        <section class="card section fill" data-cid="WB-HOME-004" data-name="环形占比图卡">
-          <div class="section__head"><h2>渠道占比</h2></div>
-          <div class="chart-card dn section__body">
-            <div class="donut" style="--p1:55%;--p2:85%;--c1:var(--action);--c2:var(--accent)" role="img" aria-label="小程序 55%，门店收银 30%，电话订花 15%"><div class="donut__center"><span class="stat__val">55<small>%</small></span><span class="stat__label">小程序</span></div></div>
+        <section class="card section" data-cid="WB-HOME-004" data-name="环形占比图卡">
+          <div class="section__head"><h2>订单来源</h2></div>
+          <div class="chart-card channel-chart section__body">
+            <div class="donut" aria-hidden="true"></div>
             <ul class="legend">
-              <li><i style="--c:var(--action)"></i><span>小程序</span><b>55%</b></li>
-              <li><i style="--c:var(--accent)"></i><span>门店收银</span><b>30%</b></li>
-              <li><i style="--c:var(--action-edge)"></i><span>电话订花</span><b>15%</b></li>
+              <li><i style="--c:var(--channel-online)"></i><span>小程序</span><b>55%</b></li>
+              <li><i style="--c:var(--channel-store)"></i><span>门店收银</span><b>30%</b></li>
+              <li><i style="--c:var(--channel-phone)"></i><span>电话订花</span><b>15%</b></li>
             </ul>
           </div>
         </section>
-      </div>
-
-      <div class="grid card-grid cols-main">
-        <section class="card section fill" data-cid="WB-HOME-005" data-name="最新订单表格卡">
-          <div class="section__head"><h2>最新订单</h2></div>
-          <div class="clip section__body">
-            <div class="table-wrap"><table class="table">
-              <colgroup><col style="width:24%"><col style="width:36%"><col style="width:18%"><col style="width:22%"></colgroup>
-              <thead><tr><th class="t-l">客户</th><th class="t-l">商品</th><th class="t-r">金额</th><th>状态</th></tr></thead>
-              <tbody>
-                <tr><td class="t-l"><span class="who"><img src="../../../../kit/assets/marks/mark-001.webp" alt=""><span class="one-line">林晓</span></span></td><td class="t-l"><span class="pname"><img class="thumb" src="../../../../kit/assets/photo/product-rose-red.webp" alt=""><span class="one-line">红玫瑰花束 十一枝</span></span></td><td class="t-r price">¥199.00</td><td><span class="tag tag--dot" data-tone="warning">待付款</span></td></tr>
-                <tr><td class="t-l"><span class="who"><img src="../../../../kit/assets/marks/mark-002.webp" alt=""><span class="one-line">陈默</span></span></td><td class="t-l"><span class="pname"><img class="thumb" src="../../../../kit/assets/photo/product-peony-pink.webp" alt=""><span class="one-line">粉芍药花束 九枝</span></span></td><td class="t-r price">¥239.00</td><td><span class="tag tag--dot" data-tone="action">待发货</span></td></tr>
-                <tr><td class="t-l"><span class="who"><img src="../../../../kit/assets/marks/mark-003.webp" alt=""><span class="one-line">周岚</span></span></td><td class="t-l"><span class="pname"><img class="thumb" src="../../../../kit/assets/photo/product-hydrangea-blue.webp" alt=""><span class="one-line">蓝绣球盆栽</span></span></td><td class="t-r price">¥129.00</td><td><span class="tag tag--dot" data-tone="info">待收货</span></td></tr>
-                <tr><td class="t-l"><span class="who"><img src="../../../../kit/assets/marks/mark-004.webp" alt=""><span class="one-line">吴桐</span></span></td><td class="t-l"><span class="pname"><img class="thumb" src="../../../../kit/assets/photo/product-giftbox.webp" alt=""><span class="one-line">花礼盒</span></span></td><td class="t-r price">¥259.00</td><td><span class="tag tag--dot" data-tone="success">已完成</span></td></tr>
-                <tr><td class="t-l"><span class="who"><img src="../../../../kit/assets/marks/mark-005.webp" alt=""><span class="one-line">郑一</span></span></td><td class="t-l"><span class="pname"><img class="thumb" src="../../../../kit/assets/photo/product-sunflower.webp" alt=""><span class="one-line">向日葵花束 五枝</span></span></td><td class="t-r price">¥159.00</td><td><span class="tag tag--dot" data-tone="danger">售后</span></td></tr>
-                <tr><td class="t-l"><span class="who"><img src="../../../../kit/assets/marks/mark-007.webp" alt=""><span class="one-line">王晴</span></span></td><td class="t-l"><span class="pname"><img class="thumb" src="../../../../kit/assets/photo/product-tulip-white.webp" alt=""><span class="one-line">白郁金香 十枝</span></span></td><td class="t-r price">¥179.00</td><td><span class="tag tag--dot" data-tone="action">待发货</span></td></tr>
-                <tr><td class="t-l"><span class="who"><img src="../../../../kit/assets/marks/mark-008.webp" alt=""><span class="one-line">赵诚</span></span></td><td class="t-l"><span class="pname"><img class="thumb" src="../../../../kit/assets/photo/product-monstera.webp" alt=""><span class="one-line">龟背竹盆栽</span></span></td><td class="t-r price">¥159.00</td><td><span class="tag tag--dot" data-tone="info">待收货</span></td></tr>
-                <tr><td class="t-l"><span class="who"><img src="../../../../kit/assets/marks/mark-009.webp" alt=""><span class="one-line">孙悦</span></span></td><td class="t-l"><span class="pname"><img class="thumb" src="../../../../kit/assets/photo/product-succulent.webp" alt=""><span class="one-line">多肉组合盆</span></span></td><td class="t-r price">¥89.00</td><td><span class="tag tag--dot" data-tone="success">已完成</span></td></tr>
-              </tbody>
-            </table></div>
+        <section class="card section dashboard__tasks" data-cid="WB-HOME-007" data-name="待处理事项列表">
+          <div class="section__head"><h2>待处理</h2></div>
+          <div class="list section__body">
+            <div class="row todo"><img class="compact-icon" src="../../../../kit/assets/line/list.webp" alt=""><div class="row__main"><p class="row__title">待发货订单</p></div><button class="btn btn--secondary btn--sm" type="button" aria-label="处理待发货订单" data-done>处理</button></div>
+            <div class="row todo"><img class="compact-icon" src="../../../../kit/assets/line/message.webp" alt=""><div class="row__main"><p class="row__title">售后申请</p></div><button class="btn btn--secondary btn--sm" type="button" aria-label="处理售后申请" data-done>处理</button></div>
+            <div class="row todo"><img class="compact-icon" src="../../../../kit/assets/line/folder.webp" alt=""><div class="row__main"><p class="row__title">库存预警</p></div><button class="btn btn--secondary btn--sm" type="button" aria-label="处理库存预警" data-done>处理</button></div>
           </div>
         </section>
-
-        <div class="card-stack col">
-          <section class="card section" data-cid="WB-HOME-007" data-name="待处理事项列表">
-            <div class="section__head"><h2>待处理</h2></div>
-            <div class="list section__body">
-              <div class="row todo"><img class="compact-icon" src="../../../../kit/assets/line/list.webp" alt=""><div class="row__main"><p class="row__title">待发货订单</p><p class="row__meta">共 18 单</p></div><button class="btn btn--secondary btn--sm btn--pill" data-done>处理</button></div>
-              <div class="row todo"><img class="compact-icon" data-icon-tone="peach" src="../../../../kit/assets/line/message.webp" alt=""><div class="row__main"><p class="row__title">售后申请</p><p class="row__meta">共 3 单</p></div><button class="btn btn--secondary btn--sm btn--pill" data-done>处理</button></div>
-              <div class="row todo"><img class="compact-icon" data-icon-tone="mint" src="../../../../kit/assets/line/folder.webp" alt=""><div class="row__main"><p class="row__title">库存预警</p><p class="row__meta">共 5 款</p></div><button class="btn btn--secondary btn--sm btn--pill" data-done>处理</button></div>
-            </div>
-          </section>
-          <section class="card section" data-cid="WB-HOME-006" data-name="分类销量条形卡">
-            <div class="section__head"><h2>分类销量</h2></div>
-            <div class="cats section__body" role="img" aria-label="鲜花 76800 元，绿植 28400 元，礼盒 17900 元，花器 5540 元">
-              <div class="cat"><div class="cat__top"><span>鲜花</span><b>¥76,800</b></div><div class="progress"><i style="--v:100%"></i></div></div>
-              <div class="cat"><div class="cat__top"><span>绿植</span><b>¥28,400</b></div><div class="progress"><i style="--v:37%"></i></div></div>
-              <div class="cat"><div class="cat__top"><span>礼盒</span><b>¥17,900</b></div><div class="progress"><i style="--v:23%"></i></div></div>
-              <div class="cat"><div class="cat__top"><span>花器</span><b>¥5,540</b></div><div class="progress"><i style="--v:7%"></i></div></div>
-            </div>
-          </section>
-        </div>
       </div>
+
+      <section class="grid card-grid dashboard__totals" aria-label="本周会员指标" data-cid="WB-HOME-002" data-name="核心指标卡">
+        <article class="card">
+          <dl class="stat"><dt>新增会员</dt><dd>316<small>人</small></dd></dl>
+        </article>
+        <article class="card">
+          <dl class="stat"><dt>复购率</dt><dd>38.6<small>%</small></dd></dl>
+        </article>
+      </section>
     </div>
   </div></main>
 </div>
 <script src="../../../../kit/ui.js"></script>
 <script>
   /* 折线图：保留真实顺序，不平滑；面积渐变、纵轴刻度、悬停与方向键都更新同区明细，换主题时重绘 */
-  const series = {
-    amt: { labels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'], values: [1.42, 1.58, 1.69, 1.83, 2.26, 2.14, 1.94], unit: ' 万元', dec: 2 },
-    cnt: { labels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'], values: [98, 107, 112, 121, 148, 135, 121], unit: ' 单', dec: 0 },
-  };
-  const trend = (() => {
+  (() => {
     const cv = document.getElementById('trend'), read = document.getElementById('trend-read'), ctx = cv.getContext('2d');
-    const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+    const labels = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+    const values = [1.42, 1.58, 1.69, 1.83, 2.26, 2.14, 1.94];
+    const last = values.length - 1, pad = { l: 36, r: 12, t: 14, b: 28 };
     const rgba = (hex, a) => { const n = parseInt(hex.slice(1), 16); return `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${a})`; };
-    const nice = x => { const p = Math.pow(10, Math.floor(Math.log10(x))), f = x / p; return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 2.5 ? 2.5 : f <= 5 ? 5 : 10) * p; };
-    let key = 'amt', active = 6;
+    let active = last;
     const draw = () => {
-      const s = series[key], dpr = devicePixelRatio || 1, w = cv.clientWidth, h = cv.clientHeight, pad = { l: 40, r: 12, t: 14, b: 28 };
+      const dpr = devicePixelRatio || 1, w = cv.clientWidth, h = cv.clientHeight;
+      if (w <= pad.l + pad.r) return;
+      const style = getComputedStyle(cv), css = n => style.getPropertyValue(n).trim();
       cv.width = w * dpr; cv.height = h * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, w, h);
-      const mx = Math.max(...s.values), mn = Math.min(...s.values), step = nice((mx - mn) * 1.5 / 4);
-      const lo = Math.max(0, Math.floor((mn - (mx - mn) * .25) / step) * step), hi = Math.ceil((mx + (mx - mn) * .1) / step) * step;
-      const x = i => pad.l + (w - pad.l - pad.r) * (i / (s.values.length - 1)), y = v => pad.t + (h - pad.t - pad.b) * (1 - (v - lo) / (hi - lo));
-      const action = css('--action'), font = `12px ${css('--font')}`;
-      ctx.font = font; ctx.lineWidth = 1;
-      for (let t = lo; t <= hi + step / 2; t += step) {
+      const max = Math.ceil(Math.max(...values) * 2) / 2;
+      const x = i => pad.l + (w - pad.l - pad.r) * i / last;
+      const y = v => pad.t + (h - pad.t - pad.b) * (1 - v / max);
+      const action = css('--chart-main');
+      ctx.font = `12px ${css('--font')}`; ctx.lineWidth = 1;
+      for (let t = 0; t <= max; t += .5) {
         ctx.strokeStyle = css('--line'); ctx.beginPath(); ctx.moveTo(pad.l, y(t)); ctx.lineTo(w - pad.r, y(t)); ctx.stroke();
-        ctx.fillStyle = css('--ink-3'); ctx.textAlign = 'right'; ctx.fillText(step < 1 ? t.toFixed(1) : String(Math.round(t)), pad.l - 8, y(t) + 4);
+        ctx.fillStyle = css('--ink-3'); ctx.textAlign = 'right'; ctx.fillText(String(t), pad.l - 8, y(t) + 4);
       }
-      s.labels.forEach((l, i) => { ctx.fillStyle = i === active ? css('--ink') : css('--ink-3'); ctx.textAlign = i === 0 ? 'left' : i === s.labels.length - 1 ? 'right' : 'center'; ctx.fillText(l, i === 0 ? pad.l - 6 : i === s.labels.length - 1 ? w - pad.r + 6 : x(i), h - 6); });
-      const g = ctx.createLinearGradient(0, pad.t, 0, h - pad.b); g.addColorStop(0, rgba(action, .26)); g.addColorStop(1, rgba(action, 0));
-      ctx.beginPath(); ctx.moveTo(x(0), h - pad.b); s.values.forEach((v, i) => ctx.lineTo(x(i), y(v))); ctx.lineTo(x(s.values.length - 1), h - pad.b); ctx.closePath(); ctx.fillStyle = g; ctx.fill();
-      ctx.beginPath(); s.values.forEach((v, i) => (i ? ctx.lineTo(x(i), y(v)) : ctx.moveTo(x(i), y(v)))); ctx.strokeStyle = action; ctx.lineWidth = 2.5; ctx.lineJoin = 'round'; ctx.lineCap = 'round'; ctx.stroke();
+      labels.forEach((label, i) => {
+        if (w < 280 && i % 2 !== 0) return;
+        ctx.fillStyle = i === active ? css('--ink') : css('--ink-3');
+        ctx.textAlign = i === last ? 'right' : 'center';
+        ctx.fillText(label, i === last ? w - 3 : x(i), h - 6);
+      });
+      const g = ctx.createLinearGradient(0, pad.t, 0, h - pad.b); g.addColorStop(0, rgba(action, .14)); g.addColorStop(1, rgba(action, 0));
+      ctx.beginPath(); ctx.moveTo(x(0), h - pad.b); values.forEach((v, i) => ctx.lineTo(x(i), y(v))); ctx.lineTo(x(last), h - pad.b); ctx.closePath(); ctx.fillStyle = g; ctx.fill();
+      ctx.beginPath(); values.forEach((v, i) => (i ? ctx.lineTo(x(i), y(v)) : ctx.moveTo(x(i), y(v)))); ctx.strokeStyle = action; ctx.lineWidth = 2.5; ctx.lineJoin = 'round'; ctx.lineCap = 'round'; ctx.stroke();
       ctx.save(); ctx.setLineDash([4, 4]); ctx.strokeStyle = rgba(action, .5); ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x(active), pad.t); ctx.lineTo(x(active), h - pad.b); ctx.stroke(); ctx.restore();
-      s.values.forEach((v, i) => { ctx.beginPath(); ctx.arc(x(i), y(v), i === active ? 6 : 4, 0, 7); ctx.fillStyle = i === active ? action : css('--surface'); ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = action; ctx.stroke(); });
-      read.textContent = `${s.labels[active]}  ${s.values[active].toFixed(s.dec)}${s.unit}`;
+      values.forEach((v, i) => { ctx.beginPath(); ctx.arc(x(i), y(v), i === active ? 5 : 3, 0, 7); ctx.fillStyle = i === active ? action : css('--surface'); ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = action; ctx.stroke(); });
+      const point = `${labels[active]} ${values[active].toFixed(2)} 万元`;
+      if (read.textContent !== point) read.textContent = point;
     };
-    const pick = cx => { const r = cv.getBoundingClientRect(), n = series[key].values.length; active = Math.min(n - 1, Math.max(0, Math.round(((cx - r.left - 40) / (r.width - 52)) * (n - 1)))); draw(); };
-    cv.tabIndex = 0;
+    function select(i) {
+      const next = Math.min(last, Math.max(0, i));
+      if (next === active) return;
+      active = next;
+      draw();
+    }
+    const pick = cx => {
+      const r = cv.getBoundingClientRect();
+      select(Math.round((cx - r.left - pad.l) / (r.width - pad.l - pad.r) * last));
+    };
     cv.addEventListener('pointermove', e => pick(e.clientX)); cv.addEventListener('pointerdown', e => pick(e.clientX));
-    cv.addEventListener('keydown', e => { const d = { ArrowRight: 1, ArrowLeft: -1 }[e.key]; if (!d) return; e.preventDefault(); active = Math.min(6, Math.max(0, active + d)); draw(); });
+    cv.addEventListener('keydown', e => { const d = { ArrowRight: 1, ArrowLeft: -1 }[e.key]; if (!d) return; e.preventDefault(); select(active + d); });
     new ResizeObserver(draw).observe(cv);
     new MutationObserver(draw).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
-    return { set: k => { key = k; draw(); } };
   })();
-  document.addEventListener('lz:seg', e => { if (e.detail.group === 'trend') trend.set(e.detail.key); });
-  document.querySelectorAll('[data-done]').forEach(b => b.addEventListener('click', () => { b.closest('.todo').style.opacity = .5; b.disabled = true; b.textContent = '已处理'; Lz.toast('已处理', 'success'); }));
+  document.querySelectorAll('[data-done]').forEach(b => b.addEventListener('click', () => {
+    b.disabled = true;
+    b.textContent = '已处理';
+    b.setAttribute('aria-label', '已处理' + b.closest('.todo').querySelector('.row__title').textContent);
+    Lz.toast('已处理', 'success');
+  }));
 </script>
 </body>
 </html>

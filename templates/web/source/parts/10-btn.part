@@ -24,7 +24,6 @@
   .wb-bt-band { display: flex; align-items: center; justify-content: center; min-height: 96px; background: linear-gradient(135deg, var(--action-press) 0%, var(--action) 100%); }
   .wb-bt-count-tint { background: var(--action-edge); color: var(--action-press); }
   .wb-bt-caret::after { content: ""; width: 6px; height: 6px; margin-left: 2px; border: solid currentColor; border-width: 0 1.6px 1.6px 0; transform: rotate(45deg) translateY(-2px); }
-  .wb-bt-split .btn { min-height: 44px; }
   .wb-bt-split .wb-bt-caret { padding: 0 var(--s-3); }
 
   /* 下拉菜单：动作列表，不记忆选中 */

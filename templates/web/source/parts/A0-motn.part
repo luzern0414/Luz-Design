@@ -32,8 +32,8 @@
 
   /* 卡片尺寸 */
   .mo-view--morph { min-height: 280px; }
-  .mo-morph { display: flex; flex-direction: column; width: 200px; height: 228px; padding: var(--s-2); gap: var(--s-2); border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--elev-1); text-align: left; overflow: hidden; transition: width var(--dur-slow) var(--ease-out), height var(--dur-slow) var(--ease-out), box-shadow var(--dur-base) var(--ease-out); }
-  .mo-morph[data-size="l"] { width: min(100%, 340px); height: 248px; box-shadow: var(--elev-3); }
+  .mo-morph { display: flex; flex-direction: column; width: 200px; height: 228px; padding: var(--s-2); gap: var(--s-2); border-radius: var(--r-lg); background-color: var(--surface); text-align: left; overflow: hidden; transition: width var(--dur-slow) var(--ease-out), height var(--dur-slow) var(--ease-out), background-color var(--dur-quick) var(--ease-out); }
+  .mo-morph[data-size="l"] { width: min(100%, 340px); height: 248px; }
   .mo-morph img { flex: 1; min-height: 0; width: 100%; border-radius: var(--r-md); object-fit: cover; }
   .mo-morph__t { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-2); padding: 0 var(--s-1); font-size: var(--fs-sm); font-weight: 600; }
 
@@ -66,13 +66,12 @@
   .mo-st__ghost { visibility: hidden; }
   .mo-st__live.is-streaming::after { content: ""; display: inline-block; width: 2px; height: 1.1em; margin-left: 2px; vertical-align: text-bottom; background: var(--action); animation: lz-blink 1s steps(2) infinite; }
 
-  /* 悬停抬升 */
-  .mo-lift { display: grid; grid-template-columns: 88px minmax(0, 1fr); gap: var(--s-4); align-items: center; width: min(100%, 360px); padding: var(--s-3); border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--elev-1); transition: transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out); cursor: pointer; text-align: left; }
+  /* 卡片悬停 */
+  .mo-lift { display: grid; grid-template-columns: 88px minmax(0, 1fr); gap: var(--s-4); align-items: center; width: min(100%, 360px); padding: var(--s-3); border-radius: var(--r-lg); background-color: var(--surface); text-align: left; }
   .mo-lift img { width: 88px; height: 88px; border-radius: var(--r-md); object-fit: cover; }
   .mo-lift__t { display: grid; gap: var(--s-1); }
   .mo-lift__t b { font-size: var(--fs-md); }
-  @media (hover: hover) { .mo-lift:hover { transform: translateY(-4px); box-shadow: var(--elev-3); } }
-  .mo-lift.is-on { transform: translateY(-4px); box-shadow: var(--elev-3); }
+  .mo-lift.is-on { background-color: var(--field-active); }
 
   /* 错峰入场 */
   .mo-stag { width: 100%; background: var(--surface); border-radius: var(--r-md); overflow: hidden; }
@@ -155,7 +154,7 @@
   <p class="demo__note">适合：商品卡点开放大，宽高一起过渡</p>
   <div class="demo__stage">
     <div class="mo-card">
-      <div class="mo-view mo-view--morph"><button type="button" class="mo-morph" id="mo-mp" data-size="s" aria-label="切换卡片大小"><img src="../../kit/assets/photo/product-peony-pink.webp" alt=""><span class="mo-morph__t"><span>粉芍药花束</span><span class="price"><small>¥</small>239</span></span></button></div>
+      <div class="mo-view mo-view--morph"><button type="button" class="mo-morph card--press" id="mo-mp" data-size="s" aria-label="切换卡片大小"><img src="../../kit/assets/photo/product-peony-pink.webp" alt=""><span class="mo-morph__t"><span>粉芍药花束</span><span class="price"><small>¥</small>239</span></span></button></div>
       <div class="mo-bar"><button type="button" class="btn btn--secondary btn--sm" data-mo="m">播放</button></div>
     </div>
   </div>
@@ -208,12 +207,12 @@
   </div>
 </article>
 
-<article class="demo" data-cid="WB-MOTN-010" data-name="卡片悬停抬升" data-cat="MOTN">
-  <div class="demo__head"><span class="demo__name">卡片悬停抬升</span></div>
-  <p class="demo__note">适合：可点击卡片悬停时上浮并加深阴影</p>
+<article class="demo" data-cid="WB-MOTN-010" data-name="卡片悬浮提示" data-cat="MOTN">
+  <div class="demo__head"><span class="demo__name">卡片悬浮提示</span></div>
+  <p class="demo__note">悬停、聚焦或点按可查看库存说明。</p>
   <div class="demo__stage">
     <div class="mo-card">
-      <div class="mo-view"><button type="button" class="mo-lift" id="mo-lf"><img src="../../kit/assets/photo/product-sunflower.webp" alt=""><span class="mo-lift__t"><b>向日葵花束</b><span class="price"><small>¥</small>159</span><span class="t-sub">库存 40 件</span></span></button></div>
+      <div class="mo-view"><button type="button" class="mo-lift card--press" id="mo-lf" data-tip="同城备货 40 件" data-tip-on-press><img src="../../kit/assets/photo/product-sunflower.webp" alt=""><span class="mo-lift__t"><b>向日葵花束</b><span class="price"><small>¥</small>159</span></span></button></div>
       <div class="mo-bar"><button type="button" class="btn btn--secondary btn--sm" data-mo="l">播放</button></div>
     </div>
   </div>
@@ -317,7 +316,7 @@
     plays.t = async () => { if (busy) return; busy = true; live.innerHTML = '<span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>'; await sleep(700); live.textContent = ''; await Lz.stream(live, text, 60); busy = false; };
   })();
 
-  /* 010 悬停抬升：播放时持续抬升再落下，真实悬停同样触发 */
+  /* 010 卡片悬浮：短暂预览原位底色反馈。 */
   plays.l = async () => { const c = $('#mo-lf'); c.classList.add('is-on'); await sleep(1400); c.classList.remove('is-on'); };
 
   /* 011 列表错峰入场 */
@@ -441,3 +440,17 @@
   const io = new IntersectionObserver(es => { if (es[0].isIntersecting) { io.disconnect(); if (!Lz.reduce) start(3); } }, { threshold: .6 }); io.observe(root);
 })();
 </script>
+
+<article class="demo" data-cid="WB-MOTN-014" data-name="空间层叠" data-cat="MOTN">
+  <div class="demo__head"><span class="demo__name">空间层叠</span></div>
+  <div class="demo__stage">
+    <div class="three-motion" data-three-motion>
+      <div class="three-motion__stage" aria-hidden="true"><span class="three-motion__still"></span></div>
+      <div class="three-motion__controls">
+        <button class="btn btn--secondary btn--sm" type="button" data-three-play aria-label="播放空间层叠动画">播放</button>
+        <span role="status"></span>
+      </div>
+    </div>
+  </div>
+</article>
+<script src="../../kit/three-motion.js" defer></script>

@@ -71,6 +71,9 @@
   .cht-sug .suggest:not([data-end]) { mask-image: linear-gradient(90deg, var(--ink) calc(100% - 32px), transparent); }
   .cht-sug .suggest button[aria-pressed="true"] { background: var(--action-tint); color: var(--action-press); border-color: var(--action-edge); font-weight: 600; }
   .cht-prompt .prompt { box-shadow: var(--elev-1); }
+  .cht-prompt form:has(.prompt__row) { display: grid; gap: var(--s-2); }
+  .cht-prompt .cht-log:empty { display: none; }
+  .cht-prompt .cht-log p { white-space: pre-wrap; overflow-wrap: anywhere; }
 
   /* 排队 */
   .cht-q { display: grid; gap: var(--s-2); }
@@ -258,20 +261,18 @@
 
 <article class="demo" data-cid="AP-CHAT-010" data-name="对话输入栏" data-cat="CHAT">
   <div class="demo__head"><span class="demo__name">对话输入栏</span></div>
-  <p class="demo__note">适合：多行输入，空内容不可发送，回车发送</p>
+  <p class="demo__note">适合：移动端对话。点加号选文件或图片，输入框随文字增高，点发送提交。</p>
   <div class="demo__stage">
     <div class="cht-wrap cht-prompt">
       <div class="cht-log" data-log></div>
-      <form class="prompt" data-form>
-        <div class="cht-files" data-files hidden></div>
-        <textarea rows="1" placeholder="输入消息" aria-label="输入消息" enterkeyhint="send"></textarea>
-        <div class="prompt__bar">
-          <button type="button" class="ibtn" data-attach data-tip="添加附件" aria-label="添加附件"><img src="../../kit/assets/line/upload.webp" alt=""></button>
-          <button type="button" class="ibtn" data-mic data-tip="语音输入" aria-label="语音输入" aria-pressed="false"><img src="../../kit/assets/line/mic.webp" alt=""></button>
-          <span class="dots" data-dots hidden aria-hidden="true"><i></i><i></i><i></i></span>
-          <span class="prompt__sp"></span>
-          <button type="submit" class="btn btn--primary" data-send disabled>发送</button>
+      <form data-form>
+        <div class="cht-files prompt__files" data-files hidden></div>
+        <div class="prompt__row">
+          <button type="button" class="ibtn prompt__attach" data-attach data-tip="添加文件或图片" aria-label="添加文件或图片"><img src="../../kit/assets/line/add.webp" alt=""></button>
+          <textarea class="prompt__input" rows="1" placeholder="输入消息" aria-label="输入消息"></textarea>
+          <button type="submit" class="btn btn--primary prompt__send" data-send disabled>发送</button>
         </div>
+        <input type="file" data-file hidden multiple>
       </form>
     </div>
   </div>
@@ -813,16 +814,44 @@
     }));
   })();
 
-  /* 010 输入栏：自动增高，空内容不可发，回车发送；附件与语音 */
+  /* 010 移动端输入栏：自动增高，可发送文字和附件 */
   (() => {
-    const r = D('AP-CHAT-010'), form = $('[data-form]', r), ta = $('textarea', r), send = $('[data-send]', r), log = $('[data-log]', r), files = $('[data-files]', r), mic = $('[data-mic]', r), dots = $('[data-dots]', r); let n = 0, timer;
-    const sync = () => { send.disabled = ta.value.trim() === '' && files.children.length === 0; };
-    const submit = () => { const t = ta.value.trim(); if (!t && !files.children.length) return; log.append(userBubble(t || '已发送附件')); while (log.children.length > 2) log.firstElementChild.remove(); ta.value = ''; ta.style.height = ''; files.replaceChildren(); files.hidden = true; sync(); };
-    ta.addEventListener('input', () => { ta.style.height = 'auto'; ta.style.height = Math.min(ta.scrollHeight, 160) + 'px'; sync(); });
-    ta.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing && e.keyCode !== 229) { e.preventDefault(); submit(); } });
-    form.addEventListener('submit', e => { e.preventDefault(); submit(); });
-    $('[data-attach]', r).addEventListener('click', () => { files.hidden = false; files.append(chipEl(['对账单表格', '退款明细文档', '库存数据表'][n++ % 3], c => { c.remove(); files.hidden = !files.children.length; sync(); })); sync(); });
-    mic.addEventListener('click', () => { const on = mic.getAttribute('aria-pressed') !== 'true'; mic.setAttribute('aria-pressed', String(on)); dots.hidden = !on; clearTimeout(timer); if (on) timer = setTimeout(() => { mic.setAttribute('aria-pressed', 'false'); dots.hidden = true; ta.value = (ta.value ? ta.value + ' ' : '') + '汇总本周退款金额'; ta.dispatchEvent(new Event('input')); ta.focus(); }, Lz.reduce ? 0 : 1600); });
+    const r = D('AP-CHAT-010'), form = $('[data-form]', r), ta = $('textarea', r), send = $('[data-send]', r);
+    const log = $('[data-log]', r), files = $('[data-files]', r), picker = $('[data-file]', r), attach = $('[data-attach]', r);
+    const fit = Lz.autoSizeTextarea(ta), draft = new Map();
+    const sync = () => {
+      files.hidden = draft.size === 0;
+      send.disabled = !ta.value.trim() && draft.size === 0;
+    };
+    ta.addEventListener('input', sync);
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      if (send.disabled) return;
+      const text = [ta.value.trim(), ...Array.from(draft.values(), file => file.name)].filter(Boolean).join('\n');
+      log.append(userBubble(text));
+      if (log.children.length > 2) log.firstElementChild.remove();
+      ta.value = '';
+      fit();
+      draft.clear();
+      files.replaceChildren();
+      sync();
+    });
+    attach.addEventListener('click', () => picker.click());
+    picker.addEventListener('change', () => {
+      for (const file of picker.files) {
+        const chip = chipEl(file.name, c => {
+          draft.delete(c);
+          const next = c.nextElementSibling || c.previousElementSibling;
+          c.remove();
+          sync();
+          (next ? $('button', next) : attach).focus();
+        });
+        draft.set(chip, file);
+        files.append(chip);
+      }
+      picker.value = '';
+      sync();
+    });
     sync();
   })();
 

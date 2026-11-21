@@ -912,7 +912,7 @@
 
 <article class="demo" data-cid="WB-LAYT-022" data-name="选项卡面板" data-cat="LAYT">
   <div class="demo__head"><span class="demo__name">选项卡面板</span></div>
-  <p class="demo__note">适合：同一页内按并列类别切换内容，不跳转页面</p>
+  <p class="demo__note">并列类别放在受控内容正上方，选中的内容在同一位置更新。</p>
   <div class="demo__stage is-plain"><div class="wb-ly-f wb-ly-f--w" id="wb-lyn-tabs">
     <div class="wb-lyn-tl" role="tablist" aria-label="商品信息">
       <button type="button" class="wb-lyn-tt" role="tab" id="wb-lyn-tab0" aria-controls="wb-lyn-tp0" aria-selected="true">商品详情</button>
@@ -935,6 +935,39 @@
     </div>
   </div></div>
 </article>
+
+<article class="demo" data-cid="WB-LAYT-033" data-name="账号切换与资料" data-cat="LAYT">
+  <div class="demo__head"><span class="demo__name">账号切换与资料</span></div>
+  <div class="demo__stage is-plain">
+    <section class="card pad field" id="wb-account-scope">
+      <h3 class="card__title">账号资料</h3>
+      <label class="field">
+        <span class="field__label">查看账号</span>
+        <select class="select" aria-controls="wb-account-data">
+          <option data-role="运营管理" data-scope="订单与库存">运营账号</option>
+          <option data-role="财务审核" data-scope="账单与对账">财务账号</option>
+        </select>
+      </label>
+      <dl class="kv" id="wb-account-data" style="padding:0" aria-live="polite">
+        <dt>角色</dt><dd data-role>运营管理</dd>
+        <dt>数据范围</dt><dd data-scope>订单与库存</dd>
+      </dl>
+    </section>
+  </div>
+</article>
+<script>
+  (() => {
+    const example = document.querySelector('#wb-account-scope');
+    const picker = example.querySelector('select');
+    const role = example.querySelector('dd[data-role]');
+    const scope = example.querySelector('dd[data-scope]');
+    picker.addEventListener('change', () => {
+      const account = picker.selectedOptions[0].dataset;
+      role.textContent = account.role;
+      scope.textContent = account.scope;
+    });
+  })();
+</script>
 
 <article class="demo" data-cid="WB-LAYT-024" data-name="分割线样式组" data-cat="LAYT">
   <div class="demo__head"><span class="demo__name">分割线样式组</span></div>
@@ -1024,7 +1057,7 @@
 
 <article class="demo" data-cid="WB-LAYT-028" data-name="自定义滚动区" data-cat="LAYT">
   <div class="demo__head"><span class="demo__name">自定义滚动区</span></div>
-  <p class="demo__note">适合：弹层与侧栏内部限高滚动并统一滚动条样式</p>
+  <p class="demo__note">适合：列表和固定导航区域内的限高滚动与统一滚动条样式</p>
   <div class="demo__stage is-plain"><div class="wb-ly-f wb-ly-f--w" id="wb-lyn-sc"><div class="wb-lyn-scs">
     <div class="wb-lyn-sc" data-axis="y"><div class="wb-lyn-sc__view" tabindex="0" role="region" aria-label="商品清单" data-rows></div><div class="wb-lyn-sc__bar" aria-hidden="true"><i class="wb-lyn-sc__thumb"></i></div></div>
     <div class="wb-lyn-sc" data-axis="x"><div class="wb-lyn-sc__view" tabindex="0" role="region" aria-label="门店相册"><div class="wb-lyn-sc__strip" data-strip></div></div><div class="wb-lyn-sc__bar" aria-hidden="true"><i class="wb-lyn-sc__thumb"></i></div></div>

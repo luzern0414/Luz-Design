@@ -27,7 +27,7 @@
   /* 004 卡片按压 */
   .mot-press { display: grid; grid-template-columns: 64px 1fr auto; align-items: center; column-gap: var(--s-3); width: 100%; padding: var(--s-3); text-align: left; }
   .mot-press img { width: 64px; height: 64px; border-radius: var(--r-md); object-fit: cover; }
-  .mot-press.is-pressed { transform: scale(.97); box-shadow: none; }
+  .mot-press.is-pressed { background-color: var(--field-active); }
   .mot-press > span { min-width: 0; }
 
   /* 005 成功勾选 */
@@ -134,7 +134,7 @@
   <div class="demo__stage">
     <div class="mot-card">
       <div class="mot-box"><button class="card card--press mot-press" data-toast="已打开商品"><img src="../../kit/assets/photo/product-peony-pink.webp" alt=""><span><span class="row__title one-line" style="display:block">粉芍药花束</span><span class="row__meta" style="display:block">同城 2 小时送达</span></span><span class="price"><small>¥</small>239</span></button></div>
-      <div class="mot-foot"><div class="mot-spec" data-spec="时长:--dur-quick,缩放:97%"></div><button class="btn btn--secondary btn--sm" data-play>播放</button></div>
+      <div class="mot-foot"><div class="mot-spec" data-spec="时长:--dur-quick,反馈:底色"></div><button class="btn btn--secondary btn--sm" data-play>播放</button></div>
     </div>
   </div>
 </article>
@@ -699,3 +699,17 @@
   });
 })();
 </script>
+
+<article class="demo" data-cid="AP-MOTN-020" data-name="空间层叠" data-cat="MOTN">
+  <div class="demo__head"><span class="demo__name">空间层叠</span></div>
+  <div class="demo__stage">
+    <div class="three-motion" data-three-motion>
+      <div class="three-motion__stage" aria-hidden="true"><span class="three-motion__still"></span></div>
+      <div class="three-motion__controls">
+        <button class="btn btn--secondary btn--sm" type="button" data-three-play aria-label="播放空间层叠动画">播放</button>
+        <span role="status"></span>
+      </div>
+    </div>
+  </div>
+</article>
+<script src="../../kit/three-motion.js" defer></script>

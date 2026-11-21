@@ -57,9 +57,9 @@ class TokensTest(unittest.TestCase):
                 self.assertGreaterEqual(contrast(p["accent"], "#FFFFFF"), 4.5, "the accent reads as text too")
 
     def test_derived_text_and_surface_tokens_keep_their_contrast_in_every_theme(self) -> None:
-        for p in tokens.presets():
+        for p in tokens.interface_presets():
             action = p["action"]
-            bg, tint = mix(action, "#FAFAF9", 0.025), mix(action, "#FFFFFF", 0.07)
+            bg, tint = "#FFFFFF", mix(action, "#FFFFFF", 0.07)
             ink, ink2, ink3 = mix(action, "#1D1F23", 0.06), mix(action, "#474A50", 0.07), mix(action, "#666A71", 0.07)
             with self.subTest(theme=p["id"]):
                 self.assertGreaterEqual(contrast(ink, bg), 7.0, "ink on the page")
@@ -68,12 +68,14 @@ class TokensTest(unittest.TestCase):
                 self.assertGreaterEqual(contrast(ink3, tint), 4.5, "tertiary ink on the tint")
                 self.assertGreaterEqual(contrast(mix(action, "#000000", 0.74), tint), 4.5, "press colour on the tint")
 
-    def test_everything_that_follows_the_brand_is_derived_in_css(self) -> None:
+    def test_brand_tokens_are_derived_and_application_surfaces_are_white(self) -> None:
         css = tokens.render()
-        for name in ("--action-press", "--action-tint", "--action-edge", "--bg", "--ink", "--line", "--elev-1"):
+        for name in ("--action-press", "--action-tint", "--action-edge", "--ink", "--line", "--elev-1"):
             self.assertRegex(css, rf"{name}: [^;]*color-mix\(", name)
+        for name in ("--bg", "--surface"):
+            self.assertEqual(re.findall(rf"{name}:\s*([^;]+);", css), ["#FFFFFF"])
         self.assertNotIn("rgba(74, 44, 56", css, "no colour of one fixed theme is written into the shared tokens")
-        self.assertEqual(len(re.findall(r"--action: #", css)), len(tokens.presets()) + 1, "the default plus one block per preset")
+        self.assertEqual(len(re.findall(r"--action: #", css)), len(tokens.interface_presets()) + 1)
 
     def test_font_scale_stays_above_the_floors(self) -> None:
         css = tokens.render()

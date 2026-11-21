@@ -6,6 +6,22 @@ const Lz = (() => {
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const css = (name, el = document.documentElement) => getComputedStyle(el).getPropertyValue(name).trim();
 
+  // Keep the fallback available even when the avatar file itself cannot be loaded.
+  const avatarImages = 'img.avatar,img.msg__avatar,img[data-avatar],.avatar img,[data-avatar] img';
+  const fallbackAvatar = 'data:image/svg+xml,' + encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#303943" stroke-width="1.8"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 21c0-4.2 3.4-7 7.5-7s7.5 2.8 7.5 7" stroke-linecap="round"/></svg>'
+  );
+  function replaceBrokenAvatar(img) {
+    if (img instanceof HTMLImageElement && img.matches(avatarImages) && img.src !== fallbackAvatar) {
+      img.removeAttribute('srcset');
+      img.src = fallbackAvatar;
+    }
+  }
+  document.addEventListener('error', event => replaceBrokenAvatar(event.target), true);
+  document.addEventListener('DOMContentLoaded', () => {
+    $$(avatarImages).filter(img => img.complete && !img.naturalWidth).forEach(replaceBrokenAvatar);
+  });
+
   /* 分段筛选：.seg[data-seg] 内 .seg__item[data-key]；[data-panel] 面板或 data-seg-for 指向的列表项 data-cat 同时受控，只影响下方内容 */
   function initSeg(root = document) {
     $$('[data-seg]', root).forEach(seg => {
@@ -114,23 +130,36 @@ const Lz = (() => {
 
   /* 悬浮说明：无可见文字的图标在悬浮和键盘焦点时显示中文名；Escape 关闭，鼠标可移入阅读 */
   let tip = null, tipOwner = null;
-  function hideTip() { if (tip) { tip.remove(); tip = null; tipOwner = null; } }
+  function hideTip() {
+    if (!tip) return;
+    const ids = (tipOwner.getAttribute('aria-describedby') || '').split(/\s+/).filter(id => id && id !== tip.id);
+    if (ids.length) tipOwner.setAttribute('aria-describedby', ids.join(' '));
+    else tipOwner.removeAttribute('aria-describedby');
+    tip.remove(); tip = null; tipOwner = null;
+  }
   function showTip(el) {
     hideTip(); tipOwner = el;
-    tip = document.createElement('div'); tip.className = 'tip'; tip.setAttribute('role', 'tooltip'); tip.textContent = el.dataset.tip;
+    tip = document.createElement('div'); tip.className = 'tip'; tip.id = 'lz-floating-tip'; tip.setAttribute('role', 'tooltip'); tip.textContent = el.dataset.tip;
     (el.closest('dialog[open]') || document.body).appendChild(tip);
+    el.setAttribute('aria-describedby', [el.getAttribute('aria-describedby'), tip.id].filter(Boolean).join(' '));
     tip.style.left = '0px'; tip.style.top = '0px';
     const o = tip.getBoundingClientRect(); /* 弹层带动画时会成为固定定位的参照框，量出偏移再扣掉 */
     const r = el.getBoundingClientRect(), t = tip.getBoundingClientRect();
     const x = Math.min(Math.max(8, r.left + r.width / 2 - t.width / 2), innerWidth - t.width - 8);
     const below = r.top < t.height + 12;
+    tip.dataset.placement = below ? 'below' : 'above';
     tip.style.left = (x - o.left) + 'px'; tip.style.top = ((below ? r.bottom + 6 : r.top - t.height - 6) - o.top) + 'px';
     tip.addEventListener('pointerleave', e => { if (!tipOwner || !tipOwner.contains(e.relatedTarget)) hideTip(); });
   }
   function initTips() {
     document.addEventListener('pointerover', e => { const el = e.target.closest('[data-tip]'); if (el && el !== tipOwner) showTip(el); });
-    document.addEventListener('click', e => { const el = e.target.closest('[data-tip]'); if (el && el === tipOwner && tip) tip.textContent = el.dataset.tip; });
-    document.addEventListener('pointerout', e => { const el = e.target.closest('[data-tip]'); if (el && !(tip && tip.contains(e.relatedTarget)) && !el.contains(e.relatedTarget)) hideTip(); });
+    document.addEventListener('click', e => {
+      const el = e.target.closest('[data-tip]');
+      if (el && el === tipOwner && tip) tip.textContent = el.dataset.tip;
+      else if (el?.hasAttribute('data-tip-on-press')) showTip(el);
+      else if (tipOwner?.hasAttribute('data-tip-on-press') && !tip?.contains(e.target)) hideTip();
+    });
+    document.addEventListener('pointerout', e => { const el = e.target.closest('[data-tip]'); if (el && el === tipOwner && !tip?.contains(e.relatedTarget) && !el.contains(e.relatedTarget)) hideTip(); });
     document.addEventListener('focusin', e => { const el = e.target.closest('[data-tip]'); if (el && el.matches(':focus-visible')) showTip(el); });
     document.addEventListener('focusout', hideTip);
     document.addEventListener('keydown', e => { if (e.key === 'Escape') hideTip(); });
@@ -271,9 +300,11 @@ const Lz = (() => {
   }
   /* 自选主色：保留色相与彩度，亮度压到白字可读；同时派生辅色、图标色相与单色饱和度 */
   function customColour(hex) {
-    const h = document.documentElement, [, C, H] = rgbToOklch(hexToRgb(hex));
+    const h = document.documentElement, inputHue=hslHue(hexToRgb(hex));
+    if (inputHue>=65 && inputHue<=185) hex='#385FA8';
+    const [, C, H] = rgbToOklch(hexToRgb(hex));
     const action = fitColour(Math.min(C, 0.14), H, 0.66), accent = fitColour(Math.min(C + 0.01, 0.1), (H + 38) % 360, 0.6);
-    h.style.setProperty('--action', action); h.style.setProperty('--accent', accent);
+    h.style.setProperty('--action', action); h.style.setProperty('--accent', hslHue(hexToRgb(accent))>=65 && hslHue(hexToRgb(accent))<=185 ? action : accent);
     h.style.setProperty('--hue', hslHue(hexToRgb(action))); h.style.setProperty('--ic-sat', String(Math.min(C / 0.1 * 1.5, 1.9).toFixed(2)));
     custom = (custom + 1) % 2; h.dataset.theme = 'custom' + custom; // 属性变化让画布图表重绘
     return action;
@@ -283,7 +314,7 @@ const Lz = (() => {
     const h = document.documentElement;
     if (theme) { h.dataset.theme = theme; CUSTOM_VARS.forEach(k => h.style.removeProperty(k)); }
     if (color) customColour(color);
-    if (bg) h.dataset.bg = bg;
+    if (bg) h.dataset.bg = document.body.matches('.app-body,.web-body') || h.hasAttribute('data-ui-workbench') ? 'none' : bg;
     if (icons) {
       h.dataset.icons = icons;
       const base = h.dataset.icBase || '../../kit/assets/icons';
@@ -297,7 +328,24 @@ const Lz = (() => {
     addEventListener('message', e => { if (e.data && e.data.lz === 'skin') skin(e.data); });
   }
 
+  function autoSizeTextarea(textarea) {
+    if (CSS.supports('field-sizing', 'content')) return () => {};
+    const fit = () => {
+      textarea.style.height = '';
+      const borders = textarea.offsetHeight - textarea.clientHeight;
+      textarea.style.height = `${textarea.scrollHeight + borders}px`;
+    };
+    textarea.addEventListener('input', fit);
+    let width = 0;
+    new ResizeObserver(([entry]) => {
+      if (entry.contentRect.width === width) return;
+      width = entry.contentRect.width;
+      if (width > 0) fit();
+    }).observe(textarea);
+    return fit;
+  }
+
   function init(root = document) { initSeg(root); initExpand(root); initDrop(root); initToggles(root); initWheels(root); initReveal(root); }
   document.addEventListener('DOMContentLoaded', () => { init(); initViews(); initTips(); initSkin(); });
-  return { $, $$, init, skin, iconSet, view, back, toast, confirm, line, stream, count, syncWheels, initSeg, initExpand, initDrop, initToggles, initWheels, initReveal, reduce };
+  return { $, $$, init, skin, iconSet, view, back, toast, confirm, line, stream, count, syncWheels, initSeg, initExpand, initDrop, initToggles, initWheels, initReveal, autoSizeTextarea, reduce };
 })();

@@ -27,10 +27,10 @@
 
 | 配方 | 用在 | 时长与曲线 | 实现 |
 |---|---|---|---|
-| 卡片按压 | 可点卡片 | 150ms，缩放到 0.98 | `.card--press` |
+| 卡片按压 | 可点卡片 | 150ms，原位变色 | `.card--press` |
 | 展开收起 | 就近展开、手风琴 | 220ms ease-out，网格行高 0fr 到 1fr | `.expand[data-open]` |
 | 视图切换 | 详情页、填写页 | 220ms，淡入加 6px 上浮，不从边缘滑入 | `.view` |
-| 分段选中 | 页内类别切换 | 150ms 颜色与底色 | `.seg__item` |
+| 分段选中 | 页内类别切换 | 150ms 前景色或下划线 | `.seg__item` |
 | 开关 | 设置项 | 220ms spring 滑块平移 | `.switch` |
 | 勾选 | 任务、多选 | 320ms spring 对勾弹入 | `.check` |
 | 徽标弹入 | 消息数 | 320ms spring，0 到 1.18 到 1 | `.badge` |
@@ -46,9 +46,16 @@
 | 思考点 | 智能体处理中 | 1.1s 依次闪烁 | `.dots` |
 | 悬浮说明 | 无文字图标 | 150ms 淡入 | `Lz.tip` |
 
+## Three.js 空间动效
+
+- 检查是否要解释前后层次、产品角度或空间转场。空间效果用 Three.js，输入、筛选、卡片点击等反馈沿用轻量 CSS。正文和业务数据保留在可读的 HTML 中。
+- 组件库的「空间层叠」可用 `WB-MOTN-014` 或 `AP-MOTN-020` 找到。页面先显示静态图形，点击播放才加载本地 Three.js 并渲染一次。项目只在需要空间效果的区域接入。
+- 取用组件时，从原示例复制 `data-three-motion` 容器，保留静态画面与播放按钮。复用 `kit/kit.css` 中对应样式和 `kit/three-motion.js`，随脚本带上同目录下的 `vendor/three/three.min.js` 与许可证。
+- 画布跟随实际容器尺寸，限制像素比。完成、离开视口或切到后台时停止绘制，释放几何体、材质和渲染器。开启减少动态效果、WebGL 2 不可用或加载失败时，显示同一份静态图形。 [Three.js 响应式画布](https://threejs.org/manual/en/responsive.html) · [Three.js 资源清理](https://threejs.org/manual/en/cleanup.html) · [WebGLRenderer](https://threejs.org/docs/pages/WebGLRenderer.html)
+
 ## 实现要求
 
-- 只动 `transform` 与 `opacity`；高度变化用网格行高过渡；不写 `transition: all`，逐项写属性。
+- 普通 CSS 动效优先用 `transform` 与 `opacity`，操作状态可短暂过渡前景色。高度变化用网格行高过渡，属性逐项列出。
 - 系统开启“减少动态效果”时（`prefers-reduced-motion: reduce`），时长压到近 0，位移与缩放去掉，状态变化与最终内容仍完整显示。缩放和平移大面积元素是前庭不适的主要诱因，这类动效优先让位。
 - 动效不延迟操作：点击立即生效，装饰动画并行。
 - 不用装饰性循环动画占位；加载只用骨架或进度。

@@ -1,4 +1,4 @@
-"""audit_palette.py: a page keeps the hue of its theme and the shared status hues; a decorative extra hue or a letter avatar is reported."""
+"""Optional theme comparisons and explicit project colour limits on rendered pages."""
 from __future__ import annotations
 
 import json
@@ -35,6 +35,12 @@ def audit(body: str, theme: str = "b2b-graphite", *extra: str) -> tuple[int, str
 
 
 class HueTest(unittest.TestCase):
+    def test_reference_swatches_are_compared_like_other_colours(self):
+        colours = [["bg", 0xBF, 0xA9, 0xDD, 90, "button"], ["fill", 0x75, 0x00, 0xFF, 10, "svg"]]
+        extra = ap.off_theme(colours, ap.theme_hues("b2b-graphite"))
+        reported = {place for group in extra.values() for place in group["where"]}
+        self.assertEqual(reported, {"bg #bfa9dd button", "fill #7500ff svg"})
+
     def test_graphite_allows_its_blue_and_the_status_hues_only(self) -> None:
         hues = ap.theme_hues("b2b-graphite")
         self.assertTrue(hues)
@@ -65,8 +71,8 @@ class HueTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "themes.json"
             path.write_text(json.dumps(data), encoding="utf-8")
-            light = ap.theme_hues("t", path)
-            dark = ap.theme_hues("t", path, "dark")
+            light = ap.theme_hues("t", path, surface="reference")
+            dark = ap.theme_hues("t", path, "dark", surface="reference")
         orange = ap.hue_of((0xE0, 0xA0, 0x30))[0]
         self.assertGreater(min(ap.hue_gap(orange, h) for h in light), ap.HUE_TOLERANCE)
         self.assertLessEqual(min(ap.hue_gap(orange, h) for h in dark), ap.HUE_TOLERANCE)
@@ -81,13 +87,16 @@ class HueTest(unittest.TestCase):
 @unittest.skipUnless(browser_available(), "needs playwright and Microsoft Edge")
 class RenderedTest(unittest.TestCase):
     def test_a_page_with_the_theme_hue_and_status_colours_passes(self) -> None:
-        code, out = audit("<p style='color:#2563eb'>链接</p><span style='background:#e4f3ec;color:#18794e;padding:2px 8px'>成功</span><div style='background:#27272a;color:#fff;padding:8px'>主按钮</div>")
+        code, out = audit("<p style='color:#2563eb'>链接</p><span style='background:#e8effa;color:#28599b;padding:2px 8px'>成功</span><div style='background:#27272a;color:#fff;padding:8px'>主按钮</div>")
         self.assertEqual((code, out.strip()), (0, "audit palette: ok"), out)
 
     def test_decorative_purple_bars_are_reported(self) -> None:
-        code, out = audit("<div style='height:12px;width:300px;background:#6d28d9'></div><div style='height:12px;width:200px;background:#86198f'></div>")
-        self.assertEqual(code, 1)
-        self.assertIn("not a hue of theme b2b-graphite", out)
+        body = "<div style='height:12px;width:300px;background:#6d28d9'></div><div style='height:12px;width:200px;background:#86198f'></div>"
+        for options, expected in (([], 0), (["--max-extra", "0"], 1), (["--max-extra", "2"], 0)):
+            code, out = audit(body, "b2b-graphite", *options)
+            self.assertEqual(code, expected, out)
+            if options != ["--max-extra", "2"]:
+                self.assertIn("not a hue of theme b2b-graphite", out)
 
     def test_a_letter_avatar_is_reported_even_in_the_themes_own_hue(self) -> None:
         code, out = audit("<span class='avatar' style='display:inline-grid;place-items:center;width:32px;height:32px;border-radius:50%;background:#eff6ff;color:#2563eb'>周</span>")
@@ -120,17 +129,17 @@ class StageRampTest(unittest.TestCase):
         self.assertEqual((code, out.strip()), (0, "audit palette: ok"), out)
 
     def test_the_same_purple_anywhere_else_is_still_reported(self) -> None:
-        code, out = audit(self.page("<p style='color:#43236b'>不是色阶的紫色文字</p>"))
+        code, out = audit(self.page("<p style='color:#43236b'>不是色阶的紫色文字</p>"), "b2b-graphite", "--max-extra", "0")
         self.assertEqual(code, 1)
         self.assertIn("not a hue of theme b2b-graphite", out)
 
     def test_a_stage_element_in_a_colour_that_is_not_a_stage_token_is_reported(self) -> None:
-        code, out = audit(self.page("<p data-stage-set='depth' data-stage='5' data-stage-n='5' style='color:#6d28d9'>后续跟进</p>"))
+        code, out = audit(self.page("<p data-stage-set='depth' data-stage='5' data-stage-n='5' style='color:#6d28d9'>后续跟进</p>"), "b2b-graphite", "--max-extra", "0")
         self.assertEqual(code, 1)
         self.assertIn("not a hue of theme b2b-graphite", out)
 
     def test_a_page_without_stage_tokens_gets_no_exception(self) -> None:
-        code, out = audit("<p data-stage-set='depth' data-stage='5' style='color:#43236b'>后续跟进</p>")
+        code, out = audit("<p data-stage-set='depth' data-stage='5' style='color:#43236b'>后续跟进</p>", "b2b-graphite", "--max-extra", "0")
         self.assertEqual(code, 1)
 
 
@@ -144,7 +153,7 @@ def audit_html(html: str, *extra: str, theme: str = "b2b-graphite") -> tuple[int
     with tempfile.TemporaryDirectory() as tmp:
         page = Path(tmp) / "page.html"
         page.write_text(html, encoding="utf-8")
-        run = subprocess.run([sys.executable, "-X", "utf8", str(HERE / "audit_palette.py"), str(page), "--theme", theme, *extra], capture_output=True, text=True, encoding="utf-8")
+        run = subprocess.run([sys.executable, "-X", "utf8", str(HERE / "audit_palette.py"), str(page), "--theme", theme, "--max-extra", "0", *extra], capture_output=True, text=True, encoding="utf-8")
         return run.returncode, run.stdout
 
 

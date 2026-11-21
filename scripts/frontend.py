@@ -33,7 +33,7 @@ REVIEW_RULES = frozenset({'form_page_and_notice_boundary','tab_ownership','hover
     'meaningful_data_views','chart_missing_values','chart_touch_keyboard_values',
     'stable_unique_identities','adjacent_result_or_detail_page','restore_origin_context',
     'inline_wheel_manual_commit','bounded_business_period','role_owned_targets',
-    'complete_period_data','no_duplicate_metrics'})
+    'complete_period_data','no_duplicate_metrics','white_ui_backgrounds','graphical_avatars','no_text_icons'})
 
 
 def read(p): return json.loads(Path(p).read_text(encoding='utf-8-sig'))
@@ -59,7 +59,7 @@ def validate_quality(p,r,value):
         need(path and path.is_file() and digest(path)==ref.get('sha256'),'Missing or changed '+key)
         refs[key]=path
     assessment=read(refs['quality_assessment'])
-    need(assessment.get('scope')=={'owner':'luz-design','stage':'design'},'Quality assessment has wrong owner/stage')
+    need(assessment.get('scope')=={'owner':'luz-design','stage':'demo' if r.get('stage')=='demo' else 'design'},'Quality assessment has wrong owner/stage')
     need(assessment.get('receipt_sha256')==digest(Path(p)/RECEIPT),'Quality assessment describes a different sealed receipt')
     need(assessment.get('browser_report_sha256')==digest(refs['browser_report']),'Quality assessment describes a different browser report')
     report=read(refs['browser_report'])
@@ -236,6 +236,8 @@ def validate_review(p,r,value):
     need(isinstance(value.get('reviewer'),str) and value['reviewer'].strip(),'Review needs a reviewer')
     need(value.get('blocking_findings')==[],'Resolve blocking findings before delivery')
     need(value.get('component_usage') and isinstance(value.get('limitations'),list),'Describe actual component use and validation limits')
+    from application_review import check_states
+    check_states(value.get('application_states'), r, read(member(p,value['browser_report']['path'])).get('journeys'))
     rules=value.get('hard_rules',{})
     need(rules.get('sha256')==r.get('hard_rules_sha256')==digest(HARD_RULES),'Hard rules changed; re-seal and re-review')
     need(REVIEW_RULES <= set(rules.get('reviewed',[])) and rules.get('violations')==[], 'Complete the visual and semantic hard-rule review')
@@ -328,6 +330,9 @@ def review(package,session,file):
             ref.update(path=dst.relative_to(p).as_posix(),sha256=digest(dst))
     need(value.get('browser_report') and value.get('quality_assessment'),'Review needs browser_report and quality_assessment')
     value['browser_report']=copy_evidence(value['browser_report'],Path(file).resolve().parent)
+    from application_review import audit_journeys
+    reviewed_report=read(member(p,value['browser_report']['path']))
+    value['application_states']=audit_journeys(p,proof['receipt'],reviewed_report.get('journeys'))
     quality_ref=value['quality_assessment'];quality_source=Path(quality_ref['path'])
     if not quality_source.is_absolute():quality_source=Path(file).resolve().parent/quality_source
     need(quality_source.resolve().is_relative_to(s/'raw') and quality_source.is_file() and digest(quality_source)==quality_ref.get('sha256'),'Quality evidence was not the recorded file')

@@ -12,3 +12,6 @@ __pycache__/
 # 工程起点与浏览器检查的临时产物
 references/**/dist/
 .playwright-cli/
+
+# 本机待审核的演示稿
+/templates/documents/slides/originals/设计师待筛选/

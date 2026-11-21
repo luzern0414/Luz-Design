@@ -1,8 +1,8 @@
 <!doctype html>
-<html lang="zh-CN" data-theme="navy" data-bg="none" data-ic-base="../../../../kit/assets/icons">
+<html lang="zh-CN" data-theme="ink" data-bg="none" data-ic-base="../../../../kit/assets/icons">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
 <title>经营问答</title>
 <link rel="icon" href="../../../../kit/assets/icons/flat/bouquet.webp">
 <link rel="stylesheet" href="../../../../kit/tokens.css">
@@ -11,13 +11,34 @@
 <link rel="stylesheet" href="../../../../kit/web.css">
 <link rel="stylesheet" href="../../../../kit/agent.css">
 <style>
-  /* 侧栏标识、胶囊标签与表格的统一细节 */
+  body.agent-workspace {
+    --bg: var(--surface);
+    --ink: #202124;
+    --ink-2: #3a3d42;
+    --ink-3: #62666e;
+    --line: #e3e5e8;
+    --line-strong: #83858a;
+    --zone: var(--surface);
+    --toast-bottom: var(--s-2);
+  }
+  .agent-workspace .rail__item { font-size: var(--fs-sm); }
+  .agent-workspace .head { padding-block: var(--s-3); }
+  .agent-workspace .head h1 { font-size: var(--fs-2xl); }
   .tag { height: 24px; padding: 0 var(--s-3); border-radius: var(--r-full); }
   .tag--dot::before { content: ""; width: 6px; height: 6px; margin-right: 6px; border-radius: 50%; background: currentColor; }
-  /* 本页专属：三栏工作台，左会话、中对话、右过程产物引用；宽屏各栏内部滚动，输入区固定在对话底部 */
-  :root { --toast-bottom: 8px; }
-  .ag { display: grid; grid-template-columns: 240px minmax(0, 1fr) 320px; gap: var(--s-4); height: calc(100vh - 144px); min-height: 600px; margin-top: var(--s-2); }
+  /* 会话、对话和运行记录共用一组卡片边线，宽屏内部独立滚动。 */
+  .ag {
+    display: grid;
+    grid-template-columns: 224px minmax(0, 1fr) 288px;
+    gap: var(--s-4);
+    block-size: calc(100vh - 104px);
+    block-size: calc(100dvh - 104px);
+    min-block-size: 540px;
+    margin-block-start: var(--s-4);
+  }
+  .agent-workspace .main { padding-block-end: var(--s-5); }
   .ag__col { position: relative; display: flex; flex-direction: column; min-width: 0; min-height: 0; margin-top: 0; }
+  .ag__col > .section__head { border-block-end: 1px solid var(--line); }
   .ag__col > .section__body { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
   .ag__head h2 { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 
@@ -26,26 +47,37 @@
   .ag__list { flex: 1; min-height: 0; overflow-y: auto; }
   .ag__list .row__title, .ag__list .row__meta { display: block; }
   .ag__list .row__title { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-  .ag__list .row { min-height: 68px; }
-  .ag__list .row__lead { width: 40px; height: 40px; border-radius: 0; object-fit: contain; filter: drop-shadow(0 4px 6px color-mix(in srgb, var(--ink) 14%, transparent)); }
-  .ag__list .row[aria-current="true"] { background: var(--action-tint); box-shadow: inset 3px 0 0 var(--action); }
-  .ag__list .row[aria-current="true"] .row__title { color: var(--action-press); }
+  .ag__list .row { min-height: 60px; gap: var(--s-2); }
+  .ag__list .row[aria-current="true"] { background: var(--zone); border-inline-start: 2px solid var(--ink); padding-inline-start: calc(var(--s-4) - 2px); }
+  .ag__list .row[aria-current="true"] .row__title { color: var(--ink); font-weight: 700; }
+  .ag__list .row:focus-visible { outline-offset: -2px; }
   .ag__dropbtn { display: none; }
 
   /* 中栏：消息流与输入区 */
   .ag__log { flex: 1; min-height: 0; overflow-y: auto; padding: 0 var(--s-5); overscroll-behavior: contain; }
-  .ag__foot { flex: none; display: grid; gap: var(--s-3); padding: var(--s-3) var(--s-4) var(--s-4); border-top: 1px solid var(--line); background: var(--surface); }
-  .ag__foot .prompt { box-shadow: none; border-radius: var(--r-xl); }
+  .ag__log:focus-visible { outline-offset: -2px; }
+  .ag__foot {
+    flex: none;
+    display: grid;
+    gap: var(--s-2);
+    padding: var(--s-3) var(--s-4);
+    border-block-start: 1px solid var(--line);
+    border-radius: 0 0 var(--r-lg) var(--r-lg);
+    background: var(--surface);
+  }
+  .ag__prompt { padding: 0; border: 0; background: transparent; box-shadow: none; }
+  .ag__prompt .prompt__row { grid-template-columns: 44px minmax(0, 1fr) 40px auto; gap: var(--s-1); }
+  .ag__prompt .prompt__input { border-radius: var(--ui-field-radius); }
+  .ag__prompt .prompt__send { padding-inline: var(--s-3); border-radius: var(--r-xl); }
+  .ag__run { display: flex; align-items: center; justify-content: flex-end; gap: var(--s-2); }
+  .ag__foot .suggest button { min-block-size: max(24px, 2em); }
   .msg__avatar { box-shadow: 0 0 0 1px var(--line); background: var(--surface); }
-  .ag__files { display: flex; flex-wrap: wrap; gap: var(--s-2); }
+  .ag__files { display: flex; flex-wrap: wrap; gap: var(--s-2); padding: 2px; }
   .ag__files .tool { padding-right: var(--s-1); }
   .ag__files .tool::before { display: none; }
   .ag__files .tool span { max-width: 180px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
   .ag__files .ibtn { width: 28px; height: 28px; }
   .ag__files .ibtn img { width: 14px; height: 14px; }
-  .prompt__bar { flex-wrap: wrap; }
-  .prompt:focus-within { border-color: var(--ink-2); }
-  .prompt textarea:focus-visible { outline: none; }
   #mic[aria-pressed="true"] { background: var(--action-tint); }
   .ag__state { padding: var(--s-4) 0; }
   .chat:has(.ag__empty) { min-height: 100%; align-content: center; }
@@ -53,9 +85,12 @@
   .ag__skel .msg__body > .skel { height: 20px; }
 
   /* 对话内的原语：工具调用的输入输出、产物预览、任务卡 */
+  .ag__results:empty { display: none; }
   .msg__body > * { min-width: 0; }
   .msg__body > .tag { justify-self: start; }
+  .msg--user .bubble { white-space: pre-wrap; overflow-wrap: anywhere; }
   .msg--user .tag { margin-top: var(--s-1); }
+  .msg--user .attachment { max-width: 100%; height: auto; min-height: 24px; white-space: normal; overflow-wrap: anywhere; }
   .msg--user[data-queued] .bubble { opacity: .6; }
   .toolset { display: grid; }
   .tool { cursor: pointer; }
@@ -66,7 +101,7 @@
   .io dd { margin: 0; color: var(--ink); }
   .io__bar { margin-top: var(--s-3); }
   .cite { cursor: pointer; }
-  .cite.is-hit { background: var(--action); color: var(--bg); }
+  .cite.is-hit { background: var(--surface); color: var(--action-press); text-decoration: underline; }
   .artifact .expand { grid-column: 1 / -1; }
   .art__prev { margin-top: var(--s-3); border-top: 1px solid var(--line); overflow-x: auto; }
   .art__prev .table { font-size: var(--fs-sm); }
@@ -76,50 +111,103 @@
   .task > div, .artifact > div { min-width: 0; }
   .task .row__title, .task .row__meta, .artifact .row__title, .artifact .row__meta { display: block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
   .approval .tag { justify-self: start; height: 28px; padding: 0 var(--s-3); font-size: var(--fs-sm); }
-  .opt:focus-visible { outline-offset: -2px; }
 
   /* 右栏：分段切换三个面板，下方为上下文用量 */
-  .ag__seg { flex: none; padding: var(--s-3); border-bottom: 1px solid var(--line); }
-  .ag__seg .seg { padding: 3px; border-radius: var(--r-full); background: var(--zone); box-shadow: inset 0 0 0 1px var(--action-edge); }
-  .ag__seg .seg__item { flex: 1; min-height: 32px; padding: 0 var(--s-2); background: transparent; }
-  .ag__seg .seg__item[aria-selected="true"] { background: var(--action); }
+  .ag__rail > .section__head { border-block-end: 0; }
+  .ag__seg { flex: none; padding: 0 var(--s-3) var(--s-3); border-block-end: 1px solid var(--line); }
+  .ag__seg .seg { gap: var(--s-1); padding: var(--s-1); border-radius: var(--r-md); background: var(--zone); }
+  .ag__seg .seg__item { flex: 1; padding: 0 var(--s-2); background: transparent; white-space: nowrap; }
+  .ag__seg .seg__item[aria-selected="true"] { background: var(--surface); color: var(--ink); font-weight: 700; }
+  .ag__seg .seg__item:focus-visible { outline-color: var(--ink-2); }
   .ag__panels { flex: 1; min-height: 0; overflow-y: auto; }
   .ag__stack { display: grid; gap: var(--s-2); padding: var(--s-3); }
   .ag__panels .row__title, .ag__panels .row__meta { display: block; }
   .ag__panels .row[aria-current="true"] { background: var(--action-tint); }
   .ag__panels .task__ic { width: 32px; height: 32px; }
   .ag__panels .empty { padding: var(--s-6) var(--s-4); }
-  .ag__panels .empty img { width: 72px; height: 72px; }
-  .ctx { display: grid; gap: var(--s-2); padding: var(--s-4); }
+  .ag__panels .empty img { width: var(--ui-icon-max); height: var(--ui-icon-max); }
+  .ctx { display: grid; gap: var(--s-2); padding: var(--s-3) var(--s-4); border-block-start: 1px solid var(--line); }
   .ctx__top { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-3); }
+  .ctx__top h3 { font-size: var(--fs-sm); font-weight: 600; }
 
-  @media (max-width: 1280px) { .ag { grid-template-columns: 228px minmax(0, 1fr) 264px; } .ag__list .row { padding-left: var(--s-3); padding-right: var(--s-3); } }
-  /* 窄屏：左栏收为会话下拉，右栏排在对话之下，不遮挡输入区 */
+  @media (max-width: 1280px) { .ag { grid-template-columns: 204px minmax(0, 1fr) 252px; } }
+  /* 窄屏：会话收为下拉，运行记录与对话上下贴合。 */
   @media (max-width: 1100px) {
-    .ag { grid-template-columns: minmax(0, 1fr); height: auto; min-height: 0; gap: var(--s-3); }
+    .ag { grid-template-columns: minmax(0, 1fr); block-size: auto; min-block-size: 0; gap: 0; }
+    .ag__col { border-radius: 0; }
+    .ag__col + .ag__col { border-block-start: 0; }
+    .ag__side { border-radius: var(--r-lg) var(--r-lg) 0 0; }
+    .ag__side.card > .section__head { padding: 0; border: 0; }
     .ag__side > .section__head h2 { display: none; }
-    .ag__dropbtn { display: inline-flex; width: 100%; min-height: 44px; justify-content: space-between; font-size: var(--fs-md); }
+    .ag__dropbtn { display: inline-flex; width: 100%; min-height: 48px; justify-content: space-between; border-radius: var(--r-lg) var(--r-lg) 0 0; background: var(--surface); font-size: var(--fs-md); }
+    .ag__dropbtn:focus-visible { outline-offset: -2px; }
     .ag__dropbtn b { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-    .ag__side > .section__body { display: none; position: absolute; z-index: 30; left: 0; right: 0; top: 48px; max-height: min(60vh, 420px); box-shadow: var(--elev-3); }
+    .ag__current { display: flex; align-items: center; gap: var(--s-2); min-width: 0; }
+    .ag__current img { flex: none; width: 1em; height: 1em; }
+    .ag__side > .section__body {
+      display: none;
+      position: absolute;
+      z-index: 30;
+      inset: 100% -1px auto;
+      max-block-size: min(60vh, 420px);
+      border: 1px solid var(--line);
+      border-radius: 0 0 var(--r-lg) var(--r-lg);
+      background: var(--surface);
+      box-shadow: var(--elev-3);
+    }
     .ag__side[data-open="true"] > .section__body { display: flex; }
-    .ag__main { height: min(78vh, 720px); min-height: 520px; }
+    .ag__main { block-size: min(78vh, 720px); min-block-size: 480px; }
     .ag__main > .section__head { display: none; }
-    .ag__main > .section__body { margin-top: 0; }
+    .ag__foot { border-radius: 0; }
     .ag__panels { max-height: 360px; flex: none; }
+    .ag__rail { border-radius: 0 0 var(--r-lg) var(--r-lg); }
     .ag__rail > .section__body { flex: none; }
   }
   @media (max-width: 760px) {
+    :root {
+      --agent-nav-height: calc(56px + env(safe-area-inset-bottom, 0px));
+      scroll-padding-block-end: calc(var(--agent-nav-height) + var(--s-2));
+    }
+    body.agent-workspace { --toast-bottom: calc(var(--agent-nav-height) + var(--s-2)); }
+    .agent-workspace .web { display: block; }
+    .agent-workspace .main { padding-block-end: calc(var(--agent-nav-height) + var(--s-4)); }
+    .agent-workspace .head { padding-block-start: max(var(--s-3), env(safe-area-inset-top, 0px)); }
+    .agent-workspace .head h1 { font-size: var(--fs-xl); }
+    .agent-workspace .rail {
+      position: fixed;
+      z-index: 32;
+      inset: auto 0 0;
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      height: auto;
+      min-block-size: var(--agent-nav-height);
+      padding: var(--s-1) max(var(--s-2), env(safe-area-inset-right, 0px)) calc(var(--s-1) + env(safe-area-inset-bottom, 0px)) max(var(--s-2), env(safe-area-inset-left, 0px));
+      border: 0;
+      border-block-start: 1px solid var(--line);
+    }
+    .agent-workspace .rail :is(.rail__logo, .rail__sp) { display: none; }
+    .agent-workspace .rail__item { flex-direction: column; justify-content: center; gap: 2px; padding-inline: var(--s-1); border: 0; font-size: var(--fs-xs); }
+    .agent-workspace .rail__item img { width: 16px; height: 16px; }
+    .agent-workspace .rail__item[aria-current="page"] { text-decoration: underline; text-underline-offset: 2px; }
+    .ag { margin-block-start: var(--s-3); }
+    .ag__main { min-block-size: 320px; block-size: clamp(320px, calc(100dvh - var(--agent-nav-height) - 134px), 680px); }
     .msg { grid-template-columns: minmax(0, 1fr); }
     .msg__avatar { display: none; }
     .ag__log { padding: 0 var(--s-3); }
-    .ag__foot { padding: var(--s-2) var(--s-3) var(--s-3); }
+    .ag__foot { padding: var(--s-2); }
+    .ag__foot > .suggest, #mic { display: none; }
+    .ag__prompt .prompt__row { grid-template-columns: 44px minmax(0, 1fr) auto; }
+    .ag__prompt .prompt__input { padding-inline: var(--s-2); }
     .msg--user .bubble { max-width: 94%; }
+  }
+  @media (forced-colors: active) {
+    .ag__seg .seg__item[aria-selected="true"] { text-decoration: underline; }
   }
 </style>
 </head>
-<body class="web-body">
+<body class="web-body agent-workspace">
 <div class="web">
-  <!-- 左侧主导航：图文同行，当前项有背景与指示线；不放产品名 -->
+  <!-- 主导航：桌面图文同行，手机改为底栏上图下文。 -->
   <nav class="rail" data-cid="WB-NAV-001" data-name="左侧主导航" aria-label="主导航">
     <img class="rail__logo" data-ic="bouquet" src="../../../../kit/assets/icons/flat/bouquet.webp" alt="">
     <a class="rail__item" href="home.html"><img src="../../../../kit/assets/line/home.webp" alt=""><span>工作台</span></a>
@@ -143,21 +231,21 @@
 
     <div class="ag">
       <!-- 左栏：会话历史，选中态，搜索过滤；窄屏收为下拉 -->
-      <section class="section ag__col ag__side" id="side" data-cid="WB-AGNT-002" data-name="会话历史卡">
+      <section class="section card ag__col ag__side" id="side" data-cid="WB-AGNT-002" data-name="会话历史卡">
         <div class="section__head">
-          <h2>会话</h2>
-          <button type="button" class="drop__btn ag__dropbtn" id="dropbtn" aria-haspopup="listbox" aria-expanded="false" aria-controls="sidecard" aria-label="切换会话"><b id="curLabel"></b></button>
+          <h2 class="heading-with-icon"><img src="../../../../kit/assets/line/message.webp" alt="">会话</h2>
+          <button type="button" class="drop__btn ag__dropbtn" id="dropbtn" aria-expanded="false" aria-controls="sidecard" aria-labelledby="curLabel dropAction"><span class="ag__current"><img src="../../../../kit/assets/line/message.webp" alt=""><b id="curLabel"></b></span><span class="sr-only" id="dropAction">切换会话</span></button>
         </div>
-        <div class="card section__body" id="sidecard">
+        <div class="section__body" id="sidecard">
           <div class="ag__find"><label class="search"><img src="../../../../kit/assets/line/search.webp" alt=""><input type="search" id="find" placeholder="搜索会话" aria-label="搜索会话"></label></div>
           <div class="ag__list" id="convlist"></div>
         </div>
       </section>
 
       <!-- 中栏：对话与输入 -->
-      <section class="section ag__col ag__main">
+      <section class="section card ag__col ag__main">
         <div class="section__head ag__head"><h2 id="convTitle"></h2><span class="tag" data-tone="action" id="gen" hidden>生成中</span></div>
-        <div class="card section__body">
+        <div class="section__body">
           <div class="ag__log" id="log" role="log" aria-live="polite" aria-busy="false" aria-label="对话" tabindex="0" data-cid="WB-AGNT-003" data-name="对话消息流"></div>
           <div class="ag__foot">
             <div class="suggest" data-cid="WB-AGNT-004" data-name="建议问法横滑条" aria-label="建议问法">
@@ -166,45 +254,43 @@
               <button type="button">列出库存预警商品</button>
               <button type="button">检查支付流水差异</button>
             </div>
-            <form class="prompt" id="composer" autocomplete="off" data-cid="WB-AGNT-005" data-name="提问输入栏">
-              <div class="ag__files" id="files" hidden></div>
-              <textarea id="q" rows="1" placeholder="输入问题" aria-label="输入问题"></textarea>
-              <div class="prompt__bar">
-                <button type="button" class="ibtn" id="attach" data-tip="添加附件" aria-label="添加附件"><img src="../../../../kit/assets/line/upload.webp" alt=""></button>
-                <input type="file" id="file" hidden>
+            <div class="ag__run" id="run-actions" hidden>
+              <span class="tag" data-tone="warning" id="queue" role="status" hidden></span>
+              <button type="button" class="btn btn--ghost" id="stop">停止</button>
+            </div>
+            <form class="prompt ag__prompt" id="composer" autocomplete="off" data-cid="WB-AGNT-005" data-name="提问输入栏">
+              <div class="ag__files prompt__files" id="files" hidden></div>
+              <div class="prompt__row">
+                <button type="button" class="ibtn prompt__attach" id="attach" data-tip="添加文件或图片" aria-label="添加文件或图片"><img src="../../../../kit/assets/line/add.webp" alt=""></button>
+                <textarea class="prompt__input" id="q" rows="1" placeholder="输入问题" aria-label="输入问题"></textarea>
                 <button type="button" class="ibtn" id="mic" data-tip="语音输入" aria-label="语音输入" aria-pressed="false"><img src="../../../../kit/assets/line/mic.webp" alt=""></button>
-                <span class="prompt__sp"></span>
-                <span class="tag" data-tone="warning" id="queue" role="status" hidden>排队 0 条</span>
-                <button type="button" class="btn btn--ghost" id="stop" hidden>停止</button>
-                <button type="submit" class="btn btn--primary" id="send" disabled>发送</button>
+                <button type="submit" class="btn btn--primary prompt__send" id="send" disabled>发送</button>
               </div>
+              <input type="file" id="file" multiple hidden>
             </form>
           </div>
         </div>
       </section>
 
       <!-- 右栏：过程、产物、引用三个面板，随对话推进更新 -->
-      <section class="section ag__col ag__rail" data-cid="WB-AGNT-006" data-name="过程产物引用面板">
-        <div class="section__head"><h2>运行记录</h2></div>
-        <div class="card section__body">
+      <section class="section card ag__col ag__rail" data-cid="WB-AGNT-006" data-name="过程产物引用面板">
+        <div class="section__head"><h2 class="heading-with-icon"><img src="../../../../kit/assets/line/monitor.webp" alt="">运行记录</h2></div>
+        <div class="section__body">
           <div class="ag__seg"><div class="seg" data-seg="rp" id="rpseg" aria-label="记录类别">
             <button class="seg__item" data-key="proc" aria-selected="true">过程<small data-n="proc">0</small></button>
             <button class="seg__item" data-key="art">产物<small data-n="art">0</small></button>
             <button class="seg__item" data-key="ref">引用<small data-n="ref">0</small></button>
           </div></div>
           <div class="ag__panels">
-            <div data-panel="rp" data-key="proc" id="rp-proc"><div class="empty"><img data-ic="seedling" src="../../../../kit/assets/icons/flat/seedling.webp" alt=""><p>暂无过程</p></div></div>
-            <div data-panel="rp" data-key="art" id="rp-art" hidden><div class="empty"><img data-ic="giftbox" src="../../../../kit/assets/icons/flat/giftbox.webp" alt=""><p>暂无产物</p></div></div>
-            <div data-panel="rp" data-key="ref" id="rp-ref" hidden><div class="empty"><img data-ic="giftcard" src="../../../../kit/assets/icons/flat/giftcard.webp" alt=""><p>暂无引用</p></div></div>
+            <div data-panel="rp" data-key="proc" id="rp-proc"><div class="empty"><img src="../../../../kit/assets/line/list.webp" alt=""><p>暂无过程</p></div></div>
+            <div data-panel="rp" data-key="art" id="rp-art" hidden><div class="empty"><img src="../../../../kit/assets/line/archive.webp" alt=""><p>暂无产物</p></div></div>
+            <div data-panel="rp" data-key="ref" id="rp-ref" hidden><div class="empty"><img src="../../../../kit/assets/line/book.webp" alt=""><p>暂无引用</p></div></div>
           </div>
         </div>
-        <div class="section" data-cid="WB-AGNT-007" data-name="上下文用量卡">
-          <div class="section__head"><h2>上下文</h2></div>
-          <div class="card section__body ctx">
-            <div class="ctx__top"><span class="stat__label">已用</span><span class="stat__val" id="ctxv">0<small>%</small></span></div>
-            <div class="progress" role="progressbar" aria-label="上下文用量" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="ctxp"><i id="ctxb"></i></div>
-            <p class="row__meta" id="ctxm">已读取 0 条记录</p>
-          </div>
+        <div class="ctx" data-cid="WB-AGNT-007" data-name="上下文用量卡">
+          <div class="ctx__top"><h3>上下文</h3><span class="stat__val" id="ctxv">0<small>%</small></span></div>
+          <div class="progress" role="progressbar" aria-label="上下文用量" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="ctxp"><i id="ctxb"></i></div>
+          <p class="row__meta" id="ctxm">已读取 0 条记录</p>
         </div>
       </section>
     </div>
@@ -213,6 +299,7 @@
 <script src="../../../../kit/ui.js"></script>
 <script>
   const { $, $$ } = Lz;
+  const LINE = n => `../../../../kit/assets/line/${n}.webp`;
   const SOLID = n => `../../../../kit/assets/solid/${n}.webp`;
   const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const el = html => { const t = document.createElement('template'); t.innerHTML = html.trim(); return t.content.firstElementChild; };
@@ -273,17 +360,18 @@
   };
   const pickSpec = text => /配送|送达|骑手|超时/.test(text) ? SPEC.delivery : /库存|缺货|补货|预警/.test(text) ? SPEC.stock : /复购|会员|新客/.test(text) ? SPEC.repeat : SPEC.recon;
 
-  /* 会话：初次打开时按 spec 渲染既有的一轮问答；c3 首次打开模拟加载失败；图标按主题当前风格取 */
-  const ICON = n => `../../../../kit/assets/icons/${Lz.iconSet()}/${n}.webp`;
+  /* 会话：初次打开时按 spec 渲染既有的一轮问答；c3 首次打开模拟加载失败。 */
   const convs = [
-    { id: 'c1', title: '本周对账结果核对', time: '刚刚', q: '核对本周线上订单与支付流水的差异', spec: 'recon', used: 18, icon: 'wallet' },
-    { id: 'c2', title: '本周配送时效统计', time: '昨天', q: '汇总本周配送超时订单', spec: 'delivery', used: 22, failTool: 2, apprDone: true, icon: 'scooter' },
-    { id: 'c3', title: '库存预警商品清单', time: '3 天前', q: '列出库存预警商品', spec: 'stock', used: 15, failOnce: true, icon: 'plant' },
-    { id: 'c4', title: '会员复购率周对比', time: '上周', q: '对比上周会员复购率', spec: 'repeat', used: 9, icon: 'heart' },
+    { id: 'c1', title: '本周对账结果核对', time: '刚刚', q: '核对本周线上订单与支付流水的差异', spec: 'recon', used: 18, icon: 'archive' },
+    { id: 'c2', title: '本周配送时效统计', time: '昨天', q: '汇总本周配送超时订单', spec: 'delivery', used: 22, failTool: 2, apprDone: true, icon: 'location' },
+    { id: 'c3', title: '库存预警商品清单', time: '3 天前', q: '列出库存预警商品', spec: 'stock', used: 15, failOnce: true, icon: 'list' },
+    { id: 'c4', title: '会员复购率周对比', time: '上周', q: '对比上周会员复购率', spec: 'repeat', used: 9, icon: 'people' },
   ];
   convs.forEach(c => { c.read = 0; });
   let cur = null, stuck = true;
   const log = $('#log'), ta = $('#q'), sendBtn = $('#send'), stopBtn = $('#stop'), queueTag = $('#queue');
+  const narrowComposer = matchMedia('(max-width: 760px)');
+  const autosize = Lz.autoSizeTextarea(ta);
   const RP = { proc: $('#rp-proc'), art: $('#rp-art'), ref: $('#rp-ref') };
   const attachments = [];
 
@@ -291,8 +379,8 @@
   function renderList() {
     const kw = $('#find').value.trim(), box = $('#convlist');
     const rows = convs.filter(c => !kw || c.title.includes(kw));
-    box.innerHTML = rows.length ? rows.map(c => `<button type="button" class="row" data-conv="${c.id}" aria-current="${cur && c.id === cur.id}"><img class="row__lead" data-ic="${c.icon}" src="${ICON(c.icon)}" alt=""><span class="row__main"><span class="row__title">${esc(c.title)}</span><span class="row__meta">${c.time}</span></span><span class="row__trail">${c.busy ? '<span class="tag" data-tone="action">生成中</span>' : ''}</span></button>`).join('')
-      : `<div class="empty"><img data-ic="vase" src="${ICON('vase')}" alt=""><p>无匹配会话</p><button type="button" class="btn btn--secondary btn--sm btn--pill" data-clear>清空搜索</button></div>`;
+    box.innerHTML = rows.length ? rows.map(c => `<button type="button" class="row" data-conv="${c.id}" aria-current="${cur && c.id === cur.id}"><img class="compact-icon" src="${LINE(c.icon)}" alt=""><span class="row__main"><span class="row__title">${esc(c.title)}</span><span class="row__meta">${c.time}</span></span><span class="row__trail">${c.busy ? '<span class="tag" data-tone="action">生成中</span>' : ''}</span></button>`).join('')
+      : `<div class="empty"><img src="${LINE('search')}" alt=""><p>无匹配会话</p><button type="button" class="btn btn--secondary btn--sm btn--pill" data-clear>清空搜索</button></div>`;
   }
   function renderHead() { $('#convTitle').textContent = cur.title; $('#curLabel').textContent = cur.title; }
   function closeSide() { $('#side').dataset.open = 'false'; $('#dropbtn').setAttribute('aria-expanded', 'false'); }
@@ -354,22 +442,22 @@
   }
   function artEl(a) {
     const id = nid('ar'), al = ['', 't-r', 't-l'];
-    return el(`<div class="artifact" data-cid="WB-AGNT-011" data-name="产物结果卡"><img class="task__ic" src="${SOLID(a.i)}" alt=""><div><p class="row__title">${a.n}</p><p class="row__meta">${a.m}</p></div><button type="button" class="btn btn--secondary btn--sm btn--pill" data-toggle="${id}" data-on="收起" data-off="打开" aria-expanded="false">打开</button><div class="expand" id="${id}" inert><div><div class="art__prev"><table class="table"><colgroup><col style="width:30%"><col style="width:28%"><col style="width:42%"></colgroup><thead><tr>${a.cols.map((h, i) => `<th class="${al[i]}">${h}</th>`).join('')}</tr></thead><tbody>${a.rows.map(r => `<tr>${r.map((v, i) => `<td class="${al[i]}">${v}</td>`).join('')}</tr>`).join('')}</tbody></table></div></div></div></div>`);
+    return el(`<div class="card artifact" data-cid="WB-AGNT-011" data-name="产物结果卡"><img class="task__ic" src="${SOLID(a.i)}" alt=""><div><p class="row__title">${a.n}</p><p class="row__meta">${a.m}</p></div><button type="button" class="btn btn--secondary btn--sm btn--pill" data-toggle="${id}" data-on="收起" data-off="打开" aria-expanded="false">打开</button><div class="expand" id="${id}" inert><div><div class="art__prev"><table class="table"><colgroup><col style="width:30%"><col style="width:28%"><col style="width:42%"></colgroup><thead><tr>${a.cols.map((h, i) => `<th scope="col" class="${al[i]}">${h}</th>`).join('')}</tr></thead><tbody>${a.rows.map(r => `<tr>${r.map((v, i) => `<td class="${al[i]}">${v}</td>`).join('')}</tr>`).join('')}</tbody></table></div></div></div></div>`);
   }
   function taskEl(list) {
     return el(`<div class="card list taskcard" data-cid="WB-AGNT-012" data-name="跟进任务行">${list.map(t => `<div class="task"><img class="task__ic" src="${SOLID('solid-tasks')}" alt=""><div><p class="row__title">${t.n}</p><p class="row__meta">${t.m}</p></div><span class="tag" data-tone="${t.tone}">${t.tag}</span></div>`).join('')}</div>`);
   }
   function apprEl(a, done) {
     const state = done ? 'done' : 'pending';
-    return el(`<div class="approval" data-cid="WB-AGNT-013" data-name="审批确认卡" data-state="${state}"><p class="approval__q">${a.q}</p><div class="approval__opts" role="radiogroup" aria-label="处理方式">${a.opts.map((o, i) => `<button type="button" class="opt" role="radio" aria-checked="${i === 0}" tabindex="${i === 0 ? 0 : -1}"><span class="check" aria-checked="${i === 0}"><img src="../../../../kit/assets/line/check.webp" alt=""></span>${o}</button>`).join('')}</div>${done ? `<span class="tag" data-tone="success">已批准 ${a.opts[0]}</span>` : '<div class="btn-group" data-acts><button type="button" class="btn btn--ghost btn--sm" data-act="reject">拒绝</button><button type="button" class="btn btn--primary btn--sm" data-act="approve">批准</button></div>'}</div>`);
+    return el(`<div class="card approval" data-cid="WB-AGNT-013" data-name="审批确认卡" data-state="${state}"><p class="approval__q">${a.q}</p><div class="approval__opts" role="radiogroup" aria-label="处理方式">${a.opts.map((o, i) => `<button type="button" class="opt" role="radio" aria-checked="${i === 0}" tabindex="${i === 0 ? 0 : -1}"><span class="check" aria-checked="${i === 0}"><img src="../../../../kit/assets/line/check.webp" alt=""></span>${o}</button>`).join('')}</div>${done ? `<span class="tag" data-tone="success">已批准 ${a.opts[0]}</span>` : '<div class="btn-group" data-acts><button type="button" class="btn btn--ghost btn--sm" data-act="reject">拒绝</button><button type="button" class="btn btn--primary btn--sm" data-act="approve">批准</button></div>'}</div>`);
   }
-  const userEl = (text, files, queued) => el(`<div class="msg msg--user"${queued ? ' data-queued' : ''}><div class="bubble">${esc(text)}</div>${files.map(f => `<span class="tag">${esc(f)}</span>`).join('')}${queued ? '<span class="tag" data-tone="warning" data-q>排队中</span>' : ''}</div>`);
+  const userEl = (text, files, queued) => el(`<div class="msg msg--user"${queued ? ' data-queued' : ''}>${text ? `<div class="bubble">${esc(text)}</div>` : ''}${files.map(f => `<span class="tag attachment">${esc(f.name)}</span>`).join('')}${queued ? '<span class="tag" data-tone="warning" data-q>排队中</span>' : ''}</div>`);
 
   /* 一轮回答：快速模式直接铺出既有内容；实时模式按 思考 → 工具 → 流式文字 → 产物 → 任务 → 审批 推进，可随时停止 */
   async function play(c, spec, o = {}) {
     const fast = !!o.fast, run = o.run || { stopped: false, stopP: Promise.resolve() };
     const wait = async ms => { if (fast) return; await Promise.race([sleep(ms), run.stopP]); if (run.stopped) throw STOP; };
-    const msg = el(`<div class="msg"><img class="msg__avatar" src="../../../../kit/assets/marks/mark-023.webp" alt=""><div class="msg__body"></div></div>`);
+    const msg = el(`<div class="msg"><img class="msg__avatar" src="../../../../kit/assets/line/support.webp" alt=""><div class="msg__body"></div></div>`);
     const body = $('.msg__body', msg); c.pane.appendChild(msg);
     const t0 = Date.now(), think = mkThink(fast); body.appendChild(think.node);
     const secs = () => fast ? spec.secs : Math.max(1, Math.round((Date.now() - t0) / 1000));
@@ -392,9 +480,13 @@
         run.freeze = () => { sp.cancel(); bubble.classList.remove('is-streaming'); };
         await Promise.race([sp, run.stopP]); if (run.stopped) throw STOP;
       }
-      if (spec.art) { await wait(350); body.appendChild(artEl(spec.art)); c.rp.art.appendChild(artEl(spec.art)); touchRp(c); }
-      if (spec.task) { await wait(250); body.appendChild(taskEl(spec.task)); }
-      if (spec.appr) { await wait(350); body.appendChild(apprEl(spec.appr, o.apprDone)); }
+      if (spec.art || spec.task || spec.appr) {
+        const cards = el('<div class="card-stack ag__results"></div>');
+        body.appendChild(cards);
+        if (spec.art) { await wait(350); cards.appendChild(artEl(spec.art)); c.rp.art.appendChild(artEl(spec.art)); touchRp(c); }
+        if (spec.task) { await wait(250); cards.appendChild(taskEl(spec.task)); }
+        if (spec.appr) { await wait(350); cards.appendChild(apprEl(spec.appr, o.apprDone)); }
+      }
       if (!fast) { c.used = Math.min(96, c.used + 7); c.read += spec.read; touchRp(c); }
     } catch (e) {
       if (e !== STOP) throw e;
@@ -414,9 +506,9 @@
   }
   const clearState = () => $$('.ag__state', log).forEach(n => n.remove());
   function showState(node) { $$('.chat', log).forEach(p => (p.hidden = true)); clearState(); node.classList.add('ag__state'); log.appendChild(node); showRp(null); sync(); }
-  const skelEl = () => el(`<div class="ag__skel" data-cid="WB-AGNT-015" data-name="对话加载骨架" role="status" aria-label="加载中"><div class="msg msg--user"><div class="skel" style="width:46%;height:44px"></div></div><div class="msg"><div class="skel msg__avatar"></div><div class="msg__body"><div class="skel" style="height:44px"></div><div class="skel" style="width:32%;height:32px"></div><div class="skel" style="width:88%"></div><div class="skel" style="width:64%"></div><div class="skel" style="height:64px"></div></div></div></div>`);
-  const failEl = c => el(`<div class="empty" data-cid="WB-AGNT-016" data-name="加载失败重试态" role="alert"><img data-ic="shears" src="${ICON('shears')}" alt=""><p>会话加载失败</p><button type="button" class="btn btn--secondary btn--pill" data-reload="${c.id}">重试</button></div>`);
-  const emptyEl = () => el(`<div class="empty ag__empty" data-cid="WB-AGNT-014" data-name="空会话空态"><img data-ic="bouquet" src="${ICON('bouquet')}" alt=""><button type="button" class="btn btn--secondary btn--pill" data-ask>汇总本周配送超时订单</button></div>`);
+  const skelEl = () => el(`<div class="ag__skel" data-cid="WB-AGNT-015" data-name="对话加载骨架" role="status" aria-label="加载中"><div class="msg msg--user"><div class="skel" style="width:46%;height:44px"></div></div><div class="msg"><img class="msg__avatar" src="../../../../kit/assets/line/support.webp" alt=""><div class="msg__body"><div class="skel" style="height:44px"></div><div class="skel" style="width:32%;height:32px"></div><div class="skel" style="width:88%"></div><div class="skel" style="width:64%"></div><div class="skel" style="height:64px"></div></div></div></div>`);
+  const failEl = c => el(`<div class="empty" data-cid="WB-AGNT-016" data-name="加载失败重试态" role="alert"><img src="${LINE('undo')}" alt=""><p>会话加载失败</p><button type="button" class="btn btn--secondary btn--pill" data-reload="${c.id}">重试</button></div>`);
+  const emptyEl = () => el(`<div class="empty ag__empty" data-cid="WB-AGNT-014" data-name="空会话空态"><img src="${LINE('message')}" alt=""><button type="button" class="btn btn--secondary btn--pill" data-ask>汇总本周配送超时订单</button></div>`);
 
   async function build(c) {
     ensurePane(c);
@@ -445,21 +537,23 @@
   function newConv() {
     const fresh = convs.find(c => c.fresh);
     if (fresh) { select(fresh.id); ta.focus(); return; }
-    const c = { id: nid('n'), title: '新会话', time: '刚刚', fresh: true, used: 0, read: 0, icon: 'bouquet' };
+    const c = { id: nid('n'), title: '新会话', time: '刚刚', fresh: true, used: 0, read: 0, icon: 'message' };
     convs.unshift(c); ensurePane(c); c.pane.appendChild(emptyEl()); select(c.id); ta.focus();
   }
 
   /* ── 输入区：发送、停止、排队 ── */
   function sync() {
-    const c = cur, busy = !!(c && c.busy), has = ta.value.trim().length > 0, q = c && c.queue ? c.queue.length : 0;
+    const c = cur, busy = !!(c && c.busy), has = !!ta.value.trim() || attachments.length > 0, q = c && c.queue ? c.queue.length : 0;
     ta.disabled = !(c && c.pane);
-    sendBtn.hidden = busy && !has; sendBtn.disabled = !has || ta.disabled;
-    stopBtn.hidden = !busy;
+    sendBtn.hidden = !narrowComposer.matches && busy && !has;
+    sendBtn.disabled = !has || ta.disabled;
+    if (!busy && document.activeElement === stopBtn) ta.focus({ preventScroll: true });
+    $('#run-actions').hidden = !busy;
     queueTag.hidden = !q; queueTag.textContent = `排队 ${q} 条`;
     log.setAttribute('aria-busy', String(busy)); $('#gen').hidden = !busy;
   }
+  narrowComposer.addEventListener('change', sync);
   const syncBusy = () => { renderList(); sync(); };
-  const autosize = () => { ta.style.height = 'auto'; ta.style.height = Math.min(ta.scrollHeight, 160) + 'px'; };
   const mkRun = () => { const r = { stopped: false }; r.stopP = new Promise(res => { r.stop = () => { r.stopped = true; if (r.freeze) r.freeze(); res(); }; }); return r; };
 
   async function turn(c, text) {
@@ -472,25 +566,42 @@
   function post(c, text) {
     const files = attachments.splice(0); renderFiles();
     $$('.ag__empty', c.pane).forEach(n => n.remove());
-    if (c.fresh) { c.fresh = false; c.title = text.length > 16 ? text.slice(0, 16) : text; renderHead(); }
+    if (c.fresh) { c.fresh = false; c.title = (text || files[0]?.name || c.title).slice(0, 16); renderHead(); }
     c.time = '刚刚'; renderList();
     const u = userEl(text, files, c.busy); c.pane.appendChild(u); stuck = true;
     if (c.busy) { c.queue.push({ text, u }); sync(); } else turn(c, text);
   }
-  function submit() { const text = ta.value.trim(); if (!text || !cur || !cur.pane) return; ta.value = ''; autosize(); post(cur, text); sync(); }
+  function submit() {
+    const text = ta.value.trim();
+    if ((!text && !attachments.length) || !cur?.pane) return;
+    ta.value = '';
+    autosize();
+    post(cur, text);
+    sync();
+  }
 
   $('#composer').addEventListener('submit', e => { e.preventDefault(); submit(); });
-  ta.addEventListener('input', () => { autosize(); sync(); });
-  ta.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing && e.keyCode !== 229) { e.preventDefault(); submit(); } });
+  ta.addEventListener('input', sync);
+  ta.addEventListener('keydown', e => {
+    if (!narrowComposer.matches && e.key === 'Enter' && !e.shiftKey && !e.isComposing && e.keyCode !== 229) {
+      e.preventDefault();
+      submit();
+    }
+  });
   stopBtn.addEventListener('click', () => { if (cur && cur.run) { cur.run.stop(); Lz.toast('已停止'); } });
 
   /* 附件与语音：附件作为标签随提问发出；语音用浏览器自带识别，不支持时提示 */
   function renderFiles() {
     const box = $('#files'); box.hidden = !attachments.length;
-    box.innerHTML = attachments.map((f, i) => `<span class="tool"><span>${esc(f)}</span><button type="button" class="ibtn" data-rmfile="${i}" data-tip="移除附件" aria-label="移除附件"><img src="../../../../kit/assets/line/close.webp" alt=""></button></span>`).join('');
+    box.innerHTML = attachments.map((f, i) => `<span class="tool"><span>${esc(f.name)}</span><button type="button" class="ibtn" data-rmfile="${i}" data-tip="移除附件" aria-label="移除附件 ${esc(f.name)}"><img src="../../../../kit/assets/line/close.webp" alt=""></button></span>`).join('');
+    sync();
   }
   $('#attach').addEventListener('click', () => $('#file').click());
-  $('#file').addEventListener('change', e => { const f = e.target.files[0]; if (f) { attachments.push(f.name); renderFiles(); } e.target.value = ''; });
+  $('#file').addEventListener('change', e => {
+    attachments.push(...e.target.files);
+    e.target.value = '';
+    renderFiles();
+  });
   let rec = null;
   $('#mic').addEventListener('click', () => {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -513,13 +624,26 @@
       if (open) setTimeout(() => p.scrollIntoView({ block: 'nearest', behavior: Lz.reduce ? 'auto' : 'smooth' }), 240);
       return;
     }
-    const row = e.target.closest('[data-conv].row'); if (row) { select(row.dataset.conv); return; }
+    const row = e.target.closest('[data-conv].row');
+    if (row) {
+      const wasOpen = $('#side').dataset.open === 'true';
+      select(row.dataset.conv);
+      if (wasOpen) $('#dropbtn').focus({ preventScroll: true });
+      return;
+    }
     if (e.target.closest('#dropbtn')) { const o = $('#side').dataset.open !== 'true'; $('#side').dataset.open = String(o); $('#dropbtn').setAttribute('aria-expanded', String(o)); return; }
     if (e.target.closest('[data-clear]')) { $('#find').value = ''; renderList(); return; }
     const rl = e.target.closest('[data-reload]'); if (rl) { select(rl.dataset.reload); return; }
     const ask = e.target.closest('[data-ask]'); if (ask) { post(cur, ask.textContent.trim()); sync(); return; }
     const sg = e.target.closest('.suggest button'); if (sg && cur && cur.pane) { post(cur, sg.textContent.trim()); sync(); return; }
-    const rm = e.target.closest('[data-rmfile]'); if (rm) { attachments.splice(+rm.dataset.rmfile, 1); renderFiles(); return; }
+    const rm = e.target.closest('[data-rmfile]');
+    if (rm) {
+      const index = +rm.dataset.rmfile;
+      attachments.splice(index, 1);
+      renderFiles();
+      ($$('#files [data-rmfile]')[Math.min(index, attachments.length - 1)] || $('#attach')).focus();
+      return;
+    }
     const rt = e.target.closest('[data-retry]'); if (rt) { retry(rt); return; }
     const ct = e.target.closest('.msg .cite'); if (ct) { $('#rpseg [data-key="ref"]').click(); hit(cur, ct.dataset.ref, 'row'); return; }
     const rr = e.target.closest('#rp-ref .row'); if (rr) { hit(cur, rr.dataset.ref, 'cite'); return; }
@@ -527,7 +651,11 @@
     const ac = e.target.closest('.approval [data-act]'); if (ac) { decide(ac); return; }
     if (!e.target.closest('#side')) closeSide();
   });
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeSide(); $('#dropbtn').focus({ preventScroll: true }); } });
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Escape' || $('#side').dataset.open !== 'true') return;
+    closeSide();
+    $('#dropbtn').focus({ preventScroll: true });
+  });
   $('#find').addEventListener('input', renderList);
   $('#newConv').addEventListener('click', newConv);
 
@@ -561,7 +689,9 @@
 
   /* 自动跟随到底部；用户上滑查看历史时不拉回 */
   log.addEventListener('scroll', () => { stuck = log.scrollHeight - log.scrollTop - log.clientHeight < 80; });
-  new MutationObserver(() => { if (stuck && cur && cur.pane && !cur.pane.hidden) log.scrollTop = log.scrollHeight; }).observe(log, { childList: true, subtree: true, characterData: true });
+  const followLog = () => { if (stuck && cur?.pane && !cur.pane.hidden) log.scrollTop = log.scrollHeight; };
+  new MutationObserver(followLog).observe(log, { childList: true, subtree: true, characterData: true });
+  new ResizeObserver(followLog).observe(log);
   /* 运行时生成的组件同一编号只保留第一处标记 */
   let tagging = 0;
   new MutationObserver(() => { cancelAnimationFrame(tagging); tagging = requestAnimationFrame(() => { const seen = new Set(); $$('[data-cid]').forEach(n => { if (seen.has(n.dataset.cid)) { n.removeAttribute('data-cid'); n.removeAttribute('data-name'); } else seen.add(n.dataset.cid); }); }); }).observe(document.querySelector('.ag'), { childList: true, subtree: true });

@@ -2,28 +2,25 @@
    与 ui.css 的分工：ui.css 是基础与交互，kit.css 是同一组件的各种外观。 */
 
 /* ══ 按钮（BTN）══ 宽度随文字，一屏一个实心主操作 */
-.btn { --btn-h: 44px; min-height: var(--btn-h); border-radius: var(--r-md); }
-.btn--lg { --btn-h: 52px; padding: 0 var(--s-6); font-size: var(--fs-lg); border-radius: 14px; }
-.btn--sm { --btn-h: 32px; }
-.btn--xs { --btn-h: 28px; padding: 0 var(--s-2); font-size: var(--fs-xs); border-radius: var(--r-sm); }
+.btn--lg { padding: 0 var(--s-6); font-size: var(--fs-lg); border-radius: 14px; }
+.btn--xs { padding: 0 var(--s-2); font-size: var(--fs-xs); border-radius: var(--r-sm); }
 .btn--pill { border-radius: var(--r-full); }
 .btn--block { display: flex; width: 100%; }
 .btn--primary { box-shadow: 0 6px 16px color-mix(in srgb, var(--action) 28%, transparent); }
 body:is(.app-body, .web-body) .btn--primary:not(.btn--fab) { box-shadow: none; }
 .btn--secondary { background: var(--action-tint); color: var(--action-press); box-shadow: inset 0 0 0 1px var(--action-edge); }
 .btn--outline { background: var(--surface); color: var(--action-press); box-shadow: inset 0 0 0 1.5px var(--action); }
-.btn--text { min-height: 36px; padding: 0 var(--s-2); background: none; color: var(--action-press); }
+.btn--text { padding: 0 var(--s-2); background: none; color: var(--action-press); }
 .btn--text:active { transform: none; opacity: .6; }
-.btn--dark { background: var(--ink); color: var(--bg); }
+.btn--dark { background: var(--surface); color: var(--ink); border: 1px solid currentColor; }
 .btn--accent { background: var(--accent-tint); color: var(--accent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 24%, transparent); }
-.btn--soft { background: linear-gradient(135deg, color-mix(in srgb, var(--action) 80%, var(--action-press)) 0%, var(--action) 100%); color: var(--surface); box-shadow: 0 6px 16px color-mix(in srgb, var(--action) 24%, transparent); }
+.btn--soft { background: var(--surface); color: var(--action-press); box-shadow: inset 0 0 0 1px var(--action-edge); }
 .btn--white { background: var(--surface); color: var(--action-press); box-shadow: var(--elev-1); }
 .btn--danger-soft { background: var(--danger-tint); color: color-mix(in srgb, var(--danger) 80%, black); }
 .btn[disabled] { box-shadow: none; }
 .btn img { width: 20px; height: 20px; }
-.btn--primary img, .btn--danger img, .btn--soft img, .btn--dark img { filter: invert(1); }
 .btn.is-loading { pointer-events: none; color: transparent; position: relative; }
-.btn.is-loading::after { content: ""; position: absolute; width: 18px; height: 18px; border: 2px solid currentColor; border-color: var(--surface) transparent var(--surface) transparent; border-radius: 50%; animation: lz-spin .8s linear infinite; }
+.btn.is-loading::after { content: ""; position: absolute; width: 18px; height: 18px; border: 2px solid currentColor; border-color: var(--action) transparent var(--action) transparent; border-radius: 50%; animation: lz-spin .8s linear infinite; }
 .btn--secondary.is-loading::after, .btn--outline.is-loading::after, .btn--white.is-loading::after { border-color: var(--action) transparent var(--action) transparent; }
 .btn--fab { position: relative; width: 56px; min-height: 56px; padding: 0; border-radius: 50%; box-shadow: var(--elev-3); }
 .btn--fab img { width: 24px; height: 24px; }
@@ -31,10 +28,10 @@ body:is(.app-body, .web-body) .btn--primary:not(.btn--fab) { box-shadow: none; }
 .btn-split { display: inline-flex; border-radius: var(--r-md); overflow: hidden; box-shadow: 0 6px 16px color-mix(in srgb, var(--action) 28%, transparent); }
 .btn-split .btn { border-radius: 0; box-shadow: none; }
 .btn-split .btn + .btn { border-left: 1px solid color-mix(in srgb, var(--surface) 30%, transparent); }
-.btn-seg { display: inline-flex; padding: 3px; border-radius: var(--r-md); background: var(--zone); }
-.btn-seg button { min-height: 36px; padding: 0 var(--s-4); border-radius: 9px; font-size: var(--fs-sm); color: var(--ink-2); }
+.btn-seg { --segment-inset: 3px; --segment-radius: var(--r-lg); display: inline-flex; padding: var(--segment-inset); border-radius: var(--segment-radius); background: var(--zone); }
+.btn-seg button { min-block-size: max(24px, 2em); padding: 0 var(--s-4); border-radius: calc(var(--segment-radius) - var(--segment-inset)); font-size: var(--fs-sm); color: var(--ink-2); }
 .btn-seg button[aria-pressed="true"] { background: var(--surface); color: var(--action-press); font-weight: 600; box-shadow: var(--elev-1); }
-body:is(.app-body, .web-body) .btn-seg button[aria-pressed="true"] { background: var(--action); color: var(--surface); }
+body:is(.app-body, .web-body) .btn-seg button[aria-pressed="true"] { background: var(--surface); color: var(--action-press); text-decoration: underline; }
 .ibtn--round { border-radius: 50%; background: var(--surface); box-shadow: var(--elev-1); }
 .ibtn--tint { background: var(--action-tint); }
 @keyframes lz-spin { to { transform: rotate(360deg); } }
@@ -69,14 +66,46 @@ body:is(.app-body, .web-body) .btn-seg button[aria-pressed="true"] { background:
 /* ══ 卡片（CARD）变体 ══ 白底、发丝边与一级阴影为基础；内容少就缩小 */
 .card { border-radius: var(--r-lg); }
 .card--outline { box-shadow: none; border-color: var(--line-strong); }
-.card--lift { transition: transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out); }
-@media (hover: hover) { .card--lift:hover { transform: translateY(-3px); box-shadow: var(--elev-3); } }
-.card--hero { border: 0; color: var(--surface); background: linear-gradient(150deg, color-mix(in srgb, var(--action) 80%, var(--action-press)) 0%, var(--action) 100%); box-shadow: 0 14px 30px color-mix(in srgb, var(--action) 26%, transparent); }
+.card--hero { border: 0; color: var(--ink); background: linear-gradient(135deg, var(--action-soft), var(--accent-tint)); box-shadow: var(--elev-1); }
 .card--accent { background: var(--accent-tint); border-color: transparent; box-shadow: none; }
 .card--image { overflow: hidden; }
 .card--image > img:first-child { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
 .card--soft { background: var(--zone); border-color: transparent; box-shadow: none; }
 .card--flat { background: transparent; border-color: transparent; box-shadow: none; }
+
+/* Three.js 播放区与无动态时的静态层叠图。 */
+.three-motion { display: grid; gap: var(--s-2); }
+.three-motion__stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  inline-size: 100%;
+  aspect-ratio: 2 / 1;
+  max-block-size: 180px;
+  border-radius: var(--r-md);
+  background-color: var(--surface);
+}
+.three-motion__stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.three-motion__still {
+  position: relative;
+  width: min(36%, 112px);
+  aspect-ratio: 5 / 3;
+  border-radius: var(--r-sm);
+  background-color: #394d60;
+  transform: translate(-9%, 8%) skewY(8deg);
+}
+.three-motion__still::before, .three-motion__still::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+.three-motion__still::before { transform: translate(9%, -8%); background-color: #829bb5; }
+.three-motion__still::after { transform: translate(18%, -16%); background-color: #c6d7e6; }
+.three-motion__controls { display: flex; align-items: center; justify-content: center; gap: var(--s-2); }
+.three-motion__controls [role="status"] { color: var(--ink-3); font-size: var(--fs-sm); }
+.three-motion__controls [role="status"]:empty { display: none; }
 .card--notch { position: relative; }
 .card--notch::before, .card--notch::after { content: ""; position: absolute; top: 50%; width: 16px; height: 16px; margin-top: -8px; border-radius: 50%; background: var(--bg); box-shadow: inset 0 0 0 1px var(--line); }
 .card--notch::before { left: -8px; }
@@ -98,8 +127,8 @@ body:is(.app-body, .web-body) .btn-seg button[aria-pressed="true"] { background:
 .tag--pill { padding: 0 var(--s-3); border-radius: var(--r-full); }
 .tag--dot::before { content: ""; width: 6px; height: 6px; margin-right: 6px; border-radius: 50%; background: currentColor; }
 .seg--chips .seg__item:not([aria-selected="true"]) { background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); }
-.seg--box { width: max-content; max-width: 100%; margin-bottom: 0; padding: 3px; gap: 2px; border-radius: var(--r-full); background: var(--zone); }
-.seg--box .seg__item { min-height: 32px; }
+.seg--box { --segment-inset: 3px; --segment-radius: var(--r-lg); width: max-content; max-width: 100%; margin-bottom: 0; padding: var(--segment-inset); gap: 2px; border-radius: var(--segment-radius); background: var(--zone); }
+.seg--box .seg__item { border-radius: calc(var(--segment-radius) - var(--segment-inset)); }
 .row__lead--ic { border-radius: 0; object-fit: contain; }
 
 /* ══ 背景效果 ══ html 的 data-bg 选一种（glow 柔光为默认、none 无、dots 点阵、grid 网格、lines 斜纹、rings 同心圆、petal 花瓣、leaf 叶片、wave 波纹），

@@ -10,8 +10,7 @@ and cannot see markup that a script builds; this tool reads the computed styles 
 
 ``--no-focus-check`` skips the focus-frame probe. Otherwise every text field (input types text, search, tel, email, number, password, url, date and time, textarea, select,
 contenteditable, role textbox / combobox / searchbox) is really focused and its computed style read, with the wrappers around it (Element Plus draws the frame on
-``el-input__wrapper``): a coloured or default outline, a coloured or thick box-shadow ring or glow, or a thicker or coloured border that appears on focus is reported as "聚焦框"
-(visual-design.html 层级与立体感 › 边缘线条: a focused text field only deepens its 1px border to ink2).
+``el-input__wrapper``). A visible outline, shadow or border that appears or changes on focus is reported as "聚焦框". A background fill or short internal focus mark is allowed.
 
 ``--library <id|prefix>`` (repeatable; ids from references/component-libraries.json) adds the component source check: every control on
 screen (button, input, select, textarea, table, dialog, nav and the ARIA control roles) must be, or sit inside, an element of the chosen
@@ -148,16 +147,18 @@ SCAN = r"""
 
 FOCUS = r"""
 async () => {
-  /* Every text field is focused for real and its computed style read back (the field and the wrappers around it: Element Plus draws the frame on
-     el-input__wrapper, not on the <input>). visual-design.html 层级与立体感 › 边缘线条: a focused text field only deepens its 1px border to ink2;
-     no blue or primary frame, glow, thick outline or browser default outline. */
+  /* Read focus styles on the field and its wrappers, including Element Plus's el-input__wrapper. */
   const FIELD = 'input:not([type]), input[type=text], input[type=search], input[type=tel], input[type=email], input[type=number], input[type=password], input[type=url], input[type=date], input[type=time], input[type=datetime-local], input[type=month], input[type=week], textarea, select, [contenteditable=""], [contenteditable=true], [contenteditable=plaintext-only], [role=textbox], [role=combobox], [role=searchbox], [role=spinbutton]';
   const cv = document.createElement('canvas'); cv.width = cv.height = 1; const cx = cv.getContext('2d', { willReadFrequently: true });
   const parse = (c) => { if (!c) return null; cx.clearRect(0, 0, 1, 1); cx.fillStyle = '#000'; cx.fillStyle = c; cx.fillRect(0, 0, 1, 1); const d = cx.getImageData(0, 0, 1, 1).data; return { r: d[0], g: d[1], b: d[2], a: d[3] / 255 }; };
   const chroma = (c) => Math.max(c.r, c.g, c.b) - Math.min(c.r, c.g, c.b);
   const splitTop = (v) => { const parts = []; let depth = 0, cur = ''; for (const ch of v) { if (ch === '(') depth++; if (ch === ')') depth--; if (ch === ',' && depth === 0) { parts.push(cur.trim()); cur = ''; } else cur += ch; } if (cur.trim()) parts.push(cur.trim()); return parts; };
   const layersOf = (v) => (!v || v === 'none') ? [] : splitTop(v).map((t) => { const nums = (t.match(/-?\d*\.?\d+px/g) || []).map(parseFloat); return { text: t, inset: /\binset\b/.test(t), x: nums[0] || 0, y: nums[1] || 0, blur: nums[2] || 0, spread: nums[3] || 0, color: parse(t.replace(/-?\d*\.?\d+px/g, '').replace(/\binset\b/, '').trim()) }; });
-  const snap = (n) => { const s = getComputedStyle(n); return { os: s.outlineStyle, ow: parseFloat(s.outlineWidth) || 0, oc: s.outlineColor, oo: parseFloat(s.outlineOffset) || 0, bs: s.boxShadow, bc: s.borderTopColor, bw: parseFloat(s.borderTopWidth) || 0 }; };
+  const snap = (n) => {
+    const s = getComputedStyle(n);
+    const borders = ['Top', 'Right', 'Bottom', 'Left'].map(side => ({ color: s[`border${side}Color`], width: parseFloat(s[`border${side}Width`]) || 0, style: s[`border${side}Style`] }));
+    return { os: s.outlineStyle, ow: parseFloat(s.outlineWidth) || 0, oc: s.outlineColor, oo: parseFloat(s.outlineOffset) || 0, bs: s.boxShadow, borders };
+  };
   const shown = (el) => { const r = el.getBoundingClientRect(); if (!r.width || !r.height) return false; for (let n = el; n; n = n.parentElement) { const s = getComputedStyle(n); if (s.display === 'none' || s.visibility === 'hidden' || n.hasAttribute('inert')) return false; } return true; };
   const name = (n) => n.tagName.toLowerCase() + (n.id ? '#' + n.id : '') + (typeof n.className === 'string' && n.className.trim() ? '.' + n.className.trim().split(/\s+/)[0] : '');
   const seen = (window.__luzFocusSeen = window.__luzFocusSeen || new Set());
@@ -184,20 +185,29 @@ async () => {
     const issues = [];
     chain.forEach((n, i) => {
       const b = before[i], a = snap(n), who = (i ? '外层 ' : '') + name(n);
-      if (a.os !== 'none' && a.os !== 'hidden' && a.ow > 0 && (a.os !== b.os || a.ow !== b.ow || a.oc !== b.oc)) {
+      if (a.os !== 'none' && a.os !== 'hidden' && a.ow > 0 && (a.os !== b.os || a.ow !== b.ow || a.oc !== b.oc || a.oo !== b.oo)) {
         const c = parse(a.oc);
         if (a.os === 'auto') issues.push(who + ' 浏览器默认轮廓');
         else if (c && c.a >= 0.05 && chroma(c) > 40) issues.push(who + ' 彩色轮廓 ' + a.oc);
         else if (c && c.a >= 0.05 && (a.ow > 1 || a.oo > 0)) issues.push(who + ' 粗轮廓或外扩轮廓 ' + a.ow + 'px/偏移' + a.oo + 'px');
+        else if (c && c.a >= 0.05) issues.push(who + ' 聚焦轮廓 ' + a.oc);
       }
       const old = new Set(layersOf(b.bs).map((l) => l.text));
       for (const l of layersOf(a.bs)) {
         if (old.has(l.text) || !l.color || l.color.a < 0.05) continue;
         if (chroma(l.color) > 40 && (l.blur > 0 || l.spread !== 0 || l.x !== 0 || l.y !== 0)) issues.push(who + ' 彩色框或光晕 ' + l.text);
         else if (!(l.x || l.y) && (l.spread > 1 || l.blur >= 4)) issues.push(who + ' 变粗的框或光晕 ' + l.text);
+        else if (l.x || l.y || l.blur || l.spread) issues.push(who + ' 聚焦阴影 ' + l.text);
       }
-      if (a.bw > b.bw + 0.01) issues.push(who + ' 边框变粗 ' + b.bw + 'px→' + a.bw + 'px');
-      if (a.bw > 0 && a.bc !== b.bc) { const c = parse(a.bc); if (c && c.a >= 0.05 && chroma(c) > 40) issues.push(who + ' 边框变彩色 ' + a.bc); }
+      const borderChanges = new Set();
+      a.borders.forEach(({ color, width, style }, side) => {
+        if (width <= 0 || style === 'none' || style === 'hidden') return;
+        const c = parse(color), oldBorder = b.borders[side];
+        if (!c || c.a < .05) return;
+        if (width > oldBorder.width + .01) borderChanges.add('边框变粗 ' + oldBorder.width + 'px→' + width + 'px');
+        if (color !== oldBorder.color || style !== oldBorder.style) borderChanges.add((chroma(c) > 40 ? '边框变彩色 ' : '聚焦边框 ') + color);
+      });
+      borderChanges.forEach(issue => issues.push(who + ' ' + issue));
     });
     if (issues.length) found.push(name(el) + (el.getAttribute('type') ? '[' + el.getAttribute('type') + ']' : '') + '：' + issues.join('，'));
     el.blur();
@@ -279,11 +289,19 @@ def resolve_library_attrs(items):
 
 
 DARK_PAGE_LUM = 0.3
+APPLICATION_RULES = Path(__file__).with_name("application_state_rules.js")
 
 
-def report(name, data, rules, library=None, min_components=0, min_font=14, scheme="light"):
+def report(name, data, rules, library=None, min_components=0, min_font=14, scheme="light", *, frontend_visuals=False):
     errors = []
-    if scheme == "dark" and name == "initial" and data.get("pageLum", 0) > DARK_PAGE_LUM and data.get("centerLum", 0) > DARK_PAGE_LUM:
+    for issue in data.get("frontendVisuals", []):
+        detail = issue.get("detail") or issue.get("text") or " ".join(v for v in (issue.get("color"), issue.get("image")) if v and v != "none")
+        errors.append(f"{name}: {issue['rule']} at {issue['element']} {detail}".rstrip())
+    for issue in data.get('interactionViolations', []):
+        errors.append(f"{name}: {issue['rule']} {issue.get('name') or issue.get('week') or ''}".rstrip())
+    if frontend_visuals:
+        return errors
+    if scheme == "dark" and "frontendVisuals" not in data and name == "initial" and data.get("pageLum", 0) > DARK_PAGE_LUM and data.get("centerLum", 0) > DARK_PAGE_LUM:
         errors.append(f"{name}: scheme dark: 页面底色仍是浅色，没有深色主题，或要用 --dark-attr / --dark-class 指定切换方式"
                       f"（body 背景亮度 {data['pageLum']:.2f}，屏幕中间 {data['centerLum']:.2f}，深色底应低于 {DARK_PAGE_LUM:g}）")
     for key, label in (("small", f"font size under {min_font}px"), ("italic", "italic text"), ("weight", "weight outside 400/600/700 (700 needs 22px+)"), ("contrast", "text contrast too low")):
@@ -301,7 +319,7 @@ def report(name, data, rules, library=None, min_components=0, min_font=14, schem
     if data["targets"]:
         errors.append(f"{name}: touch targets too small: " + "; ".join(data["targets"][:8]))
     if data.get("focusFrames"):
-        errors.append(f"{name}: 聚焦框（文本框获得焦点时不得出现蓝色或主色框、光晕、粗描边、浏览器默认轮廓，聚焦只把 1 像素边加深到次要文字色）: " + "; ".join(data["focusFrames"][:8])
+        errors.append(f"{name}: 聚焦框（文本框及外包装以底色或短标记反馈焦点）: " + "; ".join(data["focusFrames"][:8])
                       + (f" ...共 {len(data['focusFrames'])} 个" if len(data["focusFrames"]) > 8 else ""))
     if library:
         if data["foreign"]:
@@ -325,6 +343,7 @@ def main(argv):
     ap.add_argument("--min-components", type=int, default=0, help="仅在本次合同明确要求时设置组件种类下限；默认不设配额")
     ap.add_argument("--no-focus-check", action="store_true", help="do not focus the text fields to look for a focus frame")
     ap.add_argument("--min-font", type=int, default=14, help="smallest text size in px; 14 for websites and reading pages (default), 12 for product interfaces (admin, mini-program, agent)")
+    ap.add_argument("--frontend-visuals", action="store_true", help="核对纯白页面、背景图范围、图形头像及文字图标，支持 --walk。局部纯色及渐变可按项目选择。")
     ap.add_argument("--scheme", choices=("light", "dark"), default="light", help="本次要验证的目标主题（prefers-color-scheme）；按功能合同选择，不默认要求双主题")
     ap.add_argument("--dark-attr", action="append", default=[], metavar="NAME=VALUE", help="with --scheme dark: set this attribute on <html> after load, for a page that switches by attribute (data-theme=dark)")
     ap.add_argument("--dark-class", action="append", default=[], metavar="NAME", help="with --scheme dark: add this class to <html> after load, for a page that switches by class (dark)")
@@ -340,7 +359,9 @@ def main(argv):
         ctx = browser.new_context(viewport={"width": a.width, "height": a.height}, locale="zh-CN", reduced_motion="reduce" if a.reduced_motion else "no-preference",
                                   color_scheme=a.scheme)
         page = ctx.new_page()
-        page.on("console", lambda m: found.append("console error: " + m.text) if m.type == "error" else None)
+        # The visual-only walk may intentionally fail an avatar request to inspect its fallback.
+        if not a.frontend_visuals:
+            page.on("console", lambda m: found.append("console error: " + m.text) if m.type == "error" else None)
         page.on("pageerror", lambda e: found.append(f"page error: {e}"))
         page.goto(target)
         page.wait_for_load_state("load")
@@ -352,22 +373,33 @@ def main(argv):
             for name in a.dark_class:
                 page.evaluate("(c) => document.documentElement.classList.add(c)", name.strip())
             page.wait_for_timeout(300)
-        found_rules = page.evaluate(RULES)
+        found_rules = {"bad": [], "unreadable": []} if a.frontend_visuals else page.evaluate(RULES)
         rules = list(found_rules['bad'])
         for href in found_rules['unreadable']:
             rules += css_text_findings(href)
         min_target = 40 if a.width < 700 else 24
+        product_page = a.frontend_visuals or page.locator('html[data-ui-surface], body.app-body, body.web-body').count() > 0
+        product_rules = APPLICATION_RULES.read_text(encoding="utf-8") if product_page else None
+        interaction_rules = APPLICATION_RULES.with_name("audit_ui_rules.js").read_text(encoding="utf-8") if product_page and not a.frontend_visuals else None
         def scan():
-            data = page.evaluate(SCAN, {"minTarget": min_target, "prefixes": prefixes, "attrs": attrs, "minFont": a.min_font})
-            data["focusFrames"] = [] if a.no_focus_check else page.evaluate(FOCUS)
+            data = {}
+            if not a.frontend_visuals:
+                data = page.evaluate(SCAN, {"minTarget": min_target, "prefixes": prefixes, "attrs": attrs, "minFont": a.min_font})
+                data["focusFrames"] = [] if a.no_focus_check else page.evaluate(FOCUS)
+            if product_rules:
+                findings = page.evaluate(product_rules)
+                data["frontendVisuals"] = findings
+                if interaction_rules:
+                    combined = page.locator("html").evaluate(interaction_rules, findings)["violations"]
+                    data["interactionViolations"] = combined[len(findings):]
             return data
 
-        errors += report("initial", scan(), rules, a.library, a.min_components, a.min_font, a.scheme)
+        errors += report("initial", scan(), rules, a.library, a.min_components, a.min_font, a.scheme, frontend_visuals=a.frontend_visuals)
         if a.walk:
             ns = {}
             exec(compile(Path(a.walk).read_text(encoding="utf-8"), a.walk, "exec"), ns)
             for label, data in ns["walk"](page, scan):
-                errors += report(label, data, [], a.library, 0, a.min_font, a.scheme)
+                errors += report(label, data, [], a.library, 0, a.min_font, a.scheme, frontend_visuals=a.frontend_visuals)
         ctx.close()
         browser.close()
     errors += found

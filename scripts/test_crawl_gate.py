@@ -240,3 +240,20 @@ def test_deliver_stops_before_copying_without_research(tmp_path):
     with pytest.raises(ValueError, match="缺少记录"):
         deliver.deliver(folder, source)
     assert not (folder / source.name).exists()
+
+
+def test_joint_design_reads_same_stage_owner_with_its_own_template_identity(tmp_path):
+    import crawl_preflight
+    folder, state = linked_fixture(tmp_path, owner="luz-system")
+    path = state / "project.json"
+    project = json.loads(path.read_text(encoding="utf-8"))
+    project.update(workflow="commercial-v1")
+    project["stages"][0]["contributors"] = ["luz-design"]
+    path.write_text(json.dumps(project), encoding="utf-8")
+    crawl_preflight.run(state, "luz-system", "已确认合同", research="local", stage="design")
+    target = Path(project["deliver_root"]) / "docs" / "03-开发资料" / "03-前端开发说明.html"
+    context = crawl_gate.require_session_preflight(folder, output=target)
+    assert context["caller"] == "luz-design" and context["evidence_caller"] == "luz-system"
+    assert context["record"].name == "luz-system-design.json"
+    with pytest.raises(ValueError, match="输出超出"):
+        crawl_gate.require_session_preflight(folder, output=target.parents[1] / "01-原始资料" / target.name)

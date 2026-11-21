@@ -11,7 +11,7 @@
 <link rel="stylesheet" href="../../../../kit/app.css">
 <style>
   /* 本页专属：搜索区、分类筛选条、商品行与就近展开、详情页 */
-  .top { padding-bottom: var(--s-4); background: linear-gradient(180deg, var(--action) 0%, color-mix(in srgb, var(--action) 90%, white) 100%); }
+  .top { padding-bottom: var(--s-4); }
 
   /* 分类与筛选：放在顶部平面区之外的白底条里，只控制下方列表；滚动时停在顶端 */
   .subnav { position: sticky; top: 0; z-index: 25; margin: 0 calc(var(--s-4) * -1); padding: var(--s-3) var(--s-4) var(--s-3); background: var(--surface); border-bottom: 1px solid var(--line); }
@@ -20,7 +20,6 @@
   .subnav .filter { margin-top: var(--s-1); }
   .filter__sw { display: inline-flex; align-items: center; gap: var(--s-2); margin-left: auto; font-size: var(--fs-sm); color: var(--ink-2); white-space: nowrap; }
 
-  .btn--sm { --btn-h: 32px; }
   .list-wrap { margin-top: var(--s-4); }
 
   /* 商品行：左图右文，价格在左下、加购在右下，展开按钮在右上 */

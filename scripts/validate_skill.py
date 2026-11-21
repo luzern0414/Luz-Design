@@ -17,6 +17,7 @@ from pathlib import Path
 from urllib.parse import unquote, urlparse
 
 from new_session import OUTPUT_ROOT
+from template_library import _template_file
 from validate_session import (
     SESSION_RE,
     TreeBuilder,
@@ -43,9 +44,12 @@ SCRIPTS = (
 )
 DESIGN_DOCS = (
     "hard-rules.md", "foundation.md", "app.md", "web.md", "poster.md", "documents.md", "slides.md", "patterns.md", "components.md",
-    "motion.md", "interaction-contract.md", "review.md", "sources.md",
+    "motion.md", "interaction-contract.md", "review.md", "sources.md", "huaban-palettes.html",
 )
-LIBRARY_SHARED = ("tokens.css", "ui.css", "kit.css", "app.css", "web.css", "agent.css", "ui.js", "assets/manifest.json")
+LIBRARY_SHARED = (
+    "tokens.css", "ui.css", "kit.css", "app.css", "web.css", "agent.css", "ui.js", "assets/manifest.json",
+    "three-motion.js", "vendor/three/three.min.js", "vendor/three/exports.mjs", "vendor/three/LICENSE",
+)
 LIBRARY_FOLDERS = ("app", "web", "poster", "documents")  # templates/ holds exactly these four folders
 LIBRARY_ROOT_FILES = ("index.html", "references/template-registry.json", "kit/registry.js")
 LIBRARY_SHELLS = ("bundle.shell.tpl", "components.shell.tpl", "poster.wall.tpl", "documents.page.tpl")
@@ -56,6 +60,7 @@ LIBRARY_EXTRA = (
     "templates/poster/README.md", "templates/poster/source/prompts/viewer.html", "templates/poster/source/prompts/prompts.json",
     "templates/poster/source/prompts/styles.json", "templates/poster/source/prompts/prompts.js", "templates/documents/README.md",
     *[f"templates/documents/{kind}/manifest.json" for kind in ("word", "excel", "slides", "pdf", "reading")],
+    "templates/documents/slides/originals/manifest.json",
 )
 REQUIRED = [
     "SKILL.md", "README.md", "LICENSE", "NOTICE", "agents/openai.yaml",
@@ -86,7 +91,7 @@ FRONTEND_TEMPLATE_FILES = {
         "catalog.json", "generated-assets.json",
         "app-task/index.html", "app-task/style.css", "app-task/app.js",
         "web-workspace/index.html", "web-workspace/style.css", "web-workspace/app.js",
-        "shared/interaction.js", "shared/interaction.css", "shared/typography.css",
+        "shared/interaction.js", "shared/interaction.css", "shared/typography.css", "shared/pastel-300.css",
         "vendor/vue.global.prod.js", "vendor/VUE-LICENSE", "vendor/vant.min.js", "vendor/vant.css", "vendor/VANT-LICENSE",
         "vendor/element-plus.js", "vendor/element-plus.css", "vendor/ELEMENT-PLUS-LICENSE",
         "artwork/customer-identities/manifest.json",
@@ -536,7 +541,8 @@ def library_files() -> set[str]:
 
 def kit_files() -> set[str]:
     """kit/: the shared styles, script and assets of the library, plus the runnable frontend starters."""
-    files = {p.relative_to(ROOT).as_posix() for p in (ROOT / "kit").glob("*") if p.is_file()}
+    files = {f"kit/{name}" for name in LIBRARY_SHARED}
+    files.update(p.relative_to(ROOT).as_posix() for p in (ROOT / "kit").glob("*") if p.is_file())
     assets = ROOT / "kit/assets"
     if assets.is_dir():
         files |= {p.relative_to(ROOT).as_posix() for p in assets.rglob("*") if p.is_file()}
@@ -632,8 +638,10 @@ def package_document_template_scopes(errors: list[str]) -> dict[str, str]:
             policies[relative] = "document-template"
         for identifier, entry in catalog.items():
             for relative in entry.get("files", []):
-                if not (ROOT / relative).is_file():
-                    errors.append(f"template {identifier} lists a missing file: {relative}")
+                try:
+                    _template_file(relative)
+                except ValueError as exc:
+                    errors.append(f"template {identifier}: {exc}")
     except (OSError, ValueError, KeyError, TypeError) as exc:
         errors.append(f"document template catalog: {exc}")
     return policies

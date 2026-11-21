@@ -11,6 +11,18 @@
         "scripts/component_composition.py"
       ]
     },
+    "data-foundation-html": {
+      "kind": "document",
+      "category": "reading-html",
+      "owner": "luz-project",
+      "label": "Luz-Project 03 开发资料 · Agent 数据底座",
+      "files": [
+        "Luz-Project/templates/03-开发资料/Agent数据底座.html",
+        "Luz-Project/scripts/make_data_foundation.py",
+        "kit/vendor/three/three.min.js",
+        "kit/vendor/three/LICENSE"
+      ]
+    },
     "reading-html": {
       "kind": "document",
       "label": "阅读报告与阶段汇总",
@@ -170,6 +182,7 @@
         "kit/frontend/catalog.json",
         "kit/frontend/generated-assets.json",
         "kit/frontend/shared/interaction.css",
+        "kit/frontend/shared/pastel-300.css",
         "kit/frontend/shared/interaction.js",
         "kit/frontend/shared/typography.css",
         "kit/frontend/app-task/app.js",
@@ -242,6 +255,7 @@
         "kit/frontend/catalog.json",
         "kit/frontend/generated-assets.json",
         "kit/frontend/shared/interaction.css",
+        "kit/frontend/shared/pastel-300.css",
         "kit/frontend/shared/interaction.js",
         "kit/frontend/shared/typography.css",
         "kit/frontend/web-workspace/app.js",
@@ -337,6 +351,9 @@
         "kit/web.css",
         "kit/agent.css",
         "kit/ui.js",
+        "kit/three-motion.js",
+        "kit/vendor/three/three.min.js",
+        "kit/vendor/three/LICENSE",
         "kit/registry.js",
         "kit/assets/manifest.json",
         "references/template-registry.json",
@@ -374,6 +391,9 @@
         "kit/web.css",
         "kit/agent.css",
         "kit/ui.js",
+        "kit/three-motion.js",
+        "kit/vendor/three/three.min.js",
+        "kit/vendor/three/LICENSE",
         "kit/registry.js",
         "kit/assets/manifest.json",
         "references/template-registry.json",

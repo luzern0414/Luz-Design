@@ -68,10 +68,13 @@ def deliver(folder: Path, source: Path, *, as_name: str | None = None, to: str |
             shutil.copyfile(source, target)
         record_template_output(target_context, target, template_id, generator="Luz-Design/scripts/deliver.py")
         return target
-    if to not in PROJECT_DIRS:
-        raise ValueError(f"this session is for a project: pass --to {' or '.join(PROJECT_DIRS)} (pages go through publish.py --as)")
-    if ext not in layout.DOC_DIRS[to]:
-        raise ValueError(f"docs/{to} takes {', '.join(sorted(e[1:].upper() for e in layout.DOC_DIRS[to]))} only, not {ext}")
+    commercial = link.get("workflow") == "commercial-v1"
+    choices = ("02-对接资料",) if commercial else PROJECT_DIRS
+    dirs = layout.COMMERCIAL_DOC_DIRS if commercial else layout.DOC_DIRS
+    if to not in choices:
+        raise ValueError(f"this session is for a project: pass --to {' or '.join(choices)} (pages go through publish.py --as)")
+    if ext not in dirs[to]:
+        raise ValueError(f"docs/{to} takes {', '.join(sorted(e[1:].upper() for e in dirs[to]))} only, not {ext}")
     stem = _stem(as_name or "", ext)
     if not layout.DOC_FILE.match(stem) or BAD_NAME.search(stem):
         raise ValueError(f"--as must look like NN-名称 (two-digit number, hyphen, name), got {as_name!r}")
@@ -100,7 +103,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("session", help="Numbered session folder")
     parser.add_argument("file", help="The checked deliverable (usually under raw\\03-documents\\outputs\\)")
     parser.add_argument("--as", dest="as_name", metavar="NAME", help="Name in the root (default: the file's own name); NN-名称 for a project")
-    parser.add_argument("--to", choices=PROJECT_DIRS, help="Project sessions: the docs folder")
+    parser.add_argument("--to", choices=(*PROJECT_DIRS, "02-对接资料"), help="Project sessions: the docs folder")
     parser.add_argument("--replace", action="store_true", help="Overwrite a file of the same name")
     args = parser.parse_args(argv)
     try:

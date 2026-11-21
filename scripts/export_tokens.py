@@ -2,7 +2,9 @@
 """Export one theme of references/themes.json as W3C design tokens (Design Tokens Format Module 2025.10).
 
   py -X utf8 scripts/export_tokens.py --list
-  py -X utf8 scripts/export_tokens.py <theme> --out <文件>.tokens.json [--light-only]
+  py -X utf8 scripts/export_tokens.py <theme> --out <文件>.tokens.json
+  py -X utf8 scripts/export_tokens.py --application-themes [--themes <原库>]
+  py -X utf8 scripts/export_tokens.py <theme> --surface reference --out <文档色库>.tokens.json
   py -X utf8 scripts/export_tokens.py --check <文件>.tokens.json [--require-dark]
 
 Developers and Luz-Project take colours, type, spacing, radius, elevation and motion from this file instead of copying numbers
@@ -16,7 +18,7 @@ a dimension is {value, unit px|rem}; a duration is {value, unit ms|s}; a cubic B
 with lineHeight a multiplier of fontSize; a reference is "{group.token}"; a name never starts with $ and never holds { } or a dot.
 --check validates these facts on any tokens file.
 
-Two modes, light and dark (visual-design.html 深色与浅色两套主题): $value is always the light value, and the dark value of the same token sits in
+Reference palettes only (--surface reference): $value is always the light value, and the dark value of the same token sits in
 ``$extensions.mode.dark`` in the shape the token's $type takes (a colour object, or a shadow list for the shadow levels). DTCG 2025.10 does not define
 light and dark modes and keeps ``$extensions`` for vendor data, so the dark value sits under the vendor key ``mode``; one file then feeds a CSS
 ``prefers-color-scheme`` build as well as a design tool. The document root declares ``$extensions["design.luz"].modes`` (light first).
@@ -26,6 +28,8 @@ validates each dark value like a light one; ``--require-dark`` asks for that on 
 from __future__ import annotations
 
 import argparse
+import colorsys
+from functools import lru_cache
 import json
 import re
 import sys
@@ -120,8 +124,67 @@ def load_themes() -> dict:
     return json.loads(THEMES.read_text(encoding="utf-8"))
 
 
-def build(theme_id: str, data: dict | None = None, *, with_dark: bool = True) -> dict:
+@lru_cache(maxsize=1024)
+def application_color(value: str) -> str:
+    """Replace green/teal interface paint with a blue of comparable relative luminance."""
+    rgb = check_contrast.rgb(value)
+    hue, _, saturation = colorsys.rgb_to_hls(*(c / 255 for c in rgb))
+    if max(rgb) - min(rgb) < 3 or not 65 <= hue * 360 <= 185:
+        return value
+    target = check_contrast.luminance(value)
+    low, high = 0.0, 1.0
+    for _ in range(13):
+        lightness = (low + high) / 2
+        result = "#%02X%02X%02X" % tuple(round(c * 255) for c in colorsys.hls_to_rgb(218 / 360, lightness, saturation))
+        if check_contrast.luminance(result) < target:
+            low = lightness
+        else:
+            high = lightness
+    return result
+
+
+def _application_values(value):
+    if isinstance(value, dict):
+        return {key: _application_values(child) for key, child in value.items() if key != "dark"}
+    if isinstance(value, list):
+        return [_application_values(item) for item in value]
+    if isinstance(value, str) and re.fullmatch(r"#[0-9a-fA-F]{6}", value):
+        return application_color(value)
+    if isinstance(value, str) and "rgb" in value:
+        def paint(match):
+            channels = tuple(int(match[i]) for i in range(2,5))
+            if max(channels)>255:
+                return match[0]
+            original = "#%02X%02X%02X" % channels
+            adjusted = application_color(original)
+            if adjusted == original:
+                return match[0]
+            return match[1] + "(" + ", ".join(str(c) for c in check_contrast.rgb(adjusted)) + (match[5] or "") + ")"
+        return re.sub(r"\b(rgba?)\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)(\s*,\s*[.\d]+)?\s*\)",paint,value)
+    return value
+
+
+def application_themes(data: dict | None = None) -> dict:
+    """Return a white, green-free product palette with the source schema and IDs."""
+    result = _application_values(data if data is not None else load_themes())
+    result["note"] = "应用主题。页面与导航恒为纯白。界面色值均来自当前应用档。"
+    result["shared"].update(surface="#FFFFFF", success="#28599B", successTint="#E8EFFA")
+    for theme in result["themes"].values():
+        theme.pop("source", None)  # Source prose describes the unmodified document palette.
+        theme.update(canvas="#FFFFFF", navBg="#FFFFFF")
+    return result
+
+
+def application_theme(theme_id: str, data: dict | None = None) -> dict:
+    return application_themes(data)["themes"][theme_id]
+
+
+def build(theme_id: str, data: dict | None = None, *, with_dark: bool = True, surface: str = "application") -> dict:
     data = data or load_themes()
+    if surface == "application":
+        data = application_themes(data)
+    elif surface != "reference":
+        raise ValueError(f"Unknown surface {surface!r}")
     if theme_id not in data["themes"]:
         raise KeyError(f"unknown theme {theme_id!r}; themes: {', '.join(data['themes'])}")
     theme, shared = data["themes"][theme_id], data["shared"]
@@ -148,13 +211,13 @@ def build(theme_id: str, data: dict | None = None, *, with_dark: bool = True) ->
              "action-tint": token(to_color(theme["actionTint"]), None, "第 1 阶浅底：图标块、选中项、头部；深色里是深而低饱和的同色相底", dark_color(dk, "actionTint")),
              "accent": token(to_color(theme["accent"]), None, "营销辅色", dark_color(dk, "accent")),
              "accent-tint": token(to_color(theme["accentTint"]), None, "营销辅色浅底", dark_color(dk, "accentTint"))}
-    surface = {"canvas": token(to_color(theme["canvas"]), None, "页面底色；浅色里卡片仍为纯白，深色里页面底是最暗的一层", dark_color(dk, "canvas")),
+    surfaces = {"canvas": token(to_color(theme["canvas"]), None, "页面底色；浅色里卡片仍为纯白，深色里页面底是最暗的一层", dark_color(dk, "canvas")),
                "card": token(to_color(shared["surface"]), None, "卡片白底（层级 1）；深色里是比页面底更亮的卡片面", dark_color(dk, "surface")),
                "raised-2": token(to_color(shared["surface"]), None, "悬浮卡片（层级 2）；浅色同卡片白底，深色里再亮一阶", lifted("level2") if dk else None),
                "raised-3": token(to_color(shared["surface"]), None, "下拉、提示与吸顶栏（层级 3）；深色里更亮", lifted("level3") if dk else None),
                "raised-4": token(to_color(shared["surface"]), None, "对话框、底部弹层与抽屉（层级 4）；深色里最亮", lifted("level4") if dk else None),
                "nav": token(to_color(theme["navBg"]), None, "导航栏底色，只放正文色的文字与图标", dark_color(dk, "navBg"))}
-    color: dict = {"$type": "color", "brand": brand, "surface": surface}
+    color: dict = {"$type": "color", "brand": brand, "surface": surfaces}
     for group, items in SHARED_COLORS.items():
         color[group] = {item[0]: token(to_color(shared[item[1]]), None, None, dark_color(sd, item[2] if len(item) > 2 else item[1]))
                         for item in items}
@@ -174,12 +237,15 @@ def build(theme_id: str, data: dict | None = None, *, with_dark: bool = True) ->
     stage = theme.get("stage")
     if stage:
         # 有序进度状态的色阶（visual-design.html 有序进度状态的色阶）：6 级文字色，深色另有一套；浅底标签是本色混入卡片面（浅色 10%，深色 16%）
+        def tint(value):
+            mixed = stage_ramp.tint_of(value, "light", shared["surface"])
+            return application_color(mixed) if surface == "application" else mixed
         sd_surface = dk["surface"] if dk else None
         color["stage"] = {str(i + 1): token(to_color(stage["light"][i]), None,
                                             "有序进度状态的色阶 stage-1 到 stage-6：同一页面里有先后顺序的状态集合，文字按顺序位置取色，越靠后越深越实（浅色）或越亮越醒目（深色）；"
                                             "N 个状态取其中等间隔的 N 级（stage_ramp.py positions）；必须同时写出文字标签；与成功、警告、危险状态色是两套，终态的成交与流失用状态色" if i == 0 else None,
                                             to_color(stage["dark"][i]) if dk else None) for i in range(stage_ramp.STOPS)}
-        color["stage-tint"] = {str(i + 1): token(to_color(stage_ramp.tint_of(stage["light"][i], "light", shared["surface"])),
+        color["stage-tint"] = {str(i + 1): token(to_color(tint(stage["light"][i])),
                                                  None, "色阶某一级的浅底标签底色（本色混入卡片面：浅色 10%，深色 16%），文字用同级 stage 色，对比度不低于 4.5:1；主题 avoid 禁止彩色底块时不用" if i == 0 else None,
                                                  to_color(stage_ramp.tint_of(stage["dark"][i], "dark", sd_surface)) if dk else None) for i in range(stage_ramp.STOPS)}
 
@@ -204,6 +270,11 @@ def build(theme_id: str, data: dict | None = None, *, with_dark: bool = True) ->
         "duration": {"$type": "duration", **{name: token({"value": ms, "unit": "ms"}, None, d) for name, (ms, d) in DURATIONS.items()}},
         "easing": {"$type": "cubicBezier", **{name: token(curve, None, d) for name, (curve, d) in EASINGS.items()}},
     }
+    if surface == "application":
+        for key in ("canvas","nav"):
+            doc["color"]["surface"][key]["$description"] = "全局纯白界面"
+        doc["color"]["surface"]["raised-4"]["$description"] = "通知与警告"
+        doc["$description"] += "；应用界面，白色画布与导航"
     return doc
 
 
@@ -389,33 +460,69 @@ def check_stage(doc: dict) -> list[str]:
     return errors
 
 
+def application_token_errors(doc: dict) -> list[str]:
+    errors = []
+    for name in ("canvas", "nav"):
+        value = resolve(doc, "{color.surface." + name + "}")
+        if not value or not isinstance(value["$value"], dict) or value["$value"].get("hex", "").upper() != "#FFFFFF":
+            errors.append(f"color.surface.{name}: 应用画布与导航应为纯白")
+    if "dark" in declared_modes(doc):
+        errors.append("应用主题应在不同系统外观下保持白色")
+    def validate_paint(value, where):
+        if isinstance(value, dict):
+            if value.get("colorSpace") == "srgb":
+                paint = value.get("hex") or "#%02X%02X%02X" % tuple(round(255*c) for c in value["components"])
+                if application_color(paint).upper() != paint.upper():
+                    errors.append(f"{where}: 应用令牌含绿色或青绿色 {paint}")
+            else:
+                for child in value.values():
+                    validate_paint(child, where)
+        elif isinstance(value, list):
+            for child in value:
+                validate_paint(child, where)
+    for path, value, _ in walk(doc):
+        validate_paint(value, ".".join(path))
+    return errors
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("theme", nargs="?")
     parser.add_argument("--out", type=Path)
+    parser.add_argument("--surface", choices=("application","reference"), default="application", help="应用界面默认使用纯白与禁绿规则；reference 导出文档色库")
+    parser.add_argument("--themes", type=Path, help="可选同结构的原始主题库")
+    parser.add_argument("--application-themes", action="store_true", help="输出应用专用的 shared/themes JSON，供系统生成器使用")
     parser.add_argument("--list", action="store_true")
-    parser.add_argument("--light-only", action="store_true", help="export the light values only (the default exports light and dark)")
-    parser.add_argument("--with-dark", action="store_true", help=argparse.SUPPRESS)   # kept so older commands still run: dark is always exported now
+    parser.add_argument("--light-only", action="store_true", help="export light values only for a reference palette")
+    parser.add_argument("--with-dark", action="store_true", help=argparse.SUPPRESS)   # retained for reference palettes
     parser.add_argument("--check", type=Path, help="validate a tokens file")
     parser.add_argument("--require-dark", action="store_true", help="with --check: demand a dark value on every colour and shadow token even if the file does not declare its modes")
     args = parser.parse_args(argv)
     if args.check:
-        errors = check_tokens(json.loads(args.check.read_text(encoding="utf-8")), True if args.require_dark else None)
+        document = json.loads(args.check.read_text(encoding="utf-8"))
+        errors = check_tokens(document, True if args.require_dark else None)
+        if args.surface == "application" and not errors:
+            errors.extend(application_token_errors(document))
         print(f"{'FAIL' if errors else 'PASS'}: {args.check} ({len(errors)} error(s))")
         for item in errors:
             print("  ERROR", item)
         return 1 if errors else 0
-    data = load_themes()
+    data = json.loads(args.themes.read_text(encoding="utf-8")) if args.themes else load_themes()
+    if args.application_themes:
+        print(json.dumps(application_themes(data),ensure_ascii=False))
+        return 0
     if args.list or not args.theme:
-        for key, theme in data["themes"].items():
+        for key, theme in (application_themes(data) if args.surface=="application" else data)["themes"].items():
             print(f"{key}\t{theme['label']}\t{theme['action']}")
         return 0
     try:
-        doc = build(args.theme, data, with_dark=not args.light_only)
+        doc = build(args.theme, data, with_dark=not args.light_only,surface=args.surface)
     except KeyError as exc:
         print(f"ERROR {exc.args[0]}", file=sys.stderr)
         return 2
     errors = check_tokens(doc)
+    if args.surface == "application" and not errors:
+        errors.extend(application_token_errors(doc))
     if errors:
         print("\n".join(errors), file=sys.stderr)
         return 1

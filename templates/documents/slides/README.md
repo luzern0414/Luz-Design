@@ -1,6 +1,12 @@
-# 幻灯片模板
+# PPT 模板
 
-六个 16:9 基础模板各有描述文件（`specs/`）和生成样例（`samples/`），另有 16 个可复用块（`specs/parts/`）。已有样例采用花卉业务、雾粉主题和浅色底。按任务选择版式与品牌色，演示建议见 [演示设计](../../../references/design/slides.md)。更多风格和许可条件见 [商用演示模板](commercial-sources.md)。
+在 [PPT 分类](../documents.html#ppt)预览中文商务 PPTX。原件卡片提供随库文件或发布者的下载页面。随库文件位于 [原件目录](originals/待筛选/)。见 [来源与许可](commercial-sources.md)。
+
+六个 16:9 生成模板各有描述文件（`specs/`）和生成样例（`samples/`），另有 16 个可复用块（`specs/parts/`）。按任务选择版式与品牌色，演示建议见 [演示设计](../../../references/design/slides.md)。
+
+## 页面布局图谱
+
+[PPT 页面布局图谱](PPT页面布局图谱.pdf)展示 22 张 16:9 整页示例，写明顶部标题、正文、证据与页脚的位置。首页可跳转到封面、议程、列表、图文、上下双层、等距圆形与同心双环、自底向上架构、图表或总结。文末附版式变体与本地作品的页码。
 
 ## 编号与命名
 
@@ -16,6 +22,7 @@
 ```
 slides/
   README.md
+  PPT页面布局图谱.pdf       按页面任务选择版式的参考图册
   manifest.json            登记表：items（模板）与 parts（可复用块）
   build_slides.py          生成器：读描述文件，写 pptx
   specs/DC-SL-NNN-名称.json   模板的描述文件
@@ -39,7 +46,7 @@ slides/
 
 ## 版式与字段
 
-描述文件是 JSON：`{"id", "name", "theme", "title", "slides": [ {"layout": "...", ...} ]}`。`theme` 取 `rose`（默认）`coral` `orange` `green` `teal` `blue` `purple` `graphite`，色值读 `../../../kit/tokens.css`，不在脚本里另存一份。图片名写 `kit/assets/photo/` 里不带扩展名的文件名（如 `bouquet-rose`），带斜杠时按 `assets/` 下的路径取（如 `marks/mark-003`）；三维图标写 `icon`（如 `bag`）。
+JSON 描述含 `id`、`name`、`theme`、`title` 和由版式组成的 `slides`。默认用 `rose`，也可用 `coral`、`amber`、`green`、`teal`、`blue`、`purple`、`graphite` 等参考主题。旧主题名 `orange` 对应 `amber`。图片使用 `kit/assets/photo/` 下的名称或 `assets/` 下的相对路径，三维图标使用 `icon` 字段。
 
 | 版式 | 名称 | 字段 | 约束 |
 |---|---|---|---|

@@ -73,7 +73,6 @@
   .ag-done { display: flex; align-items: center; gap: var(--s-2); }
 
   /* 输入栏 */
-  .prompt:focus-within { border-color: var(--ink-2); }
   .prompt textarea:focus-visible { outline: none; }
   .prompt__bar { flex-wrap: wrap; }
   .ag-files { display: flex; flex-wrap: wrap; gap: var(--s-2); }

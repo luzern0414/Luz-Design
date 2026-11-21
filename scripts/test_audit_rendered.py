@@ -1,3 +1,4 @@
+import re
 import subprocess
 import sys
 import tempfile
@@ -62,6 +63,87 @@ class ReportPolicyTests(unittest.TestCase):
 
 @unittest.skipUnless(browser_available(), "needs playwright and Microsoft Edge")
 class AuditRenderedTests(unittest.TestCase):
+    def test_custom_component_colours_do_not_mask_character_icons(self):
+        html = GOOD.replace("<html ", "<html data-ui-surface='app' ").replace("<p>正文</p>", """
+        <style>#tint{--brand:green;background:color-mix(in srgb,var(--brand) 4%,white)}
+        #chip::before{content:'';position:absolute;width:36px;height:20px;background:linear-gradient(blue,white)}
+        #glyph::before{content:'★'}</style>
+        <div id="tint">已完成</div><span id="chip">标签</span>
+        <button id="warning" style="background:#fff9da">查看提醒</button>
+        <span id="person" class="avatar">王</span>
+        <button aria-label="收藏"><i id="glyph" class="icon" aria-hidden="true"></i></button>
+        <button id="arrow" aria-label="返回">←</button>""")
+        code, out = audit(html)
+        self.assertEqual(code, 1)
+        self.assertIn("green-interface-color at #tint", out)
+        for location in ("#chip::before", "#warning"):
+            self.assertNotIn(f" at {location}", out)
+        for rule, location in (("graphical-avatar-required", "#person"),
+                               ("text-icon", "#glyph"), ("text-icon", "#arrow")):
+            self.assertIn(f"{rule} at {location}", out)
+
+    def test_pastel_components_on_a_white_canvas(self):
+        tokens = (HERE.parent / "kit/frontend/shared/pastel-300.css").read_text(encoding="utf-8")
+        names = re.findall(r"(--pastel-[\w-]+-300):", tokens)
+        self.assertEqual(len(set(names)), 10)
+        buttons = "".join(f'<button style="background:var({name})">选择</button>' for name in names)
+        html = GOOD.replace("</style>", tokens + "button{background:white}</style>").replace("<p>正文</p>", buttons + """
+        <style>:root{--mauve:#c5a5cf} .card{background:linear-gradient(135deg, #BFA9DD 0%, #E1A8C1 65%, white)}
+        .card::before{content:'';display:block;height:12px;background:radial-gradient(circle, var(--mauve), #9fc5e5)}</style>
+        <main><article class="card"><h2>待办</h2><button style="background:var(--mauve)">完成</button>
+        <span class="icon" style="display:inline-block;background:#ECD77D"><svg width="24" height="24"><circle cx="12" cy="12" r="6"/></svg></span>
+        </article></main>""")
+        code, out = audit(html, "--frontend-visuals")
+        self.assertEqual((code, out.strip()), (0, "audit: ok"), out)
+
+    def test_global_surfaces_stay_white_with_custom_local_colours(self):
+        html = GOOD.replace("<p>正文</p>", """
+        <style>body{background:#9ACFB5} button{background:white} #veil::before{content:'';position:fixed;inset:0;background:#9FC5E5}
+        #mixed{background:linear-gradient(to right,#BFA9DD,red 30%,#E1A8C1)}
+        #variant{--pastel-mint-300:#bfe4d0;background:var(--pastel-mint-300)}</style>
+        <main id="canvas" style="background:linear-gradient(#9FC5E5,#96CDCA)">
+        <nav id="navigation" style="background:#ECD77D">导航</nav><button id="veil">保存</button>
+        <button id="mixed">打开</button><article id="variant">待办</article></main>""")
+        code, out = audit(html, "--frontend-visuals")
+        self.assertEqual(code, 1, out)
+        for location in ("body", "#canvas", "#navigation", "#veil::before"):
+            self.assertIn(f"nonwhite-background at {location}", out)
+        self.assertIn("green-interface-color at #variant", out)
+        for location in ("#mixed",):
+            self.assertNotIn(f" at {location}", out)
+
+    def test_custom_accents_and_multistop_gradients_pass_without_loading_a_palette(self):
+        html = GOOD.replace("<p>正文</p>", """
+        <style>
+          .card { --brand: #48206c; background: rgba(241, 213, 193, .75); }
+          .card button { background: linear-gradient(110deg, var(--brand), #15384f 45%, #503213); color: white; }
+          .card button:hover { background: #371951; }
+          .card .icon { display: inline-block; background: #84a3d5; }
+        </style>
+        <main><article class="card"><button>保存</button>
+        <span class="icon"><svg width="24" height="24"><circle cx="12" cy="12" r="6"/></svg></span>
+        </article></main>""")
+        code, out = audit(html, "--frontend-visuals")
+        self.assertEqual((code, out.strip()), (0, "audit: ok"), out)
+
+    def test_white_canvas_in_an_empty_or_dark_viewport(self):
+        html = '<!doctype html><html style="color-scheme:dark"><title>界面</title><body></body></html>'
+        for fill, expected in (("transparent", "html"), ("#9FC5E5", "body")):
+            code, out = audit(html.replace("<body>", f'<body style="background:{fill}">'), "--frontend-visuals", "--scheme", "dark")
+            self.assertEqual(code, 1, out)
+            self.assertIn(f"nonwhite-background at {expected}", out)
+        code, out = audit(html.replace("<body>", '<body style="background:white">'), "--frontend-visuals", "--scheme", "dark")
+        self.assertEqual((code, out.strip()), (0, "audit: ok"), out)
+
+    def test_frontend_accepts_graphical_icons_labels_and_coloured_foregrounds(self):
+        icon = '<svg width="24" height="24" viewBox="0 0 24 24"><title>用户</title><circle cx="12" cy="12" r="6"/></svg>'
+        html = GOOD.replace("</style>", "button{background:white}</style>").replace("<p>正文</p>",
+            f'<span class="avatar">{icon}</span><span>王女士</span>'
+            f'<button class="icon-button">{icon} 保存</button><button aria-label="关闭">{icon}</button>'
+            '<span style="color:#13557a">消息</span><button>1</button>')
+        code, out = audit(html, "--frontend-visuals")
+        self.assertEqual((code, out.strip()), (0, "audit: ok"), out)
+
     def test_a_clean_page_passes(self):
         code, out = audit(GOOD)
         self.assertEqual((code, out.strip()), (0, "audit: ok"))
@@ -271,9 +353,9 @@ class ComponentRootAttributeTests(unittest.TestCase):
         self.assertEqual((code, out.strip()), (0, "audit: ok"), out)
 
 
-# Text fields: a focused field only deepens its 1px border to ink2 (visual-design.html 层级与立体感 › 边缘线条). Anything else that appears on focus is a 聚焦框.
+# Focused fields use a new fill or a short internal marker.
 FIELD_CSS = "body{font:400 14px/22px sans-serif;color:#1d2129;background:#fff}input,textarea,select,button{font:inherit;min-height:32px}"
-QUIET = "input,textarea,select{outline:0;border:1px solid #9aa0a6}input:focus,textarea:focus,select:focus{border-color:#3f4a5a}"
+QUIET = "input,textarea,select{outline:0;border:1px solid #9aa0a6;background:#f3f4f5}input:focus,textarea:focus,select:focus{background-color:#e3e5e7}"
 FIELDS = "<input aria-label='姓名'><textarea aria-label='备注'></textarea><select aria-label='状态'><option>甲</option></select>"
 
 
@@ -289,14 +371,18 @@ class FocusFrameTests(unittest.TestCase):
         self.assertIn("聚焦框", out)
         return out
 
-    def test_a_field_that_only_deepens_its_border_passes(self):
+    def test_a_field_that_changes_fill_and_adds_a_marker_passes(self):
         body = FIELDS + "<div contenteditable='true' aria-label='正文' style='min-height:32px'>可编辑</div><div role='textbox' tabindex='0' aria-label='标题' style='min-height:32px'>标题</div>"
-        code, out = audit(field_page(QUIET + "[contenteditable],[role=textbox]{outline:0;border:1px solid #9aa0a6}[contenteditable]:focus,[role=textbox]:focus{border-color:#3f4a5a}", body))
+        code, out = audit(field_page(QUIET + "[contenteditable],[role=textbox]{outline:0;border:0;background:#f3f4f5}[contenteditable]:focus,[role=textbox]:focus{background:#e3e5e7 linear-gradient(#242c36,#242c36) 8px bottom/16px 2px no-repeat}", body))
         self.assertEqual((code, out.strip()), (0, "audit: ok"), out)
 
-    def test_a_one_pixel_neutral_ring_in_a_box_shadow_also_passes(self):
+    def test_a_one_pixel_neutral_ring_in_a_box_shadow_is_reported(self):
         css = "input{outline:0;border:0;box-shadow:0 0 0 1px #9aa0a6}input:focus{box-shadow:0 0 0 1px #3f4a5a}"
-        self.assertEqual(audit(field_page(css, "<input aria-label='姓名'>"))[1].strip(), "audit: ok")
+        self.assertIn("聚焦阴影", self.found(css, "<input aria-label='姓名'>"))
+
+    def test_a_neutral_bottom_border_that_darkens_on_focus_is_reported(self):
+        css = "input{outline:0;border:0;border-bottom:1px solid #9aa0a6}input:focus{border-bottom-color:#3f4a5a}"
+        self.assertIn("聚焦边框", self.found(css, "<input aria-label='姓名'>"))
 
     def test_a_blue_or_primary_outline_is_reported(self):
         out = self.found(QUIET + "input:focus{outline:2px solid #2563eb}")
@@ -328,7 +414,7 @@ class FocusFrameTests(unittest.TestCase):
         body = "<div class='w'><input aria-label='姓名'></div>"
         out = self.found(wrap + ".w:focus-within{box-shadow:0 0 0 1px #2563eb inset}", body)
         self.assertIn("外层 div.w", out)
-        quiet = wrap + ".w:focus-within{box-shadow:0 0 0 1px #3f4a5a inset}"
+        quiet = wrap + ".w{box-shadow:none;background:#f3f4f5}.w:focus-within{background-color:#e3e5e7}"
         self.assertEqual(audit(field_page(quiet, body))[1].strip(), "audit: ok")
 
     def test_a_class_added_by_a_script_and_a_slow_transition_do_not_hide_the_frame(self):

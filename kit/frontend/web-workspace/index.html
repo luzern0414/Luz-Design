@@ -1,9 +1,35 @@
 <!doctype html>
-<html lang="zh-CN" data-ui-surface="web"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>任务清单</title><link rel="icon" type="image/webp" href="artwork/solid-tasks.webp"><link rel="stylesheet" href="vendor/element-plus.css"><link rel="stylesheet" href="style.css?v=ca163cecd287"><link rel="stylesheet" href="shared/typography.css?v=010a178285bf"><link rel="stylesheet" href="shared/interaction.css"></head><body><div id="app" v-cloak>
-<header v-if="!creating&&!detailOpen" class="masthead page-hero" data-page-top><div class="header-inner"><h1>任务概览</h1><div class="metrics"><div><span>任务</span><strong>{{scoped.length}}<small>项</small></strong></div><div><span>分类</span><strong>{{new Set(scoped.map(t=>t.category)).size}}<small>类</small></strong></div><div><span>成员</span><strong>{{new Set(scoped.map(t=>t.owner)).size}}<small>人</small></strong></div></div></div></header><div class="workspace"><nav class="main-nav" aria-label="主导航"><button v-for="n in navigation" :key="n.value" :class="{active:tab===n.value}" :aria-current="tab===n.value?'page':undefined" @click="changeTab(n.value)"><img :src="'artwork/'+n.icon+'.webp'" alt=""><span>{{n.label}}</span></button></nav>
-<main class="content"><ui-section v-if="!creating&&!detailOpen" heading="任务清单" body-class="list-panel"><template #actions><ui-action v-if="tab==='pending'" class="new-task" icon-only icon="action-add" label="新建任务" @click="openNew"></ui-action></template><div class="task-filters"><el-input v-model="query" aria-label="搜索当前清单" placeholder="搜索任务"></el-input><select v-model="category" aria-label="分类筛选"><option v-for="c in categories" :value="c.name">{{c.name}}</option></select></div><el-table :data="shown" row-key="id" highlight-current-row :current-row-key="selected?.id" @row-click="select" empty-text="暂无任务"><el-table-column label="任务" :min-width="narrow?170:220"><template #default="{row}"><button class="task-title" :data-ui-open="'task-'+row.id" @click.stop="select(row)"><span :aria-label="row.title">{{row.title}}</span></button></template></el-table-column><el-table-column v-if="!narrow" label="分类" width="92" prop="category"></el-table-column><el-table-column v-if="!narrow" label="负责人" width="94" prop="owner"></el-table-column><el-table-column label="状态" width="100"><template #default="{row}"><span class="status-label" :class="row.status">{{statusText(row.status)}}</span></template></el-table-column></el-table>
-</ui-section>
+<html lang="zh-CN" data-ui-surface="web"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>任务清单</title><link rel="icon" type="image/webp" href="artwork/solid-tasks.webp"><link rel="stylesheet" href="vendor/element-plus.css"><link rel="stylesheet" href="style.css?v=292ce0215702"><link rel="stylesheet" href="shared/typography.css?v=bdbea47fe324"><link rel="stylesheet" href="shared/interaction.css?v=265b8557f003"></head><body><div id="app" v-cloak>
+<div class="workspace"><nav class="main-nav" aria-label="主导航"><button v-for="n in navigation" :key="n.value" :class="{active:tab===n.value}" :aria-current="tab===n.value?'page':undefined" @click="changeTab(n.value)"><img :src="'artwork/'+n.icon+'.webp'" alt=""><span>{{n.label}}</span></button></nav>
+<main class="content">
+<section v-if="!creating&&!detailOpen" aria-labelledby="workspace-title">
+  <header class="task-banner">
+    <h1 id="workspace-title">任务清单</h1>
+    <dl class="metrics">
+      <div><dt>任务</dt><dd>{{scoped.length}} 项</dd></div>
+      <div><dt>分类</dt><dd>{{new Set(scoped.map(t=>t.category)).size}} 类</dd></div>
+      <div><dt>成员</dt><dd>{{new Set(scoped.map(t=>t.owner)).size}} 人</dd></div>
+    </dl>
+  </header>
+  <div class="task-filters">
+    <el-input v-model="query" aria-label="搜索当前清单" placeholder="搜索任务"></el-input>
+    <select v-model="category" aria-label="分类筛选">
+      <option v-for="c in categories" :key="c.name" :value="c.name">{{c.name}}</option>
+    </select>
+    <ui-action v-if="tab==='pending'" class="new-task" icon-only icon="action-add" label="新建任务" @click="openNew"></ui-action>
+  </div>
+  <div class="list-panel">
+    <el-table :data="shown" row-key="id" highlight-current-row :current-row-key="selected?.id" @row-click="select" empty-text="暂无任务"><el-table-column label="任务" :min-width="narrow?128:200"><template #default="{row}"><button class="task-title" :data-ui-open="'task-'+row.id" @click.stop="select(row)">{{row.title}}</button></template></el-table-column><el-table-column v-if="!narrow" label="分类" width="92" prop="category"></el-table-column><el-table-column v-if="!narrow" label="负责人" width="94" prop="owner"></el-table-column><el-table-column label="状态" :width="narrow?140:168">
+      <template #default="{row}">
+        <div class="task-state">
+          <span class="status-label" :class="row.status">{{statusText(row.status)}}</span>
+          <button class="row-action" type="button" :aria-label="(tab==='done'?'恢复':'完成')+row.title" @click.stop="toggleDone(row)">{{tab==='done'?'恢复':'完成'}}</button>
+        </div>
+      </template>
+    </el-table-column></el-table>
+  </div>
+</section>
 <ui-form-page v-if="creating" heading="新建任务" @close="closeNew" class="editor"><el-form @submit.prevent="create" label-position="top"><el-form-item label="名称" :error="error"><el-input v-model="draft" maxlength="12" aria-label="任务名称"></el-input></el-form-item><el-form-item label="分类"><el-radio-group v-model="newCategory" aria-label="任务分类"><el-radio-button v-for="c in categories.slice(1)" :key="c.name" :value="c.name">{{c.name}}</el-radio-button></el-radio-group></el-form-item><div class="form-actions" data-action-group><el-button class="text-action" aria-label="取消" @click="closeNew">取消</el-button><el-button class="text-action confirm-action" native-type="submit" aria-label="保存">保存</el-button></div></el-form></ui-form-page>
-<ui-detail-page v-if="detailOpen&&selected" :heading="selected.title" @close="detailOpen=false"><section class="detail-panel" aria-label="任务详情"><dl><div><dt>分类</dt><dd>{{selected.category}}</dd></div><div><dt>负责人</dt><dd>{{selected.owner}}</dd></div><div><dt>状态</dt><dd>{{statusText(selected.status)}}</dd></div></dl><div class="detail-actions"><el-button v-if="selected.status==='todo'" class="text-action" @click="startTask" aria-label="开始任务">开始</el-button><el-button class="text-action confirm-action" @click="toggleDone" :aria-label="tab==='done'?'恢复任务':'完成任务'">{{tab==='done'?'恢复':'完成'}}</el-button></div></section></ui-detail-page>
+<ui-detail-page v-if="detailOpen&&selected" :heading="selected.title" @close="detailOpen=false"><section class="detail-panel" aria-label="任务详情"><dl><div><dt>分类</dt><dd>{{selected.category}}</dd></div><div><dt>负责人</dt><dd>{{selected.owner}}</dd></div><div><dt>状态</dt><dd>{{statusText(selected.status)}}</dd></div></dl><div class="detail-actions"><el-button v-if="selected.status==='todo'" class="text-action" @click="startTask" aria-label="开始任务">开始</el-button><el-button class="text-action confirm-action" @click="toggleDone()" :aria-label="tab==='done'?'恢复任务':'完成任务'">{{tab==='done'?'恢复':'完成'}}</el-button></div></section></ui-detail-page>
 <p v-if="saveError" class="save-error" role="alert">保存失败</p></main></div><p class="sr-only" role="status">{{announcement}}</p>
-</div><script src="vendor/vue.global.prod.js"></script><script src="vendor/element-plus.js"></script><script src="shared/interaction.js"></script><script src="app.js?v=031de57e54e4"></script></body></html>
+</div><script src="vendor/vue.global.prod.js"></script><script src="vendor/element-plus.js"></script><script src="shared/interaction.js"></script><script src="app.js?v=3016f9d958a6"></script></body></html>

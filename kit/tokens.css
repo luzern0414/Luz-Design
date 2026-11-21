@@ -20,8 +20,8 @@
   --zone: color-mix(in srgb, var(--action) 11%, #fff);
   --accent-tint: color-mix(in srgb, var(--accent) 11%, #fff);
 
-  /* 底与表面：近白页底带一点主题色，白卡片；文字是带主题色的近黑 */
-  --bg: color-mix(in srgb, var(--action) 2.5%, #FAFAF9);
+  /* 全局画布保持白色，组件的强调色由项目主题决定。 */
+  --bg: #FFFFFF;
   --surface: #FFFFFF;
   --ink: color-mix(in srgb, var(--action) 6%, #1D1F23);
   --ink-2: color-mix(in srgb, var(--action) 7%, #474A50);
@@ -31,7 +31,7 @@
   --scrim: color-mix(in srgb, var(--ink) 48%, transparent);
 
   /* 语义色：只表达状态，必须配文字 */
-  --success: #18794E; --success-tint: #E4F3EC;
+  --success: #28599B; --success-tint: #E8EFFA;
   --warning: #A15C00; --warning-tint: #FBF0DE;
   --danger: #C93644;  --danger-tint: #FBE7E9;
   --info: #2F5F8A;    --info-tint: #E6EEF5;
@@ -105,7 +105,7 @@
 /* 沙金 */
 [data-theme="sand"] {
   --action: #87723E;
-  --accent: #677C44;
+  --accent: #87723E;
   --hue: 43;
   --ic-sat: 1.12;
 }
@@ -113,40 +113,8 @@
 /* 橄榄 */
 [data-theme="olive"] {
   --action: #74783E;
-  --accent: #498156;
+  --accent: #74783E;
   --hue: 64;
-  --ic-sat: 1.2;
-}
-
-/* 鼠尾草 */
-[data-theme="sage"] {
-  --action: #637B63;
-  --accent: #4D7E76;
-  --hue: 120;
-  --ic-sat: 0.67;
-}
-
-/* 草绿 */
-[data-theme="green"] {
-  --action: #458250;
-  --accent: #018379;
-  --hue: 131;
-  --ic-sat: 1.5;
-}
-
-/* 松绿 */
-[data-theme="pine"] {
-  --action: #31715B;
-  --accent: #22808A;
-  --hue: 159;
-  --ic-sat: 1.12;
-}
-
-/* 青碧 */
-[data-theme="teal"] {
-  --action: #2B8181;
-  --accent: #347C9F;
-  --hue: 180;
   --ic-sat: 1.2;
 }
 
@@ -233,7 +201,7 @@
 /* 暖灰 */
 [data-theme="stone"] {
   --action: #696259;
-  --accent: #747665;
+  --accent: #696259;
   --hue: 34;
   --ic-sat: 0.24;
 }

@@ -423,12 +423,14 @@ class PaletteTest(unittest.TestCase):
         for tid in THEMES:
             p = cii.icon_palette(tid)
             light = {r["role"]: r for r in p["light"]}
-            self.assertEqual(light["底块"]["hex"], THEMES[tid]["actionTint"], tid)
+            from export_tokens import application_color
+            self.assertEqual(light["底块"]["hex"], application_color(THEMES[tid]["actionTint"]), tid)
             self.assertGreaterEqual(light["线稿"]["contrast_to_base"], 3.0, tid)       # 线稿对底块 3:1
             for role in ("次层", "图形", "线稿"):
                 self.assertLessEqual(light[role]["s"], 0.65 + 1e-9, (tid, role))
             self.assertEqual({r["role"] for r in p["dark"]}, {"底块", "次层", "图形", "线稿"})
-            self.assertEqual({r["role"]: r["hex"] for r in p["dark"]}["图形"], THEMES[tid]["dark"]["actionText"])
+            for row in p["light"]+p["dark"]:
+                self.assertEqual(row["hex"].upper(),application_color(row["hex"]).upper(),tid)
 
     def test_icons_drawn_with_the_palette_pass_in_light_and_dark(self) -> None:
         def draw(rows) -> Image.Image:

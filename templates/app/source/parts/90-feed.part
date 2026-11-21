@@ -619,18 +619,18 @@
       <div class="section__head"><h2>买家实拍</h2><span class="tag">共 9 张</span></div>
       <div class="card fed-card">
         <div class="fedx-gv__grid">
-          <button class="fedx-gv__th" data-name="红玫瑰花束" aria-label="查看第 1 张 红玫瑰花束" aria-haspopup="dialog"><img src="../../kit/assets/photo/product-rose-red.webp" alt=""></button>
-          <button class="fedx-gv__th" data-name="粉芍药花束" aria-label="查看第 2 张 粉芍药花束" aria-haspopup="dialog"><img src="../../kit/assets/photo/product-peony-pink.webp" alt=""></button>
-          <button class="fedx-gv__th" data-name="向日葵花束" aria-label="查看第 3 张 向日葵花束" aria-haspopup="dialog"><img src="../../kit/assets/photo/product-sunflower.webp" alt=""></button>
-          <button class="fedx-gv__th" data-name="白郁金香" aria-label="查看第 4 张 白郁金香" aria-haspopup="dialog"><img src="../../kit/assets/photo/product-tulip-white.webp" alt=""></button>
-          <button class="fedx-gv__th" data-name="蓝绣球盆栽" aria-label="查看第 5 张 蓝绣球盆栽" aria-haspopup="dialog"><img src="../../kit/assets/photo/product-hydrangea-blue.webp" alt=""></button>
-          <button class="fedx-gv__th" data-name="龟背竹盆栽" aria-label="查看第 6 张 龟背竹盆栽" aria-haspopup="dialog"><img src="../../kit/assets/photo/product-monstera.webp" alt=""></button>
-          <button class="fedx-gv__th" data-name="多肉组合盆" aria-label="查看第 7 张 多肉组合盆" aria-haspopup="dialog"><img src="../../kit/assets/photo/product-succulent.webp" alt=""></button>
-          <button class="fedx-gv__th" data-name="花礼盒" aria-label="查看第 8 张 花礼盒" aria-haspopup="dialog"><img src="../../kit/assets/photo/product-giftbox.webp" alt=""></button>
-          <button class="fedx-gv__th" data-name="干花花瓶摆件" aria-label="查看第 9 张 干花花瓶摆件" aria-haspopup="dialog"><img src="../../kit/assets/photo/product-pampas-vase.webp" alt=""></button>
+          <button class="fedx-gv__th" data-name="红玫瑰花束" aria-label="查看第 1 张 红玫瑰花束"><img src="../../kit/assets/photo/product-rose-red.webp" alt=""></button>
+          <button class="fedx-gv__th" data-name="粉芍药花束" aria-label="查看第 2 张 粉芍药花束"><img src="../../kit/assets/photo/product-peony-pink.webp" alt=""></button>
+          <button class="fedx-gv__th" data-name="向日葵花束" aria-label="查看第 3 张 向日葵花束"><img src="../../kit/assets/photo/product-sunflower.webp" alt=""></button>
+          <button class="fedx-gv__th" data-name="白郁金香" aria-label="查看第 4 张 白郁金香"><img src="../../kit/assets/photo/product-tulip-white.webp" alt=""></button>
+          <button class="fedx-gv__th" data-name="蓝绣球盆栽" aria-label="查看第 5 张 蓝绣球盆栽"><img src="../../kit/assets/photo/product-hydrangea-blue.webp" alt=""></button>
+          <button class="fedx-gv__th" data-name="龟背竹盆栽" aria-label="查看第 6 张 龟背竹盆栽"><img src="../../kit/assets/photo/product-monstera.webp" alt=""></button>
+          <button class="fedx-gv__th" data-name="多肉组合盆" aria-label="查看第 7 张 多肉组合盆"><img src="../../kit/assets/photo/product-succulent.webp" alt=""></button>
+          <button class="fedx-gv__th" data-name="花礼盒" aria-label="查看第 8 张 花礼盒"><img src="../../kit/assets/photo/product-giftbox.webp" alt=""></button>
+          <button class="fedx-gv__th" data-name="干花花瓶摆件" aria-label="查看第 9 张 干花花瓶摆件"><img src="../../kit/assets/photo/product-pampas-vase.webp" alt=""></button>
         </div>
       </div>
-      <div class="fedx-vw" role="dialog" aria-modal="true" aria-label="图片预览" hidden>
+      <div class="fedx-vw" role="region" aria-label="图片预览" hidden>
         <div class="fedx-vw__top"><span></span><span class="fedx-vw__page" role="status" aria-live="polite" data-page>1 / 9</span><button class="fedx-vw__x" data-x>关闭</button></div>
         <div class="fedx-vw__stage" tabindex="0" aria-label="图片区域 左右滑动切换" data-stage><div class="fedx-vw__track" data-track></div></div>
         <div class="fedx-vw__bar"><button class="fedx-vw__b" data-prev>上一张</button><span class="fedx-vw__cap" data-cap></span><button class="fedx-vw__b" data-next>下一张</button></div>
@@ -639,20 +639,20 @@
   </div>
 </article>
 
-<article class="demo" data-cid="AP-FEED-028" data-name="居中详情弹层" data-cat="FEED">
-  <div class="demo__head"><span class="demo__name">居中详情弹层</span></div>
-  <p class="demo__note">适合：只读详情与图文预览居中悬浮并带关闭</p>
+<article class="demo" data-cid="AP-FEED-028" data-name="商品详情页" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">商品详情页</span></div>
+  <p class="demo__note">适合：商品列表、详情与返回时的焦点恢复</p>
   <div class="demo__stage">
     <div class="fedx-pv" data-pv>
       <div class="card list" data-list>
-        <button class="row row--link" data-k="0" aria-haspopup="dialog"><img class="row__lead" src="../../kit/assets/photo/product-rose-red.webp" alt=""><div class="row__main"><p class="row__title one-line">红玫瑰花束</p><p class="row__meta one-line">同城 2 小时送达</p></div><div class="row__trail"><span class="price"><small>¥</small>199</span></div></button>
-        <button class="row row--link" data-k="1" aria-haspopup="dialog"><img class="row__lead" src="../../kit/assets/photo/product-peony-pink.webp" alt=""><div class="row__main"><p class="row__title one-line">粉芍药花束</p><p class="row__meta one-line">同城 2 小时送达</p></div><div class="row__trail"><span class="price"><small>¥</small>239</span></div></button>
-        <button class="row row--link" data-k="2" aria-haspopup="dialog"><img class="row__lead" src="../../kit/assets/photo/product-sunflower.webp" alt=""><div class="row__main"><p class="row__title one-line">向日葵花束</p><p class="row__meta one-line">同城 2 小时送达</p></div><div class="row__trail"><span class="price"><small>¥</small>159</span></div></button>
-        <button class="row row--link" data-k="3" aria-haspopup="dialog"><img class="row__lead" src="../../kit/assets/photo/product-tulip-white.webp" alt=""><div class="row__main"><p class="row__title one-line">白郁金香</p><p class="row__meta one-line">同城 2 小时送达</p></div><div class="row__trail"><span class="price"><small>¥</small>179</span></div></button>
-        <button class="row row--link" data-k="4" aria-haspopup="dialog"><img class="row__lead" src="../../kit/assets/photo/product-hydrangea-blue.webp" alt=""><div class="row__main"><p class="row__title one-line">蓝绣球盆栽</p><p class="row__meta one-line">快递 次日达</p></div><div class="row__trail"><span class="price"><small>¥</small>129</span></div></button>
+        <button class="row row--link" data-k="0"><img class="row__lead" src="../../kit/assets/photo/product-rose-red.webp" alt=""><div class="row__main"><p class="row__title one-line">红玫瑰花束</p><p class="row__meta one-line">同城 2 小时送达</p></div><div class="row__trail"><span class="price"><small>¥</small>199</span></div></button>
+        <button class="row row--link" data-k="1"><img class="row__lead" src="../../kit/assets/photo/product-peony-pink.webp" alt=""><div class="row__main"><p class="row__title one-line">粉芍药花束</p><p class="row__meta one-line">同城 2 小时送达</p></div><div class="row__trail"><span class="price"><small>¥</small>239</span></div></button>
+        <button class="row row--link" data-k="2"><img class="row__lead" src="../../kit/assets/photo/product-sunflower.webp" alt=""><div class="row__main"><p class="row__title one-line">向日葵花束</p><p class="row__meta one-line">同城 2 小时送达</p></div><div class="row__trail"><span class="price"><small>¥</small>159</span></div></button>
+        <button class="row row--link" data-k="3"><img class="row__lead" src="../../kit/assets/photo/product-tulip-white.webp" alt=""><div class="row__main"><p class="row__title one-line">白郁金香</p><p class="row__meta one-line">同城 2 小时送达</p></div><div class="row__trail"><span class="price"><small>¥</small>179</span></div></button>
+        <button class="row row--link" data-k="4"><img class="row__lead" src="../../kit/assets/photo/product-hydrangea-blue.webp" alt=""><div class="row__main"><p class="row__title one-line">蓝绣球盆栽</p><p class="row__meta one-line">快递 次日达</p></div><div class="row__trail"><span class="price"><small>¥</small>129</span></div></button>
       </div>
       <div class="fedx-pv__scrim" data-scrim>
-        <div class="fedx-pv__dlg" role="dialog" aria-modal="true" aria-labelledby="fedx-pv-t">
+        <div class="fedx-pv__dlg" role="region" aria-labelledby="fedx-pv-t">
           <div class="fedx-pv__media"><img data-img src="../../kit/assets/photo/product-rose-red.webp" alt=""><button class="ibtn ibtn--round fedx-pv__x" data-x aria-label="关闭详情" data-tip="关闭"><img src="../../kit/assets/line/close.webp" alt=""></button></div>
           <div class="fedx-pv__body">
             <div class="fedx-pv__head"><h3 id="fedx-pv-t" data-name>红玫瑰花束</h3><span class="price"><small>¥</small><span data-price>199</span></span></div>
@@ -837,7 +837,7 @@
   .fedx-gv__th { position: relative; aspect-ratio: 1; overflow: hidden; border-radius: var(--r-md); background: var(--zone); transition: transform var(--dur-quick) var(--ease-out); }
   .fedx-gv__th img { width: 100%; height: 100%; object-fit: cover; }
   .fedx-gv__th:active { transform: scale(.96); }
-  .fedx-vw { position: absolute; inset: 0; z-index: 5; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; border-radius: var(--r-lg); overflow: hidden; background: var(--ink); color: var(--surface); animation: lz-fade var(--dur-base) var(--ease-out) both; }
+  .fedx-vw { display: grid; grid-template-rows: auto minmax(180px, 1fr) auto; background: white; color: var(--ink); }
   .fedx-vw :focus-visible { outline-color: var(--surface); }
   .fedx-vw__top { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; min-height: 48px; padding: 0 var(--s-2) 0 var(--s-4); }
   .fedx-vw__page { font-size: var(--fs-sm); font-weight: 600; font-variant-numeric: tabular-nums; }
@@ -854,10 +854,10 @@
   .fedx-vw__b[aria-disabled="true"] { opacity: .35; pointer-events: none; }
   .fedx-vw__cap { text-align: center; font-size: var(--fs-sm); color: color-mix(in srgb, var(--surface) 80%, transparent); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 
-  /* 028 居中详情弹层：舞台内的整页遮罩，弹层居中悬浮 */
+  /* 028 商品详情页：由列表切换至商品详情页 */
   .fedx-pv { position: relative; border-radius: var(--r-lg); overflow: hidden; }
-  .fedx-pv__scrim { position: absolute; inset: 0; z-index: 5; display: grid; place-items: center; padding: var(--s-2); background: var(--scrim); animation: lz-fade var(--dur-base) var(--ease-out) both; }
-  .fedx-pv__dlg { width: min(100%, 288px); max-height: 100%; overflow: auto; border-radius: var(--r-xl); background: var(--surface); box-shadow: var(--elev-4); animation: lz-dialog var(--dur-base) var(--ease-out) both; }
+  .fedx-pv__scrim { display: block; background: white; }
+  .fedx-pv__dlg { width: 100%; background: white; }
   .fedx-pv__media { position: relative; aspect-ratio: 16 / 9; background: var(--zone); }
   .fedx-pv__media > img { width: 100%; height: 100%; object-fit: cover; }
   .fedx-pv__x { position: absolute; top: var(--s-2); right: var(--s-2); }
@@ -1004,8 +1004,8 @@
       page.textContent = `${cur + 1} / ${N}`; cap.textContent = ths[cur].dataset.name;
       prev.setAttribute('aria-disabled', String(cur === 0)); next.setAttribute('aria-disabled', String(cur === N - 1));
     };
-    const open = (i, from) => { opener = from; show(i); vw.hidden = false; card.inert = true; stage.focus({ preventScroll: true }); };
-    const close = () => { vw.hidden = true; card.inert = false; if (opener) opener.focus({ preventScroll: true }); };
+    const open = (i, from) => { opener = from; show(i); vw.hidden = false; card.hidden = true; stage.focus({ preventScroll: true }); };
+    const close = () => { vw.hidden = true; card.hidden = false; if (opener) opener.focus({ preventScroll: true }); };
     ths.forEach((t, i) => t.addEventListener('click', () => open(i, t)));
     $('[data-x]', vw).addEventListener('click', close);
     prev.addEventListener('click', () => show(cur - 1)); next.addEventListener('click', () => show(cur + 1));
@@ -1022,7 +1022,7 @@
     });
   })();
 
-  /* 028 居中详情弹层：点商品行居中弹出只读详情，关闭按钮、遮罩、Esc 都能收起，焦点回到触发行 */
+  /* 028 商品详情页：点击商品行进入详情，返回列表后恢复焦点 */
   (() => {
     const r = D('AP-FEED-028'), box = $('[data-pv]', r), list = $('[data-list]', box), scrim = $('[data-scrim]', box), rows = $$('[data-k]', list);
     const DATA = [
@@ -1034,13 +1034,13 @@
     ];
     let opener = null;
     const fill = k => { const d = DATA[k]; $('[data-img]', scrim).src = `../../kit/assets/photo/${d[1]}.webp`; $('[data-name]', scrim).textContent = d[0]; $('[data-price]', scrim).textContent = d[2]; $('[data-f1]', scrim).textContent = d[3]; $('[data-f2]', scrim).textContent = d[4]; $('[data-f3]', scrim).textContent = d[5]; };
-    const open = (k, from) => { opener = from; fill(k); scrim.hidden = false; list.inert = true; $('[data-x]', scrim).focus({ preventScroll: true }); };
-    const close = () => { scrim.hidden = true; list.inert = false; if (opener) opener.focus({ preventScroll: true }); };
+    const open = (k, from) => { opener = from; fill(k); scrim.hidden = false; list.hidden = true; $('[data-x]', scrim).focus({ preventScroll: true }); };
+    const close = () => { scrim.hidden = true; list.hidden = false; if (opener) opener.focus({ preventScroll: true }); };
     rows.forEach(b => b.addEventListener('click', () => open(+b.dataset.k, b)));
     $('[data-x]', scrim).addEventListener('click', close);
     scrim.addEventListener('click', e => { if (e.target === scrim) close(); });
     box.addEventListener('keydown', e => { if (e.key === 'Escape' && !scrim.hidden) { e.preventDefault(); close(); } });
-    fill(0); list.inert = true;
+    scrim.hidden = true; list.hidden = false;
   })();
 
   /* 029 动作面板：就近展开的动作行；收藏可切换，举报先居中确认再变为已举报，取消收起 */

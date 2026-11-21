@@ -92,8 +92,7 @@
 .xcard-gift__val { font-size: var(--fs-3xl); font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
 .xcard-gift__val small { font-size: var(--fs-md); margin-right: 2px; }
 .xcard-gift__code { font-size: var(--fs-sm); letter-spacing: .08em; font-variant-numeric: tabular-nums; }
-.xcard-deep { background: linear-gradient(150deg, var(--action-press) 0%, color-mix(in srgb, var(--action-press) 88%, var(--action)) 100%); }
-.xcard-onhero .btn--text { color: var(--surface); }
+.xcard-gift .btn--text { color: var(--ink); }
 .xcard-tri { display: grid; grid-template-columns: 76px 1fr auto; align-items: center; column-gap: var(--s-3); padding: var(--s-3) var(--s-4) var(--s-3) var(--s-4); }
 .xcard-tri .xcard-cp__amt { font-size: var(--fs-xl); }
 .xcard-tri.is-got .btn { background: var(--zone); color: var(--ink-3); box-shadow: none; }
@@ -103,14 +102,12 @@
 /* 会员 */
 .xcard-vip { display: grid; gap: var(--s-4); padding: var(--s-5); }
 .xcard-vip__top { display: flex; align-items: center; gap: var(--s-3); }
-.xcard-vip__top .avatar { width: 52px; height: 52px; padding: 7px; background: var(--surface); box-shadow: 0 0 0 3px color-mix(in srgb, var(--surface) 35%, transparent); }
+.xcard-vip__top .avatar { width: 52px; height: 52px; padding: 7px; background: var(--pastel-blue-300); }
 .xcard-vip__top b { display: block; font-size: var(--fs-xl); font-weight: 700; line-height: var(--lh-tight); }
-.xcard-vip__top .ibtn { margin-left: auto; background: color-mix(in srgb, var(--surface) 18%, transparent); }
-.xcard-vip__top .ibtn img { filter: invert(1); }
+.xcard-vip__top .ibtn { margin-left: auto; background: var(--surface); }
 .xcard-gold { background: var(--accent-tint); color: var(--accent); }
 .xcard-vip .stats > * + * { border-left-color: color-mix(in srgb, var(--surface) 28%, transparent); }
-.xcard-vip .stat__label { color: var(--surface); }
-.xcard-vip .stat__val small { color: var(--surface); }
+.xcard-vip .stat__label, .xcard-vip .stat__val small { color: var(--ink); }
 .xcard-perks { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s-4) var(--s-1); padding: var(--s-4) var(--s-2); }
 .xcard-perk { display: grid; justify-items: center; gap: var(--s-1); font-size: var(--fs-sm); line-height: 1.2; border-radius: var(--r-md); padding: var(--s-1); transition: transform var(--dur-quick) var(--ease-out); }
 .xcard-perk:active { transform: scale(.94); }
@@ -403,7 +400,7 @@
 <article class="demo" data-cid="AP-CARD-013" data-name="礼品卡面" data-cat="CARD">
   <div class="demo__head"><span class="demo__name">礼品卡面</span></div>
   <p class="demo__note">适合：礼品卡展示与赠送入口</p>
-  <div class="demo__stage"><div class="card card--hero xcard-deep pattern-over xcard-onhero xcard-gift xcard-w">
+  <div class="demo__stage"><div class="card card--hero xcard-gift xcard-w">
     <div class="xcard-gift__top"><div><b class="xcard-name" style="font-size: var(--fs-lg)">花间集礼品卡</b><p class="xcard-gift__code" style="margin-top: var(--s-1)">8820 0000 0431</p></div><img data-ic="giftcard" src="../../kit/assets/icons/flat/giftcard.webp" alt=""></div>
     <div class="xcard-between"><span class="xcard-gift__val"><small>¥</small>200</span><div class="xcard-gap"><button class="btn btn--text" data-xcard-t="已充入余额">充入余额</button><button class="btn btn--white btn--sm btn--pill" data-xcard-t="已打开赠送">赠送</button></div></div>
   </div></div>
@@ -423,7 +420,7 @@
 <article class="demo" data-cid="AP-CARD-015" data-name="会员品牌主卡" data-cat="CARD">
   <div class="demo__head"><span class="demo__name">会员品牌主卡</span></div>
   <p class="demo__note">适合：我的页顶部，整屏唯一的深色品牌卡</p>
-  <div class="demo__stage"><div class="card card--hero xcard-deep pattern-over xcard-vip xcard-w">
+  <div class="demo__stage"><div class="card card--hero xcard-vip xcard-w">
     <div class="xcard-vip__top"><img class="avatar" src="../../kit/assets/marks/mark-001.webp" alt=""><div><b>林晓</b><span class="tag xcard-gold">金卡会员</span></div><button class="ibtn" aria-label="会员码" data-tip="会员码" data-xcard-t="已打开会员码"><img src="../../kit/assets/line/scan.webp" alt=""></button></div>
     <div class="stats"><div class="stat"><span class="stat__label">积分</span><span class="stat__val">2860</span></div><div class="stat"><span class="stat__label">优惠券</span><span class="stat__val">4<small>张</small></span></div><div class="stat"><span class="stat__label">成长值</span><span class="stat__val">3280</span></div></div>
   </div></div>
@@ -964,9 +961,12 @@
 .xcard-gw__nav[data-dir="next"] img { transform: rotate(180deg); }
 .xcard-gw__nav[disabled] { opacity: .35; pointer-events: none; }
 .xcard-gw__grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s-2); }
-.xcard-gw__c { position: relative; aspect-ratio: 1; overflow: hidden; border-radius: var(--r-md); background: var(--zone); transition: box-shadow var(--dur-quick) var(--ease-out); }
+.xcard-gw__c { position: relative; aspect-ratio: 1; overflow: hidden; border-radius: var(--r-md); background: var(--zone); }
 .xcard-gw__c img { width: 100%; height: 100%; object-fit: cover; }
-.xcard-gw__c[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--action); }
+.xcard-gw__c:focus-visible { outline: none; }
+.xcard-gw__c:focus-visible img { filter: brightness(.76); }
+.xcard-gw__c[aria-pressed="true"]::before { content: ""; position: absolute; inset: 4px 4px auto auto; width: 22px; height: 22px; border-radius: 50%; background: var(--surface); }
+.xcard-gw__c[aria-pressed="true"]::after { content: ""; position: absolute; top: 8px; right: 11px; width: 7px; height: 12px; border: solid var(--ink); border-width: 0 2px 2px 0; transform: rotate(45deg); }
 .xcard-gw__more { position: absolute; inset: 0; display: grid; place-items: center; background: color-mix(in srgb, var(--ink) 52%, transparent); color: var(--surface); font-size: var(--fs-lg); font-weight: 600; font-variant-numeric: tabular-nums; }
 .xcard-gw__fold { justify-self: center; }
 

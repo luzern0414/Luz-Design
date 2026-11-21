@@ -106,7 +106,7 @@
   const CFG = @CONFIG@;
   const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
   const state = { theme: CFG.theme, color: null, bg: CFG.background || 'glow', icons: 'mono' };
-  const frames = new Set();
+  const frames = new Map();
   const store = { get(k) { try { return localStorage.getItem('lz-bundle-' + k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem('lz-bundle-' + k, v); } catch (e) { /* 浏览器不让存时只是不记住 */ } } };
   const q = new URLSearchParams(location.search);
   const skinKeys = ['theme', 'bg', 'icons', 'color'];
@@ -119,19 +119,33 @@
     if (value) state[k] = value;
   });
   if (state.color) state.theme = null;
+  const themeOverrideKey = skinKey('theme-override');
+  let themeOverride = Boolean(q.get('theme')) || store.get(themeOverrideKey) === 'true';
 
-  function send(win) { try { win.postMessage({ lz: 'skin', theme: state.theme || undefined, color: state.color || undefined, bg: state.bg, icons: state.icons }, '*'); } catch (e) { /* 框还没准备好 */ } }
+  function resolveTheme(pageTheme) {
+    return !themeOverride && state.theme === CFG.theme && pageTheme ? pageTheme : state.theme;
+  }
+  function send(win, pageTheme) {
+    const theme = resolveTheme(pageTheme);
+    try { win.postMessage({ lz: 'skin', theme: theme || undefined, color: state.color || undefined, bg: state.bg, icons: state.icons }, '*'); } catch (e) { /* 框还没准备好 */ }
+  }
+  function paintTheme() {
+    const pageTheme = CFG.workbench && $('#panel-' + CFG.workbench).dataset.on === 'true'
+      ? CFG.pages.find(item => item.id === page)?.theme : undefined;
+    const theme = resolveTheme(pageTheme);
+    Lz.skin({ theme: theme || undefined, color: state.color || undefined, bg: state.bg, icons: state.icons });
+    $$('#swatches .swatch').forEach(b => b.setAttribute('aria-pressed', String(!state.color && b.dataset.theme === theme)));
+  }
   function apply() {
-    Lz.skin({ theme: state.theme || undefined, color: state.color || undefined, bg: state.bg, icons: state.icons });
-    frames.forEach(f => f.contentWindow && send(f.contentWindow));
-    $$('#swatches .swatch').forEach(b => b.setAttribute('aria-pressed', String(!state.color && b.dataset.theme === state.theme)));
+    paintTheme();
+    frames.forEach((theme, f) => f.contentWindow && send(f.contentWindow, theme));
     $$('#fxlist .fxitem').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.bg === state.bg)));
     $$('#iconseg button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.icons === state.icons)));
     skinKeys.forEach(k => store.set(skinKey(k), state[k] || ''));
   }
-  function mount(host, html, cls) {
+  function mount(host, html, theme) {
     const f = document.createElement('iframe'); f.setAttribute('aria-label', host.dataset.label || '预览');
-    f.addEventListener('load', () => { frames.add(f); send(f.contentWindow); });
+    f.addEventListener('load', () => { frames.set(f, theme); send(f.contentWindow, theme); });
     f.srcdoc = html; host.appendChild(f); return f;
   }
   const source = id => ($('#src-' + id).textContent || '').replace(/<\\\/script/g, '</script');
@@ -139,7 +153,15 @@
   // 外观控制
   $('#swatches').innerHTML = CFG.presets.map(p => `<button class="swatch" style="--c:${p.action}" data-theme="${p.id}" aria-pressed="false" aria-label="${p.name}" data-tip="${p.name}"></button>`).join('');
   $('#fxlist').innerHTML = CFG.effects.map(e => `<button class="fxitem" data-bg="${e.id}" aria-pressed="false"><span class="fxitem__tile bgfx bgfx--${e.id}" ${e.id === 'none' ? '' : ''}></span>${e.name}</button>`).join('');
-  $('#swatches').addEventListener('click', e => { const b = e.target.closest('.swatch'); if (!b) return; state.theme = b.dataset.theme; state.color = null; apply(); });
+  $('#swatches').addEventListener('click', e => {
+    const b = e.target.closest('.swatch');
+    if (!b) return;
+    state.theme = b.dataset.theme;
+    state.color = null;
+    themeOverride = true;
+    store.set(themeOverrideKey, 'true');
+    apply();
+  });
   $('#custom').addEventListener('input', e => { state.color = e.target.value; state.theme = null; $('#customhex').textContent = e.target.value.toUpperCase(); apply(); });
   $('#fxlist').addEventListener('click', e => { const b = e.target.closest('.fxitem'); if (!b) return; state.bg = b.dataset.bg; apply(); });
   $('#iconseg').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; state.icons = b.dataset.icons; apply(); });
@@ -153,6 +175,7 @@
     $$('#tabs .tabs__item').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === id)));
     $$('.panel').forEach(p => { p.dataset.on = String(p.id === 'panel-' + id); });
     if (!mounted[id]) { mounted[id] = true; const host = $('#panel-' + id + ' .host'); if (host) mount(host, source(host.dataset.src)); else if (id === CFG.workbench) openPage(page); }
+    paintTheme();
     store.set('tab-' + CFG.key, id); fit();
   }
   $('#tabs').addEventListener('click', e => { const b = e.target.closest('.tabs__item'); if (b) openTab(b.dataset.tab); });
@@ -176,8 +199,9 @@
     page = id; const p = CFG.pages.find(x => x.id === id);
     $$('#nav .nav__item').forEach(b => b.setAttribute('aria-current', String(b.dataset.page === id)));
     if (pageFrame) { frames.delete(pageFrame); pageFrame.remove(); }
-    pageFrame = mount(frame, source('page-' + id));
+    pageFrame = mount(frame, source('page-' + id), p.theme);
     $('#info').innerHTML = `<h2>${esc(p.name)}</h2><h3>本页逻辑</h3><dl class="kv">${p.logic.map(([k, v]) => `<div><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join('')}</dl><h3>本页组件编号</h3><div class="ids">${p.ids.map(c => `<button data-copy="${c.id}"><span>${esc(c.name)}</span><code>${c.id}</code></button>`).join('')}</div>`;
+    paintTheme();
     fit();
   }
   if (frame) {

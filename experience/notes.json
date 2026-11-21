@@ -53,6 +53,17 @@
       "last_confirmed": "2026-11-10"
     },
     {
+      "key": "agent-web-white-workspace",
+      "kind": "preference",
+      "text": "智能体 Web 起步模板使用白底工作区、侧栏、底栏和输入区，功能区用细线分隔。桌面导航为等字高深色透明线稿，手机在白底底栏上图下字。沿用紧凑圆角卡片、单边线输入和紧凑按钮。",
+      "why": "用户要求把智能体 Web 模板从藏青视觉改成白底，并沿用此前的界面规范。",
+      "uses": 1,
+      "first_seen": "2026-11-19",
+      "last_confirmed": "2026-11-19",
+      "scope": "web",
+      "codified": "references/design/web.md › 智能体工作台"
+    },
+    {
       "key": "agent-workbench-three-column-verified-charts",
       "kind": "preference",
       "text": "数据分析 Agent 工作台采用左侧导航与会话、中间分析图表、右侧问答的三列关系；提问后由核实结果自动出图，追问更新关联分析，图表与解释共用同一结果和权限范围；图表数量服务真实问题，不填造业务数据。",
@@ -82,13 +93,42 @@
     {
       "key": "aligned-flush-card-layout",
       "kind": "preference",
-      "text": "前端卡片同排顶底对齐，同列沿统一左右边线。相邻卡片纵向外间距为 0，用共享分隔线和分组外沿圆角保持边界；卡片内容保留内边距。",
-      "why": "用户补充要求卡片对齐并禁止上下卡片之间出现空白。",
-      "uses": 1,
+      "text": "同排卡片顶底对齐，同列沿统一边线。Web 纵向同组卡片保持贴合，App 相邻独立卡片按半个正文字号留间距。",
+      "why": "用户将 App 卡片之间的间距改为半个字。",
+      "uses": 3,
       "first_seen": "2026-11-18",
-      "last_confirmed": "2026-11-18",
+      "last_confirmed": "2026-11-19",
+      "previous": {
+        "text": "同排卡片顶底对齐，同列沿统一边线。Web 纵向同组卡片保持贴合，App 独立卡片按四分之一个正文字号留间距。",
+        "replaced_at": "2026-11-19"
+      },
       "scope": "ui",
-      "codified": "Luz-Design/references/design/hard-rules.md › 界面卡片布局"
+      "codified": "references/design/hard-rules.md › 界面卡片布局"
+    },
+    {
+      "key": "app-relative-type-and-spacing",
+      "kind": "preference",
+      "text": "App 标题、正文和说明行高为 1.5 倍。相邻文字块间距取较小字号，卡片上下各 0.5 个正文字号，独立卡片相距 0.5 个正文字号，图文相距 0.5 个标签字号，设置入口上下各 0.75 个主文字字号。",
+      "why": "用户将 App 独立卡片间距更新为半个字。正文 16 像素时卡片间留 8 像素。",
+      "uses": 2,
+      "first_seen": "2026-11-19",
+      "last_confirmed": "2026-11-19",
+      "previous": {
+        "text": "App 标题、正文和说明行高为 1.5 倍。相邻文字块间距取较小字号，卡片上下各 0.5 个正文字号，独立卡片相距 0.25 个正文字号，图文相距 0.5 个标签字号，设置入口上下各 0.75 个主文字字号。",
+        "replaced_at": "2026-11-19"
+      },
+      "scope": "app",
+      "codified": "references/design/app.md › 字体与间距"
+    },
+    {
+      "key": "apple-concentric-corners-single-feedback",
+      "kind": "preference",
+      "text": "嵌套圆角参考苹果同心关系，轻点优先改变控件原有底色、边线或图形，键盘保留一道可见焦点。",
+      "uses": 1,
+      "first_seen": "2026-11-19",
+      "last_confirmed": "2026-11-19",
+      "scope": "ui",
+      "codified": "design/foundation.md › 间距、圆角与层级；焦点与可访问性"
     },
     {
       "key": "atlas-no-page-title",
@@ -115,15 +155,17 @@
     {
       "key": "b2b-status-light-and-surface",
       "kind": "preference",
-      "text": "企业后台的状态使用稳定语义色、清晰标签和适度浅底；展开步骤实时显示每一步状态。品牌主色和辅助色按当前项目选择，卡片留白与统一边缘建立层次。",
-      "why": "用户2026-11-07要求优化技能：卡片、大图标、品牌色、明确层级；替换冲突旧默认。",
-      "uses": 5,
+      "text": "企业后台使用白底、稳定的状态前景色和文字标签。展开的各步骤实时显示状态，卡片靠留白和分隔线分组。",
+      "why": "用户本次明确前端须白底、头像使用图标、所有图标禁用文字形式。",
+      "uses": 6,
       "first_seen": "2026-10-30",
-      "last_confirmed": "2026-11-07",
+      "last_confirmed": "2026-11-20",
       "previous": {
-        "text": "企业获客后台保持浅色石墨基调，状态变化用低饱和语义浅底与左侧状态轨表达，避免大面积彩色块；B2B智能体状态颜色集中在文字标签底色与整张卡片浅背景，卡片外框保持中性细线；展开步骤必须显示并实时更新每一步的文字状态。",
-        "replaced_at": "2026-11-07"
-      }
+        "text": "企业后台的状态使用稳定语义色、清晰标签和适度浅底；展开步骤实时显示每一步状态。品牌主色和辅助色按当前项目选择，卡片留白与统一边缘建立层次。",
+        "replaced_at": "2026-11-20"
+      },
+      "scope": "ui",
+      "codified": "references/design/foundation.md › 颜色"
     },
     {
       "key": "b2b-tool-graphite",
@@ -163,6 +205,31 @@
       "codified": "Luz-Design/references/design/hard-rules.md"
     },
     {
+      "key": "borderless-field-card-interaction",
+      "kind": "preference",
+      "text": "文本框、可点击卡片和悬浮数据提示用底色、短标记或文字反馈。交互态去掉边框、描边和阴影。",
+      "why": "用户明确要求点击文本框和卡片后保持无框，悬浮信息可以就近显示。",
+      "uses": 2,
+      "first_seen": "2026-11-19",
+      "last_confirmed": "2026-11-19",
+      "scope": "ui",
+      "codified": "references/design/foundation.md › 焦点与可访问性"
+    },
+    {
+      "key": "business-first-data-dictionary",
+      "kind": "preference",
+      "text": "业务库表全景用现有库表目录连到业务子树，标注关键字段、记录粒度和跨表业务关系。源系统已有的日报和月报标明汇总粒度，拟建分析视图与指标演算放在各自的方案或计算章节。",
+      "why": "017 业务全景用户复核元数据和源系统加工数据，上一版合同账月分析视图置于目录根节点容易混淆。",
+      "uses": 7,
+      "first_seen": "2026-11-20",
+      "last_confirmed": "2026-11-20",
+      "previous": {
+        "text": "商户经营数据总览用分析总表连到业务子树，主表和明细作为子节点；跨树连线标出两侧字段、适用时间和业务用途，逐表只写关键字段并给业务指标复算。",
+        "replaced_at": "2026-11-20"
+      },
+      "scope": "documents"
+    },
+    {
       "key": "business-language-dataflow",
       "kind": "preference",
       "text": "在 010ERP 的业务流程图中，优先使用员工、资料、确认、入账、结果等通俗业务词，去掉接口、框架、代码、模型型号等技术术语。",
@@ -189,11 +256,15 @@
     {
       "key": "business-ppt-compact-business-copy",
       "kind": "preference",
-      "text": "企业业务介绍页优先给实际输入、条件、动作、输出与验收材料留版面，按真实商业方案和公司资料缩小标题和卡片字，配图用在帮助识别业务的位置。",
-      "why": "用户指出上一版字体和插图占比过大、业务细节少。适用于商业演示稿的实质改版，按用户稿现场复核。",
-      "uses": 1,
+      "text": "企业演示保留短单行标题、统一边距及紧凑字阶。岗位任务、可开发内容、产出按信息关系选版式：比较用表格，并列产品用等宽图文，流程用步骤图，围绕同一主体的能力用中置主体和两侧列表。使用真实业务表达，无虚构经营数字或单号。",
+      "why": "本轮用户指出整套表格单调，希望居中配图配周边文字及适合业务内容的多种布局。",
+      "uses": 3,
       "first_seen": "2026-11-18",
-      "last_confirmed": "2026-11-18",
+      "last_confirmed": "2026-11-19",
+      "previous": {
+        "text": "企业业务介绍从客户岗位和日常工作出发，一页用统一表格或列表呈现场景、可开发内容与业务产出。标题单行且紧凑，配图只作辅助，行业实例不使用虚构经营数字和单号。",
+        "replaced_at": "2026-11-19"
+      },
       "scope": "documents"
     },
     {
@@ -239,6 +310,16 @@
       "scope": "project"
     },
     {
+      "key": "business-ppt-human-original-thumbnail-selection",
+      "kind": "preference",
+      "text": "用设计师原版商务 PPT，优先中文，避开 AI 生成、卡通和炫技风；原件逐页打开检查过再只展示编号缩略图，按用户报的编号处理对应候选文件。",
+      "why": "用户实看前五份后全部判为不可用，要求验证设计师原作与逐页审美，按序号删除。",
+      "uses": 1,
+      "first_seen": "2026-11-19",
+      "last_confirmed": "2026-11-19",
+      "scope": "documents"
+    },
+    {
       "key": "business-ppt-minimal-three-lines",
       "kind": "preference",
       "text": "乐昀科技企业业务介绍演示稿的历史做法：企业业务介绍演示稿优先使用白底极简版式，每页只保留一个核心结论、少量关键词和一个图形或配图，避免说明性段落与重复卡片。",
@@ -253,6 +334,16 @@
       "scope": "project"
     },
     {
+      "key": "business-ppt-warm-neutral-color",
+      "kind": "preference",
+      "text": "筛选成熟商务的中文企业与产品介绍PPT时，优先米白、暖灰、浅棕或低饱和蓝的整套配色，跳过深色主导、绿色、紫色及纯黑白候选。",
+      "why": "2026-11-20 将此配色要求用于十套真实中文企业与产品介绍演示的候选复核。",
+      "uses": 2,
+      "first_seen": "2026-11-20",
+      "last_confirmed": "2026-11-20",
+      "scope": "documents"
+    },
+    {
       "key": "business-ppt-white-short-topics",
       "kind": "preference",
       "text": "乐昀科技企业业务介绍演示稿的历史做法：商业介绍演示稿采用白底、顶部单行短主题与黑色正文；充分参考成熟商业版式，以有业务用途的场景图、产品界面和大小有别的小卡片形成清晰层级与节奏，避免整稿像并列表格。调用本地 Imagegen 生成相关图像和统一精致线性图标，以克制色块增加美观度。成品不加界面示意、仅供参考、来源、日期等说明性文字。",
@@ -265,6 +356,16 @@
         "replaced_at": "2026-11-18"
       },
       "scope": "project"
+    },
+    {
+      "key": "business-tree-curves",
+      "kind": "preference",
+      "text": "数据全景首页从经营总表向上放射，交叉关联和父子关系用柔和曲线；首页保留业务表名、关键数据及跨表字段，完整字段放在对应详情页。",
+      "why": "017 商户运营图中用户指出密集排布杂乱、直线僵硬，要求明确总表层次、跨子树的共用字段和业务关联。",
+      "uses": 1,
+      "first_seen": "2026-11-20",
+      "last_confirmed": "2026-11-20",
+      "scope": "documents"
     },
     {
       "key": "card-first-trust-hierarchy",
@@ -291,6 +392,16 @@
       "last_confirmed": "2026-10-30"
     },
     {
+      "key": "center-table-fields-and-forms",
+      "kind": "preference",
+      "text": "表格短字段共享列内居中的内容区与左边线；表单与键值区整体居中，金额等可比较数值保持右对齐。",
+      "uses": 1,
+      "first_seen": "2026-11-19",
+      "last_confirmed": "2026-11-19",
+      "scope": "ui",
+      "codified": "design/foundation.md › 表格、表单与数据对齐"
+    },
+    {
       "key": "chinese-first-readable-content",
       "kind": "preference",
       "text": "成品可见文字必须全中文，禁止中英文夹杂；所有标题单行、简短、无标点及分隔符。顶部底部和标题上下方禁解释建议文案，禁止下一步建议。代码、路径、来源原文只在技术记录中保留，不能放进界面充当文案。",
@@ -304,6 +415,16 @@
       },
       "scope": "shared",
       "codified": "Luz-Design/references/design/hard-rules.md"
+    },
+    {
+      "key": "chinese-ppt-verify-publisher-localized-deck",
+      "kind": "preference",
+      "text": "PPT 原件筛选优先成熟商务的中文版企业介绍或产品介绍，下载前看发布方，放映后核对中文封面、示例正文与可编辑性，沿用稳定编号并展示缩略图供筛选。",
+      "why": "2026-11-20 用户继续要求中文版企业介绍或产品介绍；上批英文原件、早期 AI 相关候选不计入。",
+      "uses": 1,
+      "first_seen": "2026-11-20",
+      "last_confirmed": "2026-11-20",
+      "scope": "documents"
     },
     {
       "key": "clean-cards-and-compact-canvas",
@@ -323,13 +444,27 @@
     {
       "key": "colour-icon-background-not-fixed",
       "kind": "preference",
-      "text": "颜色、图标形态、背景效果都不写死：品牌色只有一个，预设 24 个加自选；图标四种形态（单色默认、彩色、立体、真实）；背景效果九种；整体尽量扁平、颜色少、简约高级，多给选项而不是替用户定。",
-      "why": "用户：不要规定死颜色以及图标的形态，尽量扁平，颜色不要太多，简约高级，多给出一些颜色选择以及一些背景效果。",
-      "uses": 1,
+      "text": "App、Web、小程序的组件及各交互态可以从非绿色、非青绿色中选择纯色和渐变。状态、图表、图标和头像沿用这个范围。",
+      "why": "用户明确全部前端和所有交互状态都禁用绿色与青绿色。",
+      "uses": 7,
       "first_seen": "2026-11-09",
-      "last_confirmed": "2026-11-09",
+      "last_confirmed": "2026-11-21",
+      "previous": {
+        "text": "Pastel 300 和花瓣色卡仅供参考。图标、按钮、卡片可按项目品牌、内容及状态自选色系、色值、搭配和渐变。",
+        "replaced_at": "2026-11-21"
+      },
       "scope": "ui",
-      "codified": "Luz-Design/references/design/foundation.md"
+      "codified": "references/design/hard-rules.md 画布与色彩"
+    },
+    {
+      "key": "commercial-direct-business-copy",
+      "kind": "preference",
+      "text": "商业项目文档直接保留事实、条件、动作、结果、授权范围和来源。待办写成具体状态，由当前材料决定保留项。",
+      "why": "用户要求逐份清理解释、思考过程、道歉、备注和过渡话术；来源标题与正式文件名保留。",
+      "uses": 1,
+      "first_seen": "2026-11-21",
+      "last_confirmed": "2026-11-21",
+      "scope": "documents"
     },
     {
       "key": "commercial-miniprogram-density",
@@ -385,6 +520,32 @@
       "codified": "Luz-Design/references/design/foundation.md › 图标与图像"
     },
     {
+      "key": "compact-stable-white-product-pages",
+      "kind": "preference",
+      "text": "白底页首在安全区后留出空间，标题与必要概览独立排布，搜索、筛选、卡片和输入紧凑衔接。手机按设备宽度稳定重排。",
+      "why": "用户本次明确前端须白底、头像使用图标、所有图标禁用文字形式。",
+      "uses": 3,
+      "first_seen": "2026-11-18",
+      "last_confirmed": "2026-11-20",
+      "previous": {
+        "text": "产品页的页首与业务区分别安排密度。顶部在安全区后留空间，标题和必要概览有独立宽度。可在页首复用一张浅色的相关背景图，搜索、筛选、卡片和输入从下方开始紧凑排布。手机按设备宽度稳定重排。",
+        "replaced_at": "2026-11-20"
+      },
+      "scope": "ui",
+      "codified": "references/design/foundation.md › 间距、圆角与层级"
+    },
+    {
+      "key": "compact-text-button-height",
+      "kind": "preference",
+      "text": "单行文字按钮的可见高度默认约为字号两倍，字上和字下各留约半个字号。触控范围根据平台独立处理。",
+      "why": "放大字号后仍维持比例；移动发送用透明边缘保留点击区。",
+      "uses": 1,
+      "first_seen": "2026-11-19",
+      "last_confirmed": "2026-11-19",
+      "scope": "ui",
+      "codified": "design/foundation.md › 带文字的按钮"
+    },
+    {
       "key": "component-library-fine-grained",
       "kind": "preference",
       "text": "组件库细分到最小可复用组件：按钮、背景、卡片、入口、导航、表单、列表行、数据、反馈、智能体、动效各自按变体拆编号（主按钮、描边按钮、渐变按钮各一个），名称 4–10 个汉字，附一句“适合”，状态完整且可交互，视觉要美观高级而不是示例堆砌。",
@@ -425,6 +586,16 @@
       "first_seen": "2026-11-08",
       "last_confirmed": "2026-11-08",
       "scope": "project"
+    },
+    {
+      "key": "dashboard-single-placement-for-metric-and-action",
+      "kind": "preference",
+      "text": "同页指标或数据类型只出现一次，每个业务动作只有一个入口；主图、构成和汇总数字分别表达各自的数据关系。",
+      "uses": 1,
+      "first_seen": "2026-11-19",
+      "last_confirmed": "2026-11-19",
+      "scope": "ui",
+      "codified": "design/hard-rules.md › 界面数据表达；design/patterns.md › 数据看板"
     },
     {
       "key": "data-views-and-text-switches",
@@ -546,6 +717,16 @@
       "last_confirmed": "2026-11-05"
     },
     {
+      "key": "editable-copy-in-supplied-deck",
+      "kind": "preference",
+      "text": "用户指定PPT作模板并要求只改文字时，直接在原文件的副本逐页替换原生文本。保留原母版、对象、字阶、配色、图形和图像，用图注说明模板配图的示意语境，并检查文字完全显示。",
+      "why": "本次用户要求以其商业运营方案PPT为真实模板，编辑原生文字，核对所有未编辑部分哈希相同。",
+      "uses": 1,
+      "first_seen": "2026-11-20",
+      "last_confirmed": "2026-11-20",
+      "scope": "documents"
+    },
+    {
       "key": "explicit-component-library-project-adaptation",
       "kind": "preference",
       "text": "用户指定组件库时按项目已确认业务复用真实组件；该指定不替代完整成熟来源准入，完整UI包保留关联Design会话raw，docs由Project正式入口生成并核对准确目标post。",
@@ -615,6 +796,17 @@
       },
       "scope": "ui",
       "codified": "Luz-Design/references/design/hard-rules.md"
+    },
+    {
+      "key": "graphical-icons-only",
+      "kind": "preference",
+      "text": "前端所有图标须用图形资源。汉字、字母、数字、符号、Emoji、字体图标及含文字的图片均不能充当图标。按钮标签和无障碍名称独立提供。",
+      "why": "用户本次明确前端须白底、头像使用图标、所有图标禁用文字形式。",
+      "uses": 1,
+      "first_seen": "2026-11-20",
+      "last_confirmed": "2026-11-20",
+      "scope": "ui",
+      "codified": "references/design/hard-rules.md › 前端背景、头像与图标"
     },
     {
       "key": "html-no-unrequested-advice",
@@ -713,11 +905,15 @@
     {
       "key": "mature-steady-palette",
       "kind": "preference",
-      "text": "要成熟稳重时：深藏青一类的深主色加中性灰蓝，暖色只做极少点缀；圆角收到 6、8、12、16 四档，卡片发丝边加一级阴影；浅青绿加大圆角会被认为小清新、不够稳重。",
-      "why": "用户 2026-11-11 连续两次反馈“小清新…不够稳重”“太朴素”；适用企业与销售工具类界面；品牌另有规定时按品牌",
-      "uses": 1,
+      "text": "企业工具需要稳重时可选深藏青文字与中性分隔线，白色表面用留白组织内容。小圆角和轻量分隔沿用产品风格。",
+      "why": "保留企业风格偏好并按本次前端白底要求限定颜色用途。",
+      "uses": 2,
       "first_seen": "2026-11-11",
-      "last_confirmed": "2026-11-11",
+      "last_confirmed": "2026-11-20",
+      "previous": {
+        "text": "要成熟稳重时：深藏青一类的深主色加中性灰蓝，暖色只做极少点缀；圆角收到 6、8、12、16 四档，卡片发丝边加一级阴影；浅青绿加大圆角会被认为小清新、不够稳重。",
+        "replaced_at": "2026-11-20"
+      },
       "scope": "ui"
     },
     {
@@ -735,6 +931,16 @@
       "scope": "project"
     },
     {
+      "key": "mobile-agent-single-row",
+      "kind": "preference",
+      "text": "移动智能体输入行依次为加号、自动增高文本框、发送；加号选文件或图片，回车换行。",
+      "uses": 1,
+      "first_seen": "2026-11-19",
+      "last_confirmed": "2026-11-19",
+      "scope": "ui",
+      "codified": "design/app.md › 移动端智能体输入栏"
+    },
+    {
       "key": "no-blue-focus-box",
       "kind": "preference",
       "text": "文本框（输入、选择、文本域、可输入的组件库字段）获得焦点或被点击时严格禁止出现蓝色或主色选中框、外发光、粗描边与浏览器默认轮廓：聚焦只把 1 像素边加深到次要文字色；点击任何控件都不出现焦点框，键盘 Tab 到达才出现 2 像素中性轮廓；移动端关点按高亮；渲染后用 audit_rendered.py 的聚焦框检查与 check_document.py 的静态检查挡住",
@@ -747,12 +953,17 @@
     {
       "key": "no-dark-top-over-white-body",
       "kind": "preference",
-      "text": "顶部不做深色横幅压在白色正文上（上黑下白）：顶部用与页面连成一体的浅色区域，浅色渐变加低对比图案向下渐隐成白色，标题用深色文字。",
-      "why": "用户 2026-11-11 原话“上黑下白有点丑”；适用 App 与 Web 的页面顶部；用户明确要深色品牌顶部时复核",
-      "uses": 1,
+      "text": "App、Web、小程序的页面、主内容区、页头和全局导航在所有状态显示纯白 #FFFFFF，局部组件使用非绿色、非青绿色的纯色或渐变。",
+      "why": "用户确认导航也必须纯白，禁绿覆盖组件和交互状态。",
+      "uses": 5,
       "first_seen": "2026-11-11",
-      "last_confirmed": "2026-11-11",
-      "scope": "ui"
+      "last_confirmed": "2026-11-21",
+      "previous": {
+        "text": "页面、主内容区、全局页头与导航呈现纯白 #FFFFFF。局部组件的纯色和渐变可按项目选择。",
+        "replaced_at": "2026-11-21"
+      },
+      "scope": "ui",
+      "codified": "references/design/hard-rules.md 画布与色彩"
     },
     {
       "key": "no-template-reuse",
@@ -855,6 +1066,17 @@
       "codified": "references/design/foundation.md › 图标与图像，references/design/poster.md，references/design/slides.md"
     },
     {
+      "key": "ordered-page-visual-handoff",
+      "kind": "preference",
+      "text": "视觉设计承接既定模块顺序、控件用途和业务结果，用颜色、字阶、留白、线性图形与组件状态表达自上而下的视觉重心。",
+      "why": "用户明确要求分开系统功能设计与视觉设计，同时保留各端构图弹性。",
+      "uses": 1,
+      "first_seen": "2026-11-20",
+      "last_confirmed": "2026-11-20",
+      "scope": "maintenance",
+      "codified": "ui-ownership.md › 逐页视觉交接"
+    },
+    {
       "key": "palette-by-industry",
       "kind": "preference",
       "text": "每次新UI先搜索并对比相关行业的主流产品、官方设计系统与相邻领域方案，按品牌和当前任务自主选择配色；技能不限制色相，不固定医疗绿、科技蓝、黑白或石墨。用户图片仅作为本任务的一项参考，不能固化成技能主参考。统一角色令牌和文字对比度。",
@@ -866,6 +1088,21 @@
         "text": "产品 UI 按品牌、行业、用户参考与受众选择协调色板，用角色令牌统一动作、状态、卡面与文字。默认组件复用允许品牌色与原生配置适配；显式 source-locked 才保留来源原配色。文件排版继续执行其专用格式规则。",
         "replaced_at": "2026-11-07"
       }
+    },
+    {
+      "key": "ppt-native-library",
+      "kind": "preference",
+      "text": "按用户指定数量收集已发布的可编辑商务PPT原件。批量挑选时集中到一个待筛选目录，附原件预览、发布方和许可。用户确认后按目录实际剩余文件合并。",
+      "why": "用户要求先下载20份 GitHub 原件，由用户删去一些，再合并。",
+      "uses": 3,
+      "first_seen": "2026-11-19",
+      "last_confirmed": "2026-11-19",
+      "previous": {
+        "text": "文件模板库的 PPT 分类默认集中呈现一份完整的中文商务原件。用户指定 GitHub 时查找发布者已有的可编辑文件、逐页看版式并保存许可。",
+        "replaced_at": "2026-11-19"
+      },
+      "scope": "documents",
+      "codified": "references/design/slides.md › 选模板与核验"
     },
     {
       "key": "precise-date-for-entry",
@@ -972,6 +1209,17 @@
         "replaced_at": "2026-11-07"
       },
       "codified": "Luz-Project/references/skill-architecture.md › 用户的共同硬规则"
+    },
+    {
+      "key": "scope-selector-before-content",
+      "kind": "preference",
+      "text": "页面自上而下组织，账号、时间和类别等范围切换在受控信息顶部，切换后的资料只在下方呈现一遍。",
+      "why": "用户以账号信息夹住切换项为例纠正阅读顺序。",
+      "uses": 1,
+      "first_seen": "2026-11-19",
+      "last_confirmed": "2026-11-19",
+      "scope": "ui",
+      "codified": "references/design/hard-rules.md › 界面导航"
     },
     {
       "key": "single-html-per-folder",
@@ -1219,13 +1467,30 @@
       "scope": "documents"
     },
     {
+      "key": "模块-模块设计-布局-按业务复核视觉",
+      "kind": "preference",
+      "text": "按模块核对已确认的功能、数据、布局顺序、交互和流程，搜索视觉疑问，记录实测结果与适用条件，后续调用先查本技能的模块经验。",
+      "why": "用户明确要求两个技能分别沉淀。视觉可检索全部维度的呈现，涉及业务语义或状态改变时由 System 确认。",
+      "uses": 1,
+      "first_seen": "2026-11-20",
+      "last_confirmed": "2026-11-20",
+      "scope": "maintenance",
+      "codified": "ui-ownership.md › 逐模块核对与经验"
+    },
+    {
       "key": "默认头像",
       "kind": "preference",
-      "text": "无照片时用按用户标识随机取得并固定的默认头像（消费类用统一风格的卡通动物，企业工具后台用统一风格的扁平人像），未登录或系统用户用线性图标；严禁首字母、姓氏等文字头像（用户纠正）",
-      "why": "用户 2026-11-04：人像图标可以换成随机头像（从 Luz-System 经验库迁入：视觉值归 Luz-Design，用户 2026-11-04 划定）",
-      "uses": 1,
+      "text": "账户、成员、会话以及缺省、未登录与失败状态统一使用图形头像。用户标识可稳定映射到同风格图形，姓名在头像旁显示。",
+      "why": "用户本次明确前端须白底、头像使用图标、所有图标禁用文字形式。",
+      "uses": 2,
       "first_seen": "2026-11-04",
-      "last_confirmed": "2026-11-04"
+      "last_confirmed": "2026-11-20",
+      "previous": {
+        "text": "无照片时用按用户标识随机取得并固定的默认头像（消费类用统一风格的卡通动物，企业工具后台用统一风格的扁平人像），未登录或系统用户用线性图标；严禁首字母、姓氏等文字头像（用户纠正）",
+        "replaced_at": "2026-11-20"
+      },
+      "scope": "ui",
+      "codified": "references/design/hard-rules.md › 前端背景、头像与图标"
     },
     {
       "key": "adjacent-result-template-regression",
@@ -1272,6 +1537,21 @@
       "uses": 2,
       "first_seen": "2026-11-04",
       "last_confirmed": "2026-11-05"
+    },
+    {
+      "key": "agent-data-foundation-html-template",
+      "kind": "lesson",
+      "text": "离线 HTML 关系图可内联既有三维运行库，WebGL 不可用时保留可操作的平面关系图。",
+      "why": "迁移数据底座母版后，重新打包的样例与迁移前字节一致。",
+      "uses": 2,
+      "first_seen": "2026-11-20",
+      "last_confirmed": "2026-11-20",
+      "previous": {
+        "text": "交互式数据底座沿同一项目配置生成关系图、表字段与问数路径。模板内置虚构样例，正式成品可离线查阅并在没有 WebGL 时使用平面图。",
+        "replaced_at": "2026-11-20"
+      },
+      "scope": "documents",
+      "codified": "Luz-Project/templates/03-开发资料/README.md#agent-数据底座"
     },
     {
       "key": "agent-grid-missing-not-zero",
@@ -1417,6 +1697,16 @@
       "last_confirmed": "2026-10-29"
     },
     {
+      "key": "chinese-business-ppt-preview-source-match",
+      "kind": "lesson",
+      "text": "筛选中文商务PPT时，按整套主色和内页结构排编号。实际下载的原件逐页放映并校验，发布方图集按来源标明可预览状态。",
+      "why": "按企业和产品介绍扩查数十套后交付十套参考，六套可取得原件。",
+      "uses": 1,
+      "first_seen": "2026-11-20",
+      "last_confirmed": "2026-11-20",
+      "scope": "documents"
+    },
+    {
       "key": "cjk-rendered-weight-and-browser-cache",
       "kind": "lesson",
       "text": "字体一致性同时核对统一令牌、实际字体文件与真实字重；中文字体分片须核对字形覆盖和网络字节。浏览器缓存实测避免启用会关闭缓存的认证或路由拦截，并等待动态图表字体加载。",
@@ -1425,6 +1715,27 @@
       "first_seen": "2026-11-08",
       "last_confirmed": "2026-11-08",
       "scope": "web"
+    },
+    {
+      "key": "commercial-demo-handoff",
+      "kind": "lesson",
+      "text": "设计说明阶段由 System 主持协作，原型阶段由 Design 带用户按业务路径实际走查并绑定同一构建的证据。",
+      "why": "开发说明与交互演示的责任和可验证结果不同",
+      "uses": 1,
+      "first_seen": "2026-11-21",
+      "last_confirmed": "2026-11-21",
+      "scope": "maintenance",
+      "codified": "ui-ownership.md › 商业项目交接"
+    },
+    {
+      "key": "commercial-manual-role-pair",
+      "kind": "lesson",
+      "text": "按项目步骤编制商业系统开发手册时，用同笔业务的状态图与浏览器双端实图对应功能、视觉和验收，字段与签认对象各自可回填。",
+      "why": "对照既有预约案例和当次实际渲染，将正式生产授权与原型确认分别列明。",
+      "uses": 1,
+      "first_seen": "2026-11-21",
+      "last_confirmed": "2026-11-21",
+      "scope": "maintenance"
     },
     {
       "key": "commercial-ppt-business-image-card-rhythm",
@@ -1473,12 +1784,17 @@
     {
       "key": "contrast-against-tinted-top-not-white",
       "kind": "lesson",
-      "text": "辅助文字的对比度要对着它实际所在的底色量：同一个灰在白底 5.3:1，放到浅色顶部底色上只有 4.46:1；顶部区域、浅底标签、分段轨道上的文字各量一遍，占位文字也要到 4.5:1。",
-      "why": "演示平台 2026-11-11 实测后把辅助色从 #626c80 加深到 #5c6679（顶部底色上 4.88:1），占位文字改为 #687286（4.84:1）",
-      "uses": 1,
+      "text": "在实际白底上测辅助文字、占位符和当前态的对比度，检查伪元素或组件默认样式是否改变可见底色。",
+      "why": "前端白底更新后统一，以实际渲染颜色核对。",
+      "uses": 2,
       "first_seen": "2026-11-11",
-      "last_confirmed": "2026-11-11",
-      "scope": "ui"
+      "last_confirmed": "2026-11-20",
+      "previous": {
+        "text": "辅助文字的对比度要对着它实际所在的底色量：同一个灰在白底 5.3:1，放到浅色顶部底色上只有 4.46:1；顶部区域、浅底标签、分段轨道上的文字各量一遍，占位文字也要到 4.5:1。",
+        "replaced_at": "2026-11-20"
+      },
+      "scope": "ui",
+      "codified": "references/design/foundation.md › 颜色"
     },
     {
       "key": "css-var-resolved-at-declaration",
@@ -1724,6 +2040,16 @@
       "scope": "ui"
     },
     {
+      "key": "formal-appendix-source-links-word-export",
+      "kind": "lesson",
+      "text": "中文通用模板的原文索引优先用编号、标题、定位及可点原文链接。导出后逐条检查 PDF 的 URI，避免长网址撑开两端对齐的正文。",
+      "why": "本次长 URL 导致额外分页和行内空白，保留发布方与定位并用由源规格生成的链接可保持可追溯。",
+      "uses": 1,
+      "first_seen": "2026-11-20",
+      "last_confirmed": "2026-11-20",
+      "scope": "documents"
+    },
+    {
       "key": "frontend-review-look-at-sheets",
       "kind": "lesson",
       "text": "前端原型的浏览器评审要同时做量和看：自动测量（对比度、目标尺寸、名称、焦点）只能发现一部分，按硬规则逐条对照联系表和真实操作才发现了：总览状态分布与顶部指标重复、领料表单离被操作的行太远、详情页自动展开文本框、窄屏标题折行或被截断、列表内详情同时出现两个 h1、返回不恢复触发焦点。下结论前先把整套联系表看一遍。",
@@ -1741,6 +2067,16 @@
       "first_seen": "2026-11-09",
       "last_confirmed": "2026-11-09",
       "scope": "app"
+    },
+    {
+      "key": "frontend-visual-rule-and-review-scope",
+      "kind": "lesson",
+      "text": "审阅前端规则时，按平台对照成品条款、规则卡的交付清单和检查器，核对固定值、建议值及各自的验收方式。",
+      "why": "当前 Web 同布局卡片纵向接缝为零，App 以半个正文字号为间距起点，审阅清单中的零接缝条目漏写适用端。设计方向卡只加载视觉基础和组件，整页构图由审阅者结合项目判断。",
+      "uses": 1,
+      "first_seen": "2026-11-20",
+      "last_confirmed": "2026-11-20",
+      "scope": "maintenance"
     },
     {
       "key": "gallery-layout-detector-plus-eyes",
@@ -1800,6 +2136,32 @@
       "first_seen": "2026-11-11",
       "last_confirmed": "2026-11-11",
       "scope": "web"
+    },
+    {
+      "key": "huaban-pastel-component-pairs",
+      "kind": "lesson",
+      "text": "花瓣色卡可用来参考冷暖、邻近或明暗关系。示例色号与组件用法均可调整，按最终底色核对文字、图形与状态。",
+      "why": "用户明确颜色配置仅供参考，局部组件配色由项目选择。",
+      "uses": 2,
+      "first_seen": "2026-11-20",
+      "last_confirmed": "2026-11-20",
+      "previous": {
+        "text": "花瓣色卡可提供冷暖、邻近与中性色的搭配关系。白底产品用现有 Pastel 300 映射到具体按钮、图标或卡片，并核对实际文字与状态。",
+        "replaced_at": "2026-11-20"
+      },
+      "scope": "ui",
+      "codified": "references/design/huaban-palettes.html › 组件配色组合"
+    },
+    {
+      "key": "huaban-visible-palette-provenance",
+      "kind": "lesson",
+      "text": "使用花瓣色卡作界面参考时，将能查看的作品预览与对应的采集或画板链接配对，标明可核实的范围，以及项目另外选择的示例色号。",
+      "why": "本次 27 张预览对应 18 个采集或画板，详情页访问验证限制了对原图色号的核实。",
+      "uses": 1,
+      "first_seen": "2026-11-20",
+      "last_confirmed": "2026-11-20",
+      "scope": "ui",
+      "codified": "references/design/huaban-palettes.html#sources"
     },
     {
       "key": "imagegen-line-icon-optical-size",
@@ -2022,6 +2384,17 @@
       "scope": "project"
     },
     {
+      "key": "optional-three-motion",
+      "kind": "lesson",
+      "text": "空间效果可复用按需播放的 Three.js 组件，减少动态或 WebGL 不可用时保留静态画面。",
+      "why": "用户希望增加 Three.js 动效，App 与 Web 组件库各有可播放样例。",
+      "uses": 1,
+      "first_seen": "2026-11-19",
+      "last_confirmed": "2026-11-19",
+      "scope": "ui",
+      "codified": "references/design/motion.md › Three.js 空间动效"
+    },
+    {
       "key": "paginated-builder-task-font-adapter",
       "kind": "lesson",
       "text": "正式分页生成器更新调用入口后，任务内字体与分页适配须跟随真实渲染路径；保留原公开入口的检索、模板、检查和成品登记，并核验最终PDF字体、目录与正文。",
@@ -2067,6 +2440,31 @@
       "uses": 1,
       "first_seen": "2026-11-10",
       "last_confirmed": "2026-11-10"
+    },
+    {
+      "key": "ppt-audit-spec-template-and-render",
+      "kind": "lesson",
+      "text": "审阅幻灯片规范时同时核对规则卡旧经验、实际选中的母版或生成路径及放映样张。结构检查通过后，仍从画面检查视觉焦点、留白和章节变化。",
+      "why": "本轮对照规范、多用途样张和生成器，识别配色与字号建议在默认路径上受到同一主题和固定字阶限制。",
+      "uses": 1,
+      "first_seen": "2026-11-19",
+      "last_confirmed": "2026-11-19",
+      "scope": "maintenance"
+    },
+    {
+      "key": "ppt-layout-atlas-by-page-task",
+      "kind": "lesson",
+      "text": "版式图谱以整张幻灯片示范顶部标题、主内容、证据说明、页脚与动作。双层表现总览到明细，等距圆和双环表现中心关系，自底向上架构标明底座到应用的箭头。",
+      "why": "用户要求图谱让示例像完整 PPT 并将八卦式改成圆形组合，本次核对本地原件并逐页目检 22 张整页示例。",
+      "uses": 2,
+      "first_seen": "2026-11-21",
+      "last_confirmed": "2026-11-21",
+      "previous": {
+        "text": "演示布局图谱先按页面任务定位，再按关系和数据条件选版。每个示意给出适用场景和摆放方式，区分八方分区、中心放射、循环与层级树。",
+        "replaced_at": "2026-11-21"
+      },
+      "scope": "maintenance",
+      "codified": "references/design/slides.md › 选模板与核验"
     },
     {
       "key": "preserve-action-home-in-composition",
@@ -2209,6 +2607,16 @@
       "scope": "ui"
     },
     {
+      "key": "review-native-pptx-embedded-images",
+      "kind": "lesson",
+      "text": "图片在预览中显示空白时，复核包内媒体引用，采用模板同样的相对引用与嵌入图片，并用 PowerPoint 原生保存和重新打开核对。",
+      "why": "WPS 能显示的图片在用户视图中未显示，不能仅凭其他渲染器与结构检查判定图片交付正常。",
+      "uses": 1,
+      "first_seen": "2026-11-20",
+      "last_confirmed": "2026-11-20",
+      "scope": "documents"
+    },
+    {
       "key": "route-focus-and-origin-restore",
       "kind": "lesson",
       "text": "路由切换后焦点交给新页面标题；返回时记录进入前点击的控件（data-ui-open 或 aria-label），到达来源地址后把焦点还给它，来源按钮已置灰则回到标题；比较来源地址前要去掉查询参数里的空字符串，否则恢复失败。操作后原按钮被移除（暂停确认、领料提交、下达、完工）也要把焦点交给下一个合理控件，不能落到页面开头。",
@@ -2293,14 +2701,6 @@
       "last_confirmed": "2026-10-29"
     },
     {
-      "key": "source-links-before-real-pagination",
-      "kind": "lesson",
-      "text": "正式文档的来源链接应从同一事实源写成真实文字链接，再经实际分页与导出，核对最终目录、书签和外部链接，不能只检查源文件。",
-      "uses": 1,
-      "first_seen": "2026-11-05",
-      "last_confirmed": "2026-11-05"
-    },
-    {
       "key": "source-lock-agent-functional-gap",
       "kind": "lesson",
       "text": "新 Agent 工作台先把已批准页面、动作和运行状态映射到完整来源。通用后台、官方产品文档、付费版宣传和内部 Agent 示例不能证明当前免费原件覆盖业务；仅文字规则下的关键交互缺口须保留，必要时请用户明确项目例外，不自改门禁。",
@@ -2331,24 +2731,6 @@
       "first_seen": "2026-11-09",
       "last_confirmed": "2026-11-09",
       "scope": "maintenance"
-    },
-    {
-      "key": "stage-dot-inline-span",
-      "kind": "lesson",
-      "text": "组件库 data-stage-dot 的圆点是 ::before，必须是 inline-block（或在 flex 行里），否则放在普通 span 上宽高被忽略、圆点画不出来；用在行内元素前先在浏览器里量 ::before 的 display 与尺寸，库里有 test_stage_ramp 的 KitStageMarkupTest 钉住",
-      "why": "014-CustomerEntry 套用有序进度状态色阶时，行内 span 上的 data-stage-dot 没有圆点，改 tools/tokens.py 的规则为 inline-block 加 vertical-align:middle 并重新生成 kit.css",
-      "uses": 1,
-      "first_seen": "2026-11-05",
-      "last_confirmed": "2026-11-05"
-    },
-    {
-      "key": "stage-ramp-contrast-band-sets-step-size",
-      "kind": "lesson",
-      "text": "文字色阶受 4.5:1 限制只剩一条窄明度带，六级相邻色差只能到 OKLab ΔE×100 约 3–5：要靠明度、彩度、短弧色相一起走，沿路径按等 OKLab 距离取点而不是等间隔，彩度封顶取成功、警告文字色的彩度 0.12；级数再多就分档，不指望靠颜色一眼数清，文字标签一直保留。",
-      "why": "2026-11 生成有序进度色阶时的实测：25 个主题浅色相邻色差最小 4.36、深色 3.16，参数搜索里 6 级怎么调都难超过 4.7。",
-      "uses": 1,
-      "first_seen": "2026-11-05",
-      "last_confirmed": "2026-11-05"
     },
     {
       "key": "stage-ramp-on-brand-surface",
@@ -2437,12 +2819,17 @@
     {
       "key": "tint-fill-must-differ-from-page-bg",
       "kind": "lesson",
-      "text": "浅主色填充（标签、分段项、用户气泡、引用角标、禁用按钮）要与页底 --bg 有可见差：--zone 取主色 11%，--action-soft 取 15%，禁用按钮用中性灰混合；--action-tint（7%）与 --bg 几乎同色，只能放在白卡上。",
-      "why": "2026-11-09 多个代理独立发现浅主色填充在页底上隐形（实测 #F9F4F5 对 #F8F6F6）。令牌由 sync_template_tokens.py 生成。复核触发：改 --bg 或浅色派生比例。",
-      "uses": 1,
+      "text": "选中、禁用、引用和用户消息在纯白底上用字重、图形、线条或状态文字区分。",
+      "why": "用户本次明确前端须白底、头像使用图标、所有图标禁用文字形式。",
+      "uses": 2,
       "first_seen": "2026-11-09",
-      "last_confirmed": "2026-11-09",
-      "scope": "ui"
+      "last_confirmed": "2026-11-20",
+      "previous": {
+        "text": "浅主色填充（标签、分段项、用户气泡、引用角标、禁用按钮）要与页底 --bg 有可见差：--zone 取主色 11%，--action-soft 取 15%，禁用按钮用中性灰混合；--action-tint（7%）与 --bg 几乎同色，只能放在白卡上。",
+        "replaced_at": "2026-11-20"
+      },
+      "scope": "ui",
+      "codified": "references/design/foundation.md › 颜色"
     },
     {
       "key": "toast-lost-during-dialog-exit",
@@ -2566,12 +2953,17 @@
     {
       "key": "white-text-gradient-contrast",
       "kind": "lesson",
-      "text": "白字压在主色渐变上时，渐变只能在 action-press 到 action 之间，不向白色提亮；各主题的 action 对白字约 4.6:1，混入 4% 白色就掉到 4.3 以下。.btn--primary 的字色用 --surface 而不是 --bg；危险色字压在 danger-tint 上要加深一档。",
-      "why": "本轮组件库代理多次测出 .btn--soft、.bg-hero、.card--hero、.top、.veil-tint 的白字只有 2.3–3:1，统一改为深端渐变后达标。",
-      "uses": 1,
+      "text": "Pastel 300 底色优先配深色文字和图形；检查渐变两端和文字实际覆盖处的对比度，并核对交互状态。",
+      "why": "用户确认以 Pastel 300 色卡为界面参考色，整页纯白，局部组件可用纯色或渐变。",
+      "uses": 3,
       "first_seen": "2026-11-09",
-      "last_confirmed": "2026-11-09",
-      "scope": "ui"
+      "last_confirmed": "2026-11-20",
+      "previous": {
+        "text": "白底上核对前景品牌色与状态色的实际对比度，按钮各状态的文字及图形均可读。",
+        "replaced_at": "2026-11-20"
+      },
+      "scope": "ui",
+      "codified": "references/design/foundation.md › Pastel 300 强调色"
     },
     {
       "key": "wide-demos-span-full-row",
@@ -2633,11 +3025,15 @@
     {
       "key": "approved-page-images-to-pptx",
       "kind": "fact",
-      "text": "用户确认整页图后，可按原稿序列嵌入 PowerPoint。逐页校验图像字节、比例和裁切，写入标题占位符和替代文字。",
-      "why": "适用于明确把已完成并确认的完整图片直接转成演示文稿。",
-      "uses": 1,
+      "text": "用户确认整页图转PPT时，使用原始图片字节与确认的页序。按比例置入宽屏画布，补上导航标题和替代文字，以实际演示软件逐页渲染复核。",
+      "why": "本轮是通过评审的17页整图转换，核验图像、标题、顺序、画幅和演示软件显示。",
+      "uses": 2,
       "first_seen": "2026-11-18",
-      "last_confirmed": "2026-11-18",
+      "last_confirmed": "2026-11-19",
+      "previous": {
+        "text": "用户确认整页图后，可按原稿序列嵌入 PowerPoint。逐页校验图像字节、比例和裁切，写入标题占位符和替代文字。",
+        "replaced_at": "2026-11-19"
+      },
       "scope": "documents"
     },
     {
@@ -2670,11 +3066,17 @@
     {
       "key": "b2b-status-tints",
       "kind": "fact",
-      "text": "在石墨主题中，进行中使用蓝色浅底，等待使用琥珀浅底，完成使用绿色浅底，部分完成使用橙色浅底，失败使用红色浅底，并配同色细边与左侧状态轨。",
-      "why": "基于 b2b-graphite 主题与 Element Plus Tag/Card 官方规范实测。",
-      "uses": 1,
+      "text": "迁移旧版后台时保留白色画布，状态组件按项目的语义色与文字呈现。",
+      "why": "用户明确颜色配置仅供参考，局部组件配色由项目选择。",
+      "uses": 4,
       "first_seen": "2026-10-30",
-      "last_confirmed": "2026-10-30"
+      "last_confirmed": "2026-11-20",
+      "previous": {
+        "text": "迁移旧版后台时保留白色画布、状态文字与语义。状态组件若需色底，可选相应的 Pastel 300。",
+        "replaced_at": "2026-11-20"
+      },
+      "scope": "maintenance",
+      "codified": "references/design/hard-rules.md › 前端背景、头像与图标"
     },
     {
       "key": "cjk-typesetting-sources",
@@ -2914,11 +3316,17 @@
     {
       "key": "flat-portrait-avatar-set",
       "kind": "fact",
-      "text": "企业工具的默认头像：10 个手绘扁平人像由参数表（肤色、发色、衣服、底色、发型、配饰）程序生成，80 栅格圆形裁切，不含文字，颜色低饱和且图是图片不计配色；按账号编号取模固定选取，同一人各处同一张；先把 10 个排成一张图逐个看过再用。",
-      "why": "用户要求默认头像用固定的扁平人像，严禁文字头像",
-      "uses": 1,
+      "text": "头像与回退都用可辨认的图形，可按账号稳定选取。底板可透明或按项目自选纯色与渐变，轮廓和配饰帮助区分身份。",
+      "why": "用户明确颜色配置仅供参考，局部组件配色由项目选择。",
+      "uses": 4,
       "first_seen": "2026-11-04",
-      "last_confirmed": "2026-11-04"
+      "last_confirmed": "2026-11-20",
+      "previous": {
+        "text": "头像与回退都用可辨认的图形，可按账号稳定选取。局部底板可为白色、透明或 Pastel 300 纯色与渐变；用轮廓、发型或配饰区分身份。",
+        "replaced_at": "2026-11-20"
+      },
+      "scope": "ui",
+      "codified": "references/design/hard-rules.md › 前端背景、头像与图标"
     },
     {
       "key": "frontend-vitest-antd-es-directory-import",
@@ -3092,12 +3500,17 @@
     {
       "key": "page-level-top-backdrop",
       "kind": "fact",
-      "text": "整页共用一片顶部背景的做法：背景挂在 body::before（绝对定位、z-index 负一、随页面滚动），底色从浅色渐变到白色，矢量图靠右上并用遮罩向下渐隐；各页的顶部容器改成透明，用根元素上的 data-view 区分标签页与子页面（子页面把图缩小到只盖住标题一行）。这样顶部与正文没有硬边，卡片叠在背景上。",
-      "why": "演示平台 2026-11-11 改版实测，320、390、1280 宽 42 个页面无横向溢出；需要 html 设白底、body 透明，否则背景被正文底色盖住",
-      "uses": 1,
+      "text": "旧版演示平台曾通过 body::before 叠加页首渐变和图案。迁移到白底时须同时清除该伪元素及其背景图。",
+      "why": "用户本次明确前端须白底、头像使用图标、所有图标禁用文字形式。",
+      "uses": 2,
       "first_seen": "2026-11-11",
-      "last_confirmed": "2026-11-11",
-      "scope": "ui"
+      "last_confirmed": "2026-11-20",
+      "previous": {
+        "text": "整页共用一片顶部背景的做法：背景挂在 body::before（绝对定位、z-index 负一、随页面滚动），底色从浅色渐变到白色，矢量图靠右上并用遮罩向下渐隐；各页的顶部容器改成透明，用根元素上的 data-view 区分标签页与子页面（子页面把图缩小到只盖住标题一行）。这样顶部与正文没有硬边，卡片叠在背景上。",
+        "replaced_at": "2026-11-20"
+      },
+      "scope": "maintenance",
+      "codified": "references/design/hard-rules.md › 前端背景、头像与图标"
     },
     {
       "key": "page-pattern-library",
@@ -3163,6 +3576,21 @@
       "uses": 1,
       "first_seen": "2026-11-02",
       "last_confirmed": "2026-11-02"
+    },
+    {
+      "key": "project-agreement-contract-layout",
+      "kind": "fact",
+      "text": "用户指明按某一份合作协议格式交付时，以该版可编辑Word原件作为母版，保留字体、段落、条款顺序、签署栏和页码，按真实输出做逐页检查。",
+      "why": "精确复用优先于通用合同生成器。原始模板直填与用户所要求的格式一致。",
+      "uses": 3,
+      "first_seen": "2026-11-20",
+      "last_confirmed": "2026-11-20",
+      "previous": {
+        "text": "项目合作协议沿用需求说明和系统方案的字体、字号、正文行距和版心，采用紧凑条文及并排签章栏。",
+        "replaced_at": "2026-11-20"
+      },
+      "scope": "documents",
+      "codified": "Luz-Project/templates/02-对接资料/README.md"
     },
     {
       "key": "prototype-audit-four-web-surfaces",

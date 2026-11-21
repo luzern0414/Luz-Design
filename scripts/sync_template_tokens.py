@@ -110,15 +110,25 @@ def preset(theme: tuple) -> dict:
     tid, name, hue, chroma, cap = theme
     action = fit(chroma, hue, cap)
     accent_hue = (hue + ACCENT_SHIFT) % 360
+    accent = fit(min(chroma + 0.01, 0.1), accent_hue, 0.6)
     return {
         "id": tid, "name": name, "oklch_hue": hue, "hue": css_hue(action), "chroma": chroma, "action": action,
-        "accent": fit(min(chroma + 0.01, 0.1), accent_hue, 0.6),
+        "accent": accent,
         "sat": round(min(chroma / 0.10 * 1.5, 1.9), 2),
     }
 
 
 def presets() -> list[dict]:
     return [preset(t) for t in THEMES]
+
+
+def interface_presets() -> list[dict]:
+    items = [theme for theme in presets() if not 65 <= theme["hue"] <= 185]
+    for theme in items:
+        if 65 <= css_hue(theme["accent"]) <= 185:
+            theme["accent"] = theme["action"]
+    return items
+
 
 
 # ---- tokens ------------------------------------------------------------------------------------------------------------------
@@ -144,8 +154,8 @@ HEAD = """/* 令牌文件：由 scripts/sync_template_tokens.py 生成，不手�
   --zone: color-mix(in srgb, var(--action) 11%, #fff);
   --accent-tint: color-mix(in srgb, var(--accent) 11%, #fff);
 
-  /* 底与表面：近白页底带一点主题色，白卡片；文字是带主题色的近黑 */
-  --bg: color-mix(in srgb, var(--action) 2.5%, #FAFAF9);
+  /* 全局画布保持白色，组件的强调色由项目主题决定。 */
+  --bg: #FFFFFF;
   --surface: #FFFFFF;
   --ink: color-mix(in srgb, var(--action) 6%, #1D1F23);
   --ink-2: color-mix(in srgb, var(--action) 7%, #474A50);
@@ -155,7 +165,7 @@ HEAD = """/* 令牌文件：由 scripts/sync_template_tokens.py 生成，不手�
   --scrim: color-mix(in srgb, var(--ink) 48%, transparent);
 
   /* 语义色：只表达状态，必须配文字 */
-  --success: @success@; --success-tint: #E4F3EC;
+  --success: @success@; --success-tint: @success_tint@;
   --warning: @warning@; --warning-tint: #FBF0DE;
   --danger: @danger@;  --danger-tint: #FBE7E9;
   --info: @info@;    --info-tint: #E6EEF5;
@@ -193,12 +203,12 @@ def block(selector: str, theme: dict) -> str:
     return (f"{selector} {{\n  --action: {theme['action']};\n  --accent: {theme['accent']};\n  --hue: {theme['hue']};\n  --ic-sat: {theme['sat']};\n}}\n")
 
 
-def render() -> str:
+def render(*, application: bool = True) -> str:
     shared = json.loads(THEMES_JSON.read_text(encoding="utf-8-sig"))["shared"]
-    head = HEAD
+    head = HEAD.replace("@success_tint@", "#E8EFFA" if application else shared["successTint"])
     for key in ("success", "warning", "danger", "info", "price"):
-        head = head.replace(f"@{key}@", shared[key])
-    items = presets()
+        head = head.replace(f"@{key}@", "#28599B" if application and key == "success" else shared[key])
+    items = interface_presets() if application else presets()
     by_id = {t["id"]: t for t in items}
     parts = [head, "\n/* 主题：24 个预设，默认 " + DEFAULT + "，用 data-theme 切换；自选色由 ui.js 写入 --action 等同名变量 */\n", block(":root", by_id[DEFAULT])]
     for t in items:

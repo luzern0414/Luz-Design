@@ -50,7 +50,7 @@ def _session_from(path: Path):
     return None
 
 
-def _project_context(link, module):
+def _project_context(link, module, *, requested_stage=None):
     if not link:
         return None
     if isinstance(link, str):
@@ -76,14 +76,14 @@ def _project_context(link, module):
     stage = link.get("stage") if isinstance(link, dict) else None
     if stage is not None and (not isinstance(stage, str) or not stage.strip()):
         raise ValueError("MANIFEST.json project.stage 必须是非空阶段名称")
-    stage = stage or "design"
+    stage = stage or requested_stage or "design"
     stages = data.get("stages")
     if stages:
-        owner = next((item.get("owner") for item in stages
-                      if isinstance(item, dict) and item.get("id") == stage), None)
-        if owner != "luz-design":
+        item = next((r for r in stages if isinstance(r, dict) and r.get("id") == stage), {})
+        contributor = data.get("workflow") == "commercial-v1" and "luz-design" in item.get("contributors", [])
+        if item.get("owner") != "luz-design" and not contributor:
             raise ValueError(f"Design 会话关联阶段的负责技能不是 luz-design: {stage}")
-    return {"state_root": state, "deliver_root": deliver, "stage": stage}
+    return {"state_root": state, "deliver_root": deliver, "stage": stage, "workflow": data.get("workflow")}
 
 
 def _context(session=None, output=None, *, caller="luz-design", stage=None, require_session=True):
@@ -98,13 +98,15 @@ def _context(session=None, output=None, *, caller="luz-design", stage=None, requ
         state = module.state_root(Path(seed).resolve())
         if require_session or state is None:
             raise ValueError(f"未找到真实 Design 会话 MANIFEST.json: {seed}；先运行 new_session.py")
-        project = _project_context(str(state), module)
+        project = _project_context(str(state), module, requested_stage=stage)
         evidence_root = project["state_root"]
-        actual_stage = stage or "design"
+        actual_stage = project["stage"]
+        owner = module.stage_evidence_caller(evidence_root, caller, actual_stage)
         return module, {"session": None, "raw": None, "project": project["deliver_root"],
                         "evidence_root": evidence_root, "template_root": evidence_root,
-                        "caller": caller, "stage": actual_stage,
-                        "record": module.record_path(evidence_root, caller, actual_stage)}
+                        "caller": caller, "stage": actual_stage, "evidence_caller": owner,
+                        "workflow": project.get("workflow") if project else None,
+                        "record": module.record_path(evidence_root, owner, actual_stage)}
     folder, raw, manifest_file, manifest = found
     if caller != "luz-design":
         raise ValueError("Design 会话的负责技能 caller 固定为 luz-design")
@@ -124,6 +126,7 @@ def _context(session=None, output=None, *, caller="luz-design", stage=None, requ
     if stage is not None and linked_stage is not None and stage != linked_stage:
         raise ValueError("--stage 与会话关联的项目阶段不一致")
     actual_stage = linked_stage if project else (stage or os.environ.get("LUZ_CRAWL_STAGE") or "design")
+    owner = module.stage_evidence_caller(evidence_root, caller, actual_stage)
     project_output = (project is not None and output is not None
                       and Path(output).resolve().is_relative_to(project["deliver_root"] / "docs"))
     return module, {"session": folder, "raw": raw,
@@ -132,8 +135,9 @@ def _context(session=None, output=None, *, caller="luz-design", stage=None, requ
                     # Raw drafts and the session summary remain owned by the
                     # Design session. Only project docs bind templates there.
                     "template_root": evidence_root if project_output else folder,
-                    "caller": caller, "stage": actual_stage,
-                    "record": module.record_path(evidence_root, caller, actual_stage)}
+                    "caller": caller, "stage": actual_stage, "evidence_caller": owner,
+                    "workflow": project.get("workflow") if project else None,
+                    "record": module.record_path(evidence_root, owner, actual_stage)}
 
 
 def _output_errors(context: dict, output) -> list[str]:
@@ -150,7 +154,11 @@ def _output_errors(context: dict, output) -> list[str]:
         if target.parent == folder and target.suffix.lower() in layout.DELIVERABLE_EXT:
             return []
     else:
-        for name, extensions in layout.DOC_DIRS.items():
+        directories = (layout.COMMERCIAL_DOC_DIRS if context.get("workflow") == "commercial-v1"
+                       else layout.DOC_DIRS)
+        for name, extensions in directories.items():
+            if not extensions:
+                continue
             if (target.parent == project / "docs" / name and target.suffix.lower() in extensions
                     and layout.DOC_FILE.fullmatch(target.stem)):
                 return []
@@ -165,7 +173,7 @@ def require_session_preflight(session=None, output=None, caller="luz-design", st
     """
     module, context = _context(session, output, caller=caller, stage=stage)
     errors = _output_errors(context, output)
-    errors.extend(module.validate_preflight(context["evidence_root"], caller, context["stage"]))
+    errors.extend(module.validate_preflight(context["evidence_root"], context["evidence_caller"], context["stage"]))
     if errors:
         raise ValueError("; ".join(errors))
     if template_id and output is not None:
@@ -188,7 +196,7 @@ def crawl_errors(session, stage=None, caller=None):
     caller = caller or Path(__file__).resolve().parents[1].name.lower()
     try:
         module, context = _context(session, caller=caller, stage=stage, require_session=False)
-        return module.validate_preflight(context["evidence_root"], caller, context["stage"])
+        return module.validate_preflight(context["evidence_root"], context["evidence_caller"], context["stage"])
     except (OSError, ValueError, TypeError, KeyError) as exc:
         return [str(exc)]
 

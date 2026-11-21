@@ -7,6 +7,7 @@ Every reusable thing carries a number that is read from the files themselves, so
   海报        templates/poster/source/templates/PS-001-名称.html, data-cid="PS-001" on the canvas
   提示词      templates/poster/source/prompts/prompts.json, id "PP-001"
   文件        templates/documents/<word|excel|slides|pdf|reading>/manifest.json, id "DC-WD-001"; parts "DC-WD-P01"
+  PPT 原版    templates/documents/slides/originals/manifest.json, id "DC-SL-O001"
 
   py -X utf8 scripts/template_registry.py list [--kind app|web|poster|prompt|document] [--cat BTN] [--page home] [--query 词]
   py -X utf8 scripts/template_registry.py show AP-BTN-004        print the component's HTML and the page-local CSS it needs
@@ -42,7 +43,7 @@ DOC_TYPES = {"word": "WD", "excel": "XL", "slides": "SL", "pdf": "PD", "reading"
 ID_RE = re.compile(r"^(AP|WB)-([A-Z]{3,4})-(\d{3})$")
 PS_RE = re.compile(r"^PS-(\d{3})$")
 PP_RE = re.compile(r"^PP-(\d{3})$")
-DC_RE = re.compile(r"^DC-(WD|XL|SL|PD|RD)-(\d{3}|P\d{2})$")
+DC_RE = re.compile(r"^DC-(WD|XL|SL|PD|RD)-(\d{3}|P\d{2}|O\d{3})$")
 TAG_RE = re.compile(r"<(/?)([a-zA-Z][\w-]*)((?:[^>\"']|\"[^\"]*\"|'[^']*')*?)(/?)>")
 VOID = {"area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "source", "track", "wbr"}
 CJK = re.compile(r"[一-鿿]")
@@ -139,6 +140,14 @@ def document_items() -> list[dict]:
         for r in data.get("parts", []):
             items.append({"kind": "document", "id": r.get("id", ""), "name": r.get("name", ""), "cat": typ, "use": "",
                           "page": typ, "file": r.get("file", ""), "spec": "", "folder": rel(folder.parent), "_row": r, "part": True})
+    manifest = TEMPLATES / "documents" / "slides" / "originals" / "manifest.json"
+    if manifest.is_file():
+        data = json.loads(manifest.read_text(encoding="utf-8"))
+        for r in data["items"]:
+            items.append({"kind": "document", "id": r["id"], "name": r["name"], "cat": "slides", "use": r["use"],
+                          "page": "slides", "file": r["file"], "spec": "", "folder": rel(manifest.parents[1]), "_row": r,
+                          "part": False, "original": True, "category": r["category"], "source": r["source"],
+                          "publisher": data["publishers"][r["provider"]]})
     return items
 
 
@@ -208,19 +217,21 @@ def problems(items: list[dict]) -> list[str]:
         elif kind == "document":
             m = DC_RE.match(cid)
             if not m:
-                errors.append(f"{it['folder']}: 文件编号格式不对 {cid}（应为 DC-WD-001 或 DC-WD-P01）")
+                errors.append(f"{it['folder']}: 文件编号格式不对 {cid}（应为 DC-WD-001、DC-WD-P01 或 DC-SL-O001）")
                 continue
             if DOC_TYPES.get(it["cat"]) != m.group(1):
                 errors.append(f"{it['folder']}: {cid} 的类型与目录 {it['cat']} 不一致")
             if it["part"] != m.group(2).startswith("P"):
                 errors.append(f"{it['folder']}: {cid} 的模板与可复用块编号用错（块用 P01 形式）")
+            if bool(it.get("original")) != m.group(2).startswith("O") or (it.get("original") and m.group(1) != "SL"):
+                errors.append(f"{it['folder']}: {cid} 的原版模板编号应为 DC-SL-ONNN")
             if cid in seen:
                 errors.append(f"{it['folder']}: 编号重复 {cid}（另见 {seen[cid]}）")
             seen[cid] = it["folder"]
             if not CJK.search(it["name"]):
                 errors.append(f"{it['folder']}: {cid} 缺少中文名称")
             for key in ("file", "spec"):
-                if it[key] and not (ROOT / it["folder"] / it[key]).is_file():
+                if it[key] and not it.get("original") and not (ROOT / it["folder"] / it[key]).is_file():
                     errors.append(f"{it['folder']}: {cid} 的 {key} 文件不存在 {it[key]}")
     errors.extend(gaps(items))
     return errors
@@ -267,7 +278,10 @@ def public(items: list[dict]) -> dict:
         elif it["kind"] == "prompt":
             out["prompts"].append({**base, "use": it["use"], "role": it["role"], "ratio": it["ratio"], "resolution": it["resolution"]})
         else:
-            out["documents"].append({**base, "type": it["cat"], "use": it["use"], "spec": it["spec"], "part": it["part"], "folder": it["folder"]})
+            row = {**base, "type": it["cat"], "use": it["use"], "spec": it["spec"], "part": it["part"], "folder": it["folder"]}
+            if it.get("original"):
+                row.update(original=True, category=it["category"], source=it["source"], publisher=it["publisher"]["name"])
+            out["documents"].append(row)
     return out
 
 
@@ -323,7 +337,8 @@ def cmd_list(args) -> int:
             continue
         if args.page and it["page"] != args.page:
             continue
-        if args.query and args.query.lower() not in (it["id"] + " " + it["name"] + " " + it.get("use", "")).lower():
+        terms = " ".join((it["id"], it["name"], it.get("use", ""), it.get("category", ""), it.get("publisher", {}).get("name", "")))
+        if args.query and args.query.lower() not in terms.lower():
             continue
         rows.append(it)
     for it in rows:
@@ -339,6 +354,8 @@ def show_html(it: dict) -> None:
     snippet = text[it["start"]:it["stop"]]
     body = stage_of(snippet) if it["page"] == "components" else snippet
     print(f"<!-- {it['id']} {it['name']}  来自 {it['file']} -->")
+    if it["page"] == "components" and it["cat"] == "BGND":
+        print("<!-- 历史背景样例。前端复用时将表面设为 #FFFFFF，移除彩色背景和渐变。 -->")
     print(body)
     css = local_css(text, body)  # for a component demo the stage, so the catalog card's own rules stay out
     shared = "tokens.css ui.css kit.css " + ("app.css" if it["kind"] == "app" else "web.css") + (" agent.css" if it["cat"] in {"CHAT", "AGNT"} or "agent" in snippet else "") + "，脚本 ui.js"
@@ -357,6 +374,14 @@ def show_other(it: dict) -> None:
         print(f"用途  {r.get('use', '')}\n\n{r.get('prompt', '')}\n\n负面约束  {r.get('negative', '')}")
         for c in r.get("checks", []):
             print(f"复核  {c}")
+    elif it.get("original"):
+        r, publisher = it["_row"], it["publisher"]
+        path = ROOT / it["folder"] / it["file"]
+        print(f"{it['id']}  {it['name']}  {r['ratio']} · {r['slides']} 页 · {r['layouts']} 个版式")
+        print(f"用途  {it['use']}")
+        print(f"原件  {path}" if path.is_file() else f"原件  从发布页下载 {r['original_name']}")
+        print(f"发布  {publisher['name']}  {it['source']}")
+        print(f"授权  {publisher['credits']}  {publisher['license_url']}")
     else:
         r = it["_row"]
         print(f"{it['id']}  {it['name']}  ({it['folder']})")

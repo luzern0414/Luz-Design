@@ -170,7 +170,7 @@ class CheckTest(unittest.TestCase):
 class TokensTest(unittest.TestCase):
     def test_every_theme_exports_the_stage_and_its_tints_in_both_modes(self) -> None:
         for theme_id, theme in DATA["themes"].items():
-            doc = et.build(theme_id, DATA)
+            doc = et.build(theme_id, DATA, surface='reference')
             with self.subTest(theme=theme_id):
                 self.assertEqual(et.check_tokens(doc), [])
                 for i in range(6):
@@ -182,7 +182,7 @@ class TokensTest(unittest.TestCase):
                     self.assertIn("dark", tint["$extensions"]["mode"])
 
     def test_check_tokens_catches_a_stage_that_fails_contrast_or_order(self) -> None:
-        doc = et.build("b2b-graphite", DATA)
+        doc = et.build('b2b-graphite', DATA, surface='reference')
         pale = json.loads(json.dumps(doc))
         pale["color"]["stage"]["1"]["$value"] = et.to_color("#B7C4CB")
         errors = et.check_tokens(pale)
@@ -194,7 +194,7 @@ class TokensTest(unittest.TestCase):
         self.assertTrue(any("dark" in e and "明度" in e for e in errors), errors)
 
     def test_light_only_export_carries_the_light_ramp_alone(self) -> None:
-        doc = et.build("b2b-graphite", DATA, with_dark=False)
+        doc = et.build("b2b-graphite", DATA, with_dark=False,surface='reference')
         self.assertNotIn("$extensions", doc["color"]["stage"]["1"])
         self.assertEqual(et.check_tokens(doc), [])
 

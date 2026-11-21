@@ -14,6 +14,7 @@ from http.server import SimpleHTTPRequestHandler,ThreadingHTTPServer
 from urllib.parse import unquote,urlsplit,quote
 import component_reuse as reuse
 
+APPLICATION_RULES = Path(__file__).with_name("application_state_rules.js")
 RENDER_TIMEOUT_MS = 10000
 
 
@@ -144,9 +145,10 @@ def run(plan,package,session):
     receipt_hash=reuse.digest(package/RECEIPT)
     folder=session/'raw/02-visual'/('components-'+receipt_hash[:16])
     folder.mkdir(parents=True,exist_ok=True)
+    application_rules=APPLICATION_RULES.read_text(encoding="utf8")
     entries={p['id']:p['entry'] for p in plan['pages']}
     report={'schema':'luz-component-browser/1','package':str(package),'receipt_sha256':receipt_hash,
-            'auditor_sha256':reuse.digest(__file__),'plan_sha256':reuse.stable(plan),
+            'auditor_sha256':reuse.digest(__file__),'application_rules_sha256':reuse.digest(APPLICATION_RULES),'plan_sha256':reuse.stable(plan),
             'browser':'chromium/msedge','cases':[],'errors':[],
             'scope':'Isolated local web prototype. No external API, native platform or production service is accepted.'}
     with serve(package,package) as base,sync_playwright() as playwright:
@@ -166,6 +168,7 @@ def run(plan,package,session):
                     try:
                         page.goto(base+'/output/'+quote(entries[case['page_id']],safe='/'),wait_until='load')
                         wait_render_ready(page)
+                        reuse.need(not (issues := page.evaluate(application_rules)), f"Initial application state: {issues}")
                         for index,step in enumerate(case['steps']):
                             op=step['op']
                             reuse.need(op in {'reload','click','fill','press','select','expect_text','expect_value','expect_visible','expect_hidden','expect_count'},'Unknown browser operation')
@@ -185,6 +188,9 @@ def run(plan,package,session):
                                     wait_render_ready(page,[locator])
                                 elif op=='expect_hidden': expect(locator).to_be_hidden()
                                 elif op=='expect_count': expect(locator).to_have_count(step['value'])
+                            if op in {'click','fill','press','select','reload'}:
+                                wait_render_ready(page)
+                                reuse.need(not (issues := page.evaluate(application_rules)), f"Application state after {op}: {issues}")
                             item['steps'].append({'index':index,'op':op,'action_id':step.get('action_id'),'component_id':step.get('component_id'),'completed':True})
                         item['render_ready']=wait_render_ready(page,[_locator(page,s) for s in _final_visible_specs(case['steps'])])
                         overflow=page.evaluate('Math.max(0,document.documentElement.scrollWidth-innerWidth)')
@@ -215,6 +221,7 @@ def check_report(report,plan,package,session):
                and report.get('receipt_sha256')==reuse.digest(Path(package)/RECEIPT)
                and report.get('plan_sha256')==reuse.stable(plan)
                and report.get('auditor_sha256')==reuse.digest(__file__)
+               and report.get('application_rules_sha256')==reuse.digest(APPLICATION_RULES)
                and report.get('errors')==[], 'Current browser report does not match the package, plan or auditor')
     cases={c['id']:c for c in plan['cases']}
     expected={(identifier,width) for identifier in cases for width in plan['framework']['breakpoints']}

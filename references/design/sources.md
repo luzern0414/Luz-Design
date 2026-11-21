@@ -34,6 +34,17 @@
 | [Atlassian 圆角](https://atlassian.design/foundations/radius/) · [Android 分段按钮](https://developer.android.com/develop/ui/compose/components/segmented-button) | 卡片和控件按层级选圆角，切换用边界与选中线索维持可辨识 |
 | [WCAG 非文本对比](https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast.html) · [目标尺寸](https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html) | 用相邻颜色核对必要的非文本信息，将图标图形和实际可点击区域分别量测 |
 
+## 移动视口与紧凑任务界面
+
+| 原文 | 本技能采用的观察 |
+|---|---|
+| [WCAG 重排](https://www.w3.org/WAI/WCAG22/Understanding/reflow) · [文字放大](https://www.w3.org/WAI/WCAG22/Understanding/resize-text) | 主页面窄屏重排，放大文字仍可办理，必要二维内容局部滚动。 |
+| [WebKit 安全区](https://webkit.org/blog/7929/designing-websites-for-iphone-x/) · [浏览器视口单位](https://web.dev/blog/viewport-units) · [Chrome 软键盘行为](https://developer.chrome.com/blog/viewport-resize-behavior) · [MDN 可见视口](https://developer.mozilla.org/en-US/docs/Web/API/VisualViewport) | 视口、安全区与键盘分别核验，测试覆盖实际目标浏览器。 |
+| [Apple 工具栏](https://developer.apple.com/design/human-interface-guidelines/toolbars) · [Carbon 间距](https://www.carbondesignsystem.com/building-blocks/foundations/spacing/overview) | 用当前任务决定工具是否出现，相关信息靠近，用统一的间距尺度。 |
+| [Atlassian 图标规范](https://atlassian.design/guidelines/product/foundations/iconography/) · [GOV.UK 按钮](https://design-system.service.gov.uk/components/button/) | 用可识别的轮廓、稳定的相对尺寸和清楚的主操作建立视觉层级。 |
+
+白底、首屏构图和间距起点是本技能按用户要求确定的设计取值。
+
 ## 方法来源
 
 以下方法以重述方式并入，不运行上游安装脚本、hooks 或自动改工程的指令；许可证原文在 `licenses/`。
@@ -52,3 +63,20 @@
 ## 用户硬规则优先
 
 [成品要求](hard-rules.md) 说明业务与交付核对项。前端、海报和演示的视觉建议分别见 [视觉基础](foundation.md)、[海报设计](poster.md) 与 [演示设计](slides.md)。
+
+## 圆角、焦点与数据对齐
+
+2026-11-19 核对。上游的形状与对齐原则用于本地样板。短字段共享居中内容区是 Luz-Design 的排版做法。
+
+| 采用 | 来源 |
+|---|---|
+| 嵌套圆角按外半径减去内边距取初值，胶囊用于简短移动操作 | [Apple 的设计系统演示](https://developer.apple.com/videos/play/wwdc2025/356/?time=201) |
+| 按钮有可感知的按下态，键盘焦点保持可见 | [Apple 的按钮指南](https://developer.apple.com/design/human-interface-guidelines/buttons)、[WCAG 焦点可见](https://www.w3.org/WAI/WCAG22/Understanding/focus-visible.html) |
+| 文本框宽度考虑预期输入量，移动端多行框在固定宽度内随内容增高 | [Apple 的文本框指南](https://developer.apple.com/design/human-interface-guidelines/text-fields)、[MDN 的表单字段尺寸](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/field-sizing) |
+| 数字列和列头沿同一右边线，列宽按字段分配 | [GOV.UK 表格](https://design-system.service.gov.uk/components/table/) |
+
+## Three.js 空间动效
+
+组件按容器宽高更新相机和画布，只在播放期间渲染。WebGL 2 不可用或启用减少动态效果时保留静态画面。播放完成后释放几何体、材质和渲染器。[画布尺寸](https://threejs.org/manual/en/responsive.html) · [资源释放](https://threejs.org/manual/en/cleanup.html) · [WebGLRenderer](https://threejs.org/docs/pages/WebGLRenderer.html)
+
+离线模板包使用 [Three.js 0.187.0](https://www.npmjs.com/package/three/v/0.187.0)，MIT 许可随文件存放于 `kit/vendor/three/LICENSE`。重新打包时从该版本安装包解出 `build/three.module.js` 和同目录的 `three.core.js`，以 `kit/vendor/three/exports.mjs` 为入口，将 `three` 别名指向解出的 `three.module.js`，使用 esbuild 0.28.2 输出 `iife`，全局变量为 `LzThree`，目标为 `es2020`，启用压缩并保留许可证注释。

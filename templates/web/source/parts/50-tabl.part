@@ -1,6 +1,6 @@
 <!-- cat: TABL | 表格 -->
 <style>
-  /* 表格类：前缀 wb-tb-。表头居中，短值居中，长文本左对齐并缩进，金额右对齐；后台正文 14。
+  /* 表格类：前缀 wb-tb-。表头沿各字段的边线对齐，金额右对齐。
      列宽用像素：各列都不小于内容宽度，容器放不下时表格容器内横向滚动，数字列不会被省略号截断 */
   .wb-tb { overflow: hidden; }
   .wb-tb--free { overflow: visible; }
@@ -10,12 +10,12 @@
   .wb-tb .table thead th small { margin-left: 4px; font-size: var(--fs-xs); font-weight: 400; color: var(--ink-3); }
   .wb-tb .table td { height: var(--rh, 52px); padding: 0 var(--s-2); border-top: 1px solid var(--line); font-size: var(--fs-sm); text-align: center; vertical-align: middle; }
   .wb-tb .table tbody tr:first-child td, .wb-tb .table tbody:first-of-type tr:first-child td { border-top: 0; }
-  .wb-tb .table td.t-l { text-align: left; padding-left: var(--s-4); }
-  .wb-tb .table td.t-r { text-align: right; padding-right: var(--s-4); font-variant-numeric: tabular-nums; }
+  .wb-tb .table :is(th, td).t-l { text-align: start; padding-inline-start: var(--s-4); }
+  .wb-tb .table :is(th, td).t-r { text-align: end; padding-inline-end: var(--s-4); font-variant-numeric: tabular-nums; }
   .wb-tb .table td.t-n { font-variant-numeric: tabular-nums; }
   .wb-tb--dense .table thead th, .wb-tb--dense .table td { padding-left: 6px; padding-right: 6px; }
-  .wb-tb--dense .table td.t-l { padding-left: var(--s-3); }
-  .wb-tb--dense .table td.t-r { padding-right: var(--s-3); }
+  .wb-tb--dense .table :is(th, td).t-l { padding-inline-start: var(--s-3); }
+  .wb-tb--dense .table :is(th, td).t-r { padding-inline-end: var(--s-3); }
   .wb-tb .table td.ov { overflow: visible; }
   .wb-tb .table tbody tr { cursor: default; }
   .wb-tb .table tbody tr[aria-selected="true"] { background: color-mix(in srgb, var(--action) 9%, var(--surface)); }
@@ -31,7 +31,6 @@
   .wb-tb .toolbar .btn--sm { min-height: 36px; }
   #cat-tabl .demo__stage.wb-tb-vis { overflow: visible; }
   #cat-tabl .btn[disabled] { box-shadow: none; }
-  .wb-tb-edit__row .input:focus-visible { outline: none; border-radius: var(--r-md); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ink) 8%, transparent); }
   .wb-tb-foot { display: flex; align-items: center; gap: var(--s-3); min-height: 52px; padding: var(--s-2) var(--s-4); border-top: 1px solid var(--line); font-size: var(--fs-sm); color: var(--ink-3); }
   .wb-tb-foot .sp { flex: 1; }
   .wb-tb-foot b { font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
@@ -236,16 +235,16 @@
 
 <article class="demo" data-cid="WB-TABL-001" data-name="基础数据表格" data-cat="TABL">
   <div class="demo__head"><span class="demo__name">基础数据表格</span></div>
-  <p class="demo__note">适合：订单与商品等纵向记录的常规展示</p>
-  <div class="demo__stage"><div class="card wb-tb"><div class="table-wrap"><table class="table" style="--min:440px">
+  <p class="demo__note">适合：订单与商品等纵向记录。门店名在列内共用居中的左对齐内容区，金额右对齐。</p>
+  <div class="demo__stage"><div class="card wb-tb"><div class="table-wrap"><table class="table" style="--min:440px;--field-width:5em">
     <colgroup><col style="width:64px"><col style="width:48px"><col style="width:96px"><col style="width:88px"><col style="width:72px"><col style="width:72px"></colgroup>
-    <thead><tr><th>订单号</th><th>客户</th><th>商品</th><th>门店</th><th>金额<small>元</small></th><th>状态</th></tr></thead>
+    <thead><tr><th>订单号</th><th>客户</th><th class="t-l">商品</th><th><span class="table__field">门店</span></th><th class="t-r">金额<small>元</small></th><th>状态</th></tr></thead>
     <tbody>
-      <tr><td class="t-n">20388</td><td>林晓</td><td class="t-l">红玫瑰花束</td><td>建国路店</td><td class="t-r">199.00</td><td><span class="tag" data-tone="warning">待付款</span></td></tr>
-      <tr><td class="t-n">20387</td><td>陈默</td><td class="t-l">粉芍药花束</td><td>徐汇滨江店</td><td class="t-r">239.00</td><td><span class="tag" data-tone="action">待发货</span></td></tr>
-      <tr><td class="t-n">20386</td><td>周岚</td><td class="t-l">蓝绣球盆栽</td><td>浦东世纪店</td><td class="t-r">258.00</td><td><span class="tag" data-tone="info">待收货</span></td></tr>
-      <tr><td class="t-n">20385</td><td>吴桐</td><td class="t-l">花礼盒</td><td>建国路店</td><td class="t-r">259.00</td><td><span class="tag" data-tone="success">已完成</span></td></tr>
-      <tr><td class="t-n">20384</td><td>郑一</td><td class="t-l">向日葵花束</td><td>浦东世纪店</td><td class="t-r">159.00</td><td><span class="tag" data-tone="danger">售后</span></td></tr>
+      <tr><td class="t-n">20388</td><td>林晓</td><td class="t-l">红玫瑰花束</td><td><span class="table__field">建国路店</span></td><td class="t-r">199.00</td><td><span class="tag" data-tone="warning">待付款</span></td></tr>
+      <tr><td class="t-n">20387</td><td>陈默</td><td class="t-l">粉芍药花束</td><td><span class="table__field">徐汇滨江店</span></td><td class="t-r">239.00</td><td><span class="tag" data-tone="action">待发货</span></td></tr>
+      <tr><td class="t-n">20386</td><td>周岚</td><td class="t-l">蓝绣球盆栽</td><td><span class="table__field">浦东世纪店</span></td><td class="t-r">258.00</td><td><span class="tag" data-tone="info">待收货</span></td></tr>
+      <tr><td class="t-n">20385</td><td>吴桐</td><td class="t-l">花礼盒</td><td><span class="table__field">建国路店</span></td><td class="t-r">259.00</td><td><span class="tag" data-tone="success">已完成</span></td></tr>
+      <tr><td class="t-n">20384</td><td>郑一</td><td class="t-l">向日葵花束</td><td><span class="table__field">浦东世纪店</span></td><td class="t-r">159.00</td><td><span class="tag" data-tone="danger">售后</span></td></tr>
     </tbody>
   </table></div></div></div>
 </article>

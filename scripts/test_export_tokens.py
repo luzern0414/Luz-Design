@@ -27,10 +27,10 @@ class ExportTest(unittest.TestCase):
     def test_every_theme_exports_a_valid_file(self) -> None:
         for theme_id in DATA["themes"]:
             with self.subTest(theme=theme_id):
-                self.assertEqual(et.check_tokens(et.build(theme_id, DATA)), [])
+                self.assertEqual(et.check_tokens(et.build(theme_id, DATA, surface='reference')), [])
 
     def test_colours_round_trip_to_the_theme(self) -> None:
-        doc = et.build("ai-agent", DATA)
+        doc = et.build('ai-agent', DATA, surface='reference')
         theme = DATA["themes"]["ai-agent"]
         self.assertEqual(doc["color"]["brand"]["action"]["$value"]["hex"].upper(), theme["action"].upper())
         self.assertEqual(doc["color"]["surface"]["canvas"]["$value"]["hex"].upper(), theme["canvas"].upper())
@@ -39,7 +39,7 @@ class ExportTest(unittest.TestCase):
         self.assertEqual(doc["color"]["text"]["ink"]["$value"]["hex"].upper(), DATA["shared"]["ink"].upper())
 
     def test_shadows_keep_the_two_layers_of_each_level(self) -> None:
-        doc = et.build("xiangcai", DATA)
+        doc = et.build('xiangcai', DATA, surface='reference')
         for level in ("level-1", "level-2", "level-3", "level-4"):
             layers = doc["shadow"][level]["$value"]
             self.assertEqual(len(layers), 2)
@@ -47,7 +47,7 @@ class ExportTest(unittest.TestCase):
         self.assertEqual(doc["shadow"]["level-1"]["$value"][0]["offsetY"], {"value": 1, "unit": "px"})
 
     def test_typography_roles_reference_the_font_tokens(self) -> None:
-        doc = et.build("xiangcai", DATA)
+        doc = et.build('xiangcai', DATA, surface='reference')
         body = doc["typography"]["body"]["$value"]
         self.assertEqual(body["fontFamily"], "{font.family.base}")
         self.assertEqual(body["fontWeight"], "{font.weight.regular}")
@@ -57,7 +57,7 @@ class ExportTest(unittest.TestCase):
     def test_every_theme_exports_light_and_dark_in_extensions_mode(self) -> None:
         for theme_id, theme in DATA["themes"].items():
             with self.subTest(theme=theme_id):
-                doc = et.build(theme_id, DATA)
+                doc = et.build(theme_id, DATA, surface='reference')
                 self.assertEqual(doc["$extensions"]["design.luz"]["modes"], ["light", "dark"])
                 action = doc["color"]["brand"]["action"]
                 self.assertEqual(action["$value"]["hex"].upper(), theme["action"].upper())
@@ -67,7 +67,7 @@ class ExportTest(unittest.TestCase):
                 self.assertEqual(et.check_tokens(doc), [])
 
     def test_dark_values_cover_surfaces_status_lines_and_shadows(self) -> None:
-        doc = et.build("ai-agent", DATA)
+        doc = et.build('ai-agent', DATA, surface='reference')
         dark = DATA["themes"]["ai-agent"]["dark"]
         raised = [doc["color"]["surface"][k]["$extensions"]["mode"]["dark"]["hex"] for k in ("card", "raised-2", "raised-3", "raised-4")]
         self.assertEqual(raised[0].upper(), dark["surface"].upper())
@@ -82,23 +82,23 @@ class ExportTest(unittest.TestCase):
         self.assertNotIn("$extensions", doc["color"]["scale"]["6"], "the ten-step scale is light-only")
 
     def test_light_only_export_has_no_modes_and_still_validates(self) -> None:
-        doc = et.build("xiangcai", DATA, with_dark=False)
+        doc = et.build("xiangcai", DATA, with_dark=False,surface='reference')
         self.assertNotIn("$extensions", doc)
         self.assertNotIn("$extensions", doc["color"]["brand"]["action"])
         self.assertEqual(et.check_tokens(doc), [])
         self.assertTrue(et.check_tokens(doc, require_dark=True), "--require-dark asks for the dark values")
 
     def test_check_requires_both_modes_of_a_file_that_declares_them(self) -> None:
-        doc = et.build("xiangcai", DATA)
+        doc = et.build('xiangcai', DATA, surface='reference')
         del doc["color"]["brand"]["action"]["$extensions"]
         errors = et.check_tokens(doc)
         self.assertTrue(any("color.brand.action: no dark value" in e for e in errors), errors)
-        doc = et.build("xiangcai", DATA)
+        doc = et.build('xiangcai', DATA, surface='reference')
         doc["shadow"]["level-2"].pop("$extensions")
         self.assertTrue(any("shadow.level-2" in e for e in et.check_tokens(doc)))
 
     def test_a_malformed_dark_value_is_reported_like_a_light_one(self) -> None:
-        doc = et.build("xiangcai", DATA)
+        doc = et.build('xiangcai', DATA, surface='reference')
         doc["color"]["brand"]["action"]["$extensions"]["mode"]["dark"]["components"] = [2, 0, 0]
         self.assertTrue(any("[dark]" in e for e in et.check_tokens(doc)))
 
@@ -135,7 +135,7 @@ class RulePageTest(unittest.TestCase):
 
 class CheckerTest(unittest.TestCase):
     def errors(self, mutate) -> list[str]:
-        doc = et.build("ai-agent", DATA)
+        doc = et.build('ai-agent', DATA, surface='reference')
         mutate(doc)
         return et.check_tokens(doc)
 
@@ -169,6 +169,27 @@ class CheckerTest(unittest.TestCase):
             doc["easing"]["standard"]["$value"] = [1.5, 0, 0, 1]
 
         self.assertTrue(self.errors(mutate))
+
+
+class ApplicationExportTest(unittest.TestCase):
+    def test_all_application_themes_match_the_rendering_contract(self):
+        for theme_id in DATA["themes"]:
+            doc=et.build(theme_id,DATA)
+            self.assertEqual(et.application_token_errors(doc),[],theme_id)
+            self.assertEqual(doc["color"]["status"]["success"]["$value"]["hex"],"#28599b")
+            self.assertNotIn("dark",et.declared_modes(doc))
+
+    def test_custom_theme_input_and_reference_are_distinct(self):
+        code,stdout=quiet(et.main,["--application-themes","--themes",str(et.THEMES)])
+        self.assertEqual(code,0)
+        data=json.loads(stdout)
+        self.assertEqual(data["themes"]["enterprise-navy"]["navBg"],"#FFFFFF")
+        self.assertNotIn("source",data["themes"]["enterprise-navy"])
+        original=et.build("enterprise-navy",DATA,surface="reference")
+        self.assertTrue(et.application_token_errors(original))
+        product=et.build("enterprise-navy",DATA)
+        product["color"]["brand"]["accent"]["$value"]=et.to_color("#00AA70")
+        self.assertTrue(any("绿色" in msg for msg in et.application_token_errors(product)))
 
 
 class CliTest(unittest.TestCase):

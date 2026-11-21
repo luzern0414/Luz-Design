@@ -11,7 +11,7 @@
 <link rel="stylesheet" href="../../../../kit/app.css">
 <style>
   /* 本页专属：资料区、数据卡、成长卡、地址行原位改名、新建地址页 */
-  .top { background: linear-gradient(160deg, var(--action-press) 0%, var(--action) 100%); padding-top: var(--s-4); padding-bottom: var(--s-12); }
+  .top { padding-top: var(--s-4); padding-bottom: var(--s-12); }
   .mine__id { gap: var(--s-4); min-height: 72px; }
   .mine__who { display: grid; justify-items: start; gap: var(--s-2); min-width: 0; }
   .mine__name { font-size: var(--fs-xl); font-weight: 700; line-height: var(--lh-tight); }
@@ -21,11 +21,11 @@
 
   /* 数据卡：压在顶部平面区的下沿，上标题下数字与单位，居中 */
   .profile-stack { position: relative; margin-block-start: -32px; }
-  .mine__stats { padding: var(--s-2) 0; }
-  .stat__label { display: inline-flex; flex-direction: column; align-items: center; gap: var(--s-1); }
+  .mine__stats { padding-block: .5em; }
+  .stat__label { display: inline-flex; flex-direction: column; align-items: center; gap: .5em; }
   .stat__val > span { font-variant-numeric: tabular-nums; }
 
-  .grow { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; column-gap: var(--s-4); padding: var(--s-4); }
+  .grow { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; column-gap: .5em; padding: .5em var(--s-4); }
   .grow__main { display: grid; gap: var(--s-3); }
   .grow__row { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-3); }
   .grow__num { font-size: var(--fs-xl); font-weight: 700; line-height: var(--lh-tight); font-variant-numeric: tabular-nums; color: var(--accent); }
@@ -40,9 +40,9 @@
   .addr[data-editing] .addr__name, .addr[data-editing] .addr__tail, .addr[data-editing] .addr__def, .addr[data-editing] .row__trail { display: none; }
   .addr[data-editing] .addr__edit { display: flex; }
   .addr .field__err { margin-top: var(--s-1); }
-  .btn--sm { --btn-h: 32px; }
 
   .mine__shortcuts { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .mine__shortcuts .entry { gap: .5em; line-height: var(--lh-body); }
   .row--out { justify-content: center; }
   .row > .switch { margin-left: auto; }
   .is-danger { color: var(--danger); }
@@ -65,13 +65,13 @@
       <!-- 顶部：平面资料区，头像昵称会员标签，设置在右；数据卡压在其下沿 -->
       <header class="top" data-cid="AP-MINE-001" data-name="顶部资料数据区">
         <div class="top__row mine__id">
-          <img class="avatar avatar--lg" src="../../../../kit/assets/marks/mark-006.webp" alt="林晓的头像">
+          <img class="avatar avatar--lg" src="../../../../kit/assets/line/user.webp" alt="林晓的头像">
           <div class="mine__who"><h2 class="mine__name one-line">林晓</h2><span class="mine__tag"><img src="../../../../kit/assets/line/shield.webp" alt="">金卡会员</span></div>
           <span class="top__sp"></span>
           <button class="ibtn" id="to-prefs" data-tip="设置" aria-label="设置"><img src="../../../../kit/assets/line/settings.webp" alt=""></button>
         </div>
       </header>
-      <div class="card-stack profile-stack">
+      <div class="app-card-stack profile-stack">
         <div class="card stats mine__stats" role="group" aria-label="账户数据">
           <div class="stat" data-reveal><span class="stat__label"><img class="compact-icon" src="../../../../kit/assets/line/archive.webp" alt="">优惠券</span><span class="stat__val"><span data-to="3">3</span><small>张</small></span></div>
           <div class="stat" data-reveal><span class="stat__label"><img class="compact-icon" src="../../../../kit/assets/line/book.webp" alt="">积分</span><span class="stat__val"><span data-to="1280">1,280</span><small>分</small></span></div>
@@ -97,9 +97,9 @@
           <div class="list section__body" id="addrs"></div>
         </section>
 
-        <section class="card section" id="prefs" data-cid="AP-MINE-005" data-name="偏好设置列表">
+        <section class="card section settings-card" id="prefs" data-cid="AP-MINE-005" data-name="偏好设置列表">
           <div class="section__head"><h2>偏好设置</h2></div>
-          <div class="list section__body">
+          <div class="list section__body settings-list">
             <div class="row"><span class="row__title" id="pf1">消息通知</span><button class="switch" role="switch" aria-checked="true" aria-labelledby="pf1" data-pref="消息通知"></button></div>
             <div class="row"><span class="row__title" id="pf2">个性推荐</span><button class="switch" role="switch" aria-checked="false" aria-labelledby="pf2" data-pref="个性推荐"></button></div>
           </div>

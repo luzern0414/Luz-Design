@@ -1,0 +1,13 @@
+/* Pastel 色卡的 300 强调色，供局部组件与图形选色时参考。 */
+:root {
+  --pastel-red-300: #E9A09B;         /* 柔红 */
+  --pastel-coral-300: #EEAB98;       /* 珊瑚 */
+  --pastel-peach-300: #F0B98F;       /* 蜜桃 */
+  --pastel-yellow-300: #ECD77D;      /* 奶黄 */
+  --pastel-blue-300: #9FC5E5;        /* 雾蓝 */
+  --pastel-periwinkle-300: #AFB9E5;  /* 长春花蓝 */
+  --pastel-lilac-300: #BFA9DD;       /* 丁香紫 */
+  --pastel-pink-300: #E1A8C1;        /* 樱花粉 */
+  --pastel-oat-300: #D3BFAE;         /* 燕麦 */
+  --pastel-gray-300: #BFC4CC;        /* 雾灰 */
+}

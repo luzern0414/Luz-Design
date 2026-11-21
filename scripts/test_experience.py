@@ -39,6 +39,17 @@ class ExperienceStoreTest(unittest.TestCase):
     def notes(self, kind: str | None = None) -> list[dict]:
         return [n for n in exp.load_notes(exp.NOTES)["notes"] if not kind or n["kind"] == kind]
 
+    def test_module_note_updates_one_markdown_row_and_appears_in_search(self):
+        key = "模块-改期受理-布局-状态对照"
+        for text in ("该页先读状态", "该页先读生效时间"):
+            self.run_cli("note", "--kind", "lesson", "--key", key, "--text", text,
+                         "--why", "移动端 | 桌面端复查", "--scope", "project")
+        self.assertIn(key, self.run_cli("search", "改期受理", "布局"))
+        catalog = exp.CATALOG.read_text(encoding="utf-8")
+        self.assertEqual(catalog.count("| 改期受理 | 布局 · 状态对照 |"), 1)
+        self.assertIn("仅该项目。移动端 &#124; 桌面端复查", catalog)
+        self.assertNotIn("该页先读状态", catalog)
+
     def test_same_key_replaces_in_place(self) -> None:
         self.run_cli("note", "--kind", "preference", "--key", "表头对齐", "--text", "表头左对齐")
         self.run_cli("note", "--kind", "preference", "--key", "表头对齐", "--text", "表头与数据居中", "--why", "用户纠正")

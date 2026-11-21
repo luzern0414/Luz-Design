@@ -61,6 +61,7 @@
 
   /* 模板卡 */
   .dx-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(400px, 100%), 1fr)); gap: var(--s-4); align-items: start; }
+  .dx-grid--originals { align-items: stretch; }
   .dx-card { display: flex; flex-direction: column; gap: var(--s-3); padding: var(--s-4); background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); box-shadow: var(--elev-1); scroll-margin-top: var(--s-6); }
   .dx-card:target { box-shadow: 0 0 0 2px var(--action), var(--elev-2); }
   .dx-thumb { display: grid; place-items: center; aspect-ratio: 16 / 9; border-radius: var(--r-md); overflow: hidden; background: var(--action-tint); border: 1px solid var(--line); }
@@ -72,7 +73,10 @@
   .dx-copy { flex: none; min-height: 28px; padding: 0 var(--s-2); border-radius: var(--r-sm); background: var(--zone); color: var(--action-press); font-size: var(--fs-xs); font-weight: 600; font-variant-numeric: tabular-nums; letter-spacing: .02em; transition: background var(--dur-quick) var(--ease-out); }
   .dx-copy:hover { background: var(--action-edge); }
   .dx-use { min-height: calc(var(--fs-sm) * 3.2); font-size: var(--fs-sm); color: var(--ink-2); line-height: 1.6; }
+  .dx-grid--originals .dx-use { min-height: 0; }
   .dx-links { display: flex; align-items: center; gap: var(--s-2); margin-top: auto; padding-top: var(--s-1); }
+  .dx-original-meta { color: var(--ink-3); font-size: var(--fs-xs); line-height: 1.5; }
+  .dx-original-links { flex-wrap: wrap; }
   .dx-cmd { border-top: 1px solid var(--line); padding-top: var(--s-2); }
   .dx-cmd summary { display: flex; align-items: center; justify-content: space-between; min-height: 36px; font-size: var(--fs-sm); font-weight: 600; color: var(--ink-2); cursor: pointer; list-style: none; }
   .dx-cmd summary::-webkit-details-marker { display: none; }
@@ -135,6 +139,7 @@
                   <li>specs/<small>描述文件</small></li>
                   <li>specs/parts/<small>可复用块</small></li>
                   <li>samples/<small>样例文件</small></li>
+                  <li>slides/originals/<small>PPT 原版、预览和授权</small></li>
                   <li>tools/<small>补充脚本</small></li>
                 </ul>
               </li>
@@ -175,14 +180,15 @@
     const META = {
       word: { title: '文字文档', code: 'WD', icon: 'biz-notes' },
       excel: { title: '表格文件', code: 'XL', icon: 'layout' },
-      slides: { title: '幻灯片', code: 'SL', icon: 'biz-demo' },
+      slides: { title: 'PPT', code: 'SL', icon: 'biz-demo' },
       pdf: { title: 'PDF', code: 'PD', icon: 'biz-review' },
       reading: { title: '阅读网页', code: 'RD', icon: 'solid-content' }
     };
     const types = ((window.LZ_DOCS && window.LZ_DOCS.types) || []).slice().sort((a, b) => ORDER.indexOf(a.type) - ORDER.indexOf(b.type));
-    const state = { cat: 'all', q: '' };
+    const hash = window.frameElement ? window.parent.location.hash : location.hash;
+    const state = { cat: hash === '#ppt' ? 'slides' : 'all', q: '' };
     const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-    const url = (t, p) => encodeURI(t.dir + '/' + p);
+    const url = (t, p) => [t.dir, ...p.split('/')].map(encodeURIComponent).join('/');
     const icon = t => `../../kit/assets/solid/${(META[t.type] || META.word).icon}.webp`;
     const label = t => t.title || (META[t.type] || {}).title || t.type;
     const nameOf = (t, id) => { const hit = t.items.find(i => i.id === id); return hit ? hit.name : id; };
@@ -190,14 +196,22 @@
     // 命名规则表：每类一行
     $('#rules').innerHTML = ORDER.map(k => {
       const t = types.find(x => x.type === k), m = META[k];
-      return `<tr><td class="t-l"><span class="dx-kind"><img src="../../kit/assets/solid/${m.icon}.webp" alt="">${esc(t ? label(t) : m.title)}</span></td>` +
-        `<td>DC-${m.code}-NNN</td><td>${esc(t ? t.naming : 'DC-' + m.code + '-三位序号-中文名')}</td><td>${esc(k)}/</td></tr>`;
+      const typeIcon = `<img src="../../kit/assets/solid/${m.icon}.webp" alt="">`;
+      const naming = t ? t.naming : 'DC-' + m.code + '-三位序号-中文名';
+      const head = `<tr><td class="t-l"><span class="dx-kind">${typeIcon}${esc(t ? label(t) : m.title)}</span></td>`;
+      const rule = t?.originals?.length
+        ? '<td>DC-SL-ONNN</td><td>发布方原文件名</td><td>slides/originals/</td>'
+        : `<td>DC-${m.code}-NNN</td><td>${esc(naming)}</td><td>${esc(k)}/</td>`;
+      return head + rule + '</tr>';
     }).join('');
 
     // 类型标签
-    const total = types.reduce((n, t) => n + t.items.length, 0), totalParts = types.reduce((n, t) => n + t.parts.length, 0);
-    $('#pills').innerHTML = `<button class="dx-pill" data-cat="all" aria-pressed="true">全部<small>${total}</small></button>` +
-      types.map(t => `<button class="dx-pill" data-cat="${esc(t.type)}" aria-pressed="false">${esc(label(t))}<small>${t.items.length}</small></button>`).join('');
+    const hasOriginals = t => Boolean(t.originals?.length);
+    const countTemplates = t => hasOriginals(t) ? t.originals.length : t.items.length;
+    const catalogParts = t => hasOriginals(t) ? [] : t.parts;
+    const total = types.reduce((n, t) => n + countTemplates(t), 0), totalParts = types.reduce((n, t) => n + catalogParts(t).length, 0);
+    const pill = (type, title, count) => `<button class="dx-pill" data-cat="${esc(type)}" aria-pressed="${state.cat === type}">${esc(title)}<small>${count}</small></button>`;
+    $('#pills').innerHTML = pill('all', '全部', total) + types.map(t => pill(t.type, label(t), countTemplates(t))).join('');
 
     const match = (text) => !state.q.trim() || text.toLowerCase().includes(state.q.trim().toLowerCase());
 
@@ -220,18 +234,44 @@
       </article>`;
     }
 
+    function originalCard(t, it, index) {
+      const thumb = it.preview ? `<div class="dx-thumb"><img class="dx-pv" width="800" height="450" loading="${index < 3 ? 'eager' : 'lazy'}" decoding="async" src="${esc(url(t, it.preview))}" alt="${esc(it.name)}原版页面预览"></div>` : '';
+      const lead = thumb ? '' : `<img src="${icon(t)}" alt="">`;
+      const specs = [it.category, it.extension, it.ratio, `${it.slides} 页`].join(' · ');
+      const license = it.publisher;
+      const download = it.local ? `<a class="btn btn--secondary btn--sm" href="${esc(url(t, it.file))}" download="${esc(it.original_name)}">下载原版</a>` : '';
+      const sourceLabel = it.local ? '发布页' : '去发布页下载';
+      return `<article class="dx-card" id="${esc(it.id)}" aria-label="${esc(it.name)}">
+        ${thumb}
+        <div class="dx-card__head">${lead}<h3>${esc(it.name)}</h3><button class="dx-copy" data-copy="${esc(it.id)}" aria-label="复制编号 ${esc(it.id)}">${esc(it.id)}</button></div>
+        <p class="dx-original-meta">${esc(specs)}</p>
+        <p class="dx-use">${esc(it.use)}</p>
+        <p class="dx-original-meta">${esc(license.name)} · ${esc(license.credits)}</p>
+        <div class="dx-links dx-original-links">
+          ${download}
+          <a class="btn ${it.local ? 'btn--text' : 'btn--secondary'} btn--sm" href="${esc(it.source)}" target="_blank" rel="noopener">${sourceLabel}</a>
+          <a class="btn btn--text btn--sm" href="${esc(license.license_url)}" target="_blank" rel="noopener">授权</a>
+        </div>
+      </article>`;
+    }
+
     function draw() {
       let shown = 0, html = '';
       const rows = [];
       types.forEach(t => {
         if (state.cat !== 'all' && state.cat !== t.type) return;
-        const items = t.items.filter(i => match([i.id, i.name, i.use, label(t)].join(' ')));
+        const originals = (t.originals || []).filter(i => match([i.id, i.name, i.use, i.category, label(t), i.extension, i.publisher.name].join(' ')));
+        if (originals.length) {
+          shown += originals.length;
+          html += `<section class="dx-mod" data-cat="${esc(t.type)}" aria-label="PPT 原版模板"><div class="dx-mod__head"><h2>PPT 原版模板</h2></div><div class="dx-mod__body dx-grid dx-grid--originals">${originals.map((i, index) => originalCard(t, i, index)).join('')}</div></section>`;
+        }
+        const items = hasOriginals(t) ? [] : t.items.filter(i => match([i.id, i.name, i.use, label(t)].join(' ')));
         if (items.length) {
           shown += items.length;
-          const commercial = t.type === 'slides' ? '<a href="slides/commercial-sources.md">商用模板与授权</a>' : '';
-          html += `<section class="dx-mod" data-cat="${esc(t.type)}" aria-label="${esc(label(t))}"><div class="dx-mod__head"><h2>${esc(label(t))}</h2><span>${commercial || `${items.length} 个模板`}</span></div><div class="dx-mod__body dx-grid">${items.map(i => cardHTML(t, i)).join('')}</div></section>`;
+          const heading = t.type === 'slides' ? 'PPT 生成样例' : label(t);
+          html += `<section class="dx-mod" data-cat="${esc(t.type)}" aria-label="${esc(heading)}"><div class="dx-mod__head"><h2>${esc(heading)}</h2><span>${items.length} 个模板</span></div><div class="dx-mod__body dx-grid">${items.map(i => cardHTML(t, i)).join('')}</div></section>`;
         }
-        const parts = t.parts.filter(p => match([p.id, p.name, label(t)].concat((p.used_in || []).map(u => u + ' ' + nameOf(t, u))).join(' ')));
+        const parts = catalogParts(t).filter(p => match([p.id, p.name, label(t)].concat((p.used_in || []).map(u => u + ' ' + nameOf(t, u))).join(' ')));
         if (parts.length) rows.push({ t, parts });
       });
       $('#cats').innerHTML = html;

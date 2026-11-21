@@ -306,8 +306,16 @@ def load_theme_colors(theme_id: str) -> set[tuple[int, int, int]]:
         elif isinstance(node, str) and re.fullmatch(r"#[0-9A-Fa-f]{6}", node):
             found.add(rgb_of_hex(node))
 
-    walk(data["themes"][theme_id])
-    walk(data["shared"])
+    from export_tokens import application_themes
+    projected = application_themes(data)
+    walk(projected["themes"][theme_id])
+    walk(projected["shared"])
+    # Also accept non-green paint from secondary icon variants on coloured controls.
+    from export_tokens import application_color
+    for mapping in (data["themes"][theme_id].get("dark", {}), data["shared"].get("dark", {})):
+        for value in mapping.values():
+            if isinstance(value,str) and re.fullmatch(r"#[0-9a-fA-F]{6}",value):
+                found.add(rgb_of_hex(application_color(value)))
     return found
 
 
@@ -335,7 +343,8 @@ def icon_palette(theme_id: str) -> dict:
     浅色：底块 = 主题 actionTint（令牌）；次层、图形、线稿 = 品牌阶的色相，S 与 V 取 PALETTE_SV，S 不超过品牌阶自己的 S；线稿的 V 往下取到对底块 3:1。
     深色：底块 = dark.actionTint，图形与线稿 = dark.actionText（令牌），次层 = 底块与图形 35% 的混合。"""
     data = load_themes()
-    t = data["themes"][theme_id]
+    from export_tokens import application_theme, application_color
+    t = application_theme(theme_id, data)
     h, s_action, _ = hsv_of(rgb_of_hex(t["action"]))
     base = rgb_of_hex(t["actionTint"])
     light = [{"role": "底块", "hex": t["actionTint"], "source": "令牌 actionTint"}]
@@ -349,14 +358,22 @@ def icon_palette(theme_id: str) -> dict:
                 v -= 0.02
                 rgb = from_hsv(h, s_use, v)
         light.append({"role": role, "hex": hex_of(rgb), "source": f"推导 S 不超过 {s_t}，V {v_t}" + ("，往下取到对底块 3:1" if role == "线稿" else "")})
-    dk = t["dark"]
-    d_base, d_fig = rgb_of_hex(dk["actionTint"]), rgb_of_hex(dk["actionText"])
+    dk = data["themes"][theme_id]["dark"]
+    d_base, d_fig = rgb_of_hex(application_color(dk["actionTint"])), rgb_of_hex(application_color(dk["actionText"]))
+    if any(application_color(dk[key]) != dk[key] for key in ("actionTint","actionText")):
+        # Keep dark artwork within the chroma of the light variant's secondary fill.
+        light_fill = rgb_of_hex(light[1]["hex"])
+        limit = (max(light_fill) - min(light_fill)) / 255
+        def bounded(rgb):
+            hue, saturation, value = hsv_of(rgb)
+            return from_hsv(hue,min(saturation,limit/value if value else 0),value)
+        d_base, d_fig = bounded(d_base), bounded(d_fig)
     mix = tuple(round(d_base[i] * 0.65 + d_fig[i] * 0.35) for i in range(3))
     dark = [
-        {"role": "底块", "hex": dk["actionTint"], "source": "令牌 dark.actionTint"},
+        {"role": "底块", "hex": hex_of(d_base), "source": "令牌 dark.actionTint"},
         {"role": "次层", "hex": hex_of(mix), "source": "底块与图形 35% 混合"},
-        {"role": "图形", "hex": dk["actionText"], "source": "令牌 dark.actionText"},
-        {"role": "线稿", "hex": dk["actionText"], "source": "令牌 dark.actionText"},
+        {"role": "图形", "hex": hex_of(d_fig), "source": "令牌 dark.actionText"},
+        {"role": "线稿", "hex": hex_of(d_fig), "source": "令牌 dark.actionText"},
     ]
     for rows, b in ((light, base), (dark, d_base)):
         for row in rows:

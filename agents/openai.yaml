@@ -1,4 +1,4 @@
 interface:
   display_name: "Luz Design"
   short_description: "App 与 Web 界面设计、海报与文件排版，templates 分四个文件夹，模板与组件都有编号"
-  default_prompt: "使用 $luz-design，分别路由 App、Web、海报或文件排版；设计前先用 luz-crawl 研究并看相关设计，严格执行用户硬规则；App 与 Web 从 templates/app、templates/web 的五个页面和组件库按编号取组件，海报取 templates/poster 的模板与提示词，文件取 templates/documents 的模板，复用成熟组件，完成整页审美与 UX、AX、DX 的实际验证。"
+  default_prompt: "使用 $luz-design，先读任务规则卡。App 和 Web 依据已确认的逐页模块、阅读顺序、控件与状态实现视觉层级，复用成熟组件，验证各宽度下的阅读和完整操作。商业项目参与第二批开发说明，随后主持第三批 HTML 原型走查。海报与文件按对应模板排版。"

@@ -1,10 +1,11 @@
-.icon-button.el-button{margin:0;width:42px;height:42px;min-width:42px;padding:9px;border:1px solid #e7eceb;border-radius:12px;background:#fff;flex:none}.icon-button img{width:24px;height:24px;object-fit:contain;display:block}
-.el-popper.luz-tooltip.is-light{max-width:min(280px,calc(100vw - 24px));padding:0;border:1px solid #e0e7e5;border-radius:9px;background:#fff;color:#26383e;font:12px/1.6 "Microsoft YaHei","PingFang SC",sans-serif;box-shadow:0 4px 14px #243a4312;overflow-wrap:anywhere}.hint-content{display:block;padding:8px 11px}
+@import url("pastel-300.css");
+.icon-button.el-button{margin:0;width:42px;height:42px;min-width:42px;padding:9px;border:1px solid #e7e9ec;border-radius:12px;background:#fff;flex:none}.icon-button img{width:24px;height:24px;object-fit:contain;display:block}
+.el-popper.luz-tooltip.is-light{max-width:min(280px,calc(100vw - 24px));padding:0;border:0;border-radius:9px;background:#fff;color:#26383e;font:12px/1.6 "Microsoft YaHei","PingFang SC",sans-serif;box-shadow:none;overflow-wrap:anywhere}.hint-content{display:block;padding:8px 11px}
 .inline-field{display:flex;gap:8px;align-items:center;min-width:0;width:100%;position:relative}
 .inline-field-value{min-width:0;flex:1;overflow-wrap:anywhere}
 .inline-field .inline-edit-trigger.el-button{width:32px;min-width:32px;height:32px;padding:6px;border-color:transparent;background:transparent;flex:none}
 .inline-field .inline-edit-trigger img{width:20px;height:20px}
-.inline-field .inline-edit-trigger:hover{background:#eef4f3}
+.inline-field .inline-edit-trigger:hover{background:#fff;color:var(--accent)}
 .inline-field-editing{display:block}
 .inline-field-editor{display:grid;grid-template-columns:minmax(70px,1fr) auto;gap:8px;align-items:start;width:100%}
 .inline-field-editor .el-input{min-width:0}
@@ -23,27 +24,106 @@
 .local-edit-field{min-width:0}
 .editor .local-edit-field{grid-column:1/-1}
 .top-actions .el-button+.el-button{margin-left:0}
-.ui-section{min-width:0;margin:0 0 22px}.ui-section-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 10px;min-height:30px;text-align:left}.ui-section-heading h2{margin:0;min-width:0;font-size:var(--ui-section,20px);line-height:1.5}.ui-section-body{min-width:0}.ui-section-body.weekly-panel{margin:0}.ui-section .compact-actions{flex:none}
+.ui-section{min-width:0;margin:0 0 16px}.ui-section-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 6px;text-align:left}.ui-section-heading h2{margin:0;min-width:0;font-size:var(--ui-section,20px);line-height:1.5}.ui-section-body{min-width:0}.ui-section-body.weekly-panel{margin:0}.ui-section .compact-actions{flex:none}
 .page-hero{position:relative;isolation:isolate;border:0!important;border-radius:0!important;box-shadow:none!important;background:#fff;overflow:hidden;margin-bottom:22px;padding:24px 20px}.page-hero h1{font-size:var(--ui-title,30px);line-height:1.5;margin:0}.page-hero .hero-heading{display:flex;align-items:center;gap:12px;margin-bottom:20px}.page-hero .hero-heading>.meta{margin-left:auto}
-.masthead.page-hero { background: #33476d; color: #fff; padding-block: 24px; }
+.masthead.page-hero { background: #fff; color: var(--ink); padding-block: 24px; }
 .masthead.page-hero :is(h1, .total, .metrics strong) { color: inherit; }
-.masthead.page-hero :is(.total small, .metrics span, .metrics small) { color: #e5eaf1; }
+.masthead.page-hero :is(.total small, .metrics span, .metrics small) { color: var(--muted); }
 .masthead.page-hero .header-inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 0 22px; }
 .masthead.page-hero .metrics { margin-top: 0; }
 @media (max-width: 600px) {
   .masthead.page-hero .header-inner { flex-wrap: wrap; justify-content: flex-start; padding-inline: 0; }
 }
-.filter-select{font:inherit;font-size:var(--ui-label,14px);min-height:42px;max-width:100%;border:1px solid #dce5e1;border-radius:10px;background:#fff;color:#263a41;padding:8px 30px 8px 12px}.filter-field{display:flex;align-items:center;gap:12px;min-width:0;white-space:nowrap}.filter-field .filter-select{flex:1;min-width:0}
+.filter-select{font:inherit;font-size:var(--ui-label,14px);min-height:42px;max-width:100%;border:1px solid #dce0e5;border-radius:10px;background:#fff;color:#263a41;padding:8px 30px 8px 12px}.filter-field{display:flex;align-items:center;gap:12px;min-width:0;white-space:nowrap}.filter-field .filter-select{flex:1;min-width:0}
 .form-page-heading{display:flex;align-items:center;gap:14px}.form-page-heading h1{outline:none}.form-page-body{max-width:640px;margin:0 auto}.ui-form-page .local-actions{justify-content:flex-end}.ui-form-page .el-form{padding:0}.ui-form-page .business-form{border:0;padding:0}.workspace:has(.ui-form-page){padding-bottom:30px}body:has(.ui-form-page) .mobile-tabs,body:has(.ui-form-page) .main-nav{display:none!important}body:has(.ui-form-page) .workspace{grid-template-columns:minmax(0,1fr)}
 @media(max-width:360px){.inline-field-editor{grid-template-columns:minmax(50px,1fr) auto}.inline-field-actions{gap:4px}.inline-field-actions .text-action{padding:0 7px}}
-.ui-wheel-field{position:relative;border:1px solid #dce5e1;border-radius:12px;overflow:hidden;background:#fff;--van-picker-option-font-size:16px;--van-picker-option-text-color:#718084;--van-picker-mask-color:linear-gradient(180deg,#fff9,#fff0);min-height:104px}
-.ui-wheel-field .van-picker{background:transparent;font-family:inherit}.ui-wheel-field .van-picker__frame{left:10px;right:10px;border-radius:7px;background:#eaf2ef70;z-index:0}.ui-wheel-field .van-picker-column__wrapper{z-index:1}.ui-wheel-field .van-picker-column__item{padding:0 32px 0 12px}.wheel-option{display:block;width:100%;text-align:center;font-size:16px;line-height:34px;font-variant-numeric:tabular-nums}.wheel-chosen{font-weight:600;color:#2b484e}.ui-wheel-field .wheel-edit{position:absolute;z-index:3;right:0;top:32px;width:32px;min-width:32px;height:38px;padding:6px;background:transparent;border:0}.wheel-edit img{width:19px;height:19px}.wheel-manual{height:102px;display:flex;align-items:center;padding:0 12px}.wheel-manual .el-input-number,.wheel-manual .el-input{width:100%}.wheel-manual .el-input__inner{font-size:18px;text-align:center}.ui-wheel-field>[tabindex]:focus-visible{outline:2px solid #53666b;outline-offset:-3px;border-radius:11px}
-.page-hero{padding-top:36px;padding-bottom:32px}.form-page-heading{min-height:116px}.ui-form-page[data-detail-page] .form-page-body{max-width:900px}
+.ui-wheel-field{position:relative;border:1px solid #dce0e5;border-radius:12px;overflow:hidden;background:#fff;--van-picker-option-font-size:16px;--van-picker-option-text-color:#718084;--van-picker-mask-color:linear-gradient(180deg,#fff9,#fff0);min-height:104px}
+.ui-wheel-field .van-picker{background:transparent;font-family:inherit}.ui-wheel-field .van-picker__frame{left:10px;right:10px;border-radius:7px;background:transparent;border-block:1px solid currentColor;z-index:0}.ui-wheel-field .van-picker-column__wrapper{z-index:1}.ui-wheel-field .van-picker-column__item{padding:0 32px 0 12px}.wheel-option{display:block;width:100%;text-align:center;font-size:16px;line-height:34px;font-variant-numeric:tabular-nums}.wheel-chosen{font-weight:600;color:#2b484e}.ui-wheel-field .wheel-edit{position:absolute;z-index:3;right:0;top:32px;width:32px;min-width:32px;height:38px;padding:6px;background:transparent;border:0}.wheel-edit img{width:19px;height:19px}.wheel-manual{height:102px;display:flex;align-items:center;padding:0 12px}.wheel-manual .el-input-number,.wheel-manual .el-input{width:100%}.wheel-manual .el-input__inner{font-size:18px;text-align:center}.ui-wheel-field>[tabindex]:focus-visible{outline:2px solid #53666b;outline-offset:-3px;border-radius:11px}
+.page-hero{padding-top:36px;padding-bottom:32px}.ui-form-page .form-page-heading{min-height:44px;gap:8px;padding:4px 0;margin-block-end:8px}.ui-form-page[data-detail-page] .form-page-body{max-width:900px}
 
 .weekly-bars{position:relative}.chart-hit{position:absolute;height:34px;background:transparent;border:0;border-radius:6px;cursor:pointer}.chart-hit:focus-visible{outline:2px solid #426b77;outline-offset:0}.meeting-editor{min-width:0}.ui-wheel-field .van-picker-column__wrapper{z-index:2}.ui-wheel-field .wheel-chosen{color:#243f46}.ui-form-page .form-page-body>.meeting-editor{background:#fff}
 
-.van-tabbar.mobile-tabs,.van-tabbar.bottom-tabs{box-sizing:border-box!important;width:100%!important;max-width:none!important;transform:none!important;margin:0!important;left:0!important;right:0!important;bottom:0!important;border-radius:0!important;background:#fff!important;height:calc(78px + env(safe-area-inset-bottom))!important;padding:7px 12px calc(7px + env(safe-area-inset-bottom))!important}
+.van-tabbar.mobile-tabs{box-sizing:border-box!important;width:100%!important;max-width:none!important;transform:none!important;margin:0!important;left:0!important;right:0!important;bottom:0!important;border-radius:0!important;background:#fff!important;height:calc(78px + env(safe-area-inset-bottom))!important;padding:7px 12px calc(7px + env(safe-area-inset-bottom))!important}
 
 .ui-form-page.editor{border:0;border-radius:0;padding:0;background:transparent}
+.el-button { --el-button-bg-color: #fff; --el-button-hover-bg-color: #fff; --el-button-active-bg-color: #fff; --el-button-disabled-bg-color: #fff; }
+.task-filters :is(.new-task, .create-button).el-button { background: color-mix(in srgb, var(--accent) 20%, var(--paper)); color: var(--ink); }
 .el-button:focus-visible{outline:2px solid #38545c;outline-offset:3px}
-.ui-date-field{margin:0 0 22px;min-width:0}.ui-date-field>label{display:block;margin:0 0 8px;color:#485c61;font-size:15px}.date-input-row{display:flex;align-items:center;gap:8px;min-width:0}.date-selection{font:inherit;font-size:16px;color:#243b43;min-height:44px;text-align:left;flex:1;min-width:0;padding:10px 14px;background:#fff;border:1px solid #dbe4e0;border-radius:12px;cursor:pointer}.date-selection:focus-visible{outline:2px solid #38545c;outline-offset:2px}.date-inline-picker{margin-top:8px;border:1px solid #e6ece8;border-radius:12px;overflow:hidden}.date-inline-picker .van-picker{--van-picker-option-font-size:16px;--van-picker-option-text-color:#243b43;font-family:inherit}.date-input-row .el-input{flex:1;min-width:0}.date-input-row input{font:inherit;font-size:16px;min-height:40px}
+.ui-date-field{margin:0 0 22px;min-width:0}.ui-date-field>label{display:block;margin:0 0 8px;color:#485c61;font-size:15px}.date-input-row{display:flex;align-items:center;gap:8px;min-width:0}.date-selection{font:inherit;font-size:16px;color:#243b43;min-height:44px;text-align:left;flex:1;min-width:0;padding:10px 14px;background:#fff;border:1px solid #dbdfe4;border-radius:12px;cursor:pointer}.date-selection:focus-visible{outline:2px solid #38545c;outline-offset:2px}.date-inline-picker{margin-top:8px;border:1px solid #e6e8ec;border-radius:12px;overflow:hidden}.date-inline-picker .van-picker{--van-picker-option-font-size:16px;--van-picker-option-text-color:#243b43;font-family:inherit}.date-input-row .el-input{flex:1;min-width:0}.date-input-row input{font:inherit;font-size:16px;min-height:40px}
+.task-banner {
+  --ui-title: 1.75rem;
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  align-content: center;
+  row-gap: 6px;
+  min-block-size: 110px;
+  margin-block-end: 10px;
+  padding: 18px 14px;
+  border-radius: 12px 12px 0 0;
+  background: #fff;
+}
+.task-banner h1 { margin: 0; line-height: 1.25; overflow-wrap: anywhere; }
+.task-banner-caption { margin: 0; color: var(--muted, #535c67); font-size: .875rem; }
+
+/* 输入框的表面和键盘焦点，覆盖库字段的内嵌描边。 */
+:is(.el-input__wrapper, .el-textarea__inner, .editor .van-field, .task-filters > :is(input, select), .date-selection, .filter-select) {
+  --el-input-border-color: transparent;
+  --el-input-hover-border-color: transparent;
+  --el-input-focus-border-color: transparent;
+  border: 0;
+  background-color: #fff;
+  border-block-end: 1px solid var(--line, #858585);
+  box-shadow: none;
+}
+:is(.el-input__wrapper, .el-textarea__inner):is(:hover, :focus, .is-focus),
+.el-form-item.is-error :is(.el-input__wrapper, .el-textarea__inner):is(:hover, :focus, .is-focus),
+.el-form-item.is-error :is(.el-input__wrapper, .el-textarea__inner) { box-shadow: none; }
+.editor .van-field::after { border: 0; }
+:is(.el-input__inner, .van-field__control):focus-visible { outline: none; }
+:is(.el-input__wrapper, .editor .van-field):has(input:focus-visible),
+:is(.el-textarea__inner, .task-filters > :is(input, select), .date-selection, .filter-select, .task-content):focus-visible {
+  outline: none;
+  background-image: linear-gradient(#242c36, #242c36);
+  background-position: 8px calc(100% - 3px);
+  background-repeat: no-repeat;
+  background-size: 16px 2px;
+}
+.task-content:is(:hover, :active, [aria-expanded="true"]) h2 { text-decoration: underline; }
+@media (forced-colors: active) {
+  :is(.el-input__wrapper, .editor .van-field):has(input:focus-visible),
+  :is(.el-textarea__inner, .task-filters > :is(input, select), .date-selection, .filter-select, .task-content):focus-visible {
+    forced-color-adjust: none;
+    background-color: Canvas;
+    color: CanvasText;
+    outline: 2px solid Highlight;
+  }
+  :is(.el-input__wrapper, .editor .van-field):has(input:focus-visible) input { color: CanvasText; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Product photography retains its original colours. Functional and identity artwork uses its graphic silhouette. */
+.icon-button img, .main-nav button > img, .van-tabbar-item__icon img, [data-icon] img, img[data-ic], .avatar img, img.avatar, [data-avatar] img, img[data-avatar] {
+  filter: grayscale(1);
+}
+
+/* Keep the framework success states within the application palette. */
+:root {
+  --van-green: #28599b;
+  --van-success-color: #28599b;
+  --el-color-success: #28599b;
+  --el-color-success-rgb: 40, 89, 155;
+  --el-color-success-dark-2: #20477c;
+  --el-color-success-light-3: #698bb9;
+  --el-color-success-light-5: #94accd;
+  --el-color-success-light-7: #becde1;
+  --el-color-success-light-8: #d4deeb;
+  --el-color-success-light-9: #e8effa;
+}

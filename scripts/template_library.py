@@ -1,4 +1,4 @@
-"""Describe and bind real Luz-Design templates; declarations cannot register new layouts.
+"""Describe and bind real templates in the Luz template catalog.
 
 list / describe are read-only. select writes only to the caller's process directory.
 A UI package is verified by ui_package.py check with the current Crawl evidence of its stage.
@@ -29,6 +29,20 @@ def digest(path):
         return hashlib.file_digest(stream, "sha256").hexdigest()
 
 
+def _template_file(relative):
+    path = Path(relative)
+    if not path.parts or path.is_absolute() or ".." in path.parts:
+        raise ValueError(f"模板文件需要使用库内的相对路径：{relative}")
+    root = ROOT
+    if path.parts[:1] == ("Luz-Project",):
+        root = ROOT.parent / "Luz-Project"
+        path = path.relative_to("Luz-Project")
+    file = (root / path).resolve()
+    if not file.is_relative_to(root.resolve()) or not file.is_file():
+        raise ValueError(f"模板文件不存在或越出所属技能库：{relative}")
+    return file
+
+
 def reference(identifier, applies_to):
     entries = read(CATALOG)["templates"]
     if identifier not in entries:
@@ -37,9 +51,7 @@ def reference(identifier, applies_to):
         raise ValueError("模板必须绑定具体的输出位置 applies_to")
     files = []
     for relative in entries[identifier]["files"]:
-        file = (ROOT / relative).resolve()
-        if not file.is_relative_to(ROOT.resolve()) or not file.is_file():
-            raise ValueError(f"Design 模板文件不存在或越界：{relative}")
+        file = _template_file(relative)
         files.append({"path": relative, "sha256": digest(file)})
     return {"id": identifier, "applies_to": applies_to.strip(), "files": files}
 
@@ -500,7 +512,7 @@ def select(session, caller, stage, identifier, applies_to):
     snapshot_root = raw / "00-design" / "t" / revision[:16]
     snapshots = []
     for file_item in item["files"]:
-        source = (ROOT / file_item["path"]).resolve()
+        source = _template_file(file_item["path"])
         relative = Path(file_item["path"])
         snapshot = (snapshot_root / relative).resolve()
         if not snapshot.is_relative_to((raw / "00-design").resolve()):

@@ -131,7 +131,7 @@
   .fb-nc[data-open="true"] { min-height: 404px; }
   .fb-nc__bar { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); }
   .fb-nc__t { font-size: var(--fs-lg); font-weight: 600; line-height: var(--lh-tight); }
-  .fb-nc__panel { position: absolute; z-index: 5; right: 0; top: 60px; width: 100%; box-shadow: var(--elev-3); overflow: hidden; transform-origin: top right; animation: lz-toast var(--dur-base) var(--ease-out) both; }
+  .fb-nc__panel { position: relative; width: 100%; background: white; }
   .fb-nc__head { display: flex; align-items: center; justify-content: space-between; gap: var(--s-2); padding: var(--s-3) var(--s-4); border-bottom: 1px solid var(--line); }
   .fb-nc__head .seg { padding: 0; margin: 0; }
   .fb-nc__row { align-items: flex-start; }
@@ -431,9 +431,9 @@
       <div class="fb-nc" id="fb-nc" data-open="true">
         <div class="fb-nc__bar">
           <span class="fb-nc__t">订单管理</span>
-          <button type="button" class="ibtn fb-ib" data-tip="通知" aria-label="通知" aria-haspopup="dialog" aria-expanded="true" aria-controls="fb-nc-panel" data-trigger><img src="../../kit/assets/line/message.webp" alt=""><span class="fb-bdg" data-n></span></button>
+          <button type="button" class="ibtn fb-ib" data-tip="通知" aria-label="通知" aria-expanded="true" aria-controls="fb-nc-panel" data-trigger><img src="../../kit/assets/line/message.webp" alt=""><span class="fb-bdg" data-n></span></button>
         </div>
-        <div class="card fb-nc__panel" id="fb-nc-panel" role="dialog" aria-label="通知中心">
+        <div class="card fb-nc__panel" id="fb-nc-panel" role="region" aria-label="通知中心">
           <div class="fb-nc__head"><div class="seg" data-seg="fb-nc" aria-label="通知范围"><button class="seg__item" data-key="all" aria-selected="true">全部</button><button class="seg__item" data-key="unread">未读</button></div><button type="button" class="btn btn--text btn--sm" data-all>全部已读</button></div>
           <div class="fb-nc__list list"></div>
         </div>
@@ -680,13 +680,13 @@
 </script>
 
 <style>
-  /* 反馈与状态（补充）：居中详情 fb-dg、气泡卡片 fb-pp、可关闭标签 fb-ct、通知卡 fb-nt、计数徽标 fb-cn、状态徽章 fb-ls、公告横幅 fb-bn、悬停预览 fb-hc */
+  /* 反馈与状态（补充）：详情页 fb-dg、气泡卡片 fb-pp、可关闭标签 fb-ct、通知卡 fb-nt、计数徽标 fb-cn、状态徽章 fb-ls、公告横幅 fb-bn、悬停预览 fb-hc */
 
-  /* 居中详情弹层：只读内容，关闭靠文字按钮、遮罩与 Esc */
+  /* 订单详情页：只读内容，关闭靠文字按钮、遮罩与 Esc */
   .fb-dgl .row { min-height: 64px; }
   .fb-dgl .avatar { width: 40px; height: 40px; }
-  .fb-dg-mask { position: fixed; inset: 0; z-index: 120; display: grid; place-items: center; padding: var(--s-6); background: var(--scrim); overscroll-behavior: contain; animation: lz-fade var(--dur-base) var(--ease-out) both; }
-  .fb-dg { width: min(640px, 100%); max-height: 100%; overflow: auto; background: var(--surface); border-radius: var(--r-xl); box-shadow: var(--elev-4); color: var(--ink); animation: lz-dialog var(--dur-base) var(--ease-out) both; }
+  .fb-dg-mask { display: block; background: white; }
+  .fb-dg { width: 100%; background: white; color: var(--ink); }
   .fb-dg:focus-visible { outline-offset: -3px; }
   .fb-dg__head { display: flex; align-items: center; gap: var(--s-3); min-height: 64px; padding: 0 var(--s-6); border-bottom: 1px solid var(--line); }
   .fb-dg__head h2 { font-size: var(--fs-lg); font-weight: 600; line-height: var(--lh-tight); }
@@ -705,7 +705,7 @@
   .fb-dg__ln--sum { font-size: var(--fs-md); font-weight: 600; }
   .fb-dg__ln--sum .price { font-size: var(--fs-xl); }
   .fb-dg__foot { display: flex; justify-content: flex-end; padding: var(--s-3) var(--s-6); border-top: 1px solid var(--line); }
-  @media (max-width: 560px) { .fb-dg-mask { padding: var(--s-3); } .fb-dg__body { grid-template-columns: minmax(0, 1fr); } .fb-dg__img { width: 100%; height: 160px; } .fb-dg__head, .fb-dg__body, .fb-dg__foot { padding-left: var(--s-4); padding-right: var(--s-4); } }
+  @media (max-width: 560px) { .fb-dg-mask { display: block; background: white; } .fb-dg__body { grid-template-columns: minmax(0, 1fr); } .fb-dg__img { width: 100%; height: 160px; } .fb-dg__head, .fb-dg__body, .fb-dg__foot { padding-left: var(--s-4); padding-right: var(--s-4); } }
 
   /* 弹出气泡卡片：点芯片在它左侧弹出，上下位置夹在卡片内，箭头指向芯片 */
   .fb-pp-box { position: relative; min-height: 196px; }
@@ -838,19 +838,19 @@
   .fb-hc__st b { font-size: var(--fs-md); font-variant-numeric: tabular-nums; }
 </style>
 
-<article class="demo" data-cid="WB-FEED-022" data-name="居中详情弹层" data-cat="FEED">
-  <div class="demo__head"><span class="demo__name">居中详情弹层</span></div>
-  <p class="demo__note">适合：只读详情与图文预览居中悬浮，带关闭</p>
+<article class="demo" data-cid="WB-FEED-022" data-name="订单详情页" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">订单详情页</span></div>
+  <p class="demo__note">适合：按订单查看明细，返回原列表</p>
   <div class="demo__stage">
     <div class="card fb-card fb-card--flush fb-dgl">
       <div class="list fb-rows" id="fb-dg-list">
-        <button type="button" class="row" data-i="0" aria-haspopup="dialog"><img class="avatar avatar--mark" src="../../kit/assets/marks/mark-001.webp" alt=""><span class="row__main"><span class="row__title">订单 10382</span><span class="row__meta">林晓 建国路店</span></span><span class="row__trail"><span class="price"><small>¥</small>199.00</span><span class="tag" data-tone="action">待发货</span></span></button>
-        <button type="button" class="row" data-i="1" aria-haspopup="dialog"><img class="avatar avatar--mark" src="../../kit/assets/marks/mark-002.webp" alt=""><span class="row__main"><span class="row__title">订单 10517</span><span class="row__meta">陈默 徐汇滨江店</span></span><span class="row__trail"><span class="price"><small>¥</small>239.00</span><span class="tag" data-tone="info">待收货</span></span></button>
-        <button type="button" class="row" data-i="2" aria-haspopup="dialog"><img class="avatar avatar--mark" src="../../kit/assets/marks/mark-003.webp" alt=""><span class="row__main"><span class="row__title">订单 10921</span><span class="row__meta">周岚 浦东世纪店</span></span><span class="row__trail"><span class="price"><small>¥</small>159.00</span><span class="tag" data-tone="warning">待付款</span></span></button>
+        <button type="button" class="row" data-i="0"><img class="avatar avatar--mark" src="../../kit/assets/marks/mark-001.webp" alt=""><span class="row__main"><span class="row__title">订单 10382</span><span class="row__meta">林晓 建国路店</span></span><span class="row__trail"><span class="price"><small>¥</small>199.00</span><span class="tag" data-tone="action">待发货</span></span></button>
+        <button type="button" class="row" data-i="1"><img class="avatar avatar--mark" src="../../kit/assets/marks/mark-002.webp" alt=""><span class="row__main"><span class="row__title">订单 10517</span><span class="row__meta">陈默 徐汇滨江店</span></span><span class="row__trail"><span class="price"><small>¥</small>239.00</span><span class="tag" data-tone="info">待收货</span></span></button>
+        <button type="button" class="row" data-i="2"><img class="avatar avatar--mark" src="../../kit/assets/marks/mark-003.webp" alt=""><span class="row__main"><span class="row__title">订单 10921</span><span class="row__meta">周岚 浦东世纪店</span></span><span class="row__trail"><span class="price"><small>¥</small>159.00</span><span class="tag" data-tone="warning">待付款</span></span></button>
       </div>
     </div>
     <div class="fb-dg-mask" id="fb-dg-mask" hidden>
-    <div class="fb-dg" id="fb-dg" role="dialog" aria-modal="true" aria-labelledby="fb-dg-t" tabindex="-1">
+    <div class="fb-dg" id="fb-dg" role="region" aria-labelledby="fb-dg-t" tabindex="-1">
       <div class="fb-dg__head"><h2 id="fb-dg-t">订单 10382</h2><span class="tag" data-st>待发货</span><span class="fb-dg__pos" data-pos></span></div>
       <div class="fb-dg__body">
         <img class="fb-dg__img" data-img src="../../kit/assets/photo/product-rose-red.webp" alt="">
@@ -869,11 +869,11 @@
   <div class="demo__stage">
     <div class="card fb-card fb-card--flush fb-pp-box" id="fb-pp-box">
       <div class="list fb-rows">
-        <div class="row" data-k="0"><img class="row__lead" src="../../kit/assets/photo/product-hydrangea-blue.webp" alt=""><span class="row__main"><span class="row__title">蓝绣球盆栽</span><span class="row__meta">在售 ¥129</span></span><span class="row__trail"><button type="button" class="fb-pp-chip" data-tone="warning" aria-haspopup="dialog" aria-expanded="false" aria-controls="fb-pp">库存 8 件<span class="chev" aria-hidden="true"></span></button></span></div>
-        <div class="row" data-k="1"><img class="row__lead" src="../../kit/assets/photo/product-tulip-white.webp" alt=""><span class="row__main"><span class="row__title">白郁金香</span><span class="row__meta">在售 ¥179</span></span><span class="row__trail"><button type="button" class="fb-pp-chip" data-tone="success" aria-haspopup="dialog" aria-expanded="false" aria-controls="fb-pp">库存 52 件<span class="chev" aria-hidden="true"></span></button></span></div>
-        <div class="row" data-k="2"><img class="row__lead" src="../../kit/assets/photo/product-giftbox.webp" alt=""><span class="row__main"><span class="row__title">花礼盒</span><span class="row__meta">已下架 ¥259</span></span><span class="row__trail"><button type="button" class="fb-pp-chip" data-tone="danger" aria-haspopup="dialog" aria-expanded="false" aria-controls="fb-pp">库存 0 件<span class="chev" aria-hidden="true"></span></button></span></div>
+        <div class="row" data-k="0"><img class="row__lead" src="../../kit/assets/photo/product-hydrangea-blue.webp" alt=""><span class="row__main"><span class="row__title">蓝绣球盆栽</span><span class="row__meta">在售 ¥129</span></span><span class="row__trail"><button type="button" class="fb-pp-chip" data-tone="warning" aria-expanded="false" aria-controls="fb-pp">库存 8 件<span class="chev" aria-hidden="true"></span></button></span></div>
+        <div class="row" data-k="1"><img class="row__lead" src="../../kit/assets/photo/product-tulip-white.webp" alt=""><span class="row__main"><span class="row__title">白郁金香</span><span class="row__meta">在售 ¥179</span></span><span class="row__trail"><button type="button" class="fb-pp-chip" data-tone="success" aria-expanded="false" aria-controls="fb-pp">库存 52 件<span class="chev" aria-hidden="true"></span></button></span></div>
+        <div class="row" data-k="2"><img class="row__lead" src="../../kit/assets/photo/product-giftbox.webp" alt=""><span class="row__main"><span class="row__title">花礼盒</span><span class="row__meta">已下架 ¥259</span></span><span class="row__trail"><button type="button" class="fb-pp-chip" data-tone="danger" aria-expanded="false" aria-controls="fb-pp">库存 0 件<span class="chev" aria-hidden="true"></span></button></span></div>
       </div>
-      <div class="fb-pp" id="fb-pp" role="dialog" aria-label="库存说明" hidden></div>
+      <div class="fb-pp" id="fb-pp" role="tooltip" aria-label="库存说明" hidden></div>
     </div>
   </div>
 </article>
@@ -977,15 +977,15 @@
   const price = n => `<span class="price"><small>¥</small>${money(n)}</span>`;
   const mk = html => { const t = document.createElement('template'); t.innerHTML = html.trim(); return t.content.firstElementChild; };
 
-  /* 022 居中详情：遮罩加居中浮层，打开时挪到页面最外层并让页面其余部分不可操作；Tab 在层内循环，Esc、遮罩、关闭按钮都能关，焦点回到被点的行 */
+  /* 022 独立详情视图与原列表切换，返回后恢复原行焦点 */
   (() => {
-    const mask = $('#fb-dg-mask'), dlg = $('#fb-dg'), list = $('#fb-dg-list'), home = mask.parentElement;
+    const mask = $('#fb-dg-mask'), dlg = $('#fb-dg'), list = $('#fb-dg-list');
     const O = [
       { id: '10382', who: '林晓', store: '建国路店', st: ['待发货', 'action'], way: '同城配送', pay: '微信支付', addr: '建国路 88 号 3 栋 502', items: [['红玫瑰花束', 'product-rose-red', 1, 199]], fee: 0 },
       { id: '10517', who: '陈默', store: '徐汇滨江店', st: ['待收货', 'info'], way: '门店自提', pay: '微信支付', addr: '徐汇滨江店前台', items: [['粉芍药花束', 'product-peony-pink', 1, 239]], fee: 0 },
       { id: '10921', who: '周岚', store: '浦东世纪店', st: ['待付款', 'warning'], way: '同城配送', pay: '待支付', addr: '世纪大道 1200 号 1 单元 1801', items: [['向日葵花束', 'product-sunflower', 1, 159]], fee: 0 },
     ];
-    let cur = 0, opener = null, locked = [], htmlOv = '';
+    let cur = 0, opener = null;
     const paint = () => {
       const o = O[cur], sum = o.items.reduce((s, it) => s + it[2] * it[3], 0) + o.fee;
       $('#fb-dg-t').textContent = '订单 ' + o.id;
@@ -999,28 +999,21 @@
     };
     const open = row => {
       opener = row; cur = +row.dataset.i; paint();
-      document.body.appendChild(mask); mask.hidden = false;
-      locked = [...document.body.children].filter(e => e !== mask && !e.inert && !e.matches('script, style, .toast-host, .tip')); locked.forEach(e => { e.inert = true; });
-      htmlOv = document.documentElement.style.overflow; document.documentElement.style.overflow = 'hidden';
+      list.hidden = true; mask.hidden = false;
+
+
       document.addEventListener('keydown', keys, true);
       $('[data-close]', dlg).focus();
     };
     const close = () => {
       if (mask.hidden) return;
       document.removeEventListener('keydown', keys, true);
-      mask.hidden = true; home.appendChild(mask);
-      locked.forEach(e => { e.inert = false; }); locked = []; document.documentElement.style.overflow = htmlOv;
+      mask.hidden = true; list.hidden = false;
+
       if (opener) opener.focus({ preventScroll: true });
     };
     const keys = e => {
       if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); close(); return; }
-      if (e.key !== 'Tab') return;
-      const f = $$('button:not(:disabled), [href], [tabindex]:not([tabindex="-1"])', dlg).filter(x => x.getClientRects().length);
-      if (!f.length) { e.preventDefault(); dlg.focus(); return; }
-      const first = f[0], last = f[f.length - 1], at = document.activeElement;
-      if (!dlg.contains(at)) { e.preventDefault(); (e.shiftKey ? last : first).focus(); }
-      else if (e.shiftKey && (at === first || at === dlg)) { e.preventDefault(); last.focus(); }
-      else if (!e.shiftKey && at === last) { e.preventDefault(); first.focus(); }
     };
     list.addEventListener('click', e => { const r = e.target.closest('[data-i]'); if (r) open(r); });
     const go = d => { cur += d; paint(); const b = $(d > 0 ? '[data-next]' : '[data-prev]', dlg); if (b.disabled) $('[data-close]', dlg).focus(); };

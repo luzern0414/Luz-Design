@@ -249,8 +249,7 @@
 .xbtn-follow .xbtn-main { flex: 1; min-width: 0; }
 .xbtn-follow b { display: block; font-weight: 600; line-height: var(--lh-tight); }
 .xbtn-follow .btn[aria-pressed="true"] { background: var(--zone); color: var(--ink-3); box-shadow: none; }
-.xbtn-code { display: flex; align-items: center; width: 100%; max-width: 330px; margin: 0 auto; padding: 0 var(--s-2) 0 var(--s-4); background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--r-md); }
-.xbtn-code:focus-within { border-color: var(--ink-2); }
+.xbtn-code { display: flex; align-items: center; width: 100%; max-width: 330px; margin: 0 auto; padding: 0 var(--s-2) 0 var(--s-4); border-radius: var(--r-md); }
 .xbtn-code input { flex: 1; min-width: 0; height: 46px; border: 0; background: none; font-size: var(--fs-md); }
 .xbtn-code input:focus-visible { outline: none; }
 .xbtn-code input::placeholder { color: var(--ink-3); }
@@ -544,8 +543,7 @@
 .xcard-gift__val { font-size: var(--fs-3xl); font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
 .xcard-gift__val small { font-size: var(--fs-md); margin-right: 2px; }
 .xcard-gift__code { font-size: var(--fs-sm); letter-spacing: .08em; font-variant-numeric: tabular-nums; }
-.xcard-deep { background: linear-gradient(150deg, var(--action-press) 0%, color-mix(in srgb, var(--action-press) 88%, var(--action)) 100%); }
-.xcard-onhero .btn--text { color: var(--surface); }
+.xcard-gift .btn--text { color: var(--ink); }
 .xcard-tri { display: grid; grid-template-columns: 76px 1fr auto; align-items: center; column-gap: var(--s-3); padding: var(--s-3) var(--s-4) var(--s-3) var(--s-4); }
 .xcard-tri .xcard-cp__amt { font-size: var(--fs-xl); }
 .xcard-tri.is-got .btn { background: var(--zone); color: var(--ink-3); box-shadow: none; }
@@ -555,14 +553,12 @@
 /* 会员 */
 .xcard-vip { display: grid; gap: var(--s-4); padding: var(--s-5); }
 .xcard-vip__top { display: flex; align-items: center; gap: var(--s-3); }
-.xcard-vip__top .avatar { width: 52px; height: 52px; padding: 7px; background: var(--surface); box-shadow: 0 0 0 3px color-mix(in srgb, var(--surface) 35%, transparent); }
+.xcard-vip__top .avatar { width: 52px; height: 52px; padding: 7px; background: var(--pastel-blue-300); }
 .xcard-vip__top b { display: block; font-size: var(--fs-xl); font-weight: 700; line-height: var(--lh-tight); }
-.xcard-vip__top .ibtn { margin-left: auto; background: color-mix(in srgb, var(--surface) 18%, transparent); }
-.xcard-vip__top .ibtn img { filter: invert(1); }
+.xcard-vip__top .ibtn { margin-left: auto; background: var(--surface); }
 .xcard-gold { background: var(--accent-tint); color: var(--accent); }
 .xcard-vip .stats > * + * { border-left-color: color-mix(in srgb, var(--surface) 28%, transparent); }
-.xcard-vip .stat__label { color: var(--surface); }
-.xcard-vip .stat__val small { color: var(--surface); }
+.xcard-vip .stat__label, .xcard-vip .stat__val small { color: var(--ink); }
 .xcard-perks { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s-4) var(--s-1); padding: var(--s-4) var(--s-2); }
 .xcard-perk { display: grid; justify-items: center; gap: var(--s-1); font-size: var(--fs-sm); line-height: 1.2; border-radius: var(--r-md); padding: var(--s-1); transition: transform var(--dur-quick) var(--ease-out); }
 .xcard-perk:active { transform: scale(.94); }
@@ -819,9 +815,12 @@
 .xcard-gw__nav[data-dir="next"] img { transform: rotate(180deg); }
 .xcard-gw__nav[disabled] { opacity: .35; pointer-events: none; }
 .xcard-gw__grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s-2); }
-.xcard-gw__c { position: relative; aspect-ratio: 1; overflow: hidden; border-radius: var(--r-md); background: var(--zone); transition: box-shadow var(--dur-quick) var(--ease-out); }
+.xcard-gw__c { position: relative; aspect-ratio: 1; overflow: hidden; border-radius: var(--r-md); background: var(--zone); }
 .xcard-gw__c img { width: 100%; height: 100%; object-fit: cover; }
-.xcard-gw__c[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--action); }
+.xcard-gw__c:focus-visible { outline: none; }
+.xcard-gw__c:focus-visible img { filter: brightness(.76); }
+.xcard-gw__c[aria-pressed="true"]::before { content: ""; position: absolute; inset: 4px 4px auto auto; width: 22px; height: 22px; border-radius: 50%; background: var(--surface); }
+.xcard-gw__c[aria-pressed="true"]::after { content: ""; position: absolute; top: 8px; right: 11px; width: 7px; height: 12px; border: solid var(--ink); border-width: 0 2px 2px 0; transform: rotate(45deg); }
 .xcard-gw__more { position: absolute; inset: 0; display: grid; place-items: center; background: color-mix(in srgb, var(--ink) 52%, transparent); color: var(--surface); font-size: var(--fs-lg); font-weight: 600; font-variant-numeric: tabular-nums; }
 .xcard-gw__fold { justify-self: center; }
 
@@ -1376,7 +1375,7 @@ li:last-child > .nv-vs__it::before { display: none; }
 .nv-pn__mid b { font-size: var(--fs-md); font-weight: 600; color: var(--ink); }
 </style>
 <style>
-/* 表单：文本框聚焦只加深边线；错误用语义红加文字；所有类名带 fm- 前缀 */
+/* 表单：文本框用色底反馈，错误用提示文字。 */
 .fm-stack { display: grid; gap: var(--s-4); }
 [data-cid^="AP-FORM-"] .input:focus-visible, [data-cid^="AP-FORM-"] .textarea:focus-visible { outline: none; }
 [data-cid^="AP-FORM-"] input::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; display: none; }
@@ -1397,10 +1396,9 @@ li:last-child > .nv-vs__it::before { display: none; }
 .fm-float span { position: absolute; left: var(--s-3); top: 16px; font-size: var(--fs-md); color: var(--ink-3); pointer-events: none; transition: top var(--dur-base) var(--ease-out), font-size var(--dur-base) var(--ease-out), color var(--dur-base) var(--ease-out); }
 .fm-float .input:focus + span, .fm-float .input:not(:placeholder-shown) + span { top: 7px; font-size: var(--fs-xs); font-weight: 600; color: var(--ink-2); }
 
-/* 带图标、带单位、组合：外框承载边线 */
-.fm-ico { display: flex; align-items: center; gap: var(--s-2); min-height: 48px; padding: 0 var(--s-3); background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--r-md); transition: border-color var(--dur-quick) var(--ease-out); }
-.fm-ico:focus-within { border-color: var(--ink-2); }
-.fm-ico[data-invalid] { border-color: var(--danger); }
+/* 带图标、单位和操作的组合输入。 */
+.fm-ico { display: flex; align-items: center; gap: var(--s-2); min-height: 48px; padding: 0 var(--s-3); border-radius: var(--r-md); }
+.fm-ico[data-invalid] { --field-fill: var(--danger-tint); --field-active: var(--danger-tint); }
 .fm-ico > img { width: 20px; height: 20px; flex: none; }
 .fm-ico input { flex: 1; width: 0; min-width: 0; height: 46px; border: 0; background: none; font-size: var(--fs-md); }
 .fm-ico input:focus-visible { outline: none; }
@@ -1420,10 +1418,8 @@ li:last-child > .nv-vs__it::before { display: none; }
 
 /* 六格验证码 */
 .fm-otp { display: flex; justify-content: space-between; gap: var(--s-2); }
-.fm-otp input { width: 100%; max-width: 52px; height: 60px; padding: 0; border: 1px solid var(--line-strong); border-radius: var(--r-md); background: var(--surface); text-align: center; font-size: var(--fs-2xl); font-weight: 600; font-variant-numeric: tabular-nums; transition: border-color var(--dur-quick) var(--ease-out), background var(--dur-quick) var(--ease-out); }
-.fm-otp input:focus { border-color: var(--ink-2); }
-.fm-otp input:focus-visible { outline: none; }
-.fm-otp input.is-filled { border-color: var(--action); background: var(--action-tint); }
+.fm-otp input { width: 100%; max-width: 52px; height: 60px; padding: 0; border-radius: var(--r-md); text-align: center; font-size: var(--fs-2xl); font-weight: 600; font-variant-numeric: tabular-nums; }
+.fm-otp input.is-filled { --field-fill: var(--action-tint); }
 
 /* 密码强度 */
 .fm-meter { display: grid; grid-template-columns: repeat(3, 1fr) auto; align-items: center; gap: var(--s-1); margin-top: var(--s-2); }
@@ -1450,7 +1446,7 @@ li:last-child > .nv-vs__it::before { display: none; }
 @media (hover: hover) { .search .fm-scan:hover { background: var(--zone); } }
 .fm-xs { position: relative; height: 44px; }
 .fm-xs__t { position: absolute; left: var(--s-1); top: 0; line-height: 44px; font-size: var(--fs-xl); font-weight: 700; transition: opacity var(--dur-base) var(--ease-out); }
-.fm-xs__box { position: absolute; top: 0; right: 0; width: 44px; height: 44px; overflow: hidden; border-radius: var(--r-full); background: var(--surface); border: 1px solid var(--line-strong); box-shadow: var(--elev-1); transition: width var(--dur-slow) var(--ease-out), right var(--dur-slow) var(--ease-out); }
+.fm-xs__box { position: absolute; top: 0; right: 0; width: 44px; height: 44px; overflow: hidden; border-radius: var(--r-full); transition: width var(--dur-slow) var(--ease-out), right var(--dur-slow) var(--ease-out); }
 .fm-xs__box > label { position: absolute; inset: 0; display: flex; align-items: center; gap: var(--s-2); padding: 0 var(--s-3) 0 11px; }
 .fm-xs__box img { width: 20px; height: 20px; flex: none; }
 .fm-xs__box input { flex: 1; min-width: 0; height: 42px; border: 0; background: none; font-size: var(--fs-md); opacity: 0; pointer-events: none; transition: opacity var(--dur-base) var(--ease-out) var(--dur-quick); }
@@ -1717,9 +1713,8 @@ li:last-child > .nv-vs__it::before { display: none; }
 .fm-tk__h { display: flex; align-items: baseline; justify-content: space-between; }
 .fm-tk__n { font-size: var(--fs-sm); color: var(--ink-3); font-variant-numeric: tabular-nums; }
 .fm-tk__n[data-full] { color: var(--warning); font-weight: 600; }
-.fm-tk__box { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2); min-height: 52px; padding: 9px var(--s-2); border: 1px solid var(--line-strong); border-radius: var(--r-md); background: var(--surface); cursor: text; transition: border-color var(--dur-quick) var(--ease-out); }
-.fm-tk__box:focus-within { border-color: var(--ink-2); }
-.fm-tk__box[data-invalid] { border-color: var(--danger); }
+.fm-tk__box { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2); min-height: 52px; padding: 9px var(--s-2); border-radius: var(--r-md); cursor: text; }
+.fm-tk__box[data-invalid] { --field-fill: var(--danger-tint); --field-active: var(--danger-tint); }
 .fm-tk__t { display: inline-flex; align-items: center; gap: 2px; min-height: 32px; padding: 0 2px 0 var(--s-3); border-radius: var(--r-full); background: var(--action-tint); box-shadow: inset 0 0 0 1px var(--action-edge); color: var(--action-press); font-size: var(--fs-sm); font-weight: 500; white-space: nowrap; animation: lz-pop var(--dur-base) var(--ease-spring) both; }
 .fm-tk__t.is-out { opacity: 0; transform: scale(.8); transition: opacity var(--dur-quick), transform var(--dur-quick); }
 .fm-tk__x { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; transition: background var(--dur-quick) var(--ease-out); }
@@ -1737,15 +1732,15 @@ li:last-child > .nv-vs__it::before { display: none; }
 .fm-pc__h { display: flex; align-items: center; justify-content: space-between; min-height: 36px; }
 .fm-pc__h b { font-size: var(--fs-md); font-weight: 600; }
 .fm-pc__boxes { position: relative; display: grid; grid-template-columns: repeat(6, 1fr); gap: var(--s-2); }
-.fm-pc__b { position: relative; display: grid; place-items: center; height: 52px; border: 1px solid var(--line-strong); border-radius: var(--r-md); background: var(--surface); transition: border-color var(--dur-quick) var(--ease-out), background var(--dur-quick) var(--ease-out); }
+.fm-pc__b { position: relative; display: grid; place-items: center; height: 52px; border-radius: var(--r-md); background: var(--field-fill); }
 .fm-pc__b.is-on::before { content: ""; width: 12px; height: 12px; border-radius: 50%; background: var(--ink); animation: lz-pop var(--dur-base) var(--ease-spring) both; }
 .fm-pc__boxes[data-show] .fm-pc__b.is-on::before { content: attr(data-c); width: auto; height: auto; border-radius: 0; background: none; font-size: var(--fs-xl); font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums; }
-.fm-pc__boxes:focus-within .fm-pc__b.is-cur { border-color: var(--ink-2); }
+.fm-pc__boxes:focus-within .fm-pc__b.is-cur { background-color: var(--field-active); }
 .fm-pc__boxes:focus-within .fm-pc__b.is-cur::after { content: ""; position: absolute; width: 2px; height: 22px; border-radius: 2px; background: var(--action); animation: lz-blink 1s steps(2) infinite; }
 .fm-pc__in { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; border: 0; font-size: var(--fs-md); cursor: text; }
 .fm-pc__in:disabled { cursor: not-allowed; }
-.fm-pc[data-st="err"] .fm-pc__b { border-color: var(--danger); }
-.fm-pc[data-st="ok"] .fm-pc__b { border-color: var(--success); background: var(--success-tint); }
+.fm-pc[data-st="err"] .fm-pc__b { --field-fill: var(--danger-tint); }
+.fm-pc[data-st="ok"] .fm-pc__b { --field-fill: var(--success-tint); }
 .fm-pc__msg { font-size: var(--fs-sm); color: var(--ink-3); }
 .fm-pc__msg:empty { display: none; }
 .fm-pc[data-st="err"] .fm-pc__msg { color: var(--danger); }
@@ -1847,6 +1842,7 @@ li:last-child > .nv-vs__it::before { display: none; }
 .rw-grow { flex: 1; min-width: 0; }
 .rw-chev { margin-left: auto; }
 .rw-val { color: var(--ink-3); font-size: var(--fs-sm); }
+#rw-set .rw-val { font-size: inherit; }
 
 /* 订单行 */
 .rw-ord { padding: var(--s-4); }
@@ -2510,7 +2506,7 @@ th[aria-sort="ascending"] .chev::after { opacity: 1; transform: rotate(-135deg) 
   .fedx-gv__th { position: relative; aspect-ratio: 1; overflow: hidden; border-radius: var(--r-md); background: var(--zone); transition: transform var(--dur-quick) var(--ease-out); }
   .fedx-gv__th img { width: 100%; height: 100%; object-fit: cover; }
   .fedx-gv__th:active { transform: scale(.96); }
-  .fedx-vw { position: absolute; inset: 0; z-index: 5; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; border-radius: var(--r-lg); overflow: hidden; background: var(--ink); color: var(--surface); animation: lz-fade var(--dur-base) var(--ease-out) both; }
+  .fedx-vw { display: grid; grid-template-rows: auto minmax(180px, 1fr) auto; background: white; color: var(--ink); }
   .fedx-vw :focus-visible { outline-color: var(--surface); }
   .fedx-vw__top { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; min-height: 48px; padding: 0 var(--s-2) 0 var(--s-4); }
   .fedx-vw__page { font-size: var(--fs-sm); font-weight: 600; font-variant-numeric: tabular-nums; }
@@ -2527,10 +2523,10 @@ th[aria-sort="ascending"] .chev::after { opacity: 1; transform: rotate(-135deg) 
   .fedx-vw__b[aria-disabled="true"] { opacity: .35; pointer-events: none; }
   .fedx-vw__cap { text-align: center; font-size: var(--fs-sm); color: color-mix(in srgb, var(--surface) 80%, transparent); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 
-  /* 028 居中详情弹层：舞台内的整页遮罩，弹层居中悬浮 */
+  /* 028 商品详情页：由列表切换至商品详情页 */
   .fedx-pv { position: relative; border-radius: var(--r-lg); overflow: hidden; }
-  .fedx-pv__scrim { position: absolute; inset: 0; z-index: 5; display: grid; place-items: center; padding: var(--s-2); background: var(--scrim); animation: lz-fade var(--dur-base) var(--ease-out) both; }
-  .fedx-pv__dlg { width: min(100%, 288px); max-height: 100%; overflow: auto; border-radius: var(--r-xl); background: var(--surface); box-shadow: var(--elev-4); animation: lz-dialog var(--dur-base) var(--ease-out) both; }
+  .fedx-pv__scrim { display: block; background: white; }
+  .fedx-pv__dlg { width: 100%; background: white; }
   .fedx-pv__media { position: relative; aspect-ratio: 16 / 9; background: var(--zone); }
   .fedx-pv__media > img { width: 100%; height: 100%; object-fit: cover; }
   .fedx-pv__x { position: absolute; top: var(--s-2); right: var(--s-2); }
@@ -2716,6 +2712,9 @@ th[aria-sort="ascending"] .chev::after { opacity: 1; transform: rotate(-135deg) 
   .cht-sug .suggest:not([data-end]) { mask-image: linear-gradient(90deg, var(--ink) calc(100% - 32px), transparent); }
   .cht-sug .suggest button[aria-pressed="true"] { background: var(--action-tint); color: var(--action-press); border-color: var(--action-edge); font-weight: 600; }
   .cht-prompt .prompt { box-shadow: var(--elev-1); }
+  .cht-prompt form:has(.prompt__row) { display: grid; gap: var(--s-2); }
+  .cht-prompt .cht-log:empty { display: none; }
+  .cht-prompt .cht-log p { white-space: pre-wrap; overflow-wrap: anywhere; }
 
   /* 排队 */
   .cht-q { display: grid; gap: var(--s-2); }
@@ -2967,7 +2966,7 @@ th[aria-sort="ascending"] .chev::after { opacity: 1; transform: rotate(-135deg) 
   /* 004 卡片按压 */
   .mot-press { display: grid; grid-template-columns: 64px 1fr auto; align-items: center; column-gap: var(--s-3); width: 100%; padding: var(--s-3); text-align: left; }
   .mot-press img { width: 64px; height: 64px; border-radius: var(--r-md); object-fit: cover; }
-  .mot-press.is-pressed { transform: scale(.97); box-shadow: none; }
+  .mot-press.is-pressed { background-color: var(--field-active); }
   .mot-press > span { min-width: 0; }
 
   /* 005 成功勾选 */
@@ -3119,7 +3118,7 @@ th[aria-sort="ascending"] .chev::after { opacity: 1; transform: rotate(-135deg) 
 <body class="app-body">
 <div class="lib">
   <div class="bar">
-    <nav class="pills" id="pills" aria-label="组件分类"><button class="pill" data-cat="all" aria-pressed="true">全部 <small>339</small></button><button class="pill" data-cat="BTN" aria-pressed="false">按钮 <small>35</small></button><button class="pill" data-cat="BGND" aria-pressed="false">背景 <small>32</small></button><button class="pill" data-cat="CARD" aria-pressed="false">卡片 <small>51</small></button><button class="pill" data-cat="ENTR" aria-pressed="false">入口 <small>16</small></button><button class="pill" data-cat="NAVI" aria-pressed="false">导航 <small>24</small></button><button class="pill" data-cat="FORM" aria-pressed="false">表单 <small>43</small></button><button class="pill" data-cat="ROWS" aria-pressed="false">列表行 <small>26</small></button><button class="pill" data-cat="DATA" aria-pressed="false">数据 <small>28</small></button><button class="pill" data-cat="FEED" aria-pressed="false">反馈与状态 <small>35</small></button><button class="pill" data-cat="CHAT" aria-pressed="false">智能体 <small>30</small></button><button class="pill" data-cat="MOTN" aria-pressed="false">动效 <small>19</small></button></nav>
+    <nav class="pills" id="pills" aria-label="组件分类"><button class="pill" data-cat="all" aria-pressed="true">全部 <small>340</small></button><button class="pill" data-cat="BTN" aria-pressed="false">按钮 <small>35</small></button><button class="pill" data-cat="BGND" aria-pressed="false">背景 <small>32</small></button><button class="pill" data-cat="CARD" aria-pressed="false">卡片 <small>51</small></button><button class="pill" data-cat="ENTR" aria-pressed="false">入口 <small>16</small></button><button class="pill" data-cat="NAVI" aria-pressed="false">导航 <small>24</small></button><button class="pill" data-cat="FORM" aria-pressed="false">表单 <small>43</small></button><button class="pill" data-cat="ROWS" aria-pressed="false">列表行 <small>26</small></button><button class="pill" data-cat="DATA" aria-pressed="false">数据 <small>28</small></button><button class="pill" data-cat="FEED" aria-pressed="false">反馈与状态 <small>35</small></button><button class="pill" data-cat="CHAT" aria-pressed="false">智能体 <small>30</small></button><button class="pill" data-cat="MOTN" aria-pressed="false">动效 <small>20</small></button></nav>
     <label class="search"><img src="../../kit/assets/line/search.webp" alt=""><input id="q" type="search" placeholder="搜索编号或名称" aria-label="搜索编号或名称"></label>
   </div>
   <main id="cats">
@@ -3345,7 +3344,7 @@ th[aria-sort="ascending"] .chev::after { opacity: 1; transform: rotate(-135deg) 
 <article class="demo" data-cid="AP-BTN-030" data-name="验证码倒计时钮" data-cat="BTN">
   <div class="demo__head"><span class="demo__name">验证码倒计时钮</span></div>
   <p class="demo__note">适合：登录与绑定手机号时获取验证码</p>
-  <div class="demo__stage"><div class="xbtn-box"><div class="xbtn-code" data-xbtn-code><input inputmode="numeric" placeholder="输入验证码" aria-label="验证码"><button class="btn btn--text">获取验证码</button></div></div></div>
+  <div class="demo__stage"><div class="xbtn-box"><div class="xbtn-code field-shell" data-xbtn-code><input inputmode="numeric" placeholder="输入验证码" aria-label="验证码"><button class="btn btn--text">获取验证码</button></div></div></div>
 </article>
 
 <article class="demo" data-cid="AP-BTN-031" data-name="双色胶囊按钮" data-cat="BTN">
@@ -3431,7 +3430,7 @@ th[aria-sort="ascending"] .chev::after { opacity: 1; transform: rotate(-135deg) 
 </section>
 <section class="cat" id="cat-bgnd" data-cat="BGND">
 <div class="cat__head"><h2>背景</h2><span>32 个组件</span></div>
-<div class="gallery">
+<p>历史背景样例仅供对照，前端成品统一使用纯白背景（#FFFFFF）。</p><div class="gallery">
 <article class="demo" data-cid="AP-BGND-001" data-name="页底米白" data-cat="BGND">
   <div class="demo__head"><span class="demo__name">页底米白</span></div>
   <p class="demo__note">适合：整页默认底色，白卡片浮在其上</p>
@@ -3871,7 +3870,7 @@ th[aria-sort="ascending"] .chev::after { opacity: 1; transform: rotate(-135deg) 
 <article class="demo" data-cid="AP-CARD-013" data-name="礼品卡面" data-cat="CARD">
   <div class="demo__head"><span class="demo__name">礼品卡面</span></div>
   <p class="demo__note">适合：礼品卡展示与赠送入口</p>
-  <div class="demo__stage"><div class="card card--hero xcard-deep pattern-over xcard-onhero xcard-gift xcard-w">
+  <div class="demo__stage"><div class="card card--hero xcard-gift xcard-w">
     <div class="xcard-gift__top"><div><b class="xcard-name" style="font-size: var(--fs-lg)">花间集礼品卡</b><p class="xcard-gift__code" style="margin-top: var(--s-1)">8820 0000 0431</p></div><img data-ic="giftcard" src="../../kit/assets/icons/flat/giftcard.webp" alt=""></div>
     <div class="xcard-between"><span class="xcard-gift__val"><small>¥</small>200</span><div class="xcard-gap"><button class="btn btn--text" data-xcard-t="已充入余额">充入余额</button><button class="btn btn--white btn--sm btn--pill" data-xcard-t="已打开赠送">赠送</button></div></div>
   </div></div>
@@ -3891,7 +3890,7 @@ th[aria-sort="ascending"] .chev::after { opacity: 1; transform: rotate(-135deg) 
 <article class="demo" data-cid="AP-CARD-015" data-name="会员品牌主卡" data-cat="CARD">
   <div class="demo__head"><span class="demo__name">会员品牌主卡</span></div>
   <p class="demo__note">适合：我的页顶部，整屏唯一的深色品牌卡</p>
-  <div class="demo__stage"><div class="card card--hero xcard-deep pattern-over xcard-vip xcard-w">
+  <div class="demo__stage"><div class="card card--hero xcard-vip xcard-w">
     <div class="xcard-vip__top"><img class="avatar" src="../../kit/assets/marks/mark-001.webp" alt=""><div><b>林晓</b><span class="tag xcard-gold">金卡会员</span></div><button class="ibtn" aria-label="会员码" data-tip="会员码" data-xcard-t="已打开会员码"><img src="../../kit/assets/line/scan.webp" alt=""></button></div>
     <div class="stats"><div class="stat"><span class="stat__label">积分</span><span class="stat__val">2860</span></div><div class="stat"><span class="stat__label">优惠券</span><span class="stat__val">4<small>张</small></span></div><div class="stat"><span class="stat__label">成长值</span><span class="stat__val">3280</span></div></div>
   </div></div>
@@ -5122,7 +5121,7 @@ th[aria-sort="ascending"] .chev::after { opacity: 1; transform: rotate(-135deg) 
 <!-- 输入框 -->
 <article class="demo" data-cid="AP-FORM-001" data-name="默认输入框" data-cat="FORM">
   <div class="demo__head"><span class="demo__name">默认输入框</span></div>
-  <p class="demo__note">适合：单行文字录入，聚焦时只加深边线</p>
+  <p class="demo__note">适合：单行文字录入，点按后以底色提示当前输入。</p>
   <div class="demo__stage">
     <div class="field"><label class="field__label" for="fm-i1">收货人</label><input class="input" id="fm-i1" placeholder="请输入收货人姓名" autocomplete="off"></div>
   </div>
@@ -5163,8 +5162,8 @@ th[aria-sort="ascending"] .chev::after { opacity: 1; transform: rotate(-135deg) 
   <p class="demo__note">适合：收货人、地址等有明确语义的字段，输入后可一键清除</p>
   <div class="demo__stage">
     <div class="fm-stack">
-      <label class="fm-ico"><img src="../../kit/assets/line/user.webp" alt=""><input placeholder="收货人姓名" aria-label="收货人姓名" autocomplete="off"><button type="button" class="fm-ico__x" hidden aria-label="清除" data-tip="清除"><img src="../../kit/assets/line/close.webp" alt=""></button></label>
-      <label class="fm-ico"><img src="../../kit/assets/line/location.webp" alt=""><input placeholder="小区或写字楼" aria-label="小区或写字楼" autocomplete="off" value="建国路 88 号"><button type="button" class="fm-ico__x" aria-label="清除" data-tip="清除"><img src="../../kit/assets/line/close.webp" alt=""></button></label>
+      <label class="fm-ico field-shell"><img src="../../kit/assets/line/user.webp" alt=""><input placeholder="收货人姓名" aria-label="收货人姓名" autocomplete="off"><button type="button" class="fm-ico__x" hidden aria-label="清除" data-tip="清除"><img src="../../kit/assets/line/close.webp" alt=""></button></label>
+      <label class="fm-ico field-shell"><img src="../../kit/assets/line/location.webp" alt=""><input placeholder="小区或写字楼" aria-label="小区或写字楼" autocomplete="off" value="建国路 88 号"><button type="button" class="fm-ico__x" aria-label="清除" data-tip="清除"><img src="../../kit/assets/line/close.webp" alt=""></button></label>
     </div>
   </div>
 </article>
@@ -5174,8 +5173,8 @@ th[aria-sort="ascending"] .chev::after { opacity: 1; transform: rotate(-135deg) 
   <p class="demo__note">适合：重量与尺寸等带单位的数值，单位固定在框内，只收数字</p>
   <div class="demo__stage">
     <div class="fm-stack">
-      <div class="field"><span class="field__label">花束重量</span><label class="fm-ico"><input inputmode="decimal" placeholder="0" aria-label="花束重量" data-num="1" autocomplete="off" value="1.2"><span class="fm-ico__u">千克</span></label></div>
-      <div class="field"><span class="field__label">花瓶高度</span><label class="fm-ico"><input inputmode="numeric" placeholder="0" aria-label="花瓶高度" data-num="0" autocomplete="off" value="32"><span class="fm-ico__u">厘米</span></label></div>
+      <div class="field"><span class="field__label">花束重量</span><label class="fm-ico field-shell"><input inputmode="decimal" placeholder="0" aria-label="花束重量" data-num="1" autocomplete="off" value="1.2"><span class="fm-ico__u">千克</span></label></div>
+      <div class="field"><span class="field__label">花瓶高度</span><label class="fm-ico field-shell"><input inputmode="numeric" placeholder="0" aria-label="花瓶高度" data-num="0" autocomplete="off" value="32"><span class="fm-ico__u">厘米</span></label></div>
     </div>
   </div>
 </article>
@@ -5185,8 +5184,8 @@ th[aria-sort="ascending"] .chev::after { opacity: 1; transform: rotate(-135deg) 
   <p class="demo__note">适合：手机号登录与绑定，获取后六十秒倒计时</p>
   <div class="demo__stage" id="fm-vc">
     <div class="fm-stack">
-      <label class="fm-ico"><img src="../../kit/assets/line/user.webp" alt=""><input inputmode="numeric" placeholder="手机号码" aria-label="手机号码" data-ph autocomplete="off"></label>
-      <label class="fm-ico"><img src="../../kit/assets/line/shield.webp" alt=""><input inputmode="numeric" placeholder="验证码" aria-label="验证码" data-code autocomplete="off"><span class="fm-ico__sep"></span><button class="btn btn--text" type="button" data-send>获取验证码</button></label>
+      <label class="fm-ico field-shell"><img src="../../kit/assets/line/user.webp" alt=""><input inputmode="numeric" placeholder="手机号码" aria-label="手机号码" data-ph autocomplete="off"></label>
+      <label class="fm-ico field-shell"><img src="../../kit/assets/line/shield.webp" alt=""><input inputmode="numeric" placeholder="验证码" aria-label="验证码" data-code autocomplete="off"><span class="fm-ico__sep"></span><button class="btn btn--text" type="button" data-send>获取验证码</button></label>
     </div>
   </div>
 </article>
@@ -5196,12 +5195,12 @@ th[aria-sort="ascending"] .chev::after { opacity: 1; transform: rotate(-135deg) 
   <p class="demo__note">适合：短信验证码，自动跳格，支持退格与整串粘贴</p>
   <div class="demo__stage">
     <div class="fm-otp" id="fm-otp" role="group" aria-label="验证码">
-      <input inputmode="numeric" maxlength="1" aria-label="第 1 位" autocomplete="one-time-code">
-      <input inputmode="numeric" maxlength="1" aria-label="第 2 位">
-      <input inputmode="numeric" maxlength="1" aria-label="第 3 位">
-      <input inputmode="numeric" maxlength="1" aria-label="第 4 位">
-      <input inputmode="numeric" maxlength="1" aria-label="第 5 位">
-      <input inputmode="numeric" maxlength="1" aria-label="第 6 位">
+      <input class="field-shell" inputmode="numeric" maxlength="1" aria-label="第 1 位" autocomplete="one-time-code">
+      <input class="field-shell" inputmode="numeric" maxlength="1" aria-label="第 2 位">
+      <input class="field-shell" inputmode="numeric" maxlength="1" aria-label="第 3 位">
+      <input class="field-shell" inputmode="numeric" maxlength="1" aria-label="第 4 位">
+      <input class="field-shell" inputmode="numeric" maxlength="1" aria-label="第 5 位">
+      <input class="field-shell" inputmode="numeric" maxlength="1" aria-label="第 6 位">
     </div>
   </div>
 </article>
@@ -5210,7 +5209,7 @@ th[aria-sort="ascending"] .chev::after { opacity: 1; transform: rotate(-135deg) 
   <div class="demo__head"><span class="demo__name">密码显隐输入框</span></div>
   <p class="demo__note">适合：登录与修改密码，文字按钮切换明文</p>
   <div class="demo__stage">
-    <div class="field"><label class="field__label" for="fm-i9">登录密码</label><div class="fm-ico"><img src="../../kit/assets/line/shield.webp" alt=""><input id="fm-i9" type="password" placeholder="请输入密码" autocomplete="off" value="88886666"><button class="btn btn--text" type="button" id="fm-eye" aria-pressed="false">显示</button></div></div>
+    <div class="field"><label class="field__label" for="fm-i9">登录密码</label><div class="fm-ico field-shell"><img src="../../kit/assets/line/shield.webp" alt=""><input id="fm-i9" type="password" placeholder="请输入密码" autocomplete="off" value="88886666"><button class="btn btn--text" type="button" id="fm-eye" aria-pressed="false">显示</button></div></div>
   </div>
 </article>
 
@@ -5228,7 +5227,7 @@ th[aria-sort="ascending"] .chev::after { opacity: 1; transform: rotate(-135deg) 
   <div class="demo__head"><span class="demo__name">组合兑换输入框</span></div>
   <p class="demo__note">适合：兑换码与优惠码，输入框与按钮连成一体</p>
   <div class="demo__stage" id="fm-cp">
-    <div class="field"><span class="field__label">兑换码</span><div class="fm-join"><label class="fm-ico"><input placeholder="输入兑换码" aria-label="兑换码" autocomplete="off" maxlength="8"></label><button class="btn btn--primary" type="button">兑换</button></div><p class="field__err" role="alert" hidden>兑换码为 8 位</p></div>
+    <div class="field"><span class="field__label">兑换码</span><div class="fm-join"><label class="fm-ico field-shell"><input placeholder="输入兑换码" aria-label="兑换码" autocomplete="off" maxlength="8"></label><button class="btn btn--primary" type="button">兑换</button></div><p class="field__err" role="alert" hidden>兑换码为 8 位</p></div>
   </div>
 </article>
 
@@ -5247,7 +5246,7 @@ th[aria-sort="ascending"] .chev::after { opacity: 1; transform: rotate(-135deg) 
   <div class="demo__stage" id="fm-xs">
     <div class="fm-xs" data-open="false">
       <span class="fm-xs__t">当季鲜花</span>
-      <div class="fm-xs__box"><label><img src="../../kit/assets/line/search.webp" alt=""><input type="search" placeholder="搜索花束" aria-label="搜索花束" tabindex="-1"></label><button class="fm-xs__ok" type="button" aria-label="搜索" data-tip="搜索"></button></div>
+      <div class="fm-xs__box field-shell"><label><img src="../../kit/assets/line/search.webp" alt=""><input type="search" placeholder="搜索花束" aria-label="搜索花束" tabindex="-1"></label><button class="fm-xs__ok" type="button" aria-label="搜索" data-tip="搜索"></button></div>
       <button class="btn btn--text fm-xs__c" type="button" tabindex="-1">取消</button>
     </div>
   </div>
@@ -5572,7 +5571,7 @@ th[aria-sort="ascending"] .chev::after { opacity: 1; transform: rotate(-135deg) 
   <div class="demo__stage" id="fm-tk">
     <div class="field">
       <div class="fm-tk__h"><label class="field__label" for="fm-tk-i">过敏原与禁忌</label><span class="fm-tk__n" role="status">3/6</span></div>
-      <div class="fm-tk__box"><input class="fm-tk__in" id="fm-tk-i" placeholder="输入后按回车添加" autocomplete="off" maxlength="12" aria-describedby="fm-tk-e"></div>
+      <div class="fm-tk__box field-shell"><input class="fm-tk__in" id="fm-tk-i" placeholder="输入后按回车添加" autocomplete="off" maxlength="12" aria-describedby="fm-tk-e"></div>
       <p class="field__err" id="fm-tk-e" role="alert" hidden></p>
     </div>
     <div class="fm-tk__sug"><div class="fm-hist__h">常用选项</div><div class="fm-tags"></div></div>
@@ -5691,7 +5690,7 @@ th[aria-sort="ascending"] .chev::after { opacity: 1; transform: rotate(-135deg) 
   <div class="demo__head"><span class="demo__name">设置功能行</span></div>
   <p class="demo__note">适合：设置页的功能入口，线性图标在左，当前值与箭头在右</p>
   <div class="demo__stage">
-    <div class="card list" id="rw-set">
+    <div class="card list settings-list" id="rw-set">
       <button class="row row--link" data-go="通用设置"><img class="rw-ic" src="../../kit/assets/line/settings.webp" alt=""><div class="row__main"><p class="row__title">通用设置</p></div><span class="row__trail"></span></button>
       <button class="row row--link" data-go="账号与安全"><img class="rw-ic" src="../../kit/assets/line/shield.webp" alt=""><div class="row__main"><p class="row__title">账号与安全</p></div><span class="row__trail"><span class="rw-val">已验证</span></span></button>
       <button class="row row--link" data-go="消息通知"><img class="rw-ic" src="../../kit/assets/line/message.webp" alt=""><div class="row__main"><p class="row__title">消息通知</p></div><span class="row__trail"><span class="rw-val">已开启</span></span></button>
@@ -6893,18 +6892,18 @@ th[aria-sort="ascending"] .chev::after { opacity: 1; transform: rotate(-135deg) 
       <div class="section__head"><h2>买家实拍</h2><span class="tag">共 9 张</span></div>
       <div class="card fed-card">
         <div class="fedx-gv__grid">
-          <button class="fedx-gv__th" data-name="红玫瑰花束" aria-label="查看第 1 张 红玫瑰花束" aria-haspopup="dialog"><img src="../../kit/assets/photo/product-rose-red.webp" alt=""></button>
-          <button class="fedx-gv__th" data-name="粉芍药花束" aria-label="查看第 2 张 粉芍药花束" aria-haspopup="dialog"><img src="../../kit/assets/photo/product-peony-pink.webp" alt=""></button>
-          <button class="fedx-gv__th" data-name="向日葵花束" aria-label="查看第 3 张 向日葵花束" aria-haspopup="dialog"><img src="../../kit/assets/photo/product-sunflower.webp" alt=""></button>
-          <button class="fedx-gv__th" data-name="白郁金香" aria-label="查看第 4 张 白郁金香" aria-haspopup="dialog"><img src="../../kit/assets/photo/product-tulip-white.webp" alt=""></button>
-          <button class="fedx-gv__th" data-name="蓝绣球盆栽" aria-label="查看第 5 张 蓝绣球盆栽" aria-haspopup="dialog"><img src="../../kit/assets/photo/product-hydrangea-blue.webp" alt=""></button>
-          <button class="fedx-gv__th" data-name="龟背竹盆栽" aria-label="查看第 6 张 龟背竹盆栽" aria-haspopup="dialog"><img src="../../kit/assets/photo/product-monstera.webp" alt=""></button>
-          <button class="fedx-gv__th" data-name="多肉组合盆" aria-label="查看第 7 张 多肉组合盆" aria-haspopup="dialog"><img src="../../kit/assets/photo/product-succulent.webp" alt=""></button>
-          <button class="fedx-gv__th" data-name="花礼盒" aria-label="查看第 8 张 花礼盒" aria-haspopup="dialog"><img src="../../kit/assets/photo/product-giftbox.webp" alt=""></button>
-          <button class="fedx-gv__th" data-name="干花花瓶摆件" aria-label="查看第 9 张 干花花瓶摆件" aria-haspopup="dialog"><img src="../../kit/assets/photo/product-pampas-vase.webp" alt=""></button>
+          <button class="fedx-gv__th" data-name="红玫瑰花束" aria-label="查看第 1 张 红玫瑰花束"><img src="../../kit/assets/photo/product-rose-red.webp" alt=""></button>
+          <button class="fedx-gv__th" data-name="粉芍药花束" aria-label="查看第 2 张 粉芍药花束"><img src="../../kit/assets/photo/product-peony-pink.webp" alt=""></button>
+          <button class="fedx-gv__th" data-name="向日葵花束" aria-label="查看第 3 张 向日葵花束"><img src="../../kit/assets/photo/product-sunflower.webp" alt=""></button>
+          <button class="fedx-gv__th" data-name="白郁金香" aria-label="查看第 4 张 白郁金香"><img src="../../kit/assets/photo/product-tulip-white.webp" alt=""></button>
+          <button class="fedx-gv__th" data-name="蓝绣球盆栽" aria-label="查看第 5 张 蓝绣球盆栽"><img src="../../kit/assets/photo/product-hydrangea-blue.webp" alt=""></button>
+          <button class="fedx-gv__th" data-name="龟背竹盆栽" aria-label="查看第 6 张 龟背竹盆栽"><img src="../../kit/assets/photo/product-monstera.webp" alt=""></button>
+          <button class="fedx-gv__th" data-name="多肉组合盆" aria-label="查看第 7 张 多肉组合盆"><img src="../../kit/assets/photo/product-succulent.webp" alt=""></button>
+          <button class="fedx-gv__th" data-name="花礼盒" aria-label="查看第 8 张 花礼盒"><img src="../../kit/assets/photo/product-giftbox.webp" alt=""></button>
+          <button class="fedx-gv__th" data-name="干花花瓶摆件" aria-label="查看第 9 张 干花花瓶摆件"><img src="../../kit/assets/photo/product-pampas-vase.webp" alt=""></button>
         </div>
       </div>
-      <div class="fedx-vw" role="dialog" aria-modal="true" aria-label="图片预览" hidden>
+      <div class="fedx-vw" role="region" aria-label="图片预览" hidden>
         <div class="fedx-vw__top"><span></span><span class="fedx-vw__page" role="status" aria-live="polite" data-page>1 / 9</span><button class="fedx-vw__x" data-x>关闭</button></div>
         <div class="fedx-vw__stage" tabindex="0" aria-label="图片区域 左右滑动切换" data-stage><div class="fedx-vw__track" data-track></div></div>
         <div class="fedx-vw__bar"><button class="fedx-vw__b" data-prev>上一张</button><span class="fedx-vw__cap" data-cap></span><button class="fedx-vw__b" data-next>下一张</button></div>
@@ -6913,20 +6912,20 @@ th[aria-sort="ascending"] .chev::after { opacity: 1; transform: rotate(-135deg) 
   </div>
 </article>
 
-<article class="demo" data-cid="AP-FEED-028" data-name="居中详情弹层" data-cat="FEED">
-  <div class="demo__head"><span class="demo__name">居中详情弹层</span></div>
-  <p class="demo__note">适合：只读详情与图文预览居中悬浮并带关闭</p>
+<article class="demo" data-cid="AP-FEED-028" data-name="商品详情页" data-cat="FEED">
+  <div class="demo__head"><span class="demo__name">商品详情页</span></div>
+  <p class="demo__note">适合：商品列表、详情与返回时的焦点恢复</p>
   <div class="demo__stage">
     <div class="fedx-pv" data-pv>
       <div class="card list" data-list>
-        <button class="row row--link" data-k="0" aria-haspopup="dialog"><img class="row__lead" src="../../kit/assets/photo/product-rose-red.webp" alt=""><div class="row__main"><p class="row__title one-line">红玫瑰花束</p><p class="row__meta one-line">同城 2 小时送达</p></div><div class="row__trail"><span class="price"><small>¥</small>199</span></div></button>
-        <button class="row row--link" data-k="1" aria-haspopup="dialog"><img class="row__lead" src="../../kit/assets/photo/product-peony-pink.webp" alt=""><div class="row__main"><p class="row__title one-line">粉芍药花束</p><p class="row__meta one-line">同城 2 小时送达</p></div><div class="row__trail"><span class="price"><small>¥</small>239</span></div></button>
-        <button class="row row--link" data-k="2" aria-haspopup="dialog"><img class="row__lead" src="../../kit/assets/photo/product-sunflower.webp" alt=""><div class="row__main"><p class="row__title one-line">向日葵花束</p><p class="row__meta one-line">同城 2 小时送达</p></div><div class="row__trail"><span class="price"><small>¥</small>159</span></div></button>
-        <button class="row row--link" data-k="3" aria-haspopup="dialog"><img class="row__lead" src="../../kit/assets/photo/product-tulip-white.webp" alt=""><div class="row__main"><p class="row__title one-line">白郁金香</p><p class="row__meta one-line">同城 2 小时送达</p></div><div class="row__trail"><span class="price"><small>¥</small>179</span></div></button>
-        <button class="row row--link" data-k="4" aria-haspopup="dialog"><img class="row__lead" src="../../kit/assets/photo/product-hydrangea-blue.webp" alt=""><div class="row__main"><p class="row__title one-line">蓝绣球盆栽</p><p class="row__meta one-line">快递 次日达</p></div><div class="row__trail"><span class="price"><small>¥</small>129</span></div></button>
+        <button class="row row--link" data-k="0"><img class="row__lead" src="../../kit/assets/photo/product-rose-red.webp" alt=""><div class="row__main"><p class="row__title one-line">红玫瑰花束</p><p class="row__meta one-line">同城 2 小时送达</p></div><div class="row__trail"><span class="price"><small>¥</small>199</span></div></button>
+        <button class="row row--link" data-k="1"><img class="row__lead" src="../../kit/assets/photo/product-peony-pink.webp" alt=""><div class="row__main"><p class="row__title one-line">粉芍药花束</p><p class="row__meta one-line">同城 2 小时送达</p></div><div class="row__trail"><span class="price"><small>¥</small>239</span></div></button>
+        <button class="row row--link" data-k="2"><img class="row__lead" src="../../kit/assets/photo/product-sunflower.webp" alt=""><div class="row__main"><p class="row__title one-line">向日葵花束</p><p class="row__meta one-line">同城 2 小时送达</p></div><div class="row__trail"><span class="price"><small>¥</small>159</span></div></button>
+        <button class="row row--link" data-k="3"><img class="row__lead" src="../../kit/assets/photo/product-tulip-white.webp" alt=""><div class="row__main"><p class="row__title one-line">白郁金香</p><p class="row__meta one-line">同城 2 小时送达</p></div><div class="row__trail"><span class="price"><small>¥</small>179</span></div></button>
+        <button class="row row--link" data-k="4"><img class="row__lead" src="../../kit/assets/photo/product-hydrangea-blue.webp" alt=""><div class="row__main"><p class="row__title one-line">蓝绣球盆栽</p><p class="row__meta one-line">快递 次日达</p></div><div class="row__trail"><span class="price"><small>¥</small>129</span></div></button>
       </div>
       <div class="fedx-pv__scrim" data-scrim>
-        <div class="fedx-pv__dlg" role="dialog" aria-modal="true" aria-labelledby="fedx-pv-t">
+        <div class="fedx-pv__dlg" role="region" aria-labelledby="fedx-pv-t">
           <div class="fedx-pv__media"><img data-img src="../../kit/assets/photo/product-rose-red.webp" alt=""><button class="ibtn ibtn--round fedx-pv__x" data-x aria-label="关闭详情" data-tip="关闭"><img src="../../kit/assets/line/close.webp" alt=""></button></div>
           <div class="fedx-pv__body">
             <div class="fedx-pv__head"><h3 id="fedx-pv-t" data-name>红玫瑰花束</h3><span class="price"><small>¥</small><span data-price>199</span></span></div>
@@ -7252,20 +7251,18 @@ th[aria-sort="ascending"] .chev::after { opacity: 1; transform: rotate(-135deg) 
 
 <article class="demo" data-cid="AP-CHAT-010" data-name="对话输入栏" data-cat="CHAT">
   <div class="demo__head"><span class="demo__name">对话输入栏</span></div>
-  <p class="demo__note">适合：多行输入，空内容不可发送，回车发送</p>
+  <p class="demo__note">适合：移动端对话。点加号选文件或图片，输入框随文字增高，点发送提交。</p>
   <div class="demo__stage">
     <div class="cht-wrap cht-prompt">
       <div class="cht-log" data-log></div>
-      <form class="prompt" data-form>
-        <div class="cht-files" data-files hidden></div>
-        <textarea rows="1" placeholder="输入消息" aria-label="输入消息" enterkeyhint="send"></textarea>
-        <div class="prompt__bar">
-          <button type="button" class="ibtn" data-attach data-tip="添加附件" aria-label="添加附件"><img src="../../kit/assets/line/upload.webp" alt=""></button>
-          <button type="button" class="ibtn" data-mic data-tip="语音输入" aria-label="语音输入" aria-pressed="false"><img src="../../kit/assets/line/mic.webp" alt=""></button>
-          <span class="dots" data-dots hidden aria-hidden="true"><i></i><i></i><i></i></span>
-          <span class="prompt__sp"></span>
-          <button type="submit" class="btn btn--primary" data-send disabled>发送</button>
+      <form data-form>
+        <div class="cht-files prompt__files" data-files hidden></div>
+        <div class="prompt__row">
+          <button type="button" class="ibtn prompt__attach" data-attach data-tip="添加文件或图片" aria-label="添加文件或图片"><img src="../../kit/assets/line/add.webp" alt=""></button>
+          <textarea class="prompt__input" rows="1" placeholder="输入消息" aria-label="输入消息"></textarea>
+          <button type="submit" class="btn btn--primary prompt__send" data-send disabled>发送</button>
         </div>
+        <input type="file" data-file hidden multiple>
       </form>
     </div>
   </div>
@@ -7711,7 +7708,7 @@ th[aria-sort="ascending"] .chev::after { opacity: 1; transform: rotate(-135deg) 
 </div>
 </section>
 <section class="cat" id="cat-motn" data-cat="MOTN">
-<div class="cat__head"><h2>动效</h2><span>19 个组件</span></div>
+<div class="cat__head"><h2>动效</h2><span>20 个组件</span></div>
 <div class="gallery">
 <article class="demo" data-cid="AP-MOTN-001" data-name="数字滚动入场" data-cat="MOTN">
   <div class="demo__head"><span class="demo__name">数字滚动入场</span></div>
@@ -7757,7 +7754,7 @@ th[aria-sort="ascending"] .chev::after { opacity: 1; transform: rotate(-135deg) 
   <div class="demo__stage">
     <div class="mot-card">
       <div class="mot-box"><button class="card card--press mot-press" data-toast="已打开商品"><img src="../../kit/assets/photo/product-peony-pink.webp" alt=""><span><span class="row__title one-line" style="display:block">粉芍药花束</span><span class="row__meta" style="display:block">同城 2 小时送达</span></span><span class="price"><small>¥</small>239</span></button></div>
-      <div class="mot-foot"><div class="mot-spec" data-spec="时长:--dur-quick,缩放:97%"></div><button class="btn btn--secondary btn--sm" data-play>播放</button></div>
+      <div class="mot-foot"><div class="mot-spec" data-spec="时长:--dur-quick,反馈:底色"></div><button class="btn btn--secondary btn--sm" data-play>播放</button></div>
     </div>
   </div>
 </article>
@@ -7999,6 +7996,24 @@ th[aria-sort="ascending"] .chev::after { opacity: 1; transform: rotate(-135deg) 
     </div>
   </div>
 </article>
+
+
+
+
+
+<article class="demo" data-cid="AP-MOTN-020" data-name="空间层叠" data-cat="MOTN">
+  <div class="demo__head"><span class="demo__name">空间层叠</span></div>
+  <div class="demo__stage">
+    <div class="three-motion" data-three-motion>
+      <div class="three-motion__stage" aria-hidden="true"><span class="three-motion__still"></span></div>
+      <div class="three-motion__controls">
+        <button class="btn btn--secondary btn--sm" type="button" data-three-play aria-label="播放空间层叠动画">播放</button>
+        <span role="status"></span>
+      </div>
+    </div>
+  </div>
+</article>
+<script src="../../kit/three-motion.js" defer><\/script>
 </div>
 </section>
   </main>
@@ -10635,6 +10650,7 @@ th[aria-sort="ascending"] .chev::after { opacity: 1; transform: rotate(-135deg) 
     };
     const draw = () => {
       const { ctx, w, h } = fit(cv), m = M[key], cx = w / 2, cy = h - 28, lw = 18, R = Math.min(w / 2 - 30, h - 62), frac = v => (v - m.lo) / (m.hi - m.lo), ang = f => Math.PI + f * Math.PI;
+      if (R <= 0) return;
       ctx.lineCap = 'round';
       ctx.beginPath(); ctx.arc(cx, cy, R, Math.PI, 2 * Math.PI); ctx.strokeStyle = css('--zone'); ctx.lineWidth = lw; ctx.stroke();
       for (let i = 0; i <= 10; i++) { const a = ang(i / 10), r1 = R - lw / 2 - 5, r2 = r1 - (i % 5 ? 4 : 8); ctx.beginPath(); ctx.moveTo(cx + Math.cos(a) * r1, cy + Math.sin(a) * r1); ctx.lineTo(cx + Math.cos(a) * r2, cy + Math.sin(a) * r2); ctx.strokeStyle = css('--line-strong'); ctx.lineWidth = 1.5; ctx.stroke(); }
@@ -11161,8 +11177,8 @@ th[aria-sort="ascending"] .chev::after { opacity: 1; transform: rotate(-135deg) 
       page.textContent = `${cur + 1} / ${N}`; cap.textContent = ths[cur].dataset.name;
       prev.setAttribute('aria-disabled', String(cur === 0)); next.setAttribute('aria-disabled', String(cur === N - 1));
     };
-    const open = (i, from) => { opener = from; show(i); vw.hidden = false; card.inert = true; stage.focus({ preventScroll: true }); };
-    const close = () => { vw.hidden = true; card.inert = false; if (opener) opener.focus({ preventScroll: true }); };
+    const open = (i, from) => { opener = from; show(i); vw.hidden = false; card.hidden = true; stage.focus({ preventScroll: true }); };
+    const close = () => { vw.hidden = true; card.hidden = false; if (opener) opener.focus({ preventScroll: true }); };
     ths.forEach((t, i) => t.addEventListener('click', () => open(i, t)));
     $('[data-x]', vw).addEventListener('click', close);
     prev.addEventListener('click', () => show(cur - 1)); next.addEventListener('click', () => show(cur + 1));
@@ -11179,7 +11195,7 @@ th[aria-sort="ascending"] .chev::after { opacity: 1; transform: rotate(-135deg) 
     });
   })();
 
-  /* 028 居中详情弹层：点商品行居中弹出只读详情，关闭按钮、遮罩、Esc 都能收起，焦点回到触发行 */
+  /* 028 商品详情页：点击商品行进入详情，返回列表后恢复焦点 */
   (() => {
     const r = D('AP-FEED-028'), box = $('[data-pv]', r), list = $('[data-list]', box), scrim = $('[data-scrim]', box), rows = $$('[data-k]', list);
     const DATA = [
@@ -11191,13 +11207,13 @@ th[aria-sort="ascending"] .chev::after { opacity: 1; transform: rotate(-135deg) 
     ];
     let opener = null;
     const fill = k => { const d = DATA[k]; $('[data-img]', scrim).src = `../../kit/assets/photo/${d[1]}.webp`; $('[data-name]', scrim).textContent = d[0]; $('[data-price]', scrim).textContent = d[2]; $('[data-f1]', scrim).textContent = d[3]; $('[data-f2]', scrim).textContent = d[4]; $('[data-f3]', scrim).textContent = d[5]; };
-    const open = (k, from) => { opener = from; fill(k); scrim.hidden = false; list.inert = true; $('[data-x]', scrim).focus({ preventScroll: true }); };
-    const close = () => { scrim.hidden = true; list.inert = false; if (opener) opener.focus({ preventScroll: true }); };
+    const open = (k, from) => { opener = from; fill(k); scrim.hidden = false; list.hidden = true; $('[data-x]', scrim).focus({ preventScroll: true }); };
+    const close = () => { scrim.hidden = true; list.hidden = false; if (opener) opener.focus({ preventScroll: true }); };
     rows.forEach(b => b.addEventListener('click', () => open(+b.dataset.k, b)));
     $('[data-x]', scrim).addEventListener('click', close);
     scrim.addEventListener('click', e => { if (e.target === scrim) close(); });
     box.addEventListener('keydown', e => { if (e.key === 'Escape' && !scrim.hidden) { e.preventDefault(); close(); } });
-    fill(0); list.inert = true;
+    scrim.hidden = true; list.hidden = false;
   })();
 
   /* 029 动作面板：就近展开的动作行；收藏可切换，举报先居中确认再变为已举报，取消收起 */
@@ -11481,16 +11497,44 @@ th[aria-sort="ascending"] .chev::after { opacity: 1; transform: rotate(-135deg) 
     }));
   })();
 
-  /* 010 输入栏：自动增高，空内容不可发，回车发送；附件与语音 */
+  /* 010 移动端输入栏：自动增高，可发送文字和附件 */
   (() => {
-    const r = D('AP-CHAT-010'), form = $('[data-form]', r), ta = $('textarea', r), send = $('[data-send]', r), log = $('[data-log]', r), files = $('[data-files]', r), mic = $('[data-mic]', r), dots = $('[data-dots]', r); let n = 0, timer;
-    const sync = () => { send.disabled = ta.value.trim() === '' && files.children.length === 0; };
-    const submit = () => { const t = ta.value.trim(); if (!t && !files.children.length) return; log.append(userBubble(t || '已发送附件')); while (log.children.length > 2) log.firstElementChild.remove(); ta.value = ''; ta.style.height = ''; files.replaceChildren(); files.hidden = true; sync(); };
-    ta.addEventListener('input', () => { ta.style.height = 'auto'; ta.style.height = Math.min(ta.scrollHeight, 160) + 'px'; sync(); });
-    ta.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing && e.keyCode !== 229) { e.preventDefault(); submit(); } });
-    form.addEventListener('submit', e => { e.preventDefault(); submit(); });
-    $('[data-attach]', r).addEventListener('click', () => { files.hidden = false; files.append(chipEl(['对账单表格', '退款明细文档', '库存数据表'][n++ % 3], c => { c.remove(); files.hidden = !files.children.length; sync(); })); sync(); });
-    mic.addEventListener('click', () => { const on = mic.getAttribute('aria-pressed') !== 'true'; mic.setAttribute('aria-pressed', String(on)); dots.hidden = !on; clearTimeout(timer); if (on) timer = setTimeout(() => { mic.setAttribute('aria-pressed', 'false'); dots.hidden = true; ta.value = (ta.value ? ta.value + ' ' : '') + '汇总本周退款金额'; ta.dispatchEvent(new Event('input')); ta.focus(); }, Lz.reduce ? 0 : 1600); });
+    const r = D('AP-CHAT-010'), form = $('[data-form]', r), ta = $('textarea', r), send = $('[data-send]', r);
+    const log = $('[data-log]', r), files = $('[data-files]', r), picker = $('[data-file]', r), attach = $('[data-attach]', r);
+    const fit = Lz.autoSizeTextarea(ta), draft = new Map();
+    const sync = () => {
+      files.hidden = draft.size === 0;
+      send.disabled = !ta.value.trim() && draft.size === 0;
+    };
+    ta.addEventListener('input', sync);
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      if (send.disabled) return;
+      const text = [ta.value.trim(), ...Array.from(draft.values(), file => file.name)].filter(Boolean).join('\n');
+      log.append(userBubble(text));
+      if (log.children.length > 2) log.firstElementChild.remove();
+      ta.value = '';
+      fit();
+      draft.clear();
+      files.replaceChildren();
+      sync();
+    });
+    attach.addEventListener('click', () => picker.click());
+    picker.addEventListener('change', () => {
+      for (const file of picker.files) {
+        const chip = chipEl(file.name, c => {
+          draft.delete(c);
+          const next = c.nextElementSibling || c.previousElementSibling;
+          c.remove();
+          sync();
+          (next ? $('button', next) : attach).focus();
+        });
+        draft.set(chip, file);
+        files.append(chip);
+      }
+      picker.value = '';
+      sync();
+    });
     sync();
   })();
 
@@ -12105,13 +12149,13 @@ th[aria-sort="ascending"] .chev::after { opacity: 1; transform: rotate(-135deg) 
 <link rel="stylesheet" href="../../kit/app.css">
 <style>
   /* 本页专属：横幅、券面、排行 */
-  .hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(90px, 40%); align-items: center; gap: var(--s-3); min-height: 148px; margin-top: var(--s-3); padding: var(--s-5); overflow: hidden; border-radius: var(--r-lg); background: var(--action); border: 1px solid color-mix(in srgb, var(--surface) 32%, transparent); color: var(--surface); }
+  .hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(90px, 40%); align-items: center; gap: var(--s-3); min-height: 148px; margin-top: var(--s-3); padding: var(--s-5); overflow: hidden; border-radius: var(--r-lg); background: var(--surface); border: 1px solid var(--line); color: var(--ink); }
   .hero h2 { font-size: var(--fs-2xl); font-weight: 700; line-height: var(--lh-tight); }
   .hero__img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: var(--r-md); }
   .hero__txt { display: grid; justify-items: start; gap: var(--s-2); }
   .hero__txt p { font-size: var(--fs-sm); opacity: .94; }
   .top { padding-bottom: var(--s-5); }
-  .home-stack { border-block-start: 0; border-start-start-radius: 0; border-start-end-radius: 0; }
+  .home-stack { margin-block-start: var(--app-card-gap); }
   .home-stack .hscroll { margin-inline: 0; padding-block-end: var(--s-4); }
   .coupon { display: grid; grid-template-columns: auto 1fr auto; align-items: center; column-gap: var(--s-4); padding: var(--s-4) var(--s-4) var(--s-4) var(--s-5); }
   .coupon__amt { display: flex; align-items: baseline; gap: 2px; }
@@ -12153,14 +12197,14 @@ th[aria-sort="ascending"] .chev::after { opacity: 1; transform: rotate(-135deg) 
       <a class="entry" href="list.html"><img data-ic="scooter" src="../../kit/assets/icons/flat/scooter.webp" alt=""><span>极速配送</span></a>
     </nav>
 
-    <div class="card-stack home-stack">
+    <div class="app-card-stack home-stack">
       <!-- 新人礼券：领取后整块收起 -->
       <div class="expand" id="coupon-wrap" data-open="true">
         <div>
           <section class="card section" data-cid="AP-HOME-003" data-name="礼券领取卡">
             <div class="section__head"><h2>新人礼券</h2></div>
             <div class="coupon section__body">
-              <img class="compact-icon" data-icon-tone="peach" src="../../kit/assets/line/archive.webp" alt="">
+              <img class="compact-icon" src="../../kit/assets/line/archive.webp" alt="">
               <div><div class="coupon__amt"><span class="price"><small>¥</small>20</span></div><p class="row__meta">满 99 元可用</p></div>
               <button class="btn btn--primary btn--sm" id="claim">立即领取</button>
             </div>
@@ -12225,7 +12269,7 @@ th[aria-sort="ascending"] .chev::after { opacity: 1; transform: rotate(-135deg) 
 <link rel="stylesheet" href="../../kit/app.css">
 <style>
   /* 本页专属：搜索区、分类筛选条、商品行与就近展开、详情页 */
-  .top { padding-bottom: var(--s-4); background: linear-gradient(180deg, var(--action) 0%, color-mix(in srgb, var(--action) 90%, white) 100%); }
+  .top { padding-bottom: var(--s-4); }
 
   /* 分类与筛选：放在顶部平面区之外的白底条里，只控制下方列表；滚动时停在顶端 */
   .subnav { position: sticky; top: 0; z-index: 25; margin: 0 calc(var(--s-4) * -1); padding: var(--s-3) var(--s-4) var(--s-3); background: var(--surface); border-bottom: 1px solid var(--line); }
@@ -12234,7 +12278,6 @@ th[aria-sort="ascending"] .chev::after { opacity: 1; transform: rotate(-135deg) 
   .subnav .filter { margin-top: var(--s-1); }
   .filter__sw { display: inline-flex; align-items: center; gap: var(--s-2); margin-left: auto; font-size: var(--fs-sm); color: var(--ink-2); white-space: nowrap; }
 
-  .btn--sm { --btn-h: 32px; }
   .list-wrap { margin-top: var(--s-4); }
 
   /* 商品行：左图右文，价格在左下、加购在右下，展开按钮在右上 */
@@ -12575,9 +12618,7 @@ th[aria-sort="ascending"] .chev::after { opacity: 1; transform: rotate(-135deg) 
 <link rel="stylesheet" href="../../kit/app.css">
 <style>
   /* 本页专属：搜索区、状态分段条、订单卡、详情状态区、售后填写页 */
-  .btn--sm { --btn-h: 32px; }
-  .top { padding-bottom: var(--s-4); background: linear-gradient(180deg, var(--action) 0%, color-mix(in srgb, var(--action) 90%, white) 100%); }
-  .top--deep { background: linear-gradient(160deg, var(--action-press) 0%, var(--action) 100%); }
+  .top { padding-bottom: var(--s-4); }
 
   /* 状态分段：在顶部平面区之外的白底条里，只过滤下方订单，横向滑动 */
   .subnav { position: sticky; top: 0; z-index: 25; margin: 0 calc(var(--s-4) * -1); padding: var(--s-3) var(--s-4) var(--s-1); background: var(--surface); border-bottom: 1px solid var(--line); }
@@ -12585,25 +12626,22 @@ th[aria-sort="ascending"] .chev::after { opacity: 1; transform: rotate(-135deg) 
   .subnav .seg__item { padding: 0 var(--s-3); }
 
   .olist { margin-top: var(--s-4); }
-  .olist > .order + .order { border-block-start-width: 0; }
-  .olist > .order:not([hidden]) ~ .order { border-block-start-width: 1px; }
   .order { overflow: hidden; }
   .order__main { display: block; cursor: pointer; transition: background var(--dur-quick) var(--ease-out); }
   .order__main:active { background: var(--zone); }
-  .order__head { display: flex; align-items: center; gap: var(--s-2); padding: var(--s-3) var(--s-4) var(--s-1); }
+  .order__head { display: flex; align-items: center; gap: .5em; padding: .5em var(--s-4) var(--s-1); }
   .order__mark { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; background: var(--zone); flex: none; }
   .order__shop { flex: 1; min-width: 0; font-size: var(--fs-md); font-weight: 600; }
   .order .row { gap: var(--s-3); }
   .order .row__lead { width: 72px; height: 72px; background: var(--zone); box-shadow: inset 0 0 0 1px var(--line); }
-  .order__foot { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); padding: var(--s-3) var(--s-4); border-top: 1px solid var(--line); }
+  .order__foot { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); padding: var(--s-3) var(--s-4) .5em; border-top: 1px solid var(--line); }
   .order__sum { display: grid; gap: 2px; white-space: nowrap; font-size: var(--fs-xs); color: var(--ink-3); }
   .order__sum .price { font-size: var(--fs-xl); line-height: 1; }
-  .order__foot .btn { --btn-h: 36px; padding: 0 var(--s-3); font-size: var(--fs-sm); }
+  .order__foot .btn { padding: 0 var(--s-3); font-size: var(--fs-sm); }
   .order__foot .btn-group { gap: var(--s-2); }
 
   .osk { padding-bottom: var(--s-4); overflow: hidden; }
-  .olist .osk { border: 0; border-radius: 0; background: transparent; }
-  .olist .osk + .osk { border-block-start: 1px solid var(--line); }
+  .olist .osk + .osk { margin-block-start: var(--app-card-gap); }
   .osk__head { display: flex; justify-content: space-between; align-items: center; padding: var(--s-3) var(--s-4) 0; }
   .osk__head .skel:first-child { width: 112px; height: 24px; border-radius: var(--r-full); }
   .osk__head .skel:last-child { width: 52px; height: 22px; }
@@ -12621,7 +12659,7 @@ th[aria-sort="ascending"] .chev::after { opacity: 1; transform: rotate(-135deg) 
   .subbar h1 { min-width: 0; }
   .ostat { display: flex; align-items: center; justify-content: space-between; gap: var(--s-4); padding-top: var(--s-5); padding-bottom: var(--s-6); }
   .ostat h2 { font-size: var(--fs-2xl); font-weight: 700; line-height: var(--lh-tight); }
-  .ostat p { margin-top: var(--s-1); font-size: var(--fs-sm); color: var(--surface); opacity: .92; }
+  .ostat p { margin-top: var(--s-1); font-size: var(--fs-sm); color: var(--ink-2); }
   .ostat img { width: 80px; height: 80px; object-fit: contain; flex: none; filter: drop-shadow(0 8px 10px rgba(0, 0, 0, .2)); }
   .section[id] { scroll-margin-top: 64px; }
   .tlcard { padding: var(--s-4) var(--s-4) 0; }
@@ -12673,7 +12711,7 @@ th[aria-sort="ascending"] .chev::after { opacity: 1; transform: rotate(-135deg) 
         </div>
       </div>
 
-      <div class="card-stack olist" id="olist">
+      <div class="app-card-stack olist" id="olist">
         <!-- 首次加载骨架 -->
         <div id="skel" aria-hidden="true" style="display:contents" data-cid="AP-ORDR-003" data-name="订单加载骨架">
           <div class="card osk"><div class="osk__head"><div class="skel"></div><div class="skel"></div></div><div class="osk__row"><div class="skel"></div><div class="osk__txt"><div class="skel"></div><div class="skel"></div></div><div class="skel"></div></div><div class="osk__foot"><div class="skel"></div><div class="skel"></div></div></div>
@@ -12994,7 +13032,7 @@ th[aria-sort="ascending"] .chev::after { opacity: 1; transform: rotate(-135deg) 
 <link rel="stylesheet" href="../../kit/app.css">
 <style>
   /* 本页专属：资料区、数据卡、成长卡、地址行原位改名、新建地址页 */
-  .top { background: linear-gradient(160deg, var(--action-press) 0%, var(--action) 100%); padding-top: var(--s-4); padding-bottom: var(--s-12); }
+  .top { padding-top: var(--s-4); padding-bottom: var(--s-12); }
   .mine__id { gap: var(--s-4); min-height: 72px; }
   .mine__who { display: grid; justify-items: start; gap: var(--s-2); min-width: 0; }
   .mine__name { font-size: var(--fs-xl); font-weight: 700; line-height: var(--lh-tight); }
@@ -13004,11 +13042,11 @@ th[aria-sort="ascending"] .chev::after { opacity: 1; transform: rotate(-135deg) 
 
   /* 数据卡：压在顶部平面区的下沿，上标题下数字与单位，居中 */
   .profile-stack { position: relative; margin-block-start: -32px; }
-  .mine__stats { padding: var(--s-2) 0; }
-  .stat__label { display: inline-flex; flex-direction: column; align-items: center; gap: var(--s-1); }
+  .mine__stats { padding-block: .5em; }
+  .stat__label { display: inline-flex; flex-direction: column; align-items: center; gap: .5em; }
   .stat__val > span { font-variant-numeric: tabular-nums; }
 
-  .grow { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; column-gap: var(--s-4); padding: var(--s-4); }
+  .grow { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; column-gap: .5em; padding: .5em var(--s-4); }
   .grow__main { display: grid; gap: var(--s-3); }
   .grow__row { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-3); }
   .grow__num { font-size: var(--fs-xl); font-weight: 700; line-height: var(--lh-tight); font-variant-numeric: tabular-nums; color: var(--accent); }
@@ -13023,9 +13061,9 @@ th[aria-sort="ascending"] .chev::after { opacity: 1; transform: rotate(-135deg) 
   .addr[data-editing] .addr__name, .addr[data-editing] .addr__tail, .addr[data-editing] .addr__def, .addr[data-editing] .row__trail { display: none; }
   .addr[data-editing] .addr__edit { display: flex; }
   .addr .field__err { margin-top: var(--s-1); }
-  .btn--sm { --btn-h: 32px; }
 
   .mine__shortcuts { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .mine__shortcuts .entry { gap: .5em; line-height: var(--lh-body); }
   .row--out { justify-content: center; }
   .row > .switch { margin-left: auto; }
   .is-danger { color: var(--danger); }
@@ -13048,13 +13086,13 @@ th[aria-sort="ascending"] .chev::after { opacity: 1; transform: rotate(-135deg) 
       <!-- 顶部：平面资料区，头像昵称会员标签，设置在右；数据卡压在其下沿 -->
       <header class="top" data-cid="AP-MINE-001" data-name="顶部资料数据区">
         <div class="top__row mine__id">
-          <img class="avatar avatar--lg" src="../../kit/assets/marks/mark-006.webp" alt="林晓的头像">
+          <img class="avatar avatar--lg" src="../../kit/assets/line/user.webp" alt="林晓的头像">
           <div class="mine__who"><h2 class="mine__name one-line">林晓</h2><span class="mine__tag"><img src="../../kit/assets/line/shield.webp" alt="">金卡会员</span></div>
           <span class="top__sp"></span>
           <button class="ibtn" id="to-prefs" data-tip="设置" aria-label="设置"><img src="../../kit/assets/line/settings.webp" alt=""></button>
         </div>
       </header>
-      <div class="card-stack profile-stack">
+      <div class="app-card-stack profile-stack">
         <div class="card stats mine__stats" role="group" aria-label="账户数据">
           <div class="stat" data-reveal><span class="stat__label"><img class="compact-icon" src="../../kit/assets/line/archive.webp" alt="">优惠券</span><span class="stat__val"><span data-to="3">3</span><small>张</small></span></div>
           <div class="stat" data-reveal><span class="stat__label"><img class="compact-icon" src="../../kit/assets/line/book.webp" alt="">积分</span><span class="stat__val"><span data-to="1280">1,280</span><small>分</small></span></div>
@@ -13080,9 +13118,9 @@ th[aria-sort="ascending"] .chev::after { opacity: 1; transform: rotate(-135deg) 
           <div class="list section__body" id="addrs"></div>
         </section>
 
-        <section class="card section" id="prefs" data-cid="AP-MINE-005" data-name="偏好设置列表">
+        <section class="card section settings-card" id="prefs" data-cid="AP-MINE-005" data-name="偏好设置列表">
           <div class="section__head"><h2>偏好设置</h2></div>
-          <div class="list section__body">
+          <div class="list section__body settings-list">
             <div class="row"><span class="row__title" id="pf1">消息通知</span><button class="switch" role="switch" aria-checked="true" aria-labelledby="pf1" data-pref="消息通知"></button></div>
             <div class="row"><span class="row__title" id="pf2">个性推荐</span><button class="switch" role="switch" aria-checked="false" aria-labelledby="pf2" data-pref="个性推荐"></button></div>
           </div>
@@ -13285,28 +13323,18 @@ th[aria-sort="ascending"] .chev::after { opacity: 1; transform: rotate(-135deg) 
 <link rel="stylesheet" href="../../kit/agent.css">
 <style>
   /* 本页专属：固定输入栏、会话标题、骨架、附件条、产物展开 */
-  body.app-body { --toast-bottom: calc(var(--tabbar-h, 66px) + var(--composer-h, 200px) + var(--s-2)); }
-  .btn--sm { --btn-h: 32px; }
-  .page--chat { padding-bottom: calc(var(--tabbar-h, 66px) + var(--composer-h, 200px) + var(--s-3)); }
-  .top--chat { position: sticky; top: 0; z-index: 30; padding-bottom: var(--s-3); background: linear-gradient(160deg, var(--action-press) 0%, var(--action) 100%); }
+  body.app-body { --toast-bottom: calc(var(--tabbar-h, 66px) + var(--composer-h, 66px) + var(--s-2)); }
+  .page--chat { padding-bottom: calc(var(--tabbar-h, 66px) + var(--composer-h, 66px) + var(--s-3)); }
+  .top--chat { position: sticky; top: 0; z-index: 30; padding-bottom: var(--s-3); }
   .top--chat h1 { flex: 1; min-width: 0; font-size: var(--fs-2xl); font-weight: 700; line-height: var(--lh-tight); }
 
   /* 输入栏：固定在底栏上方，不透明，内容区按它的高度预留 */
   .composer { position: fixed; z-index: 45; left: 50%; bottom: var(--tabbar-h, 66px); width: min(100%, 430px); transform: translateX(-50%); display: grid; gap: var(--s-2); padding: var(--s-2) var(--s-4) var(--s-3); background: var(--bg); border-top: 1px solid var(--line); }
-  .composer .suggest { margin: 0 calc(var(--s-4) * -1); padding: 0 var(--s-4); }
-  @media (max-height: 680px) { .composer .suggest { display: none; } }
   .qbar { display: flex; align-items: center; gap: var(--s-2); }
   .qbar .tag { height: 28px; font-size: var(--fs-sm); }
-  .prompt textarea { display: block; }
-  .prompt textarea:focus-visible { outline: none; }
-  .prompt:focus-within { border-color: var(--action); }
-  .prompt__bar .btn { --btn-h: 40px; }
-  .prompt__bar .btn--pill { padding: 0 var(--s-5); }
-  .prompt__bar .btn--sm { padding: 0 var(--s-3); }
-  .prompt__bar .btn[data-mode="stop"] { background: var(--ink); color: var(--surface); box-shadow: none; }
-  .ibtn[aria-pressed="true"] { background: var(--action-tint); }
+  .composer form { display: grid; gap: var(--s-2); }
   .suggest button { border-color: var(--action-edge); color: var(--action-press); background: var(--action-tint); }
-  .files { display: flex; flex-wrap: wrap; gap: var(--s-2); }
+  .files { display: flex; flex-wrap: wrap; gap: var(--s-2); padding: 2px; }
   .chip { display: inline-flex; align-items: center; gap: var(--s-1); max-width: 100%; min-height: 32px; padding: 0 var(--s-1) 0 var(--s-3); border-radius: var(--r-full); background: var(--zone); font-size: var(--fs-sm); }
   .chip .ibtn { width: 28px; height: 28px; }
   .chip .ibtn img { width: 14px; height: 14px; }
@@ -13334,9 +13362,14 @@ th[aria-sort="ascending"] .chev::after { opacity: 1; transform: rotate(-135deg) 
   .approval__res { display: none; align-items: center; gap: var(--s-2); font-size: var(--fs-sm); color: var(--ink-2); }
   .approval[data-state="done"] .approval__res { display: flex; }
   .approval[data-state="done"] .btn-group { display: none; }
-  .files-in-bubble { display: flex; flex-wrap: wrap; gap: var(--s-1); margin-top: var(--s-2); }
+  .msg--user .bubble p { white-space: pre-wrap; overflow-wrap: anywhere; }
+  .files-in-bubble { display: flex; flex-wrap: wrap; gap: var(--s-1); }
+  .files-in-bubble .tag { max-width: 100%; height: auto; min-height: 24px; white-space: normal; overflow-wrap: anywhere; }
+  .bubble p + .files-in-bubble { margin-top: var(--s-2); }
+  .msg > .run-stop { grid-column: 2 / -1; justify-self: start; }
   .empty--chat { padding-top: var(--s-12); }
   .empty--chat .ic { width: 120px; height: 120px; }
+  .empty--chat .suggest { max-width: 100%; margin: var(--s-2) var(--s-4); padding: 3px; }
   #hist { margin-top: var(--s-4); }
   #hist .row__lead { border-radius: 50%; background: var(--zone); }
 </style>
@@ -13370,7 +13403,7 @@ th[aria-sort="ascending"] .chev::after { opacity: 1; transform: rotate(-135deg) 
           <div class="bubble"><p>核对上周三家门店的订单与库存差异</p></div>
         </div>
         <article class="msg">
-          <img class="msg__avatar" src="../../kit/assets/marks/mark-007.webp" alt="">
+          <img class="msg__avatar" src="../../kit/assets/line/support.webp" alt="">
           <div class="msg__body">
             <div class="think" data-cid="AP-AGNT-003" data-name="思考过程折叠">
               <button class="think__head" data-expand="th-seed" aria-expanded="false"><span>已思考 6 秒</span></button>
@@ -13428,10 +13461,15 @@ th[aria-sort="ascending"] .chev::after { opacity: 1; transform: rotate(-135deg) 
         </article>
       </div>
 
-      <!-- 空会话：用图与一个建议问法，不写说明 -->
+      <!-- 空会话的建议放在消息区 -->
       <div class="empty empty--chat" id="empty" hidden data-cid="AP-AGNT-012" data-name="空会话占位">
         <img class="ic" data-ic="bouquet" src="../../kit/assets/icons/flat/bouquet.webp" alt="">
         <button class="btn btn--secondary btn--pill" id="empty-q">核对订单库存</button>
+        <div class="suggest" aria-label="建议问法" data-cid="AP-AGNT-009" data-name="建议问法条">
+          <button data-q="汇总本周退款金额">汇总退款金额</button>
+          <button data-q="查看库存低于安全线的花材">查看库存缺口</button>
+          <button data-q="导出核对结果文件">导出核对结果</button>
+        </div>
       </div>
     </div>
 
@@ -13445,28 +13483,18 @@ th[aria-sort="ascending"] .chev::after { opacity: 1; transform: rotate(-135deg) 
     </div>
   </main>
 
-  <!-- 输入栏：固定在底栏上方，排队标签、建议问法与输入框 -->
+  <!-- 输入行固定在底栏上方，排队与附件随实际状态显示 -->
   <div class="composer" id="composer">
     <div class="qbar" id="qbar" hidden data-cid="AP-AGNT-011" data-name="排队提示标签">
-      <span class="tag" data-tone="warning" id="qtag">排队 1 条</span>
+      <span class="tag" data-tone="warning" id="qtag" role="status">排队 1 条</span>
       <button class="btn btn--secondary btn--sm btn--pill" id="qclear">清空</button>
     </div>
-    <div class="suggest" aria-label="建议问法" data-cid="AP-AGNT-009" data-name="建议问法条">
-      <button data-q="核对上周三家门店的订单与库存差异">核对订单库存</button>
-      <button data-q="汇总本周退款金额">汇总退款金额</button>
-      <button data-q="查看库存低于安全线的花材">查看库存缺口</button>
-      <button data-q="导出核对结果文件">导出核对结果</button>
-    </div>
-    <form class="prompt" id="form" data-cid="AP-AGNT-010" data-name="对话输入栏">
-      <div class="files" id="files" hidden></div>
-      <textarea id="ta" rows="1" placeholder="输入消息" aria-label="输入消息" enterkeyhint="send"></textarea>
-      <div class="prompt__bar">
-        <button type="button" class="ibtn" id="attach" data-tip="添加附件" aria-label="添加附件"><img src="../../kit/assets/line/upload.webp" alt=""></button>
-        <button type="button" class="ibtn" id="mic" data-tip="语音输入" aria-label="语音输入" aria-pressed="false"><img src="../../kit/assets/line/mic.webp" alt=""></button>
-        <span class="dots" id="mic-dots" hidden aria-hidden="true"><i></i><i></i><i></i></span>
-        <span class="prompt__sp"></span>
-        <button type="button" class="btn btn--secondary btn--sm btn--pill" id="queue-btn" hidden>排队</button>
-        <button type="submit" class="btn btn--primary btn--pill" id="send" data-mode="send" disabled>发送</button>
+    <form id="form" data-cid="AP-AGNT-010" data-name="对话输入栏">
+      <div class="files prompt__files" id="files" hidden></div>
+      <div class="prompt__row">
+        <button type="button" class="ibtn prompt__attach" id="attach" data-tip="添加文件或图片" aria-label="添加文件或图片"><img src="../../kit/assets/line/add.webp" alt=""></button>
+        <textarea class="prompt__input" id="ta" rows="1" placeholder="输入消息" aria-label="输入消息"></textarea>
+        <button type="submit" class="btn btn--primary prompt__send" id="send" disabled>发送</button>
       </div>
       <input type="file" id="file" hidden multiple>
     </form>
@@ -13486,20 +13514,14 @@ th[aria-sort="ascending"] .chev::after { opacity: 1; transform: rotate(-135deg) 
 (() => {
   const { $, $$ } = Lz;
   const root = document.documentElement;
-  const chat = $('#chat'), form = $('#form'), ta = $('#ta'), send = $('#send'), queueBtn = $('#queue-btn');
+  const chat = $('#chat'), form = $('#form'), ta = $('#ta'), send = $('#send');
   const composer = $('#composer'), qbar = $('#qbar'), empty = $('#empty'), filesBox = $('#files'), fileIn = $('#file');
-  const AGENT = '../../kit/assets/marks/mark-007.webp';
+  const fit = Lz.autoSizeTextarea(ta);
+  const AGENT = '../../kit/assets/line/support.webp';
   const ABORT = Symbol('abort');
   let uid = 0, run = null, queue = [], attached = [], rounds = 0;
   const id = p => p + (++uid);
   const el = html => { const t = document.createElement('template'); t.innerHTML = html.trim(); return t.content.firstElementChild; };
-
-  /* ── 布局：输入栏与底栏的高度写入变量，内容区与轻提示据此避让 ── */
-  const ro = new ResizeObserver(() => {
-    root.style.setProperty('--tabbar-h', $('.tabbar').offsetHeight + 'px');
-    root.style.setProperty('--composer-h', composer.offsetHeight + 'px');
-  });
-  ro.observe($('.tabbar')); ro.observe(composer);
 
   /* 贴底跟随：用户上滑后停止跟随 */
   let follow = true;
@@ -13507,6 +13529,12 @@ th[aria-sort="ascending"] .chev::after { opacity: 1; transform: rotate(-135deg) 
   addEventListener('scroll', () => { follow = atBottom(); }, { passive: true });
   const toBottom = () => scrollTo(0, root.scrollHeight);
   new MutationObserver(() => { if (follow) toBottom(); }).observe(chat, { childList: true, subtree: true, characterData: true });
+  const ro = new ResizeObserver(() => {
+    root.style.setProperty('--tabbar-h', $('.tabbar').offsetHeight + 'px');
+    root.style.setProperty('--composer-h', composer.offsetHeight + 'px');
+    if (follow && !composer.hidden) toBottom();
+  });
+  ro.observe($('.tabbar')); ro.observe(composer);
 
   /* ── 脚本化回答：两套轮流使用 ── */
   const SCRIPTS = [
@@ -13522,9 +13550,18 @@ th[aria-sort="ascending"] .chev::after { opacity: 1; transform: rotate(-135deg) 
 
   /* ── 构件：用户气泡、智能体消息、思考、工具、回答、审批 ── */
   function userMsg(text, files = []) {
-    const m = el('<div class="msg msg--user"><div class="bubble"><p></p></div></div>');
-    $('p', m).textContent = text;
-    if (files.length) { const f = el('<div class="files-in-bubble"></div>'); files.forEach(n => { const t = el('<span class="tag"></span>'); t.textContent = n; f.append(t); }); $('.bubble', m).append(f); }
+    const m = el('<div class="msg msg--user"><div class="bubble"></div></div>');
+    const bubble = $('.bubble', m);
+    if (text) { const p = el('<p></p>'); p.textContent = text; bubble.append(p); }
+    if (files.length) {
+      const list = el('<div class="files-in-bubble"></div>');
+      for (const file of files) {
+        const tag = el('<span class="tag"></span>');
+        tag.textContent = file.name;
+        list.append(tag);
+      }
+      bubble.append(list);
+    }
     chat.append(m); return m;
   }
   function agentMsg() {
@@ -13577,33 +13614,38 @@ th[aria-sort="ascending"] .chev::after { opacity: 1; transform: rotate(-135deg) 
     chat.setAttribute('aria-busy', String(b)); sync();
   }
   function sync() {
-    const has = ta.value.trim().length > 0, busy = !!run;
-    send.dataset.mode = busy ? 'stop' : 'send';
-    send.textContent = busy ? '停止' : '发送';
-    send.classList.toggle('btn--primary', !busy);
-    send.disabled = !busy && !has;
-    queueBtn.hidden = !(busy && has);
+    send.disabled = !ta.value.trim() && attached.length === 0;
   }
   const renderQueue = () => { qbar.hidden = queue.length === 0; $('#qtag').textContent = `排队 ${queue.length} 条`; };
   const renderEmpty = () => { empty.hidden = chat.hasAttribute('data-loading') || chat.children.length > 0; };
 
-  function finalizeAbort() {
-    $$('.tool[data-state="run"]', chat).forEach(b => setTool(b, 'fail', '已中断'));
-    $$('.think', chat).forEach(t => { if ($('.think__head .dots', t)) finishThink(t, run.t0); });
+  function finalizeAbort(body) {
+    $$('.tool[data-state="run"]', body).forEach(b => setTool(b, 'fail', '已中断'));
+    $$('.think', body).forEach(t => { if ($('.think__head .dots', t)) finishThink(t, run.t0); });
   }
-  async function exec(fn) {
+  async function exec(body, fn) {
     let release; run = { aborted: false, t0: performance.now(), halt: new Promise(r => (release = r)) }; run.release = release;
+    const stopButton = el('<button type="button" class="btn btn--ghost run-stop">停止生成</button>');
+    stopButton.addEventListener('click', stop);
+    body.after(stopButton);
     setBusy(true);
-    try { await fn(); } catch (e) { if (e !== ABORT) throw e; finalizeAbort(); }
-    run = null; setBusy(false);
+    try {
+      await fn();
+    } catch (e) {
+      if (e !== ABORT) throw e;
+      finalizeAbort(body);
+    } finally {
+      if (document.activeElement === stopButton && composer.offsetHeight) ta.focus({ preventScroll: true });
+      stopButton.remove();
+      run = null;
+      setBusy(false);
+    }
     if (queue.length) { const n = queue.shift(); renderQueue(); startRound(n.text, n.files); }
   }
   const stop = () => { if (run) { run.aborted = true; run.release(); } };
 
-  async function round(text, files) {
+  async function round(body) {
     const S = SCRIPTS[rounds++ % SCRIPTS.length];
-    userMsg(text, files); renderEmpty();
-    const body = agentMsg();
     const t0 = performance.now(), think = thinkEl(S.steps); body.append(think); Lz.initExpand(think);
     for (const li of $$('.think__steps li', think)) { setStep(li, 'now'); await sleep(650); setStep(li, 'done'); }
     finishThink(think, t0);
@@ -13614,42 +13656,52 @@ th[aria-sort="ascending"] .chev::after { opacity: 1; transform: rotate(-135deg) 
     body.append(askEl(S.ask));
   }
   function startRound(text, files = []) {
-    const s = cur(); if (s.title === '新会话') { s.title = text.replace(/[，。、？！：；,.?!:;\s]/g, '').slice(0, 8) || '新会话'; $('#sess-title').textContent = s.title; }
-    exec(() => round(text, files));
+    const s = cur();
+    if (s.title === '新会话') {
+      s.title = (text.replace(/[，。、？！：；,.?!:;\s]/g, '') || files[0]?.name || '新会话').slice(0, 8);
+      $('#sess-title').textContent = s.title;
+    }
+    userMsg(text, files);
+    renderEmpty();
+    const body = agentMsg();
+    exec(body, () => round(body));
   }
 
-  /* ── 发送：空输入不可发；生成中同一按钮变停止，再输入的内容进入队列 ── */
+  /* 发送文字或附件。生成中提交的新消息进入队列。 */
   function submit() {
-    const text = ta.value.trim(); if (!text) return;
-    const files = [...attached]; ta.value = ''; ta.style.height = ''; attached = []; renderFiles(); sync();
+    const text = ta.value.trim(); if (!text && !attached.length) return;
+    const files = attached; attached = []; ta.value = ''; fit(); renderFiles();
     if (run) { queue.push({ text, files }); renderQueue(); return; }
     startRound(text, files);
   }
-  form.addEventListener('submit', e => { e.preventDefault(); if (run && send.dataset.mode === 'stop') stop(); else submit(); });
-  queueBtn.addEventListener('click', submit);
-  ta.addEventListener('input', () => { ta.style.height = 'auto'; ta.style.height = Math.min(ta.scrollHeight, 160) + 'px'; sync(); });
-  ta.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing && e.keyCode !== 229) { e.preventDefault(); submit(); } });
+  form.addEventListener('submit', e => { e.preventDefault(); submit(); });
+  ta.addEventListener('input', sync);
   $('#qclear').addEventListener('click', () => { queue = []; renderQueue(); Lz.toast('已清空排队'); });
   $$('.suggest button').forEach(b => b.addEventListener('click', () => { ta.value = b.dataset.q; submit(); }));
   $('#empty-q').addEventListener('click', () => { ta.value = '核对上周三家门店的订单与库存差异'; submit(); });
 
-  /* 附件与语音 */
+  /* 原生文件选择器保留实际选中的文件；演示在消息中列出文件名。 */
   function renderFiles() {
     filesBox.hidden = attached.length === 0; filesBox.replaceChildren();
-    attached.forEach((n, i) => {
+    attached.forEach((file, i) => {
       const c = el('<span class="chip"><span class="one-line"></span><button type="button" class="ibtn" data-tip="移除附件"><img src="../../kit/assets/line/close.webp" alt=""></button></span>');
-      $('.one-line', c).textContent = n; const x = $('.ibtn', c); x.setAttribute('aria-label', '移除附件 ' + n);
-      x.addEventListener('click', () => { attached.splice(i, 1); renderFiles(); });
+      $('.one-line', c).textContent = file.name;
+      const x = $('.ibtn', c);
+      x.setAttribute('aria-label', '移除附件 ' + file.name);
+      x.addEventListener('click', () => {
+        attached.splice(i, 1);
+        renderFiles();
+        ($$('.ibtn', filesBox)[Math.min(i, attached.length - 1)] || $('#attach')).focus();
+      });
       filesBox.append(c);
     });
+    sync();
   }
   $('#attach').addEventListener('click', () => fileIn.click());
-  fileIn.addEventListener('change', () => { attached.push(...[...fileIn.files].map(f => f.name)); fileIn.value = ''; renderFiles(); });
-  const mic = $('#mic'); let micTimer = null;
-  mic.addEventListener('click', () => {
-    const on = mic.getAttribute('aria-pressed') !== 'true';
-    mic.setAttribute('aria-pressed', String(on)); $('#mic-dots').hidden = !on; clearTimeout(micTimer);
-    if (on) micTimer = setTimeout(() => { mic.setAttribute('aria-pressed', 'false'); $('#mic-dots').hidden = true; ta.value = (ta.value ? ta.value + ' ' : '') + '汇总本周退款金额'; ta.dispatchEvent(new Event('input')); ta.focus(); }, Lz.reduce ? 0 : 1600);
+  fileIn.addEventListener('change', () => {
+    attached.push(...fileIn.files);
+    fileIn.value = '';
+    renderFiles();
   });
 
   /* ── 消息内交互：委托到消息容器，会话切换后仍有效 ── */
@@ -13668,9 +13720,9 @@ th[aria-sort="ascending"] .chev::after { opacity: 1; transform: rotate(-135deg) 
       card.dataset.state = 'done'; Lz.toast(ok ? '已批准' : '已拒绝', ok ? 'success' : 'neutral'); return;
     }
     const retry = e.target.closest('[data-retry]');
-    if (retry) {
+    if (retry && !run) {
       const chip = $('.tool[data-state="fail"]', retry.parentElement), after = retry.dataset.after, body = retry.closest('.msg__body'); retry.remove();
-      exec(async () => {
+      exec(body, async () => {
         setTool(chip, 'run', '进行中'); await sleep(900); setTool(chip, 'done'); Lz.toast(chip.textContent + '已完成', 'success');
         if (after) { const p = el('<p class="bubble"></p>'), bs = $$('.bubble', body); bs[bs.length - 1].after(p); await say(p, after); }
       });
@@ -13733,10 +13785,10 @@ th[aria-sort="ascending"] .chev::after { opacity: 1; transform: rotate(-135deg) 
 <script src="../../kit/ui.js"></script>
 <script>
 (function () {
-  const CFG = {"key": "app", "theme": "navy", "tabs": ["pages", "components"], "presets": [{"id": "rose", "name": "玫瑰", "action": "#A75F6D"}, {"id": "wine", "name": "酒红", "action": "#7E2C41"}, {"id": "coral", "name": "珊瑚", "action": "#AB6056"}, {"id": "terracotta", "name": "赤陶", "action": "#A26548"}, {"id": "amber", "name": "琥珀", "action": "#9B6B33"}, {"id": "sand", "name": "沙金", "action": "#87723E"}, {"id": "olive", "name": "橄榄", "action": "#74783E"}, {"id": "sage", "name": "鼠尾草", "action": "#637B63"}, {"id": "green", "name": "草绿", "action": "#458250"}, {"id": "pine", "name": "松绿", "action": "#31715B"}, {"id": "teal", "name": "青碧", "action": "#2B8181"}, {"id": "cyan", "name": "湖蓝", "action": "#307E98"}, {"id": "sky", "name": "天蓝", "action": "#3D79AB"}, {"id": "blue", "name": "靛蓝", "action": "#5373BC"}, {"id": "navy", "name": "藏青", "action": "#33476D"}, {"id": "indigo", "name": "靛紫", "action": "#716CBB"}, {"id": "purple", "name": "紫藤", "action": "#8069A9"}, {"id": "mauve", "name": "雾紫", "action": "#876C8D"}, {"id": "plum", "name": "梅紫", "action": "#9F608A"}, {"id": "graphite", "name": "石墨", "action": "#4E5359"}, {"id": "slate", "name": "岩灰", "action": "#536672"}, {"id": "stone", "name": "暖灰", "action": "#696259"}, {"id": "mocha", "name": "摩卡", "action": "#6A5243"}, {"id": "ink", "name": "墨黑", "action": "#222429"}], "effects": [{"id": "glow", "name": "柔光"}, {"id": "none", "name": "无"}, {"id": "dots", "name": "点阵"}, {"id": "grid", "name": "网格"}, {"id": "lines", "name": "斜纹"}, {"id": "rings", "name": "同心圆"}, {"id": "petal", "name": "花瓣"}, {"id": "leaf", "name": "叶片"}, {"id": "wave", "name": "波纹"}], "background": "none", "workbench": "pages", "device": "phone", "pages": [{"id": "home", "name": "首页", "logic": [["来源", "底部主导航首页；其他页面点首页标签回到这里"], ["主操作", "金刚入口进入对应分类；点横幅或商品进入列表；领取礼券后整块收起"], ["返回", "首页是一级页面，没有返回；系统返回退出应用"], ["完成后", "领取礼券后提示已领取；加购后提示已加入购物车，停留在本页"]], "ids": [{"id": "AP-HOME-001", "name": "顶部定位搜索横幅"}, {"id": "AP-HOME-002", "name": "金刚入口八宫格"}, {"id": "AP-HOME-003", "name": "礼券领取卡"}, {"id": "AP-HOME-004", "name": "横滑商品卡"}, {"id": "AP-HOME-005", "name": "排行榜列表"}]}, {"id": "list", "name": "列表", "logic": [["来源", "首页入口或底部主导航分类标签"], ["主操作", "搜索、分类、排序与价格筛选；点行展开规格；点图进入商品详情；详情页底部加购"], ["返回", "详情页返回列表并保留筛选与滚动位置"], ["完成后", "加购后提示并更新购物车数；筛选无结果显示空态，可一键清空条件"]], "ids": [{"id": "AP-LIST-001", "name": "顶部搜索栏"}, {"id": "AP-LIST-009", "name": "分类筛选条"}, {"id": "AP-LIST-004", "name": "列表加载骨架"}, {"id": "AP-LIST-002", "name": "商品紧凑列表"}, {"id": "AP-LIST-005", "name": "筛选空结果"}, {"id": "AP-LIST-006", "name": "加载更多提示"}, {"id": "AP-LIST-007", "name": "商品详情页"}, {"id": "AP-LIST-008", "name": "详情底部操作栏"}, {"id": "AP-LIST-003", "name": "商品展开行"}]}, {"id": "orders", "name": "订单", "logic": [["来源", "底部主导航订单标签，或我的页订单入口"], ["主操作", "按状态分段切换；点订单进入详情；详情里查看物流、收货与金额，申请售后进入独立填写页"], ["返回", "售后填写页返回订单详情；详情返回订单列表并保留状态分段"], ["完成后", "提交售后后回到订单详情，状态区更新为售后处理中"]], "ids": [{"id": "AP-ORDR-001", "name": "顶部搜索栏"}, {"id": "AP-ORDR-011", "name": "状态分段条"}, {"id": "AP-ORDR-003", "name": "订单加载骨架"}, {"id": "AP-ORDR-004", "name": "订单空态"}, {"id": "AP-ORDR-005", "name": "订单状态区"}, {"id": "AP-ORDR-006", "name": "物流时间线卡"}, {"id": "AP-ORDR-007", "name": "收货信息卡"}, {"id": "AP-ORDR-008", "name": "订单商品卡"}, {"id": "AP-ORDR-009", "name": "金额明细卡"}, {"id": "AP-ORDR-010", "name": "售后申请页"}, {"id": "AP-ORDR-002", "name": "订单状态卡"}]}, {"id": "mine", "name": "我的", "logic": [["来源", "底部主导航我的标签"], ["主操作", "点昵称原位改名；地址列表设为默认或进入新建地址页；偏好开关即点即存"], ["返回", "新建地址页返回我的页，未保存时用居中确认框询问"], ["完成后", "保存地址后回到我的页，地址列表出现新地址并提示已保存"]], "ids": [{"id": "AP-MINE-001", "name": "顶部资料数据区"}, {"id": "AP-MINE-002", "name": "会员成长卡"}, {"id": "AP-MINE-003", "name": "收货地址列表"}, {"id": "AP-MINE-005", "name": "偏好设置列表"}, {"id": "AP-MINE-006", "name": "更多快捷入口"}, {"id": "AP-MINE-007", "name": "新建地址页"}, {"id": "AP-MINE-004", "name": "地址行"}]}, {"id": "agent", "name": "智能体", "logic": [["来源", "底部主导航助手标签"], ["主操作", "输入问题或点建议问法；回答按流式输出，可停止；涉及改动时出现审批确认卡"], ["返回", "历史会话页返回当前对话；排队中的提问显示排队标签，可撤回"], ["完成后", "回答结束保留产物文件卡；审批通过后任务状态行更新结果"]], "ids": [{"id": "AP-AGNT-001", "name": "会话顶部栏"}, {"id": "AP-AGNT-013", "name": "对话加载骨架"}, {"id": "AP-AGNT-002", "name": "用户消息气泡"}, {"id": "AP-AGNT-003", "name": "思考过程折叠"}, {"id": "AP-AGNT-004", "name": "工具调用标签"}, {"id": "AP-AGNT-005", "name": "流式回答文本"}, {"id": "AP-AGNT-006", "name": "产物文件卡"}, {"id": "AP-AGNT-007", "name": "任务状态行"}, {"id": "AP-AGNT-008", "name": "审批确认卡"}, {"id": "AP-AGNT-012", "name": "空会话占位"}, {"id": "AP-AGNT-014", "name": "历史会话列表"}, {"id": "AP-AGNT-011", "name": "排队提示标签"}, {"id": "AP-AGNT-009", "name": "建议问法条"}, {"id": "AP-AGNT-010", "name": "对话输入栏"}]}]};
+  const CFG = {"key": "app", "theme": "navy", "tabs": ["pages", "components"], "presets": [{"id": "rose", "name": "玫瑰", "action": "#A75F6D"}, {"id": "wine", "name": "酒红", "action": "#7E2C41"}, {"id": "coral", "name": "珊瑚", "action": "#AB6056"}, {"id": "terracotta", "name": "赤陶", "action": "#A26548"}, {"id": "amber", "name": "琥珀", "action": "#9B6B33"}, {"id": "sand", "name": "沙金", "action": "#87723E"}, {"id": "olive", "name": "橄榄", "action": "#74783E"}, {"id": "cyan", "name": "湖蓝", "action": "#307E98"}, {"id": "sky", "name": "天蓝", "action": "#3D79AB"}, {"id": "blue", "name": "靛蓝", "action": "#5373BC"}, {"id": "navy", "name": "藏青", "action": "#33476D"}, {"id": "indigo", "name": "靛紫", "action": "#716CBB"}, {"id": "purple", "name": "紫藤", "action": "#8069A9"}, {"id": "mauve", "name": "雾紫", "action": "#876C8D"}, {"id": "plum", "name": "梅紫", "action": "#9F608A"}, {"id": "graphite", "name": "石墨", "action": "#4E5359"}, {"id": "slate", "name": "岩灰", "action": "#536672"}, {"id": "stone", "name": "暖灰", "action": "#696259"}, {"id": "mocha", "name": "摩卡", "action": "#6A5243"}, {"id": "ink", "name": "墨黑", "action": "#222429"}], "effects": [{"id": "glow", "name": "柔光"}, {"id": "none", "name": "无"}, {"id": "dots", "name": "点阵"}, {"id": "grid", "name": "网格"}, {"id": "lines", "name": "斜纹"}, {"id": "rings", "name": "同心圆"}, {"id": "petal", "name": "花瓣"}, {"id": "leaf", "name": "叶片"}, {"id": "wave", "name": "波纹"}], "background": "none", "workbench": "pages", "device": "phone", "pages": [{"id": "home", "name": "首页", "logic": [["来源", "底部主导航首页；其他页面点首页标签回到这里"], ["主操作", "金刚入口进入对应分类；点横幅或商品进入列表；领取礼券后整块收起"], ["返回", "首页是一级页面，没有返回；系统返回退出应用"], ["完成后", "领取礼券后提示已领取；加购后提示已加入购物车，停留在本页"]], "ids": [{"id": "AP-HOME-001", "name": "顶部定位搜索横幅"}, {"id": "AP-HOME-002", "name": "金刚入口八宫格"}, {"id": "AP-HOME-003", "name": "礼券领取卡"}, {"id": "AP-HOME-004", "name": "横滑商品卡"}, {"id": "AP-HOME-005", "name": "排行榜列表"}]}, {"id": "list", "name": "列表", "logic": [["来源", "首页入口或底部主导航分类标签"], ["主操作", "搜索、分类、排序与价格筛选；点行展开规格；点图进入商品详情；详情页底部加购"], ["返回", "详情页返回列表并保留筛选与滚动位置"], ["完成后", "加购后提示并更新购物车数；筛选无结果显示空态，可一键清空条件"]], "ids": [{"id": "AP-LIST-001", "name": "顶部搜索栏"}, {"id": "AP-LIST-009", "name": "分类筛选条"}, {"id": "AP-LIST-004", "name": "列表加载骨架"}, {"id": "AP-LIST-002", "name": "商品紧凑列表"}, {"id": "AP-LIST-005", "name": "筛选空结果"}, {"id": "AP-LIST-006", "name": "加载更多提示"}, {"id": "AP-LIST-007", "name": "商品详情页"}, {"id": "AP-LIST-008", "name": "详情底部操作栏"}, {"id": "AP-LIST-003", "name": "商品展开行"}]}, {"id": "orders", "name": "订单", "logic": [["来源", "底部主导航订单标签，或我的页订单入口"], ["主操作", "按状态分段切换；点订单进入详情；详情里查看物流、收货与金额，申请售后进入独立填写页"], ["返回", "售后填写页返回订单详情；详情返回订单列表并保留状态分段"], ["完成后", "提交售后后回到订单详情，状态区更新为售后处理中"]], "ids": [{"id": "AP-ORDR-001", "name": "顶部搜索栏"}, {"id": "AP-ORDR-011", "name": "状态分段条"}, {"id": "AP-ORDR-003", "name": "订单加载骨架"}, {"id": "AP-ORDR-004", "name": "订单空态"}, {"id": "AP-ORDR-005", "name": "订单状态区"}, {"id": "AP-ORDR-006", "name": "物流时间线卡"}, {"id": "AP-ORDR-007", "name": "收货信息卡"}, {"id": "AP-ORDR-008", "name": "订单商品卡"}, {"id": "AP-ORDR-009", "name": "金额明细卡"}, {"id": "AP-ORDR-010", "name": "售后申请页"}, {"id": "AP-ORDR-002", "name": "订单状态卡"}]}, {"id": "mine", "name": "我的", "logic": [["来源", "底部主导航我的标签"], ["主操作", "点昵称原位改名；地址列表设为默认或进入新建地址页；偏好开关即点即存"], ["返回", "新建地址页返回我的页，未保存时用居中确认框询问"], ["完成后", "保存地址后回到我的页，地址列表出现新地址并提示已保存"]], "ids": [{"id": "AP-MINE-001", "name": "顶部资料数据区"}, {"id": "AP-MINE-002", "name": "会员成长卡"}, {"id": "AP-MINE-003", "name": "收货地址列表"}, {"id": "AP-MINE-005", "name": "偏好设置列表"}, {"id": "AP-MINE-006", "name": "更多快捷入口"}, {"id": "AP-MINE-007", "name": "新建地址页"}, {"id": "AP-MINE-004", "name": "地址行"}]}, {"id": "agent", "name": "智能体", "logic": [["来源", "底部主导航助手标签"], ["主操作", "输入问题或点建议问法；回答按流式输出，可停止；涉及改动时出现审批确认卡"], ["返回", "历史会话页返回当前对话；排队中的提问显示排队标签，可撤回"], ["完成后", "回答结束保留产物文件卡；审批通过后任务状态行更新结果"]], "ids": [{"id": "AP-AGNT-001", "name": "会话顶部栏"}, {"id": "AP-AGNT-013", "name": "对话加载骨架"}, {"id": "AP-AGNT-002", "name": "用户消息气泡"}, {"id": "AP-AGNT-003", "name": "思考过程折叠"}, {"id": "AP-AGNT-004", "name": "工具调用标签"}, {"id": "AP-AGNT-005", "name": "流式回答文本"}, {"id": "AP-AGNT-006", "name": "产物文件卡"}, {"id": "AP-AGNT-007", "name": "任务状态行"}, {"id": "AP-AGNT-008", "name": "审批确认卡"}, {"id": "AP-AGNT-012", "name": "空会话占位"}, {"id": "AP-AGNT-009", "name": "建议问法条"}, {"id": "AP-AGNT-014", "name": "历史会话列表"}, {"id": "AP-AGNT-011", "name": "排队提示标签"}, {"id": "AP-AGNT-010", "name": "对话输入栏"}]}]};
   const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
   const state = { theme: CFG.theme, color: null, bg: CFG.background || 'glow', icons: 'mono' };
-  const frames = new Set();
+  const frames = new Map();
   const store = { get(k) { try { return localStorage.getItem('lz-bundle-' + k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem('lz-bundle-' + k, v); } catch (e) { /* 浏览器不让存时只是不记住 */ } } };
   const q = new URLSearchParams(location.search);
   const skinKeys = ['theme', 'bg', 'icons', 'color'];
@@ -13749,19 +13801,33 @@ th[aria-sort="ascending"] .chev::after { opacity: 1; transform: rotate(-135deg) 
     if (value) state[k] = value;
   });
   if (state.color) state.theme = null;
+  const themeOverrideKey = skinKey('theme-override');
+  let themeOverride = Boolean(q.get('theme')) || store.get(themeOverrideKey) === 'true';
 
-  function send(win) { try { win.postMessage({ lz: 'skin', theme: state.theme || undefined, color: state.color || undefined, bg: state.bg, icons: state.icons }, '*'); } catch (e) { /* 框还没准备好 */ } }
+  function resolveTheme(pageTheme) {
+    return !themeOverride && state.theme === CFG.theme && pageTheme ? pageTheme : state.theme;
+  }
+  function send(win, pageTheme) {
+    const theme = resolveTheme(pageTheme);
+    try { win.postMessage({ lz: 'skin', theme: theme || undefined, color: state.color || undefined, bg: state.bg, icons: state.icons }, '*'); } catch (e) { /* 框还没准备好 */ }
+  }
+  function paintTheme() {
+    const pageTheme = CFG.workbench && $('#panel-' + CFG.workbench).dataset.on === 'true'
+      ? CFG.pages.find(item => item.id === page)?.theme : undefined;
+    const theme = resolveTheme(pageTheme);
+    Lz.skin({ theme: theme || undefined, color: state.color || undefined, bg: state.bg, icons: state.icons });
+    $$('#swatches .swatch').forEach(b => b.setAttribute('aria-pressed', String(!state.color && b.dataset.theme === theme)));
+  }
   function apply() {
-    Lz.skin({ theme: state.theme || undefined, color: state.color || undefined, bg: state.bg, icons: state.icons });
-    frames.forEach(f => f.contentWindow && send(f.contentWindow));
-    $$('#swatches .swatch').forEach(b => b.setAttribute('aria-pressed', String(!state.color && b.dataset.theme === state.theme)));
+    paintTheme();
+    frames.forEach((theme, f) => f.contentWindow && send(f.contentWindow, theme));
     $$('#fxlist .fxitem').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.bg === state.bg)));
     $$('#iconseg button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.icons === state.icons)));
     skinKeys.forEach(k => store.set(skinKey(k), state[k] || ''));
   }
-  function mount(host, html, cls) {
+  function mount(host, html, theme) {
     const f = document.createElement('iframe'); f.setAttribute('aria-label', host.dataset.label || '预览');
-    f.addEventListener('load', () => { frames.add(f); send(f.contentWindow); });
+    f.addEventListener('load', () => { frames.set(f, theme); send(f.contentWindow, theme); });
     f.srcdoc = html; host.appendChild(f); return f;
   }
   const source = id => ($('#src-' + id).textContent || '').replace(/<\\\/script/g, '</script');
@@ -13769,7 +13835,15 @@ th[aria-sort="ascending"] .chev::after { opacity: 1; transform: rotate(-135deg) 
   // 外观控制
   $('#swatches').innerHTML = CFG.presets.map(p => `<button class="swatch" style="--c:${p.action}" data-theme="${p.id}" aria-pressed="false" aria-label="${p.name}" data-tip="${p.name}"></button>`).join('');
   $('#fxlist').innerHTML = CFG.effects.map(e => `<button class="fxitem" data-bg="${e.id}" aria-pressed="false"><span class="fxitem__tile bgfx bgfx--${e.id}" ${e.id === 'none' ? '' : ''}></span>${e.name}</button>`).join('');
-  $('#swatches').addEventListener('click', e => { const b = e.target.closest('.swatch'); if (!b) return; state.theme = b.dataset.theme; state.color = null; apply(); });
+  $('#swatches').addEventListener('click', e => {
+    const b = e.target.closest('.swatch');
+    if (!b) return;
+    state.theme = b.dataset.theme;
+    state.color = null;
+    themeOverride = true;
+    store.set(themeOverrideKey, 'true');
+    apply();
+  });
   $('#custom').addEventListener('input', e => { state.color = e.target.value; state.theme = null; $('#customhex').textContent = e.target.value.toUpperCase(); apply(); });
   $('#fxlist').addEventListener('click', e => { const b = e.target.closest('.fxitem'); if (!b) return; state.bg = b.dataset.bg; apply(); });
   $('#iconseg').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; state.icons = b.dataset.icons; apply(); });
@@ -13783,6 +13857,7 @@ th[aria-sort="ascending"] .chev::after { opacity: 1; transform: rotate(-135deg) 
     $$('#tabs .tabs__item').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === id)));
     $$('.panel').forEach(p => { p.dataset.on = String(p.id === 'panel-' + id); });
     if (!mounted[id]) { mounted[id] = true; const host = $('#panel-' + id + ' .host'); if (host) mount(host, source(host.dataset.src)); else if (id === CFG.workbench) openPage(page); }
+    paintTheme();
     store.set('tab-' + CFG.key, id); fit();
   }
   $('#tabs').addEventListener('click', e => { const b = e.target.closest('.tabs__item'); if (b) openTab(b.dataset.tab); });
@@ -13806,8 +13881,9 @@ th[aria-sort="ascending"] .chev::after { opacity: 1; transform: rotate(-135deg) 
     page = id; const p = CFG.pages.find(x => x.id === id);
     $$('#nav .nav__item').forEach(b => b.setAttribute('aria-current', String(b.dataset.page === id)));
     if (pageFrame) { frames.delete(pageFrame); pageFrame.remove(); }
-    pageFrame = mount(frame, source('page-' + id));
+    pageFrame = mount(frame, source('page-' + id), p.theme);
     $('#info').innerHTML = `<h2>${esc(p.name)}</h2><h3>本页逻辑</h3><dl class="kv">${p.logic.map(([k, v]) => `<div><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join('')}</dl><h3>本页组件编号</h3><div class="ids">${p.ids.map(c => `<button data-copy="${c.id}"><span>${esc(c.name)}</span><code>${c.id}</code></button>`).join('')}</div>`;
+    paintTheme();
     fit();
   }
   if (frame) {

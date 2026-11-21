@@ -4,4 +4,5 @@ Required Notice: Copyright 2026 luzern0414 (https://github.com/luzern0414/Luz-De
 引用的第三方标准、设计体系与公开资料的权利归原作者所有。
 
 本次设计方法整合：UI UX Pro Max、interface-design、taste-skill、impeccable、hallmark、Emil Kowalski skills。方法以适用范围重述，固定提交与取舍见 references/design/sources.md，许可证见 references/design/licenses/。
-前端工程起点复用 Vue 3.5.22、Vant 4.9.22、Element Plus 2.11.5；对应第三方文件和许可证位于 kit/frontend/vendor，来源与哈希见 catalog.json。templates/app、templates/web 与 kit 为本仓库自写；页面版式参考 EasyUI（MIT）与 Beautiful UI（MIT）的结构，动效配方为自写，Transitions.dev 只借鉴方法、未复制其代码。第三方内容依其原许可，不受本仓库自有内容许可重新授权。
+前端工程起点复用 Vue 3.5.22、Vant 4.9.22、Element Plus 2.11.5。对应第三方文件和许可证位于 kit/frontend/vendor，来源与哈希见 catalog.json。App 与 Web 的空间层叠示例复用 Three.js 0.187.0，MIT 许可随库文件存放于 kit/vendor/three/LICENSE。
+本仓库页面的版式参考 EasyUI（MIT）与 Beautiful UI（MIT）的结构。动效代码由本项目编写，参考 Transitions.dev 的方法。第三方内容依其原许可使用。

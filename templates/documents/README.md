@@ -1,6 +1,8 @@
 # 文件模板库
 
-文字文档、表格文件、幻灯片、PDF、阅读网页五类文件的模板与可复用块。每个模板有编号、一份描述文件和一份用生成器做出的样例；每类还登记了可复用块，可以只取局部。视觉与 `../../kit/` 同一套：暖灰米底、雾粉主色、大圆角白卡、花卉实拍，主题色取 `../../kit/tokens.css`。
+在 [文件模板库](documents.html)查找文字文档、表格、PPT、PDF 和阅读网页的模板与可复用块。生成模板附带描述文件和示例。[PPT 分类](documents.html#ppt)展示中文商务原件，可预览内页、下载和查看授权。
+
+[PPT 页面布局图谱](slides/PPT页面布局图谱.pdf)可按标题、封面、双层布局、圆形排列、架构图、图表和收尾等任务查看完整示例。
 
 模板是骨架。具体成品先读对应规则卡，规则卡与模板冲突时按规则卡改。
 
@@ -8,8 +10,7 @@
 
 ```
 templates/documents/
-  documents.html      目录页：按类型、搜索、复制编号、样例与描述文件、命令
-  documents.html      目录页（单文件，数据内嵌），由 scripts/build_documents_index.py 生成，不手改
+  documents.html      按类型浏览、搜索与下载，由 scripts/build_documents_index.py 生成
   README.md
   word/  excel/  slides/  pdf/  reading/
     README.md         这一类的用途、字段、生成与检查
@@ -17,6 +18,11 @@ templates/documents/
     specs/            描述文件，specs/parts/ 放可复用块
     samples/          样例文件（slides 另有 samples/previews/ 预览图）
     tools/            样例补充脚本（有的类才有）
+  slides/originals/
+    manifest.json     PPT 原版编号、来源、授权、版式和校验值
+    files/            按发布方存放本地 PPTX 与 POTX 原件
+    待筛选/           集中存放按编号命名的候选原件
+    previews/         从对应原件渲染的页面预览
 ```
 
 ## 命名总规则
@@ -25,7 +31,8 @@ templates/documents/
 |---|---|---|---|
 | 文字文档 | `word/` | WD | `DC-WD-001-中文名.docx` |
 | 表格文件 | `excel/` | XL | `DC-XL-001-中文名.xlsx` |
-| 幻灯片 | `slides/` | SL | `DC-SL-001-中文名.pptx` |
+| PPT 生成样例 | `slides/` | SL | `DC-SL-001-中文名.pptx` |
+| PPT 原版 | `slides/originals/` | SL | 编号如 `DC-SL-O001`，沿用发布方文件名 |
 | PDF | `pdf/` | PD | `DC-PD-001-中文名.pdf` |
 | 阅读网页 | `reading/` | RD | `DC-RD-001-中文名.html` |
 
@@ -37,7 +44,7 @@ templates/documents/
 ## manifest.json
 
 ```
-{"type": "slides", "title": "幻灯片", "naming": "DC-SL-三位序号-中文名.pptx",
+{"type": "slides", "title": "PPT", "naming": "DC-SL-三位序号-中文名.pptx",
  "items": [{"id", "name", "use", "file", "spec", "generator", "checks", "fields", ("preview")}],
  "parts": [{"id", "name", "file", "used_in": ["DC-SL-001", ...]}]}
 ```
@@ -51,6 +58,8 @@ templates/documents/
 3. 只要局部时，按块编号去 `specs/parts/` 取片段，放进自己的描述文件；块表里的“用于哪些模板”指向已经用到它的样例。
 4. 按“生成与检查命令”重新生成并检查。交付说明里写明采用的编号，如“按 DC-SL-003 排版”。
 
+采用 PPT 原版时，打开卡片上的“下载原版”，按授权保留版权与许可声明，再另存项目演示稿。也可从卡片上的发布页取得原件。见 [PPT 原版与授权](slides/commercial-sources.md)。
+
 ## 索引与目录页
 
 ```
@@ -59,7 +68,7 @@ py -X utf8 scripts/build_documents_index.py --check    只检查
 py -X utf8 scripts/build_documents_index.py --partial  某类还没有 manifest 时跳过（编写途中用）
 ```
 
-检查项：五类各有 `manifest.json` 且 `type` 与目录一致；`naming` 与扩展名一致；模板和块的编号格式正确、全库唯一，序号缺号会提醒；`file`、`spec`、块的 `file`、`preview` 都存在且在本类目录内；`file` 与 `spec` 的名字是 `<编号>-<中文名>`；`use`、`generator` 非空，`checks`、`fields` 是列表；`used_in` 里的编号存在且同类。有任何错误就不写 `registry.js`。新增、改名或删除模板后必须重跑，目录页只读 `registry.js`。
+生成器检查五类模板的编号、文件、字段及复用关系，也核验 PPT 原版的发布页、授权信息和本机原件的大小与 SHA-256。新增、改名或同步本机原件后重新生成 `documents.html`。编号总表由 `py -X utf8 scripts/template_registry.py write` 更新。
 
 ## 门禁与检查
 

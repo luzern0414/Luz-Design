@@ -241,20 +241,28 @@ def validate_creation(modes: list[str], session_kind: str) -> None:
         raise ValueError("visual mode is standalone visual work: pass --standalone-poster and name the task in the title; the functional structure of a product interface belongs to Luz-System and its look is worked from the interface rule cards (context.py interface-visual) in a document session")
 
 
-def resolve_project(value: str | Path) -> dict:
+def resolve_project(value: str | Path, stage: str | None = None) -> dict:
     """The project a session is made for: its state root (where project.json is) and the folder that keeps the results.
 
     A path with project.json is the state root; any other path is the project folder, whose state root is the raw\\ of its
     session in the Luz-Project output root. deliver_root of project.json is the project folder; a project without it
     (made before the split) keeps its results at the state root."""
     path = Path(value).resolve()
-    state = path if (path / "project.json").is_file() else PROJECT_OUTPUT_ROOT / path.name / "raw"
+    state = path
+    if not (state / "project.json").is_file():
+        state = path / "raw" if (path / "raw" / "project.json").is_file() else PROJECT_OUTPUT_ROOT / path.name / "raw"
     try:
         data = json.loads((state / "project.json").read_text(encoding="utf-8"))
     except (OSError, ValueError) as exc:
         raise ValueError(f"no readable project.json for {value} (looked in {state})") from exc
     deliver = Path(data["deliver_root"]) if isinstance(data, dict) and data.get("deliver_root") else state
-    return {"state_root": str(state), "deliver_root": str(deliver), "delivered": []}
+    link = {"state_root": str(state), "deliver_root": str(deliver), "delivered": []}
+    if data.get("workflow") == "commercial-v1":
+        link["workflow"] = data["workflow"]
+        link["stage"] = stage or data.get("current_stage") or "design"
+    elif stage:
+        link["stage"] = stage
+    return link
 
 
 def create_session(
@@ -266,9 +274,13 @@ def create_session(
     session_kind: str = "general",
     cards: list[str] | None = None,
     project: str | Path | None = None,
+    project_stage: str | None = None,
 ) -> Path:
     validate_creation(modes, session_kind)
-    project_link = resolve_project(project) if project else None
+    project = project or os.environ.get("LUZ_PROJECT_ROOT")
+    if project_stage and not project:
+        raise ValueError("--stage 需要关联项目上下文")
+    project_link = resolve_project(project, project_stage) if project else None
     import context
     kinds = list(dict.fromkeys(cards or [DEFAULT_CARDS[m] for m in modes if m in DEFAULT_CARDS]))
     unknown_cards = sorted(set(kinds) - set(context.card_kinds()))
@@ -370,12 +382,13 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--standalone-poster", action="store_true", help="Standalone visual work (poster, brand key visual, campaign image); required for visual mode")
     parser.add_argument("--root", help="Output root override, primarily for tests")
     parser.add_argument("--card", action="append", help="Rule card kind for this task (repeatable); the kinds are listed by scripts/context.py list; default from the mode")
+    parser.add_argument("--stage", help="项目矩阵当前协作阶段，如 design 或 demo")
     parser.add_argument("--project", help="The project this task is for (its project folder, or the state root that holds project.json): deliverables are written into the project's docs and the session root keeps only raw\\ and the summary page")
     args = parser.parse_args(argv)
     root = Path(args.root).resolve() if args.root else OUTPUT_ROOT
     kind = "standalone_poster" if args.standalone_poster else args.session_kind
     try:
-        folder = create_session(root, args.name, parse_modes(args.modes), session_kind=kind, cards=args.card, project=args.project)
+        folder = create_session(root, args.name, parse_modes(args.modes), session_kind=kind, cards=args.card, project=args.project, project_stage=args.stage)
     except Exception as exc:
         print(f"FAIL: {type(exc).__name__}: {exc}", file=sys.stderr)
         return 1
@@ -386,7 +399,7 @@ def main(argv: list[str] | None = None) -> int:
         for card in cards:
             print(f"  {card}", file=sys.stderr)
     print("LAYOUT: root = raw\\ + summary page " + folder.name + ".html; " + (
-        "deliverables go to the project's docs (publish.py --as, deliver.py --to)" if args.project else
+        "deliverables go to the project's docs (publish.py --as, deliver.py --to)" if (args.project or os.environ.get("LUZ_PROJECT_ROOT")) else
         "a page deliverable is published as the summary page (publish.py), other files are placed with deliver.py and listed in a summary page made with make_summary.py"), file=sys.stderr)
     return 0
 

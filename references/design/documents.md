@@ -8,11 +8,19 @@ Word、Excel、幻灯片、阅读 HTML、PDF 按各自读者、媒介和内容�
 |---|---|---|---|
 | Word | `context.py docx` | `make_docx.py`；正式分页版 `make_docx_paginated.py` | 样式、标题级别、段落与表格、页眉页脚、分页 |
 | Excel | `context.py xlsx` | `make_xlsx.py` | 字段分组、数据类型、数值格式、可编辑性、打印 |
-| 幻灯片 | `context.py slides`、[演示设计](slides.md) | `templates/documents/slides/build_slides.py` 或演示文稿工具 | 每页一个主标题，按用途选多色主题与授权模板 |
+| PPT | `context.py slides`、[演示设计](slides.md) | [精选商务原版](../../templates/documents/documents.html#ppt) | 每页一个主标题，按用途选择配色和完整授权的模板 |
 | 阅读 HTML | `context.py reading-html` | `make_summary.py` | 版心、行长、章节、带标题的图表、引用 |
 | PDF | `context.py pdf-markdown` | `make_table_pdf.py`、`make_showcase.py` 或相应源文件生成器 | 字体、断行、跨页、检索、图像与最终纸面 |
 
 先分类型，读规则卡与真实模板，再生成。模板只是骨架，与规则卡冲突时按规则卡。
+
+## 通用文档模板
+
+调研报告、检索报告、工作说明、汇报及其他通用 Word／PDF 文件默认使用[通用文档母版](../../templates/documents/word/specs/通用文档模板.json)。指定版式和专用文书按其对应体例制作。
+
+从母版取黑白 Word 版式，按用途替换标题、章节和表格。调研报告写正文发现，并逐项记录依据与核验状态。其他文档采用符合内容的章节和表格。使用符号时附文字说明，按篇幅设置封面、目录和续表。
+
+为实际产出选择 `docx-paginated`，用 `make_docx_paginated.py` 生成 Word 及 PDF。字体、页边距、表题和居中页码沿用[文字文档规范](../file-design.html)。
 
 ## 本库模板
 

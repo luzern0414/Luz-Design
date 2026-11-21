@@ -108,6 +108,10 @@
       ],
       "sections": [
         {
+          "page": "design/documents.md",
+          "path": ["通用文档模板"]
+        },
+        {
           "page": "document-evidence.md",
           "title": "文档证据合同",
           "path": [
@@ -294,7 +298,7 @@
         }
       ],
       "tools": [
-        "按 templates/documents/slides/README.md 用 build_slides.py 选择本地模板，或从 commercial-sources.md 取得原站商用模板与许可说明。",
+        "找现成模板时在文件模板库的 PPT 分类查看中文商务原件、内页预览和许可。需要按描述文件生成时使用 templates/documents/slides/README.md 与 build_slides.py。",
         "要放进会话时：`py -X utf8 scripts/new_session.py --name \"<名称>\" --modes document --card slides`；成品检查通过后用 `py -X utf8 scripts/deliver.py <会话目录> <成品.pptx>` 放进会话根目录，再用 `make_summary.py` 生成列出它的汇总页（项目任务的 docs 只收 PDF 与 XLSX，导出 PDF 后用 `--project`、`--to` 交付）"
       ],
       "checks": [
@@ -313,6 +317,10 @@
         "md"
       ],
       "sections": [
+        {
+          "page": "design/documents.md",
+          "path": ["通用文档模板"]
+        },
         {
           "page": "document-evidence.md",
           "title": "文档证据合同",
@@ -518,6 +526,10 @@
       ],
       "sections": [
         {
+          "page": "ui-ownership.md",
+          "path": ["逐模块核对与经验"]
+        },
+        {
           "page": "design/patterns.md",
           "path": []
         },
@@ -527,6 +539,7 @@
         }
       ],
       "tools": [
+        "商业项目的 design 参与四份联合说明，demo 在四份说明确认后制作和带用户走查 HTML，记录所用组件、业务动作与修订。",
         "按 App/Web 类别选页面模式与组件：templates/ 的 HTML 模板与 scripts/template_registry.py；scripts/frontend.py init/seal/review/check。",
         "界面的页面、动作与功能由 Luz-System 定义，视觉与排版由本技能负责，边界见 references/ui-ownership.md。"
       ],
@@ -622,6 +635,7 @@
         }
       ],
       "tools": [
+        "商业项目的 design 参与四份联合说明，demo 在四份说明确认后制作和带用户走查 HTML，记录所用组件、业务动作与修订。",
         "按 App/Web 类别选页面模式与组件：templates/ 的 HTML 模板与 scripts/template_registry.py；scripts/frontend.py init/seal/review/check。",
         "界面的页面、动作与功能由 Luz-System 定义，视觉与排版由本技能负责，边界见 references/ui-ownership.md。"
       ],
@@ -633,7 +647,7 @@
     },
     "interface-visual": {
       "title": "界面视觉（配色、字体角色、图标与插画、层级与立体感、密度与表格对齐）",
-      "summary": "界面视觉（有分量的主色、中性表面、简洁图标、适度圆角、字阶与密度）。按场景采用设计建议。",
+      "summary": "前端页面保持纯白，组件的纯色或渐变按品牌与用途自选，头像与图标使用图形。 界面禁用绿色与青绿色，业务办理使用独立页面。",
       "keywords": [
         "界面",
         "后台",
@@ -675,11 +689,16 @@
     },
     "palette": {
       "title": "配色与主题",
-      "summary": "配色与主题。前端用主色和中性表面建立层级，马卡龙色用于小图标。",
+      "summary": "页面底色固定为纯白 #FFFFFF。组件配色和渐变按项目自选。 界面禁用绿色与青绿色，业务办理使用独立页面。Pastel 300 与花瓣色卡仅供参考。核对文字、图形与状态的实际对比。",
       "keywords": [
         "配色",
         "主色",
         "色板",
+        "色卡",
+        "花瓣",
+        "Pastel",
+        "粉彩",
+        "渐变色",
         "主题",
         "行业",
         "深色",
@@ -692,12 +711,23 @@
         {
           "page": "design/foundation.md",
           "path": []
+        },
+        {
+          "page": "design/huaban-palettes.html",
+          "title": "花瓣色卡与白底 UI 配色",
+          "path": ["组件配色组合"]
+        },
+        {
+          "page": "design/huaban-palettes.html",
+          "title": "花瓣色卡与白底 UI 配色",
+          "path": ["文字、图标与状态"]
         }
       ],
       "tools": [
         "按 App/Web 类别选页面模式与组件：templates/ 的 HTML 模板与 scripts/template_registry.py；scripts/frontend.py init/seal/review/check。"
       ],
       "checks": [
+        "核对组件着色范围、实际底色上的文字和图形对比，以及选中与错误的文字或图形提示。",
         "实际查看完整页面、目标宽度及主要操作状态；确认组件真实使用、许可、复现和恢复；不检查固定外观配额。"
       ],
       "preference_keywords": [],
@@ -705,9 +735,13 @@
     },
     "interface-layout": {
       "title": "界面排布数值（各端栅格与间距、金刚区、表格列宽、导航与多级目录）",
-      "summary": "界面排布数值（各端栅格与间距、金刚区、表格列宽、导航与多级目录）。外观按场景采用设计建议。",
+      "summary": "页面自上而下组织，范围切换置于受控数据之前。按场景选择栅格、间距、导航和列宽。",
       "keywords": [
         "排布",
+        "阅读顺序",
+        "自上到下",
+        "账号切换",
+        "数据范围",
         "栅格",
         "断点",
         "间距",
@@ -731,6 +765,10 @@
       ],
       "sections": [
         {
+          "page": "design/hard-rules.md",
+          "path": ["界面导航"]
+        },
+        {
           "page": "design/foundation.md",
           "path": []
         },
@@ -744,6 +782,7 @@
         "界面的页面、动作与功能由 Luz-System 定义，视觉与排版由本技能负责，边界见 references/ui-ownership.md。"
       ],
       "checks": [
+        "确认范围切换先于对应数据，窄屏与键盘顺序一致。切换后在原位显示一组当前数据。",
         "实际查看完整页面、目标宽度及主要操作状态；确认组件真实使用、许可、复现和恢复；不检查固定外观配额。"
       ],
       "preference_keywords": [],
@@ -793,8 +832,8 @@
       "experience_scope": "ui"
     },
     "interface-motion": {
-      "title": "界面动效数值（时长、缓动、列表与卡片动画、减少动态效果）",
-      "summary": "界面动效数值（时长、缓动、列表与卡片动画、减少动态效果）。外观按场景采用设计建议。",
+      "title": "界面动效（过渡、卡片反馈、Three.js、减少动态效果）",
+      "summary": "轻量过渡、无框卡片反馈与可按需播放的 Three.js 空间动效。外观和动效按场景采用设计建议。",
       "keywords": [
         "动效",
         "动画",
@@ -806,6 +845,7 @@
         "stagger",
         "减少动态效果",
         "reduced-motion",
+        "Three.js",
         "悬停",
         "按压",
         "展开",
@@ -831,7 +871,7 @@
     },
     "interface-icons": {
       "title": "图标设计与协同（栅格、线宽、状态、选型、图标与标题和卡片）",
-      "summary": "标题前与左栏图标同排等大；底栏与侧栏优先黑色透明底，「我的」统一色。现有金刚标保留素材、尺寸、配色和样式。",
+      "summary": "头像及回退必须使用图形图标，禁止任何文字形式的图标。底栏与侧栏保持白色，图标可透明或配项目自选的底色。",
       "keywords": [
         "图标",
         "图标库",
@@ -1061,6 +1101,7 @@
         "截图"
       ],
       "sections": [
+        {"page": "ui-ownership.md", "path": ["逐模块核对与经验"]},
         {
           "page": "design/sources.md",
           "path": []
@@ -1119,10 +1160,13 @@
       "title": "App设计与可运行前端",
       "experience_scope": "app",
       "keywords": [
-        "app"
+        "app",
+        "App 设置页",
+        "移动端设置"
       ],
       "preference_keywords": [],
       "sections": [
+        {"page": "ui-ownership.md", "path": ["逐模块核对与经验"]},
         {
           "page": "design/app.md",
           "path": []
@@ -1137,11 +1181,11 @@
         },
         {
           "page": "design/components.md",
-          "path": []
+          "path": ["取用顺序"]
         },
         {
           "page": "design/motion.md",
-          "path": []
+          "path": ["实现要求"]
         },
         {
           "page": "design/interaction-contract.md",
@@ -1154,17 +1198,17 @@
       ],
       "tools": [
         "本地调整直接核对现有成品；有外部信息缺口或用户要求搜索时，按调用协议研究。",
-        "templates/ 的 HTML 模板按编号取组件：scripts/template_registry.py list|show；template_library.py list/select；优先现有框架与成熟组件。",
+        "按编号选模板或组件时读 interface-components 规则卡。设计动效时读 motion 规则卡。",
         "frontend.py init/seal/review/check；quality_rules.py list/plan/check；实际浏览器操作与截图。",
         "界面的页面、动作与功能由 Luz-System 定义，视觉与排版由本技能负责，边界见 references/ui-ownership.md。"
       ],
       "checks": [
-        "核对成品要求和实际交互，外观建议结合目标视口判断。",
-        "核对卡片对齐与纵向接缝为 0、图标配色与独立触控区、图表口径、对象标识和连续交互。",
+        "核对页面纯白、组件着色边界及各状态在实际底色上的对比度。检查头像及回退为图形，所有图标均无字符或图片内文字。",
+        "核对 1.5 倍行高、文字层级间距、独立卡片的半个正文字号间距、设置入口的上下内距与触控范围。核对图表口径、对象标识和连续交互。",
         "分别以真实证据验证 UX 任务、AX 唯一定位及结果、DX 复现维护；无障碍另查。",
         "逐对象核对结果就近或详情页、完整填写独立页、原位纵向选择及提交值、周期范围权限和返回恢复；不以静态标记代替真实操作。"
       ],
-      "summary": "App设计与可运行前端。外观按场景采用设计建议。"
+      "summary": "App 页面纯白，局部组件的纯色或渐变按项目自选，头像与图标使用图形。 界面禁用绿色与青绿色，业务办理使用独立页面。默认 1.5 倍行高，设置行和卡片间距按字号确定。"
     },
     "web": {
       "title": "Web/PC设计与可运行前端",
@@ -1174,6 +1218,7 @@
       ],
       "preference_keywords": [],
       "sections": [
+        {"page": "ui-ownership.md", "path": ["逐模块核对与经验"]},
         {
           "page": "design/web.md",
           "path": []
@@ -1188,11 +1233,11 @@
         },
         {
           "page": "design/components.md",
-          "path": []
+          "path": ["取用顺序"]
         },
         {
           "page": "design/motion.md",
-          "path": []
+          "path": ["实现要求"]
         },
         {
           "page": "design/interaction-contract.md",
@@ -1205,17 +1250,17 @@
       ],
       "tools": [
         "本地调整直接核对现有成品；有外部信息缺口或用户要求搜索时，按调用协议研究。",
-        "templates/ 的 HTML 模板按编号取组件：scripts/template_registry.py list|show；template_library.py list/select；优先现有框架与成熟组件。",
+        "按编号选模板或组件时读 interface-components 规则卡。设计动效时读 motion 规则卡。",
         "frontend.py init/seal/review/check；quality_rules.py list/plan/check；实际浏览器操作与截图。",
         "界面的页面、动作与功能由 Luz-System 定义，视觉与排版由本技能负责，边界见 references/ui-ownership.md。"
       ],
       "checks": [
-        "核对成品要求和实际交互，外观建议结合目标视口判断。",
+        "核对页面纯白、组件着色边界及各状态在实际底色上的对比度。检查头像及回退为图形，所有图标均无字符或图片内文字。",
         "核对卡片对齐与纵向接缝为 0、图标配色与独立触控区、图表口径、对象标识和连续交互。",
         "分别以真实证据验证 UX 任务、AX 唯一定位及结果、DX 复现维护；无障碍另查。",
         "逐对象核对结果就近或详情页、完整填写独立页、原位纵向选择及提交值、周期范围权限和返回恢复；不以静态标记代替真实操作。"
       ],
-      "summary": "Web/PC设计与可运行前端。外观按场景采用设计建议。"
+      "summary": "Web/PC 页面纯白，局部组件的纯色或渐变按项目自选，头像与图标使用图形。 界面禁用绿色与青绿色，业务办理使用独立页面。"
     },
     "documents": {
       "title": "文件排版分类入口",

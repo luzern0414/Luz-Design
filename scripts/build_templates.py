@@ -118,7 +118,8 @@ def components_html(end: str) -> str:
         total += len(ids)
         col = cfg.get("cols", {}).get(code)
         style = f' style="--col: {col}px"' if col else ""
-        sections.append(f'<section class="cat" id="cat-{code.lower()}" data-cat="{code}"{style}>\n<div class="cat__head"><h2>{title}</h2><span>{len(ids)} 个组件</span></div>\n<div class="gallery">\n{body}\n</div>\n</section>')
+        background_note = '<p>历史背景样例仅供对照，前端成品统一使用纯白背景（#FFFFFF）。</p>' if code == "BGND" else ""
+        sections.append(f'<section class="cat" id="cat-{code.lower()}" data-cat="{code}"{style}>\n<div class="cat__head"><h2>{title}</h2><span>{len(ids)} 个组件</span></div>\n{background_note}<div class="gallery">\n{body}\n</div>\n</section>')
         pills.append((code, title, len(ids)))
         styles += st
         scripts += sc
@@ -139,7 +140,7 @@ def ids_of(path: Path) -> list[dict]:
 
 
 def shell_config(key: str, tabs: list[str], **extra) -> dict:
-    return {"key": key, "theme": tokens.DEFAULT, "tabs": tabs, "presets": [{"id": p["id"], "name": p["name"], "action": p["action"]} for p in tokens.presets()],
+    return {"key": key, "theme": tokens.DEFAULT, "tabs": tabs, "presets": [{"id": p["id"], "name": p["name"], "action": p["action"]} for p in (tokens.interface_presets() if key in {"app","web"} else tokens.presets())],
             "effects": [{"id": i, "name": n} for i, n in EFFECTS], **extra}
 
 
@@ -159,15 +160,21 @@ def render_shell(title: str, tabs: list[tuple[str, str]], panels: str, sources: 
 # ---- app and web -------------------------------------------------------------------------------------------------------------
 def bundle_end(end: str) -> str:
     cfg = ENDS[end]
+    default_theme = "navy"
     pages, sources = [], {"components": embed_path(components_html(end))}
     for pid, name, logic in cfg["pages"]:
         path = T / end / "source" / "pages" / f"{pid}.html"
-        sources[f"page-{pid}"] = page_for_bundle(read(path))
-        pages.append({"id": pid, "name": name, "logic": logic, "ids": ids_of(path)})
+        html = read(path)
+        sources[f"page-{pid}"] = page_for_bundle(html)
+        page = {"id": pid, "name": name, "logic": logic, "ids": ids_of(path)}
+        theme = re.search(r'<html\b[^>]*\sdata-theme="([^"]+)"', html)
+        if theme and theme.group(1) != default_theme:
+            page["theme"] = theme.group(1)
+        pages.append(page)
     panels = (f'<section class="panel" id="panel-pages"><div class="wb"><aside class="wb__side"><nav class="nav" id="nav" aria-label="完整页面"></nav></aside>'
               f'<div class="wb__stage"><div class="frame frame--{cfg["device"]}" id="frame"></div></div><aside class="wb__info" id="info"></aside></div></section>\n'
               f'<section class="panel" id="panel-components"><div class="host" data-src="components" data-label="组件库"></div></section>')
-    config = shell_config(end, ["pages", "components"], theme="navy", background="none",
+    config = shell_config(end, ["pages", "components"], theme=default_theme, background="none",
                           workbench="pages", device=cfg["device"], pages=pages)
     return render_shell(cfg["title"], [("pages", "整页模板"), ("components", "组件库")], panels, sources, config)
 

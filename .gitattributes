@@ -1,2 +1,5 @@
 # Runtime receipts pin these upstream files byte for byte.
 /kit/frontend/vendor/** -text
+/kit/vendor/three/** -text
+/kit/vendor/three/three.min.js -whitespace
+/scripts/application_state_rules.js -text whitespace=cr-at-eol,-blank-at-eof

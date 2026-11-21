@@ -84,7 +84,7 @@
         visible:open.value,disabled:props.disabled,
         trigger:'hover',triggerKeys:[],effect:'light',placement:'bottom',
         showAfter:0,hideAfter:0,autoClose:0,enterable:true,persistent:false,
-        popperClass:'luz-tooltip',offset:8,
+        popperClass:'luz-tooltip',offset:8,showArrow:false,
       },{default:()=>slots.default?.().map(v=>cloneVNode(v,{onMouseenter:enter,onMouseleave:leave,onFocusin:focus,onFocusout:blur})),
           content:()=>h('span',{class:'hint-content',onMouseenter:enter,onMouseleave:leave},props.content)});
     },

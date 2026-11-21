@@ -100,8 +100,7 @@
   .wb-cd-state { min-height: 28px; padding: 0 var(--s-3); border-radius: var(--r-full); font-size: var(--fs-xs); font-weight: 600; background: var(--zone); color: var(--ink-2); }
   .wb-cd-state[data-s="1"] { background: var(--info-tint); color: var(--info); }
   .wb-cd-state[data-s="2"] { background: var(--success-tint); color: var(--success); }
-  .wb-cd-plan { display: grid; gap: var(--s-4); width: 100%; padding: var(--s-5); text-align: left; border: 1.5px solid var(--line); transition: border-color var(--dur-quick) var(--ease-out), box-shadow var(--dur-quick) var(--ease-out); }
-  .wb-cd-plan[aria-pressed="true"] { border-color: var(--action); box-shadow: 0 10px 24px color-mix(in srgb, var(--action) 16%, transparent); }
+  .wb-cd-plan { display: grid; gap: var(--s-4); width: 100%; padding: var(--s-5); text-align: left; }
   .wb-cd-plan ul { display: grid; gap: var(--s-2); font-size: var(--fs-md); }
   .wb-cd-plan li { display: flex; align-items: center; gap: var(--s-2); }
   .wb-cd-plan li img { width: 18px; height: 18px; }
@@ -145,10 +144,9 @@
   .wb-cd-act__b { display: grid; gap: var(--s-3); padding: var(--s-4) var(--s-5) var(--s-5); }
 
   /* 品牌主卡、折叠、对比 */
-  .wb-cd-hero { position: relative; overflow: hidden; display: grid; gap: var(--s-1); padding: var(--s-5) var(--s-6); min-height: 152px; align-content: center; background: linear-gradient(150deg, var(--action-press) 0%, var(--action) 100%); }
-  .wb-cd-hero .wb-cd-val { font-size: var(--fs-3xl); color: var(--surface); }
-  .wb-cd-hero .wb-cd-val small { color: var(--surface); }
-  .wb-cd-hero .wb-cd-label { color: var(--surface); }
+  .wb-cd-hero { position: relative; overflow: hidden; display: grid; gap: var(--s-1); padding: var(--s-5) var(--s-6); min-height: 152px; align-content: center; }
+  .wb-cd-hero .wb-cd-val { font-size: var(--fs-3xl); color: var(--ink); }
+  .wb-cd-hero .wb-cd-val small, .wb-cd-hero .wb-cd-label { color: var(--ink); }
   .wb-cd-hero img.pic { position: absolute; right: var(--s-5); top: 50%; width: 112px; height: 112px; border-radius: var(--r-lg); object-fit: cover; transform: translateY(-50%) rotate(5deg); border: 3px solid var(--surface); box-shadow: var(--elev-3); }
   .wb-cd-hero .tag { justify-self: start; margin-top: var(--s-2); background: var(--surface); color: var(--action-press); }
   .wb-cd-fold { overflow: hidden; }
@@ -508,7 +506,7 @@
 
 <article class="demo" data-cid="WB-CARD-025" data-name="品牌主卡" data-cat="CARD">
   <div class="demo__head"><span class="demo__name">品牌主卡</span></div>
-  <p class="demo__note">适合：每屏至多一块的深色重点数字</p>
+  <p class="demo__note">适合：用局部粉彩渐变突出关键数字</p>
   <div class="demo__stage"><div class="card card--hero wb-cd-hero wb-cd-w wb-cd-w--md">
     <span class="wb-cd-label">本月销售额</span>
     <span class="wb-cd-val"><small>¥</small><span data-count data-to="386420">386,420</span></span>
@@ -546,9 +544,9 @@
   <div class="demo__stage"><div class="card card--outline wb-cd-mini wb-cd-w"><span class="wb-cd-label">售后待处理</span><span class="wb-cd-val">3<small>单</small></span></div></div>
 </article>
 
-<article class="demo" data-cid="WB-CARD-029" data-name="悬浮抬升卡" data-cat="CARD">
-  <div class="demo__head"><span class="demo__name">悬浮抬升卡</span></div>
-  <p class="demo__note">适合：可点击的入口卡，悬浮时向上抬起</p>
+<article class="demo" data-cid="WB-CARD-029" data-name="可点击入口卡" data-cat="CARD">
+  <div class="demo__head"><span class="demo__name">可点击入口卡</span></div>
+  <p class="demo__note">入口卡通过底色反馈悬停和点击。</p>
   <div class="demo__stage"><div class="card card--lift wb-cd-entry wb-cd-w" role="button" tabindex="0" data-wb-toast="已打开商品管理"><img class="ic" data-ic="bouquet" src="../../kit/assets/icons/flat/bouquet.webp" alt=""><div><p class="wb-cd-name">商品管理</p><p class="wb-cd-meta">128 款在售</p></div></div></div>
 </article>
 
@@ -765,7 +763,7 @@
       <button class="wb-cd-pv__th" data-name="蓝绣球盆栽" aria-label="预览蓝绣球盆栽"><img src="../../kit/assets/photo/product-hydrangea-blue.webp" alt=""><span class="wb-cd-pv__ov">预览</span></button>
     </div>
     <div class="wb-cd-pv__mask" hidden>
-      <div class="wb-cd-pv__dlg" role="dialog" aria-modal="true" aria-labelledby="wb-cd-pv-t" tabindex="-1">
+      <div class="wb-cd-pv__dlg" role="region" aria-labelledby="wb-cd-pv-t" tabindex="-1">
         <div class="wb-cd-pv__top"><h3 class="wb-cd-pv__title" id="wb-cd-pv-t">红玫瑰花束</h3><span class="wb-cd-pv__idx" aria-live="polite">1 / 4</span><button class="ibtn" data-act="close" aria-label="关闭预览" data-tip="关闭预览"><img src="../../kit/assets/line/close.webp" alt=""></button></div>
         <div class="wb-cd-pv__view">
           <img class="wb-cd-pv__img" alt="">
@@ -1076,7 +1074,7 @@
   .wb-cd-sw { display: inline-flex; align-items: center; gap: var(--s-2); font-size: var(--fs-sm); color: var(--ink-2); white-space: nowrap; }
   .wb-cd-sw .switch { flex: none; }
 
-  /* 图片预览器：缩略图加居中悬浮的预览层 */
+  /* 图片预览器：缩略图列表与独立图片预览页 */
   .wb-cd-pv__grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s-2); padding: var(--s-3); }
   .wb-cd-pv__th { position: relative; aspect-ratio: 1; border-radius: var(--r-md); overflow: hidden; background: var(--zone); }
   .wb-cd-pv__th img { width: 100%; height: 100%; object-fit: cover; transition: transform var(--dur-base) var(--ease-out); }
@@ -1084,8 +1082,8 @@
   .wb-cd-pv__th:focus-visible { outline-offset: 2px; border-radius: var(--r-md); }
   .wb-cd-pv__th:focus-visible .wb-cd-pv__ov { opacity: 1; }
   @media (hover: hover) { .wb-cd-pv__th:hover .wb-cd-pv__ov { opacity: 1; } .wb-cd-pv__th:hover img { transform: scale(1.04); } }
-  .wb-cd-pv__mask { position: fixed; inset: 0; z-index: 80; display: grid; place-items: center; padding: var(--s-6); background: var(--scrim); animation: lz-fade var(--dur-base) var(--ease-out) both; }
-  .wb-cd-pv__dlg { width: min(640px, 100%); max-height: calc(100vh - 48px); display: grid; grid-template-rows: auto minmax(0, 1fr) auto; border-radius: var(--r-xl); background: var(--surface); box-shadow: var(--elev-4); overflow: hidden; animation: lz-dialog var(--dur-base) var(--ease-out) both; }
+  .wb-cd-pv__mask { display: block; background: white; }
+  .wb-cd-pv__dlg { width: 100%; display: grid; background: white; }
   .wb-cd-pv__dlg:focus-visible { outline: none; }
   .wb-cd-pv__top { display: flex; align-items: center; gap: var(--s-3); min-height: 56px; padding: 0 var(--s-3) 0 var(--s-5); border-bottom: 1px solid var(--line); }
   .wb-cd-pv__title { font-size: var(--fs-lg); font-weight: 600; line-height: var(--lh-tight); }
@@ -1323,14 +1321,14 @@
   const mmss = s => { s = Math.max(0, Math.round(s)); return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); };
   const mss = s => Math.floor(s / 60) + ':' + String(Math.round(s) % 60).padStart(2, '0');
 
-  /* 图片预览器：居中悬浮层，切换、缩放、旋转、拖动查看，方向键与加减号可用，Esc 关闭并回到缩略图 */
+  /* 图片预览器：独立视图，切换、缩放、旋转、拖动查看，方向键与加减号可用，Esc 关闭并回到缩略图 */
   const pv = $('#wb-cd-pv');
   if (pv) {
     const mask = $('.wb-cd-pv__mask', pv), dlg = $('.wb-cd-pv__dlg', mask), view = $('.wb-cd-pv__view', mask), img = $('.wb-cd-pv__img', mask);
     const ths = $$('.wb-cd-pv__th', pv), title = $('.wb-cd-pv__title', mask), idx = $('.wb-cd-pv__idx', mask), pct = $('.wb-cd-pv__pct', mask);
     const Z = [0.5, 0.75, 1, 1.5, 2, 3, 4];
     let cur = 0, zi = 2, rot = 0, tx = 0, ty = 0, opener = null;
-    document.body.appendChild(mask);
+
     const btn = a => $(`[data-act="${a}"]`, mask);
     const paint = () => {
       img.style.transform = `translate(${tx}px, ${ty}px) rotate(${rot}deg) scale(${Z[zi]})`;
@@ -1340,8 +1338,8 @@
     };
     const reset = () => { zi = 2; rot = 0; tx = 0; ty = 0; paint(); };
     const show = i => { cur = clamp(i, 0, ths.length - 1); const th = ths[cur]; img.src = $('img', th).getAttribute('src'); img.alt = th.dataset.name; title.textContent = th.dataset.name; idx.textContent = (cur + 1) + ' / ' + ths.length; tx = 0; ty = 0; rot = 0; zi = 2; paint(); };
-    const open = i => { opener = ths[i]; show(i); mask.hidden = false; dlg.focus({ preventScroll: true }); };
-    const close = () => { mask.hidden = true; if (opener) opener.focus({ preventScroll: true }); };
+    const open = i => { opener = ths[i]; show(i); pv.querySelector(".wb-cd-pv__grid").hidden = true; mask.hidden = false; dlg.focus({ preventScroll: true }); };
+    const close = () => { mask.hidden = true; pv.querySelector(".wb-cd-pv__grid").hidden = false; if (opener) opener.focus({ preventScroll: true }); };
     const zoom = d => { zi = clamp(zi + d, 0, Z.length - 1); if (Z[zi] <= 1) { tx = 0; ty = 0; } paint(); };
     ths.forEach((t, i) => t.addEventListener('click', () => open(i)));
     mask.addEventListener('click', e => {
@@ -1356,12 +1354,7 @@
       else if (e.key === '+' || e.key === '=') zoom(1);
       else if (e.key === '-') zoom(-1);
       else if (e.key === '0') reset();
-      else if (e.key === 'Tab') {
-        const f = $$('button:not([disabled])', dlg); if (!f.length) return;
-        const first = f[0], last = f[f.length - 1];
-        if (e.shiftKey && (document.activeElement === first || document.activeElement === dlg)) { e.preventDefault(); last.focus(); }
-        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
-      }
+
     });
     view.addEventListener('wheel', e => { e.preventDefault(); zoom(e.deltaY < 0 ? 1 : -1); }, { passive: false });
     let drag = null;

@@ -12,28 +12,18 @@
 <link rel="stylesheet" href="../../../../kit/agent.css">
 <style>
   /* 本页专属：固定输入栏、会话标题、骨架、附件条、产物展开 */
-  body.app-body { --toast-bottom: calc(var(--tabbar-h, 66px) + var(--composer-h, 200px) + var(--s-2)); }
-  .btn--sm { --btn-h: 32px; }
-  .page--chat { padding-bottom: calc(var(--tabbar-h, 66px) + var(--composer-h, 200px) + var(--s-3)); }
-  .top--chat { position: sticky; top: 0; z-index: 30; padding-bottom: var(--s-3); background: linear-gradient(160deg, var(--action-press) 0%, var(--action) 100%); }
+  body.app-body { --toast-bottom: calc(var(--tabbar-h, 66px) + var(--composer-h, 66px) + var(--s-2)); }
+  .page--chat { padding-bottom: calc(var(--tabbar-h, 66px) + var(--composer-h, 66px) + var(--s-3)); }
+  .top--chat { position: sticky; top: 0; z-index: 30; padding-bottom: var(--s-3); }
   .top--chat h1 { flex: 1; min-width: 0; font-size: var(--fs-2xl); font-weight: 700; line-height: var(--lh-tight); }
 
   /* 输入栏：固定在底栏上方，不透明，内容区按它的高度预留 */
   .composer { position: fixed; z-index: 45; left: 50%; bottom: var(--tabbar-h, 66px); width: min(100%, 430px); transform: translateX(-50%); display: grid; gap: var(--s-2); padding: var(--s-2) var(--s-4) var(--s-3); background: var(--bg); border-top: 1px solid var(--line); }
-  .composer .suggest { margin: 0 calc(var(--s-4) * -1); padding: 0 var(--s-4); }
-  @media (max-height: 680px) { .composer .suggest { display: none; } }
   .qbar { display: flex; align-items: center; gap: var(--s-2); }
   .qbar .tag { height: 28px; font-size: var(--fs-sm); }
-  .prompt textarea { display: block; }
-  .prompt textarea:focus-visible { outline: none; }
-  .prompt:focus-within { border-color: var(--action); }
-  .prompt__bar .btn { --btn-h: 40px; }
-  .prompt__bar .btn--pill { padding: 0 var(--s-5); }
-  .prompt__bar .btn--sm { padding: 0 var(--s-3); }
-  .prompt__bar .btn[data-mode="stop"] { background: var(--ink); color: var(--surface); box-shadow: none; }
-  .ibtn[aria-pressed="true"] { background: var(--action-tint); }
+  .composer form { display: grid; gap: var(--s-2); }
   .suggest button { border-color: var(--action-edge); color: var(--action-press); background: var(--action-tint); }
-  .files { display: flex; flex-wrap: wrap; gap: var(--s-2); }
+  .files { display: flex; flex-wrap: wrap; gap: var(--s-2); padding: 2px; }
   .chip { display: inline-flex; align-items: center; gap: var(--s-1); max-width: 100%; min-height: 32px; padding: 0 var(--s-1) 0 var(--s-3); border-radius: var(--r-full); background: var(--zone); font-size: var(--fs-sm); }
   .chip .ibtn { width: 28px; height: 28px; }
   .chip .ibtn img { width: 14px; height: 14px; }
@@ -61,9 +51,14 @@
   .approval__res { display: none; align-items: center; gap: var(--s-2); font-size: var(--fs-sm); color: var(--ink-2); }
   .approval[data-state="done"] .approval__res { display: flex; }
   .approval[data-state="done"] .btn-group { display: none; }
-  .files-in-bubble { display: flex; flex-wrap: wrap; gap: var(--s-1); margin-top: var(--s-2); }
+  .msg--user .bubble p { white-space: pre-wrap; overflow-wrap: anywhere; }
+  .files-in-bubble { display: flex; flex-wrap: wrap; gap: var(--s-1); }
+  .files-in-bubble .tag { max-width: 100%; height: auto; min-height: 24px; white-space: normal; overflow-wrap: anywhere; }
+  .bubble p + .files-in-bubble { margin-top: var(--s-2); }
+  .msg > .run-stop { grid-column: 2 / -1; justify-self: start; }
   .empty--chat { padding-top: var(--s-12); }
   .empty--chat .ic { width: 120px; height: 120px; }
+  .empty--chat .suggest { max-width: 100%; margin: var(--s-2) var(--s-4); padding: 3px; }
   #hist { margin-top: var(--s-4); }
   #hist .row__lead { border-radius: 50%; background: var(--zone); }
 </style>
@@ -97,7 +92,7 @@
           <div class="bubble"><p>核对上周三家门店的订单与库存差异</p></div>
         </div>
         <article class="msg">
-          <img class="msg__avatar" src="../../../../kit/assets/marks/mark-007.webp" alt="">
+          <img class="msg__avatar" src="../../../../kit/assets/line/support.webp" alt="">
           <div class="msg__body">
             <div class="think" data-cid="AP-AGNT-003" data-name="思考过程折叠">
               <button class="think__head" data-expand="th-seed" aria-expanded="false"><span>已思考 6 秒</span></button>
@@ -155,10 +150,15 @@
         </article>
       </div>
 
-      <!-- 空会话：用图与一个建议问法，不写说明 -->
+      <!-- 空会话的建议放在消息区 -->
       <div class="empty empty--chat" id="empty" hidden data-cid="AP-AGNT-012" data-name="空会话占位">
         <img class="ic" data-ic="bouquet" src="../../../../kit/assets/icons/flat/bouquet.webp" alt="">
         <button class="btn btn--secondary btn--pill" id="empty-q">核对订单库存</button>
+        <div class="suggest" aria-label="建议问法" data-cid="AP-AGNT-009" data-name="建议问法条">
+          <button data-q="汇总本周退款金额">汇总退款金额</button>
+          <button data-q="查看库存低于安全线的花材">查看库存缺口</button>
+          <button data-q="导出核对结果文件">导出核对结果</button>
+        </div>
       </div>
     </div>
 
@@ -172,28 +172,18 @@
     </div>
   </main>
 
-  <!-- 输入栏：固定在底栏上方，排队标签、建议问法与输入框 -->
+  <!-- 输入行固定在底栏上方，排队与附件随实际状态显示 -->
   <div class="composer" id="composer">
     <div class="qbar" id="qbar" hidden data-cid="AP-AGNT-011" data-name="排队提示标签">
-      <span class="tag" data-tone="warning" id="qtag">排队 1 条</span>
+      <span class="tag" data-tone="warning" id="qtag" role="status">排队 1 条</span>
       <button class="btn btn--secondary btn--sm btn--pill" id="qclear">清空</button>
     </div>
-    <div class="suggest" aria-label="建议问法" data-cid="AP-AGNT-009" data-name="建议问法条">
-      <button data-q="核对上周三家门店的订单与库存差异">核对订单库存</button>
-      <button data-q="汇总本周退款金额">汇总退款金额</button>
-      <button data-q="查看库存低于安全线的花材">查看库存缺口</button>
-      <button data-q="导出核对结果文件">导出核对结果</button>
-    </div>
-    <form class="prompt" id="form" data-cid="AP-AGNT-010" data-name="对话输入栏">
-      <div class="files" id="files" hidden></div>
-      <textarea id="ta" rows="1" placeholder="输入消息" aria-label="输入消息" enterkeyhint="send"></textarea>
-      <div class="prompt__bar">
-        <button type="button" class="ibtn" id="attach" data-tip="添加附件" aria-label="添加附件"><img src="../../../../kit/assets/line/upload.webp" alt=""></button>
-        <button type="button" class="ibtn" id="mic" data-tip="语音输入" aria-label="语音输入" aria-pressed="false"><img src="../../../../kit/assets/line/mic.webp" alt=""></button>
-        <span class="dots" id="mic-dots" hidden aria-hidden="true"><i></i><i></i><i></i></span>
-        <span class="prompt__sp"></span>
-        <button type="button" class="btn btn--secondary btn--sm btn--pill" id="queue-btn" hidden>排队</button>
-        <button type="submit" class="btn btn--primary btn--pill" id="send" data-mode="send" disabled>发送</button>
+    <form id="form" data-cid="AP-AGNT-010" data-name="对话输入栏">
+      <div class="files prompt__files" id="files" hidden></div>
+      <div class="prompt__row">
+        <button type="button" class="ibtn prompt__attach" id="attach" data-tip="添加文件或图片" aria-label="添加文件或图片"><img src="../../../../kit/assets/line/add.webp" alt=""></button>
+        <textarea class="prompt__input" id="ta" rows="1" placeholder="输入消息" aria-label="输入消息"></textarea>
+        <button type="submit" class="btn btn--primary prompt__send" id="send" disabled>发送</button>
       </div>
       <input type="file" id="file" hidden multiple>
     </form>
@@ -213,20 +203,14 @@
 (() => {
   const { $, $$ } = Lz;
   const root = document.documentElement;
-  const chat = $('#chat'), form = $('#form'), ta = $('#ta'), send = $('#send'), queueBtn = $('#queue-btn');
+  const chat = $('#chat'), form = $('#form'), ta = $('#ta'), send = $('#send');
   const composer = $('#composer'), qbar = $('#qbar'), empty = $('#empty'), filesBox = $('#files'), fileIn = $('#file');
-  const AGENT = '../../../../kit/assets/marks/mark-007.webp';
+  const fit = Lz.autoSizeTextarea(ta);
+  const AGENT = '../../../../kit/assets/line/support.webp';
   const ABORT = Symbol('abort');
   let uid = 0, run = null, queue = [], attached = [], rounds = 0;
   const id = p => p + (++uid);
   const el = html => { const t = document.createElement('template'); t.innerHTML = html.trim(); return t.content.firstElementChild; };
-
-  /* ── 布局：输入栏与底栏的高度写入变量，内容区与轻提示据此避让 ── */
-  const ro = new ResizeObserver(() => {
-    root.style.setProperty('--tabbar-h', $('.tabbar').offsetHeight + 'px');
-    root.style.setProperty('--composer-h', composer.offsetHeight + 'px');
-  });
-  ro.observe($('.tabbar')); ro.observe(composer);
 
   /* 贴底跟随：用户上滑后停止跟随 */
   let follow = true;
@@ -234,6 +218,12 @@
   addEventListener('scroll', () => { follow = atBottom(); }, { passive: true });
   const toBottom = () => scrollTo(0, root.scrollHeight);
   new MutationObserver(() => { if (follow) toBottom(); }).observe(chat, { childList: true, subtree: true, characterData: true });
+  const ro = new ResizeObserver(() => {
+    root.style.setProperty('--tabbar-h', $('.tabbar').offsetHeight + 'px');
+    root.style.setProperty('--composer-h', composer.offsetHeight + 'px');
+    if (follow && !composer.hidden) toBottom();
+  });
+  ro.observe($('.tabbar')); ro.observe(composer);
 
   /* ── 脚本化回答：两套轮流使用 ── */
   const SCRIPTS = [
@@ -249,9 +239,18 @@
 
   /* ── 构件：用户气泡、智能体消息、思考、工具、回答、审批 ── */
   function userMsg(text, files = []) {
-    const m = el('<div class="msg msg--user"><div class="bubble"><p></p></div></div>');
-    $('p', m).textContent = text;
-    if (files.length) { const f = el('<div class="files-in-bubble"></div>'); files.forEach(n => { const t = el('<span class="tag"></span>'); t.textContent = n; f.append(t); }); $('.bubble', m).append(f); }
+    const m = el('<div class="msg msg--user"><div class="bubble"></div></div>');
+    const bubble = $('.bubble', m);
+    if (text) { const p = el('<p></p>'); p.textContent = text; bubble.append(p); }
+    if (files.length) {
+      const list = el('<div class="files-in-bubble"></div>');
+      for (const file of files) {
+        const tag = el('<span class="tag"></span>');
+        tag.textContent = file.name;
+        list.append(tag);
+      }
+      bubble.append(list);
+    }
     chat.append(m); return m;
   }
   function agentMsg() {
@@ -304,33 +303,38 @@
     chat.setAttribute('aria-busy', String(b)); sync();
   }
   function sync() {
-    const has = ta.value.trim().length > 0, busy = !!run;
-    send.dataset.mode = busy ? 'stop' : 'send';
-    send.textContent = busy ? '停止' : '发送';
-    send.classList.toggle('btn--primary', !busy);
-    send.disabled = !busy && !has;
-    queueBtn.hidden = !(busy && has);
+    send.disabled = !ta.value.trim() && attached.length === 0;
   }
   const renderQueue = () => { qbar.hidden = queue.length === 0; $('#qtag').textContent = `排队 ${queue.length} 条`; };
   const renderEmpty = () => { empty.hidden = chat.hasAttribute('data-loading') || chat.children.length > 0; };
 
-  function finalizeAbort() {
-    $$('.tool[data-state="run"]', chat).forEach(b => setTool(b, 'fail', '已中断'));
-    $$('.think', chat).forEach(t => { if ($('.think__head .dots', t)) finishThink(t, run.t0); });
+  function finalizeAbort(body) {
+    $$('.tool[data-state="run"]', body).forEach(b => setTool(b, 'fail', '已中断'));
+    $$('.think', body).forEach(t => { if ($('.think__head .dots', t)) finishThink(t, run.t0); });
   }
-  async function exec(fn) {
+  async function exec(body, fn) {
     let release; run = { aborted: false, t0: performance.now(), halt: new Promise(r => (release = r)) }; run.release = release;
+    const stopButton = el('<button type="button" class="btn btn--ghost run-stop">停止生成</button>');
+    stopButton.addEventListener('click', stop);
+    body.after(stopButton);
     setBusy(true);
-    try { await fn(); } catch (e) { if (e !== ABORT) throw e; finalizeAbort(); }
-    run = null; setBusy(false);
+    try {
+      await fn();
+    } catch (e) {
+      if (e !== ABORT) throw e;
+      finalizeAbort(body);
+    } finally {
+      if (document.activeElement === stopButton && composer.offsetHeight) ta.focus({ preventScroll: true });
+      stopButton.remove();
+      run = null;
+      setBusy(false);
+    }
     if (queue.length) { const n = queue.shift(); renderQueue(); startRound(n.text, n.files); }
   }
   const stop = () => { if (run) { run.aborted = true; run.release(); } };
 
-  async function round(text, files) {
+  async function round(body) {
     const S = SCRIPTS[rounds++ % SCRIPTS.length];
-    userMsg(text, files); renderEmpty();
-    const body = agentMsg();
     const t0 = performance.now(), think = thinkEl(S.steps); body.append(think); Lz.initExpand(think);
     for (const li of $$('.think__steps li', think)) { setStep(li, 'now'); await sleep(650); setStep(li, 'done'); }
     finishThink(think, t0);
@@ -341,42 +345,52 @@
     body.append(askEl(S.ask));
   }
   function startRound(text, files = []) {
-    const s = cur(); if (s.title === '新会话') { s.title = text.replace(/[，。、？！：；,.?!:;\s]/g, '').slice(0, 8) || '新会话'; $('#sess-title').textContent = s.title; }
-    exec(() => round(text, files));
+    const s = cur();
+    if (s.title === '新会话') {
+      s.title = (text.replace(/[，。、？！：；,.?!:;\s]/g, '') || files[0]?.name || '新会话').slice(0, 8);
+      $('#sess-title').textContent = s.title;
+    }
+    userMsg(text, files);
+    renderEmpty();
+    const body = agentMsg();
+    exec(body, () => round(body));
   }
 
-  /* ── 发送：空输入不可发；生成中同一按钮变停止，再输入的内容进入队列 ── */
+  /* 发送文字或附件。生成中提交的新消息进入队列。 */
   function submit() {
-    const text = ta.value.trim(); if (!text) return;
-    const files = [...attached]; ta.value = ''; ta.style.height = ''; attached = []; renderFiles(); sync();
+    const text = ta.value.trim(); if (!text && !attached.length) return;
+    const files = attached; attached = []; ta.value = ''; fit(); renderFiles();
     if (run) { queue.push({ text, files }); renderQueue(); return; }
     startRound(text, files);
   }
-  form.addEventListener('submit', e => { e.preventDefault(); if (run && send.dataset.mode === 'stop') stop(); else submit(); });
-  queueBtn.addEventListener('click', submit);
-  ta.addEventListener('input', () => { ta.style.height = 'auto'; ta.style.height = Math.min(ta.scrollHeight, 160) + 'px'; sync(); });
-  ta.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing && e.keyCode !== 229) { e.preventDefault(); submit(); } });
+  form.addEventListener('submit', e => { e.preventDefault(); submit(); });
+  ta.addEventListener('input', sync);
   $('#qclear').addEventListener('click', () => { queue = []; renderQueue(); Lz.toast('已清空排队'); });
   $$('.suggest button').forEach(b => b.addEventListener('click', () => { ta.value = b.dataset.q; submit(); }));
   $('#empty-q').addEventListener('click', () => { ta.value = '核对上周三家门店的订单与库存差异'; submit(); });
 
-  /* 附件与语音 */
+  /* 原生文件选择器保留实际选中的文件；演示在消息中列出文件名。 */
   function renderFiles() {
     filesBox.hidden = attached.length === 0; filesBox.replaceChildren();
-    attached.forEach((n, i) => {
+    attached.forEach((file, i) => {
       const c = el('<span class="chip"><span class="one-line"></span><button type="button" class="ibtn" data-tip="移除附件"><img src="../../../../kit/assets/line/close.webp" alt=""></button></span>');
-      $('.one-line', c).textContent = n; const x = $('.ibtn', c); x.setAttribute('aria-label', '移除附件 ' + n);
-      x.addEventListener('click', () => { attached.splice(i, 1); renderFiles(); });
+      $('.one-line', c).textContent = file.name;
+      const x = $('.ibtn', c);
+      x.setAttribute('aria-label', '移除附件 ' + file.name);
+      x.addEventListener('click', () => {
+        attached.splice(i, 1);
+        renderFiles();
+        ($$('.ibtn', filesBox)[Math.min(i, attached.length - 1)] || $('#attach')).focus();
+      });
       filesBox.append(c);
     });
+    sync();
   }
   $('#attach').addEventListener('click', () => fileIn.click());
-  fileIn.addEventListener('change', () => { attached.push(...[...fileIn.files].map(f => f.name)); fileIn.value = ''; renderFiles(); });
-  const mic = $('#mic'); let micTimer = null;
-  mic.addEventListener('click', () => {
-    const on = mic.getAttribute('aria-pressed') !== 'true';
-    mic.setAttribute('aria-pressed', String(on)); $('#mic-dots').hidden = !on; clearTimeout(micTimer);
-    if (on) micTimer = setTimeout(() => { mic.setAttribute('aria-pressed', 'false'); $('#mic-dots').hidden = true; ta.value = (ta.value ? ta.value + ' ' : '') + '汇总本周退款金额'; ta.dispatchEvent(new Event('input')); ta.focus(); }, Lz.reduce ? 0 : 1600);
+  fileIn.addEventListener('change', () => {
+    attached.push(...fileIn.files);
+    fileIn.value = '';
+    renderFiles();
   });
 
   /* ── 消息内交互：委托到消息容器，会话切换后仍有效 ── */
@@ -395,9 +409,9 @@
       card.dataset.state = 'done'; Lz.toast(ok ? '已批准' : '已拒绝', ok ? 'success' : 'neutral'); return;
     }
     const retry = e.target.closest('[data-retry]');
-    if (retry) {
+    if (retry && !run) {
       const chip = $('.tool[data-state="fail"]', retry.parentElement), after = retry.dataset.after, body = retry.closest('.msg__body'); retry.remove();
-      exec(async () => {
+      exec(body, async () => {
         setTool(chip, 'run', '进行中'); await sleep(900); setTool(chip, 'done'); Lz.toast(chip.textContent + '已完成', 'success');
         if (after) { const p = el('<p class="bubble"></p>'), bs = $$('.bubble', body); bs[bs.length - 1].after(p); await say(p, after); }
       });

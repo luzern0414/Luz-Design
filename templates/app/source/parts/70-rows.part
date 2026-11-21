@@ -14,6 +14,7 @@
 .rw-grow { flex: 1; min-width: 0; }
 .rw-chev { margin-left: auto; }
 .rw-val { color: var(--ink-3); font-size: var(--fs-sm); }
+#rw-set .rw-val { font-size: inherit; }
 
 /* 订单行 */
 .rw-ord { padding: var(--s-4); }
@@ -155,7 +156,7 @@
   <div class="demo__head"><span class="demo__name">设置功能行</span></div>
   <p class="demo__note">适合：设置页的功能入口，线性图标在左，当前值与箭头在右</p>
   <div class="demo__stage">
-    <div class="card list" id="rw-set">
+    <div class="card list settings-list" id="rw-set">
       <button class="row row--link" data-go="通用设置"><img class="rw-ic" src="../../kit/assets/line/settings.webp" alt=""><div class="row__main"><p class="row__title">通用设置</p></div><span class="row__trail"></span></button>
       <button class="row row--link" data-go="账号与安全"><img class="rw-ic" src="../../kit/assets/line/shield.webp" alt=""><div class="row__main"><p class="row__title">账号与安全</p></div><span class="row__trail"><span class="rw-val">已验证</span></span></button>
       <button class="row row--link" data-go="消息通知"><img class="rw-ic" src="../../kit/assets/line/message.webp" alt=""><div class="row__main"><p class="row__title">消息通知</p></div><span class="row__trail"><span class="rw-val">已开启</span></span></button>

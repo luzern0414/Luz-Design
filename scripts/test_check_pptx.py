@@ -79,6 +79,17 @@ class DeckTest(unittest.TestCase):
             self.assertEqual(build.returncode, 0, build.stderr + build.stdout)
             first = Presentation(str(path)).slides[0]
             self.assertEqual([shape.text for shape in first.placeholders if cd.is_title_shape(shape)], [title])
+            self.assertFalse(first.shapes.title.text_frame.word_wrap)
+            from zipfile import ZipFile
+            from lxml import etree
+            with ZipFile(path) as package:
+                theme = etree.fromstring(package.read("ppt/theme/theme1.xml"))
+                self.assertEqual(theme.xpath("string(//*[local-name()='clrScheme']/*[local-name()='lt2']/*/@val)"), "FFFFFF")
+            spec.write_text(json.dumps({"layout": "cover", "title": "项目提案\n季度增长"}), encoding="utf-8")
+            build = subprocess.run([sys.executable, "-X", "utf8", str(generator), str(spec), str(Path(tmp) / "invalid.pptx")],
+                                   capture_output=True, encoding="utf-8")
+            self.assertEqual(build.returncode, 1)
+            self.assertIn("主标题须按放映字号排成一行", build.stdout)
 
     def test_a_clean_widescreen_deck_has_no_errors(self) -> None:
         d = deck()

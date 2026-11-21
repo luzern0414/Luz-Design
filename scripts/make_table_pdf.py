@@ -31,7 +31,8 @@ Optional per section (for lists whose cells carry sentences, e.g. a feature list
   "heads":  ["功能说明", "业务规则", "使用端", "类型"]   one header per content column instead of the single spanning "head"
   "widths": [3, 4, 2, 1]                               relative widths of the content columns (the first column stays 144px)
   "fill":   true                                       cells use the full column width, long text left-aligned (default: centred 192px blocks)
-A cell is a string, or [lead, detail]: write each item for its own context, without a shared character limit.
+A cell is a string, [lead, detail], or {"text": "原文", "href": "https://…"}.
+Write each item for its own context, without a shared character limit.
 Column headers and object names are centred; document, section and group headings share a left baseline.
 Actual row heights drive pagination. Each physical fragment repeats its table header and has four rounded corners.
 Type scale is the reading scale (32/24/20/16/14 px). Review word breaks after rendering; ICU is not a domain glossary.
@@ -43,6 +44,8 @@ import html
 import json
 import sys
 from pathlib import Path
+
+from make_summary import content as link_html
 
 HERE = Path(__file__).resolve().parent
 THEMES = HERE.parent / "references" / "themes.json"
@@ -76,6 +79,7 @@ main{{width:269mm;margin:0 auto;padding:0}}
 h1{{margin:0 0 18px;font-size:32px;line-height:1.25;font-weight:700}}
 h2,.section-heading{{margin:0 0 12px;font-size:24px;line-height:1.3;font-weight:600;text-align:left}}
 h3,.group-heading{{margin:0 0 10px;font-size:20px;line-height:1.3;font-weight:600;text-align:left}}
+a{{color:{t['headInk']};text-underline-offset:2px}}
 section+section,.catalog-group+.catalog-group{{margin-top:24px}}
 .table-frame{{width:100%;border:1px solid {t['line']};border-radius:12px;overflow:hidden}}
 table{{width:100%;border-collapse:separate;border-spacing:0;table-layout:fixed}}
@@ -126,7 +130,9 @@ def cell(value, fill: bool = False) -> str:
         return '<td class="cell"></td>'
     if fill and isinstance(value, str) and len(value) <= 6:
         return f'<td class="cell short"><span class="blk"><span class="det">{words(value)}</span></span></td>'
-    if isinstance(value, (list, tuple)):
+    if isinstance(value, dict):
+        inner = f'<span class="det">{link_html(value)}</span>'
+    elif isinstance(value, (list, tuple)):
         lead, detail = (list(value) + [""])[:2]
         inner = f'<span class="lead">{words(lead)}</span>' + (f'<span class="det">{words(detail)}</span>' if detail else "")
     else:
@@ -179,7 +185,7 @@ def cell_texts(spec: dict) -> list[str]:
         rows = list(sec.get("rows", [])) + [r for g in sec.get("groups", []) for r in g["rows"]]
         for row in rows:
             for c in row.get("cells", []):
-                out += [x for x in (c if isinstance(c, (list, tuple)) else [c]) if x]
+                out += [x for x in (c if isinstance(c, (list, tuple)) else [c]) if isinstance(x, str) and x]
     return out
 
 

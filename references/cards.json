@@ -276,7 +276,7 @@
     },
     "slides": {
       "title": "演示文稿",
-      "summary": "每页一个主标题、多色主题、可编辑排版与商用模板选用。",
+      "summary": "纯白画布、每页一个可见单行标题、可编辑排版与商用模板。",
       "keywords": [
         "演示",
         "幻灯片",
@@ -303,7 +303,7 @@
       ],
       "checks": [
         "`py -X utf8 scripts/check_document.py <文件.pptx>` 查看结构和可读性提醒。按实际媒介判断画幅、字号与边距。",
-        "逐页放映核对主标题、内容和图表层级、色彩对比、长中文、裁切与署名。",
+        "逐页放映核对主标题只有一行、画布纯白、内容层级、色彩对比、长中文、裁切与署名。",
         "同时交 PDF 时按“pdf-markdown”卡运行 `py -X utf8 scripts/check_pdf.py <文件.pdf>`"
       ],
       "experience_scope": "documents"

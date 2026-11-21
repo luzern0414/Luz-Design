@@ -2,7 +2,7 @@
 
     py -X utf8 build_slides.py specs/DC-SL-001-工作汇报.json samples/DC-SL-001-工作汇报.pptx
     py -X utf8 build_slides.py --all                  把 specs 里每个模板生成到 samples
-    py -X utf8 build_slides.py spec.json out.pptx --theme green --strict
+    py -X utf8 build_slides.py spec.json out.pptx --theme navy --strict
 
 描述文件（JSON）：{"id","name","theme","title","slides":[{"layout": ...}]}。版式：
     cover 封面  section 章节页  bullets 要点页  two-column 双栏对比  image-text 图文页
@@ -132,6 +132,7 @@ def load_tokens(path: Path | None, theme: str) -> dict[str, str]:
         except ValueError:
             sys.exit(f"令牌 --{key} 缺少可用于幻灯片的不透明色值：{value!r}")
         palette[key.replace("-", "_")] = rgb
+    palette["bg"] = "FFFFFF"
     palette["line"] = mix(palette["surface"], palette["ink"], 0.12)
     palette["neutral"] = mix(palette["surface"], palette["ink"], 0.07)
     return palette
@@ -496,6 +497,8 @@ class Deck:
 
     # 标题占位符：每页标题写在版式的标题占位符里
     def new_slide(self, layout: str, title: str, *, x=M, y=0.95, w=CW, h=0.7, pt=PAGE_PT, anchor="top", index: int = 0):
+        if len(title.splitlines()) != 1 or text_width(title, pt, True) > w:
+            errors.append(f"第 {index} 页主标题须按放映字号排成一行，请缩短标题或扩宽版心：{title}")
         slide = self.prs.slides.add_slide(self.layouts[layout])
         for ph in list(slide.placeholders):
             if ph.placeholder_format.type is not None and "TITLE" not in str(ph.placeholder_format.type):
@@ -504,7 +507,7 @@ class Deck:
         holder.name = "页标题"
         set_pos(holder, x, y, w, h)
         frame = holder.text_frame
-        frame.word_wrap = True
+        frame.word_wrap = False
         frame.auto_size = MSO_AUTO_SIZE.NONE
         frame.margin_left = frame.margin_right = frame.margin_top = frame.margin_bottom = 0
         frame.vertical_anchor = {"top": MSO_ANCHOR.TOP, "middle": MSO_ANCHOR.MIDDLE, "bottom": MSO_ANCHOR.BOTTOM}[anchor]
@@ -513,8 +516,6 @@ class Deck:
         run = paragraph.add_run()
         run.text = title
         style_run(run, pt, self.P["ink"], True)
-        if text_width(title, pt, True) > w:
-            warnings.append(f"第 {index} 页标题将换行，请在放映时检查文本框高度和内容间距：{title}")
         if title in self.titles:
             warnings.append(f"第 {index} 页标题与第 {self.titles[title]} 页重复：{title}")
         self.titles.setdefault(title, index)
@@ -591,15 +592,15 @@ class Deck:
         return height
 
     def layout_cover(self, item, title, number):
-        slide = self.new_slide("封面", title, x=M, y=3.2, w=5.9, h=0.9, pt=TITLE_PT, anchor="top", index=number)
-        shape(slide, "round", M, 3.0, 0.9, 0.08, self.P["action"], radius=0.04, name="标题引线")
+        slide = self.new_slide("封面", title, w=5.9, h=0.9, pt=TITLE_PT, index=number)
+        self.header_bar(slide)
         key = item.get("image", "scene-hero-pink")
         photo(slide, key, 7.0, 0.75, W_IN - M - 7.0, 6.0, alt=alt_for(key, item.get("alt")), radius=0.3,
               focus=tuple(item.get("focus", (0.5, 0.5))), name="封面图")
 
     def layout_section(self, item, title, number):
         top = 2.45
-        slide = self.new_slide("章节页", title, x=M, y=top + 1.1, w=5.9, h=0.9, pt=TITLE_PT, index=number)
+        slide = self.new_slide("章节页", title, w=5.9, h=0.9, pt=TITLE_PT, index=number)
         badge = item.get("number", f"{number:02d}")
         shape(slide, "round", M, top, 0.9, 0.9, self.P["action"], radius=0.22, name="章节序号底")
         add_text(slide, M, top, 0.9, 0.9, [{"runs": [(badge, PAGE_PT, "FFFFFF", True)], "align": "center"}],
@@ -607,7 +608,7 @@ class Deck:
         if item.get("line"):
             if wrap_lines(item["line"], BODY_PT, 5.9) > 2:
                 warnings.append(f"第 {number} 页章节说明超过两行")
-            add_text(slide, M, top + 2.2, 5.9, 0.9, [{"runs": [(item["line"], BODY_PT, self.P["ink_2"], False)]}], name="章节说明")
+            add_text(slide, M, top + 1.3, 5.9, 0.9, [{"runs": [(item["line"], BODY_PT, self.P["ink_2"], False)]}], name="章节说明")
         key = item.get("image", "bg-floral")
         photo(slide, key, 7.0, 0.75, W_IN - M - 7.0, Y1 - 0.75, alt=alt_for(key, item.get("alt")), radius=0.3,
               focus=tuple(item.get("focus", (0.5, 0.5))), name="章节图")
@@ -1006,21 +1007,18 @@ class Deck:
         self.finish(slide, number)
 
     def layout_end(self, item, title, number):
-        P = self.P
         points = item.get("points", [])
         if not 0 <= len(points) <= 3:
             errors.append(f"第 {number} 页结束页要点最多 3 条")
         text_x, text_w = 6.35, W_IN - M - 6.35
-        after, height = self.bullet_metrics(points, text_w, 2.2, 14) if points else (14, 0)
-        group = 0.08 + 0.2 + 0.9 + (0.35 + height if points else 0)
-        top = 0.75 + (Y1 - 0.75 - group) / 2
-        slide = self.new_slide("章节页", title, x=text_x, y=top + 0.28, w=text_w, h=0.9, pt=TITLE_PT, index=number)
-        shape(slide, "round", text_x, top, 0.9, 0.08, P["action"], radius=0.04, name="标题引线")
+        after, _ = self.bullet_metrics(points, text_w, 2.2, 14)
+        slide = self.new_slide("章节页", title, x=text_x, w=text_w, h=0.9, pt=TITLE_PT, index=number)
+        shape(slide, "round", text_x, 0.78, 0.55, 0.07, self.P["action"], radius=0.035, name="标题引线")
         key = item.get("image", "bouquet-white")
         photo(slide, key, M, 0.75, 5.2, Y1 - 0.75, alt=alt_for(key, item.get("alt")), radius=0.3,
               focus=tuple(item.get("focus", (0.5, 0.5))), name="结束页图")
         if points:
-            self.bullets_block(slide, text_x, top + 0.28 + 0.9 + 0.35, text_w, points, after=after)
+            self.bullets_block(slide, text_x, Y0, text_w, points, after=after)
         self.page_number(slide, number)
 
     def layout_steps(self, item, title, number):
@@ -1119,8 +1117,8 @@ def build(spec_path: Path, out: Path, theme: str | None, tokens: Path | None) ->
     errors.clear()
     spec = json.loads(spec_path.read_text(encoding="utf-8"))
     if "layout" in spec and "slides" not in spec:          # 可复用块：一个版式片段，生成单页预览
-        spec = {"name": spec.get("name", spec_path.stem), "theme": spec.get("theme", "rose"), "slides": [spec]}
-    theme = theme or spec.get("theme", "rose")
+        spec = {"name": spec.get("name", spec_path.stem), "theme": spec.get("theme", "navy"), "slides": [spec]}
+    theme = theme or spec.get("theme", "navy")
     P = load_tokens(tokens, theme)
     deck = Deck(spec, P)
     slides = spec.get("slides", [])

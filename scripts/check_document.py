@@ -2308,6 +2308,8 @@ def check_pptx(path: Path, errors: list[str], warnings: list[str]) -> None:
             heading = is_title_shape(shape)
             if heading and (heading_text := shape.text_frame.text.strip()):
                 slide_titles.append(heading_text)
+                if len(heading_text.splitlines()) > 1:
+                    warnings.append(f"{where}: main title needs a single line: {heading_text[:30]!r}")
             for paragraph in shape.text_frame.paragraphs:
                 text = "".join(run.text for run in paragraph.runs).strip()
                 if not text:
@@ -2322,7 +2324,7 @@ def check_pptx(path: Path, errors: list[str], warnings: list[str]) -> None:
                     if run.font.name:
                         families.add(run.font.name.lower())
         if not texts:
-            warnings.append(f"{where}: slide has no editable text; check whether it needs a hidden title")
+            warnings.append(f"{where}: slide needs an editable, visible title")
             continue
         title = slide_titles[0] if slide_titles else texts[0]
         if not slide_titles:

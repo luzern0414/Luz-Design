@@ -45,6 +45,7 @@ SCRIPTS = (
 DESIGN_DOCS = (
     "hard-rules.md", "foundation.md", "app.md", "web.md", "poster.md", "documents.md", "slides.md", "patterns.md", "components.md",
     "motion.md", "interaction-contract.md", "review.md", "sources.md", "huaban-palettes.html",
+    "handbooks/Web端设计规范.pdf", "handbooks/App端设计规范.pdf", "handbooks/PPT演示设计规范.pdf",
 )
 LIBRARY_SHARED = (
     "tokens.css", "ui.css", "kit.css", "app.css", "web.css", "agent.css", "ui.js", "assets/manifest.json",

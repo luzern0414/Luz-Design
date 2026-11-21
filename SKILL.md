@@ -29,10 +29,10 @@ App 与 Web 从已确认的逐页功能说明开始。System 规定业务模块�
 
 ## 按产出选规则
 
-- **App** 读 [移动端](references/design/app.md)，**Web** 读 [网页](references/design/web.md)。按[界面分工](references/ui-ownership.md)承接 System 的页面与动作。先看 `index.html` 和页面示例，再按[组件复用](references/component-reuse.md)和[交互合同](references/design/interaction-contract.md)做到代表任务可操作。素材许可见[图像与素材](references/image-assets.md)。新工程可用 `frontend.py init app-task|web-workspace`，已有工程沿用原构建链。用[审阅](references/design/review.md)记录实际成品。
+- **App** 读 [移动端](references/design/app.md)和 [App 端设计规范 PDF](references/design/handbooks/App端设计规范.pdf)，**Web** 读 [网页](references/design/web.md)和 [Web 端设计规范 PDF](references/design/handbooks/Web端设计规范.pdf)。按[界面分工](references/ui-ownership.md)承接 System 的页面与动作。先看 `index.html` 和页面示例，再按[组件复用](references/component-reuse.md)和[交互合同](references/design/interaction-contract.md)做到代表任务可操作。素材许可见[图像与素材](references/image-assets.md)。新工程可用 `frontend.py init app-task|web-workspace`，已有工程沿用原构建链。用[审阅](references/design/review.md)记录实际成品。
 - **数据范围与动效**。按[界面导航](references/design/hard-rules.md#界面导航)把账号、时间和类别切换放在受控数据上方。文本框、可点击卡片与悬浮数据提示按[焦点与可访问性](references/design/foundation.md#焦点与可访问性)处理。需要空间层次时可复用 [Three.js 示例](references/design/motion.md#threejs-空间动效)。
 - **数据看板** 读 [数据看板的图表、配色与版式](references/design/patterns.md#数据看板)。在整页核对指标与业务入口的唯一性。
 - **海报** 读[构图与传播尺寸](references/design/poster.md)。
-- **Word、Excel、PDF、阅读页** 读[文件排版](references/design/documents.md)。**PPT** 读[演示设计](references/design/slides.md)，在[文件模板库的 PPT 分类](templates/documents/documents.html#ppt)打开精选的中文商务原版。
+- **Word、Excel、PDF、阅读页** 读[文件排版](references/design/documents.md)。**PPT** 读[演示设计](references/design/slides.md)和 [PPT 演示设计规范 PDF](references/design/handbooks/PPT演示设计规范.pdf)，在[文件模板库的 PPT 分类](templates/documents/documents.html#ppt)打开精选的中文商务原版。
 
 修改技能后运行 `validate_skill.py --package-only`。
